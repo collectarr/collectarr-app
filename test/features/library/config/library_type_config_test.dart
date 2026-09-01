@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
@@ -25,6 +26,7 @@ import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
@@ -34,9 +36,19 @@ import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_detail_page.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+LibraryFieldIdRuntime _field(LibraryTypeConfig type, String value) =>
+    libraryKindRuntimeForType(type).fields.decodeColumnId(value);
+
+LibrarySortIdRuntime _sort(LibraryTypeConfig type, String value) =>
+    libraryKindRuntimeForType(type).fields.decodeSortId(value);
+
+LibraryGroupIdRuntime _group(LibraryTypeConfig type, String value) =>
+    libraryKindRuntimeForType(type).fields.decodeGroupId(value);
 
 void main() {
   test('comics library config groups reusable media behavior', () {
@@ -132,7 +144,7 @@ void main() {
 
     expect(
       libraryKindRuntimeForType(booksLibraryConfig)
-          .subgroupKeyForEntry(item, 'series'),
+          .subgroupKeyForEntry(item, _group(booksLibraryConfig, 'series')),
       isNull,
     );
   });
@@ -258,6 +270,43 @@ void main() {
           .map((d) => d.id.value),
       contains('boardgame.title'),
     );
+  });
+
+  test('typed browser scopes preserve comic and movie options', () {
+    final comicRuntime = libraryKindRuntimeForType(comicsLibraryConfig);
+    expect(comicsLibraryConfig.capabilities.supportsMediaReleaseSplit, isFalse);
+    expect(comicRuntime.hierarchy.supportsMediaReleaseSplit, isFalse);
+    expect(
+        comicsLibraryConfig.capabilities.scopesOptionsByBrowserMode, isFalse);
+    final comicMediaGroups = comicRuntime
+        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
+        .map((id) => id.value)
+        .toSet();
+    expect(comicMediaGroups, containsAll(['comic.series', 'comic.publisher']));
+
+    final movieRuntime = libraryKindRuntimeForType(moviesLibraryConfig);
+    final movieMediaGroups = movieRuntime
+        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
+        .map((id) => id.value)
+        .toSet();
+    final movieReleaseGroups = movieRuntime
+        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.releases)
+        .map((id) => id.value)
+        .toSet();
+    expect(
+        movieMediaGroups,
+        containsAll([
+          'movie.director',
+          'movie.publisher',
+          'movie.genre',
+        ]));
+    expect(
+        movieReleaseGroups,
+        containsAll([
+          'movie.format',
+          'movie.audio_tracks',
+          'movie.edition_release_date',
+        ]));
   });
 
   test('edit scope follows the active browser mode', () {
@@ -532,16 +581,25 @@ void main() {
       comicRuntime.viewProfile.type.workspace.kind,
       CatalogMediaKind.comic,
     );
-    expect(comicRuntime.columnDisplayName('comic.series'), 'Series');
-    expect(comicRuntime.columnLabel('cover'), '');
     expect(
-      comicRuntime.columnGroup('location'),
+      comicRuntime
+          .columnDisplayName(_field(comicsLibraryConfig, 'comic.series')),
+      'Series',
+    );
+    expect(comicRuntime.columnLabel(_field(comicsLibraryConfig, 'cover')), '');
+    expect(
+      comicRuntime.columnGroup(_field(comicsLibraryConfig, 'location')),
       LibraryTableColumnGroup.personal,
     );
-    expect(comicRuntime.columnIsNumeric('price'), isTrue);
     expect(
-      comicRuntime.columnSort('comic.release_date'),
-      'comic.release_date',
+      comicRuntime.columnIsNumeric(_field(comicsLibraryConfig, 'price')),
+      isTrue,
+    );
+    expect(
+      comicRuntime.columnSort(
+        _field(comicsLibraryConfig, 'comic.release_date'),
+      ),
+      _sort(comicsLibraryConfig, 'comic.release_date'),
     );
     expect(
       comicsTableColumnPresets.map((preset) => preset.label),
@@ -549,7 +607,7 @@ void main() {
     );
     expect(
       comicRuntime.orderedTableColumns(const {}).first,
-      'comic.status',
+      _field(comicsLibraryConfig, 'comic.status'),
     );
   });
 
@@ -575,31 +633,36 @@ void main() {
       libraryKindRuntime(CatalogMediaKind.movie)
           .viewProfile
           .defaults()
-          .visibleColumns
-          .contains('movie.title'),
+          .visibleColumnIds
+          .contains(_field(moviesLibraryConfig, 'movie.title')),
       isTrue,
     );
     expect(libraryKindRuntime(CatalogMediaKind.music).type, musicLibraryConfig);
     expect(
-      libraryKindRuntime(CatalogMediaKind.game).columnSort('game.release_date'),
-      'game.release_date',
+      libraryKindRuntime(CatalogMediaKind.game).columnSort(
+        _field(gamesLibraryConfig, 'game.release_date'),
+      ),
+      _sort(gamesLibraryConfig, 'game.release_date'),
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.movie).columnLabel('variant'),
+      libraryKindRuntime(CatalogMediaKind.movie)
+          .columnLabel(_field(moviesLibraryConfig, 'variant')),
       'Variant',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.game).columnLabel('variant'),
+      libraryKindRuntime(CatalogMediaKind.game)
+          .columnLabel(_field(gamesLibraryConfig, 'variant')),
       'Variant',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.book).columnLabel('barcode'),
+      libraryKindRuntime(CatalogMediaKind.book)
+          .columnLabel(_field(booksLibraryConfig, 'barcode')),
       'Barcode',
     );
     expect(
       libraryKindRuntime(CatalogMediaKind.book).tableColumnWidth(
-        'title',
-        {'title': 999},
+        _field(booksLibraryConfig, 'title'),
+        {_field(booksLibraryConfig, 'title'): 999},
       ),
       520,
     );

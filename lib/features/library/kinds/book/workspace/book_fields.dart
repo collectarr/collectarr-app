@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -250,6 +251,11 @@ final bookLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
+    bucketValueMutator: libraryStringBucketValueMutator(
+      'publisher',
+      mirrorKeys: ['original_publisher'],
+      nestedValueKey: 'original_publisher',
+    ),
   ),
   groupFromField<BookKind, BookWorkspaceDto, String?>(
     BookKindSchema.series,

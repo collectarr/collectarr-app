@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 export 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 
@@ -55,10 +56,10 @@ class LibraryTypeCapabilities {
   final LibraryContentHierarchy contentHierarchy;
   final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
 
-  final Set<String>? mediaScopeGroupIds;
-  final Set<String>? releaseScopeGroupIds;
-  final Set<String>? mediaScopeSortIds;
-  final Set<String>? releaseScopeSortIds;
+  final Set<LibraryGroupIdRuntime>? mediaScopeGroupIds;
+  final Set<LibraryGroupIdRuntime>? releaseScopeGroupIds;
+  final Set<LibrarySortIdRuntime>? mediaScopeSortIds;
+  final Set<LibrarySortIdRuntime>? releaseScopeSortIds;
 
   bool get supportsReadingQueue => showsReadingQueue;
   bool get supportsIndexReassignment => showsIndexReassignment;

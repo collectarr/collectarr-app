@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/generic/body.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
@@ -9,17 +11,18 @@ void main() {
     required LibraryViewMode mode,
     required double coverSize,
   }) {
+    final runtime = libraryKindRuntimeForType(comicsLibraryConfig);
     return LibraryWorkspaceViewState(
       viewMode: mode,
       detailsLayout: LibraryDetailsLayout.right,
       isSidebarVisible: true,
-      sortColumn: 'title',
+      sortId: runtime.fields.decodeSortId('title'),
       sortAscending: true,
       coverSize: coverSize,
       sidebarWidth: kLibrarySidebarDefaultWidth,
       detailsWidth: kLibraryDetailsDefaultWidth,
       detailsHeight: kLibraryDetailsDefaultHeight,
-      visibleColumns: const {'title'},
+      visibleColumnIds: {runtime.fields.decodeColumnId('title')},
       columnWidths: const {},
     );
   }

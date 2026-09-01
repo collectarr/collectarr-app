@@ -10,9 +10,9 @@ class LibraryTableColumnSizing {
   final double maxWidth;
 }
 
-List<String> orderedLibraryTableColumns({
-  required Set<String> columns,
-  required Set<String> defaultColumns,
+List<T> orderedLibraryTableColumns<T>({
+  required Set<T> columns,
+  required Set<T> defaultColumns,
 }) {
   final effective = columns.isEmpty ? defaultColumns : columns;
   return [
@@ -20,10 +20,10 @@ List<String> orderedLibraryTableColumns({
   ];
 }
 
-List<String> reorderLibraryTableColumns({
-  required Iterable<String> columns,
-  required String column,
-  required String? beforeColumn,
+List<T> reorderLibraryTableColumns<T>({
+  required Iterable<T> columns,
+  required T column,
+  required T? beforeColumn,
 }) {
   final ordered = columns.toList(growable: true);
   final currentIndex = ordered.indexOf(column);
@@ -46,10 +46,10 @@ List<String> reorderLibraryTableColumns({
   return ordered;
 }
 
-double libraryTableColumnWidth({
-  required String column,
-  required Map<String, double> customWidths,
-  required LibraryTableColumnSizing Function(String column) sizing,
+double libraryTableColumnWidth<T>({
+  required T column,
+  required Map<T, double> customWidths,
+  required LibraryTableColumnSizing Function(T column) sizing,
 }) {
   final size = sizing(column);
   final customWidth = customWidths[column];
@@ -66,11 +66,11 @@ double clampLibraryTableColumnWidth(
   return width.clamp(sizing.minWidth, sizing.maxWidth).toDouble();
 }
 
-double libraryTableWidthForColumns({
-  required Set<String> columns,
-  required Set<String> defaultColumns,
-  required Map<String, double> customWidths,
-  required LibraryTableColumnSizing Function(String column) sizing,
+double libraryTableWidthForColumns<T>({
+  required Set<T> columns,
+  required Set<T> defaultColumns,
+  required Map<T, double> customWidths,
+  required LibraryTableColumnSizing Function(T column) sizing,
   required double columnSpacing,
   required double horizontalMargin,
 }) {

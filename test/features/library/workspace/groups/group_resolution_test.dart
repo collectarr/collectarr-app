@@ -75,6 +75,26 @@ void main() {
       expect(mode, 'comic.series');
     });
 
+    test('libraryGroupModeFromStorageValue preserves standard semantic groups',
+        () {
+      expect(
+        libraryGroupModeFromStorageValue('group.title', comicModule.type),
+        'title',
+      );
+      expect(
+        libraryGroupModeFromStorageValue('location', comicModule.type),
+        'location',
+      );
+      expect(
+        libraryGroupModeFromStorageValue('comic.location', comicModule.type),
+        'location',
+      );
+      expect(
+        libraryGroupModeFromStorageValue('ownership', comicModule.type),
+        'ownership',
+      );
+    });
+
     test('LibraryFolderPreset parses and formats canonical group modes', () {
       final preset = LibraryFolderPreset.parse(
         'group.publisher > group.series',

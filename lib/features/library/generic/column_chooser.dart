@@ -25,11 +25,19 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
       availableColumns: [
         for (final def in runtime.fields.columns) def.id.value,
       ],
-      selectedColumns: viewState.visibleColumns,
-      defaultColumns: runtime.defaultTableColumns(),
-      columnLabel: runtime.columnDisplayName,
+      selectedColumns: {
+        for (final column in viewState.visibleColumnIds) column.value,
+      },
+      defaultColumns: {
+        for (final column in runtime.defaultTableColumns()) column.value,
+      },
+      columnLabel: (column) => runtime.columnDisplayName(
+        runtime.fields.decodeColumnId(column),
+      ),
       accent: type.workspace.accent,
-      columnGroup: runtime.columnGroup,
+      columnGroup: (column) => runtime.columnGroup(
+        runtime.fields.decodeColumnId(column),
+      ),
       groupLabel: runtime.columnGroupLabel,
       savedPresets: savedPresets,
       pinnedFavoriteKeys: pinnedFavoriteKeys,

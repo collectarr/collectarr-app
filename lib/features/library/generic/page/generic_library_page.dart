@@ -55,7 +55,6 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
@@ -66,6 +65,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_browser_
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot_provider.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_providers.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_toolbar_presenter.dart';

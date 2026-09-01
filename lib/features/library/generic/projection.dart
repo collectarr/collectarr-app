@@ -43,11 +43,11 @@ class LibraryLinkedMetadataFilter {
 
 class LibraryBucketScopeFilter {
   const LibraryBucketScopeFilter({
-    required this.groupMode,
+    required this.groupId,
     required this.bucket,
   });
 
-  final String groupMode;
+  final LibraryGroupIdRuntime groupId;
   final String bucket;
 }
 
@@ -301,10 +301,11 @@ String? libraryGroupModeFromStorageValue(String value,
 
   if (type != null) {
     final module = libraryKindRuntimeForType(type);
-    return module.fields
-        .findGroupDefinition(module.fields.decodeGroupId(candidate))
-        ?.id
-        .value;
+    final groupId = module.fields.decodeGroupId(candidate);
+    if (groupId.semantic != LibraryGroupSemantic.unknown) {
+      return groupId.value;
+    }
+    return module.fields.findGroupDefinition(groupId)?.id.value;
   }
 
   return candidate;
@@ -381,7 +382,12 @@ List<LibraryBucket> libraryBucketsForItems(
   LibraryTypeConfig type,
   String groupMode,
 ) {
-  return const LibraryGroupingEngine().buildBuckets(items, type, groupMode);
+  final runtime = libraryKindRuntimeForType(type);
+  return const LibraryGroupingEngine().buildBuckets(
+    items,
+    type,
+    runtime.fields.decodeGroupId(groupMode),
+  );
 }
 
 List<GroupShelfEntry> libraryGroupEntriesForItems(
@@ -390,10 +396,11 @@ List<GroupShelfEntry> libraryGroupEntriesForItems(
   String groupMode, {
   LibraryGroupPresentation? presentationOverride,
 }) {
+  final runtime = libraryKindRuntimeForType(type);
   return const LibraryGroupingEngine().buildGroupEntries(
     items,
     type,
-    groupMode,
+    runtime.fields.decodeGroupId(groupMode),
     presentationOverride: presentationOverride,
   );
 }
@@ -417,22 +424,36 @@ String genericBucketForItem(
   LibraryProjectionItem item,
   LibraryTypeConfig type,
 ) {
+  final runtime = libraryKindRuntimeForType(type);
   return const LibraryGroupingEngine().getGroupBucketForItem(
     item,
     type,
-    libraryDefaultGroupMode(type),
+    runtime.fields.decodeGroupId(libraryDefaultGroupMode(type)),
   );
 }
 
 String genericBucketForItemMode(
   LibraryProjectionItem item,
   LibraryTypeConfig type,
-  Object groupMode,
+  String groupMode,
+) {
+  final runtime = libraryKindRuntimeForType(type);
+  return genericBucketForItemGroup(
+    item,
+    type,
+    runtime.fields.decodeGroupId(groupMode),
+  );
+}
+
+String genericBucketForItemGroup(
+  LibraryProjectionItem item,
+  LibraryTypeConfig type,
+  LibraryGroupIdRuntime groupId,
 ) {
   return const LibraryGroupingEngine().getGroupBucketForItem(
     item,
     type,
-    groupMode.toString(),
+    groupId,
   );
 }
 

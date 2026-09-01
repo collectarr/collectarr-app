@@ -44,6 +44,7 @@ class LibraryProjectionEngine {
     Set<String> activeLoanOwnedItemIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
+    final runtime = libraryKindRuntimeForType(type);
     final allItems = libraryItemsForShelf(
       shelf,
       type,
@@ -64,7 +65,7 @@ class LibraryProjectionEngine {
       for (final filter in query.bucketScopeFilters) {
         final bucket = index.getGroupBucket(
           item,
-          filter.groupMode,
+          filter.groupId,
           (it, mode) => groupingEngine.getGroupBucketForItem(it, type, mode),
         );
         if (bucket != filter.bucket) {
@@ -97,24 +98,25 @@ class LibraryProjectionEngine {
       }
     }
 
-    filteredItems
-        .sort((a, b) => libraryKindRuntimeForType(type).compareEntriesByRules(
-              a,
-              b,
-              viewState.sortRules,
-            ));
+    filteredItems.sort((a, b) => runtime.compareEntriesByRules(
+          a,
+          b,
+          viewState.sortRules,
+        ));
 
     final counts = statsCalculator.calculate(
       allItems: allItems,
       shownCount: filteredItems.length,
     );
 
-    final groupMode = query.groupMode ?? libraryDefaultGroupMode(type);
+    final groupId = query.groupId ??
+        runtime.fields.defaultGroup ??
+        runtime.fields.groups.first.id;
     final buckets = overrideBuckets ??
         groupingEngine.buildBuckets(
           scopedBucketItems,
           type,
-          groupMode,
+          groupId,
           index: index,
         );
 

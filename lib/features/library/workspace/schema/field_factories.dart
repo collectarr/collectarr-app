@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 LibraryFieldDefinition<TKind, TDto, String?>
@@ -125,6 +126,8 @@ LibraryGroupDefinition<TKind, TDto, V>
   String? drilldownChildId,
   String? folderSetLabel,
   String? Function(LibraryProjectionContext<TDto> context)? subgroupKey,
+  LibraryGroupBucketValueMutator? bucketValueMutator,
+  LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator,
 }) {
   return LibraryGroupDefinition<TKind, TDto, V>(
     id: LibraryGroupId<TKind, V>(field.id.value),
@@ -140,5 +143,7 @@ LibraryGroupDefinition<TKind, TDto, V>
     drilldownChildId: drilldownChildId,
     folderSetLabel: folderSetLabel,
     subgroupKey: subgroupKey,
+    bucketValueMutator: bucketValueMutator,
+    ownedBucketValueMutator: ownedBucketValueMutator,
   );
 }

@@ -54,19 +54,19 @@ void main() {
       addTearDown(container.dispose);
 
       final filters = container.read(libraryFiltersProvider(key));
-      expect(filters.groupId, equals('comic.series'));
-      expect(filters.sortId, equals('comic.series'));
+      expect(filters.groupId, equals(ComicGroupIds.series));
+      expect(filters.sortId, equals(ComicSortIds.series));
 
       final sessionController =
           container.read(libraryWorkspaceSessionProvider(key).notifier);
       sessionController.updateSearch('batman');
-      sessionController.setGroup('comic.publisher');
-      sessionController.setSort('comic.issue', ascending: false);
+      sessionController.setGroup(ComicGroupIds.publisher);
+      sessionController.setSort(ComicSortIds.issueNumber, ascending: false);
 
       final next = container.read(libraryFiltersProvider(key));
       expect(next.searchQuery, 'batman');
-      expect(next.groupId, 'comic.publisher');
-      expect(next.sortId, 'comic.issue');
+      expect(next.groupId, ComicGroupIds.publisher);
+      expect(next.sortId, ComicSortIds.issueNumber);
       expect(next.sortAscending, isFalse);
     });
   });
@@ -194,13 +194,13 @@ void main() {
 
       final intent = container.read(libraryWorkspaceIntentProvider(key));
       intent.setViewMode(LibraryViewMode.list);
-      intent.setSort('comic.grade');
+      intent.setSort(ComicSortIds.rating);
 
       final viewConfig = container.read(libraryViewConfigProvider(key));
       final filters = container.read(libraryFiltersProvider(key));
 
       expect(viewConfig.viewMode, equals(LibraryViewMode.list));
-      expect(filters.sortId, equals('comic.grade'));
+      expect(filters.sortId, equals(ComicSortIds.rating));
     });
   });
 

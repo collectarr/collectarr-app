@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
 
 class LibraryFilterEngine {
@@ -35,8 +36,8 @@ class LibraryFilterEngine {
       return false;
     }
     if (query.selectedBucket != null &&
-        !_matchesBucket(
-            item, type, query.groupMode ?? '', query.selectedBucket, index)) {
+        !_matchesBucket(item, type, _defaultGroupId(type, query),
+            query.selectedBucket, index)) {
       return false;
     }
     if (!_matchesCollectionStatusScope(item, query.collectionStatusScope)) {
@@ -63,7 +64,7 @@ class LibraryFilterEngine {
   bool _matchesBucket(
     LibraryProjectionItem item,
     LibraryTypeConfig type,
-    String groupMode,
+    LibraryGroupIdRuntime groupId,
     String? selectedBucket,
     LibraryProjectionIndex? index,
   ) {
@@ -71,10 +72,10 @@ class LibraryFilterEngine {
     final bucket = index != null
         ? index.getGroupBucket(
             item,
-            groupMode,
+            groupId,
             (it, mode) => groupingEngine.getGroupBucketForItem(it, type, mode),
           )
-        : groupingEngine.getGroupBucketForItem(item, type, groupMode);
+        : groupingEngine.getGroupBucketForItem(item, type, groupId);
     return bucket == selectedBucket;
   }
 
@@ -88,16 +89,24 @@ class LibraryFilterEngine {
       final bucket = index != null
           ? index.getGroupBucket(
               item,
-              filter.groupMode,
+              filter.groupId,
               (it, mode) =>
                   groupingEngine.getGroupBucketForItem(it, type, mode),
             )
-          : groupingEngine.getGroupBucketForItem(item, type, filter.groupMode);
+          : groupingEngine.getGroupBucketForItem(item, type, filter.groupId);
       if (bucket != filter.bucket) {
         return false;
       }
     }
     return true;
+  }
+
+  LibraryGroupIdRuntime _defaultGroupId(
+    LibraryTypeConfig type,
+    LibraryProjectionQuery query,
+  ) {
+    final fields = libraryKindRuntimeForType(type).fields;
+    return query.groupId ?? fields.defaultGroup ?? fields.groups.first.id;
   }
 
   bool _matchesCollectionStatusScope(

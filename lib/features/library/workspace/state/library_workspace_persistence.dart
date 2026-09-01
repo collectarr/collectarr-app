@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import '../session/library_workspace_session_controller.dart';
 import '../session/library_workspace_session_state.dart';
 import 'library_workspace_key.dart';
@@ -31,7 +32,7 @@ Future<LibraryFilterState> loadPersistedFilterState(
       : module.fields.findSortDefinition(
           module.fields.decodeSortId(storedSortId),
         );
-  final sortId = sortDefinition?.id.value ?? module.fields.defaultSort.value;
+  final sortId = sortDefinition?.id ?? module.fields.defaultSort;
   final sortAscending = prefs.getBool(_k(key, 'sort_ascending')) ?? true;
   final storedGroupId = prefs.getString(_k(key, 'group_id'));
   final groupDefinition = storedGroupId == null
@@ -39,25 +40,22 @@ Future<LibraryFilterState> loadPersistedFilterState(
       : module.fields.findGroupDefinition(
           module.fields.decodeGroupId(storedGroupId),
         );
-  final groupId =
-      groupDefinition?.id.value ?? module.fields.defaultGroup?.value;
+  final groupId = groupDefinition?.id ?? module.fields.defaultGroup;
 
   final storedColumns = prefs.getStringList(_k(key, 'visible_columns'));
-  final decodedColumnIds = <String>{};
+  final decodedColumnIds = <LibraryFieldIdRuntime>{};
   if (storedColumns != null) {
     for (final storedColumn in storedColumns) {
       final definition = module.fields.findColumnDefinition(
         module.fields.decodeColumnId(storedColumn),
       );
       if (definition != null) {
-        decodedColumnIds.add(definition.id.value);
+        decodedColumnIds.add(definition.id);
       }
     }
   }
   final visibleColumnIds = decodedColumnIds.isEmpty
       ? module.fields.defaultVisibleColumns
-          .map((column) => column.value)
-          .toSet()
       : decodedColumnIds;
 
   return LibraryFilterState(
@@ -98,7 +96,7 @@ Future<void> persistFilterState(
   final sortDefinition = state.sortId == null
       ? null
       : module.fields.findSortDefinition(
-          module.fields.decodeSortId(state.sortId!),
+          state.sortId!,
         );
   if (state.sortId != null) {
     if (sortDefinition != null) {
@@ -109,7 +107,7 @@ Future<void> persistFilterState(
   final groupDefinition = state.groupId == null
       ? null
       : module.fields.findGroupDefinition(
-          module.fields.decodeGroupId(state.groupId!),
+          state.groupId!,
         );
   if (state.groupId != null) {
     if (groupDefinition != null) {
@@ -119,10 +117,7 @@ Future<void> persistFilterState(
   if (state.visibleColumnIds.isNotEmpty) {
     final visibleColumnIds = state.visibleColumnIds
         .map(
-          (columnId) => module.fields
-              .findColumnDefinition(module.fields.decodeColumnId(columnId))
-              ?.id
-              .value,
+          (columnId) => module.fields.findColumnDefinition(columnId)?.id.value,
         )
         .whereType<String>()
         .toList(growable: false);

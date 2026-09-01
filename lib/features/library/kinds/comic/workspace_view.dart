@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 const double kComicsMinCoverSize = 104;
 const double kComicsDefaultCoverSize = 128;
@@ -20,8 +21,8 @@ final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
   minCoverSize: kComicsMinCoverSize,
   maxCoverSize: kComicsMaxCoverSize,
   presetConfig: comicsViewPresetConfig,
-  clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
-      comicsLibraryConfig, column as String, width),
+  clampColumnWidth: (column, width) =>
+      clampPlannedMediaTableColumnWidth(comicsLibraryConfig, column, width),
   defaultDetailsWidth: 350,
   defaultDetailsLayout: LibraryDetailsLayout.right,
   hideDetailsWhenSelectionEmpty: false,
@@ -81,11 +82,10 @@ const comicsTableColumnPresets = [
   ),
 ];
 
-bool comicInitialSortAscending(Object column) {
-  final sortId = column.toString();
+bool comicInitialSortAscending(LibrarySortIdRuntime sortId) {
   final module = libraryKindRuntimeForType(comicsLibraryConfig);
   final definition = module.fields.findSortDefinition(
-    module.fields.decodeSortId(sortId),
+    sortId,
   );
   return definition?.defaultAscending ?? true;
 }
@@ -121,24 +121,22 @@ LibraryWorkspaceViewPresetConfig comicsViewPresetConfig(
   };
 }
 
-List<String> orderedComicTableColumns(
-  Set<String> columns,
+List<LibraryFieldIdRuntime> orderedComicTableColumns(
+  Set<LibraryFieldIdRuntime> columns,
 ) =>
     orderedLibraryTableColumns(
       columns: columns,
       defaultColumns: defaultComicTableColumns(),
     );
 
-Set<String> defaultComicTableColumns() =>
+Set<LibraryFieldIdRuntime> defaultComicTableColumns() =>
     Set.of(libraryKindRuntimeForType(comicsLibraryConfig)
         .fields
-        .defaultVisibleColumns
-        .map((column) => column.value)
-        .toSet());
+        .defaultVisibleColumns);
 
 double comicTableWidthForColumns(
-  Set<String> columns,
-  Map<String, double> customWidths,
+  Set<LibraryFieldIdRuntime> columns,
+  Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableWidthForColumns(
     type: comicsLibraryConfig,
@@ -148,8 +146,8 @@ double comicTableWidthForColumns(
 }
 
 double comicTableColumnWidth(
-  String column,
-  Map<String, double> customWidths,
+  LibraryFieldIdRuntime column,
+  Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableColumnWidth(
       comicsLibraryConfig, column, customWidths);

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 const genericLibraryMediaBuilder = GenericLibraryMediaPresentationBuilder();
 
@@ -46,15 +47,16 @@ String _simpleLibraryBucketLabel(
   LibraryMediaGroupLabels labels,
   LibraryBucketLabelOverrides overrides,
 ) {
-  return switch (context.groupMode) {
-    'location' => _locationBucket(context.source.locationPath),
-    'title' => _titleBucket(context.item.dto.title),
-    'ownership' => context.source.isOwned
+  return switch (context.groupId.semantic) {
+    LibraryGroupSemantic.location =>
+      _locationBucket(context.source.locationPath),
+    LibraryGroupSemantic.title => _titleBucket(context.item.dto.title),
+    LibraryGroupSemantic.ownership => context.source.isOwned
         ? overrides.labelFor('owned', fallback: 'Owned')
         : context.source.isWishlisted
             ? overrides.labelFor('wishlist', fallback: 'Wishlist')
             : overrides.labelFor('catalog_only', fallback: 'Catalog only'),
-    _ => context.groupMode,
+    _ => context.groupId.value,
   };
 }
 

@@ -55,7 +55,10 @@ abstract final class TvGroupIds {
   static const network = LibraryGroupId<TvKind, String?>('tv.network');
   static const creator = LibraryGroupId<TvKind, String?>('tv.creator');
   static const releaseYear = LibraryGroupId<TvKind, int?>('tv.release_year');
-  static const location = LibraryGroupId<TvKind, String?>('tv.location');
+  static const location = LibraryGroupId<TvKind, String?>(
+    'tv.location',
+    semantic: LibraryGroupSemantic.location,
+  );
   static const condition = LibraryGroupId<TvKind, String?>('tv.condition');
   static const rating = LibraryGroupId<TvKind, int?>('tv.rating');
   static const watchStatus = LibraryGroupId<TvKind, String?>('tv.watch_status');

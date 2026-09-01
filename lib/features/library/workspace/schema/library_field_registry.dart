@@ -105,6 +105,15 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     return null;
   }
 
+  LibrarySortIdRuntime? sortIdForColumn(LibraryFieldIdRuntime columnId) {
+    for (final definition in sorts) {
+      if (definition.id.value == columnId.value) {
+        return definition.id;
+      }
+    }
+    return null;
+  }
+
   LibraryGroupDefinition<dynamic, TDto, Object?>? findGroupDefinition(
       LibraryGroupIdRuntime id) {
     final raw = id.value;
@@ -150,6 +159,17 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   LibraryGroupIdRuntime decodeGroupId(String raw) {
     final normalized =
         raw.trim().startsWith('group.') ? raw.trim().substring(6) : raw.trim();
+    final sharedGroup = switch (normalized) {
+      'title' => LibraryStandardGroupIds.title,
+      'location' => LibraryStandardGroupIds.location,
+      'ownership' => LibraryStandardGroupIds.ownership,
+      _ when normalized == '$kindNamespace.location' =>
+        LibraryStandardGroupIds.location,
+      _ => null,
+    };
+    if (sharedGroup != null) {
+      return sharedGroup;
+    }
     final direct = _findGroupDefinitionByValue(normalized);
     if (direct != null) return direct.id;
     final decoded = preferenceCodec.decodeGroup(normalized);
@@ -244,30 +264,39 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
   LibraryColumnDefinition<dynamic, TDto, Object?>? _findColumnDefinitionByValue(
       String value) {
-    final direct = columnDefinitionForId(DynamicLibraryFieldId(value));
-    if (direct != null) return direct;
-    return columnDefinitionForId(
-      DynamicLibraryFieldId('$kindNamespace.$value'),
-    );
+    for (final definition in columns) {
+      if (definition.id.value == value) return definition;
+    }
+    final qualifiedValue = '$kindNamespace.$value';
+    for (final definition in columns) {
+      if (definition.id.value == qualifiedValue) return definition;
+    }
+    return null;
   }
 
   LibrarySortDefinition<dynamic, TDto>? _findSortDefinitionByValue(
     String value,
   ) {
-    final direct = sortDefinitionForId(DynamicLibrarySortId(value));
-    if (direct != null) return direct;
-    return sortDefinitionForId(
-      DynamicLibrarySortId('$kindNamespace.$value'),
-    );
+    for (final definition in sorts) {
+      if (definition.id.value == value) return definition;
+    }
+    final qualifiedValue = '$kindNamespace.$value';
+    for (final definition in sorts) {
+      if (definition.id.value == qualifiedValue) return definition;
+    }
+    return null;
   }
 
   LibraryGroupDefinition<dynamic, TDto, Object?>? _findGroupDefinitionByValue(
       String value) {
-    final direct = groupDefinitionForId(DynamicLibraryGroupId(value));
-    if (direct != null) return direct;
-    return groupDefinitionForId(
-      DynamicLibraryGroupId('$kindNamespace.$value'),
-    );
+    for (final definition in groups) {
+      if (definition.id.value == value) return definition;
+    }
+    final qualifiedValue = '$kindNamespace.$value';
+    for (final definition in groups) {
+      if (definition.id.value == qualifiedValue) return definition;
+    }
+    return null;
   }
 
   void _validate() {

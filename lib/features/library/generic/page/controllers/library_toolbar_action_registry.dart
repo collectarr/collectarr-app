@@ -193,9 +193,8 @@ class LibraryToolbarActionRegistry {
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
     final kindCapabilities = availability.capabilities;
-    final kindToolbarActions =
-        libraryKindRuntimeForType(actionContext.view.type).toolbar?.actions ??
-            const [];
+    final runtime = libraryKindRuntimeForType(actionContext.view.type);
+    final kindToolbarActions = runtime.toolbar?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
     final extraUtilityActions = kindToolbarActions
         .map(
@@ -236,8 +235,10 @@ class LibraryToolbarActionRegistry {
           ? actionContext.view.onShowColumnChooserFlow
           : () {},
       onSortChanged: (String column) => actionContext.view.onUpdateViewState(
-        (LibraryWorkspaceViewState next) =>
-            next.withSortColumn(column, actionContext.view.viewProfile),
+        (LibraryWorkspaceViewState next) => next.withSortColumn(
+          runtime.fields.decodeSortId(column),
+          actionContext.view.viewProfile,
+        ),
       ),
       onEditSort: actionContext.view.onShowSortDialogFlow,
       onSidebarVisibilityChanged:

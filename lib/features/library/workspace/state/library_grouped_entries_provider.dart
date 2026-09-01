@@ -54,7 +54,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     }
 
     final groupDef = module.fields.findGroupDefinition(
-      module.fields.decodeGroupId(groupId),
+      groupId,
     );
     if (groupDef == null) {
       controller.add([

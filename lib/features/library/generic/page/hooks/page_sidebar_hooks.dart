@@ -21,8 +21,8 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   String get _projectionGroupMode {
     return _activeBrowserMode == LibraryWorkspaceBrowserMode.releases &&
             !_isScopedMediaReleaseSplit
-        ? 'title'
-        : (_activeSidebarGroupMode ?? 'title');
+        ? LibraryStandardGroupIds.title.value
+        : (_activeSidebarGroupMode ?? LibraryStandardGroupIds.title.value);
   }
 
   String get _activeGroupMode => _projectionGroupMode;
@@ -47,12 +47,12 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     if (viewState != null) {
       final filteredRules = [
         for (final rule in viewState.sortRules)
-          if (allowedSort.contains(rule.column)) rule,
+          if (allowedSort.contains(rule.sortId.value)) rule,
       ];
       final defaults = _viewProfile.defaults().sortRules;
       final fallbackRules = [
         for (final rule in defaults)
-          if (allowedSort.contains(rule.column)) rule,
+          if (allowedSort.contains(rule.sortId.value)) rule,
       ];
       _viewState = viewState.copyWith(
         sortRules: filteredRules.isNotEmpty ? filteredRules : fallbackRules,
@@ -147,7 +147,11 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     final allowedSortColumns = _scopeAvailableSortColumns.toSet();
     final scopedSortRules = [
       for (final rule in viewState.sortRules)
-        if (allowedSortColumns.contains(rule.column)) rule,
+        if (allowedSortColumns.contains(rule.sortId.value))
+          LibrarySortRule(
+            column: rule.sortId.value,
+            ascending: rule.ascending,
+          ),
     ];
     final searchState = _searchControllerOps.state;
     return LibraryRouteState(
@@ -195,9 +199,18 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     }
     final currentViewState = _viewState ?? _viewProfile.defaults();
     final allowedSortColumns = _scopeAvailableSortColumns.toSet();
+    final currentSortRules = [
+      for (final rule in currentViewState.sortRules)
+        LibrarySortRule(
+          column: rule.sortId.value,
+          ascending: rule.ascending,
+        ),
+    ];
     final routeSortRules = [
-      for (final rule in (routeState.sortRules ?? currentViewState.sortRules))
-        if (allowedSortColumns.contains(rule.column)) rule,
+      for (final rule in _viewProfile.decodeSortRules(
+        routeState.sortRules ?? currentSortRules,
+      ))
+        if (allowedSortColumns.contains(rule.sortId.value)) rule,
     ];
     _viewState = currentViewState.copyWith(
       isSidebarVisible:

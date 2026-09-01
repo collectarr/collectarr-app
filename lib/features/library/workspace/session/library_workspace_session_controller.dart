@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_key.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
@@ -29,11 +30,9 @@ class LibraryWorkspaceSessionController
     final module = libraryKindRuntimeForKind(_key.kind);
     state = state.copyWith(
       filters: state.filters.copyWith(
-        groupId: () => module.fields.defaultGroup?.value,
-        sortId: () => module.fields.defaultSort.value,
-        visibleColumnIds: module.fields.defaultVisibleColumns
-            .map((column) => column.value)
-            .toSet(),
+        groupId: () => module.fields.defaultGroup,
+        sortId: () => module.fields.defaultSort,
+        visibleColumnIds: module.fields.defaultVisibleColumns.toSet(),
         presentationLevelId: () => _key.presentationLevelId,
       ),
     );
@@ -52,8 +51,10 @@ class LibraryWorkspaceSessionController
 
   void clearSearch() => updateSearch('');
 
-  void setFacetValues(String facetId, Set<String> values) {
-    final next = Map<String, Set<String>>.from(state.filters.facetValues);
+  void setFacetValues(LibraryFacetIdRuntime facetId, Set<String> values) {
+    final next = Map<LibraryFacetIdRuntime, Set<String>>.from(
+      state.filters.facetValues,
+    );
     if (values.isEmpty) {
       next.remove(facetId);
     } else {
@@ -64,9 +65,10 @@ class LibraryWorkspaceSessionController
     );
   }
 
-  void clearFacet(String facetId) {
-    final next = Map<String, Set<String>>.from(state.filters.facetValues)
-      ..remove(facetId);
+  void clearFacet(LibraryFacetIdRuntime facetId) {
+    final next = Map<LibraryFacetIdRuntime, Set<String>>.from(
+      state.filters.facetValues,
+    )..remove(facetId);
     state = state.copyWith(
       filters: state.filters.copyWith(facetValues: next),
     );
@@ -78,7 +80,7 @@ class LibraryWorkspaceSessionController
     );
   }
 
-  void setSort(String sortId, {bool? ascending}) {
+  void setSort(LibrarySortIdRuntime sortId, {bool? ascending}) {
     state = state.copyWith(
       filters: state.filters.copyWith(
         sortId: () => sortId,
@@ -87,21 +89,24 @@ class LibraryWorkspaceSessionController
     );
   }
 
-  void updateSort(String sortId, {bool? ascending}) =>
+  void updateSort(LibrarySortIdRuntime sortId, {bool? ascending}) =>
       setSort(sortId, ascending: ascending);
 
   void toggleSortDirection() {
     final nextAsc = !state.filters.sortAscending;
-    setSort(state.filters.sortId ?? '', ascending: nextAsc);
+    final sortId = state.filters.sortId;
+    if (sortId != null) {
+      setSort(sortId, ascending: nextAsc);
+    }
   }
 
-  void setGroup(String? groupId) {
+  void setGroup(LibraryGroupIdRuntime? groupId) {
     state = state.copyWith(
       filters: state.filters.copyWith(groupId: () => groupId),
     );
   }
 
-  void updateGroup(String? groupId) => setGroup(groupId);
+  void updateGroup(LibraryGroupIdRuntime? groupId) => setGroup(groupId);
 
   void setCollectionStatusScope(LibraryCollectionStatusScope scope) {
     state = state.copyWith(
@@ -144,11 +149,9 @@ class LibraryWorkspaceSessionController
       final module = libraryKindRuntimeForKind(_key.kind);
       state = state.copyWith(
         filters: LibrarySessionFilterState(
-          groupId: module.fields.defaultGroup?.value,
-          sortId: module.fields.defaultSort.value,
-          visibleColumnIds: module.fields.defaultVisibleColumns
-              .map((column) => column.value)
-              .toSet(),
+          groupId: module.fields.defaultGroup,
+          sortId: module.fields.defaultSort,
+          visibleColumnIds: module.fields.defaultVisibleColumns.toSet(),
           presentationLevelId: _key.presentationLevelId,
         ),
       );
@@ -221,23 +224,25 @@ class LibraryWorkspaceSessionController
     );
   }
 
-  void setColumnWidth(String columnId, double width) {
-    final next = Map<String, double>.from(state.view.columnWidths);
+  void setColumnWidth(LibraryFieldIdRuntime columnId, double width) {
+    final next = Map<LibraryFieldIdRuntime, double>.from(
+      state.view.columnWidths,
+    );
     next[columnId] = width;
     state = state.copyWith(
       view: state.view.copyWith(columnWidths: next),
     );
   }
 
-  void setVisibleColumns(Set<String> columnIds) {
+  void setVisibleColumns(Set<LibraryFieldIdRuntime> columnIds) {
     state = state.copyWith(
       filters: state.filters.copyWith(visibleColumnIds: columnIds),
     );
   }
 
-  void toggleColumn(String columnId) {
+  void toggleColumn(LibraryFieldIdRuntime columnId) {
     final current = state.filters.visibleColumnIds;
-    final next = Set<String>.from(current);
+    final next = Set<LibraryFieldIdRuntime>.from(current);
     if (next.contains(columnId)) {
       next.remove(columnId);
     } else {
@@ -521,7 +526,13 @@ class LibraryWorkspaceSessionController
   }
 
   void applyColumnPreset(LibraryTableColumnPreset preset) {
-    setVisibleColumns(preset.columns.toSet());
+    if (_key == null) {
+      return;
+    }
+    final fields = libraryKindRuntimeForKind(_key.kind).fields;
+    setVisibleColumns({
+      for (final column in preset.columns) fields.decodeColumnId(column),
+    });
   }
 
   // ── Async State Actions ───────────────────────────────────────────────────

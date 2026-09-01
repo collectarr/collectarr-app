@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 class LibraryFolderTreeBuilder {
   const LibraryFolderTreeBuilder({
@@ -54,8 +55,11 @@ class LibraryFolderTreeBuilder {
     }
 
     final groupMode = modes[depth];
+    final groupId = libraryKindRuntimeForType(type).fields.decodeGroupId(
+          groupMode,
+        );
     final buckets = groupingEngine
-        .buildBuckets(items, type, groupMode, index: index)
+        .buildBuckets(items, type, groupId, index: index)
         .where((bucket) => bucket.title != genericAllBucketLabel(type));
     final children = <LibraryFolderTreeNode>[];
 
@@ -66,12 +70,12 @@ class LibraryFolderTreeBuilder {
           if ((index != null
                   ? index.getGroupBucket(
                       item,
-                      groupMode,
+                      groupId,
                       (it, mode) =>
                           groupingEngine.getGroupBucketForItem(it, type, mode),
                     )
                   : groupingEngine.getGroupBucketForItem(
-                      item, type, groupMode)) ==
+                      item, type, groupId)) ==
               bucket.title)
             item,
       ];

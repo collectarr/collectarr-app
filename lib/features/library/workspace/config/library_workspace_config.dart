@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +32,36 @@ class LibrarySortRule {
 
   @override
   int get hashCode => Object.hash(column, ascending);
+}
+
+class LibrarySortRuleRuntime {
+  const LibrarySortRuleRuntime({
+    required this.sortId,
+    required this.ascending,
+  });
+
+  final LibrarySortIdRuntime sortId;
+  final bool ascending;
+
+  LibrarySortRuleRuntime copyWith({
+    LibrarySortIdRuntime? sortId,
+    bool? ascending,
+  }) {
+    return LibrarySortRuleRuntime(
+      sortId: sortId ?? this.sortId,
+      ascending: ascending ?? this.ascending,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LibrarySortRuleRuntime &&
+        other.sortId == sortId &&
+        other.ascending == ascending;
+  }
+
+  @override
+  int get hashCode => Object.hash(sortId, ascending);
 }
 
 class LibrarySortPreset {

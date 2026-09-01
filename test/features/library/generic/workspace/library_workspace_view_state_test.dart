@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +30,10 @@ void main() {
       options: [],
     ),
   );
+  final runtime = libraryKindRuntimeForType(typeConfig);
+  LibraryFieldIdRuntime field(String value) =>
+      runtime.fields.decodeColumnId(value);
+  LibrarySortIdRuntime sort(String value) => runtime.fields.decodeSortId(value);
 
   final profile = LibraryWorkspaceViewProfile(
     type: typeConfig,
@@ -37,22 +42,22 @@ void main() {
     maxCoverSize: 200,
     presetConfig: (preset) {
       return switch (preset) {
-        LibraryWorkspacePreset.list => const LibraryWorkspaceViewPresetConfig(
+        LibraryWorkspacePreset.list => LibraryWorkspaceViewPresetConfig(
             viewMode: LibraryViewMode.list,
             detailsLayout: LibraryDetailsLayout.bottom,
             coverSize: 128,
             visibleColumns: {
-              'title',
-              'grade',
+              field('title'),
+              field('grade'),
             },
           ),
-        _ => const LibraryWorkspaceViewPresetConfig(
+        _ => LibraryWorkspaceViewPresetConfig(
             viewMode: LibraryViewMode.grid,
             detailsLayout: LibraryDetailsLayout.right,
             coverSize: 144,
             visibleColumns: {
-              'title',
-              'issue',
+              field('title'),
+              field('issue'),
             },
           ),
       };
@@ -70,67 +75,61 @@ void main() {
 
     expect(defaults.viewMode, LibraryViewMode.grid);
     expect(defaults.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(defaults.sortColumn, 'comic.series');
+    expect(defaults.sortId, sort('comic.series'));
     expect(defaults.coverSize, 128);
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
     expect(defaults.detailsHeight, 300);
-    expect(
-        defaults.visibleColumns,
-        libraryKindRuntimeForType(typeConfig)
-            .fields
-            .defaultVisibleColumns
-            .map((column) => column.value)
-            .toSet());
+    expect(defaults.visibleColumnIds, runtime.fields.defaultVisibleColumns);
 
     final list = defaults.withPreset(LibraryWorkspacePreset.list, profile);
     expect(list.viewMode, LibraryViewMode.list);
     expect(list.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(list.visibleColumns, {
-      'title',
-      'grade',
+    expect(list.visibleColumnIds, {
+      field('title'),
+      field('grade'),
     });
   });
 
   test('workspace view state toggles sort and clamps column widths', () {
     final state = profile
         .defaults()
-        .withSortColumn('grade', profile)
-        .withColumnWidth('title', 999, profile);
+        .withSortColumn(sort('grade'), profile)
+        .withColumnWidth(field('title'), 999, profile);
 
-    expect(state.sortColumn, 'grade');
+    expect(state.sortId, sort('grade'));
     expect(state.sortAscending, isTrue);
-    expect(state.columnWidths['title'], 240);
+    expect(state.columnWidths[field('title')], 240);
 
-    final toggled = state.withSortColumn('grade', profile);
+    final toggled = state.withSortColumn(sort('grade'), profile);
     expect(toggled.sortAscending, isFalse);
   });
 
   test('workspace view state preserves trailing multi-sort rules', () {
     final state = profile.defaults().withSortRules([
-      const LibrarySortRule(
-        column: 'publisher',
+      LibrarySortRuleRuntime(
+        sortId: sort('publisher'),
         ascending: true,
       ),
-      const LibrarySortRule(
-        column: 'updated',
+      LibrarySortRuleRuntime(
+        sortId: sort('updated'),
         ascending: false,
       ),
     ], profile);
 
-    final updated = state.withSortColumn('grade', profile);
+    final updated = state.withSortColumn(sort('grade'), profile);
 
     expect(updated.sortRules, [
-      const LibrarySortRule(
-        column: 'grade',
+      LibrarySortRuleRuntime(
+        sortId: sort('grade'),
         ascending: true,
       ),
-      const LibrarySortRule(
-        column: 'publisher',
+      LibrarySortRuleRuntime(
+        sortId: sort('publisher'),
         ascending: true,
       ),
-      const LibrarySortRule(
-        column: 'updated',
+      LibrarySortRuleRuntime(
+        sortId: sort('updated'),
         ascending: false,
       ),
     ]);
@@ -138,43 +137,43 @@ void main() {
 
   test('workspace view state reorders visible table columns', () {
     final state = profile.defaults().copyWith(
-      visibleColumns: {
-        'title',
-        'issue',
-        'grade',
+      visibleColumnIds: {
+        field('title'),
+        field('issue'),
+        field('grade'),
       },
     );
 
     final reordered = state.withReorderedColumn(
-      column: 'grade',
-      beforeColumn: 'issue',
+      column: field('grade'),
+      beforeColumn: field('issue'),
     );
 
-    expect(reordered.visibleColumns.toList(), [
-      'title',
-      'grade',
-      'issue',
+    expect(reordered.visibleColumnIds.toList(), [
+      field('title'),
+      field('grade'),
+      field('issue'),
     ]);
   });
 
   test('workspace view state reorders a visible column to the end', () {
     final state = profile.defaults().copyWith(
-      visibleColumns: {
-        'title',
-        'issue',
-        'grade',
+      visibleColumnIds: {
+        field('title'),
+        field('issue'),
+        field('grade'),
       },
     );
 
     final reordered = state.withReorderedColumn(
-      column: 'title',
+      column: field('title'),
       beforeColumn: null,
     );
 
-    expect(reordered.visibleColumns.toList(), [
-      'issue',
-      'grade',
-      'title',
+    expect(reordered.visibleColumnIds.toList(), [
+      field('issue'),
+      field('grade'),
+      field('title'),
     ]);
   });
 
@@ -186,15 +185,15 @@ void main() {
       maxCoverSize: 200,
       presetConfig: profile.presetConfig,
       clampColumnWidth: profile.clampColumnWidth,
-      sortAscendingForColumn: (column) => column != 'updated',
+      sortAscendingForColumn: (column) => column != sort('updated'),
     );
 
     final state = newestFirstProfile.defaults().withSortColumn(
-          'updated',
+          sort('updated'),
           newestFirstProfile,
         );
 
-    expect(state.sortColumn, 'updated');
+    expect(state.sortId, sort('updated'));
     expect(state.sortAscending, isFalse);
   });
 
@@ -202,12 +201,12 @@ void main() {
     final state = profile.defaults().copyWith(
           viewMode: LibraryViewMode.card,
           sortRules: const [
-            LibrarySortRule(
-              column: 'publisher',
+            LibrarySortRuleRuntime(
+              sortId: LibrarySortId<ComicKind>('comic.publisher'),
               ascending: true,
             ),
-            LibrarySortRule(
-              column: 'updated',
+            LibrarySortRuleRuntime(
+              sortId: LibrarySortId<ComicKind>('comic.updated_at'),
               ascending: false,
             ),
           ],
@@ -222,12 +221,12 @@ void main() {
 
     expect(restored.viewMode, LibraryViewMode.card);
     expect(restored.sortRules, [
-      const LibrarySortRule(
-        column: 'comic.publisher',
+      const LibrarySortRuleRuntime(
+        sortId: LibrarySortId<ComicKind>('comic.publisher'),
         ascending: true,
       ),
-      const LibrarySortRule(
-        column: 'comic.updated_at',
+      const LibrarySortRuleRuntime(
+        sortId: LibrarySortId<ComicKind>('comic.updated_at'),
         ascending: false,
       ),
     ]);

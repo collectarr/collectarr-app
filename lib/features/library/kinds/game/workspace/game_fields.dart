@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -266,6 +267,10 @@ final gameLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
+    bucketValueMutator: libraryStringListBucketValueMutator(
+      'publishers',
+      scalarMirrorKeys: ['publisher'],
+    ),
   ),
   groupFromField<GameKind, GameWorkspaceDto, String?>(
     GameKindSchema.franchise,

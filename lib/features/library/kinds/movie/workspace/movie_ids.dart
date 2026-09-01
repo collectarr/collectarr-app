@@ -67,9 +67,13 @@ abstract final class MovieGroupIds {
   static const publisher =
       LibraryGroupId<MovieKind, String?>('movie.publisher');
   static const format = LibraryGroupId<MovieKind, String?>('movie.format');
+  static const genre = LibraryGroupId<MovieKind, String?>('movie.genre');
   static const releaseYear =
       LibraryGroupId<MovieKind, int?>('movie.release_year');
-  static const location = LibraryGroupId<MovieKind, String?>('movie.location');
+  static const location = LibraryGroupId<MovieKind, String?>(
+    'movie.location',
+    semantic: LibraryGroupSemantic.location,
+  );
   static const condition =
       LibraryGroupId<MovieKind, String?>('movie.condition');
   static const rating = LibraryGroupId<MovieKind, int?>('movie.rating');
@@ -77,6 +81,14 @@ abstract final class MovieGroupIds {
       LibraryGroupId<MovieKind, String?>('movie.watch_status');
   static const ageRating =
       LibraryGroupId<MovieKind, String?>('movie.age_rating');
+  static const audienceRating =
+      LibraryGroupId<MovieKind, String?>('movie.audience_rating');
+  static const movieOrTvSeries =
+      LibraryGroupId<MovieKind, String?>('movie.movie_or_tv_series');
+  static const audioTracks =
+      LibraryGroupId<MovieKind, String?>('movie.audio_tracks');
+  static const editionReleaseDate =
+      LibraryGroupId<MovieKind, DateTime?>('movie.edition_release_date');
 }
 
 abstract final class MovieFacetIds {

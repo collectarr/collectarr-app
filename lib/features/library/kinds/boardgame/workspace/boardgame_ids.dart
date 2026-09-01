@@ -79,8 +79,10 @@ abstract final class BoardGameGroupIds {
       LibraryGroupId<BoardGameKind, String?>('boardgame.publisher');
   static const designer =
       LibraryGroupId<BoardGameKind, String?>('boardgame.designer');
-  static const location =
-      LibraryGroupId<BoardGameKind, String?>('boardgame.location');
+  static const location = LibraryGroupId<BoardGameKind, String?>(
+    'boardgame.location',
+    semantic: LibraryGroupSemantic.location,
+  );
   static const condition =
       LibraryGroupId<BoardGameKind, String?>('boardgame.condition');
   static const rating = LibraryGroupId<BoardGameKind, int?>('boardgame.rating');

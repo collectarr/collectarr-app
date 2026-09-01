@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
+import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -210,6 +210,10 @@ final boardGamesLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers / Designers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
+    bucketValueMutator: libraryStringListBucketValueMutator(
+      'publishers',
+      scalarMirrorKeys: ['publisher'],
+    ),
   ),
   groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
     BoardGameKindSchema.location,

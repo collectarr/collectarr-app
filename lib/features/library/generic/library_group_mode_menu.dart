@@ -333,14 +333,8 @@ class _LibraryGroupModeDropdownMenuState
   }
 
   bool _isModeMatching(String m1, String m2) {
-    if (m1 == m2) return true;
     final fields = libraryKindRuntimeForType(widget.type).fields;
-    final def1 = fields.findGroupDefinition(fields.decodeGroupId(m1));
-    final def2 = fields.findGroupDefinition(fields.decodeGroupId(m2));
-    if (def1 != null && def2 != null) {
-      return def1.id.value == def2.id.value;
-    }
-    return def1?.id.value == m2 || def2?.id.value == m1;
+    return fields.decodeGroupId(m1).sameIdentityAs(fields.decodeGroupId(m2));
   }
 
   bool _isPresetMatching(LibraryFolderPreset p1, LibraryFolderPreset p2) {

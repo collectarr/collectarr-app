@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snaps
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/foundation.dart';
 
 // ─── Filter Subsection ───────────────────────────────────────────────────────
@@ -29,11 +30,11 @@ final class LibrarySessionFilterState {
 
   final String searchQuery;
   final String searchDraft;
-  final Map<String, Set<String>> facetValues;
-  final String? groupId;
-  final String? sortId;
+  final Map<LibraryFacetIdRuntime, Set<String>> facetValues;
+  final LibraryGroupIdRuntime? groupId;
+  final LibrarySortIdRuntime? sortId;
   final bool sortAscending;
-  final Set<String> visibleColumnIds;
+  final Set<LibraryFieldIdRuntime> visibleColumnIds;
   final String? presentationLevelId;
   final LibraryCollectionStatusScope collectionStatusScope;
   final LibraryBucketCompletionScope bucketCompletionScope;
@@ -45,11 +46,11 @@ final class LibrarySessionFilterState {
   LibrarySessionFilterState copyWith({
     String? searchQuery,
     String? searchDraft,
-    Map<String, Set<String>>? facetValues,
-    String? Function()? groupId,
-    String? Function()? sortId,
+    Map<LibraryFacetIdRuntime, Set<String>>? facetValues,
+    LibraryGroupIdRuntime? Function()? groupId,
+    LibrarySortIdRuntime? Function()? sortId,
     bool? sortAscending,
-    Set<String>? visibleColumnIds,
+    Set<LibraryFieldIdRuntime>? visibleColumnIds,
     String? Function()? presentationLevelId,
     LibraryCollectionStatusScope? collectionStatusScope,
     LibraryBucketCompletionScope? bucketCompletionScope,
@@ -148,7 +149,7 @@ final class LibrarySessionViewState {
   final double sidebarWidth;
   final double detailsWidth;
   final double detailsHeight;
-  final Map<String, double> columnWidths;
+  final Map<LibraryFieldIdRuntime, double> columnWidths;
   final LibraryGroupPresentation? groupPresentationOverride;
 
   LibrarySessionViewState copyWith({
@@ -160,7 +161,7 @@ final class LibrarySessionViewState {
     double? sidebarWidth,
     double? detailsWidth,
     double? detailsHeight,
-    Map<String, double>? columnWidths,
+    Map<LibraryFieldIdRuntime, double>? columnWidths,
     LibraryGroupPresentation? Function()? groupPresentationOverride,
   }) {
     return LibrarySessionViewState(

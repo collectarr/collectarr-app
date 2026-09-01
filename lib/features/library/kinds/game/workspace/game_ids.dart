@@ -65,7 +65,10 @@ abstract final class GameGroupIds {
   static const publisher = LibraryGroupId<GameKind, String?>('game.publisher');
   static const developer = LibraryGroupId<GameKind, String?>('game.developer');
   static const franchise = LibraryGroupId<GameKind, String?>('game.franchise');
-  static const location = LibraryGroupId<GameKind, String?>('game.location');
+  static const location = LibraryGroupId<GameKind, String?>(
+    'game.location',
+    semantic: LibraryGroupSemantic.location,
+  );
   static const condition = LibraryGroupId<GameKind, String?>('game.condition');
   static const rating = LibraryGroupId<GameKind, int?>('game.rating');
   static const completionStatus =

@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -129,23 +128,12 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
         itemIdsByBucket: const {},
       );
     }
+    final api = ref.read(apiClientProvider);
     final rows = facets.loadRows != null
         ? await facets.loadRows!(
             facetId: facetId,
             itemIds: itemIds,
-            queryExecutor: ({
-              required LibraryFacetIdRuntime facetId,
-              required Set<String> itemIds,
-            }) {
-              final api = ref.read(apiClientProvider);
-              return switch (facetId.value) {
-                'comic.story_arc' => api.storyArcFacets(itemIds),
-                'comic.character' ||
-                'media.character' =>
-                  api.characterFacets(itemIds),
-                _ => Future.value(const <Map<String, dynamic>>[]),
-              };
-            },
+            api: api,
           )
         : const <Map<String, dynamic>>[];
     final byBucket = LibraryPageUtilities.parseFacetRows(
@@ -163,14 +151,8 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   static Future<List<Map<String, dynamic>>> libraryFacetRowsForId({
     required LibraryFacetIdRuntime facetId,
     required Set<String> itemIds,
-    LibraryFacetQueryExecutor? queryExecutor,
+    required ApiClient api,
   }) {
-    if (queryExecutor != null) {
-      return queryExecutor(
-        facetId: facetId,
-        itemIds: itemIds,
-      );
-    }
     return Future.value(const <Map<String, dynamic>>[]);
   }
 

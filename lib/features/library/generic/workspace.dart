@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -19,6 +18,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -106,8 +106,14 @@ class LibraryWorkspace extends ConsumerWidget {
       viewState.viewMode != LibraryViewMode.cardFlow &&
       viewState.viewMode != LibraryViewMode.shelves &&
       selectedBucket == null &&
-      groupMode != 'title' &&
-      groupMode != 'ownership';
+      (() {
+        final semantic = libraryKindRuntimeForType(type)
+            .fields
+            .decodeGroupId(groupMode)
+            .semantic;
+        return semantic != LibraryGroupSemantic.title &&
+            semantic != LibraryGroupSemantic.ownership;
+      })();
 
   bool _isActive(LibraryProjectionItem item) => item.node.id == selectedId;
 
@@ -354,8 +360,11 @@ class LibraryWorkspace extends ConsumerWidget {
         final compact = type.presentation.usesCompactTableLayout;
         final density = viewState.densityPreset;
         final runtime = libraryKindRuntimeForType(type);
+        final visibleColumns = runtime.orderedTableColumns(
+          viewState.visibleColumnIds,
+        );
         final tableWidth = runtime.tableWidthForColumns(
-          viewState.visibleColumns,
+          viewState.visibleColumnIds,
           viewState.columnWidths,
         );
         final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
@@ -368,19 +377,32 @@ class LibraryWorkspace extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 child: LibraryWorkspaceTable<LibraryProjectionItem>(
                   entries: items,
-                  columns:
-                      runtime.orderedTableColumns(viewState.visibleColumns),
-                  sortColumn: viewState.sortColumn,
+                  columns: [for (final column in visibleColumns) column.value],
+                  sortColumn: viewState.sortId.value,
                   sortAscending: viewState.sortAscending,
-                  sortRules: viewState.sortRules,
+                  sortRules: [
+                    for (final rule in viewState.sortRules)
+                      LibrarySortRule(
+                        column: rule.sortId.value,
+                        ascending: rule.ascending,
+                      ),
+                  ],
                   columnWidthFor: (column) => runtime.tableColumnWidth(
-                    column,
+                    runtime.fields.decodeColumnId(column),
                     viewState.columnWidths,
                   ),
-                  defaultColumnWidthFor: runtime.defaultTableColumnWidth,
-                  columnSortFor: runtime.columnSort,
-                  columnLabelFor: runtime.columnLabel,
-                  columnIsNumeric: runtime.columnIsNumeric,
+                  defaultColumnWidthFor: (column) =>
+                      runtime.defaultTableColumnWidth(
+                    runtime.fields.decodeColumnId(column),
+                  ),
+                  columnSortFor: (column) => runtime
+                      .columnSort(runtime.fields.decodeColumnId(column))
+                      ?.value,
+                  columnLabelFor: (column) => runtime
+                      .columnLabel(runtime.fields.decodeColumnId(column)),
+                  columnIsNumeric: (column) => runtime.columnIsNumeric(
+                    runtime.fields.decodeColumnId(column),
+                  ),
                   cellBuilder: (entry, column) => _tableCell(entry, column),
                   isSelected: _isHighlighted,
                   onEntryTap: (item) => _selectionTap(item)(),
@@ -474,7 +496,11 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _tableCell(LibraryProjectionItem item, String column) {
-    return libraryKindRuntimeForType(type).buildTableCell(item, column);
+    final runtime = libraryKindRuntimeForType(type);
+    return runtime.buildTableCell(
+      item,
+      runtime.fields.decodeColumnId(column),
+    );
   }
 }
 

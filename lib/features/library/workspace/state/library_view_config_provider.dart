@@ -17,7 +17,10 @@ final libraryViewConfigProvider =
       sidebarWidth: session.view.sidebarWidth,
       detailsWidth: session.view.detailsWidth,
       detailsHeight: session.view.detailsHeight,
-      columnWidths: session.view.columnWidths,
+      columnWidths: {
+        for (final entry in session.view.columnWidths.entries)
+          entry.key.value: entry.value,
+      },
     );
   },
 );

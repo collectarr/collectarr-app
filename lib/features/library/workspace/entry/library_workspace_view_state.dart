@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/workspace/table/library_table_la
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 class LibraryWorkspaceViewPresetConfig {
   const LibraryWorkspaceViewPresetConfig({
@@ -16,19 +17,19 @@ class LibraryWorkspaceViewPresetConfig {
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final double coverSize;
-  final Set<String> visibleColumns;
+  final Set<LibraryFieldIdRuntime> visibleColumns;
 }
 
 typedef LibraryWorkspacePresetResolver = LibraryWorkspaceViewPresetConfig
     Function(LibraryWorkspacePreset preset);
 
 typedef LibraryTableColumnWidthClamp = double Function(
-  Object column,
+  LibraryFieldIdRuntime column,
   double width,
 );
 
 typedef LibrarySortColumnDirectionResolver = bool Function(
-  Object column,
+  LibrarySortIdRuntime column,
 );
 
 class LibraryWorkspaceViewProfile {
@@ -86,16 +87,14 @@ class LibraryWorkspaceViewProfile {
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
-      sortColumn: module.fields.defaultSort.value,
+      sortId: module.fields.defaultSort,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
       densityPreset: type.defaultDensityPreset,
-      visibleColumns: module.fields.defaultVisibleColumns
-          .map((column) => column.value)
-          .toSet(),
+      visibleColumnIds: module.fields.defaultVisibleColumns,
       columnWidths: const {},
     );
     return defaults
@@ -105,21 +104,28 @@ class LibraryWorkspaceViewProfile {
   LibraryWorkspaceViewState fromPreferences(
     LibraryWorkspacePreferenceSnapshot preferences,
   ) {
+    final module = libraryKindRuntimeForType(type);
     return LibraryWorkspaceViewState(
       browserMode: preferences.browserMode,
       viewMode: preferences.viewMode,
       detailsLayout: preferences.detailsLayout,
       isSidebarVisible: preferences.isSidebarVisible,
-      sortColumn: preferences.sortColumn,
+      sortId: module.fields
+              .findSortDefinition(
+                module.fields.decodeSortId(preferences.sortColumn),
+              )
+              ?.id ??
+          module.fields.defaultSort,
       sortAscending: preferences.sortAscending,
-      sortRules: preferences.sortRules,
+      sortRules: _decodeSortRules(module, preferences.sortRules),
       coverSize: preferences.coverSize,
       sidebarWidth: preferences.sidebarWidth,
       detailsWidth: preferences.detailsWidth,
       detailsHeight: preferences.detailsHeight,
       densityPreset: preferences.densityPreset,
-      visibleColumns: preferences.visibleColumns,
-      columnWidths: preferences.columnWidths.map(
+      visibleColumnIds:
+          _decodeVisibleColumns(module, preferences.visibleColumns),
+      columnWidths: _decodeColumnWidths(module, preferences.columnWidths).map(
         (column, width) => MapEntry(column, clampColumnWidth(column, width)),
       ),
     );
@@ -136,21 +142,8 @@ class LibraryWorkspaceViewProfile {
   LibraryWorkspaceViewState fromPreferenceSnapshot(
     LibraryWorkspacePreferenceSnapshot snapshot,
   ) {
-    return LibraryWorkspaceViewState(
-      browserMode: snapshot.browserMode,
-      viewMode: snapshot.viewMode,
-      detailsLayout: snapshot.detailsLayout,
-      isSidebarVisible: snapshot.isSidebarVisible,
-      sortColumn: snapshot.sortColumn,
-      sortAscending: snapshot.sortAscending,
-      sortRules: snapshot.sortRules,
+    return fromPreferences(snapshot).copyWith(
       coverSize: clampCoverSize(snapshot.coverSize),
-      densityPreset: snapshot.densityPreset,
-      sidebarWidth: snapshot.sidebarWidth,
-      detailsWidth: snapshot.detailsWidth,
-      detailsHeight: snapshot.detailsHeight,
-      visibleColumns: snapshot.visibleColumns,
-      columnWidths: snapshot.columnWidths,
     );
   }
 
@@ -160,8 +153,20 @@ class LibraryWorkspaceViewProfile {
     );
   }
 
-  bool initialSortAscending(String column) {
-    return sortAscendingForColumn?.call(column) ?? defaultSortAscending;
+  bool initialSortAscending(LibrarySortIdRuntime sortId) {
+    return sortAscendingForColumn?.call(sortId) ?? defaultSortAscending;
+  }
+
+  List<LibrarySortRuleRuntime> decodeSortRules(
+    Iterable<LibrarySortRule> rules,
+  ) {
+    final module = libraryKindRuntimeForType(type);
+    return _decodeSortRules(module, rules);
+  }
+
+  Set<LibraryFieldIdRuntime> decodeColumnIds(Iterable<String> columns) {
+    final module = libraryKindRuntimeForType(type);
+    return _decodeVisibleColumns(module, columns);
   }
 }
 
@@ -171,42 +176,42 @@ class LibraryWorkspaceViewState {
     required this.viewMode,
     required this.detailsLayout,
     required this.isSidebarVisible,
-    required String sortColumn,
+    required LibrarySortIdRuntime sortId,
     required bool sortAscending,
-    List<LibrarySortRule>? sortRules,
+    List<LibrarySortRuleRuntime>? sortRules,
     required this.coverSize,
     required this.sidebarWidth,
     required this.detailsWidth,
     required this.detailsHeight,
     this.densityPreset = LibraryWorkspaceDensityPreset.compact,
-    required Set<String> visibleColumns,
-    required Map<String, double> columnWidths,
+    required Set<LibraryFieldIdRuntime> visibleColumnIds,
+    required Map<LibraryFieldIdRuntime, double> columnWidths,
   })  : _sortRules = List.unmodifiable(
           _normalizedSortRules(
             sortRules,
-            fallbackColumn: sortColumn,
+            fallbackSortId: sortId,
             fallbackAscending: sortAscending,
           ),
         ),
-        visibleColumns = Set.unmodifiable(visibleColumns),
+        visibleColumnIds = Set.unmodifiable(visibleColumnIds),
         columnWidths = Map.unmodifiable(columnWidths);
 
   final LibraryWorkspaceBrowserMode browserMode;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final bool isSidebarVisible;
-  final List<LibrarySortRule> _sortRules;
+  final List<LibrarySortRuleRuntime> _sortRules;
   final double coverSize;
   final double sidebarWidth;
   final double detailsWidth;
   final double detailsHeight;
   final LibraryWorkspaceDensityPreset densityPreset;
-  final Set<String> visibleColumns;
-  final Map<String, double> columnWidths;
+  final Set<LibraryFieldIdRuntime> visibleColumnIds;
+  final Map<LibraryFieldIdRuntime, double> columnWidths;
 
-  List<LibrarySortRule> get sortRules => _sortRules;
+  List<LibrarySortRuleRuntime> get sortRules => _sortRules;
 
-  String get sortColumn => _sortRules.first.column;
+  LibrarySortIdRuntime get sortId => _sortRules.first.sortId;
 
   bool get sortAscending => _sortRules.first.ascending;
 
@@ -216,16 +221,26 @@ class LibraryWorkspaceViewState {
       viewMode: viewMode,
       detailsLayout: detailsLayout,
       isSidebarVisible: isSidebarVisible,
-      sortColumn: sortColumn,
+      sortColumn: sortId.value,
       sortAscending: sortAscending,
-      sortRules: sortRules,
+      sortRules: [
+        for (final rule in sortRules)
+          LibrarySortRule(
+            column: rule.sortId.value,
+            ascending: rule.ascending,
+          ),
+      ],
       coverSize: coverSize,
       sidebarWidth: sidebarWidth,
       detailsWidth: detailsWidth,
       detailsHeight: detailsHeight,
       densityPreset: densityPreset,
-      visibleColumns: visibleColumns,
-      columnWidths: columnWidths,
+      visibleColumns: {
+        for (final column in visibleColumnIds) column.value,
+      },
+      columnWidths: {
+        for (final entry in columnWidths.entries) entry.key.value: entry.value,
+      },
     );
   }
 
@@ -234,26 +249,26 @@ class LibraryWorkspaceViewState {
     LibraryViewMode? viewMode,
     LibraryDetailsLayout? detailsLayout,
     bool? isSidebarVisible,
-    String? sortColumn,
+    LibrarySortIdRuntime? sortId,
     bool? sortAscending,
-    List<LibrarySortRule>? sortRules,
+    List<LibrarySortRuleRuntime>? sortRules,
     double? coverSize,
     double? sidebarWidth,
     double? detailsWidth,
     double? detailsHeight,
     LibraryWorkspaceDensityPreset? densityPreset,
-    Set<String>? visibleColumns,
-    Map<String, double>? columnWidths,
+    Set<LibraryFieldIdRuntime>? visibleColumnIds,
+    Map<LibraryFieldIdRuntime, double>? columnWidths,
   }) {
     final nextSortRules = sortRules ??
-        ((sortColumn != null || sortAscending != null)
+        ((sortId != null || sortAscending != null)
             ? [
-                LibrarySortRule(
-                  column: sortColumn ?? this.sortColumn,
+                LibrarySortRuleRuntime(
+                  sortId: sortId ?? this.sortId,
                   ascending: sortAscending ?? this.sortAscending,
                 ),
                 for (final rule in this.sortRules)
-                  if (rule.column != (sortColumn ?? this.sortColumn)) rule,
+                  if (rule.sortId != (sortId ?? this.sortId)) rule,
               ]
             : this.sortRules);
     return LibraryWorkspaceViewState(
@@ -261,7 +276,7 @@ class LibraryWorkspaceViewState {
       viewMode: viewMode ?? this.viewMode,
       detailsLayout: detailsLayout ?? this.detailsLayout,
       isSidebarVisible: isSidebarVisible ?? this.isSidebarVisible,
-      sortColumn: sortColumn ?? this.sortColumn,
+      sortId: sortId ?? this.sortId,
       sortAscending: sortAscending ?? this.sortAscending,
       sortRules: nextSortRules,
       coverSize: coverSize ?? this.coverSize,
@@ -269,29 +284,29 @@ class LibraryWorkspaceViewState {
       detailsWidth: detailsWidth ?? this.detailsWidth,
       detailsHeight: detailsHeight ?? this.detailsHeight,
       densityPreset: densityPreset ?? this.densityPreset,
-      visibleColumns: visibleColumns ?? this.visibleColumns,
+      visibleColumnIds: visibleColumnIds ?? this.visibleColumnIds,
       columnWidths: columnWidths ?? this.columnWidths,
     );
   }
 
   LibraryWorkspaceViewState withSortColumn(
-    String column,
+    LibrarySortIdRuntime sortId,
     LibraryWorkspaceViewProfile profile,
   ) {
-    if (sortColumn == column) {
+    if (sortId == this.sortId) {
       return copyWith(sortAscending: !sortAscending);
     }
     final trailingRules = [
       for (final rule in sortRules)
-        if (rule.column != column) rule,
+        if (rule.sortId != sortId) rule,
     ];
     return copyWith(
-      sortColumn: column,
-      sortAscending: profile.initialSortAscending(column),
+      sortId: sortId,
+      sortAscending: profile.initialSortAscending(sortId),
       sortRules: [
-        LibrarySortRule(
-          column: column,
-          ascending: profile.initialSortAscending(column),
+        LibrarySortRuleRuntime(
+          sortId: sortId,
+          ascending: profile.initialSortAscending(sortId),
         ),
         ...trailingRules,
       ],
@@ -299,16 +314,16 @@ class LibraryWorkspaceViewState {
   }
 
   LibraryWorkspaceViewState withSortRules(
-    List<LibrarySortRule> rules,
+    List<LibrarySortRuleRuntime> rules,
     LibraryWorkspaceViewProfile profile,
   ) {
     final normalized = _normalizedSortRules(
       rules,
-      fallbackColumn: sortColumn,
+      fallbackSortId: sortId,
       fallbackAscending: sortAscending,
     );
     return copyWith(
-      sortColumn: normalized.first.column,
+      sortId: normalized.first.sortId,
       sortAscending: normalized.first.ascending,
       sortRules: normalized,
     );
@@ -324,7 +339,7 @@ class LibraryWorkspaceViewState {
       detailsLayout: config.detailsLayout,
       coverSize: config.coverSize,
       densityPreset: densityPreset,
-      visibleColumns: Set.of(config.visibleColumns),
+      visibleColumnIds: Set.of(config.visibleColumns),
       columnWidths: const {},
     );
   }
@@ -345,7 +360,7 @@ class LibraryWorkspaceViewState {
   }
 
   LibraryWorkspaceViewState withColumnWidth(
-    String column,
+    LibraryFieldIdRuntime column,
     double width,
     LibraryWorkspaceViewProfile profile,
   ) {
@@ -358,13 +373,13 @@ class LibraryWorkspaceViewState {
   }
 
   LibraryWorkspaceViewState withReorderedColumn({
-    required String column,
-    required String? beforeColumn,
+    required LibraryFieldIdRuntime column,
+    required LibraryFieldIdRuntime? beforeColumn,
   }) {
     return copyWith(
-      visibleColumns: {
+      visibleColumnIds: {
         for (final column in reorderLibraryTableColumns(
-          columns: visibleColumns,
+          columns: visibleColumnIds,
           column: column,
           beforeColumn: beforeColumn,
         ))
@@ -374,28 +389,85 @@ class LibraryWorkspaceViewState {
   }
 }
 
-List<LibrarySortRule> _normalizedSortRules(
-  List<LibrarySortRule>? rules, {
-  required String fallbackColumn,
+List<LibrarySortRuleRuntime> _normalizedSortRules(
+  List<LibrarySortRuleRuntime>? rules, {
+  required LibrarySortIdRuntime fallbackSortId,
   required bool fallbackAscending,
 }) {
   final effective = rules == null || rules.isEmpty
-      ? [LibrarySortRule(column: fallbackColumn, ascending: fallbackAscending)]
+      ? [
+          LibrarySortRuleRuntime(
+            sortId: fallbackSortId,
+            ascending: fallbackAscending,
+          ),
+        ]
       : rules;
-  final seen = <String>{};
-  final normalized = <LibrarySortRule>[];
+  final seen = <LibrarySortIdRuntime>{};
+  final normalized = <LibrarySortRuleRuntime>[];
   for (final rule in effective) {
-    if (seen.add(rule.column)) {
+    if (seen.add(rule.sortId)) {
       normalized.add(rule);
     }
   }
   if (normalized.isEmpty) {
     normalized.add(
-      LibrarySortRule(
-        column: fallbackColumn,
+      LibrarySortRuleRuntime(
+        sortId: fallbackSortId,
         ascending: fallbackAscending,
       ),
     );
   }
   return normalized;
+}
+
+List<LibrarySortRuleRuntime> _decodeSortRules(
+  LibraryKindRuntime module,
+  Iterable<LibrarySortRule>? rules,
+) {
+  if (rules == null) {
+    return const [];
+  }
+  return [
+    for (final rule in rules)
+      if (module.fields.findSortDefinition(
+        module.fields.decodeSortId(rule.column),
+      )
+          case final definition?)
+        LibrarySortRuleRuntime(
+          sortId: definition.id,
+          ascending: rule.ascending,
+        ),
+  ];
+}
+
+Set<LibraryFieldIdRuntime> _decodeVisibleColumns(
+  LibraryKindRuntime module,
+  Iterable<String> columns,
+) {
+  final decoded = <LibraryFieldIdRuntime>{};
+  for (final column in columns) {
+    final definition = module.fields.findColumnDefinition(
+      module.fields.decodeColumnId(column),
+    );
+    if (definition != null) {
+      decoded.add(definition.id);
+    }
+  }
+  return decoded.isEmpty ? module.fields.defaultVisibleColumns : decoded;
+}
+
+Map<LibraryFieldIdRuntime, double> _decodeColumnWidths(
+  LibraryKindRuntime module,
+  Map<String, double> widths,
+) {
+  final decoded = <LibraryFieldIdRuntime, double>{};
+  for (final entry in widths.entries) {
+    final definition = module.fields.findColumnDefinition(
+      module.fields.decodeColumnId(entry.key),
+    );
+    if (definition != null) {
+      decoded[definition.id] = entry.value;
+    }
+  }
+  return decoded;
 }

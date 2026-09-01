@@ -51,6 +51,26 @@ void main() {
     expect(movieStore.cachedFolderPreset, isNull);
   });
 
+  test('legacy bare group preferences resolve for the active kind', () async {
+    SharedPreferences.setMockInitialValues({
+      'library.movie.folderPreset': 'group.publisher',
+      'library.movie.pinnedGroupModes': ['group.publisher'],
+    });
+
+    expect(
+      await movieStore.readFolderPreset(
+        allowedModes: ['movie.publisher'],
+      ),
+      LibraryFolderPreset.single('movie.publisher'),
+    );
+    expect(
+      await movieStore.readPinnedFolderPresets(
+        allowedModes: ['movie.publisher'],
+      ),
+      [LibraryFolderPreset.single('movie.publisher')],
+    );
+  });
+
   test('pinned group modes preserve persisted order', () async {
     await movieStore.writePinnedGroupModes({
       'director',

@@ -7,7 +7,7 @@ void main() {
     'issue',
   };
 
-  LibraryTableColumnSizing sizing(Object column) {
+  LibraryTableColumnSizing sizing(dynamic column) {
     if (column is! String) {
       return const LibraryTableColumnSizing(
           defaultWidth: 60, minWidth: 40, maxWidth: 100);

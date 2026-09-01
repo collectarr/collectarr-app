@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -6,20 +5,23 @@ import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+
+final _comicRuntime = libraryKindRuntimeForType(comicsLibraryConfig);
 
 final _defaultViewState = LibraryWorkspaceViewState(
   viewMode: LibraryViewMode.grid,
   detailsLayout: LibraryDetailsLayout.hidden,
   isSidebarVisible: true,
-  sortColumn: 'title',
+  sortId: _comicRuntime.fields.decodeSortId('title'),
   sortAscending: true,
   coverSize: 128,
   sidebarWidth: 200,
   detailsWidth: 300,
   detailsHeight: 220,
-  visibleColumns: const {},
+  visibleColumnIds: const {},
   columnWidths: const {},
 );
 

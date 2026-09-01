@@ -38,6 +38,8 @@ Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
       metadata.series?.seriesTitle,
       metadata.itemNumber,
       metadata.publisher,
+      ...metadata.studios,
+      ...metadata.producers,
       metadata.variant,
       metadata.country,
       metadata.language,

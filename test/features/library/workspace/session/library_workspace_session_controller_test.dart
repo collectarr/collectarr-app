@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/session/library_workspace_session_controller.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 void main() {
   group('LibraryWorkspaceSessionController Tests', () {
@@ -31,23 +32,26 @@ void main() {
     });
 
     test('updateSort updates sortId and sortAscending', () {
-      controller.updateSort('title', ascending: false);
-      expect(controller.value.filters.sortId, 'title');
+      const sortId = LibrarySortId<Object>('title');
+      controller.updateSort(sortId, ascending: false);
+      expect(controller.value.filters.sortId, sortId);
       expect(controller.value.filters.sortAscending, false);
     });
 
     test('updateGroup updates groupId in filter state', () {
-      controller.updateGroup('publisher');
-      expect(controller.value.filters.groupId, 'publisher');
+      const groupId = LibraryGroupId<Object, String>('publisher');
+      controller.updateGroup(groupId);
+      expect(controller.value.filters.groupId, groupId);
     });
 
     test('toggleColumn adds and removes visible column IDs', () {
-      controller.toggleColumn('publisher');
-      expect(controller.value.filters.visibleColumnIds, contains('publisher'));
+      const columnId = LibraryFieldId<Object, String>('publisher');
+      controller.toggleColumn(columnId);
+      expect(controller.value.filters.visibleColumnIds, contains(columnId));
 
-      controller.toggleColumn('publisher');
-      expect(controller.value.filters.visibleColumnIds,
-          isNot(contains('publisher')));
+      controller.toggleColumn(columnId);
+      expect(
+          controller.value.filters.visibleColumnIds, isNot(contains(columnId)));
     });
 
     test('selectItem handles single and multi selection', () {
@@ -96,7 +100,7 @@ void main() {
 
     test('reset restores initial workspace session state', () {
       controller.updateSearch('Test');
-      controller.updateSort('year');
+      controller.updateSort(const LibrarySortId<Object>('year'));
       controller.selectItem('item-1');
       controller.setError('Error');
 

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import '../session/library_workspace_session_controller.dart';
 import 'library_workspace_key.dart';
 
@@ -15,17 +16,19 @@ class LibraryWorkspaceIntentNotifier {
 
   void setSearch(String query) => _session.updateSearch(query);
   void clearSearch() => _session.clearSearch();
-  void setFacetValues(String facetId, Set<String> values) =>
+  void setFacetValues(LibraryFacetIdRuntime facetId, Set<String> values) =>
       _session.setFacetValues(facetId, values);
-  void clearFacet(String facetId) => _session.clearFacet(facetId);
+  void clearFacet(LibraryFacetIdRuntime facetId) =>
+      _session.clearFacet(facetId);
   void clearAllFacets() => _session.clearAllFacets();
-  void setSort(String sortId, {bool? ascending}) =>
+  void setSort(LibrarySortIdRuntime sortId, {bool? ascending}) =>
       _session.setSort(sortId, ascending: ascending);
   void toggleSortDirection() => _session.toggleSortDirection();
-  void setGroup(String? groupId) => _session.setGroup(groupId);
-  void setVisibleColumns(Set<String> columnIds) =>
+  void setGroup(LibraryGroupIdRuntime? groupId) => _session.setGroup(groupId);
+  void setVisibleColumns(Set<LibraryFieldIdRuntime> columnIds) =>
       _session.setVisibleColumns(columnIds);
-  void toggleColumn(String columnId) => _session.toggleColumn(columnId);
+  void toggleColumn(LibraryFieldIdRuntime columnId) =>
+      _session.toggleColumn(columnId);
   void resetFilters() => _session.resetFilters();
 
   void setViewMode(LibraryViewMode mode) => _session.setViewMode(mode);
@@ -39,7 +42,7 @@ class LibraryWorkspaceIntentNotifier {
   void setSidebarWidth(double width) => _session.setSidebarWidth(width);
   void setDetailsWidth(double width) => _session.setDetailsWidth(width);
   void setDetailsHeight(double height) => _session.setDetailsHeight(height);
-  void setColumnWidth(String columnId, double width) =>
+  void setColumnWidth(LibraryFieldIdRuntime columnId, double width) =>
       _session.setColumnWidth(columnId, width);
   void resetColumnWidths() =>
       _session.setViewMode(_session.value.view.viewMode);

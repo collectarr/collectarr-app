@@ -145,10 +145,12 @@ void main() {
       );
 
       expect(index.extractorCallCount, 0);
+      final publisherGroup = comicModule.fields.decodeGroupId('publisher');
+      final seriesGroup = comicModule.fields.decodeGroupId('series');
 
       final bucket1 = index.getGroupBucket(
         item,
-        'publisher',
+        publisherGroup,
         (it, mode) => (it.dto as WorkspaceDtoAdapter).publisher ?? 'Unknown',
       );
       expect(bucket1, 'Marvel Comics');
@@ -157,7 +159,7 @@ void main() {
       // Calling again for same item and groupMode must hit cache and NOT increment count
       final bucket2 = index.getGroupBucket(
         item,
-        'publisher',
+        publisherGroup,
         (it, mode) => (it.dto as WorkspaceDtoAdapter).publisher ?? 'Unknown',
       );
       expect(bucket2, 'Marvel Comics');
@@ -166,7 +168,7 @@ void main() {
       // Different groupMode evaluates extractor once
       final bucket3 = index.getGroupBucket(
         item,
-        'series',
+        seriesGroup,
         (it, mode) => 'Series Spider-Man',
       );
       expect(bucket3, 'Series Spider-Man');
@@ -209,7 +211,11 @@ void main() {
             publisher: 'Marvel'),
       ];
 
-      final buckets = groupingEngine.buildBuckets(items, comicType, 'series');
+      final buckets = groupingEngine.buildBuckets(
+        items,
+        comicType,
+        comicModule.fields.decodeGroupId('series'),
+      );
       expect(buckets.isNotEmpty, isTrue);
 
       final xmenBucket = buckets.firstWhere((b) => b.title.contains('X-Men'));
@@ -345,18 +351,18 @@ void main() {
           viewMode: LibraryViewMode.grid,
           detailsLayout: LibraryDetailsLayout.hidden,
           isSidebarVisible: true,
-          sortColumn: 'title',
+          sortId: comicModule.fields.decodeSortId('title'),
           sortAscending: true,
           coverSize: 128,
           sidebarWidth: 200,
           detailsWidth: 300,
           detailsHeight: 220,
-          visibleColumns: const {},
+          visibleColumnIds: const {},
           columnWidths: const {},
         ),
-        query: const LibraryProjectionQuery(
+        query: LibraryProjectionQuery(
           searchQuery: 'Spider',
-          groupMode: 'publisher',
+          groupId: comicModule.fields.decodeGroupId('publisher'),
         ),
       );
 

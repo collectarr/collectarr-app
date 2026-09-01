@@ -1,9 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
-import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 export 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
 export 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
@@ -31,10 +28,8 @@ import 'package:collectarr_app/features/library/workspace/table/library_table_la
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:collectarr_app/features/providers/domain/mappers/provider_preview_mapper.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
@@ -87,34 +82,42 @@ abstract interface class LibraryKindRuntime {
     LibraryWorkspaceBrowserMode browserMode,
   );
 
-  Set<String> defaultTableColumns();
-  List<String> orderedTableColumns(Set<String> columns);
+  Set<LibraryFieldIdRuntime> defaultTableColumns();
+  List<LibraryFieldIdRuntime> orderedTableColumns(
+      Set<LibraryFieldIdRuntime> columns);
   double tableWidthForColumns(
-    Set<String> columns,
-    Map<String, double> customWidths,
+    Set<LibraryFieldIdRuntime> columns,
+    Map<LibraryFieldIdRuntime, double> customWidths,
   );
   double tableColumnWidth(
-    String column,
-    Map<String, double> customWidths,
+    LibraryFieldIdRuntime column,
+    Map<LibraryFieldIdRuntime, double> customWidths,
   );
-  double defaultTableColumnWidth(String column);
-  String columnLabel(String column);
-  String columnDisplayName(String column);
-  LibraryTableColumnGroup columnGroup(String column);
+  double defaultTableColumnWidth(LibraryFieldIdRuntime column);
+  String columnLabel(LibraryFieldIdRuntime column);
+  String columnDisplayName(LibraryFieldIdRuntime column);
+  LibraryTableColumnGroup columnGroup(LibraryFieldIdRuntime column);
   String columnGroupLabel(LibraryTableColumnGroup group);
-  bool columnIsNumeric(String column);
-  String? columnSort(String column);
-  Widget buildTableCell(LibraryProjectionRuntime item, String column);
+  bool columnIsNumeric(LibraryFieldIdRuntime column);
+  LibrarySortIdRuntime? columnSort(LibraryFieldIdRuntime column);
+  Widget buildTableCell(
+    LibraryProjectionRuntime item,
+    LibraryFieldIdRuntime column,
+  );
   int compareEntriesByRules(
     LibraryProjectionRuntime left,
     LibraryProjectionRuntime right,
-    Iterable<LibrarySortRule> rules,
+    Iterable<LibrarySortRuleRuntime> rules,
   );
   String? subgroupKeyForEntry(
     LibraryProjectionRuntime item,
-    String groupMode,
+    LibraryGroupIdRuntime groupId,
   );
-  int compareSubgroupKeys(String left, String right, String groupMode);
+  int compareSubgroupKeys(
+    String left,
+    String right,
+    LibraryGroupIdRuntime groupId,
+  );
 
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
   OwnedItemDetails defaultOwnedDetails();
@@ -156,11 +159,11 @@ abstract interface class LibraryKindRuntime {
     LibraryGroupIdRuntime groupId,
   );
 
-  bool groupModeSupportsCompletion(String groupMode);
+  bool groupModeSupportsCompletion(LibraryGroupIdRuntime groupId);
 
   String? groupSequenceValueForEntry(
     LibraryProjectionRuntime item,
-    String groupMode,
+    LibraryGroupIdRuntime groupId,
   );
 
   Object? columnValue(
@@ -301,7 +304,8 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     }
     return [
       for (final groupId in allGroups)
-        if (scopedGroups.contains(groupId.value)) groupId,
+        if (scopedGroups.any((scopedId) => scopedId.sameIdentityAs(groupId)))
+          groupId,
     ];
   }
 
@@ -324,28 +328,27 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     }
     return [
       for (final sortId in allSorts)
-        if (scopedSorts.contains(sortId.value)) sortId,
+        if (scopedSorts.any((scopedId) => scopedId.sameIdentityAs(sortId)))
+          sortId,
     ];
   }
 
   @override
-  Set<String> defaultTableColumns() => {
-        for (final column in fields.defaultVisibleColumns) column.value,
-      };
+  Set<LibraryFieldIdRuntime> defaultTableColumns() =>
+      fields.defaultVisibleColumns;
 
   @override
-  List<String> orderedTableColumns(Set<String> columns) =>
+  List<LibraryFieldIdRuntime> orderedTableColumns(
+          Set<LibraryFieldIdRuntime> columns) =>
       orderedLibraryTableColumns(
         columns: columns,
-        defaultColumns: {
-          for (final column in fields.defaultVisibleColumns) column.value,
-        },
+        defaultColumns: fields.defaultVisibleColumns,
       );
 
   @override
   double tableWidthForColumns(
-    Set<String> columns,
-    Map<String, double> customWidths,
+    Set<LibraryFieldIdRuntime> columns,
+    Map<LibraryFieldIdRuntime, double> customWidths,
   ) =>
       plannedMediaTableWidthForColumns(
         type: type,
@@ -355,25 +358,25 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
 
   @override
   double tableColumnWidth(
-    String column,
-    Map<String, double> customWidths,
+    LibraryFieldIdRuntime column,
+    Map<LibraryFieldIdRuntime, double> customWidths,
   ) =>
       plannedMediaTableColumnWidth(type, column, customWidths);
 
   @override
-  double defaultTableColumnWidth(String column) =>
+  double defaultTableColumnWidth(LibraryFieldIdRuntime column) =>
       defaultPlannedMediaTableColumnWidth(type, column);
 
   @override
-  String columnLabel(String column) =>
+  String columnLabel(LibraryFieldIdRuntime column) =>
       plannedMediaTableColumnLabelForType(type, column);
 
   @override
-  String columnDisplayName(String column) =>
+  String columnDisplayName(LibraryFieldIdRuntime column) =>
       plannedMediaTableColumnDisplayNameForType(type, column);
 
   @override
-  LibraryTableColumnGroup columnGroup(String column) =>
+  LibraryTableColumnGroup columnGroup(LibraryFieldIdRuntime column) =>
       plannedMediaTableColumnGroup(type, column);
 
   @override
@@ -381,27 +384,28 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
       plannedMediaTableColumnGroupLabel(group);
 
   @override
-  bool columnIsNumeric(String column) =>
+  bool columnIsNumeric(LibraryFieldIdRuntime column) =>
       plannedMediaTableColumnIsNumeric(type, column);
 
   @override
-  String? columnSort(String column) =>
+  LibrarySortIdRuntime? columnSort(LibraryFieldIdRuntime column) =>
       plannedMediaTableColumnSort(type, column);
 
   @override
-  Widget buildTableCell(LibraryProjectionRuntime item, String column) =>
+  Widget buildTableCell(
+    LibraryProjectionRuntime item,
+    LibraryFieldIdRuntime column,
+  ) =>
       plannedMediaTableCell(type, item, column);
 
   @override
   int compareEntriesByRules(
     LibraryProjectionRuntime left,
     LibraryProjectionRuntime right,
-    Iterable<LibrarySortRule> rules,
+    Iterable<LibrarySortRuleRuntime> rules,
   ) {
     for (final rule in rules) {
-      final sortDef = fields.findSortDefinition(
-        fields.decodeSortId(rule.column),
-      );
+      final sortDef = fields.findSortDefinition(rule.sortId);
       if (sortDef != null) {
         final result = sortDef.compare(
           LibraryProjectionContext(
@@ -422,13 +426,22 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   String? subgroupKeyForEntry(
     LibraryProjectionRuntime item,
-    String groupMode,
+    LibraryGroupIdRuntime groupId,
   ) =>
-      plannedMediaSubgroupKeyForEntry(type, item, groupMode);
+      plannedMediaSubgroupKeyForEntry(type, item, groupId);
 
   @override
-  int compareSubgroupKeys(String left, String right, String groupMode) =>
-      plannedMediaCompareSubgroupKeys(left, right, groupMode);
+  int compareSubgroupKeys(
+    String left,
+    String right,
+    LibraryGroupIdRuntime groupId,
+  ) {
+    final groupDefinition = fields.findGroupDefinition(groupId);
+    if (groupDefinition?.subgroupKey == null) {
+      return left.compareTo(right);
+    }
+    return plannedMediaCompareSubgroupKeys(left, right);
+  }
 
   @override
   final LibraryFieldRegistry<TDto> fields;
@@ -520,21 +533,18 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   }
 
   @override
-  bool groupModeSupportsCompletion(String groupMode) {
-    return fields
-            .findGroupDefinition(fields.decodeGroupId(groupMode))
-            ?.sequenceValue !=
-        null;
+  bool groupModeSupportsCompletion(LibraryGroupIdRuntime groupId) {
+    return fields.findGroupDefinition(groupId)?.sequenceValue != null;
   }
 
   @override
   String? groupSequenceValueForEntry(
     LibraryProjectionRuntime item,
-    String groupMode,
+    LibraryGroupIdRuntime groupId,
   ) {
     return fields.getGroupSequenceValue(
       item,
-      fields.decodeGroupId(groupMode),
+      groupId,
     );
   }
 
@@ -685,14 +695,8 @@ class LibraryFacetModule {
   final List<LibraryFacetDefinition<dynamic, dynamic, dynamic>> definitions;
 }
 
-typedef LibraryFacetQueryExecutor = Future<List<Map<String, dynamic>>>
-    Function({
-  required LibraryFacetIdRuntime facetId,
-  required Set<String> itemIds,
-});
-
 typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
   required LibraryFacetIdRuntime facetId,
   required Set<String> itemIds,
-  LibraryFacetQueryExecutor? queryExecutor,
+  required ApiClient api,
 });

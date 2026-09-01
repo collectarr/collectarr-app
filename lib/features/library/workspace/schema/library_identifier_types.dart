@@ -39,16 +39,26 @@ sealed class MusicKind {
 /// Controlled runtime interface for field identifiers to allow heterogeneous collection handling without type erasure to dynamic.
 abstract interface class LibraryFieldIdRuntime {
   String get value;
+
+  bool sameIdentityAs(LibraryFieldIdRuntime other);
 }
 
 /// Controlled runtime interface for group identifiers to allow heterogeneous collection handling without type erasure to dynamic.
+enum LibraryGroupSemantic { value, title, location, ownership, unknown }
+
 abstract interface class LibraryGroupIdRuntime {
   String get value;
+
+  LibraryGroupSemantic get semantic;
+
+  bool sameIdentityAs(LibraryGroupIdRuntime other);
 }
 
 /// Controlled runtime interface for sort identifiers to allow heterogeneous collection handling without type erasure to dynamic.
 abstract interface class LibrarySortIdRuntime {
   String get value;
+
+  bool sameIdentityAs(LibrarySortIdRuntime other);
 }
 
 /// Strongly typed field identifier bound to a concrete kind [TKind] and field value type [TValue].
@@ -57,6 +67,9 @@ final class LibraryFieldId<TKind, TValue> implements LibraryFieldIdRuntime {
 
   @override
   final String value;
+
+  @override
+  bool sameIdentityAs(LibraryFieldIdRuntime other) => other.value == value;
 
   @override
   bool operator ==(Object other) {
@@ -78,6 +91,9 @@ final class DynamicLibraryFieldId implements LibraryFieldIdRuntime {
   final String value;
 
   @override
+  bool sameIdentityAs(LibraryFieldIdRuntime other) => other.value == value;
+
+  @override
   bool operator ==(Object other) =>
       other is LibraryFieldIdRuntime && other.value == value;
 
@@ -94,6 +110,9 @@ final class LibrarySortId<TKind> implements LibrarySortIdRuntime {
 
   @override
   final String value;
+
+  @override
+  bool sameIdentityAs(LibrarySortIdRuntime other) => other.value == value;
 
   @override
   bool operator ==(Object other) {
@@ -115,6 +134,9 @@ final class DynamicLibrarySortId implements LibrarySortIdRuntime {
   final String value;
 
   @override
+  bool sameIdentityAs(LibrarySortIdRuntime other) => other.value == value;
+
+  @override
   bool operator ==(Object other) =>
       other is LibrarySortIdRuntime && other.value == value;
 
@@ -127,10 +149,19 @@ final class DynamicLibrarySortId implements LibrarySortIdRuntime {
 
 /// Strongly typed group identifier bound to a concrete kind [TKind] and group key type [TValue].
 final class LibraryGroupId<TKind, TValue> implements LibraryGroupIdRuntime {
-  const LibraryGroupId(this.value);
+  const LibraryGroupId(
+    this.value, {
+    this.semantic = LibraryGroupSemantic.value,
+  });
 
   @override
   final String value;
+
+  @override
+  final LibraryGroupSemantic semantic;
+
+  @override
+  bool sameIdentityAs(LibraryGroupIdRuntime other) => other.value == value;
 
   @override
   bool operator ==(Object other) {
@@ -146,10 +177,19 @@ final class LibraryGroupId<TKind, TValue> implements LibraryGroupIdRuntime {
 
 /// Dynamic or decoded runtime group identifier.
 final class DynamicLibraryGroupId implements LibraryGroupIdRuntime {
-  const DynamicLibraryGroupId(this.value);
+  const DynamicLibraryGroupId(
+    this.value, {
+    this.semantic = LibraryGroupSemantic.unknown,
+  });
 
   @override
   final String value;
+
+  @override
+  final LibraryGroupSemantic semantic;
+
+  @override
+  bool sameIdentityAs(LibraryGroupIdRuntime other) => other.value == value;
 
   @override
   bool operator ==(Object other) =>
@@ -162,9 +202,30 @@ final class DynamicLibraryGroupId implements LibraryGroupIdRuntime {
   String toString() => value;
 }
 
+sealed class LibrarySharedKind {
+  const LibrarySharedKind();
+}
+
+abstract final class LibraryStandardGroupIds {
+  static const title = LibraryGroupId<LibrarySharedKind, String>(
+    'title',
+    semantic: LibraryGroupSemantic.title,
+  );
+  static const location = LibraryGroupId<LibrarySharedKind, String?>(
+    'location',
+    semantic: LibraryGroupSemantic.location,
+  );
+  static const ownership = LibraryGroupId<LibrarySharedKind, String>(
+    'ownership',
+    semantic: LibraryGroupSemantic.ownership,
+  );
+}
+
 /// Controlled runtime interface for facet identifiers to allow heterogeneous collection handling without type erasure to dynamic.
 abstract interface class LibraryFacetIdRuntime {
   String get value;
+
+  bool sameIdentityAs(LibraryFacetIdRuntime other);
 }
 
 /// Strongly typed facet identifier bound to a concrete kind [TKind] and facet value type [TValue].
@@ -173,6 +234,9 @@ final class LibraryFacetId<TKind, TValue> implements LibraryFacetIdRuntime {
 
   @override
   final String value;
+
+  @override
+  bool sameIdentityAs(LibraryFacetIdRuntime other) => other.value == value;
 
   @override
   bool operator ==(Object other) {
@@ -192,6 +256,9 @@ final class DynamicLibraryFacetId implements LibraryFacetIdRuntime {
 
   @override
   final String value;
+
+  @override
+  bool sameIdentityAs(LibraryFacetIdRuntime other) => other.value == value;
 
   @override
   bool operator ==(Object other) =>

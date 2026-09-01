@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_filter_state.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 @immutable
 final class LibraryProjectionQuery {
@@ -11,7 +12,7 @@ final class LibraryProjectionQuery {
     this.filters = const LibraryFilterState(),
     this.sortId,
     this.sortAscending = true,
-    this.groupMode,
+    this.groupId,
     this.selectedBucket,
     this.selectedItemId,
     this.quickView,
@@ -24,9 +25,9 @@ final class LibraryProjectionQuery {
 
   final String searchQuery;
   final LibraryFilterState filters;
-  final String? sortId;
+  final LibrarySortIdRuntime? sortId;
   final bool sortAscending;
-  final String? groupMode;
+  final LibraryGroupIdRuntime? groupId;
   final String? selectedBucket;
   final String? selectedItemId;
   final LibraryQuickView? quickView;

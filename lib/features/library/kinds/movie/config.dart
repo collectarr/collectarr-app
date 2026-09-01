@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
@@ -97,97 +98,33 @@ final moviesLibraryConfig = LibraryTypeConfig(
   ),
 );
 
-const Set<String> _movieMediaGroupModes = {
-  'title',
-  'movie_or_tv_series',
-  'genre',
-  'publisher',
-  'release_date',
-  'release_month',
-  'release_year',
-  'country',
-  'language',
-  'age_rating',
-  'audience_rating',
-  'actor',
-  'director',
-  'producer',
-  'writer',
-  'photography',
-  'musician',
-  'collection_status',
-  'condition',
-  'location',
-  'added_date',
-  'added_month',
-  'added_year',
-  'modified_date',
-  'modified_month',
-  'watch_date',
-  'watch_month',
-  'watch_year',
-};
+final Set<LibraryGroupIdRuntime> _movieMediaGroupModes = Set.unmodifiable({
+  MovieGroupIds.director,
+  MovieGroupIds.publisher,
+  MovieGroupIds.genre,
+  MovieGroupIds.releaseYear,
+  MovieGroupIds.audienceRating,
+  MovieGroupIds.movieOrTvSeries,
+  MovieGroupIds.location,
+});
 
-const Set<String> _movieEditionGroupModes = {
-  'title',
-  'edition',
-  'edition_release_date',
-  'edition_release_month',
-  'edition_release_year',
-  'format',
-  'box_set',
-  'distributor',
-  'hdr',
-  'layers',
-  'packaging',
-  'regions',
-  'screen_ratios',
-  'subtitles',
-  'audio_tracks',
-  'extras',
-  'collection_status',
-  'condition',
-  'location',
-  'added_date',
-  'added_month',
-  'added_year',
-  'modified_date',
-  'modified_month',
-  'watch_date',
-  'watch_month',
-  'watch_year',
-};
+final Set<LibraryGroupIdRuntime> _movieEditionGroupModes = Set.unmodifiable({
+  MovieGroupIds.format,
+  MovieGroupIds.audioTracks,
+  MovieGroupIds.editionReleaseDate,
+  MovieGroupIds.location,
+});
 
-const Set<String> _movieMediaSortColumns = {
-  'status',
-  'title',
-  'publisher',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'condition',
-  'price',
-  'location',
-  'collection_status',
-  'wishlist',
-  'added',
-  'updated',
-};
+final Set<LibrarySortIdRuntime> _movieMediaSortColumns = Set.unmodifiable({
+  MovieSortIds.status,
+  MovieSortIds.title,
+  MovieSortIds.publisher,
+  MovieSortIds.releaseDate,
+});
 
-const Set<String> _movieEditionSortColumns = {
-  'status',
-  'title',
-  'variant',
-  'format',
-  'publisher',
-  'release_date',
-  'barcode',
-  'condition',
-  'price',
-  'location',
-  'collection_status',
-  'wishlist',
-  'added',
-  'updated',
-};
+final Set<LibrarySortIdRuntime> _movieEditionSortColumns = Set.unmodifiable({
+  MovieSortIds.status,
+  MovieSortIds.title,
+  MovieSortIds.publisher,
+  MovieSortIds.releaseDate,
+});

@@ -1,20 +1,22 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 String defaultLibraryBucketLabel(
   LibraryBucketingContext context,
   LibraryMediaGroupLabels labels, [
   LibraryBucketLabelOverrides overrides = const LibraryBucketLabelOverrides(),
 ]) {
-  final mode = _unqualifiedGroupMode(context.groupMode);
+  final mode = _unqualifiedGroupMode(context.groupId.value);
   final explicitOverride = overrides.labelFor(mode);
   if (explicitOverride.isNotEmpty) {
     return explicitOverride;
   }
 
-  return switch (mode) {
-    'title' => _titleBucket(context.item.dto.title),
-    'location' => _locationBucket(context.source.locationPath),
-    'ownership' => context.source.isOwned
+  return switch (context.groupId.semantic) {
+    LibraryGroupSemantic.title => _titleBucket(context.item.dto.title),
+    LibraryGroupSemantic.location =>
+      _locationBucket(context.source.locationPath),
+    LibraryGroupSemantic.ownership => context.source.isOwned
         ? overrides.labelFor('owned', fallback: 'Owned')
         : context.source.isWishlisted
             ? overrides.labelFor('wishlist', fallback: 'Wishlist')

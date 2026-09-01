@@ -33,27 +33,12 @@ class LibraryFacetValuesInput {
 final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
     .family<List<String>, LibraryFacetValuesInput>((ref, input) {
   final module = libraryKindRuntimeForKind(input.key.kind);
-  final groupDef = module.fields.findGroupDefinition(
-    module.fields.decodeGroupId(input.facetId.value),
-  );
-  final columnDef = module.fields.findColumnDefinition(
-    module.fields.decodeColumnId(input.facetId.value),
-  );
-
-  if (groupDef == null &&
-      columnDef == null &&
-      module.facets?.getFacetValues == null) {
+  if (module.facets?.getFacetValues == null) {
     return Stream.value(const <String>[]);
   }
 
   Object? getValue(LibraryProjectionRuntime item) {
-    if (module.facets?.getFacetValues != null) {
-      final custom = module.facets!.getFacetValues!(item, input.facetId);
-      if (custom.isNotEmpty) return custom;
-    }
-    if (groupDef != null) return module.groupValue(item, groupDef.id);
-    if (columnDef != null) return module.columnValue(item, columnDef.id);
-    return null;
+    return module.facets!.getFacetValues!(item, input.facetId);
   }
 
   final repository = ref.watch(libraryWorkspaceRepositoryProvider);

@@ -1,9 +1,11 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'library_search_index.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 class LibraryProjectionIndex {
   final LibrarySearchIndex _searchIndex = LibrarySearchIndex();
-  final Map<String, Map<String, String>> _itemGroupBucketCache = {};
+  final Map<String, Map<LibraryGroupIdRuntime, String>> _itemGroupBucketCache =
+      {};
   int extractorCallCount = 0;
 
   LibrarySearchDocument getSearchDocument(
@@ -15,16 +17,17 @@ class LibraryProjectionIndex {
 
   String getGroupBucket(
     LibraryProjectionItem item,
-    String groupMode,
-    String Function(LibraryProjectionItem item, String groupMode) extractor,
+    LibraryGroupIdRuntime groupId,
+    String Function(LibraryProjectionItem item, LibraryGroupIdRuntime groupId)
+        extractor,
   ) {
     final itemCache = _itemGroupBucketCache.putIfAbsent(item.node.id, () => {});
-    final existing = itemCache[groupMode];
+    final existing = itemCache[groupId];
     if (existing != null) return existing;
 
     extractorCallCount++;
-    final calculated = extractor(item, groupMode);
-    itemCache[groupMode] = calculated;
+    final calculated = extractor(item, groupId);
+    itemCache[groupId] = calculated;
     return calculated;
   }
 

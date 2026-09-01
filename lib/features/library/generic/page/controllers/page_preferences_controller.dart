@@ -192,8 +192,10 @@ abstract final class LibraryPagePreferencesControllerOps {
     LibrarySortFavorite favorite,
   ) {
     state._updateViewState(
-      (viewState) =>
-          viewState.withSortRules(favorite.rules, state._viewProfile),
+      (viewState) => viewState.withSortRules(
+        state._viewProfile.decodeSortRules(favorite.rules),
+        state._viewProfile,
+      ),
     );
   }
 
@@ -214,7 +216,7 @@ abstract final class LibraryPagePreferencesControllerOps {
     LibraryTableColumnPreset preset,
   ) {
     state._updateViewState((viewState) => viewState.copyWith(
-          visibleColumns: preset.columns,
+          visibleColumnIds: state._viewProfile.decodeColumnIds(preset.columns),
         ));
   }
 
@@ -234,7 +236,8 @@ abstract final class LibraryPagePreferencesControllerOps {
   static String? activeColumnFavoriteLabel(GenericLibraryPageState state) {
     final viewState = state._viewState ?? state._viewProfile.defaults();
     for (final preset in state._columnFavoritePresets) {
-      if (setEquals(preset.columns, viewState.visibleColumns)) {
+      if (setEquals(state._viewProfile.decodeColumnIds(preset.columns),
+          viewState.visibleColumnIds)) {
         return preset.label;
       }
     }
@@ -245,7 +248,14 @@ abstract final class LibraryPagePreferencesControllerOps {
       GenericLibraryPageState state) {
     final viewState = state._viewState ?? state._viewProfile.defaults();
     for (final favorite in state._sortFavorites) {
-      if (state._sameSortRules(favorite.rules, viewState.sortRules)) {
+      final currentRules = [
+        for (final rule in viewState.sortRules)
+          LibrarySortRule(
+            column: rule.sortId.value,
+            ascending: rule.ascending,
+          ),
+      ];
+      if (state._sameSortRules(favorite.rules, currentRules)) {
         return favorite;
       }
     }
@@ -261,7 +271,7 @@ abstract final class LibraryPagePreferencesControllerOps {
       if (viewState.viewMode == config.viewMode &&
           viewState.detailsLayout == config.detailsLayout &&
           viewState.coverSize == config.coverSize &&
-          setEquals(viewState.visibleColumns, config.visibleColumns)) {
+          setEquals(viewState.visibleColumnIds, config.visibleColumns)) {
         return preset;
       }
     }

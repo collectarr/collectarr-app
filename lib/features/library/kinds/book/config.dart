@@ -2,11 +2,13 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
 
 const booksWorkspaceConfig = LibraryWorkspaceConfig(
@@ -83,46 +85,46 @@ final booksLibraryConfig = LibraryTypeConfig(
   ),
 );
 
-const Set<String> _bookMediaGroupModes = {
-  'book.author',
-  'book.publisher',
-  'book.series',
-  'book.condition',
-  'book.location',
-  'book.rating',
-};
+final Set<LibraryGroupIdRuntime> _bookMediaGroupModes = Set.unmodifiable({
+  BookGroupIds.author,
+  BookGroupIds.publisher,
+  BookGroupIds.series,
+  BookGroupIds.condition,
+  BookGroupIds.location,
+  BookGroupIds.rating,
+});
 
-const Set<String> _bookReleaseGroupModes = {
-  'book.author',
-  'book.publisher',
-  'book.series',
-  'book.condition',
-  'book.location',
-  'book.rating',
-};
+final Set<LibraryGroupIdRuntime> _bookReleaseGroupModes = Set.unmodifiable({
+  BookGroupIds.author,
+  BookGroupIds.publisher,
+  BookGroupIds.series,
+  BookGroupIds.condition,
+  BookGroupIds.location,
+  BookGroupIds.rating,
+});
 
-const Set<String> _bookMediaSortColumns = {
-  'book.status',
-  'book.title',
-  'book.author',
-  'book.publisher',
-  'book.release_date',
-  'book.page_count',
-  'book.series',
-  'book.rating',
-  'book.price_paid',
-  'book.updated_at',
-};
+final Set<LibrarySortIdRuntime> _bookMediaSortColumns = Set.unmodifiable({
+  BookSortIds.status,
+  BookSortIds.title,
+  BookSortIds.author,
+  BookSortIds.publisher,
+  BookSortIds.releaseDate,
+  BookSortIds.pageCount,
+  BookSortIds.series,
+  BookSortIds.rating,
+  BookSortIds.pricePaid,
+  BookSortIds.updatedAt,
+});
 
-const Set<String> _bookReleaseSortColumns = {
-  'book.status',
-  'book.title',
-  'book.author',
-  'book.publisher',
-  'book.release_date',
-  'book.page_count',
-  'book.series',
-  'book.rating',
-  'book.price_paid',
-  'book.updated_at',
-};
+final Set<LibrarySortIdRuntime> _bookReleaseSortColumns = Set.unmodifiable({
+  BookSortIds.status,
+  BookSortIds.title,
+  BookSortIds.author,
+  BookSortIds.publisher,
+  BookSortIds.releaseDate,
+  BookSortIds.pageCount,
+  BookSortIds.series,
+  BookSortIds.rating,
+  BookSortIds.pricePaid,
+  BookSortIds.updatedAt,
+});

@@ -892,12 +892,12 @@ String _sortFavoriteSummary(
       .join('  |  ');
 }
 
-String _sortColumnLabel(LibraryTypeConfig type, Object column) {
+String _sortColumnLabel(LibraryTypeConfig type, String column) {
   final module = libraryKindRuntimeForType(type);
   return module.fields
-          .findSortDefinition(module.fields.decodeSortId(column.toString()))
+          .findSortDefinition(module.fields.decodeSortId(column))
           ?.label ??
-      column.toString();
+      column;
 }
 
 List<LibrarySortFavorite> _orderedPinnedSortFavorites(

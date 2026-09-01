@@ -1,6 +1,9 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,6 +29,9 @@ class LibraryViewPreferenceStore {
   static final _cachedCollapsedGroupBuckets = <String, Set<String>>{};
 
   final Object? kind;
+
+  LibraryTypeConfig get _type =>
+      libraryKindRuntimeForKind(catalogMediaKindFromValue(kind)).type;
 
   String _key(String suffix) =>
       'library.${catalogMediaKindFromValue(kind).apiValue}.$suffix';
@@ -175,7 +181,10 @@ class LibraryViewPreferenceStore {
         allowedModes == null ? null : Set<String>.from(allowedModes);
     final modes = <String>{};
     for (final name in names) {
-      final mode = libraryGroupModeFromStorageValue(name);
+      final mode = libraryGroupModeFromStorageValue(
+        name,
+        allowedModes == null ? null : _type,
+      );
       if (mode != null && (allowed == null || allowed.contains(mode))) {
         modes.add(mode);
       }
@@ -521,7 +530,10 @@ class LibraryViewPreferenceStore {
   }) {
     try {
       return sanitizeLibraryFolderPreset(
-        LibraryFolderPreset.parse(value),
+        LibraryFolderPreset.parse(
+          value,
+          allowedModes == null ? null : _type,
+        ),
         allowedModes: allowedModes,
       );
     } on ArgumentError {

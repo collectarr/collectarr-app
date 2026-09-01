@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 
@@ -94,6 +95,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.folderSetLabel,
     this.subgroupKey,
     this.category,
+    this.bucketValueMutator,
+    this.ownedBucketValueMutator,
   });
 
   final LibraryGroupId<TKind, TValue> id;
@@ -110,6 +113,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final String? folderSetLabel;
   final String? Function(LibraryProjectionContext<TDto> context)? subgroupKey;
   final String? category;
+  final LibraryGroupBucketValueMutator? bucketValueMutator;
+  final LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator;
 
   String get resolvedSidebarTitle => sidebarTitle ?? label;
   String get resolvedCategory => category ?? 'Main';
@@ -132,6 +137,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     String? folderSetLabel,
     String? Function(LibraryProjectionContext<TDto> context)? subgroupKey,
     String? category,
+    LibraryGroupBucketValueMutator? bucketValueMutator,
+    LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator,
   }) {
     return LibraryGroupDefinition<TKind, TDto, TValue>(
       id: id ?? this.id,
@@ -150,6 +157,9 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
       folderSetLabel: folderSetLabel ?? this.folderSetLabel,
       subgroupKey: subgroupKey ?? this.subgroupKey,
       category: category ?? this.category,
+      bucketValueMutator: bucketValueMutator ?? this.bucketValueMutator,
+      ownedBucketValueMutator:
+          ownedBucketValueMutator ?? this.ownedBucketValueMutator,
     );
   }
 }

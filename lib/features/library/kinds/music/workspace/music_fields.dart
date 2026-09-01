@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -183,12 +184,20 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Artists',
     icon: Icons.person_outline,
     supportsBucketManagement: true,
+    bucketValueMutator: libraryStringBucketValueMutator(
+      'artist',
+      mirrorKeys: ['series_title'],
+    ),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(
     MusicKindSchema.publisher,
     sidebarTitle: 'Labels',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
+    bucketValueMutator: libraryStringBucketValueMutator(
+      'publisher',
+      mirrorKeys: ['record_label'],
+    ),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(
     MusicKindSchema.format,
@@ -205,6 +214,7 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Conditions',
     icon: Icons.verified_outlined,
     supportsBucketManagement: true,
+    ownedBucketValueMutator: libraryOwnedConditionBucketValueMutator(),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(
     MusicKindSchema.location,

@@ -52,7 +52,7 @@ void main() {
     test('LibraryFacetDefinition extracts values from DTO', () {
       final facetDef =
           LibraryFacetDefinition<dynamic, ComicWorkspaceDto, String>(
-        id: const LibraryTypedFacetId<dynamic, String>('publisher'),
+        id: const LibraryFacetId<dynamic, String>('publisher'),
         label: 'Publisher',
         extractValues: (dto) => dto.comic.publishing.publisher != null
             ? [dto.comic.publishing.publisher!]

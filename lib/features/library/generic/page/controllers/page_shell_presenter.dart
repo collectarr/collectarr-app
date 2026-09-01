@@ -110,6 +110,7 @@ abstract final class LibraryPageShellPresenter {
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
+    final runtime = libraryKindRuntimeForType(state.widget.type);
     final workspaceOverride = state.buildWorkspaceOverride(
       projection,
       viewState,
@@ -214,19 +215,24 @@ abstract final class LibraryPageShellPresenter {
       onSetCollapsedGroupBuckets: state._setCollapsedGroupBuckets,
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
-        (stateValue) => stateValue.withSortColumn(column, state._viewProfile),
+        (stateValue) => stateValue.withSortColumn(
+          runtime.fields.decodeSortId(column),
+          state._viewProfile,
+        ),
       ),
       onColumnWidthChanged: (column, width) => state._updateViewState(
         (stateValue) => stateValue.withColumnWidth(
-          column,
+          runtime.fields.decodeColumnId(column),
           width,
           state._viewProfile,
         ),
       ),
       onColumnReordered: (column, beforeColumn) => state._updateViewState(
         (stateValue) => stateValue.withReorderedColumn(
-          column: column,
-          beforeColumn: beforeColumn,
+          column: runtime.fields.decodeColumnId(column),
+          beforeColumn: beforeColumn == null
+              ? null
+              : runtime.fields.decodeColumnId(beforeColumn),
         ),
       ),
       onCoverSizeChanged: (size) => state._updateViewState(

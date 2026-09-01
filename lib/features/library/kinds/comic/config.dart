@@ -130,12 +130,10 @@ final comicsLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     canScanCover: true,
-    supportsMediaReleaseSplit: true,
+    supportsMediaReleaseSplit: false,
     supportsIndexReassignment: true,
     supportsMetadataCompare: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
-    mediaScopeGroupIds: _comicMediaGroupModes,
-    releaseScopeGroupIds: _comicReleaseGroupModes,
     groupModeCategoriesBuilder: buildComicGroupModeCategories,
   ),
 );
@@ -240,41 +238,3 @@ int? comicIssueSortNumber(String? raw) {
   }
   return int.tryParse(raw.trim());
 }
-
-const Set<String> _comicMediaGroupModes = {
-  'series',
-  'publisher',
-  'imprint',
-  'release_date',
-  'release_month',
-  'release_year',
-  'genre',
-  'story_arc',
-  'character',
-  'creator',
-  'artist',
-  'writer',
-  'penciller',
-  'inker',
-  'cover_artist',
-  'editor',
-  'editor_in_chief',
-  'letterer',
-  'colorist',
-  'translator',
-  'location',
-  'grade',
-  'condition',
-  'is_key_comic',
-  'raw_or_slabbed',
-  'my_rating',
-};
-
-const Set<String> _comicReleaseGroupModes = {
-  'variant',
-  'format',
-  'edition',
-  'cover_date',
-  'cover_month',
-  'cover_year',
-};

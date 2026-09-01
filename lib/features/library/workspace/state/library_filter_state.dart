@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+
 class LibraryFilterState {
   const LibraryFilterState({
     this.searchQuery = '',
@@ -12,21 +14,21 @@ class LibraryFilterState {
 
   final String searchQuery;
   final String searchDraft;
-  final Map<String, Set<String>> facetValues;
-  final String? groupId;
-  final String? sortId;
+  final Map<LibraryFacetIdRuntime, Set<String>> facetValues;
+  final LibraryGroupIdRuntime? groupId;
+  final LibrarySortIdRuntime? sortId;
   final bool sortAscending;
-  final Set<String> visibleColumnIds;
+  final Set<LibraryFieldIdRuntime> visibleColumnIds;
   final String? presentationLevelId;
 
   LibraryFilterState copyWith({
     String? searchQuery,
     String? searchDraft,
-    Map<String, Set<String>>? facetValues,
-    String? Function()? groupId,
-    String? Function()? sortId,
+    Map<LibraryFacetIdRuntime, Set<String>>? facetValues,
+    LibraryGroupIdRuntime? Function()? groupId,
+    LibrarySortIdRuntime? Function()? sortId,
     bool? sortAscending,
-    Set<String>? visibleColumnIds,
+    Set<LibraryFieldIdRuntime>? visibleColumnIds,
     String? Function()? presentationLevelId,
   }) {
     return LibraryFilterState(

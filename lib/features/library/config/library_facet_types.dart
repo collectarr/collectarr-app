@@ -4,9 +4,6 @@ import 'package:flutter/foundation.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart'
     show LibraryFacetId, LibraryFacetIdRuntime, DynamicLibraryFacetId;
 
-/// Backwards compatibility alias for [LibraryFacetId].
-typedef LibraryTypedFacetId<TKind, TValue> = LibraryFacetId<TKind, TValue>;
-
 @immutable
 class LibraryFacetBucket<TValue> {
   const LibraryFacetBucket({

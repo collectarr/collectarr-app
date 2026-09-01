@@ -60,7 +60,10 @@ abstract final class BookGroupIds {
   static const author = LibraryGroupId<BookKind, String?>('book.author');
   static const publisher = LibraryGroupId<BookKind, String?>('book.publisher');
   static const series = LibraryGroupId<BookKind, String?>('book.series');
-  static const location = LibraryGroupId<BookKind, String?>('book.location');
+  static const location = LibraryGroupId<BookKind, String?>(
+    'book.location',
+    semantic: LibraryGroupSemantic.location,
+  );
   static const condition = LibraryGroupId<BookKind, String?>('book.condition');
   static const rating = LibraryGroupId<BookKind, int?>('book.rating');
   static const format = LibraryGroupId<BookKind, String?>('book.format');

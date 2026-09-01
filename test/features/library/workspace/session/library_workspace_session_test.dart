@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/workspace/session/library_worksp
 import 'package:collectarr_app/features/library/workspace/state/library_filters_provider.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_view_config_provider.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_key.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -61,30 +62,31 @@ void main() {
     });
 
     test('sort and group actions update state and legacy providers', () {
-      controller.setSort('comic.cover_price', ascending: false);
+      controller.setSort(ComicSortIds.pricePaid, ascending: false);
       var state = container.read(libraryWorkspaceSessionProvider(key));
-      expect(state.filters.sortId, 'comic.cover_price');
+      expect(state.filters.sortId, ComicSortIds.pricePaid);
       expect(state.filters.sortAscending, false);
 
       var legacyFilters = container.read(libraryFiltersProvider(key));
-      expect(legacyFilters.sortId, 'comic.cover_price');
+      expect(legacyFilters.sortId, ComicSortIds.pricePaid);
       expect(legacyFilters.sortAscending, false);
 
       controller.toggleSortDirection();
       state = container.read(libraryWorkspaceSessionProvider(key));
       expect(state.filters.sortAscending, true);
 
-      controller.setGroup('comic.publisher');
+      controller.setGroup(ComicGroupIds.publisher);
       state = container.read(libraryWorkspaceSessionProvider(key));
-      expect(state.filters.groupId, 'comic.publisher');
+      expect(state.filters.groupId, ComicGroupIds.publisher);
     });
 
     test(
         'filter actions update facets, scopes, quick views, and linked metadata',
         () {
-      controller.setFacetValues('publisher', {'Marvel', 'DC'});
+      controller.setFacetValues(ComicFacetIds.publisher, {'Marvel', 'DC'});
       var state = container.read(libraryWorkspaceSessionProvider(key));
-      expect(state.filters.facetValues['publisher'], {'Marvel', 'DC'});
+      expect(
+          state.filters.facetValues[ComicFacetIds.publisher], {'Marvel', 'DC'});
 
       controller
           .setCollectionStatusScope(LibraryCollectionStatusScope.inCollection);
@@ -119,9 +121,9 @@ void main() {
       state = container.read(libraryWorkspaceSessionProvider(key));
       expect(state.view.coverSize, 240.0);
 
-      controller.setColumnWidth('comic.title', 300.0);
+      controller.setColumnWidth(ComicFieldIds.title, 300.0);
       state = container.read(libraryWorkspaceSessionProvider(key));
-      expect(state.view.columnWidths['comic.title'], 300.0);
+      expect(state.view.columnWidths[ComicFieldIds.title], 300.0);
 
       controller.toggleSidebar();
       state = container.read(libraryWorkspaceSessionProvider(key));
@@ -202,8 +204,10 @@ void main() {
 
       controller.applyColumnPreset(colPreset);
       state = container.read(libraryWorkspaceSessionProvider(key));
-      expect(state.filters.visibleColumnIds,
-          {'comic.title', 'comic.issue_number'});
+      expect(state.filters.visibleColumnIds, {
+        ComicFieldIds.title,
+        ComicFieldIds.issueNumber,
+      });
     });
 
     test('async state manages loading, error, and detail hydration', () {
@@ -229,7 +233,7 @@ void main() {
       controller.restoreFromSavedState(
         filters: const LibrarySessionFilterState(
           searchQuery: 'Batman',
-          sortId: 'comic.title',
+          sortId: ComicSortIds.title,
           sortAscending: false,
         ),
         view: const LibrarySessionViewState(
@@ -240,7 +244,7 @@ void main() {
 
       final state = container.read(libraryWorkspaceSessionProvider(key));
       expect(state.filters.searchQuery, 'Batman');
-      expect(state.filters.sortId, 'comic.title');
+      expect(state.filters.sortId, ComicSortIds.title);
       expect(state.filters.sortAscending, false);
       expect(state.view.viewMode, LibraryViewMode.list);
       expect(state.view.coverSize, 220.0);

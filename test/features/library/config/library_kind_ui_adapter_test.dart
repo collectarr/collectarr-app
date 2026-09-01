@@ -37,15 +37,13 @@ void main() {
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
       isSidebarVisible: true,
-      sortColumn: bookModule.fields.defaultSort.value,
+      sortId: bookModule.fields.defaultSort,
       sortAscending: true,
       coverSize: 180,
       sidebarWidth: 320,
       detailsWidth: 420,
       detailsHeight: 260,
-      visibleColumns: bookModule.fields.defaultVisibleColumns
-          .map((column) => column.value)
-          .toSet(),
+      visibleColumnIds: bookModule.fields.defaultVisibleColumns,
       columnWidths: const {},
     );
 

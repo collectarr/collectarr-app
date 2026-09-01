@@ -77,7 +77,10 @@ abstract final class AnimeGroupIds {
   static const format = LibraryGroupId<AnimeKind, String?>('anime.format');
   static const releaseYear =
       LibraryGroupId<AnimeKind, int?>('anime.release_year');
-  static const location = LibraryGroupId<AnimeKind, String?>('anime.location');
+  static const location = LibraryGroupId<AnimeKind, String?>(
+    'anime.location',
+    semantic: LibraryGroupSemantic.location,
+  );
   static const condition =
       LibraryGroupId<AnimeKind, String?>('anime.condition');
   static const rating = LibraryGroupId<AnimeKind, int?>('anime.rating');

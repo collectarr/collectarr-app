@@ -51,7 +51,10 @@ abstract final class MusicGroupIds {
   static const publisher =
       LibraryGroupId<MusicKind, String?>('music.publisher');
   static const format = LibraryGroupId<MusicKind, String?>('music.format');
-  static const location = LibraryGroupId<MusicKind, String?>('music.location');
+  static const location = LibraryGroupId<MusicKind, String?>(
+    'music.location',
+    semantic: LibraryGroupSemantic.location,
+  );
   static const condition =
       LibraryGroupId<MusicKind, String?>('music.condition');
   static const rating = LibraryGroupId<MusicKind, int?>('music.rating');

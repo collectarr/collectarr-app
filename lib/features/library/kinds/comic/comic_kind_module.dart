@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
-import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -268,7 +267,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   ),
   providerMapper: const ComicLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+    loadRows: _loadComicFacetRows,
     getFacetValues: _getFacetValues,
   ),
   buildCardPresentation: buildComicCardPresentation,
@@ -324,6 +323,20 @@ Iterable<String> _getFacetValues(
     return pub != null ? [pub] : const [];
   }
   return const [];
+}
+
+Future<List<Map<String, dynamic>>> _loadComicFacetRows({
+  required LibraryFacetIdRuntime facetId,
+  required Set<String> itemIds,
+  required ApiClient api,
+}) {
+  if (facetId == ComicFacetIds.storyArc) {
+    return api.storyArcFacets(itemIds);
+  }
+  if (facetId == ComicFacetIds.character) {
+    return api.characterFacets(itemIds);
+  }
+  return Future.value(const <Map<String, dynamic>>[]);
 }
 
 Future<void> _showJumpToIssueDialog(

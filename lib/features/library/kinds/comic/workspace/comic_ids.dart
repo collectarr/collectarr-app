@@ -78,7 +78,10 @@ abstract final class ComicGroupIds {
   static const series = LibraryGroupId<ComicKind, String?>('comic.series');
   static const publisher =
       LibraryGroupId<ComicKind, String?>('comic.publisher');
-  static const location = LibraryGroupId<ComicKind, String?>('comic.location');
+  static const location = LibraryGroupId<ComicKind, String?>(
+    'comic.location',
+    semantic: LibraryGroupSemantic.location,
+  );
   static const condition =
       LibraryGroupId<ComicKind, String?>('comic.condition');
   static const rating = LibraryGroupId<ComicKind, int?>('comic.rating');

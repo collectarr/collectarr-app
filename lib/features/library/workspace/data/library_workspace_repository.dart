@@ -4,8 +4,6 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -17,7 +15,6 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'library_workspace_query.dart';
@@ -195,8 +192,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
             if (selectedValues.isEmpty) {
               continue;
             }
-            final values = module.facets?.getFacetValues
-                    ?.call(item, DynamicLibraryFacetId(facetId)) ??
+            final values = module.facets?.getFacetValues?.call(item, facetId) ??
                 const <String>[];
             final hasMatch = values.any((val) => selectedValues.contains(val));
             if (!hasMatch) {
@@ -248,7 +244,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     final queryStr = query.searchQuery.trim().toLowerCase();
     if (queryStr.isNotEmpty) {
       filtered = filtered.where((item) {
-        final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+        final adapter = item.dto is WorkspaceDtoAdapter
+            ? item.dto as WorkspaceDtoAdapter
+            : null;
         return item.dto.title.toLowerCase().contains(queryStr) ||
             (adapter?.publisher?.toLowerCase().contains(queryStr) ?? false) ||
             (adapter?.itemNumber?.toLowerCase().contains(queryStr) ?? false);
@@ -263,7 +261,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
 
     if (query.scopeId != null) {
       filtered = filtered.where((item) {
-        final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+        final adapter = item.dto is WorkspaceDtoAdapter
+            ? item.dto as WorkspaceDtoAdapter
+            : null;
         return item.node.titleItemId == query.scopeId ||
             adapter?.seriesTitle == query.scopeId;
       }).toList();
@@ -277,8 +277,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           if (selectedValues.isEmpty) {
             continue;
           }
-          final values = module.facets?.getFacetValues
-                  ?.call(item, DynamicLibraryFacetId(facetId)) ??
+          final values = module.facets?.getFacetValues?.call(item, facetId) ??
               const <String>[];
           final hasMatch = values.any((val) => selectedValues.contains(val));
           if (!hasMatch) {
@@ -517,30 +516,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     try {
       final list = json.decode(jsonStr) as List;
       return list.cast<String>();
-    } catch (_) {
-      return null;
-    }
-  }
-
-  List<CatalogTrackDto>? _decodeTracks(String? jsonStr) {
-    if (jsonStr == null || jsonStr.isEmpty) return null;
-    try {
-      final list = json.decode(jsonStr) as List;
-      return list
-          .map((e) => CatalogTrackDto.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } catch (_) {
-      return null;
-    }
-  }
-
-  List<CatalogDiscDto>? _decodeDiscs(String? jsonStr) {
-    if (jsonStr == null || jsonStr.isEmpty) return null;
-    try {
-      final list = json.decode(jsonStr) as List;
-      return list
-          .map((e) => CatalogDiscDto.fromJson(e as Map<String, dynamic>))
-          .toList();
     } catch (_) {
       return null;
     }

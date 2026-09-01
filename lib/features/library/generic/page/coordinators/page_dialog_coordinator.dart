@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dar
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
@@ -146,14 +147,23 @@ class LibraryPageDialogCoordinator {
     if (!context.mounted) {
       return;
     }
+    final runtime = libraryKindRuntimeForType(_page.type);
+    final currentSortRules = _page.viewState?.sortRules
+        .map(
+          (rule) => LibrarySortRule(
+            column: rule.sortId.value,
+            ascending: rule.ascending,
+          ),
+        )
+        .toList();
     final result = await showSmartListsDialog(
       context: context,
       db: db,
       mediaKind: _page.type.workspace.kind.apiValue,
       currentFilter: _page.filterSelection,
       currentQuickView: _page.quickView,
-      currentSortRules: _page.viewState?.sortRules,
-      currentSortColumn: _page.viewState?.sortColumn,
+      currentSortRules: currentSortRules,
+      currentSortColumn: _page.viewState?.sortId.value,
       currentSortAscending: _page.viewState?.sortAscending,
       currentSearchQuery:
           _page.searchQuery.isNotEmpty ? _page.searchQuery : null,
@@ -172,12 +182,12 @@ class LibraryPageDialogCoordinator {
         if (viewState != null) {
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
             _page.viewState = viewState.withSortRules(
-              result.sortRules!,
+              _page.viewProfile.decodeSortRules(result.sortRules!),
               _page.viewProfile,
             );
           } else if (result.sortColumn != null) {
             _page.viewState = viewState.copyWith(
-              sortColumn: result.sortColumn,
+              sortId: runtime.fields.decodeSortId(result.sortColumn!),
               sortAscending: result.sortAscending ?? true,
             );
           }
@@ -192,11 +202,21 @@ class LibraryPageDialogCoordinator {
     if (viewState == null) {
       return;
     }
+    final runtime = libraryKindRuntimeForType(_page.type);
     final sortRules = await showLibrarySortDialog(
       context: _page.context,
       type: _page.type,
-      currentRules: viewState.sortRules,
-      defaultAscendingForColumn: _page.viewProfile.initialSortAscending,
+      currentRules: [
+        for (final rule in viewState.sortRules)
+          LibrarySortRule(
+            column: rule.sortId.value,
+            ascending: rule.ascending,
+          ),
+      ],
+      defaultAscendingForColumn: (column) =>
+          _page.viewProfile.initialSortAscending(
+        runtime.fields.decodeSortId(column),
+      ),
       availableColumns: _page.scopeAvailableSortColumns,
     );
     if (sortRules != null && _page.mounted) {
@@ -209,7 +229,10 @@ class LibraryPageDialogCoordinator {
         return;
       }
       _page.updateViewState(
-        (state) => state.withSortRules(filteredRules, _page.viewProfile),
+        (state) => state.withSortRules(
+          _page.viewProfile.decodeSortRules(filteredRules),
+          _page.viewProfile,
+        ),
       );
     }
   }
@@ -328,8 +351,11 @@ class LibraryPageDialogCoordinator {
       onTogglePinnedFavorite: _page.togglePinnedColumnFavorite,
     );
     if (selected != null) {
-      _page
-          .updateViewState((state) => state.copyWith(visibleColumns: selected));
+      _page.updateViewState(
+        (state) => state.copyWith(
+          visibleColumnIds: _page.viewProfile.decodeColumnIds(selected),
+        ),
+      );
     }
     await _page.loadColumnFavoritePresets();
   }

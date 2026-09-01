@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
@@ -24,11 +25,11 @@ class LibraryGroupingEngine {
   String getGroupBucketForItem(
     LibraryProjectionItem item,
     LibraryTypeConfig type,
-    String groupMode,
+    LibraryGroupIdRuntime groupId,
   ) {
     final runtime = libraryKindRuntimeForType(type);
     final groupDefinition = runtime.fields.findGroupDefinition(
-      runtime.fields.decodeGroupId(groupMode),
+      groupId,
     );
     if (groupDefinition != null) {
       final value = runtime.groupValue(item, groupDefinition.id);
@@ -41,7 +42,7 @@ class LibraryGroupingEngine {
       LibraryBucketingContext(
         source: item.source,
         item: item,
-        groupMode: groupMode,
+        groupId: groupId,
       ),
     );
   }
@@ -49,13 +50,13 @@ class LibraryGroupingEngine {
   List<LibraryBucket> buildBuckets(
     List<LibraryProjectionItem> items,
     LibraryTypeConfig type,
-    String groupMode, {
+    LibraryGroupIdRuntime groupId, {
     LibraryProjectionIndex? index,
   }) {
     final allBucketLabel = genericAllBucketLabel(type);
     final counts = <String, int>{allBucketLabel: items.length};
     final runtime = libraryKindRuntimeForType(type);
-    final hasSequence = runtime.groupModeSupportsCompletion(groupMode);
+    final hasSequence = runtime.groupModeSupportsCompletion(groupId);
     final ownedCounts = hasSequence
         ? <String, int>{
             allBucketLabel: items.where((item) => item.source.isOwned).length,
@@ -70,15 +71,15 @@ class LibraryGroupingEngine {
       final bucket = index != null
           ? index.getGroupBucket(
               item,
-              groupMode,
+              groupId,
               (it, mode) => getGroupBucketForItem(it, type, mode),
             )
-          : getGroupBucketForItem(item, type, groupMode);
+          : getGroupBucketForItem(item, type, groupId);
 
       counts[bucket] = (counts[bucket] ?? 0) + 1;
       final number = hasSequence
           ? _parseWholeNumber(
-              runtime.groupSequenceValueForEntry(item, groupMode),
+              runtime.groupSequenceValueForEntry(item, groupId),
             )
           : null;
       if (number != null) {
@@ -150,22 +151,22 @@ class LibraryGroupingEngine {
   List<GroupShelfEntry> buildGroupEntries(
     List<LibraryProjectionItem> items,
     LibraryTypeConfig type,
-    String groupMode, {
+    LibraryGroupIdRuntime groupId, {
     LibraryGroupPresentation? presentationOverride,
     LibraryProjectionIndex? index,
   }) {
     final grouped = <String, List<LibraryProjectionItem>>{};
     final presentation = presentationOverride ??
-        genericGroupPresentationForMode(groupMode, type);
+        genericGroupPresentationForMode(groupId.value, type);
 
     for (final item in items) {
       final bucket = index != null
           ? index.getGroupBucket(
               item,
-              groupMode,
+              groupId,
               (it, mode) => getGroupBucketForItem(it, type, mode),
             )
-          : getGroupBucketForItem(item, type, groupMode);
+          : getGroupBucketForItem(item, type, groupId);
       (grouped[bucket] ??= []).add(item);
     }
 
@@ -173,7 +174,7 @@ class LibraryGroupingEngine {
     return [
       for (final bucket in sortedBuckets)
         GroupShelfEntry(
-          groupMode: groupMode,
+          groupMode: groupId.value,
           bucket: bucket,
           presentation: presentation,
           items: List<LibraryProjectionItem>.unmodifiable(grouped[bucket]!),

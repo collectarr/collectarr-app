@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
 
 export 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
@@ -28,15 +27,13 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
     coverGridHeightFactor: coverGridHeightFactor,
     presetConfig: (preset) => plannedMediaViewPresetConfig(type, preset),
     clampColumnWidth: (column, width) =>
-        clampPlannedMediaTableColumnWidth(type, column as String, width),
+        clampPlannedMediaTableColumnWidth(type, column, width),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: (column) =>
         libraryKindRuntimeForType(type)
             .fields
             .findSortDefinition(
-              libraryKindRuntimeForType(type)
-                  .fields
-                  .decodeSortId(column.toString()),
+              column,
             )
             ?.defaultAscending ??
         true,
@@ -47,11 +44,8 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   LibraryTypeConfig type,
   LibraryWorkspacePreset preset,
 ) {
-  final defaultCols = libraryKindRuntimeForType(type)
-      .fields
-      .defaultVisibleColumns
-      .map((column) => column.value)
-      .toSet();
+  final defaultCols =
+      libraryKindRuntimeForType(type).fields.defaultVisibleColumns;
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
@@ -83,12 +77,10 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
 String? plannedMediaSubgroupKeyForEntry(
   LibraryTypeConfig type,
   LibraryProjectionRuntime item,
-  Object groupMode,
+  LibraryGroupIdRuntime groupId,
 ) {
   final registry = libraryKindRuntimeForType(type).fields;
-  final definition = registry.findGroupDefinition(
-    registry.decodeGroupId(groupMode.toString()),
-  );
+  final definition = registry.findGroupDefinition(groupId);
   return definition?.subgroupKey?.call(
     LibraryProjectionContext(
         source: item.source, node: item.node, dto: item.dto),
@@ -98,11 +90,7 @@ String? plannedMediaSubgroupKeyForEntry(
 int plannedMediaCompareSubgroupKeys(
   String left,
   String right,
-  Object groupMode,
 ) {
-  if (groupMode != 'series') {
-    return left.compareTo(right);
-  }
   final leftNumber = _extractSubgroupNumber(left);
   final rightNumber = _extractSubgroupNumber(right);
   if (leftNumber != null && rightNumber != null) {

@@ -98,7 +98,10 @@ abstract final class MangaGroupIds {
   static const series = LibraryGroupId<MangaKind, String?>('manga.series');
   static const publisher =
       LibraryGroupId<MangaKind, String?>('manga.publisher');
-  static const location = LibraryGroupId<MangaKind, String?>('manga.location');
+  static const location = LibraryGroupId<MangaKind, String?>(
+    'manga.location',
+    semantic: LibraryGroupSemantic.location,
+  );
   static const condition =
       LibraryGroupId<MangaKind, String?>('manga.condition');
   static const rating = LibraryGroupId<MangaKind, int?>('manga.rating');

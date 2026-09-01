@@ -98,5 +98,8 @@ bool libraryGroupModeSupportsCompletion(
   LibraryTypeConfig type,
   String groupMode,
 ) {
-  return libraryKindRuntimeForType(type).groupModeSupportsCompletion(groupMode);
+  final runtime = libraryKindRuntimeForType(type);
+  return runtime.groupModeSupportsCompletion(
+    runtime.fields.decodeGroupId(groupMode),
+  );
 }

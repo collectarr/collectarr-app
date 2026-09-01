@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryFilterValueBuilder<T> = T? Function(
@@ -65,12 +66,12 @@ class LibraryBucketingContext {
   const LibraryBucketingContext({
     required this.source,
     required this.item,
-    required this.groupMode,
+    required this.groupId,
   });
 
   final ShelfEntry source;
   final LibraryProjectionRuntime item;
-  final String groupMode;
+  final LibraryGroupIdRuntime groupId;
 }
 
 typedef LibraryBucketLabelBuilder = String Function(

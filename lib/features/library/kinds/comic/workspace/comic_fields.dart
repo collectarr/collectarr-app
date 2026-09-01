@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -326,6 +327,11 @@ final comicLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
+    bucketValueMutator: libraryStringBucketValueMutator(
+      'publisher',
+      mirrorKeys: ['original_publisher'],
+      nestedValueKey: 'original_publisher',
+    ),
   ),
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
     ComicKindSchema.location,
