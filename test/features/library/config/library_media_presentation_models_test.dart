@@ -36,7 +36,9 @@ void main() {
 
       for (final mode in uniqueDefinitionModes) {
         expect(
-          () => entry.value.groupDefinitionFor(mode),
+          () => entry.value.groupDefinitionFor(
+            entry.value.decodeGroupId(mode),
+          ),
           returnsNormally,
           reason: '${entry.key} registry is missing a definition for $mode.',
         );
@@ -96,7 +98,9 @@ void main() {
 
       for (final column in expectedColumns) {
         expect(
-          entry.value.sortDefinitionForId(column),
+          entry.value.sortDefinitionForId(
+            entry.value.decodeSortId(column),
+          ),
           isNotNull,
           reason:
               '${entry.key} registry is missing a sort definition for $column.',
@@ -117,9 +121,8 @@ void main() {
       final kind = module.type.workspace.kind;
 
       // Test default visible columns
-      for (final columnId in module.fields.defaultVisibleColumnIds) {
-        final definition = module.fields.columnDefinitionForId(columnId) ??
-            module.fields.columnDefinitionForId(columnId.split('.').last);
+      for (final columnId in module.fields.defaultVisibleColumns) {
+        final definition = module.fields.columnDefinitionForId(columnId);
         expect(
           definition,
           isNotNull,
@@ -137,8 +140,9 @@ void main() {
             (c) => c.id.value == idStr || c.id.value.split('.').last == idStr,
           );
           if (isSupported) {
-            final definition = module.fields.columnDefinitionForId(idStr) ??
-                module.fields.columnDefinitionForId(idStr.split('.').last);
+            final definition = module.fields.columnDefinitionForId(
+              module.fields.decodeColumnId(idStr),
+            );
             expect(
               definition,
               isNotNull,

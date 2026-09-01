@@ -103,7 +103,7 @@ class LibrarySortPresetStore {
         for (final rule in _dedupeRules(preset.rules))
           {
             'column': module.fields
-                    .findSortDefinition(rule.column.toString())
+                    .findSortDefinition(module.fields.decodeSortId(rule.column))
                     ?.id
                     .value ??
                 rule.column.toString(),
@@ -130,7 +130,9 @@ class LibrarySortPresetStore {
       }
       final columnName = json['column']?.toString();
       if (columnName == null) continue;
-      final sortDef = module.fields.findSortDefinition(columnName);
+      final sortDef = module.fields.findSortDefinition(
+        module.fields.decodeSortId(columnName),
+      );
       if (sortDef == null) {
         continue;
       }
@@ -149,7 +151,9 @@ class LibrarySortPresetStore {
     final seen = <String>{};
     final deduped = <LibrarySortRule>[];
     for (final rule in rules) {
-      final sortDef = module.fields.findSortDefinition(rule.column);
+      final sortDef = module.fields.findSortDefinition(
+        module.fields.decodeSortId(rule.column),
+      );
       if (sortDef == null) {
         continue;
       }

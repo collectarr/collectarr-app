@@ -102,7 +102,9 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = detailRequest.type.detailPageBuilder!;
+            final builder = libraryKindRuntimeForType(detailRequest.type)
+                .inspector
+                .detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),
@@ -235,7 +237,9 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = detailRequest.type.detailPageBuilder!;
+            final builder = libraryKindRuntimeForType(detailRequest.type)
+                .inspector
+                .detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),
@@ -337,7 +341,9 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = detailRequest.type.detailPageBuilder!;
+            final builder = libraryKindRuntimeForType(detailRequest.type)
+                .inspector
+                .detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),

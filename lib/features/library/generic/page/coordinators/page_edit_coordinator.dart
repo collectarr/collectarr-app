@@ -157,7 +157,9 @@ class LibraryPageEditCoordinator {
       item: freshMetadataItem,
       ownedItem: owned,
       scope: scope ??
-          _s.widget.type.editScopeForBrowserMode(_s._activeBrowserMode),
+          libraryKindRuntimeForType(_s.widget.type)
+              .hierarchy
+              .editScopeForBrowserMode(_s._activeBrowserMode),
       wishlistItem: wishlist,
       trackingEntry: activeTrackingEntry,
       accent: _s.widget.accent,

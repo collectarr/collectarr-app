@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
@@ -118,6 +119,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   value: const ComicValueCapability(),
   add: StandardLibraryAddCapability<ComicAddDraft>(
     kind: CatalogMediaKind.comic,
+    dialogLauncher: showComicLibraryAddDialog,
     initialDraftBuilder: ComicAddDraft.new,
     manualDraftBuilder: ComicAddManualDraft.new,
     manualPaneBuilder: buildComicAddManualPane,

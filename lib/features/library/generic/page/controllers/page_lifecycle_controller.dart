@@ -2,9 +2,9 @@ part of '../generic_library_page.dart';
 
 abstract final class _LibraryPageLifecycleControllerOps {
   static void initState(GenericLibraryPageState state) {
-    state._kindBrowserDelegate =
-        state.widget.type.kindBrowserDelegateBuilder?.call() ??
-            LibraryNoopBrowserDelegate();
+    state._kindBrowserDelegate = libraryKindRuntimeForType(state.widget.type)
+        .hierarchy
+        .buildBrowserDelegate();
     state._shelfSubscription = state.ref.listenManual<AsyncValue<ShelfState>>(
       shelfProvider,
       (_, next) {

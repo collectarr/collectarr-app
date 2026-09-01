@@ -86,14 +86,16 @@ class LibraryWorkspaceViewProfile {
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
-      sortColumn: module.fields.defaultSortId,
+      sortColumn: module.fields.defaultSort.value,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
       densityPreset: type.defaultDensityPreset,
-      visibleColumns: Set.of(module.fields.defaultVisibleColumnIds),
+      visibleColumns: module.fields.defaultVisibleColumns
+          .map((column) => column.value)
+          .toSet(),
       columnWidths: const {},
     );
     return defaults

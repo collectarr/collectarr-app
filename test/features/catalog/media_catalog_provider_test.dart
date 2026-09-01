@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,17 +63,18 @@ void main() {
       'comicvine',
       'gcd',
     ]);
+    final resolvedInspector = libraryKindRuntimeForType(type).inspector;
+    final baseInspector =
+        libraryKindRuntimeForType(comicsLibraryConfig).inspector;
     expect(
-      type.inspectorSectionsBuilder,
-      same(comicsLibraryConfig.inspectorSectionsBuilder),
+      resolvedInspector.sectionsBuilder,
+      same(baseInspector.sectionsBuilder),
     );
-    expect(type.inspectorHeroBuilder,
-        same(comicsLibraryConfig.inspectorHeroBuilder));
     expect(
-      type.inspectorSectionsBuilder,
-      same(comicsLibraryConfig.inspectorSectionsBuilder),
+      resolvedInspector.heroBuilder,
+      same(baseInspector.heroBuilder),
     );
-    expect(type.showsDefaultInspectorPersonalSection, isFalse);
+    expect(resolvedInspector.showsDefaultPersonalSection, isFalse);
   });
 
   test('media catalog cache is reused for the same base url', () async {

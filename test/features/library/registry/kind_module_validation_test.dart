@@ -27,10 +27,12 @@ void main() {
       final movieModule = libraryKindRuntimeForKind(CatalogMediaKind.movie);
       final gameModule = libraryKindRuntimeForKind(CatalogMediaKind.game);
 
-      final movieReleaseSort =
-          movieModule.fields.sortDefinitionForId('movie.release_date');
-      final gameReleaseSort =
-          gameModule.fields.sortDefinitionForId('game.release_date');
+      final movieReleaseSort = movieModule.fields.sortDefinitionForId(
+        movieModule.fields.decodeSortId('movie.release_date'),
+      );
+      final gameReleaseSort = gameModule.fields.sortDefinitionForId(
+        gameModule.fields.decodeSortId('game.release_date'),
+      );
 
       expect(movieReleaseSort, isNotNull);
       expect(gameReleaseSort, isNotNull);

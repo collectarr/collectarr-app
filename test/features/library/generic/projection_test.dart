@@ -59,7 +59,9 @@ void main() {
       node: node1,
     );
 
-    final groupDef = comicKindModule.fields.findGroupDefinition('comic.series');
+    final groupDef = comicKindModule.fields.findGroupDefinition(
+      comicKindModule.fields.decodeGroupId('comic.series'),
+    );
     expect(groupDef, isNotNull);
     final ctx = LibraryProjectionContext<ComicWorkspaceDto>(
       source: source1,

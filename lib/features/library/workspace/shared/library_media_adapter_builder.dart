@@ -33,7 +33,11 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
     sortAscendingForColumn: (column) =>
         libraryKindRuntimeForType(type)
             .fields
-            .findSortDefinition(column.toString())
+            .findSortDefinition(
+              libraryKindRuntimeForType(type)
+                  .fields
+                  .decodeSortId(column.toString()),
+            )
             ?.defaultAscending ??
         true,
   );
@@ -43,8 +47,11 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   LibraryTypeConfig type,
   LibraryWorkspacePreset preset,
 ) {
-  final defaultCols =
-      Set.of(libraryKindRuntimeForType(type).fields.defaultVisibleColumnIds);
+  final defaultCols = libraryKindRuntimeForType(type)
+      .fields
+      .defaultVisibleColumns
+      .map((column) => column.value)
+      .toSet();
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
@@ -79,7 +86,9 @@ String? plannedMediaSubgroupKeyForEntry(
   Object groupMode,
 ) {
   final registry = libraryKindRuntimeForType(type).fields;
-  final definition = registry.findGroupDefinition(groupMode.toString());
+  final definition = registry.findGroupDefinition(
+    registry.decodeGroupId(groupMode.toString()),
+  );
   return definition?.subgroupKey?.call(
     LibraryProjectionContext(
         source: item.source, node: item.node, dto: item.dto),

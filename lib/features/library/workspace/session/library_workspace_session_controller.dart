@@ -29,9 +29,11 @@ class LibraryWorkspaceSessionController
     final module = libraryKindRuntimeForKind(_key.kind);
     state = state.copyWith(
       filters: state.filters.copyWith(
-        groupId: () => module.fields.defaultGroupId,
-        sortId: () => module.fields.defaultSortId,
-        visibleColumnIds: module.fields.defaultVisibleColumnIds.toSet(),
+        groupId: () => module.fields.defaultGroup?.value,
+        sortId: () => module.fields.defaultSort.value,
+        visibleColumnIds: module.fields.defaultVisibleColumns
+            .map((column) => column.value)
+            .toSet(),
         presentationLevelId: () => _key.presentationLevelId,
       ),
     );
@@ -142,9 +144,11 @@ class LibraryWorkspaceSessionController
       final module = libraryKindRuntimeForKind(_key.kind);
       state = state.copyWith(
         filters: LibrarySessionFilterState(
-          groupId: module.fields.defaultGroupId,
-          sortId: module.fields.defaultSortId,
-          visibleColumnIds: module.fields.defaultVisibleColumnIds.toSet(),
+          groupId: module.fields.defaultGroup?.value,
+          sortId: module.fields.defaultSort.value,
+          visibleColumnIds: module.fields.defaultVisibleColumns
+              .map((column) => column.value)
+              .toSet(),
           presentationLevelId: _key.presentationLevelId,
         ),
       );

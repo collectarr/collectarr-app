@@ -262,9 +262,11 @@ class _LibraryGroupModeMenuButtonState
       for (final preset in widget.pinnedFolderPresets)
         if (preset.modes.every((m) =>
             modes.contains(m) ||
-            libraryKindRuntimeForType(widget.type)
-                    .fields
-                    .findGroupDefinition(m) !=
+            libraryKindRuntimeForType(widget.type).fields.findGroupDefinition(
+                      libraryKindRuntimeForType(widget.type)
+                          .fields
+                          .decodeGroupId(m),
+                    ) !=
                 null))
           genericFolderPresetLabel(preset, widget.type),
     ];
@@ -332,10 +334,9 @@ class _LibraryGroupModeDropdownMenuState
 
   bool _isModeMatching(String m1, String m2) {
     if (m1 == m2) return true;
-    final def1 =
-        libraryKindRuntimeForType(widget.type).fields.findGroupDefinition(m1);
-    final def2 =
-        libraryKindRuntimeForType(widget.type).fields.findGroupDefinition(m2);
+    final fields = libraryKindRuntimeForType(widget.type).fields;
+    final def1 = fields.findGroupDefinition(fields.decodeGroupId(m1));
+    final def2 = fields.findGroupDefinition(fields.decodeGroupId(m2));
     if (def1 != null && def2 != null) {
       return def1.id.value == def2.id.value;
     }
@@ -380,9 +381,11 @@ class _LibraryGroupModeDropdownMenuState
       for (final preset in _pinnedPresets)
         if (preset.modes.every((m) =>
             widget.availableModes.contains(m) ||
-            libraryKindRuntimeForType(widget.type)
-                    .fields
-                    .findGroupDefinition(m) !=
+            libraryKindRuntimeForType(widget.type).fields.findGroupDefinition(
+                      libraryKindRuntimeForType(widget.type)
+                          .fields
+                          .decodeGroupId(m),
+                    ) !=
                 null))
           preset,
     ];

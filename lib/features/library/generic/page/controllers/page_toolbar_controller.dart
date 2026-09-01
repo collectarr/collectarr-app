@@ -21,8 +21,9 @@ class LibraryPageToolbarController {
         continue;
       }
       final normalizedTitle = title.toLowerCase();
-      final adapter =
-          item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+      final adapter = item.dto is WorkspaceDtoAdapter
+          ? item.dto as WorkspaceDtoAdapter
+          : null;
       final itemNumber = adapter?.itemNumber?.trim();
       final publisher = adapter?.publisher?.trim();
       final subtitleParts = <String>[
@@ -244,12 +245,15 @@ class LibraryPageToolbarController {
             onScanCover: _s._coverCoordinator.scanCoverFlow,
             onDownloadAllCovers: _s._coverCoordinator.downloadAllCoversFlow,
             onShowConditionPickListEditorFlow:
-                _s.widget.type.hasConditionPickList
+                libraryKindRuntimeForType(_s.widget.type)
+                        .edit
+                        .hasConditionPickList
                     ? _s._dialogCoordinator.showConditionPickListEditorFlow
                     : null,
-            onShowGradePickListEditorFlow: _s.widget.type.hasGradePickList
-                ? _s._dialogCoordinator.showGradePickListEditorFlow
-                : null,
+            onShowGradePickListEditorFlow:
+                libraryKindRuntimeForType(_s.widget.type).edit.hasGradePickList
+                    ? _s._dialogCoordinator.showGradePickListEditorFlow
+                    : null,
             onShowTagPickListEditorFlow:
                 _s._dialogCoordinator.showTagPickListEditorFlow,
           ),

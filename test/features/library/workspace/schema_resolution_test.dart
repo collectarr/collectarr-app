@@ -24,11 +24,11 @@ void main() {
 
   for (final (name, module) in modules) {
     group('$name Kind Schema Resolution', () {
-      test('defaultVisibleColumnIds resolve to valid columns', () {
+      test('default visible columns resolve to valid columns', () {
         final registry = module.fields;
         final columnIds = registry.columns.map((c) => c.id.value).toSet();
 
-        for (final defaultId in registry.defaultVisibleColumnIds) {
+        for (final defaultId in registry.defaultVisibleColumns) {
           final definition = registry.columnDefinitionForId(defaultId);
           expect(
             definition,
@@ -45,11 +45,9 @@ void main() {
         }
       });
 
-      test('defaultSortId resolves to valid sort definition', () {
+      test('default sort resolves to valid sort definition', () {
         final registry = module.fields;
-        final defaultSortId = registry.defaultSortId;
-        expect(defaultSortId, isNotNull,
-            reason: '$name defaultSortId should not be null.');
+        final defaultSortId = registry.defaultSort;
         final sort = registry.findSortDefinition(defaultSortId);
         expect(
           sort,
@@ -59,18 +57,16 @@ void main() {
         );
       });
 
-      test('defaultGroupId resolves to valid group definition', () {
+      test('default group resolves to valid group definition', () {
         final registry = module.fields;
-        final defaultGroupId = registry.defaultGroupId;
-        expect(defaultGroupId, isNotNull,
-            reason: '$name defaultGroupId should not be null.');
+        final defaultGroupId = registry.defaultGroup;
         if (defaultGroupId != null) {
           final group = registry.findGroupDefinition(defaultGroupId);
           expect(
             group,
             isNotNull,
             reason:
-                '$name defaultGroupId "$defaultGroupId" must resolve to a valid group definition.',
+                '$name default group ID "$defaultGroupId" must resolve to a valid group definition.',
           );
         }
       });

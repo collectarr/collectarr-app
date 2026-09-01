@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
@@ -14,12 +15,13 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   required LibraryEditDialogRequest request,
   LibraryEditDialogRequestLoader? requestLoader,
 }) {
+  final editCapability = libraryKindRuntimeForType(request.type).edit;
   final builder = switch (request.resolvedScope) {
     LibraryEditScope.media =>
-      request.type.mediaEditDialogBuilder ?? request.type.editDialogBuilder,
-    LibraryEditScope.release =>
-      request.type.releaseEditDialogBuilder ?? request.type.editDialogBuilder,
-    LibraryEditScope.all => request.type.editDialogBuilder,
+      editCapability.mediaEditDialogBuilder ?? editCapability.editDialogBuilder,
+    LibraryEditScope.release => editCapability.releaseEditDialogBuilder ??
+        editCapability.editDialogBuilder,
+    LibraryEditScope.all => editCapability.editDialogBuilder,
   };
   if (builder == null) {
     throw StateError(

@@ -272,7 +272,7 @@ class LibraryPageDialogCoordinator {
       mediaKind: _page.type.workspace.kind.apiValue,
       builtInValues:
           definition?.builtIns.map((value) => value.toString()).toList() ??
-              _page.type.conditions,
+              editCapability.conditions,
     );
     if (_page.mounted) {
       _page.rebuild(() {});
@@ -292,7 +292,7 @@ class LibraryPageDialogCoordinator {
       mediaKind: _page.type.workspace.kind.apiValue,
       builtInValues:
           definition?.builtIns.map((value) => value.toString()).toList() ??
-              _page.type.grades,
+              editCapability.grades,
     );
     if (_page.mounted) {
       _page.rebuild(() {});

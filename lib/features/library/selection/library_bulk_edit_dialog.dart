@@ -62,8 +62,9 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   @override
   void initState() {
     super.initState();
-    _conditionOptions = widget.type.conditions;
-    _gradeOptions = widget.type.grades;
+    final editCapability = libraryKindRuntimeForType(widget.type).edit;
+    _conditionOptions = editCapability.conditions;
+    _gradeOptions = editCapability.grades;
     _loadAvailableLocations();
     _loadPickListOptions();
   }
@@ -239,10 +240,10 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
     final gradeDefinition =
         editCapability.vocabularies?.definitionForSuffix('grade');
     final builtInConditions = conditionDefinition == null
-        ? widget.type.conditions
+        ? editCapability.conditions
         : [for (final value in conditionDefinition.builtIns) value.toString()];
     final builtInGrades = gradeDefinition == null
-        ? widget.type.grades
+        ? editCapability.grades
         : [for (final value in gradeDefinition.builtIns) value.toString()];
     final options = await loadConditionGradePickListOptions(
       ref.read(localDatabaseProvider),

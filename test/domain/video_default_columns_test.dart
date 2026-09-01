@@ -8,7 +8,9 @@ void main() {
       final defaultVisibleColumnIds =
           libraryKindRuntimeForKind(config.workspace.kind)
               .fields
-              .defaultVisibleColumnIds;
+              .defaultVisibleColumns
+              .map((column) => column.value)
+              .toSet();
       expect(
         defaultVisibleColumnIds,
         containsAll(<String>{

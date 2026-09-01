@@ -193,7 +193,9 @@ LibraryGroupDefinition<dynamic, dynamic, Object?>?
 ]) {
   if (type != null) {
     final module = libraryKindRuntimeForType(type);
-    return module.fields.findGroupDefinition(mode);
+    return module.fields.findGroupDefinition(
+      module.fields.decodeGroupId(mode),
+    );
   }
   return null;
 }
@@ -273,7 +275,10 @@ LibraryGroupPresentation genericGroupPresentationForMode(
 List<String> libraryGroupModesForType(
   LibraryTypeConfig type,
 ) {
-  return [for (final mode in type.availableGroupModes) mode.toString()];
+  return [
+    for (final mode in libraryKindRuntimeForType(type).availableGroupIds)
+      mode.value,
+  ];
 }
 
 String libraryDefaultGroupMode(LibraryTypeConfig type) {
@@ -296,7 +301,10 @@ String? libraryGroupModeFromStorageValue(String value,
 
   if (type != null) {
     final module = libraryKindRuntimeForType(type);
-    return module.fields.findGroupDefinition(candidate)?.id.value;
+    return module.fields
+        .findGroupDefinition(module.fields.decodeGroupId(candidate))
+        ?.id
+        .value;
   }
 
   return candidate;

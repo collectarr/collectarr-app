@@ -7,12 +7,10 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -788,11 +786,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return EditTabShell(
       children: [
         EditSection(
-          title: widget.type.editChrome.synopsisLabel,
+          title: _editCapability.editChrome.synopsisLabel,
           accent: widget.accent,
           child: LibraryEditTextField(
             controller: _draft.metadata.synopsisController,
-            label: widget.type.editChrome.synopsisLabel,
+            label: _editCapability.editChrome.synopsisLabel,
             maxLines: 8,
           ),
         ),
@@ -829,21 +827,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 : Theme.of(context).hintColor,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _ownedSharedFooterRow() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            _isOwned ? 'Owned copy' : 'Wishlist item',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-        ],
       ),
     );
   }

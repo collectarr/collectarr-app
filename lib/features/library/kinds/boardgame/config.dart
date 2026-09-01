@@ -1,13 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -57,18 +52,8 @@ final boardGamesLibraryConfig = LibraryTypeConfig(
     bggMetadataProvider,
   ],
   trackingProfile: gameTrackingProfile,
-  editDialogBuilder: buildBoardGameLibraryEditDialog,
-  inspectorSectionsBuilder: _emptyInspectorSectionsBuilder,
-  kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   presentation: boardGamesLibraryMediaPresentation,
   capabilities: LibraryTypeCapabilities(
     canScanCover: true,
   ),
-  showsDefaultInspectorPersonalSection: false,
 );
-
-List<Widget> _emptyInspectorSectionsBuilder(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) =>
-    const [];

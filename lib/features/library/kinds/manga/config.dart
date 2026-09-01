@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
@@ -96,14 +94,6 @@ final mangaLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: comicTrackingProfile,
   presentation: mangaLibraryMediaPresentation,
-  editDialogBuilder: buildMangaLibraryEditDialog,
-  inspectorSectionsBuilder: _emptyInspectorSectionsBuilder,
-  editChrome: const LibraryEditChromeConfig(
-    titleUsesItemTitle: true,
-    synopsisLabel: 'Plot',
-    showsIssueBadge: true,
-    showsPhysicalFormatBadge: true,
-  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     canScanCover: true,
@@ -111,11 +101,4 @@ final mangaLibraryConfig = LibraryTypeConfig(
     supportsIndexReassignment: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
   ),
-  showsDefaultInspectorPersonalSection: false,
 );
-
-List<Widget> _emptyInspectorSectionsBuilder(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) =>
-    const [];

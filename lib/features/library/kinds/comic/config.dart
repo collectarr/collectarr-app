@@ -1,11 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
-import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -130,20 +124,9 @@ final comicsLibraryConfig = LibraryTypeConfig(
     anilistMetadataProvider,
     hardcoverMetadataProvider,
   ],
-  addDialogLauncher: showComicLibraryAddDialog,
   trackingProfile: comicTrackingProfile,
-  editDialogBuilder: buildComicLibraryEditDialog,
-  inspectorHeroBuilder: buildComicInspectorHero,
-  inspectorSectionsBuilder: buildComicInspectorSections,
-  showsDefaultInspectorPersonalSection: false,
   presentation: comicLibraryMediaPresentation,
   addChrome: const LibraryAddChromeConfig(),
-  editChrome: LibraryEditChromeConfig(
-    titleUsesItemTitle: true,
-    synopsisLabel: 'Plot',
-    showsIssueBadge: true,
-    showsPhysicalFormatBadge: true,
-  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     canScanCover: true,

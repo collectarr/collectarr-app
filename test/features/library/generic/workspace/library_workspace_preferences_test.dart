@@ -207,7 +207,9 @@ void main() {
         restored.visibleColumns,
         libraryKindRuntimeForType(mangaTypeConfig)
             .fields
-            .defaultVisibleColumnIds);
+            .defaultVisibleColumns
+            .map((column) => column.value)
+            .toSet());
     expect(restored.columnWidths, isEmpty);
   });
 

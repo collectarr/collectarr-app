@@ -17,7 +17,9 @@ extension _PageKindHooks on GenericLibraryPageState {
       LibraryViewPreferenceStore(widget.type.workspace.kind);
 
   bool get _supportsMediaReleaseSplit {
-    return widget.type.supportsMediaReleaseSplit;
+    return libraryKindRuntimeForType(widget.type)
+        .hierarchy
+        .supportsMediaReleaseSplit;
   }
 
   bool showsReadingQueue() {
@@ -95,10 +97,18 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   List<String> get _scopeAvailableGroupModes {
-    return widget.type.availableGroupModesForBrowserMode(_activeBrowserMode);
+    return [
+      for (final groupId in libraryKindRuntimeForType(widget.type)
+          .availableGroupIdsForBrowserMode(_activeBrowserMode))
+        groupId.value,
+    ];
   }
 
   List<String> get _scopeAvailableSortColumns {
-    return widget.type.availableSortColumnsForBrowserMode(_activeBrowserMode);
+    return [
+      for (final sortId in libraryKindRuntimeForType(widget.type)
+          .availableSortIdsForBrowserMode(_activeBrowserMode))
+        sortId.value,
+    ];
   }
 }

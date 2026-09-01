@@ -27,7 +27,9 @@ class LibraryGroupingEngine {
     String groupMode,
   ) {
     final runtime = libraryKindRuntimeForType(type);
-    final groupDefinition = runtime.fields.findGroupDefinition(groupMode);
+    final groupDefinition = runtime.fields.findGroupDefinition(
+      runtime.fields.decodeGroupId(groupMode),
+    );
     if (groupDefinition != null) {
       final value = runtime.groupValue(item, groupDefinition.id);
       final normalizedValue = value?.toString().trim();

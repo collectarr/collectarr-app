@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_shell.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -12,6 +13,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
@@ -76,6 +78,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.flat,
+    browserDelegateBuilder: buildMovieBrowserDelegate,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',
@@ -93,6 +96,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   stats: const MovieStatsCapability(),
   add: StandardLibraryAddCapability<MovieAddDraft>(
     kind: CatalogMediaKind.movie,
+    dialogLauncher: showMovieLibraryAddDialog,
     initialDraftBuilder: MovieAddDraft.new,
     manualDraftBuilder: MovieAddManualDraft.new,
     manualPaneBuilder: buildMovieAddManualPane,

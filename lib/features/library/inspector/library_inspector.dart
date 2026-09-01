@@ -336,7 +336,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required VoidCallback onOpenDetails,
     required LibraryWorkspaceDensityPreset density,
   }) {
-    final hero = widget.type.inspectorHeroBuilder?.call(
+    final runtime = libraryKindRuntimeForType(widget.type);
+    final editCapability = runtime.edit;
+    final inspectorCapability = runtime.inspector;
+    final hero = inspectorCapability.heroBuilder?.call(
           context,
           inspectorRequest,
         ) ??
@@ -347,10 +350,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           accent: widget.accent,
           contextLabel: widget.contextLabel,
         );
-    final primarySections = widget.type.kindUiAdapter.inspectorSections(
-      widget.type,
-      context: context,
-      request: inspectorRequest,
+    final primarySections = inspectorCapability.buildSections(
+      context,
+      inspectorRequest,
     );
     final effectivePrimarySections = primarySections.isNotEmpty
         ? primarySections
@@ -387,7 +389,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     Widget? conditionGradeSection;
     if (!usesCustomInspectorPanel &&
         activeOwnedItem != null &&
-        (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
+        (editCapability.conditions.isNotEmpty ||
+            editCapability.grades.isNotEmpty) &&
         resolveOwnedDigitalFlag(
               activeOwnedItem,
               selected.source.catalogItem?.editions ?? const [],
@@ -404,13 +407,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           final gradeDefinition =
               editCapability.vocabularies?.definitionForSuffix('grade');
           final builtInConditions = conditionDefinition == null
-              ? widget.type.conditions
+              ? editCapability.conditions
               : [
                   for (final value in conditionDefinition.builtIns)
                     value.toString()
                 ];
           final builtInGrades = gradeDefinition == null
-              ? widget.type.grades
+              ? editCapability.grades
               : [
                   for (final value in gradeDefinition.builtIns) value.toString()
                 ];
@@ -470,7 +473,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
-      if (widget.type.showsDefaultInspectorPersonalSection)
+      if (inspectorCapability.showsDefaultPersonalSection)
         InspectorPersonalSection(
           item: selected,
           ownedItem: activeOwnedItem,
@@ -556,8 +559,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             bundleSection!,
           ],
           if (activeOwnedItem != null &&
-              (widget.type.conditions.isNotEmpty ||
-                  widget.type.grades.isNotEmpty) &&
+              (editCapability.conditions.isNotEmpty ||
+                  editCapability.grades.isNotEmpty) &&
               resolveOwnedDigitalFlag(
                     activeOwnedItem,
                     selected.source.catalogItem?.editions ?? const [],

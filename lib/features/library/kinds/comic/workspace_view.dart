@@ -84,7 +84,9 @@ const comicsTableColumnPresets = [
 bool comicInitialSortAscending(Object column) {
   final sortId = column.toString();
   final module = libraryKindRuntimeForType(comicsLibraryConfig);
-  final definition = module.fields.findSortDefinition(sortId);
+  final definition = module.fields.findSortDefinition(
+    module.fields.decodeSortId(sortId),
+  );
   return definition?.defaultAscending ?? true;
 }
 
@@ -130,7 +132,9 @@ List<String> orderedComicTableColumns(
 Set<String> defaultComicTableColumns() =>
     Set.of(libraryKindRuntimeForType(comicsLibraryConfig)
         .fields
-        .defaultVisibleColumnIds);
+        .defaultVisibleColumns
+        .map((column) => column.value)
+        .toSet());
 
 double comicTableWidthForColumns(
   Set<String> columns,

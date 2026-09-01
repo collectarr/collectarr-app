@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
@@ -20,7 +19,6 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
@@ -28,6 +26,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit_presentation_bui
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
+import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
@@ -70,6 +69,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.flat,
+    browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',

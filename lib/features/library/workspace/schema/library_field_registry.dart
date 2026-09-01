@@ -30,13 +30,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
   final LibraryWorkspacePreferenceCodec<dynamic> preferenceCodec;
 
-  Set<String> get defaultVisibleColumnIds =>
-      {for (final col in defaultVisibleColumns) col.value};
-
-  String get defaultSortId => defaultSort.value;
-
-  String? get defaultGroupId => defaultGroup?.value;
-
   LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinition(
           LibraryFieldIdRuntime id) =>
       findColumnDefinition(id);
@@ -50,47 +43,46 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       findGroupDefinition(id);
 
   LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinitionForId(
-      Object id) {
-    final raw = id is LibraryFieldIdRuntime ? id.value : id.toString();
+      LibraryFieldIdRuntime id) {
     for (final definition in columns) {
-      if (definition.id.value == raw) return definition;
+      if (definition.id.value == id.value) return definition;
     }
     return null;
   }
 
   LibraryColumnDefinition<dynamic, TDto, Object?> columnDefinitionFor(
-      Object columnId) {
+      LibraryFieldIdRuntime columnId) {
     final definition = findColumnDefinition(columnId);
     if (definition != null) return definition;
     throw StateError(
         'Missing column definition for $columnId in $kindNamespace.');
   }
 
-  LibrarySortDefinition<dynamic, TDto>? sortDefinitionForId(Object id) {
-    final raw = id is LibrarySortIdRuntime ? id.value : id.toString();
+  LibrarySortDefinition<dynamic, TDto>? sortDefinitionForId(
+      LibrarySortIdRuntime id) {
     for (final definition in sorts) {
-      if (definition.id.value == raw) return definition;
+      if (definition.id.value == id.value) return definition;
     }
     return null;
   }
 
-  LibrarySortDefinition<dynamic, TDto> sortDefinitionFor(Object sortId) {
+  LibrarySortDefinition<dynamic, TDto> sortDefinitionFor(
+      LibrarySortIdRuntime sortId) {
     final definition = findSortDefinition(sortId);
     if (definition != null) return definition;
     throw StateError('Missing sort definition for $sortId in $kindNamespace.');
   }
 
   LibraryGroupDefinition<dynamic, TDto, Object?>? groupDefinitionForId(
-      Object id) {
-    final raw = id is LibraryGroupIdRuntime ? id.value : id.toString();
+      LibraryGroupIdRuntime id) {
     for (final definition in groups) {
-      if (definition.id.value == raw) return definition;
+      if (definition.id.value == id.value) return definition;
     }
     return null;
   }
 
   LibraryGroupDefinition<dynamic, TDto, Object?> groupDefinitionFor(
-      Object groupId) {
+      LibraryGroupIdRuntime groupId) {
     final definition = findGroupDefinition(groupId);
     if (definition != null) return definition;
     throw StateError(
@@ -98,48 +90,37 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   LibraryColumnDefinition<dynamic, TDto, Object?>? findColumnDefinition(
-      Object id) {
-    final raw = id is LibraryFieldIdRuntime ? id.value : id.toString();
-    final direct = columnDefinitionForId(raw);
+      LibraryFieldIdRuntime id) {
+    final raw = id.value;
+    final direct = _findColumnDefinitionByValue(raw);
     if (direct != null) return direct;
-    final qualified = columnDefinitionForId('$kindNamespace.$raw');
-    if (qualified != null) return qualified;
-    final decoded = preferenceCodec.decodeColumn(raw);
-    if (decoded != null) return columnDefinitionForId(decoded.value);
     return null;
   }
 
-  LibrarySortDefinition<dynamic, TDto>? findSortDefinition(Object id) {
-    final raw = id is LibrarySortIdRuntime ? id.value : id.toString();
-    final direct = sortDefinitionForId(raw);
+  LibrarySortDefinition<dynamic, TDto>? findSortDefinition(
+      LibrarySortIdRuntime id) {
+    final raw = id.value;
+    final direct = _findSortDefinitionByValue(raw);
     if (direct != null) return direct;
-    final qualified = sortDefinitionForId('$kindNamespace.$raw');
-    if (qualified != null) return qualified;
-    final decoded = preferenceCodec.decodeSort(raw);
-    if (decoded != null) return sortDefinitionForId(decoded.value);
     return null;
   }
 
   LibraryGroupDefinition<dynamic, TDto, Object?>? findGroupDefinition(
-      Object id) {
-    final raw = id is LibraryGroupIdRuntime ? id.value : id.toString();
+      LibraryGroupIdRuntime id) {
+    final raw = id.value;
     var normalized = raw.trim();
     if (normalized.startsWith('group.')) {
       normalized = normalized.substring(6);
     }
-    final direct = groupDefinitionForId(normalized);
+    final direct = _findGroupDefinitionByValue(normalized);
     if (direct != null) return direct;
-    final qualified = groupDefinitionForId('$kindNamespace.$normalized');
-    if (qualified != null) return qualified;
-    final decoded = preferenceCodec.decodeGroup(normalized);
-    if (decoded != null) return groupDefinitionForId(decoded.value);
     return null;
   }
 
   int compareEntries(
     LibraryProjectionRuntime left,
     LibraryProjectionRuntime right,
-    Object sortId,
+    LibrarySortIdRuntime sortId,
   ) {
     final sortDef = findSortDefinition(sortId);
     if (sortDef == null) return 0;
@@ -157,24 +138,41 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   LibrarySortIdRuntime decodeSortId(String raw) {
-    final def = findSortDefinition(raw);
+    final direct = _findSortDefinitionByValue(raw);
+    if (direct != null) return direct.id;
+    final decoded = preferenceCodec.decodeSort(raw);
+    final def =
+        decoded == null ? null : _findSortDefinitionByValue(decoded.value);
     if (def != null) return def.id;
     return DynamicLibrarySortId(raw);
   }
 
   LibraryGroupIdRuntime decodeGroupId(String raw) {
-    final def = findGroupDefinition(raw);
+    final normalized =
+        raw.trim().startsWith('group.') ? raw.trim().substring(6) : raw.trim();
+    final direct = _findGroupDefinitionByValue(normalized);
+    if (direct != null) return direct.id;
+    final decoded = preferenceCodec.decodeGroup(normalized);
+    final def =
+        decoded == null ? null : _findGroupDefinitionByValue(decoded.value);
     if (def != null) return def.id;
     return DynamicLibraryGroupId(raw);
   }
 
   LibraryFieldIdRuntime decodeColumnId(String raw) {
-    final def = findColumnDefinition(raw);
+    final direct = _findColumnDefinitionByValue(raw);
+    if (direct != null) return direct.id;
+    final decoded = preferenceCodec.decodeColumn(raw);
+    final def =
+        decoded == null ? null : _findColumnDefinitionByValue(decoded.value);
     if (def != null) return def.id;
     return DynamicLibraryFieldId(raw);
   }
 
-  Object? getGroupValue(LibraryProjectionRuntime item, Object groupId) {
+  Object? getGroupValue(
+    LibraryProjectionRuntime item,
+    LibraryGroupIdRuntime groupId,
+  ) {
     final groupDef = findGroupDefinition(groupId);
     if (groupDef == null) return null;
     final context = LibraryProjectionContext<TDto>(
@@ -187,7 +185,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
   String? getGroupSequenceValue(
     LibraryProjectionRuntime item,
-    Object groupId,
+    LibraryGroupIdRuntime groupId,
   ) {
     final groupDef = findGroupDefinition(groupId);
     final sequenceValue = groupDef?.sequenceValue;
@@ -202,7 +200,10 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     return sequenceValue(context);
   }
 
-  Object? getColumnValue(LibraryProjectionRuntime item, Object columnId) {
+  Object? getColumnValue(
+    LibraryProjectionRuntime item,
+    LibraryFieldIdRuntime columnId,
+  ) {
     final columnDef = findColumnDefinition(columnId);
     if (columnDef == null) return null;
     final context = LibraryProjectionContext<TDto>(
@@ -215,7 +216,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
   void sortEntries(
     List<LibraryProjectionRuntime> items,
-    Object sortId, {
+    LibrarySortIdRuntime sortId, {
     required bool ascending,
   }) {
     final sortDef = sortDefinitionFor(sortId);
@@ -239,6 +240,34 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       if (titleCmp != 0) return titleCmp;
       return l.node.id.compareTo(r.node.id);
     });
+  }
+
+  LibraryColumnDefinition<dynamic, TDto, Object?>? _findColumnDefinitionByValue(
+      String value) {
+    final direct = columnDefinitionForId(DynamicLibraryFieldId(value));
+    if (direct != null) return direct;
+    return columnDefinitionForId(
+      DynamicLibraryFieldId('$kindNamespace.$value'),
+    );
+  }
+
+  LibrarySortDefinition<dynamic, TDto>? _findSortDefinitionByValue(
+    String value,
+  ) {
+    final direct = sortDefinitionForId(DynamicLibrarySortId(value));
+    if (direct != null) return direct;
+    return sortDefinitionForId(
+      DynamicLibrarySortId('$kindNamespace.$value'),
+    );
+  }
+
+  LibraryGroupDefinition<dynamic, TDto, Object?>? _findGroupDefinitionByValue(
+      String value) {
+    final direct = groupDefinitionForId(DynamicLibraryGroupId(value));
+    if (direct != null) return direct;
+    return groupDefinitionForId(
+      DynamicLibraryGroupId('$kindNamespace.$value'),
+    );
   }
 
   void _validate() {

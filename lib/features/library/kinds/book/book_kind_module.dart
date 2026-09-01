@@ -27,6 +27,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
+import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
@@ -78,6 +79,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.volumes,
+    browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     fetchChildrenCallback: _fetchBookVolumes,
     supportsMediaReleaseSplit: true,
     showsReadingQueue: true,
@@ -196,31 +198,6 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
 }
 
 Map<String, dynamic> _encodeBookMetadata(BookCatalogMetadata m) => m.toJson();
-
-Future<List<LibraryHierarchyNode>> _fetchBookVolumesFromApi({
-  required ApiClient api,
-  required String itemId,
-}) async {
-  final volumes = await api
-      .getItemVolumes(itemId, kind: CatalogMediaKind.book.apiValue)
-      .timeout(const Duration(seconds: 60));
-  return [
-    for (final volume in volumes)
-      LibraryHierarchyNode(
-        id: 'volume_${volume.seasonNumber}',
-        label: volume.title,
-        secondaryLabel:
-            volume.episodeCount != null ? '${volume.episodeCount} items' : null,
-        level: LibraryHierarchyLevel.container,
-        imageUrl: volume.posterUrl,
-        totalCount: volume.episodeCount,
-        metadata: {
-          'number': volume.seasonNumber,
-          'airDate': volume.airDate,
-        },
-      ),
-  ];
-}
 
 List<LibraryAddAdvancedFilterField<String>> buildBookAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,

@@ -1,21 +1,10 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
-import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -25,15 +14,6 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
-import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
-import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
-import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
-import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
-import 'package:collectarr_app/features/library/config/library_kind_identity.dart';
-import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
-import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
@@ -67,7 +47,9 @@ class LibraryKindUiAdapter {
     required BuildContext context,
     required LibraryInspectorRequest request,
   }) {
-    return type.inspectorSectionsBuilder?.call(context, request) ?? const [];
+    return libraryKindRuntimeForType(type)
+        .inspector
+        .buildSections(context, request);
   }
 
   bool supportsTrackSearch(LibraryTypeConfig type) {
@@ -75,20 +57,20 @@ class LibraryKindUiAdapter {
   }
 
   bool showsReadingQueue(LibraryTypeConfig type) {
-    return type.supportsReadingQueue;
+    return libraryKindRuntimeForType(type).hierarchy.showsReadingQueue;
   }
 
   bool supportsBucketManagement(
     LibraryTypeConfig type,
     String mode,
   ) {
-    final groupDef =
-        libraryKindRuntimeForType(type).fields.findGroupDefinition(mode);
+    final fields = libraryKindRuntimeForType(type).fields;
+    final groupDef = fields.findGroupDefinition(fields.decodeGroupId(mode));
     return groupDef?.supportsBucketManagement ?? false;
   }
 
   bool supportsMetadataCompareWithServer(LibraryTypeConfig type) {
-    return type.supportsMetadataCompareWithServer;
+    return libraryKindRuntimeForType(type).metadata.supportsServerCompare;
   }
 
   OwnedDetailsDraft buildPersonalDetailsDraft(
@@ -103,10 +85,10 @@ class LibraryKindUiAdapter {
     LibraryWorkspaceViewState viewState, {
     String? releaseFolderTitleItemId,
   }) {
-    return type.browserModeForViewState(
-      viewState,
-      releaseFolderTitleItemId: releaseFolderTitleItemId,
-    );
+    return libraryKindRuntimeForType(type).hierarchy.browserModeForViewState(
+          viewState,
+          releaseFolderTitleItemId: releaseFolderTitleItemId,
+        );
   }
 
   String? releaseFolderLabelForProjection(
@@ -136,7 +118,9 @@ class LibraryKindUiAdapter {
       return false;
     }
     final runtime = libraryKindRuntimeForType(type);
-    final groupDef = runtime.fields.findGroupDefinition(activeGroupMode);
+    final groupDef = runtime.fields.findGroupDefinition(
+      runtime.fields.decodeGroupId(activeGroupMode),
+    );
     if (groupDef == null || !groupDef.supportsJump) {
       return false;
     }
@@ -157,10 +141,12 @@ class LibraryKindUiAdapter {
     required LibraryWorkspaceBrowserMode browserMode,
     required LibraryBrowserScope browseScope,
   }) {
-    return type.shouldOpenReleaseFolderOnOpen(
-      browserMode: browserMode,
-      browseScope: browseScope,
-    );
+    return libraryKindRuntimeForType(type)
+        .hierarchy
+        .shouldOpenReleaseFolderOnOpen(
+          browserMode: browserMode,
+          browseScope: browseScope,
+        );
   }
 
   bool shouldShowReleaseFolderBack(
@@ -168,10 +154,12 @@ class LibraryKindUiAdapter {
     required LibraryWorkspaceBrowserMode browserMode,
     String? releaseFolderTitleItemId,
   }) {
-    return type.shouldShowReleaseFolderBack(
-      browserMode: browserMode,
-      releaseFolderTitleItemId: releaseFolderTitleItemId,
-    );
+    return libraryKindRuntimeForType(type)
+        .hierarchy
+        .shouldShowReleaseFolderBack(
+          browserMode: browserMode,
+          releaseFolderTitleItemId: releaseFolderTitleItemId,
+        );
   }
 
   List<LibraryGroupModeCategory> groupModeCategories(
@@ -208,84 +196,14 @@ class LibraryTypeConfig {
     required this.defaultMetadataProvider,
     required this.metadataProviders,
     required this.trackingProfile,
-    this.conditions = kGeneralConditions,
-    this.grades = const [],
-    this.defaultCondition,
-    this.defaultGrade,
     this.capabilities = const LibraryTypeCapabilities(),
     this.presentation = genericLibraryMediaPresentation,
     this.addChrome = const LibraryAddChromeConfig(),
-    this.editChrome = const LibraryEditChromeConfig(),
-    this.addDialogLauncher,
-    this.editDialogBuilder,
-    this.mediaEditDialogBuilder,
-    this.releaseEditDialogBuilder,
-    this.detailPageBuilder,
-    this.inspectorHeroBuilder,
-    this.inspectorSectionsBuilder,
-    this.showsDefaultInspectorPersonalSection = true,
-    this.kindBrowserDelegateBuilder,
     this.kindUiAdapter = const LibraryKindUiAdapter(),
     this.titleCapability =
         const DefaultTitleProjectionCapability<LibraryWorkspaceDto>(),
     this.releaseCapability,
   });
-
-  factory LibraryTypeConfig.fromCapabilities({
-    required LibraryKindIdentity identity,
-    LibraryMetadataCapability metadata = const LibraryMetadataCapability(
-      defaultProviderId: '',
-      providers: <LibraryMetadataProviderOption>[],
-    ),
-    LibraryHierarchyCapability hierarchy = const LibraryHierarchyCapability(),
-    LibraryInspectorCapability inspector = const LibraryInspectorCapability(),
-    LibraryEditCapability edit = const LibraryEditCapability(),
-    LibraryTransferCapability transfer = const LibraryTransferCapability(),
-    LibraryMediaPresentation presentation = genericLibraryMediaPresentation,
-    MediaTrackingProfile trackingProfile = readingTrackingProfile,
-    LibraryAddDialogLauncher? addDialogLauncher,
-    LibraryKindBrowserDelegate Function()? kindBrowserDelegateBuilder,
-    LibraryKindUiAdapter kindUiAdapter = const LibraryKindUiAdapter(),
-    TitleProjectionCapability<LibraryWorkspaceDto> titleCapability =
-        const DefaultTitleProjectionCapability<LibraryWorkspaceDto>(),
-    ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability,
-  }) {
-    return LibraryTypeConfig(
-      workspace: identity.toWorkspaceConfig(),
-      singularLabel: identity.singularLabel,
-      pluralLabel: identity.pluralLabel,
-      defaultMetadataProvider: metadata.defaultProviderId,
-      metadataProviders: metadata.providers,
-      trackingProfile: trackingProfile,
-      conditions: edit.conditions,
-      grades: edit.grades,
-      defaultCondition: edit.defaultCondition,
-      defaultGrade: edit.defaultGrade,
-      capabilities: LibraryTypeCapabilities(
-        contentHierarchy: hierarchy.contentHierarchy,
-        supportsMediaReleaseSplit: hierarchy.supportsMediaReleaseSplit,
-        supportsIndexReassignment: hierarchy.supportsIndexReassignment,
-        supportsMetadataCompareWithServer: metadata.supportsServerCompare,
-        showsReadingQueue: hierarchy.showsReadingQueue,
-      ),
-      presentation: presentation,
-      addChrome: const LibraryAddChromeConfig(),
-      editChrome: edit.editChrome,
-      addDialogLauncher: addDialogLauncher,
-      editDialogBuilder: edit.editDialogBuilder,
-      mediaEditDialogBuilder: edit.mediaEditDialogBuilder,
-      releaseEditDialogBuilder: edit.releaseEditDialogBuilder,
-      detailPageBuilder: inspector.detailPageBuilder,
-      inspectorHeroBuilder: inspector.heroBuilder,
-      inspectorSectionsBuilder: inspector.sectionsBuilder,
-      showsDefaultInspectorPersonalSection:
-          inspector.showsDefaultPersonalSection,
-      kindBrowserDelegateBuilder: kindBrowserDelegateBuilder,
-      kindUiAdapter: kindUiAdapter,
-      titleCapability: titleCapability,
-      releaseCapability: releaseCapability,
-    );
-  }
 
   final LibraryWorkspaceConfig workspace;
   final String singularLabel;
@@ -294,46 +212,13 @@ class LibraryTypeConfig {
   final List<LibraryMetadataProviderOption> metadataProviders;
   final MediaTrackingProfile trackingProfile;
 
-  final List<String> conditions;
-  final List<String> grades;
-  final String? defaultCondition;
-  final String? defaultGrade;
   final LibraryTypeCapabilities capabilities;
   LibraryUiPolicy get uiPolicy => capabilities.uiPolicy;
   final LibraryMediaPresentation presentation;
   final LibraryAddChromeConfig addChrome;
-  final LibraryEditChromeConfig editChrome;
-  final LibraryAddDialogLauncher? addDialogLauncher;
-  final LibraryEditDialogBuilder? editDialogBuilder;
-  final LibraryEditDialogBuilder? mediaEditDialogBuilder;
-  final LibraryEditDialogBuilder? releaseEditDialogBuilder;
-  final LibraryDetailPageBuilder? detailPageBuilder;
-  final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
-  final LibraryDetailSectionsBuilder? inspectorSectionsBuilder;
-
-  final bool showsDefaultInspectorPersonalSection;
-  final LibraryKindBrowserDelegate Function()? kindBrowserDelegateBuilder;
   final LibraryKindUiAdapter kindUiAdapter;
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
   final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
-
-  List<String> transferableFieldKeysForScope(LibraryEditScope scope) {
-    final module = libraryKindRuntimeForType(this);
-    return module.transfer.fieldKeysForScope(scope);
-  }
-
-  List<TransferableField> transferableFieldsWithCustomFieldsForScope(
-    List<CustomFieldDefinition> definitions,
-    LibraryEditScope scope,
-  ) {
-    final module = libraryKindRuntimeForType(this);
-    return module.transfer.fieldsWithCustomFields(definitions, scope);
-  }
-
-  List<String> get availableGroupModes {
-    final module = libraryKindRuntimeForType(this);
-    return [for (final definition in module.fields.groups) definition.id.value];
-  }
 
   LibraryWorkspaceDensityPreset get defaultDensityPreset =>
       workspace.defaultDensityPreset;
@@ -347,101 +232,10 @@ class LibraryTypeConfig {
     return workspace.availableDensityPresets.contains(preset);
   }
 
-  bool get supportsReadingQueue => capabilities.showsReadingQueue;
-
-  bool get supportsMediaReleaseSplit => capabilities.supportsMediaReleaseSplit;
-
-  bool get supportsMetadataCompareWithServer =>
-      capabilities.supportsMetadataCompareWithServer;
-
-  bool get supportsIndexReassignment => capabilities.supportsIndexReassignment;
-
-  bool get hasConditionPickList => conditions.isNotEmpty;
-  bool get hasGradePickList => grades.isNotEmpty;
-
   OwnedDetailsDraft buildPersonalOwnedDetailsDraft(
     LibraryPersonalEditSelection personal,
   ) {
     return kindUiAdapter.buildPersonalDetailsDraft(this, personal);
-  }
-
-  List<String> availableGroupModesForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
-  ) {
-    if (!capabilities.scopesOptionsByBrowserMode) {
-      return availableGroupModes;
-    }
-    final scoped = browserMode == LibraryWorkspaceBrowserMode.releases
-        ? capabilities.releaseScopeGroupIds
-        : capabilities.mediaScopeGroupIds;
-    if (scoped == null) {
-      return availableGroupModes;
-    }
-    return [
-      for (final mode in availableGroupModes)
-        if (scoped.contains(mode)) mode,
-    ];
-  }
-
-  List<String> availableSortColumnsForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
-  ) {
-    final module = libraryKindRuntimeForType(this);
-    final allSorts = [
-      for (final def in module.fields.sorts) def.id.value,
-    ];
-    if (!capabilities.scopesOptionsByBrowserMode) {
-      return allSorts;
-    }
-    final scoped = browserMode == LibraryWorkspaceBrowserMode.releases
-        ? capabilities.releaseScopeSortIds
-        : capabilities.mediaScopeSortIds;
-    if (scoped == null) {
-      return allSorts;
-    }
-    return [
-      for (final column in allSorts)
-        if (scoped.contains(column)) column,
-    ];
-  }
-
-  LibraryWorkspaceBrowserMode browserModeForViewState(
-    LibraryWorkspaceViewState viewState, {
-    String? releaseFolderTitleItemId,
-  }) {
-    if (!supportsMediaReleaseSplit) {
-      return LibraryWorkspaceBrowserMode.media;
-    }
-    if (releaseFolderTitleItemId != null) {
-      return LibraryWorkspaceBrowserMode.releases;
-    }
-    return viewState.browserMode;
-  }
-
-  LibraryEditScope editScopeForBrowserMode(
-    LibraryWorkspaceBrowserMode browserMode,
-  ) {
-    return browserMode == LibraryWorkspaceBrowserMode.releases
-        ? LibraryEditScope.release
-        : LibraryEditScope.media;
-  }
-
-  bool shouldOpenReleaseFolderOnOpen({
-    required LibraryWorkspaceBrowserMode browserMode,
-    required LibraryBrowserScope browseScope,
-  }) {
-    return supportsMediaReleaseSplit &&
-        browserMode == LibraryWorkspaceBrowserMode.media &&
-        browseScope == LibraryBrowserScope.title;
-  }
-
-  bool shouldShowReleaseFolderBack({
-    required LibraryWorkspaceBrowserMode browserMode,
-    String? releaseFolderTitleItemId,
-  }) {
-    return supportsMediaReleaseSplit &&
-        browserMode == LibraryWorkspaceBrowserMode.releases &&
-        releaseFolderTitleItemId != null;
   }
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {

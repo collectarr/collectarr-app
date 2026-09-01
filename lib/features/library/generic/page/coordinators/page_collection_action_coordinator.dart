@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/collection_actions.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -258,8 +259,10 @@ class LibraryPageCollectionActionCoordinator {
     final prefill = await PrefillDefaults.load();
     await _page.bulkActions().moveSelectedToOwned(
           entries,
-          defaultCondition: prefill.condition ?? _page.type.defaultCondition,
-          defaultGrade: prefill.grade ?? _page.type.defaultGrade,
+          defaultCondition: prefill.condition ??
+              libraryKindRuntimeForType(_page.type).edit.defaultCondition,
+          defaultGrade: prefill.grade ??
+              libraryKindRuntimeForType(_page.type).edit.defaultGrade,
           defaultLocationId: prefill.locationId,
           defaultReadStatus: prefill.readStatus,
           defaultTags: prefill.tags,

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
@@ -14,13 +13,9 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_m
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
@@ -29,7 +24,6 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
@@ -75,13 +69,10 @@ void main() {
     );
     expect(comicsLibraryConfig.trackingProfile, comicTrackingProfile);
     expect(comicsLibraryConfig.presentation, comicLibraryMediaPresentation);
-    expect(
-        comicsLibraryConfig.addDialogLauncher, same(showComicLibraryAddDialog));
-    expect(
-      comicsLibraryConfig.editDialogBuilder,
-      same(buildComicLibraryEditDialog),
-    );
-    expect(comicsLibraryConfig.inspectorSectionsBuilder,
+    expect(comicKindModule.add.dialogLauncher, same(showComicLibraryAddDialog));
+    expect(comicKindModule.edit.editDialogBuilder,
+        same(buildComicLibraryEditDialog));
+    expect(comicKindModule.inspector.sectionsBuilder,
         same(buildComicInspectorSections));
     expect(comicKindModule.edit.editUsesTitleAsSeries, isTrue);
     expect(comicsLibraryConfig.countLabel(1), 'Comic');
@@ -97,14 +88,13 @@ void main() {
     expect(mangaLibraryConfig.supportsMetadataProvider('anilist'), isTrue);
     expect(mangaLibraryConfig.trackingProfile, comicTrackingProfile);
     expect(mangaLibraryConfig.presentation, mangaLibraryMediaPresentation);
-    expect(mangaLibraryConfig.editDialogBuilder, isNotNull);
+    expect(mangaKindModule.edit.editDialogBuilder, isNotNull);
     expect(mangaLibraryConfig.countLabel(1), 'Manga');
     expect(mangaLibraryConfig.countLabel(2), 'Manga');
   });
 
   test('movies library config uses the dedicated add dialog launcher', () {
-    expect(
-        moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
+    expect(movieKindModule.add.dialogLauncher, same(showMovieLibraryAddDialog));
     expect(movieKindModule.edit.editUsesTitleAsSeries, isFalse);
     expect(movieKindModule.hierarchy.mediaReleaseScopeLabel, 'Media');
     expect(moviesWorkspaceConfig.accent, const Color(0xFF42AA55));
@@ -147,22 +137,6 @@ void main() {
     );
   });
 
-  test('all active kinds declare an inspector panel builder', () {
-    for (final config in [
-      comicsLibraryConfig,
-      mangaLibraryConfig,
-      booksLibraryConfig,
-      gamesLibraryConfig,
-      boardGamesLibraryConfig,
-      moviesLibraryConfig,
-      tvLibraryConfig,
-      animeLibraryConfig,
-      musicLibraryConfig,
-    ]) {
-      expect(config.inspectorSectionsBuilder, isNotNull);
-    }
-  });
-
   test('anime and tv library configs are first-class video kinds', () {
     expect(animeLibraryConfig.workspace.kind, CatalogMediaKind.anime);
     expect(animeLibraryConfig.defaultMetadataProvider, 'anilist');
@@ -177,7 +151,7 @@ void main() {
       animeLibraryConfig.presentation.defaultVideoGrouping,
       VideoGroupingDefault.bySeries,
     );
-    expect(animeLibraryConfig.editDialogBuilder, isNotNull);
+    expect(animeKindModule.edit.editDialogBuilder, isNotNull);
 
     expect(tvLibraryConfig.workspace.kind, CatalogMediaKind.tv);
     expect(tvLibraryConfig.defaultMetadataProvider, 'tmdb');
@@ -191,9 +165,9 @@ void main() {
       tvLibraryConfig.presentation.defaultVideoGrouping,
       VideoGroupingDefault.none,
     );
-    expect(tvLibraryConfig.editDialogBuilder, isNotNull);
-    expect(
-        tvLibraryConfig.detailPageBuilder, same(buildVideoLibraryDetailPage));
+    expect(tvKindModule.edit.editDialogBuilder, isNotNull);
+    expect(tvKindModule.inspector.detailPageBuilder,
+        same(buildVideoLibraryDetailPage));
   });
 
   test('movie library config keeps flat title/work defaults', () {
@@ -251,27 +225,28 @@ void main() {
   test('books library config enables creator spotlight in shared hero chrome',
       () {
     expect(booksLibraryConfig.capabilities.showsCreatorSpotlight, isTrue);
-    expect(booksLibraryConfig.supportsReadingQueue, isTrue);
-    expect(booksLibraryConfig.supportsMediaReleaseSplit, isTrue);
+    expect(bookKindModule.hierarchy.showsReadingQueue, isTrue);
+    expect(bookKindModule.hierarchy.supportsMediaReleaseSplit, isTrue);
     expect(moviesLibraryConfig.capabilities.showsCreatorSpotlight, isFalse);
-    expect(moviesLibraryConfig.supportsReadingQueue, isFalse);
+    expect(movieKindModule.hierarchy.showsReadingQueue, isFalse);
   });
 
   test('book and boardgame configs own their scoped browser options', () {
+    final bookRuntime = libraryKindRuntimeForType(booksLibraryConfig);
     expect(
-      booksLibraryConfig.availableGroupModesForBrowserMode(
+      bookRuntime.availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
     );
     expect(
-      booksLibraryConfig.availableGroupModesForBrowserMode(
+      bookRuntime.availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.releases,
       ),
       isNotEmpty,
     );
     expect(
-      booksLibraryConfig.availableSortColumnsForBrowserMode(
+      bookRuntime.availableSortIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
@@ -286,80 +261,19 @@ void main() {
   });
 
   test('edit scope follows the active browser mode', () {
+    final bookRuntime = libraryKindRuntimeForType(booksLibraryConfig);
     expect(
-      booksLibraryConfig.editScopeForBrowserMode(
+      bookRuntime.hierarchy.editScopeForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       LibraryEditScope.media,
     );
     expect(
-      booksLibraryConfig.editScopeForBrowserMode(
+      bookRuntime.hierarchy.editScopeForBrowserMode(
         LibraryWorkspaceBrowserMode.releases,
       ),
       LibraryEditScope.release,
     );
-  });
-
-  test('library type config can carry an add dialog launcher override', () {
-    Future<LibraryAddDialogResult?> fakeLauncher(
-      BuildContext context,
-      LibraryAddDialogRequest request,
-    ) {
-      return Future.value(
-        const LibraryAddDialogResult(
-          target: LibraryAddTarget.owned,
-          itemIds: ['comic-1'],
-        ),
-      );
-    }
-
-    final config = LibraryTypeConfig(
-      workspace: comicsWorkspaceConfig,
-      singularLabel: 'Comic',
-      pluralLabel: 'Comics',
-      defaultMetadataProvider: 'gcd',
-      metadataProviders: const [gcdMetadataProvider],
-      trackingProfile: comicTrackingProfile,
-      addDialogLauncher: fakeLauncher,
-    );
-
-    expect(config.addDialogLauncher, same(fakeLauncher));
-  });
-
-  test('library type config can carry an edit dialog builder override', () {
-    Widget fakeBuilder(BuildContext context, LibraryEditDialogRequest request) {
-      return const SizedBox.shrink();
-    }
-
-    final config = LibraryTypeConfig(
-      workspace: comicsWorkspaceConfig,
-      singularLabel: 'Comic',
-      pluralLabel: 'Comics',
-      defaultMetadataProvider: 'gcd',
-      metadataProviders: const [gcdMetadataProvider],
-      trackingProfile: comicTrackingProfile,
-      editDialogBuilder: fakeBuilder,
-    );
-
-    expect(config.editDialogBuilder, same(fakeBuilder));
-  });
-
-  test('library type config can carry a detail page builder override', () {
-    Widget fakeBuilder(BuildContext context, LibraryDetailPageRequest request) {
-      return const SizedBox.shrink();
-    }
-
-    final config = LibraryTypeConfig(
-      workspace: comicsWorkspaceConfig,
-      singularLabel: 'Comic',
-      pluralLabel: 'Comics',
-      defaultMetadataProvider: 'gcd',
-      metadataProviders: const [gcdMetadataProvider],
-      trackingProfile: comicTrackingProfile,
-      detailPageBuilder: fakeBuilder,
-    );
-
-    expect(config.detailPageBuilder, same(fakeBuilder));
   });
 
   test('library type registry resolves supported media kinds and providers',
@@ -471,28 +385,23 @@ void main() {
     );
     expect(collectarrLibraryTypes.providersForKind(CatalogMediaKind.unknown),
         isEmpty);
+    expect(movieKindModule.add.dialogLauncher, same(showMovieLibraryAddDialog));
     expect(
-      collectarrLibraryTypes.byKind(CatalogMediaKind.movie)?.addDialogLauncher,
-      same(showMovieLibraryAddDialog),
+      libraryKindRuntime(CatalogMediaKind.movie).edit.editDialogBuilder,
+      isNotNull,
     );
     expect(
-        collectarrLibraryTypes
-            .byKind(CatalogMediaKind.movie)
-            ?.editDialogBuilder,
-        isNotNull);
-    expect(
-        collectarrLibraryTypes
-            .byKind(CatalogMediaKind.movie)
-            ?.detailPageBuilder,
-        isNotNull);
+      libraryKindRuntime(CatalogMediaKind.movie).inspector.detailPageBuilder,
+      isNotNull,
+    );
   });
 
   test('all registered kinds declare an explicit edit dialog builder', () {
     for (final kind in collectarrLibraryTypes.supportedKinds) {
       expect(
-        collectarrLibraryTypes
-            .byKind(catalogMediaKindFromValue(kind))
-            ?.editDialogBuilder,
+        libraryKindRuntime(catalogMediaKindFromValue(kind))
+            .edit
+            .editDialogBuilder,
         isNotNull,
         reason: 'Expected $kind to declare an explicit edit dialog builder.',
       );
@@ -571,19 +480,19 @@ void main() {
   });
 
   test('comic kind uses dedicated edit dialog builder', () {
-    expect(comicsLibraryConfig.editDialogBuilder,
+    expect(comicKindModule.edit.editDialogBuilder,
         same(buildComicLibraryEditDialog));
   });
 
   test('music kind uses dedicated edit dialog builder', () {
-    expect(musicLibraryConfig.editDialogBuilder,
+    expect(musicKindModule.edit.editDialogBuilder,
         same(buildMusicLibraryEditDialog));
   });
 
   test('game kinds use dedicated edit dialog builders', () {
-    expect(
-        gamesLibraryConfig.editDialogBuilder, same(buildGameLibraryEditDialog));
-    expect(boardGamesLibraryConfig.editDialogBuilder,
+    expect(gameKindModule.edit.editDialogBuilder,
+        same(buildGameLibraryEditDialog));
+    expect(boardGameKindModule.edit.editDialogBuilder,
         same(buildBoardGameLibraryEditDialog));
   });
 
@@ -694,34 +603,49 @@ void main() {
       ),
       520,
     );
-    expect(musicLibraryConfig.availableGroupModes, [
-      'music.artist',
-      'music.publisher',
-      'music.format',
-      'music.country',
-      'music.condition',
-      'music.location',
-    ]);
+    expect(
+      libraryKindRuntime(CatalogMediaKind.music)
+          .availableGroupIds
+          .map((id) => id.value),
+      [
+        'music.artist',
+        'music.publisher',
+        'music.format',
+        'music.country',
+        'music.condition',
+        'music.location',
+      ],
+    );
     expect(
       booksLibraryConfig.presentation.sortFavorites
           .map((LibrarySortFavorite favorite) => favorite.id),
       ['title_asc', 'release_latest', 'recent', 'value_desc'],
     );
-    expect(booksLibraryConfig.availableGroupModes, [
-      'book.author',
-      'book.publisher',
-      'book.series',
-      'book.format',
-      'book.condition',
-      'book.location',
-    ]);
-    expect(gamesLibraryConfig.availableGroupModes, [
-      'game.platform',
-      'game.publisher',
-      'game.franchise',
-      'game.location',
-      'game.completeness',
-    ]);
+    expect(
+      libraryKindRuntime(CatalogMediaKind.book)
+          .availableGroupIds
+          .map((id) => id.value),
+      [
+        'book.author',
+        'book.publisher',
+        'book.series',
+        'book.format',
+        'book.condition',
+        'book.location',
+      ],
+    );
+    expect(
+      libraryKindRuntime(CatalogMediaKind.game)
+          .availableGroupIds
+          .map((id) => id.value),
+      [
+        'game.platform',
+        'game.publisher',
+        'game.franchise',
+        'game.location',
+        'game.completeness',
+      ],
+    );
     expect(comicsLibraryConfig.presentation.externalFacetBucketIdsByMode.keys, [
       'comic.story_arc',
       'comic.character',
@@ -750,17 +674,22 @@ void main() {
       moviesLibraryConfig.presentation.emptyStateProviderSummarySuffix,
       ' Physical formats are tracked as editions.',
     );
-    expect(moviesLibraryConfig.availableGroupModes, [
-      'movie.director',
-      'movie.publisher',
-      'movie.genre',
-      'movie.release_year',
-      'movie.audience_rating',
-      'movie.movie_or_tv_series',
-      'movie.format',
-      'movie.audio_tracks',
-      'movie.edition_release_date',
-      'movie.location',
-    ]);
+    expect(
+      libraryKindRuntime(CatalogMediaKind.movie)
+          .availableGroupIds
+          .map((id) => id.value),
+      [
+        'movie.director',
+        'movie.publisher',
+        'movie.genre',
+        'movie.release_year',
+        'movie.audience_rating',
+        'movie.movie_or_tv_series',
+        'movie.format',
+        'movie.audio_tracks',
+        'movie.edition_release_date',
+        'movie.location',
+      ],
+    );
   });
 }

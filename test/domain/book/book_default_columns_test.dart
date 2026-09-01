@@ -7,8 +7,9 @@ void main() {
     expect(
       libraryKindRuntimeForKind(CatalogMediaKind.book)
           .fields
-          .defaultVisibleColumnIds,
-      containsAll(<Object>{
+          .defaultVisibleColumns
+          .map((column) => column.value),
+      containsAll(<String>{
         'book.author',
         'book.title',
         'book.publisher',

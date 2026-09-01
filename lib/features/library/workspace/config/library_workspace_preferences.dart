@@ -115,9 +115,11 @@ class LibraryWorkspacePreferences {
     final sortRules = _decodeSortRules(prefs.getStringList(_key('sort_rules')));
     final module = libraryKindRuntimeForType(config);
     final savedSortColumn = prefs.getString(_key('sort_column'));
-    var sortColumn = module.fields.defaultSortId;
+    var sortColumn = module.fields.defaultSort.value;
     if (savedSortColumn != null) {
-      final directDef = module.fields.findSortDefinition(savedSortColumn);
+      final directDef = module.fields.findSortDefinition(
+        module.fields.decodeSortId(savedSortColumn),
+      );
       if (directDef != null) {
         sortColumn = directDef.id.value;
       }
@@ -190,9 +192,11 @@ class LibraryWorkspacePreferences {
     );
     final normalizedSortRules = _normalizeSortRules(snapshot.sortRules);
     final writeModule = libraryKindRuntimeForType(config);
-    final sortDef = writeModule.fields.findSortDefinition(snapshot.sortColumn);
+    final sortDef = writeModule.fields.findSortDefinition(
+      writeModule.fields.decodeSortId(snapshot.sortColumn),
+    );
     final normalizedSortColumn =
-        sortDef?.id.value ?? writeModule.fields.defaultSortId;
+        sortDef?.id.value ?? writeModule.fields.defaultSort.value;
     final normalizedSnapshot = LibraryWorkspacePreferenceSnapshot(
       browserMode: snapshot.browserMode,
       viewMode: snapshot.viewMode,
@@ -260,22 +264,28 @@ class LibraryWorkspacePreferences {
 
   Set<String> _decodeVisibleColumns(List<String>? values) {
     final module = libraryKindRuntimeForType(config);
-    final defaultCols = module.fields.defaultVisibleColumnIds;
+    final defaultCols = module.fields.defaultVisibleColumns;
     if (values == null || values.isEmpty) {
-      return Set.of(defaultCols);
+      return defaultCols.map((column) => column.value).toSet();
     }
     final columns = <String>{};
     for (final value in values) {
-      final colDef = module.fields.findColumnDefinition(value);
+      final colDef = module.fields.findColumnDefinition(
+        module.fields.decodeColumnId(value),
+      );
       if (colDef != null) {
         columns.add(colDef.id.value);
       }
     }
-    final titleDef = module.fields.findColumnDefinition('title');
+    final titleDef = module.fields.findColumnDefinition(
+      module.fields.decodeColumnId('title'),
+    );
     if (titleDef != null) {
       columns.add(titleDef.id.value);
     }
-    return columns.isEmpty ? Set.of(defaultCols) : columns;
+    return columns.isEmpty
+        ? defaultCols.map((column) => column.value).toSet()
+        : columns;
   }
 
   List<String> _encodeColumnWidths(Map<String, double> widths) {
@@ -306,7 +316,9 @@ class LibraryWorkspacePreferences {
         continue;
       }
       final rawId = parts.first;
-      final sortDef = module.fields.findSortDefinition(rawId);
+      final sortDef = module.fields.findSortDefinition(
+        module.fields.decodeSortId(rawId),
+      );
       if (sortDef == null) {
         continue;
       }
@@ -332,7 +344,9 @@ class LibraryWorkspacePreferences {
         continue;
       }
       final columnId = parts[0];
-      final colDef = module.fields.findColumnDefinition(columnId);
+      final colDef = module.fields.findColumnDefinition(
+        module.fields.decodeColumnId(columnId),
+      );
       final column = colDef?.id.value;
       final width = double.tryParse(parts[1]);
       if (column != null && width != null) {
@@ -346,19 +360,25 @@ class LibraryWorkspacePreferences {
     Set<String> columns,
   ) {
     final module = libraryKindRuntimeForType(config);
-    final defaultCols = module.fields.defaultVisibleColumnIds;
+    final defaultCols = module.fields.defaultVisibleColumns;
     final normalized = <String>{};
     for (final column in columns) {
-      final colDef = module.fields.findColumnDefinition(column);
+      final colDef = module.fields.findColumnDefinition(
+        module.fields.decodeColumnId(column),
+      );
       if (colDef != null) {
         normalized.add(colDef.id.value);
       }
     }
-    final titleSupported = module.fields.findColumnDefinition('title') != null;
-    if (titleSupported) {
-      normalized.add('title');
+    final titleDef = module.fields.findColumnDefinition(
+      module.fields.decodeColumnId('title'),
+    );
+    if (titleDef != null) {
+      normalized.add(titleDef.id.value);
     }
-    return normalized.isEmpty ? Set.of(defaultCols) : normalized;
+    return normalized.isEmpty
+        ? defaultCols.map((column) => column.value).toSet()
+        : normalized;
   }
 
   Map<String, double> _normalizeColumnWidths(
@@ -367,7 +387,9 @@ class LibraryWorkspacePreferences {
     final module = libraryKindRuntimeForType(config);
     final normalized = <String, double>{};
     for (final entry in widths.entries) {
-      final colDef = module.fields.findColumnDefinition(entry.key);
+      final colDef = module.fields.findColumnDefinition(
+        module.fields.decodeColumnId(entry.key),
+      );
       if (colDef != null) {
         normalized[colDef.id.value] = entry.value;
       }
@@ -383,7 +405,9 @@ class LibraryWorkspacePreferences {
     final normalized = <LibrarySortRule>[];
     final seen = <String>{};
     for (final rule in rules) {
-      final sortDef = module.fields.findSortDefinition(rule.column);
+      final sortDef = module.fields.findSortDefinition(
+        module.fields.decodeSortId(rule.column),
+      );
       if (sortDef == null || !seen.add(sortDef.id.value)) {
         continue;
       }

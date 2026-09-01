@@ -1,12 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
-import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -74,9 +68,6 @@ final booksLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: readingTrackingProfile,
   presentation: bookLibraryMediaPresentation,
-  editDialogBuilder: buildBookLibraryEditDialog,
-  kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
-  inspectorSectionsBuilder: (_, __) => const [],
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     showsCreatorSpotlight: true,
@@ -90,8 +81,6 @@ final booksLibraryConfig = LibraryTypeConfig(
     mediaScopeSortIds: _bookMediaSortColumns,
     releaseScopeSortIds: _bookReleaseSortColumns,
   ),
-  showsDefaultInspectorPersonalSection: false,
-  conditions: BookVocabularies.condition.builtIns,
 );
 
 const Set<String> _bookMediaGroupModes = {

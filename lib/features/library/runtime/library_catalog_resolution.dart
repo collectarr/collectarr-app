@@ -36,23 +36,9 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
       metadataProviders:
           resolvedProviders.isEmpty ? metadataProviders : resolvedProviders,
       trackingProfile: trackingProfile,
-      conditions: conditions,
-      grades: grades,
-      defaultCondition: defaultCondition,
-      defaultGrade: defaultGrade,
       capabilities: capabilities,
       presentation: presentation,
       addChrome: addChrome,
-      editChrome: editChrome,
-      addDialogLauncher: addDialogLauncher,
-      editDialogBuilder: editDialogBuilder,
-      mediaEditDialogBuilder: mediaEditDialogBuilder,
-      releaseEditDialogBuilder: releaseEditDialogBuilder,
-      detailPageBuilder: detailPageBuilder,
-      inspectorHeroBuilder: inspectorHeroBuilder,
-      inspectorSectionsBuilder: inspectorSectionsBuilder,
-      showsDefaultInspectorPersonalSection:
-          showsDefaultInspectorPersonalSection,
     );
   }
 }

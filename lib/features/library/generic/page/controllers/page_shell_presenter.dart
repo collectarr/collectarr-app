@@ -385,21 +385,28 @@ abstract final class LibraryPageShellPresenter {
         onSmartLists: () =>
             state._dialogCoordinator.showSmartListsFlow(shelfState),
         onFolders: state._dialogCoordinator.showUserFoldersFlow,
-        onReadingQueue: state.widget.type.supportsReadingQueue
+        onReadingQueue: libraryKindRuntimeForType(state.widget.type)
+                .hierarchy
+                .showsReadingQueue
             ? state._dialogCoordinator.showReadingQueueFlow
             : null,
-        onEditConditionPickList: state.widget.type.hasConditionPickList
+        onEditConditionPickList: libraryKindRuntimeForType(state.widget.type)
+                .edit
+                .hasConditionPickList
             ? state._dialogCoordinator.showConditionPickListEditorFlow
             : null,
-        onEditGradePickList: state.widget.type.hasGradePickList
-            ? state._dialogCoordinator.showGradePickListEditorFlow
-            : null,
+        onEditGradePickList:
+            libraryKindRuntimeForType(state.widget.type).edit.hasGradePickList
+                ? state._dialogCoordinator.showGradePickListEditorFlow
+                : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
         onTransferFieldData: state._hasOwnedItemsInProjection(projection)
             ? () =>
                 state._dialogCoordinator.showTransferFieldDataFlow(projection)
             : null,
-        onReassignIndex: state.widget.type.supportsIndexReassignment &&
+        onReassignIndex: libraryKindRuntimeForType(state.widget.type)
+                    .hierarchy
+                    .supportsIndexReassignment &&
                 state._hasOwnedItemsInProjection(projection)
             ? () => state._dialogCoordinator.reassignIndexFlow(projection)
             : null,
@@ -410,7 +417,9 @@ abstract final class LibraryPageShellPresenter {
             ? () => state._sharingCoordinator.shareCollectionFlow(projection)
             : null,
         onCompareMetadataWithServer: (() {
-          if (!state.widget.type.supportsMetadataCompareWithServer) {
+          if (!libraryKindRuntimeForType(state.widget.type)
+              .metadata
+              .supportsServerCompare) {
             return null;
           }
           final selected = state._collectionActionCoordinator

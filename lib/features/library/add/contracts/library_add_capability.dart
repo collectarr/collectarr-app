@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -140,6 +141,7 @@ abstract interface class LibraryAddCapability<
   LibraryAddPreviewPaneBuilder? get previewPaneBuilder;
   LibraryAddSearchPaneBuilder? get searchPaneBuilder;
   LibraryAddBottomBarBuilder? get bottomBarBuilder;
+  LibraryAddDialogLauncher? get dialogLauncher;
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
 
@@ -173,6 +175,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.previewPaneBuilder,
     this.searchPaneBuilder,
     this.bottomBarBuilder,
+    this.dialogLauncher,
     required this.search,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
   });
@@ -194,6 +197,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddSearchPaneBuilder? searchPaneBuilder;
   @override
   final LibraryAddBottomBarBuilder? bottomBarBuilder;
+  @override
+  final LibraryAddDialogLauncher? dialogLauncher;
   @override
   final LibraryAddSearchCapability search;
   @override

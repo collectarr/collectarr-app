@@ -79,6 +79,14 @@ abstract interface class LibraryKindRuntime {
 
   LibraryWorkspaceViewProfile get viewProfile;
 
+  List<LibraryGroupIdRuntime> get availableGroupIds;
+  List<LibraryGroupIdRuntime> availableGroupIdsForBrowserMode(
+    LibraryWorkspaceBrowserMode browserMode,
+  );
+  List<LibrarySortIdRuntime> availableSortIdsForBrowserMode(
+    LibraryWorkspaceBrowserMode browserMode,
+  );
+
   Set<String> defaultTableColumns();
   List<String> orderedTableColumns(Set<String> columns);
   double tableWidthForColumns(
@@ -272,13 +280,66 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
       _viewProfile ?? plannedMediaWorkspaceViewProfile(type);
 
   @override
-  Set<String> defaultTableColumns() => Set.of(fields.defaultVisibleColumnIds);
+  List<LibraryGroupIdRuntime> get availableGroupIds => [
+        for (final definition in fields.groups) definition.id,
+      ];
+
+  @override
+  List<LibraryGroupIdRuntime> availableGroupIdsForBrowserMode(
+    LibraryWorkspaceBrowserMode browserMode,
+  ) {
+    final allGroups = availableGroupIds;
+    final typeCapabilities = type.capabilities;
+    if (!typeCapabilities.scopesOptionsByBrowserMode) {
+      return allGroups;
+    }
+    final scopedGroups = browserMode == LibraryWorkspaceBrowserMode.releases
+        ? typeCapabilities.releaseScopeGroupIds
+        : typeCapabilities.mediaScopeGroupIds;
+    if (scopedGroups == null) {
+      return allGroups;
+    }
+    return [
+      for (final groupId in allGroups)
+        if (scopedGroups.contains(groupId.value)) groupId,
+    ];
+  }
+
+  @override
+  List<LibrarySortIdRuntime> availableSortIdsForBrowserMode(
+    LibraryWorkspaceBrowserMode browserMode,
+  ) {
+    final allSorts = [
+      for (final definition in fields.sorts) definition.id,
+    ];
+    final typeCapabilities = type.capabilities;
+    if (!typeCapabilities.scopesOptionsByBrowserMode) {
+      return allSorts;
+    }
+    final scopedSorts = browserMode == LibraryWorkspaceBrowserMode.releases
+        ? typeCapabilities.releaseScopeSortIds
+        : typeCapabilities.mediaScopeSortIds;
+    if (scopedSorts == null) {
+      return allSorts;
+    }
+    return [
+      for (final sortId in allSorts)
+        if (scopedSorts.contains(sortId.value)) sortId,
+    ];
+  }
+
+  @override
+  Set<String> defaultTableColumns() => {
+        for (final column in fields.defaultVisibleColumns) column.value,
+      };
 
   @override
   List<String> orderedTableColumns(Set<String> columns) =>
       orderedLibraryTableColumns(
         columns: columns,
-        defaultColumns: fields.defaultVisibleColumnIds,
+        defaultColumns: {
+          for (final column in fields.defaultVisibleColumns) column.value,
+        },
       );
 
   @override
@@ -338,7 +399,9 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     Iterable<LibrarySortRule> rules,
   ) {
     for (final rule in rules) {
-      final sortDef = fields.findSortDefinition(rule.column);
+      final sortDef = fields.findSortDefinition(
+        fields.decodeSortId(rule.column),
+      );
       if (sortDef != null) {
         final result = sortDef.compare(
           LibraryProjectionContext(
@@ -431,7 +494,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     }
     fields.sortEntries(
       items,
-      sortId.value,
+      sortId,
       ascending: ascending,
     );
   }
@@ -444,7 +507,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   ) {
     validateProjection(left);
     validateProjection(right);
-    return fields.compareEntries(left, right, sortId.value);
+    return fields.compareEntries(left, right, sortId);
   }
 
   @override
@@ -453,12 +516,15 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
-    return fields.getGroupValue(item, groupId.value);
+    return fields.getGroupValue(item, groupId);
   }
 
   @override
   bool groupModeSupportsCompletion(String groupMode) {
-    return fields.findGroupDefinition(groupMode)?.sequenceValue != null;
+    return fields
+            .findGroupDefinition(fields.decodeGroupId(groupMode))
+            ?.sequenceValue !=
+        null;
   }
 
   @override
@@ -466,7 +532,10 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryProjectionRuntime item,
     String groupMode,
   ) {
-    return fields.getGroupSequenceValue(item, groupMode);
+    return fields.getGroupSequenceValue(
+      item,
+      fields.decodeGroupId(groupMode),
+    );
   }
 
   @override
@@ -475,7 +544,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryFieldIdRuntime columnId,
   ) {
     validateProjection(item);
-    return fields.getColumnValue(item, columnId.value);
+    return fields.getColumnValue(item, columnId);
   }
 
   @override
@@ -554,7 +623,7 @@ void validateKindRuntime(LibraryKindRuntime runtime) {
     }
   }
 
-  for (final colId in runtime.fields.defaultVisibleColumnIds) {
+  for (final colId in runtime.fields.defaultVisibleColumns) {
     if (runtime.fields.findColumnDefinition(colId) == null) {
       throw StateError(
         'Default visible column ID "$colId" not found in columns for kind spec "${runtime.type.workspace.title}"',
@@ -562,17 +631,17 @@ void validateKindRuntime(LibraryKindRuntime runtime) {
     }
   }
 
-  if (runtime.fields.findSortDefinition(runtime.fields.defaultSortId) == null) {
+  if (runtime.fields.findSortDefinition(runtime.fields.defaultSort) == null) {
     throw StateError(
-      'Default sort ID "${runtime.fields.defaultSortId}" not found in sorts for kind spec "${runtime.type.workspace.title}"',
+      'Default sort ID "${runtime.fields.defaultSort.value}" not found in sorts for kind spec "${runtime.type.workspace.title}"',
     );
   }
 
-  if (runtime.fields.defaultGroupId != null &&
-      runtime.fields.findGroupDefinition(runtime.fields.defaultGroupId!) ==
+  if (runtime.fields.defaultGroup != null &&
+      runtime.fields.findGroupDefinition(runtime.fields.defaultGroup!) ==
           null) {
     throw StateError(
-      'Default group ID "${runtime.fields.defaultGroupId}" not found in groups for kind spec "${runtime.type.workspace.title}"',
+      'Default group ID "${runtime.fields.defaultGroup!.value}" not found in groups for kind spec "${runtime.type.workspace.title}"',
     );
   }
 

@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_page.dart'
 import 'package:collectarr_app/features/library/kinds/comic/detail/comic_series_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
@@ -153,8 +154,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           if (request == null) {
             return LibraryHomePage(routeUri: state.uri);
           }
-          final builder =
-              request.type.detailPageBuilder ?? _buildDefaultDetailPage;
+          final builder = libraryKindRuntimeForType(request.type)
+                  .inspector
+                  .detailPageBuilder ??
+              _buildDefaultDetailPage;
           return builder(context, request);
         },
       ),

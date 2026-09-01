@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
@@ -38,19 +37,21 @@ void main() {
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
       isSidebarVisible: true,
-      sortColumn: bookModule.fields.defaultSortId,
+      sortColumn: bookModule.fields.defaultSort.value,
       sortAscending: true,
       coverSize: 180,
       sidebarWidth: 320,
       detailsWidth: 420,
       detailsHeight: 260,
-      visibleColumns: Set.of(bookModule.fields.defaultVisibleColumnIds),
+      visibleColumns: bookModule.fields.defaultVisibleColumns
+          .map((column) => column.value)
+          .toSet(),
       columnWidths: const {},
     );
 
     expect(
       adapter.browserModeForViewState(booksLibraryConfig, state),
-      equals(booksLibraryConfig.browserModeForViewState(state)),
+      equals(bookModule.hierarchy.browserModeForViewState(state)),
     );
   });
 

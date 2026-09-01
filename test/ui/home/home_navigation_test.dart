@@ -61,8 +61,13 @@ void main() {
     expect(config.pluralLabel, 'Podcasts');
     expect(config.defaultMetadataProvider, 'podindex');
     expect(config.presentation, genericLibraryMediaPresentation);
-    expect(libraryKindRuntimeForType(config).fields.defaultVisibleColumnIds,
-        contains('unknown.title'));
+    expect(
+      libraryKindRuntimeForType(config)
+          .fields
+          .defaultVisibleColumns
+          .map((column) => column.value),
+      contains('unknown.title'),
+    );
     expect(config.workspace.icon, Icons.category_outlined);
     expect(config.workspace.accent, kLibraryFallbackAccent);
     expect(config.trackingProfile.name, readingTrackingProfile.name);

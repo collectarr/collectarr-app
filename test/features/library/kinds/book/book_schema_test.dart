@@ -9,7 +9,7 @@ void main() {
     final columnIds =
         bookKindModule.fields.columns.map((c) => c.id.value).toSet();
 
-    for (final defaultId in bookKindModule.fields.defaultVisibleColumnIds) {
+    for (final defaultId in bookKindModule.fields.defaultVisibleColumns) {
       final definition = registry.columnDefinitionForId(defaultId);
       expect(
         definition,

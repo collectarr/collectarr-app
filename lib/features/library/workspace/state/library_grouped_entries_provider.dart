@@ -53,7 +53,9 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
       return;
     }
 
-    final groupDef = module.fields.findGroupDefinition(groupId);
+    final groupDef = module.fields.findGroupDefinition(
+      module.fields.decodeGroupId(groupId),
+    );
     if (groupDef == null) {
       controller.add([
         LibraryGroupBucket(key: '_all', label: 'All', entries: items),

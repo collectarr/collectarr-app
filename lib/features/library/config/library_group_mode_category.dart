@@ -21,7 +21,7 @@ List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
   final categoriesMap = <String, List<String>>{};
 
   for (final mode in modes) {
-    final groupDef = fields.findGroupDefinition(mode);
+    final groupDef = fields.findGroupDefinition(fields.decodeGroupId(mode));
     final category = groupDef?.resolvedCategory ?? 'Personal';
     categoriesMap.putIfAbsent(category, () => []).add(mode);
   }

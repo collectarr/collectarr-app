@@ -291,7 +291,7 @@ LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
     for (final definition in type.presentation.filterDefinitions) definition.id,
   };
   final editCap = libraryKindRuntimeForKind(type.workspace.kind).edit;
-  final grades = editCap.grades.isNotEmpty ? editCap.grades : type.grades;
+  final grades = editCap.grades;
   final hasGrades = grades.isNotEmpty && supportedFields.contains('grade');
   final fieldValues = <String, String?>{};
   for (final entry in selection.fieldValues.entries) {

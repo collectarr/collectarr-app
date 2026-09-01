@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
+import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -19,6 +20,7 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
     this.mediaReleaseScopeLabel = 'Media',
     this.childrenTitleBuilder,
     this.fetchChildrenCallback,
+    this.browserDelegateBuilder,
   });
 
   final LibraryContentHierarchy contentHierarchy;
@@ -34,6 +36,11 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
     String? provider,
     String? providerItemId,
   })? fetchChildrenCallback;
+  final LibraryKindBrowserDelegate Function()? browserDelegateBuilder;
+
+  LibraryKindBrowserDelegate buildBrowserDelegate() {
+    return browserDelegateBuilder?.call() ?? LibraryNoopBrowserDelegate();
+  }
 
   @override
   Future<List<LibraryHierarchyNode>> fetchChildren({

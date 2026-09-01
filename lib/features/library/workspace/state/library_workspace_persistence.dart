@@ -25,16 +25,40 @@ Future<LibraryFilterState> loadPersistedFilterState(
   final prefs = await SharedPreferences.getInstance();
   final module = libraryKindRuntimeForKind(key.kind);
 
-  final sortId =
-      prefs.getString(_k(key, 'sort_id')) ?? module.fields.defaultSortId;
+  final storedSortId = prefs.getString(_k(key, 'sort_id'));
+  final sortDefinition = storedSortId == null
+      ? null
+      : module.fields.findSortDefinition(
+          module.fields.decodeSortId(storedSortId),
+        );
+  final sortId = sortDefinition?.id.value ?? module.fields.defaultSort.value;
   final sortAscending = prefs.getBool(_k(key, 'sort_ascending')) ?? true;
+  final storedGroupId = prefs.getString(_k(key, 'group_id'));
+  final groupDefinition = storedGroupId == null
+      ? null
+      : module.fields.findGroupDefinition(
+          module.fields.decodeGroupId(storedGroupId),
+        );
   final groupId =
-      prefs.getString(_k(key, 'group_id')) ?? module.fields.defaultGroupId;
+      groupDefinition?.id.value ?? module.fields.defaultGroup?.value;
 
   final storedColumns = prefs.getStringList(_k(key, 'visible_columns'));
-  final visibleColumnIds = storedColumns != null
-      ? Set<String>.from(storedColumns)
-      : module.fields.defaultVisibleColumnIds.toSet();
+  final decodedColumnIds = <String>{};
+  if (storedColumns != null) {
+    for (final storedColumn in storedColumns) {
+      final definition = module.fields.findColumnDefinition(
+        module.fields.decodeColumnId(storedColumn),
+      );
+      if (definition != null) {
+        decodedColumnIds.add(definition.id.value);
+      }
+    }
+  }
+  final visibleColumnIds = decodedColumnIds.isEmpty
+      ? module.fields.defaultVisibleColumns
+          .map((column) => column.value)
+          .toSet()
+      : decodedColumnIds;
 
   return LibraryFilterState(
     sortId: sortId,
@@ -70,17 +94,41 @@ Future<void> persistFilterState(
   LibraryFilterState state,
 ) async {
   final prefs = await SharedPreferences.getInstance();
+  final module = libraryKindRuntimeForKind(key.kind);
+  final sortDefinition = state.sortId == null
+      ? null
+      : module.fields.findSortDefinition(
+          module.fields.decodeSortId(state.sortId!),
+        );
   if (state.sortId != null) {
-    await prefs.setString(_k(key, 'sort_id'), state.sortId!);
+    if (sortDefinition != null) {
+      await prefs.setString(_k(key, 'sort_id'), sortDefinition.id.value);
+    }
   }
   await prefs.setBool(_k(key, 'sort_ascending'), state.sortAscending);
+  final groupDefinition = state.groupId == null
+      ? null
+      : module.fields.findGroupDefinition(
+          module.fields.decodeGroupId(state.groupId!),
+        );
   if (state.groupId != null) {
-    await prefs.setString(_k(key, 'group_id'), state.groupId!);
+    if (groupDefinition != null) {
+      await prefs.setString(_k(key, 'group_id'), groupDefinition.id.value);
+    }
   }
   if (state.visibleColumnIds.isNotEmpty) {
+    final visibleColumnIds = state.visibleColumnIds
+        .map(
+          (columnId) => module.fields
+              .findColumnDefinition(module.fields.decodeColumnId(columnId))
+              ?.id
+              .value,
+        )
+        .whereType<String>()
+        .toList(growable: false);
     await prefs.setStringList(
       _k(key, 'visible_columns'),
-      state.visibleColumnIds.toList(growable: false),
+      visibleColumnIds,
     );
   }
 }

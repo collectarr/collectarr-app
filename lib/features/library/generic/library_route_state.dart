@@ -157,16 +157,15 @@ class LibraryRouteState {
     if (routeKind != null && routeKind != expectedKind) {
       return LibraryRouteState(kind: expectedKind);
     }
-    final allowedGroupModes = type.availableGroupModes.toSet();
+    final runtime = libraryKindRuntimeForType(type);
+    final allowedGroupModes =
+        runtime.availableGroupIds.map((groupId) => groupId.value).toSet();
     final filteredFolderPreset = sanitizeLibraryFolderPreset(
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final allowedSortColumns = libraryKindRuntimeForType(type)
-        .fields
-        .sorts
-        .map((d) => d.id.value)
-        .toSet();
+    final allowedSortColumns =
+        runtime.fields.sorts.map((d) => d.id.value).toSet();
     final filteredSortRules = sortRules == null
         ? null
         : [
@@ -174,7 +173,9 @@ class LibraryRouteState {
               if (allowedSortColumns.contains(rule.column)) rule,
           ];
     final resolvedGroupDef = groupMode != null
-        ? libraryKindRuntimeForType(type).fields.findGroupDefinition(groupMode!)
+        ? runtime.fields.findGroupDefinition(
+            runtime.fields.decodeGroupId(groupMode!),
+          )
         : null;
     final filteredGroupMode = filteredFolderPreset?.primaryMode ??
         (groupMode != null &&
@@ -406,7 +407,8 @@ LibraryQuickView? sanitizeLibraryQuickViewForType(
   if (quickView == null) {
     return null;
   }
-  if (quickView.requiresGrades && type.grades.isEmpty) {
+  if (quickView.requiresGrades &&
+      libraryKindRuntimeForType(type).edit.grades.isEmpty) {
     return null;
   }
   return quickView;

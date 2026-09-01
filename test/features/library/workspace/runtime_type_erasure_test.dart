@@ -57,7 +57,12 @@ void main() {
       final item = createComicItem('1', 'Saga');
       final groupVal = comicModule.groupValue(item, ComicGroupIds.series);
       expect(groupVal, isA<String?>());
-      expect(comicModule.fields.findGroupDefinition('comic.series'), isNotNull);
+      expect(
+        comicModule.fields.findGroupDefinition(
+          comicModule.fields.decodeGroupId('comic.series'),
+        ),
+        isNotNull,
+      );
       expect(() => comicModule.groupValue(item, ComicGroupIds.series),
           returnsNormally);
     });

@@ -1,12 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -75,11 +69,7 @@ final moviesLibraryConfig = LibraryTypeConfig(
   trackingProfile: videoTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
-  addDialogLauncher: showMovieLibraryAddDialog,
-  editDialogBuilder: buildMovieLibraryEditDialog,
-  detailPageBuilder: buildVideoLibraryDetailPage,
   presentation: moviesLibraryMediaPresentation,
-  kindBrowserDelegateBuilder: buildMovieBrowserDelegate,
   addChrome: LibraryAddChromeConfig(
     videoKindFilterOptions: [
       LibraryAddVideoKindFilterOption(
@@ -95,7 +85,6 @@ final moviesLibraryConfig = LibraryTypeConfig(
     ],
     defaultVideoKindFilters: {'movie'},
   ),
-  inspectorSectionsBuilder: buildMovieInspectorSections,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     canScanCover: true,
@@ -106,7 +95,6 @@ final moviesLibraryConfig = LibraryTypeConfig(
     mediaScopeSortIds: _movieMediaSortColumns,
     releaseScopeSortIds: _movieEditionSortColumns,
   ),
-  showsDefaultInspectorPersonalSection: false,
 );
 
 const Set<String> _movieMediaGroupModes = {

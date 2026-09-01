@@ -9,13 +9,15 @@ void main() {
     final bookModule = libraryKindRuntimeForKind(CatalogMediaKind.book);
 
     test('findGroupDefinition resolves canonical kind-qualified group ID', () {
-      final comicSeriesDef =
-          comicModule.fields.findGroupDefinition('comic.series');
+      final comicSeriesDef = comicModule.fields.findGroupDefinition(
+        comicModule.fields.decodeGroupId('comic.series'),
+      );
       expect(comicSeriesDef, isNotNull);
       expect(comicSeriesDef!.label, 'Series');
 
-      final bookAuthorDef =
-          bookModule.fields.findGroupDefinition('book.author');
+      final bookAuthorDef = bookModule.fields.findGroupDefinition(
+        bookModule.fields.decodeGroupId('book.author'),
+      );
       expect(bookAuthorDef, isNotNull);
       expect(bookAuthorDef!.label, 'Author');
     });
@@ -24,36 +26,44 @@ void main() {
         'findGroupDefinition resolves legacy preference string and group. prefix',
         () {
       // Legacy unprefixed
-      final comicSeriesDef = comicModule.fields.findGroupDefinition('series');
+      final comicSeriesDef = comicModule.fields.findGroupDefinition(
+        comicModule.fields.decodeGroupId('series'),
+      );
       expect(comicSeriesDef, isNotNull);
       expect(comicSeriesDef!.id.value, 'comic.series');
 
       // Persisted 'group.' prefix
-      final comicPublisherDef =
-          comicModule.fields.findGroupDefinition('group.comic.publisher');
+      final comicPublisherDef = comicModule.fields.findGroupDefinition(
+        comicModule.fields.decodeGroupId('group.comic.publisher'),
+      );
       expect(comicPublisherDef, isNotNull);
       expect(comicPublisherDef!.id.value, 'comic.publisher');
 
-      final legacyGroupPublisherDef =
-          comicModule.fields.findGroupDefinition('group.publisher');
+      final legacyGroupPublisherDef = comicModule.fields.findGroupDefinition(
+        comicModule.fields.decodeGroupId('group.publisher'),
+      );
       expect(legacyGroupPublisherDef, isNotNull);
       expect(legacyGroupPublisherDef!.id.value, 'comic.publisher');
     });
 
     test('findGroupDefinition rejects wrong-kind group ID', () {
       // Book module should not resolve comic.series or comic.creator
-      final bookSeriesFromComic =
-          bookModule.fields.findGroupDefinition('comic.creator');
+      final bookSeriesFromComic = bookModule.fields.findGroupDefinition(
+        bookModule.fields.decodeGroupId('comic.creator'),
+      );
       expect(bookSeriesFromComic, isNull);
 
       // Comic module should not resolve book.author
-      final comicAuthor = comicModule.fields.findGroupDefinition('book.author');
+      final comicAuthor = comicModule.fields.findGroupDefinition(
+        comicModule.fields.decodeGroupId('book.author'),
+      );
       expect(comicAuthor, isNull);
     });
 
     test('findGroupDefinition returns null for unknown group ID', () {
-      final unknown =
-          comicModule.fields.findGroupDefinition('non_existent_group');
+      final unknown = comicModule.fields.findGroupDefinition(
+        comicModule.fields.decodeGroupId('non_existent_group'),
+      );
       expect(unknown, isNull);
     });
 

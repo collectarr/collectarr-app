@@ -894,7 +894,9 @@ String _sortFavoriteSummary(
 
 String _sortColumnLabel(LibraryTypeConfig type, Object column) {
   final module = libraryKindRuntimeForType(type);
-  return module.fields.findSortDefinition(column.toString())?.label ??
+  return module.fields
+          .findSortDefinition(module.fields.decodeSortId(column.toString()))
+          ?.label ??
       column.toString();
 }
 

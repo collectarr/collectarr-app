@@ -510,7 +510,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   LibrarySortRule _defaultRule() {
-    final column = libraryKindRuntimeForType(widget.type).fields.defaultSortId;
+    final column =
+        libraryKindRuntimeForType(widget.type).fields.defaultSort.value;
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),
@@ -1143,11 +1144,9 @@ LibraryTableColumnGroup _sortFieldGroup(
   LibraryTypeConfig type,
   String column,
 ) {
-  final groupStr = libraryKindRuntimeForType(type)
-      .fields
-      .sortDefinitionFor(column)
-      .group
-      .toLowerCase();
+  final fields = libraryKindRuntimeForType(type).fields;
+  final groupStr =
+      fields.sortDefinitionFor(fields.decodeSortId(column)).group.toLowerCase();
   return LibraryTableColumnGroup.values.firstWhere(
     (g) => g.name.toLowerCase() == groupStr,
     orElse: () => LibraryTableColumnGroup.main,
@@ -1164,10 +1163,8 @@ String _groupLabel(LibraryTableColumnGroup group) {
 }
 
 bool _defaultSortAscending(LibraryTypeConfig type, String column) {
-  return libraryKindRuntimeForType(type)
-      .fields
-      .sortDefinitionFor(column)
-      .defaultAscending;
+  final fields = libraryKindRuntimeForType(type).fields;
+  return fields.sortDefinitionFor(fields.decodeSortId(column)).defaultAscending;
 }
 
 List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
@@ -1183,10 +1180,8 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
 
 String _sortColumnLabel(LibraryTypeConfig type, String column) {
   try {
-    return libraryKindRuntimeForType(type)
-        .fields
-        .sortDefinitionFor(column)
-        .label;
+    final fields = libraryKindRuntimeForType(type).fields;
+    return fields.sortDefinitionFor(fields.decodeSortId(column)).label;
   } on StateError {
     return librarySortColumnFallbackLabel(column);
   }

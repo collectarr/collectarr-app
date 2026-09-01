@@ -30,7 +30,8 @@ void main() {
     expect(
       libraryKindRuntimeForKind(CatalogMediaKind.music)
           .fields
-          .defaultVisibleColumnIds,
+          .defaultVisibleColumns
+          .map((column) => column.value),
       containsAll([
         'music.artist',
         'music.title',
