@@ -125,30 +125,10 @@ const kDefaultLibraryToolbarActions = <LibraryToolbarActionId>[
   LibraryToolbarActionId.groupPresentation,
 ];
 
-class KindToolbarCapabilities {
-  const KindToolbarCapabilities({
-    this.canScanCover = false,
-    this.canDownloadAllCovers = false,
-    this.canReadingQueue = false,
-    this.canReassignIndex = false,
-    this.canCompareMetadataWithServer = false,
-  });
-
-  final bool canScanCover;
-  final bool canDownloadAllCovers;
-  final bool canReadingQueue;
-  final bool canReassignIndex;
-  final bool canCompareMetadataWithServer;
-}
-
 class LibraryToolbarActionAvailability {
-  const LibraryToolbarActionAvailability({
-    required this.declaredActions,
-    required this.capabilities,
-  });
+  const LibraryToolbarActionAvailability({required this.declaredActions});
 
   final Set<LibraryToolbarActionId> declaredActions;
-  final KindToolbarCapabilities capabilities;
 
   bool allows(LibraryToolbarActionId action) =>
       declaredActions.contains(action);
@@ -158,13 +138,6 @@ extension LibraryKindRuntimeToolbarAvailability on LibraryKindRuntime {
   LibraryToolbarActionAvailability get toolbarActionAvailability {
     return LibraryToolbarActionAvailability(
       declaredActions: identity.toolbarActions.toSet(),
-      capabilities: KindToolbarCapabilities(
-        canScanCover: capabilities.canScanCover,
-        canDownloadAllCovers: capabilities.canScanCover,
-        canReadingQueue: capabilities.supportsReadingQueue,
-        canReassignIndex: capabilities.supportsIndexReassignment,
-        canCompareMetadataWithServer: capabilities.supportsMetadataCompare,
-      ),
     );
   }
 }

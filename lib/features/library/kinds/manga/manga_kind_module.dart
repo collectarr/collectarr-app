@@ -149,7 +149,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     ],
   ),
   hierarchy: const LibraryHierarchyCapability(
-    contentHierarchy: LibraryContentHierarchy.volumes,
     fetchChildrenCallback: _fetchMangaVolumes,
     childrenTitleBuilder: _mangaChildrenTitle,
     supportsMediaReleaseSplit: true,
@@ -165,12 +164,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   ),
   transfer: LibraryTransferCapability(
     kindFields: _mangaTransferableFields,
-  ),
-  capabilities: const LibraryTypeCapabilities(
-    supportsMediaReleaseSplit: true,
-    supportsIndexReassignment: true,
-    contentHierarchy: LibraryContentHierarchy.volumes,
-    usesCompactTableLayout: true,
   ),
   stats: const MangaStatsCapability(),
   add: StandardLibraryAddCapability<MangaAddDraft>(

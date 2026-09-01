@@ -126,6 +126,6 @@ String _emptyStateSummary(LibraryKindRuntime type) {
     return 'No providers are registered for this library yet.';
   }
   final providers = supportedProviders.map((p) => p.label).join(', ');
-  final suffix = type.capabilities.emptyStateProviderSummarySuffix;
+  final suffix = type.presentation.emptyStateProviderSummarySuffix;
   return 'Search Core via $providers, scan a barcode, or add a manual local item.$suffix';
 }

@@ -1,9 +1,11 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_add_preview_sections.dart';
 import 'package:flutter/material.dart';
 
 const animeMetadataLabels = LibraryMetadataLabels(
@@ -20,6 +22,23 @@ class AnimeLibraryMediaPresentationBuilder
           showSummary: true,
           metadataLabels: animeMetadataLabels,
         );
+
+  @override
+  List<Widget> buildAddPreviewSections({
+    required Color accent,
+    required CatalogMediaKind kind,
+    required String provider,
+    required String providerItemId,
+  }) {
+    return [
+      VideoAddPreviewSeasonsSection(
+        kind: kind,
+        provider: provider,
+        providerItemId: providerItemId,
+        accent: accent,
+      ),
+    ];
+  }
 }
 
 const animeLibraryMediaBuilder = AnimeLibraryMediaPresentationBuilder();
@@ -134,6 +153,8 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   builder: animeLibraryMediaBuilder,
   projector: const AnimeWorkspaceProjector(),
   bucketLabelBuilder: animeLibraryBucketLabelBuilder,
+  usesCompactTableLayout: true,
+  compactBucketIcon: Icons.tv_outlined,
   previewLabels: animePreviewLabels,
   statsLabels: animeStatsLabels,
   filterDefinitions: animeLibraryFilterDefinitions,

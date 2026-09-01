@@ -1,16 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'library_group_mode_category_models.dart';
 
-typedef LibraryGroupModeCategoryBuilder = List<LibraryGroupModeCategory>
-    Function(
-  List<String> modes,
-);
-
-class LibraryGroupModeCategory {
-  const LibraryGroupModeCategory(this.label, this.modes);
-
-  final String label;
-  final List<dynamic> modes;
-}
+export 'library_group_mode_category_models.dart';
 
 List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
   LibraryKindRuntime type,
@@ -35,6 +26,6 @@ List<LibraryGroupModeCategory> libraryGroupModeCategories(
   LibraryKindRuntime type,
   List<String> modes,
 ) {
-  return type.capabilities.groupModeCategoriesBuilder?.call(modes) ??
+  return type.presentation.groupModeCategoriesBuilder?.call(modes) ??
       defaultLibraryGroupModeCategories(type, modes);
 }

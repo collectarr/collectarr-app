@@ -170,28 +170,22 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
       openLibraryMetadataProvider,
     ],
   ),
-  hierarchy: const LibraryHierarchyCapability(
-    contentHierarchy: LibraryContentHierarchy.volumes,
+  hierarchy: LibraryHierarchyCapability(
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     fetchChildrenCallback: _fetchBookVolumes,
     supportsMediaReleaseSplit: true,
     showsReadingQueue: true,
-    collectionExportTitleLabel: 'Title',
-    mediaReleaseScopeLabel: 'Media',
-  ),
-  capabilities: LibraryTypeCapabilities(
-    showsCreatorSpotlight: true,
-    supportsOwnedItemImages: false,
-    supportsMediaReleaseSplit: true,
-    supportsReadingQueue: true,
-    contentHierarchy: LibraryContentHierarchy.volumes,
     mediaScopeGroupIds: _bookMediaGroupModes,
     releaseScopeGroupIds: _bookReleaseGroupModes,
     mediaScopeSortIds: _bookMediaSortColumns,
     releaseScopeSortIds: _bookReleaseSortColumns,
+    collectionExportTitleLabel: 'Title',
+    mediaReleaseScopeLabel: 'Media',
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: true,
+    showsCreatorSpotlight: true,
+    supportsOwnedItemImages: false,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<BookCatalogMetadata>(
     _bookLinkedMetadataValues,

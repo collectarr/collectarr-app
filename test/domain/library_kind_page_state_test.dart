@@ -162,13 +162,13 @@ void main() {
     );
   });
 
-  test('kind capabilities own track search and group mode categories', () {
+  test('kind presentation owns track search and group mode categories', () {
     expect(
-      musicKindModule.capabilities.supportsTrackSearch,
+      musicKindModule.presentation.supportsTrackSearch,
       isTrue,
     );
     expect(
-      movieKindModule.capabilities.supportsTrackSearch,
+      movieKindModule.presentation.supportsTrackSearch,
       isFalse,
     );
 

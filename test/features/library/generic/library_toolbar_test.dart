@@ -644,7 +644,7 @@ void main() {
 
       expect(
         filtering.onScanCover,
-        type.capabilities.canScanCover ? isNotNull : isNull,
+        type.add.chrome.canScanCover ? isNotNull : isNull,
         reason: 'scan-cover gate mismatch for ${type.kind.apiValue}',
       );
       expect(

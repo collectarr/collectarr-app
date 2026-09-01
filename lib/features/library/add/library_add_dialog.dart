@@ -139,7 +139,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   @override
   void initState() {
     super.initState();
-    if (widget.type.capabilities.wideDialog) {
+    if (widget.type.uiPolicy.wideDialog) {
       _resultsPaneWidth = 720;
     }
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
@@ -462,7 +462,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             fallback: widget.type.identity.accent);
     final state = _controller.state;
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
-    final isWideLayout = widget.type.capabilities.wideDialog;
+    final isWideLayout = widget.type.uiPolicy.wideDialog;
     final resultPolicy = widget.type.add.resultPolicy;
     final visibleCore = state.visibleCoreResults(
       resultPolicy,
@@ -517,7 +517,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _controller.selectSuggestion(item);
         },
         onDismissSuggestions: _controller.dismissSuggestions,
-        canScanCover: widget.type.capabilities.canScanCover,
+        canScanCover: widget.type.add.chrome.canScanCover,
         isScanningCover: state.search.isScanningCover,
         onScanCover: () => _controller.scanCover(context),
         onLookupBarcode: () => _controller.lookupBarcode(
@@ -613,7 +613,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     _controller.selectSuggestion(item);
                   },
                   onDismissSuggestions: _controller.dismissSuggestions,
-                  canScanCover: widget.type.capabilities.canScanCover,
+                  canScanCover: widget.type.add.chrome.canScanCover,
                   isScanningCover: state.search.isScanningCover,
                   onScanCover: () => _controller.scanCover(scopedContext),
                   onLookupBarcode: () => _controller.lookupBarcode(

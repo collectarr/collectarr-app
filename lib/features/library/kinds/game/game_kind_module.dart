@@ -70,14 +70,10 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     providers: [igdbMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(
-    contentHierarchy: LibraryContentHierarchy.flat,
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',
-  ),
-  capabilities: const LibraryTypeCapabilities(
-    supportsMediaReleaseSplit: true,
   ),
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildGameInspectorSections,

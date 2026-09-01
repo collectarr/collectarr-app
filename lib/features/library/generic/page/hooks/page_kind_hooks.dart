@@ -5,7 +5,7 @@ part of '../generic_library_page.dart';
 extension _PageKindHooks on GenericLibraryPageState {
   LibraryWorkspaceViewProfile get _viewProfile => widget.type.viewProfile;
 
-  bool get _supportsTrackSearch => widget.type.capabilities.supportsTrackSearch;
+  bool get _supportsTrackSearch => widget.type.presentation.supportsTrackSearch;
 
   LibrarySearchTarget get _effectiveSearchTarget => _supportsTrackSearch
       ? _searchControllerOps.state.target
@@ -24,7 +24,7 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   bool get _isScopedMediaReleaseSplit {
     return _supportsMediaReleaseSplit &&
-        widget.type.capabilities.scopesOptionsByBrowserMode;
+        widget.type.hierarchy.scopesOptionsByBrowserMode;
   }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {

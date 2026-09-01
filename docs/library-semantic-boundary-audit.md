@@ -45,7 +45,7 @@ All concrete semantics must reside strictly within `lib/features/library/kinds/<
 | `lib/features/library/config/physical_media_formats.dart` | `kDefaultPhysicalMediaFormats` | `physicalFormat`, `edition`, `packaging` | concrete default/value | ❌ Violation | Kind-specific defaults (`ComicFormats`, `MovieFormats`, etc.) | PR 2 |
 | `lib/features/library/config/edit_field_config.dart` | `LibraryEditFieldConfig` | Specific fields (`issueNumber`, `volumeNumber`, `publisher`, `trackCount`) | concrete definition | ❌ Violation | `LibraryKindPresentationCapability` | PR 3 |
 | `lib/features/library/config/library_type_config.dart` | `LibraryTypeConfig` | Specific field flags & metadata slots | contract/infrastructure | ⚠️ Refactor | Streamlined spec | PR 3 |
-| `lib/features/library/config/library_type_capabilities.dart` | `LibraryTypeCapabilities` | Semantic capabilities | contract/infrastructure | Allowed | Generic capability base | PR 1 |
+| `lib/features/library/kinds/registry/library_kind_module.dart` | `LibraryKindRuntime` / `LibraryKindSpec` | Typed capability ownership | contract/infrastructure | Allowed | Kind-owned typed capability modules | PR 8 |
 | `lib/features/library/config/presentation/library_media_presentation_models.dart` | `LibraryMediaPresentationModels` | Concrete media formatting | presentation semantic | ❌ Violation | Per-kind presentation adapters | PR 4 |
 | `lib/features/library/edit/shell/library_edit_dialog.dart` | `_buildComicTab`, `_buildVideoTab`, `_buildGameTab` | Kind-specific tab builders in generic shell | presentation semantic | ❌ Violation | Kind-delegated edit tab renderers | PR 4 |
 | `lib/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart` | `SerialAuthorityRepository` | serial authority | kind-domain infrastructure | Allowed (shared serial kind primitive) | Comic/Manga serial authority | PR 4 |
@@ -58,6 +58,6 @@ All concrete semantics must reside strictly within `lib/features/library/kinds/<
 1. **`LibraryEditVocabularyController`**: Currently functions as a monolith containing ~25 concrete domain fields hardcoded into its request and response structures. Needs replacement by generic `VocabularyDefinition<T>` and `VocabularyRepository`.
 2. **`LibraryMediaPresentationModels`**: Contains presentation logic for comic issues, game platforms, movie runtimes, and track counts. Must be moved to kind-specific presentation builders.
 3. **`LibraryWorkspaceDto`**: Generic serialization container for grid/list views; verified to maintain generic boundary without kind-specific branching.
-4. **`LibraryTypeConfig` & `LibraryTypeCapabilities`**: Foundational contracts; vocabulary capability (`LibraryKindVocabularyCapability`) will be added to supply registered definitions cleanly.
+4. **`LibraryKindSpec` & typed capabilities**: Foundational contracts; structural, metadata, inspector, add, presentation, and UI policy concerns are exposed through their owning capability modules.
 5. **`LibraryAddDialog` & `LibraryEditRenderer`**: Must consume vocabulary options generically from kind specifications rather than hardcoded fields.
 6. **`pick_list_options`**: Global `k*PickListName` constants will be superseded by kind-owned `VocabularyId<T>` constants.

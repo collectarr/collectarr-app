@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_group_mode_categories.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -193,6 +194,8 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   builder: comicLibraryMediaBuilder,
   projector: const ComicWorkspaceProjector(),
   bucketLabelBuilder: comicLibraryBucketLabelBuilder,
+  usesCompactTableLayout: true,
+  groupModeCategoriesBuilder: buildComicGroupModeCategories,
   previewLabels: comicsPreviewLabels,
   filterDefinitions: comicLibraryFilterDefinitions,
   sortFavorites: comicLibrarySortFavorites,

@@ -16,6 +16,7 @@ class LibraryEditChromeConfig {
 
 class LibraryAddChromeConfig {
   const LibraryAddChromeConfig({
+    this.canScanCover = true,
     this.mediaReferenceLabel = 'Media',
     this.trackScopeSummary =
         'Tracking stays item-centric here. Edition and bundle scope are only available for owned or wishlist entries.',
@@ -26,6 +27,7 @@ class LibraryAddChromeConfig {
     this.defaultVideoKindFilters = const {},
   });
 
+  final bool canScanCover;
   final String mediaReferenceLabel;
   final String trackScopeSummary;
   final String mediaReferenceHelperLabel;

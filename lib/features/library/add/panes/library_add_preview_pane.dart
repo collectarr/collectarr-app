@@ -130,12 +130,14 @@ class LibraryAddPreviewPane extends ConsumerWidget {
       candidate: selectedCandidate,
       preview: preview,
     );
-    final tracks = type.capabilities.showsTrackData
-        ? _previewTracksForSelection(
-            item: selectedItem,
-            preview: preview,
-          )
-        : const <_PreviewTrackData>[];
+    final kindPreviewSections = selectedCandidate == null
+        ? const <Widget>[]
+        : type.presentation.builder.buildAddPreviewSections(
+            accent: accent,
+            kind: type.kind,
+            provider: selectedCandidate.provider,
+            providerItemId: selectedCandidate.providerItemId,
+          );
     final previewRequest = LibraryAddPreviewPaneRequest(
       type: type,
       accent: accent,
@@ -259,9 +261,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                           ),
                           const SizedBox(height: 10),
                         ],
-                        if (type.capabilities.showsSynopsis &&
-                            synopsis != null &&
-                            synopsis.trim().isNotEmpty) ...[
+                        if (synopsis != null && synopsis.trim().isNotEmpty) ...[
                           Text('Plot', style: TextStyle(color: accent)),
                           const SizedBox(height: 6),
                           Text(synopsis),
@@ -277,6 +277,10 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                               values: section.values,
                               accent: accent,
                             ),
+                        ],
+                        for (final section in kindPreviewSections) ...[
+                          const SizedBox(height: 22),
+                          section,
                         ],
                         if (selectedItem != null &&
                             referenceType ==
@@ -338,27 +342,6 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                             ],
                           ),
                         ],
-                        if (tracks.isNotEmpty) ...[
-                          const SizedBox(height: 22),
-                          Text(
-                            'Tracks (${tracks.length})',
-                            style: TextStyle(color: accent),
-                          ),
-                          const SizedBox(height: 8),
-                          for (var i = 0; i < tracks.length; i++)
-                            _PreviewTrackRow(
-                              index: i + 1,
-                              track: tracks[i],
-                              accent: accent,
-                            ),
-                        ],
-                        if (type.capabilities.usesSeasonHierarchy &&
-                            selectedCandidate != null)
-                          _PreviewSeasonsSection(
-                            provider: selectedCandidate.provider,
-                            providerItemId: selectedCandidate.providerItemId,
-                            accent: accent,
-                          ),
                       ],
                     ),
                   ),
@@ -1282,7 +1265,6 @@ List<(String, String?)> _metadataRowsForItem(
   final publishing = payload['publishing'] as Map?;
   final runtimeMinutes = (video?['runtime_minutes'] as num?)?.toInt();
   final pageCount = (publishing?['page_count'] as num?)?.toInt();
-  final musicTrackCount = (music?['track_count'] as num?)?.toString();
   final musicCatalogNo = (music?['catalog_number'] as String?)?.trim();
   final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
   final gamePlatforms = (game?['platforms'] as List<dynamic>?)
@@ -1304,8 +1286,6 @@ List<(String, String?)> _metadataRowsForItem(
     if (displayEditionLabel != null)
       (release.variantLabel, displayEditionLabel),
     (release.barcodeLabel, barcode),
-    if (type.capabilities.showsTrackData && musicTrackCount != null)
-      ('Tracks', musicTrackCount),
     if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
       ('Catalog No.', musicCatalogNo),
     if (gamePlatforms != null && gamePlatforms.isNotEmpty)
@@ -1372,7 +1352,6 @@ List<(String, String?)> _metadataRowsForFullPreview(
   final releaseDateStr = preview.releaseDate != null
       ? '${preview.releaseDate!.year}-${preview.releaseDate!.month.toString().padLeft(2, '0')}-${preview.releaseDate!.day.toString().padLeft(2, '0')}'
       : null;
-  final musicTrackCount = (music?['track_count'] as num?)?.toString();
   final musicCatalogNo = (music?['catalog_number'] as String?)?.trim();
   final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
   final gamePlatforms = (game?['platforms'] as List<dynamic>?)
@@ -1404,11 +1383,6 @@ List<(String, String?)> _metadataRowsForFullPreview(
       ('Format', preview.physicalFormatLabel),
     if (preview.variantName != null)
       (release.variantLabel, preview.variantName),
-    if (libraryKindRuntimeForKind(catalogMediaKindFromValue(preview.kind))
-            .capabilities
-            .showsTrackData &&
-        musicTrackCount != null)
-      ('Tracks', musicTrackCount),
     if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
       ('Catalog No.', musicCatalogNo),
     if (gamePlatforms != null && gamePlatforms.isNotEmpty)
@@ -1593,336 +1567,6 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
       ),
     );
   }
-}
-
-class _PreviewTrackRow extends StatelessWidget {
-  static const double _durationColumnWidth = 52;
-
-  const _PreviewTrackRow({
-    required this.index,
-    required this.track,
-    required this.accent,
-  });
-
-  final int index;
-  final _PreviewTrackData track;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final duration = track.durationSeconds;
-    final durationStr = duration != null
-        ? '${duration ~/ 60}:${(duration % 60).toString().padLeft(2, '0')}'
-        : null;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 26,
-            child: Text(
-              '${track.position ?? index}',
-              style: TextStyle(
-                color: accent.withValues(alpha: 0.7),
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              track.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
-            ),
-          ),
-          if (durationStr != null)
-            SizedBox(
-              width: _durationColumnWidth,
-              child: Text(
-                durationStr,
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  color: appPalette(context).textMuted,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PreviewTrackData {
-  const _PreviewTrackData({
-    required this.title,
-    this.position,
-    this.durationSeconds,
-  });
-
-  final String title;
-  final int? position;
-  final int? durationSeconds;
-}
-
-List<_PreviewTrackData> _previewTracksForSelection({
-  required LibraryMetadataItem? item,
-  required AdminProviderPreview? preview,
-}) {
-  final musicPayload = item?.payload['music'] as Map?;
-  final rawTracks = (musicPayload?['tracks'] as List<dynamic>?)
-      ?.whereType<Map>()
-      .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
-      .toList();
-  if (rawTracks != null && rawTracks.isNotEmpty) {
-    return [
-      for (final track in rawTracks)
-        _PreviewTrackData(
-          title: (track.title ?? '').trim().isEmpty
-              ? 'Untitled track'
-              : track.title!,
-          position: int.tryParse(track.position ?? ''),
-          durationSeconds: track.durationSeconds,
-        ),
-    ];
-  }
-  final previewMusic = preview?.music;
-  final previewTracks = (previewMusic?['tracks'] as List<dynamic>?)
-      ?.whereType<Map>()
-      .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
-      .toList();
-  if (previewTracks == null || previewTracks.isEmpty) {
-    return const [];
-  }
-  return [
-    for (final track in previewTracks)
-      _PreviewTrackData(
-        title: track.title ?? 'Untitled track',
-        position: int.tryParse(track.position ?? ''),
-        durationSeconds: track.durationSeconds,
-      ),
-  ];
-}
-
-class _PreviewSeasonsSection extends ConsumerWidget {
-  const _PreviewSeasonsSection({
-    required this.provider,
-    required this.providerItemId,
-    required this.accent,
-  });
-
-  final String provider;
-  final String providerItemId;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final palette = appPalette(context);
-    final seasonsAsync = ref.watch(
-      libraryHierarchyProvider((
-        kind: CatalogMediaKind.tv,
-        provider: provider,
-        providerItemId: providerItemId,
-        itemId: null,
-        canHydrateFromCore: false,
-      )),
-    );
-
-    return seasonsAsync.when(
-      loading: () => Padding(
-        padding: EdgeInsets.only(top: 22),
-        child: Row(
-          children: [
-            const SizedBox.square(
-              dimension: 14,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Loading seasons...',
-              style: TextStyle(color: palette.textMuted),
-            ),
-          ],
-        ),
-      ),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (seasons) {
-        if (seasons.isEmpty) return const SizedBox.shrink();
-        final totalEpisodes = seasons.fold<int>(
-          0,
-          (sum, season) => sum + (season.totalCount ?? season.children.length),
-        );
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 22),
-            Text(
-              'Seasons (${seasons.length}) · $totalEpisodes episodes',
-              style: TextStyle(color: accent),
-            ),
-            const SizedBox(height: 8),
-            for (final season in seasons)
-              _PreviewSeasonNode(season: season, accent: accent),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _PreviewSeasonNode extends StatefulWidget {
-  const _PreviewSeasonNode({required this.season, required this.accent});
-
-  final LibraryHierarchyNode season;
-  final Color accent;
-
-  @override
-  State<_PreviewSeasonNode> createState() => _PreviewSeasonNodeState();
-}
-
-class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final season = widget.season;
-    final episodeCount = season.totalCount ?? season.children.length;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          borderRadius: BorderRadius.circular(4),
-          onTap: season.children.isNotEmpty
-              ? () => setState(() => _expanded = !_expanded)
-              : null,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                if (season.imageUrl != null) ...[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(3),
-                    child: Image.network(
-                      season.imageUrl!,
-                      width: 28,
-                      height: 42,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        season.label,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        [
-                          '$episodeCount episodes',
-                          if (_airDate(season) != null) _airDate(season)!,
-                        ].join(' · '),
-                        style: TextStyle(
-                          color: palette.textMuted,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (season.children.isNotEmpty)
-                  Icon(
-                    _expanded ? Icons.expand_less : Icons.expand_more,
-                    size: 18,
-                    color: palette.textMuted,
-                  ),
-              ],
-            ),
-          ),
-        ),
-        if (_expanded)
-          Padding(
-            padding: const EdgeInsets.only(left: 36, bottom: 4),
-            child: Column(
-              children: [
-                for (final episode in season.children)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 3),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 26,
-                          child: Text(
-                            _episodeNumber(episode),
-                            style: TextStyle(
-                              color: widget.accent.withValues(alpha: 0.7),
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            episode.label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                        if (_runtimeMinutes(episode) != null)
-                          Text(
-                            '${_runtimeMinutes(episode)} min',
-                            style: TextStyle(
-                              color: palette.textMuted,
-                              fontSize: 13,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-String? _airDate(LibraryHierarchyNode node) =>
-    (node.metadata['air_date'] ?? node.metadata['airDate'])?.toString();
-
-String _episodeNumber(LibraryHierarchyNode node) =>
-    (node.metadata['episode_number'] ??
-            node.metadata['episodeNumber'] ??
-            node.metadata['number'] ??
-            node.id)
-        .toString();
-
-int? _runtimeMinutes(LibraryHierarchyNode node) {
-  final value = node.metadata['runtime_minutes'] ??
-      node.metadata['runtimeMinutes'] ??
-      node.metadata['runtime'];
-  return switch (value) {
-    int value => value,
-    num value => value.toInt(),
-    String value => int.tryParse(value),
-    _ => null,
-  };
 }
 
 class _EditionGrid extends StatelessWidget {

@@ -264,10 +264,10 @@ void main() {
   });
 
   test('book runtime enables creator spotlight in shared hero chrome', () {
-    expect(bookKindModule.capabilities.showsCreatorSpotlight, isTrue);
+    expect(bookKindModule.inspector.showsCreatorSpotlight, isTrue);
     expect(bookKindModule.hierarchy.showsReadingQueue, isTrue);
     expect(bookKindModule.hierarchy.supportsMediaReleaseSplit, isTrue);
-    expect(movieKindModule.capabilities.showsCreatorSpotlight, isFalse);
+    expect(movieKindModule.inspector.showsCreatorSpotlight, isFalse);
     expect(movieKindModule.hierarchy.showsReadingQueue, isFalse);
   });
 
@@ -299,10 +299,9 @@ void main() {
 
   test('typed browser scopes preserve comic and movie options', () {
     final comicRuntime = comicKindModule;
-    expect(comicKindModule.capabilities.supportsMediaReleaseSplit, isFalse);
     expect(comicRuntime.hierarchy.supportsMediaReleaseSplit, isFalse);
     expect(
-      comicKindModule.capabilities.scopesOptionsByBrowserMode,
+      comicKindModule.hierarchy.scopesOptionsByBrowserMode,
       isFalse,
     );
     final comicMediaGroups = comicRuntime
@@ -788,18 +787,18 @@ void main() {
           .map((preset) => preset.label),
       comicsTableColumnPresets.map((preset) => preset.label),
     );
-    expect(bookKindModule.capabilities.compactBucketIcon, Icons.folder);
+    expect(bookKindModule.presentation.compactBucketIcon, Icons.folder);
     expect(
-      movieKindModule.capabilities.compactBucketIcon,
+      movieKindModule.presentation.compactBucketIcon,
       Icons.movie_filter_outlined,
     );
     expect(
-      musicKindModule.capabilities.compactBucketIcon,
+      musicKindModule.presentation.compactBucketIcon,
       Icons.person_2_outlined,
     );
-    expect(bookKindModule.capabilities.emptyStateProviderSummarySuffix, '');
+    expect(bookKindModule.presentation.emptyStateProviderSummarySuffix, '');
     expect(
-      movieKindModule.capabilities.emptyStateProviderSummarySuffix,
+      movieKindModule.presentation.emptyStateProviderSummarySuffix,
       ' Physical formats are tracked as editions.',
     );
     expect(

@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
+import 'package:flutter/material.dart';
 
 import 'library_filter_presentation.dart';
 import 'library_metadata_presentation.dart';
@@ -16,6 +18,12 @@ class LibraryMediaPresentation {
     required this.builder,
     required this.projector,
     required this.bucketLabelBuilder,
+    this.supportsTrackSearch = false,
+    this.usesCompactTableLayout = false,
+    this.compactBucketIcon = Icons.folder,
+    this.emptyStateProviderSummarySuffix = '',
+    this.showsGroupProgress = false,
+    this.groupModeCategoriesBuilder,
     this.previewLabels = const LibraryMediaPreviewLabels(),
     this.statsLabels = const LibraryMediaStatsLabels(),
     this.sortFavorites = defaultLibrarySortFavorites,
@@ -34,6 +42,12 @@ class LibraryMediaPresentation {
   final LibraryMediaPresentationBuilder builder;
   final LibraryWorkspaceProjector<LibraryWorkspaceDto> projector;
   final LibraryBucketLabelBuilder bucketLabelBuilder;
+  final bool supportsTrackSearch;
+  final bool usesCompactTableLayout;
+  final IconData compactBucketIcon;
+  final String emptyStateProviderSummarySuffix;
+  final bool showsGroupProgress;
+  final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final List<LibrarySortFavorite> sortFavorites;

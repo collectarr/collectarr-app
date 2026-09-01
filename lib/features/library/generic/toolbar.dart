@@ -310,7 +310,7 @@ class LibraryToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final targetAccent = type.identity.accent;
     final effectiveScanCover =
-        type.capabilities.canScanCover ? onScanCover : null;
+        type.add.chrome.canScanCover ? onScanCover : null;
     final effectiveReadingQueue =
         type.hierarchy.showsReadingQueue ? onReadingQueue : null;
     final effectiveReassignIndex =

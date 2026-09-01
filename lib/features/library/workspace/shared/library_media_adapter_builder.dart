@@ -16,8 +16,7 @@ const double kPlannedMediaTableHorizontalMargin = 8;
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
   LibraryKindRuntime type,
 ) {
-  final coverGridHeightFactor =
-      type.capabilities.prefersSquareCovers ? 1.0 : 1.53;
+  final coverGridHeightFactor = type.uiPolicy.coverAspectRatio;
   return LibraryWorkspaceViewProfile(
     runtimeResolver: () => type,
     defaultCoverSize: kPlannedMediaDefaultCoverSize,

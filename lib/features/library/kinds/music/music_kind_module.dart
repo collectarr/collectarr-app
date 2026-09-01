@@ -80,20 +80,13 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     providers: [musicBrainzMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(
-    contentHierarchy: LibraryContentHierarchy.flat,
     childrenTitleBuilder: _musicChildrenTitle,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Release',
     mediaReleaseScopeLabel: 'Media',
   ),
-  capabilities: const LibraryTypeCapabilities(
-    showsTrackData: true,
-    supportsTrackSearch: true,
-    usesTrackListCard: true,
-    supportsMediaReleaseSplit: true,
-    supportsMetadataCompare: true,
-    prefersSquareCovers: true,
-    compactBucketIcon: Icons.person_2_outlined,
+  uiPolicy: const LibraryUiPolicy(
+    coverAspectRatio: 1.0,
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,

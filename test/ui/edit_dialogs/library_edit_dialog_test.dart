@@ -74,16 +74,15 @@ void main() {
         preferencePrefix: 'generic-test',
       ),
       metadata: genericKindModule.metadata,
-      hierarchy: genericKindModule.hierarchy,
+      hierarchy: const LibraryHierarchyCapability(
+        supportsMediaReleaseSplit: true,
+      ),
       inspector: genericKindModule.inspector,
       transfer: genericKindModule.transfer,
       presentation: genericLibraryMediaPresentation,
       trackingProfile: readingTrackingProfile,
       add: genericKindModule.add,
       edit: genericKindModule.edit,
-      capabilities: const LibraryTypeCapabilities(
-        supportsMediaReleaseSplit: true,
-      ),
     );
 
     final item = LibraryMetadataItem.fromCatalogItem(

@@ -172,25 +172,20 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     defaultProviderId: 'tmdb',
     providers: [tmdbMetadataProvider],
   ),
-  capabilities: LibraryTypeCapabilities(
-    supportsMediaReleaseSplit: true,
+  uiPolicy: const LibraryUiPolicy(
     wideDialog: true,
-    mediaScopeGroupIds: _movieMediaGroupModes,
-    releaseScopeGroupIds: _movieEditionGroupModes,
-    mediaScopeSortIds: _movieMediaSortColumns,
-    releaseScopeSortIds: _movieEditionSortColumns,
-    compactBucketIcon: Icons.movie_filter_outlined,
-    emptyStateProviderSummarySuffix:
-        ' Physical formats are tracked as editions.',
   ),
-  hierarchy: const LibraryHierarchyCapability(
-    contentHierarchy: LibraryContentHierarchy.flat,
+  hierarchy: LibraryHierarchyCapability(
     defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
     defaultVideoGrouping: VideoGroupingDefault.none,
     videoSeriesEntryTypes: {'tv'},
     videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
     browserDelegateBuilder: buildMovieBrowserDelegate,
     supportsMediaReleaseSplit: true,
+    mediaScopeGroupIds: _movieMediaGroupModes,
+    releaseScopeGroupIds: _movieEditionGroupModes,
+    mediaScopeSortIds: _movieMediaSortColumns,
+    releaseScopeSortIds: _movieEditionSortColumns,
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',
   ),

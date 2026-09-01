@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/presentation_builder
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const musicMetadataLabels = LibraryMetadataLabels(
@@ -127,6 +128,8 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   builder: musicLibraryMediaBuilder,
   projector: const MusicWorkspaceProjector(),
   bucketLabelBuilder: musicLibraryBucketLabelBuilder,
+  supportsTrackSearch: true,
+  compactBucketIcon: Icons.person_2_outlined,
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,
   filterDefinitions: musicLibraryFilterDefinitions,

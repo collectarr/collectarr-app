@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/config/library_hierarchy_capabil
 import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
-import 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
+import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -49,7 +49,7 @@ export 'package:collectarr_app/features/library/config/library_metadata_capabili
 export 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
 export 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
 export 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
-export 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
+export 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 export 'package:collectarr_app/features/library/config/library_facet_types.dart';
 export 'package:collectarr_app/features/library/config/library_stats_capability.dart';
 export 'package:collectarr_app/features/library/config/library_value_capability.dart';
@@ -71,7 +71,6 @@ abstract interface class LibraryKindRuntime {
   LibraryStatsCapability get stats;
   LibraryValueCapability? get value;
   LibraryRelationCapability? get relations;
-  LibraryTypeCapabilities get capabilities;
   LibraryUiPolicy get uiPolicy;
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
   LibraryLinkedMetadataCapability get linkedMetadata;
@@ -211,7 +210,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.inspector,
     required this.presentation,
     required this.trackingProfile,
-    this.capabilities = const LibraryTypeCapabilities(),
+    this.uiPolicy = const LibraryUiPolicy(),
     this.titleCapability = const DefaultTitleProjectionCapability(),
     this.releaseCapability,
     this.linkedMetadata = const DefaultLibraryLinkedMetadataCapability(),
@@ -260,9 +259,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   final MediaTrackingProfile trackingProfile;
   @override
-  final LibraryTypeCapabilities capabilities;
-  @override
-  LibraryUiPolicy get uiPolicy => capabilities.uiPolicy;
+  final LibraryUiPolicy uiPolicy;
   @override
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
   @override
@@ -288,7 +285,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
       inspector: inspector,
       presentation: presentation,
       trackingProfile: trackingProfile,
-      capabilities: capabilities,
+      uiPolicy: uiPolicy,
       titleCapability: titleCapability,
       releaseCapability: releaseCapability,
       linkedMetadata: linkedMetadata,
@@ -355,13 +352,13 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryWorkspaceBrowserMode browserMode,
   ) {
     final allGroups = availableGroupIds;
-    final typeCapabilities = capabilities;
-    if (!typeCapabilities.scopesOptionsByBrowserMode) {
+    final hierarchyCapability = hierarchy;
+    if (!hierarchyCapability.scopesOptionsByBrowserMode) {
       return allGroups;
     }
     final scopedGroups = browserMode == LibraryWorkspaceBrowserMode.releases
-        ? typeCapabilities.releaseScopeGroupIds
-        : typeCapabilities.mediaScopeGroupIds;
+        ? hierarchyCapability.releaseScopeGroupIds
+        : hierarchyCapability.mediaScopeGroupIds;
     if (scopedGroups == null) {
       return allGroups;
     }
@@ -379,13 +376,13 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     final allSorts = [
       for (final definition in fields.sorts) definition.id,
     ];
-    final typeCapabilities = capabilities;
-    if (!typeCapabilities.scopesOptionsByBrowserMode) {
+    final hierarchyCapability = hierarchy;
+    if (!hierarchyCapability.scopesOptionsByBrowserMode) {
       return allSorts;
     }
     final scopedSorts = browserMode == LibraryWorkspaceBrowserMode.releases
-        ? typeCapabilities.releaseScopeSortIds
-        : typeCapabilities.mediaScopeSortIds;
+        ? hierarchyCapability.releaseScopeSortIds
+        : hierarchyCapability.mediaScopeSortIds;
     if (scopedSorts == null) {
       return allSorts;
     }

@@ -131,7 +131,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
     providers: [anilistMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(
-    contentHierarchy: LibraryContentHierarchy.seasons,
     childrenTitleBuilder: _animeChildrenTitle,
     supportsMediaReleaseSplit: true,
     defaultVideoDisplayLevel: VideoDisplayLevel.season,
@@ -150,11 +149,8 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   transfer: LibraryTransferCapability(
     kindFields: _animeTransferableFields,
   ),
-  capabilities: const LibraryTypeCapabilities(
-    supportsMediaReleaseSplit: true,
+  uiPolicy: const LibraryUiPolicy(
     wideDialog: true,
-    usesCompactTableLayout: true,
-    compactBucketIcon: Icons.tv_outlined,
   ),
   add: StandardLibraryAddCapability<AnimeAddDraft>(
     kind: CatalogMediaKind.anime,

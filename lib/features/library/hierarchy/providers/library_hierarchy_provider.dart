@@ -40,10 +40,7 @@ final libraryHierarchyProvider = FutureProvider.autoDispose.family<
           params.providerItemId!,
           kind: params.kind.apiValue,
         );
-        final list = envelope.normalized['children'] ??
-            envelope.normalized['seasons'] ??
-            envelope.normalized['volumes'] ??
-            envelope.normalized['discs'];
+        final list = envelope.normalized['children'];
         if (list is List) {
           return [
             for (var i = 0; i < list.length; i++)
@@ -63,16 +60,9 @@ LibraryHierarchyNode _mapRawNode(Map<String, dynamic> raw, int fallbackIndex) {
   final title =
       (raw['title'] ?? raw['name'] ?? 'Item $fallbackIndex').toString();
   final children = _childNodes(raw, fallbackIndex);
-  final episodeCount = _intValue(
-        raw['episode_count'] ??
-            raw['episodeCount'] ??
-            raw['chapter_count'] ??
-            raw['chapterCount'] ??
-            raw['track_count'] ??
-            raw['trackCount'],
-      ) ??
-      children.length;
-  final countLabel = '$episodeCount items';
+  final itemCount =
+      _intValue(raw['total_count'] ?? raw['totalCount']) ?? children.length;
+  final countLabel = '$itemCount items';
   final posterUrl = (raw['poster_url'] ??
           raw['cover_image_url'] ??
           raw['image_url'] ??
@@ -85,7 +75,7 @@ LibraryHierarchyNode _mapRawNode(Map<String, dynamic> raw, int fallbackIndex) {
     secondaryLabel: countLabel,
     level: LibraryHierarchyLevel.container,
     imageUrl: posterUrl,
-    totalCount: episodeCount,
+    totalCount: itemCount,
     children: children,
     metadata: raw,
   );
@@ -95,7 +85,7 @@ List<LibraryHierarchyNode> _childNodes(
   Map<String, dynamic> raw,
   int fallbackIndex,
 ) {
-  final rawChildren = raw['children'] ?? raw['episodes'];
+  final rawChildren = raw['children'];
   if (rawChildren is! List) {
     return const <LibraryHierarchyNode>[];
   }

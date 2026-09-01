@@ -102,7 +102,6 @@ final boardGameKindModule =
     providers: [bggMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(
-    contentHierarchy: LibraryContentHierarchy.flat,
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     supportsMediaReleaseSplit: false,
     collectionExportTitleLabel: 'Title',

@@ -188,7 +188,6 @@ class LibraryToolbarActionRegistry {
     required ShelfState? shelfState,
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
-    final kindCapabilities = availability.capabilities;
     final runtime = actionContext.view.type;
     final kindToolbarActions = runtime.toolbar?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
@@ -286,18 +285,17 @@ class LibraryToolbarActionRegistry {
       onRandomPick: projection == null
           ? null
           : () => actionContext.grouping.onRandomPick(projection),
-      onScanCover: kindCapabilities.canScanCover
+      onScanCover: runtime.add.chrome.canScanCover
           ? actionContext.adminActions.onScanCover
           : null,
-      onDownloadAllCovers:
-          kindCapabilities.canDownloadAllCovers && shelfState != null
-              ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
-              : null,
+      onDownloadAllCovers: runtime.add.chrome.canScanCover && shelfState != null
+          ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
+          : null,
       onSmartLists: shelfState == null
           ? null
           : () => actionContext.grouping.onSmartLists(shelfState),
       onFolders: actionContext.grouping.onShowUserFoldersFlow,
-      onReadingQueue: kindCapabilities.canReadingQueue
+      onReadingQueue: runtime.hierarchy.showsReadingQueue
           ? actionContext.grouping.onShowReadingQueueFlow
           : null,
       onEditConditionPickList:
@@ -309,7 +307,8 @@ class LibraryToolbarActionRegistry {
           ? null
           : () =>
               actionContext.collectionActions.onTransferFieldData(projection),
-      onReassignIndex: projection == null || !kindCapabilities.canReassignIndex
+      onReassignIndex: projection == null ||
+              !runtime.hierarchy.supportsIndexReassignment
           ? null
           : () => actionContext.collectionActions.onReassignIndex(projection),
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty
@@ -320,9 +319,7 @@ class LibraryToolbarActionRegistry {
           ? () => actionContext.collectionActions.onShareCollection(projection)
           : null,
       onCompareMetadataWithServer: (() {
-        if (projection == null ||
-            !kindCapabilities.canCompareMetadataWithServer ||
-            !actionContext.view.type.metadata.supportsServerCompare) {
+        if (projection == null || !runtime.metadata.supportsServerCompare) {
           return null;
         }
         final selected =

@@ -9,6 +9,7 @@ class LibraryInspectorCapability {
     this.detailPageBuilder,
     this.showsDefaultPersonalSection = true,
     this.showsCreatorSpotlight = false,
+    this.supportsOwnedItemImages = true,
   });
 
   final LibraryInspectorHeroBuilder? heroBuilder;
@@ -16,6 +17,7 @@ class LibraryInspectorCapability {
   final LibraryDetailPageBuilder? detailPageBuilder;
   final bool showsDefaultPersonalSection;
   final bool showsCreatorSpotlight;
+  final bool supportsOwnedItemImages;
 
   List<Widget> buildSections(
     BuildContext context,

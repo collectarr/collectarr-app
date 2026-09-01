@@ -199,7 +199,8 @@ class LibraryDetailHero extends StatelessWidget {
               ),
             ],
           ),
-          if (authorName != null || creatorsList.isNotEmpty) ...[
+          if (type.inspector.showsCreatorSpotlight &&
+              (authorName != null || creatorsList.isNotEmpty)) ...[
             const SizedBox(height: 20),
             BookAuthorSpotlight(
               creators: creatorsList.isNotEmpty

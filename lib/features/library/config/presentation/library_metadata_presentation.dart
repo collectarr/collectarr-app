@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
@@ -126,6 +127,15 @@ abstract class LibraryMediaPresentationBuilder {
     required String providerLabel,
   }) {
     return null;
+  }
+
+  List<Widget> buildAddPreviewSections({
+    required Color accent,
+    required CatalogMediaKind kind,
+    required String provider,
+    required String providerItemId,
+  }) {
+    return const [];
   }
 
   LibraryMetadataPresentation buildMetadataPresentation({

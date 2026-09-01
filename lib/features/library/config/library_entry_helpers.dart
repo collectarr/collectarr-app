@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -52,18 +51,6 @@ bool itemHasMissingDetails(LibraryMetadataItem item) {
       (item.synopsis == null || item.synopsis!.trim().isEmpty);
 }
 
-bool libraryShowsTrackData(Object? mediaType) {
-  return libraryKindRuntimeForKind(catalogMediaKindFromValue(mediaType))
-      .capabilities
-      .showsTrackData;
-}
-
-bool libraryShowsSynopsis(Object? mediaType) {
-  return libraryKindRuntimeForKind(catalogMediaKindFromValue(mediaType))
-      .capabilities
-      .showsSynopsis;
-}
-
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
   final adapter =
       item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
@@ -78,13 +65,6 @@ String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
     }
   }
   return null;
-}
-
-bool libraryShowsReadingQueue(Object? mediaType) {
-  return libraryKindRuntimeForKind(catalogMediaKindFromValue(mediaType))
-          .trackingProfile
-          .name ==
-      readingTrackingProfile.name;
 }
 
 String libraryVolumeDisplayValue(double? volumeNumber) {

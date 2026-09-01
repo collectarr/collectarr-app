@@ -23,7 +23,9 @@ void main() {
         expect(spec.kind, isNotNull);
         expect(spec.identity, isNotNull);
         expect(spec.metadata, isNotNull);
-        expect(spec.capabilities, isNotNull);
+        expect(spec.hierarchy, isNotNull);
+        expect(spec.inspector, isNotNull);
+        expect(spec.presentation, isNotNull);
         expect(spec.viewProfile, isNotNull);
         expect(spec.fields, isNotNull);
         expect(spec.projector, isNotNull);

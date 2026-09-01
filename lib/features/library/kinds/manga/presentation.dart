@@ -141,6 +141,7 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   builder: mangaLibraryMediaBuilder,
   projector: const MangaWorkspaceProjector(),
   bucketLabelBuilder: mangaLibraryBucketLabelBuilder,
+  usesCompactTableLayout: true,
   previewLabels: mangaPreviewLabels,
   statsLabels: mangaStatsLabels,
   filterDefinitions: mangaLibraryFilterDefinitions,

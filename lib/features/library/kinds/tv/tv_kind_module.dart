@@ -135,15 +135,10 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     defaultProviderId: 'tmdb',
     providers: [tmdbMetadataProvider],
   ),
-  capabilities: const LibraryTypeCapabilities(
-    supportsMediaReleaseSplit: true,
+  uiPolicy: const LibraryUiPolicy(
     wideDialog: true,
-    showsSeasonGroupProgress: true,
-    compactBucketIcon: Icons.tv_outlined,
-    emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
   ),
   hierarchy: const LibraryHierarchyCapability(
-    contentHierarchy: LibraryContentHierarchy.seasons,
     defaultVideoDisplayLevel: tvDefaultVideoDisplayLevel,
     defaultVideoGrouping: tvDefaultVideoGrouping,
     videoSeriesEntryTypes: {'tv'},

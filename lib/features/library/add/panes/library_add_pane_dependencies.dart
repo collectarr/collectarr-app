@@ -1,7 +1,6 @@
 export 'package:collectarr_app/core/models/admin_metadata.dart';
 export 'package:collectarr_app/core/models/bundle_release.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-export 'package:collectarr_app/core/models/season.dart';
 export 'package:collectarr_app/core/models/custom_field.dart';
 export 'package:collectarr_app/core/models/item_image.dart';
 export 'package:collectarr_app/features/library/add/compact_controls.dart';
@@ -25,8 +24,6 @@ export 'package:collectarr_app/features/collection/pick_list/pick_list_options.d
 export 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 export 'package:collectarr_app/features/library/library_kind_registry.dart';
 export 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-export 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
-export 'package:collectarr_app/features/library/hierarchy/providers/library_hierarchy_provider.dart';
 export 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 export 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 export 'package:collectarr_app/features/library/widgets/format_badge.dart';

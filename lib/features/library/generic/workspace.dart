@@ -157,7 +157,7 @@ class LibraryWorkspace extends ConsumerWidget {
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
     final runtime = type;
     final defaultCoverSize = runtime.viewProfile.defaultCoverSize;
-    final isMusicLibrary = type.capabilities.prefersSquareCovers;
+    final isMusicLibrary = type.uiPolicy.coverAspectRatio == 1.0;
     final density = viewState.densityPreset;
     final cardScale = defaultCoverSize > 0
         ? ((viewState.coverSize / defaultCoverSize).clamp(0.72, 1.44) *
@@ -352,7 +352,7 @@ class LibraryWorkspace extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final palette = appPalette(context);
-        final compact = type.capabilities.usesCompactTableLayout;
+        final compact = type.presentation.usesCompactTableLayout;
         final density = viewState.densityPreset;
         final runtime = type;
         final visibleColumns = runtime.orderedTableColumns(
