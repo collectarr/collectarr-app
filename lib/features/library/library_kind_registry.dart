@@ -1,11 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-export 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 
 final class LibraryKindRegistry {
   LibraryKindRegistry(
@@ -40,15 +38,7 @@ final class LibraryKindRegistry {
 
   LibraryKindRuntime? tryGet(CatalogMediaKind kind) => _byKind[kind];
 
-  LibraryKindRuntime requireForType(LibraryTypeConfig type) =>
-      require(type.workspace.kind);
-
-  LibraryKindRuntime? tryGetForType(LibraryTypeConfig type) =>
-      tryGet(type.workspace.kind);
-
   LibraryKindRuntime getByKind(CatalogMediaKind kind) => require(kind);
-
-  LibraryKindRuntime getByType(LibraryTypeConfig type) => requireForType(type);
 
   List<LibraryKindRuntime> get allRuntimes => List.unmodifiable(_byKind.values);
 }
@@ -80,26 +70,11 @@ LibraryKindRuntime libraryKindRuntimeForKind(
   return reg.require(kind);
 }
 
-LibraryKindRuntime libraryKindRuntimeForType(
-  LibraryTypeConfig type, {
-  LibraryKindRegistry? registry,
-}) {
-  return libraryKindRuntimeForKind(type.workspace.kind, registry: registry);
-}
-
-LibraryKindProviderMapper? libraryKindProviderMapperForType(
-  LibraryTypeConfig type, {
-  LibraryKindRegistry? registry,
-}) {
-  return libraryKindRuntimeForType(type, registry: registry).providerMapper;
-}
-
 bool libraryGroupModeSupportsCompletion(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   String groupMode,
 ) {
-  final runtime = libraryKindRuntimeForType(type);
-  return runtime.groupModeSupportsCompletion(
-    runtime.fields.decodeGroupId(groupMode),
+  return type.groupModeSupportsCompletion(
+    type.fields.decodeGroupId(groupMode),
   );
 }

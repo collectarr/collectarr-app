@@ -1,25 +1,19 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('all library presentations declare complete group mode definitions', () {
     final registries = <String, LibraryFieldRegistry<LibraryWorkspaceDto>>{
-      'books': libraryKindRuntimeForType(booksLibraryConfig).fields,
-      'board games': libraryKindRuntimeForType(boardGamesLibraryConfig).fields,
-      'comics': libraryKindRuntimeForType(comicsLibraryConfig).fields,
-      'games': libraryKindRuntimeForType(gamesLibraryConfig).fields,
-      'movies': libraryKindRuntimeForType(moviesLibraryConfig).fields,
-      'music': libraryKindRuntimeForType(musicLibraryConfig).fields,
+      'books': bookKindModule.fields,
+      'board games': boardGameKindModule.fields,
+      'comics': comicKindModule.fields,
+      'games': gameKindModule.fields,
+      'movies': movieKindModule.fields,
+      'music': musicKindModule.fields,
     };
 
     for (final entry in registries.entries) {
@@ -49,12 +43,12 @@ void main() {
   test('all library presentations declare complete sort column definitions',
       () {
     final registries = <String, LibraryFieldRegistry<LibraryWorkspaceDto>>{
-      'books': libraryKindRuntimeForType(booksLibraryConfig).fields,
-      'board games': libraryKindRuntimeForType(boardGamesLibraryConfig).fields,
-      'comics': libraryKindRuntimeForType(comicsLibraryConfig).fields,
-      'games': libraryKindRuntimeForType(gamesLibraryConfig).fields,
-      'movies': libraryKindRuntimeForType(moviesLibraryConfig).fields,
-      'music': libraryKindRuntimeForType(musicLibraryConfig).fields,
+      'books': bookKindModule.fields,
+      'board games': boardGameKindModule.fields,
+      'comics': comicKindModule.fields,
+      'games': gameKindModule.fields,
+      'movies': movieKindModule.fields,
+      'music': musicKindModule.fields,
     };
     final configuredSortColumns = <String, Set<String>>{
       'books': registries['books']!
@@ -118,7 +112,7 @@ void main() {
       'assert that every defaultVisibleColumnId and preset visible column ID resolves successfully',
       () {
     for (final module in collectarrKindModules) {
-      final kind = module.type.workspace.kind;
+      final kind = module.kind;
 
       // Test default visible columns
       for (final columnId in module.fields.defaultVisibleColumns) {

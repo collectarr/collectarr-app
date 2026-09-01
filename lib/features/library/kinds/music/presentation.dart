@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_fiel
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
-import 'package:flutter/material.dart';
 
 const musicMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Album identity',
@@ -131,9 +130,6 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,
   filterDefinitions: musicLibraryFilterDefinitions,
-  supportsTrackSearch: true,
-  usesTrackListCard: true,
   referenceLabels: const LibraryReferenceLabels(values: {'item': 'Album'}),
-  compactBucketIcon: Icons.person_2_outlined,
   fieldDefinitions: musicLibraryFieldDefinitions,
 );

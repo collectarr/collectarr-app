@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryDetailContextSection(
-            type: musicLibraryConfig,
+            type: musicKindModule,
             accent: Colors.cyan,
             item: musicItem,
           ),
@@ -83,7 +83,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryDetailCreditsSection(
-            type: comicsLibraryConfig,
+            type: comicKindModule,
             accent: Colors.purple,
             item: comicItem,
           ),

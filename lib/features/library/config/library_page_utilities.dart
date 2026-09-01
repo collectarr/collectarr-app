@@ -3,8 +3,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
@@ -114,13 +113,13 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
 
   /// Fetch facet rows from the API and build [FacetBuckets].
   Future<FacetBuckets> fetchFacetBuckets({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryFacetIdRuntime facetId,
     required Set<String> itemIds,
     required String signature,
     String? allBucketLabel,
   }) async {
-    final facets = libraryKindRuntimeForType(type).facets;
+    final facets = type.facets;
     if (facets == null) {
       return FacetBuckets(
         shelfSignature: signature,
@@ -226,7 +225,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   /// Show the bulk edit dialog and return the selection (null = cancelled).
   Future<LibraryBulkEditSelection?> showBulkEditDialog(
     BuildContext context, {
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required int selectedCount,
   }) {
     return showDialog<LibraryBulkEditSelection>(

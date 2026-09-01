@@ -31,9 +31,9 @@ import 'package:collectarr_app/features/library/add/services/library_provider_ac
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -46,7 +46,7 @@ class LibraryAddSessionController
     extends ValueNotifier<LibraryAddSessionState> {
   LibraryAddSessionController({
     required this.kind,
-    LibraryTypeConfig? type,
+    LibraryKindRuntime? type,
     required this.ownedMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
@@ -62,7 +62,7 @@ class LibraryAddSessionController
     this.proposalFlowService = const LibraryAddProposalFlowService(),
     this.onAuthSessionExpired,
     LibraryAddSessionState? initialState,
-  })  : _typeConfig = type,
+  })  : _runtime = type,
         super(
           initialState ??
               LibraryAddSessionState(
@@ -70,8 +70,14 @@ class LibraryAddSessionController
                 target: LibraryAddTarget.owned,
                 search: LibraryAddSearchState.initial(
                   selectedProvider:
-                      (type ?? libraryKindRuntimeForKind(kind).type)
-                          .defaultSupportedMetadataProvider,
+                      type?.metadata.defaultSupportedOption(kind)?.id ??
+                          libraryKindRuntimeForKind(kind)
+                              .metadata
+                              .defaultSupportedOption(kind)
+                              ?.id ??
+                          libraryKindRuntimeForKind(kind)
+                              .metadata
+                              .defaultProviderId,
                   advancedFilters: libraryKindRuntimeForKind(kind)
                       .add
                       .search
@@ -92,7 +98,7 @@ class LibraryAddSessionController
         );
 
   final CatalogMediaKind kind;
-  final LibraryTypeConfig? _typeConfig;
+  final LibraryKindRuntime? _runtime;
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
@@ -108,8 +114,7 @@ class LibraryAddSessionController
   final Future<bool> Function(Object error, String action)?
       onAuthSessionExpired;
 
-  LibraryTypeConfig get type =>
-      _typeConfig ?? libraryKindRuntimeForKind(kind).type;
+  LibraryKindRuntime get type => _runtime ?? libraryKindRuntimeForKind(kind);
 
   Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;
@@ -264,7 +269,7 @@ class LibraryAddSessionController
     if (!_searchCapability.hasSearchInput(searchContext)) {
       state = state.copyWith(
         search: state.search.copyWith(
-          error: libraryMediaSearchFieldLabels(type).emptySearchMessage,
+          error: type.presentation.searchFieldLabels.emptySearchMessage,
         ),
       );
       return;
@@ -291,7 +296,7 @@ class LibraryAddSessionController
       state = state.copyWith(
         search: state.search.copyWith(isSearching: false),
       );
-      if (type.supportedMetadataProviders.isNotEmpty) {
+      if (type.metadata.supportedProvidersForKind(type.kind).isNotEmpty) {
         await searchProvider(
           queryOverride: searchContext.query,
           bypassDebounce: true,
@@ -312,7 +317,8 @@ class LibraryAddSessionController
         timeout: _coreSearchTimeout,
         ranking: _searchCapability.ranking,
         searchContext: searchContext,
-        providerSearchAvailable: type.supportedMetadataProviders.isNotEmpty,
+        providerSearchAvailable:
+            type.metadata.supportedProvidersForKind(type.kind).isNotEmpty,
       );
 
       if (searchGeneration == state.search.coreSearchGeneration) {
@@ -337,7 +343,7 @@ class LibraryAddSessionController
           return;
         }
         final canFallbackToProvider =
-            type.supportedMetadataProviders.isNotEmpty;
+            type.metadata.supportedProvidersForKind(type.kind).isNotEmpty;
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
@@ -365,13 +371,14 @@ class LibraryAddSessionController
   }
 
   String get _activeProvider {
-    final providers = type.supportedMetadataProviders;
+    final providers = type.metadata.supportedProvidersForKind(type.kind);
     for (final provider in providers) {
       if (provider.id == state.search.selectedProvider) {
         return provider.id;
       }
     }
-    return type.defaultSupportedMetadataProvider;
+    return type.metadata.defaultSupportedOption(type.kind)?.id ??
+        type.metadata.defaultProviderId;
   }
 
   Future<void> searchProvider({
@@ -698,7 +705,7 @@ class LibraryAddSessionController
       state = state.copyWith(
         search: state.search.copyWith(isSearching: false),
       );
-      if (type.supportedMetadataProviders.isNotEmpty) {
+      if (type.metadata.supportedProvidersForKind(type.kind).isNotEmpty) {
         await searchProvider(queryOverride: code);
       }
       return;
@@ -711,7 +718,8 @@ class LibraryAddSessionController
         catalog: catalog!,
         barcode: code,
         timeout: _coreSearchTimeout,
-        providerSearchAvailable: type.supportedMetadataProviders.isNotEmpty,
+        providerSearchAvailable:
+            type.metadata.supportedProvidersForKind(type.kind).isNotEmpty,
       );
 
       if (searchGeneration == state.search.coreSearchGeneration) {
@@ -720,7 +728,7 @@ class LibraryAddSessionController
             results: lookupResult.items,
             isSearching: false,
             error: lookupResult.items.isEmpty &&
-                    type.supportedMetadataProviders.isEmpty
+                    type.metadata.supportedProvidersForKind(type.kind).isEmpty
                 ? 'No item found for barcode $code.'
                 : null,
           ),
@@ -740,7 +748,7 @@ class LibraryAddSessionController
           return;
         }
         final canFallbackToProvider =
-            type.supportedMetadataProviders.isNotEmpty;
+            type.metadata.supportedProvidersForKind(type.kind).isNotEmpty;
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
@@ -1311,14 +1319,13 @@ class LibraryAddSessionController
             previewState: previewController,
             providerActionService: providerActionService,
             providerOrchestrationService: providerOrchestrationService,
-            providerMapper:
-                (libraryKindProviderMapperForType(type))?.buildCorrections ??
-                    ((
-                            {required LibraryMetadataItem edited,
-                            required LibraryMetadataItem preview}) =>
-                        const <String, Object?>{}),
+            providerMapper: type.providerMapper?.buildCorrections ??
+                ((
+                        {required LibraryMetadataItem edited,
+                        required LibraryMetadataItem preview}) =>
+                    const <String, Object?>{}),
             visibleProviderResults: () => state.visibleProviderResults(
-              libraryKindRuntimeForType(type).add.resultPolicy,
+              type.add.resultPolicy,
             ),
             showEditDialog: (ctx, req) =>
                 showLibraryEditDialog(context: ctx, request: req),
@@ -1473,7 +1480,8 @@ class LibraryAddSessionController
       mode: LibraryAddDialogMode.search,
       target: LibraryAddTarget.owned,
       search: LibraryAddSearchState.initial(
-        selectedProvider: type.defaultSupportedMetadataProvider,
+        selectedProvider: type.metadata.defaultSupportedOption(type.kind)?.id ??
+            type.metadata.defaultProviderId,
         advancedFilters: _searchCapability.initialAdvancedFilters,
       ),
       selection: LibraryAddSelectionState(

@@ -7,7 +7,6 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
@@ -16,7 +15,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -70,7 +69,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         customFieldValues = draft.customFieldValues,
         itemImages = draft.itemImages;
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
@@ -118,8 +117,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   bool get _isOwned => _draft.isOwned;
 
-  LibraryEditCapability get _editCapability =>
-      libraryKindRuntimeForType(widget.type).edit;
+  LibraryEditCapability get _editCapability => widget.type.edit;
 
   LibraryEditPresentationContext get _editPresentationContext =>
       LibraryEditPresentationContext(
@@ -164,9 +162,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         ),
     ];
 
-    _tabSpecs = libraryKindRuntimeForType(widget.type)
-        .edit
-        .presentation
+    _tabSpecs = widget.type.edit.presentation
         .builderForScope(widget.scope)
         .buildTabs(context: _editPresentationContext);
 
@@ -180,7 +176,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Future<void> _loadEditOptions() async {
     final db = ref.read(localDatabaseProvider);
-    final mediaKind = widget.type.workspace.kind.apiValue;
+    final mediaKind = widget.type.kind.apiValue;
     final locations = await LocationRepository(db).getAll();
     final owners = await loadSingleValuePickListOptions(
       db,
@@ -265,7 +261,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: widget.accent,
-      icon: widget.type.workspace.icon,
+      icon: widget.type.identity.icon,
       title: title,
       badges: const <Widget>[],
       tabController: _tabController,
@@ -303,9 +299,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _tabViewFor(String id) {
-    final customView = libraryKindRuntimeForType(widget.type)
-        .edit
-        .presentation
+    final customView = widget.type.edit.presentation
         .builderForScope(widget.scope)
         .buildCustomTabView(
           tabId: id,

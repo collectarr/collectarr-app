@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -75,14 +75,14 @@ void main() {
           publisher: 'Typed Publisher',
         ),
       ),
-      comicsLibraryConfig,
+      comicKindModule,
     );
 
     expect(
       libraryEntryMatchesLinkedMetadataFilter(
         item,
         'typed publisher',
-        comicsLibraryConfig,
+        comicKindModule,
       ),
       isTrue,
     );
@@ -90,7 +90,7 @@ void main() {
       libraryEntryMatchesLinkedMetadataFilter(
         item,
         'missing publisher',
-        comicsLibraryConfig,
+        comicKindModule,
       ),
       isFalse,
     );
@@ -110,12 +110,12 @@ void main() {
 
     expect(candidates, containsAll(['Madhouse', 'Aniplex']));
 
-    final item = LibraryProjectionItem.fromShelf(entry, animeLibraryConfig);
+    final item = LibraryProjectionItem.fromShelf(entry, animeKindModule);
     expect(
       libraryEntryMatchesLinkedMetadataFilter(
         item,
         'madhouse',
-        animeLibraryConfig,
+        animeKindModule,
       ),
       isTrue,
     );

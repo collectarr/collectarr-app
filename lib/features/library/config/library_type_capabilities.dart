@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 
@@ -17,6 +18,12 @@ class LibraryTypeCapabilities {
     this.showsSynopsis = true,
     this.showsCreatorSpotlight = false,
     this.showsTrackData = false,
+    this.supportsTrackSearch = false,
+    this.usesTrackListCard = false,
+    this.showsSeasonGroupProgress = false,
+    this.usesCompactTableLayout = false,
+    this.compactBucketIcon = Icons.folder,
+    this.emptyStateProviderSummarySuffix = '',
     bool showsReadingQueue = false,
     bool? supportsReadingQueue,
     bool showsIndexReassignment = false,
@@ -44,6 +51,12 @@ class LibraryTypeCapabilities {
   final bool showsSynopsis;
   final bool showsCreatorSpotlight;
   final bool showsTrackData;
+  final bool supportsTrackSearch;
+  final bool usesTrackListCard;
+  final bool showsSeasonGroupProgress;
+  final bool usesCompactTableLayout;
+  final IconData compactBucketIcon;
+  final String emptyStateProviderSummarySuffix;
   final bool showsReadingQueue;
   final bool showsIndexReassignment;
   final bool canScanCover;

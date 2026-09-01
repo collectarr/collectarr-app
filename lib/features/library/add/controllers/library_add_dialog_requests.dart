@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_kind_draf
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -90,7 +90,7 @@ class LibraryAddManualPaneRequest {
 
   final CatalogMediaKind kind;
   final Color accent;
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddKindDraft? kindDraft;
   final LibraryKindAddDraft manualDraft;
@@ -153,7 +153,7 @@ class LibraryAddPreviewPaneRequest {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final LibraryMetadataItem? item;
   final ProviderCandidate? candidate;
@@ -183,7 +183,7 @@ class LibraryAddHeaderRequest {
     required this.onClose,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final VoidCallback onClose;
 }
@@ -218,7 +218,7 @@ class LibraryAddModeBarRequest {
     this.kindSpecificPaneBuilder,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddDialogMode mode;
@@ -284,7 +284,7 @@ class LibraryAddSearchPaneRequest {
     required this.onSearchCore,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final bool isBusy;
   final String? error;
   final Color accent;
@@ -346,7 +346,7 @@ class LibraryAddBottomBarRequest {
     required this.onPropose,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final List<String> conditions;
   final List<String> grades;
   final String? defaultTags;

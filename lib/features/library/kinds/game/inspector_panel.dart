@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -170,10 +170,12 @@ class _GameInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (adapter?.publisher?.isNotEmpty == true || releaseYear != null)
+                  if (adapter?.publisher?.isNotEmpty == true ||
+                      releaseYear != null)
                     Text(
                       [
-                        if (adapter?.publisher?.isNotEmpty == true) adapter!.publisher!,
+                        if (adapter?.publisher?.isNotEmpty == true)
+                          adapter!.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -191,11 +193,14 @@ class _GameInspectorMain extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 8),
-                  if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true ||
+                  if (adapter?.referenceFormatLabel?.trim().isNotEmpty ==
+                          true ||
                       adapter?.variant?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.album_outlined,
-                      text: adapter?.referenceFormatLabel ?? adapter?.variant ?? '-',
+                      text: adapter?.referenceFormatLabel ??
+                          adapter?.variant ??
+                          '-',
                     ),
                   if (platforms.isNotEmpty)
                     LibraryInspectorInfoLine(
@@ -285,15 +290,18 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Format', adapter?.referenceFormatLabel ?? adapter?.variant ?? '-'),
       if (metadata?.ageRating?.trim().isNotEmpty == true)
         ('Age rating', metadata!.ageRating!),
-      if (adapter?.country?.trim().isNotEmpty == true) ('Country', adapter!.country!),
-      if (adapter?.language?.trim().isNotEmpty == true) ('Language', adapter!.language!),
+      if (adapter?.country?.trim().isNotEmpty == true)
+        ('Country', adapter!.country!),
+      if (adapter?.language?.trim().isNotEmpty == true)
+        ('Language', adapter!.language!),
       if (metadata?.platforms.isNotEmpty == true)
         ('Platforms', metadata!.platforms.join(', ')),
       if (metadata?.toySubtype?.trim().isNotEmpty == true)
         ('Subtype', metadata!.toySubtype!),
       if (metadata?.toyType?.trim().isNotEmpty == true)
         ('Type', metadata!.toyType!),
-      if (adapter?.barcode?.trim().isNotEmpty == true) ('Barcode', adapter!.barcode!),
+      if (adapter?.barcode?.trim().isNotEmpty == true)
+        ('Barcode', adapter!.barcode!),
       if (metadata?.genres.isNotEmpty == true)
         ('Genres', metadata!.genres.join(', ')),
       if (item.source.tags?.trim().isNotEmpty == true)

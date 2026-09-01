@@ -43,11 +43,11 @@ Widget buildLibraryAddHeader(
       child: Row(
         children: [
           const SizedBox(width: 14),
-          Icon(request.type.workspace.icon, size: 20, color: Colors.white),
+          Icon(request.type.identity.icon, size: 20, color: Colors.white),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              title ?? 'Add ${request.type.pluralLabel}',
+              title ?? 'Add ${request.type.identity.pluralLabel}',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
@@ -158,8 +158,8 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
     final isBusy = request.isSearching || request.isSearchingProvider;
     final isBarcode = request.mode == LibraryAddDialogMode.barcode;
     final isSearch = request.mode == LibraryAddDialogMode.search;
-    final searchButtonLabel =
-        labels.searchButtonLabel ?? 'Search ${request.type.pluralLabel}';
+    final searchButtonLabel = labels.searchButtonLabel ??
+        'Search ${request.type.identity.pluralLabel}';
     final advancedFields = request.advancedFilterDescriptors;
     _syncAdvancedControllers(advancedFields);
 

@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -142,7 +142,7 @@ void main() {
       final request = LibraryAddManualPaneRequest(
         kind: CatalogMediaKind.comic,
         accent: Colors.blue,
-        type: comicsLibraryConfig,
+        type: comicKindModule,
         manualDraft: draft,
         titleController: TextEditingController(text: 'Batman'),
         tagsController: TextEditingController(),

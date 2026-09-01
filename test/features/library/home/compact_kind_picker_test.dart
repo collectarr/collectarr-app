@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/compact_kind_picker.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
@@ -53,7 +53,7 @@ void main() {
             child: CompactLibraryKindPicker(
               types: types,
               counts: counts,
-              registry: LibraryTypeRegistry(const []),
+              registry: defaultLibraryKindRegistry,
               selectedKind: 'comic',
               onSelected: (type) => selected = type,
             ),
@@ -101,7 +101,7 @@ void main() {
                 types: types,
                 counts: counts,
                 selectedLabel: 'Comics',
-                registry: LibraryTypeRegistry(const []),
+                registry: defaultLibraryKindRegistry,
                 selectedKind: 'comic',
                 onSelected: (_) {},
               ),

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -83,7 +83,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         adapter?.referenceFormatLabel ??
         libraryOwnedReferenceLabel(ownedItem,
             mediaType: item.source.catalogItem?.kind) ??
-        request.type.singularLabel.toUpperCase();
+        request.type.identity.singularLabel.toUpperCase();
     final seriesLabel = comic?.series?.seriesTitle?.trim().isNotEmpty == true
         ? comic!.series!.seriesTitle!.trim()
         : adapter?.seriesTitle?.trim().isNotEmpty == true
@@ -103,7 +103,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         adapter?.releaseDate?.year.toString() ??
         '-';
     final publisherLabel = [
-      if (adapter?.publisher?.trim().isNotEmpty == true) adapter!.publisher!.trim(),
+      if (adapter?.publisher?.trim().isNotEmpty == true)
+        adapter!.publisher!.trim(),
       if (comic?.publishing.imprint?.trim().isNotEmpty == true)
         comic!.publishing.imprint!.trim(),
     ].join(' / ');
@@ -352,7 +353,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                                 label: 'Publisher', value: publisherLabel),
                           if (adapter?.barcode?.trim().isNotEmpty == true)
                             _ComicDetailLine(
-                                label: 'Barcode', value: adapter!.barcode!.trim()),
+                                label: 'Barcode',
+                                value: adapter!.barcode!.trim()),
                         ],
                       ),
                     ),

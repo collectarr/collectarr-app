@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -20,7 +20,7 @@ class LibraryDetailHero extends StatelessWidget {
     this.isOwned,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final List<OwnedItem> ownedCopies;
@@ -94,7 +94,7 @@ class LibraryDetailHero extends StatelessWidget {
           label: 'Wishlisted',
           foreground: accent,
           background: palette.surfaceSubtle
-            .withValues(alpha: palette.isDark ? 0.42 : 0.72),
+              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (referenceLabel != null)
@@ -103,7 +103,7 @@ class LibraryDetailHero extends StatelessWidget {
           label: referenceLabel,
           foreground: accent,
           background: palette.surfaceSubtle
-            .withValues(alpha: palette.isDark ? 0.42 : 0.72),
+              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.condition != null)
@@ -112,7 +112,7 @@ class LibraryDetailHero extends StatelessWidget {
           label: ownedItem!.condition!,
           foreground: accent,
           background: palette.surfaceSubtle
-            .withValues(alpha: palette.isDark ? 0.42 : 0.72),
+              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];

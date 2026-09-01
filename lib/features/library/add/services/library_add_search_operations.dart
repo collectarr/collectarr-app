@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -53,7 +53,7 @@ LibraryAddProviderSearchDebounceDecision
 
 Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   required ApiClient api,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required CatalogCacheRepository catalog,
   required LibraryMetadataSearchInput input,
   required Duration timeout,
@@ -77,7 +77,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
 
 Future<List<LibraryMetadataItem>> fetchLibraryAddSuggestions({
   required ApiClient api,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required CatalogCacheRepository catalog,
   required LibraryMetadataSearchInput input,
   required LibraryAddSearchRanking ranking,
@@ -99,7 +99,7 @@ Future<List<LibraryMetadataItem>> fetchLibraryAddSuggestions({
 
 Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
   required ApiClient api,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required CatalogCacheRepository catalog,
   required String barcode,
   required Duration timeout,
@@ -123,7 +123,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
 
 Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   ApiClient? api,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required String provider,
   required String query,
   required LibraryAddSearchRanking ranking,
@@ -131,7 +131,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   ProviderRegistry? providerRegistry,
   String? kindOverride,
 }) async {
-  final targetKind = kindOverride ?? type.workspace.kind.apiValue;
+  final targetKind = kindOverride ?? type.kind.apiValue;
   final normalizedProvider =
       provider.trim().isEmpty ? null : provider.trim().toLowerCase();
   final effectiveQuery = query.trim();

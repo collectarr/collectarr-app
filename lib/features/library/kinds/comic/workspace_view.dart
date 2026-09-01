@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -16,13 +16,16 @@ const double kLibraryTableRowHeight = 38;
 const double kLibraryTableSelectionRailWidth = 3;
 
 final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
-  type: comicsLibraryConfig,
+  runtimeResolver: () => libraryKindRuntimeForKind(CatalogMediaKind.comic),
   defaultCoverSize: kComicsDefaultCoverSize,
   minCoverSize: kComicsMinCoverSize,
   maxCoverSize: kComicsMaxCoverSize,
   presetConfig: comicsViewPresetConfig,
-  clampColumnWidth: (column, width) =>
-      clampPlannedMediaTableColumnWidth(comicsLibraryConfig, column, width),
+  clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
+    libraryKindRuntimeForKind(CatalogMediaKind.comic),
+    column,
+    width,
+  ),
   defaultDetailsWidth: 350,
   defaultDetailsLayout: LibraryDetailsLayout.right,
   hideDetailsWhenSelectionEmpty: false,
@@ -83,7 +86,7 @@ const comicsTableColumnPresets = [
 ];
 
 bool comicInitialSortAscending(LibrarySortIdRuntime sortId) {
-  final module = libraryKindRuntimeForType(comicsLibraryConfig);
+  final module = libraryKindRuntimeForKind(CatalogMediaKind.comic);
   final definition = module.fields.findSortDefinition(
     sortId,
   );
@@ -130,7 +133,7 @@ List<LibraryFieldIdRuntime> orderedComicTableColumns(
     );
 
 Set<LibraryFieldIdRuntime> defaultComicTableColumns() =>
-    Set.of(libraryKindRuntimeForType(comicsLibraryConfig)
+    Set.of(libraryKindRuntimeForKind(CatalogMediaKind.comic)
         .fields
         .defaultVisibleColumns);
 
@@ -139,7 +142,7 @@ double comicTableWidthForColumns(
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableWidthForColumns(
-    type: comicsLibraryConfig,
+    type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
     columns: columns,
     customWidths: customWidths,
   );
@@ -150,5 +153,5 @@ double comicTableColumnWidth(
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableColumnWidth(
-      comicsLibraryConfig, column, customWidths);
+      libraryKindRuntimeForKind(CatalogMediaKind.comic), column, customWidths);
 }

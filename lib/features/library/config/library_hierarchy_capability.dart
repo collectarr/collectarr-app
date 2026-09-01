@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_data_capability.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
@@ -18,6 +19,10 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
     this.showsReadingQueue = false,
     this.collectionExportTitleLabel = 'Title',
     this.mediaReleaseScopeLabel = 'Media',
+    this.defaultVideoDisplayLevel,
+    this.defaultVideoGrouping = VideoGroupingDefault.none,
+    this.videoSeriesEntryTypes = const {},
+    this.videoShelfDrilldownEntryTypes = const {},
     this.childrenTitleBuilder,
     this.fetchChildrenCallback,
     this.browserDelegateBuilder,
@@ -29,6 +34,10 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   final bool showsReadingQueue;
   final String collectionExportTitleLabel;
   final String mediaReleaseScopeLabel;
+  final VideoDisplayLevel? defaultVideoDisplayLevel;
+  final VideoGroupingDefault defaultVideoGrouping;
+  final Set<String> videoSeriesEntryTypes;
+  final Set<String> videoShelfDrilldownEntryTypes;
   final String Function(int count)? childrenTitleBuilder;
   final Future<List<LibraryHierarchyNode>> Function({
     required ApiClient api,

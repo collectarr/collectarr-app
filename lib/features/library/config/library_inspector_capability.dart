@@ -8,12 +8,14 @@ class LibraryInspectorCapability {
     this.sectionsBuilder,
     this.detailPageBuilder,
     this.showsDefaultPersonalSection = true,
+    this.showsCreatorSpotlight = false,
   });
 
   final LibraryInspectorHeroBuilder? heroBuilder;
   final LibraryDetailSectionsBuilder? sectionsBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
   final bool showsDefaultPersonalSection;
+  final bool showsCreatorSpotlight;
 
   List<Widget> buildSections(
     BuildContext context,

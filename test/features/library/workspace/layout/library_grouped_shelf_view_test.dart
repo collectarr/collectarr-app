@@ -2,8 +2,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_grouped_shelf_view.dart';
@@ -51,8 +50,7 @@ GroupShelfEntry _group({
   );
 }
 
-final _viewState =
-    libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults();
+final _viewState = movieKindModule.viewProfile.defaults();
 
 void main() {
   testWidgets('inline headers collapse and expand in place', (tester) async {
@@ -69,7 +67,7 @@ void main() {
           home: StatefulBuilder(
             builder: (context, setState) {
               return LibraryGroupedShelfView(
-                type: moviesLibraryConfig,
+                type: movieKindModule,
                 groups: [
                   _group(
                     bucket: 'Batman',

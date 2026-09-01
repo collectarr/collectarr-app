@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -26,7 +25,7 @@ enum ExportFormat {
 /// Shows an export dialog with multiple format options.
 Future<void> showIntegrationExportDialog({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required ShelfState shelfState,
 }) {
   return showDialog<void>(
@@ -44,7 +43,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     required this.shelfState,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final ShelfState shelfState;
 
   @override
@@ -65,7 +64,7 @@ class _IntegrationExportDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '${shelfState.entries.length} items in ${type.workspace.title}',
+              '${shelfState.entries.length} items in ${type.identity.title}',
               style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
             const SizedBox(height: 16),
@@ -89,7 +88,7 @@ class _IntegrationExportDialog extends StatelessWidget {
   }
 
   void _export(BuildContext context, ExportFormat format) {
-    final module = libraryKindRuntimeForType(type);
+    final module = type;
     final data = switch (format) {
       ExportFormat.csv => _toCsv(module),
       ExportFormat.json => _toJson(module),
@@ -153,7 +152,7 @@ class _IntegrationExportDialog extends StatelessWidget {
       };
     }).toList();
     return const JsonEncoder.withIndent('  ').convert({
-      'collection': type.workspace.title,
+      'collection': type.identity.title,
       'exported_at': DateTime.now().toIso8601String(),
       'item_count': items.length,
       'items': items,
@@ -164,7 +163,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln(
-        '<collection name="${_escapeXml(type.workspace.title)}" count="${shelfState.entries.length}">');
+        '<collection name="${_escapeXml(type.identity.title)}" count="${shelfState.entries.length}">');
     for (final entry in shelfState.entries) {
       final projection = module.project(
         source: entry,
@@ -178,17 +177,20 @@ class _IntegrationExportDialog extends StatelessWidget {
       buffer.writeln('  <item>');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
       if (adapter?.itemNumber != null) {
-        buffer.writeln('    <number>${_escapeXml(adapter!.itemNumber!)}</number>');
+        buffer.writeln(
+            '    <number>${_escapeXml(adapter!.itemNumber!)}</number>');
       }
       if (adapter?.seriesTitle != null) {
-        buffer.writeln('    <series>${_escapeXml(adapter!.seriesTitle!)}</series>');
+        buffer.writeln(
+            '    <series>${_escapeXml(adapter!.seriesTitle!)}</series>');
       }
       if (adapter?.publisher != null) {
         buffer.writeln(
             '    <publisher>${_escapeXml(adapter!.publisher!)}</publisher>');
       }
       if (adapter?.barcode != null) {
-        buffer.writeln('    <barcode>${_escapeXml(adapter!.barcode!)}</barcode>');
+        buffer
+            .writeln('    <barcode>${_escapeXml(adapter!.barcode!)}</barcode>');
       }
       if (own?.condition != null) {
         buffer.writeln(
@@ -202,7 +204,7 @@ class _IntegrationExportDialog extends StatelessWidget {
 
   String _toMarkdown(LibraryKindRuntime module) {
     final buffer = StringBuffer();
-    buffer.writeln('# ${type.workspace.title}');
+    buffer.writeln('# ${type.identity.title}');
     buffer.writeln('');
     buffer.writeln('**${shelfState.entries.length} items**');
     buffer.writeln('');

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
@@ -62,7 +62,7 @@ class LibraryBarcodeLookupResult {
 
 Future<List<LibraryMetadataItem>> searchAndCacheLibraryMetadata({
   required ApiClient api,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required CatalogCacheRepository catalog,
   required LibraryMetadataSearchInput input,
 }) async {
@@ -83,7 +83,7 @@ Future<List<LibraryMetadataItem>> searchAndCacheLibraryMetadata({
 
 Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   required ApiClient api,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required CatalogCacheRepository catalog,
   required Iterable<String> barcodes,
   LibraryBarcodeLookupResultCallback? onResult,

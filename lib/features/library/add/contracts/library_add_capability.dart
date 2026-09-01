@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -142,6 +143,7 @@ abstract interface class LibraryAddCapability<
   LibraryAddSearchPaneBuilder? get searchPaneBuilder;
   LibraryAddBottomBarBuilder? get bottomBarBuilder;
   LibraryAddDialogLauncher? get dialogLauncher;
+  LibraryAddChromeConfig get chrome;
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
 
@@ -176,6 +178,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.searchPaneBuilder,
     this.bottomBarBuilder,
     this.dialogLauncher,
+    this.chrome = const LibraryAddChromeConfig(),
     required this.search,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
   });
@@ -199,6 +202,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddBottomBarBuilder? bottomBarBuilder;
   @override
   final LibraryAddDialogLauncher? dialogLauncher;
+  @override
+  final LibraryAddChromeConfig chrome;
   @override
   final LibraryAddSearchCapability search;
   @override

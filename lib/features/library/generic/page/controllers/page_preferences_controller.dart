@@ -6,11 +6,11 @@ abstract final class LibraryPagePreferencesControllerOps {
   ) async {
     try {
       final loadToken = ++state._columnFavoritesLoadToken;
-      final expectedKind = state.widget.type.workspace.kind;
+      final expectedKind = state.widget.type.kind;
       final presets = await LibraryColumnPresetStore(state.widget.type).read();
       if (!state.mounted ||
           loadToken != state._columnFavoritesLoadToken ||
-          state.widget.type.workspace.kind != expectedKind) {
+          state.widget.type.kind != expectedKind) {
         return;
       }
       state._mutateState(() => state._savedColumnFavoritePresets = presets);
@@ -48,7 +48,7 @@ abstract final class LibraryPagePreferencesControllerOps {
     final preset = state._activeFolderPreset;
     try {
       final loadToken = ++state._folderTreePreferenceLoadToken;
-      final expectedKind = state.widget.type.workspace.kind;
+      final expectedKind = state.widget.type.kind;
       final displayModeFuture = state._viewPrefs.readFolderDisplayMode(preset);
       final expandedNodeIdsFuture =
           state._viewPrefs.readFolderTreeExpandedNodeIds(preset);
@@ -67,7 +67,7 @@ abstract final class LibraryPagePreferencesControllerOps {
       final collapsedGroupBuckets = await collapsedGroupBucketsFuture;
       if (!state.mounted ||
           loadToken != state._folderTreePreferenceLoadToken ||
-          state.widget.type.workspace.kind != expectedKind) {
+          state.widget.type.kind != expectedKind) {
         return;
       }
       state._mutateState(() {

@@ -1,10 +1,7 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_type_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/runtime/runtime_catalog_library_type_builder.dart';
 
@@ -19,12 +16,12 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
     for (final type in catalog)
       if (type.isTopLevel ||
           (!type.mediaKind.isUnknown &&
-              collectarrLibraryTypes.byKind(type.mediaKind) != null))
+              defaultLibraryKindRegistry.tryGet(type.mediaKind) != null))
         type.kind: type,
   };
   final defaultKinds = [
-    for (final config in collectarrLibraryTypes.types)
-      if (!config.workspace.kind.isUnknown) config.workspace.kind.apiValue,
+    for (final runtime in defaultLibraryKindRegistry.allRuntimes)
+      if (!runtime.kind.isUnknown) runtime.kind.apiValue,
   ];
   for (final kind in defaultKinds) {
     topLevelByKind.putIfAbsent(kind, () {
@@ -94,16 +91,16 @@ CatalogMediaType selectedLibraryHomeType(
   return types.first;
 }
 
-LibraryTypeConfig libraryConfigForCatalogType(
+LibraryKindRuntime libraryRuntimeForCatalogType(
   CatalogMediaType type,
-  LibraryTypeRegistry registry,
+  LibraryKindRegistry registry,
 ) {
   if (type.mediaKind.isUnknown) {
-    return buildRuntimeCatalogLibraryTypeConfig(type);
+    return buildRuntimeCatalogLibraryRuntime(type);
   }
-  final known = registry.byKind(type.mediaKind);
+  final known = registry.tryGet(type.mediaKind);
   if (known != null) {
     return known;
   }
-  return buildRuntimeCatalogLibraryTypeConfig(type);
+  return buildRuntimeCatalogLibraryRuntime(type);
 }

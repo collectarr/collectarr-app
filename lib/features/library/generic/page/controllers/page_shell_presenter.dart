@@ -79,7 +79,7 @@ abstract final class LibraryPageShellPresenter {
                     ),
                   ),
                   LibraryCollectionTabBar(
-                    mediaKind: state.widget.type.workspace.kind.apiValue,
+                    mediaKind: state.widget.type.kind.apiValue,
                     activeSmartListId: state._activeSmartListId,
                     onSmartListSelected: state._applySmartList,
                     onAllSelected: state._clearSmartList,
@@ -110,7 +110,7 @@ abstract final class LibraryPageShellPresenter {
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    final runtime = libraryKindRuntimeForType(state.widget.type);
+    final runtime = state.widget.type;
     final workspaceOverride = state.buildWorkspaceOverride(
       projection,
       viewState,
@@ -305,8 +305,7 @@ abstract final class LibraryPageShellPresenter {
       db: state.ref.read(localDatabaseProvider),
       folderPreset: state._activeFolderPreset,
       pinnedFolderPresets: state._pinnedFolderPresets,
-      onManageBuckets: state.widget.type.kindUiAdapter.supportsBucketManagement(
-              state.widget.type, activeProjectionGroupMode)
+      onManageBuckets: state.supportsBucketManagement(activeProjectionGroupMode)
           ? () => unawaited(state._showBucketManagerFlow(projection))
           : null,
       onPinnedFolderPresetsChanged: state._setPinnedFolderPresets,
@@ -335,20 +334,13 @@ abstract final class LibraryPageShellPresenter {
         supportsMediaReleaseSplit: state._supportsMediaReleaseSplit,
         onBrowserModeChanged: state._setBrowserMode,
         showReleaseFolderBack:
-            state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
-          state.widget.type,
+            state.widget.type.hierarchy.shouldShowReleaseFolderBack(
           browserMode: state._activeBrowserMode,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         ),
-        releaseFolderLabel:
-            state.widget.type.kindUiAdapter.releaseFolderLabelForProjection(
-          state.widget.type,
-          projection,
-          releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
-        ),
+        releaseFolderLabel: state._releaseFolderLabelForProjection(projection),
         onReleaseFolderBack:
-            state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
-          state.widget.type,
+            state.widget.type.hierarchy.shouldShowReleaseFolderBack(
           browserMode: state._activeBrowserMode,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         )
@@ -391,31 +383,25 @@ abstract final class LibraryPageShellPresenter {
         onSmartLists: () =>
             state._dialogCoordinator.showSmartListsFlow(shelfState),
         onFolders: state._dialogCoordinator.showUserFoldersFlow,
-        onReadingQueue: libraryKindRuntimeForType(state.widget.type)
-                .hierarchy
-                .showsReadingQueue
+        onReadingQueue: state.widget.type.hierarchy.showsReadingQueue
             ? state._dialogCoordinator.showReadingQueueFlow
             : null,
-        onEditConditionPickList: libraryKindRuntimeForType(state.widget.type)
-                .edit
-                .hasConditionPickList
+        onEditConditionPickList: state.widget.type.edit.hasConditionPickList
             ? state._dialogCoordinator.showConditionPickListEditorFlow
             : null,
-        onEditGradePickList:
-            libraryKindRuntimeForType(state.widget.type).edit.hasGradePickList
-                ? state._dialogCoordinator.showGradePickListEditorFlow
-                : null,
+        onEditGradePickList: state.widget.type.edit.hasGradePickList
+            ? state._dialogCoordinator.showGradePickListEditorFlow
+            : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
         onTransferFieldData: state._hasOwnedItemsInProjection(projection)
             ? () =>
                 state._dialogCoordinator.showTransferFieldDataFlow(projection)
             : null,
-        onReassignIndex: libraryKindRuntimeForType(state.widget.type)
-                    .hierarchy
-                    .supportsIndexReassignment &&
-                state._hasOwnedItemsInProjection(projection)
-            ? () => state._dialogCoordinator.reassignIndexFlow(projection)
-            : null,
+        onReassignIndex:
+            state.widget.type.hierarchy.supportsIndexReassignment &&
+                    state._hasOwnedItemsInProjection(projection)
+                ? () => state._dialogCoordinator.reassignIndexFlow(projection)
+                : null,
         onPrintReport: projection.filteredItems.isNotEmpty
             ? () => state._reportCoordinator.printReportFlow(projection)
             : null,
@@ -423,9 +409,7 @@ abstract final class LibraryPageShellPresenter {
             ? () => state._sharingCoordinator.shareCollectionFlow(projection)
             : null,
         onCompareMetadataWithServer: (() {
-          if (!libraryKindRuntimeForType(state.widget.type)
-              .metadata
-              .supportsServerCompare) {
+          if (!state.widget.type.metadata.supportsServerCompare) {
             return null;
           }
           final selected = state._collectionActionCoordinator

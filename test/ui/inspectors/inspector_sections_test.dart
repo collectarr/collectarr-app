@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -84,7 +84,7 @@ void main() {
 
   group('InspectorMetadataSection', () {
     testWidgets('renders metadata section title', (tester) async {
-      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+      final type = comicKindModule;
       final source1 = ShelfEntry(
         itemId: 'comic-1',
         catalogItem: testCatalogItem(
@@ -115,7 +115,7 @@ void main() {
     });
 
     testWidgets('triggers onFilterByValue callback', (tester) async {
-      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+      final type = comicKindModule;
       final source2 = ShelfEntry(
         itemId: 'comic-1',
         catalogItem: testCatalogItem(
@@ -313,7 +313,7 @@ void main() {
 
   group('EmptyInspector', () {
     testWidgets('renders placeholder text', (tester) async {
-      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+      final type = comicKindModule;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

@@ -12,7 +12,7 @@ class LibraryPageReportCoordinator {
     final items = projection.filteredItems;
     printCollectionReport(
       context: _page.context,
-      title: _page.type.workspace.title,
+      title: _page.type.identity.title,
       items: items,
     );
   }
@@ -26,7 +26,7 @@ class LibraryPageReportCoordinator {
     if (items.isEmpty) return;
     printCollectionReport(
       context: _page.context,
-      title: _page.type.workspace.title,
+      title: _page.type.identity.title,
       items: items,
     );
   }

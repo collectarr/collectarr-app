@@ -8,7 +8,7 @@ class LibraryAddBarcodePrefillBanner extends StatelessWidget {
     required this.barcode,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final String barcode;
 
   @override
@@ -27,7 +27,7 @@ class LibraryAddBarcodePrefillBanner extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Barcode $barcode is prefilled for ${type.pluralLabel.toLowerCase()}. Search Core or add it manually with the same code.',
+                'Barcode $barcode is prefilled for ${type.identity.pluralLabel.toLowerCase()}. Search Core or add it manually with the same code.',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -75,7 +75,7 @@ class LibraryAddModeBar extends StatefulWidget {
     this.kindSpecificPaneBuilder,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddDialogMode mode;
@@ -206,7 +206,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   @override
   Widget build(BuildContext context) {
     final isBusy = widget.isSearching || widget.isSearchingProvider;
-    final searchLabels = libraryMediaSearchFieldLabels(widget.type);
+    final searchLabels = widget.type.presentation.searchFieldLabels;
     final palette = appPalette(context);
     final advancedFields = _resolveAdvancedFields();
     _syncAdvancedControllers(advancedFields);
@@ -263,7 +263,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                     ),
                     const SizedBox(width: 8),
                     _LibraryAddModeButton(
-                      label: 'Search ${widget.type.pluralLabel}',
+                      label: 'Search ${widget.type.identity.pluralLabel}',
                       icon: Icons.search,
                       accent: widget.accent,
                       isBusy: widget.isSearching,
@@ -403,7 +403,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                         ),
                         const SizedBox(width: 8),
                         _LibraryAddModeButton(
-                          label: 'Search ${widget.type.pluralLabel}',
+                          label: 'Search ${widget.type.identity.pluralLabel}',
                           icon: Icons.search,
                           accent: widget.accent,
                           isBusy: widget.isSearching,
@@ -496,7 +496,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
     required this.onScan,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
@@ -531,7 +531,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
               child: Row(
                 children: [
                   LibraryAddModeTab(
-                    icon: type.workspace.icon,
+                    icon: type.identity.icon,
                     label: 'Search',
                     accent: accent,
                     selected: mode == LibraryAddDialogMode.search,

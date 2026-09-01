@@ -152,7 +152,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     final item = await showDialog<LibraryMetadataItem>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
-        type: comicsLibraryConfig,
+        type: comicKindModule,
         row: row,
       ),
     );
@@ -193,7 +193,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
-          comicsLibraryConfig,
+          comicKindModule,
           row,
           limit: 5,
         );
@@ -329,7 +329,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       _error = null;
     });
     try {
-      final type = ref.read(resolvedLibraryTypeProvider(comicsLibraryConfig));
+      final type = ref.read(resolvedLibraryTypeProvider(comicKindModule));
       final response = await createLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
         type: type,
@@ -574,7 +574,7 @@ class _ResolveImportRowDialog extends ConsumerStatefulWidget {
     required this.row,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final CollectionCsvRow row;
 
   @override
@@ -1001,7 +1001,7 @@ String _friendlyImportError(Object error) {
 
 Future<List<LibraryMetadataItem>> _searchCoreForRow(
   WidgetRef ref,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   CollectionCsvRow row, {
   String? queryOverride,
   int limit = 20,

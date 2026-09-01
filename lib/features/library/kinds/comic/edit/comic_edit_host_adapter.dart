@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -9,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.da
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_dialog.dart';
@@ -50,7 +50,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   Color get comicAccent => accent;
 
   @override
-  LibraryTypeConfig get comicLibraryType => draft.type;
+  LibraryKindRuntime get comicLibraryType => draft.type;
 
   @override
   ComicCatalogItem get comicCatalogItem => catalogItem;
@@ -397,7 +397,7 @@ class ComicEditHostAdapter implements ComicEditHost {
     return comicDraft.seriesEntriesFuture ??= SerialAuthorityRepository(
       comicRef.read(localDatabaseProvider),
     ).searchEntries(
-      mediaKind: draft.type.workspace.kind.apiValue,
+      mediaKind: draft.type.kind.apiValue,
     );
   }
 
@@ -528,7 +528,7 @@ class ComicEditHostAdapter implements ComicEditHost {
             final entry = await showSeriesPickerDialog(
               context: context,
               db: db,
-              mediaKind: draft.type.workspace.kind.apiValue,
+              mediaKind: draft.type.kind.apiValue,
               selectedTitle:
                   _comicDraft?.comicEdit.seriesTitleController.text ?? '',
             );

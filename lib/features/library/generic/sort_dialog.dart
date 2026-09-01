@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
@@ -11,7 +10,7 @@ import 'package:flutter/material.dart';
 
 Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required List<LibrarySortRule> currentRules,
   bool Function(String column)? defaultAscendingForColumn,
   List<String>? availableColumns,
@@ -35,7 +34,7 @@ class _LibrarySortDialog extends StatefulWidget {
     this.availableColumns,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final List<LibrarySortRule> currentRules;
   final bool Function(String column)? defaultAscendingForColumn;
   final List<String>? availableColumns;
@@ -79,7 +78,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accent = widget.type.workspace.accent;
+    final accent = widget.type.identity.accent;
     final viewport = MediaQuery.sizeOf(context);
     final availableColumns = _filteredColumns();
     final matchingPreset = _matchingPreset;
@@ -510,8 +509,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   LibrarySortRule _defaultRule() {
-    final column =
-        libraryKindRuntimeForType(widget.type).fields.defaultSort.value;
+    final column = widget.type.fields.defaultSort.value;
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),
@@ -566,10 +564,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   List<String> _filteredColumns() {
     final query = _query.trim().toLowerCase();
     final available = widget.availableColumns ??
-        [
-          for (final def in libraryKindRuntimeForType(widget.type).fields.sorts)
-            def.id.value
-        ];
+        [for (final def in widget.type.fields.sorts) def.id.value];
     return available.where((column) {
       if (query.isEmpty) {
         return true;
@@ -1131,7 +1126,7 @@ bool _sameSortRules(List<LibrarySortRule> first, List<LibrarySortRule> second) {
   return true;
 }
 
-String _sortRuleSummary(LibraryTypeConfig type, List<LibrarySortRule> rules) {
+String _sortRuleSummary(LibraryKindRuntime type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
@@ -1141,10 +1136,10 @@ String _sortRuleSummary(LibraryTypeConfig type, List<LibrarySortRule> rules) {
 }
 
 LibraryTableColumnGroup _sortFieldGroup(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   String column,
 ) {
-  final fields = libraryKindRuntimeForType(type).fields;
+  final fields = type.fields;
   final groupStr =
       fields.sortDefinitionFor(fields.decodeSortId(column)).group.toLowerCase();
   return LibraryTableColumnGroup.values.firstWhere(
@@ -1162,8 +1157,8 @@ String _groupLabel(LibraryTableColumnGroup group) {
   };
 }
 
-bool _defaultSortAscending(LibraryTypeConfig type, String column) {
-  final fields = libraryKindRuntimeForType(type).fields;
+bool _defaultSortAscending(LibraryKindRuntime type, String column) {
+  final fields = type.fields;
   return fields.sortDefinitionFor(fields.decodeSortId(column)).defaultAscending;
 }
 
@@ -1178,9 +1173,9 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
   return deduped;
 }
 
-String _sortColumnLabel(LibraryTypeConfig type, String column) {
+String _sortColumnLabel(LibraryKindRuntime type, String column) {
   try {
-    final fields = libraryKindRuntimeForType(type).fields;
+    final fields = type.fields;
     return fields.sortDefinitionFor(fields.decodeSortId(column)).label;
   } on StateError {
     return librarySortColumnFallbackLabel(column);

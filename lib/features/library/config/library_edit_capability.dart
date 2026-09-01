@@ -13,8 +13,6 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-
 export 'package:collectarr_app/features/library/config/edit_field_config.dart';
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';

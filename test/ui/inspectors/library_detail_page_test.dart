@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -9,7 +8,9 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -28,7 +29,7 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -104,7 +105,7 @@ void main() {
   testWidgets('detail page edit uses the selected copy', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -205,7 +206,7 @@ void main() {
       (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     await db.into(db.trackingEntriesCache).insert(
           TrackingEntriesCacheCompanion.insert(
             id: 'tracking-1',

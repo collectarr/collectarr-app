@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -19,7 +20,7 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final int ownedReleaseCount;
   final ValueChanged<String>? onFilterByValue;
@@ -114,14 +115,13 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
 }
 
 LibraryMetadataPresentation _metadataPresentationForEntry(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   LibraryProjectionRuntime item,
 ) {
-  final runtime = libraryKindRuntimeForType(type);
   return type.presentation.builder.buildMetadataPresentation(
-    singularLabel: type.singularLabel,
-    mediaFields: runtime.edit.mediaFields,
-    releaseFields: runtime.edit.releaseFields,
+    singularLabel: type.identity.singularLabel,
+    mediaFields: type.edit.mediaFields,
+    releaseFields: type.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

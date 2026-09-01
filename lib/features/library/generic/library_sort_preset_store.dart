@@ -1,18 +1,17 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibrarySortPresetStore {
   const LibrarySortPresetStore(this.config);
 
-  final LibraryTypeConfig config;
+  final LibraryKindRuntime config;
 
   Future<List<LibrarySortPreset>> read() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(config.preferenceKey('sort_presets'));
+    final raw = prefs.getString(config.identity.preferenceKey('sort_presets'));
     if (raw == null || raw.trim().isEmpty) {
       return const [];
     }
@@ -79,7 +78,7 @@ class LibrarySortPresetStore {
   Future<void> _write(List<LibrarySortPreset> presets) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      config.preferenceKey('sort_presets'),
+      config.identity.preferenceKey('sort_presets'),
       jsonEncode([
         for (final preset in presets) _presetToJson(preset),
       ]),
@@ -95,7 +94,7 @@ class LibrarySortPresetStore {
   }
 
   Map<String, dynamic> _presetToJson(LibrarySortPreset preset) {
-    final module = libraryKindRuntimeForType(config);
+    final module = config;
     return {
       'id': preset.id,
       'label': preset.label,
@@ -117,7 +116,7 @@ class LibrarySortPresetStore {
     if (rawRules is! List) {
       return const [];
     }
-    final module = libraryKindRuntimeForType(config);
+    final module = config;
     final rules = <LibrarySortRule>[];
     for (final value in rawRules) {
       final json = switch (value) {
@@ -147,7 +146,7 @@ class LibrarySortPresetStore {
   }
 
   List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
-    final module = libraryKindRuntimeForType(config);
+    final module = config;
     final seen = <String>{};
     final deduped = <LibrarySortRule>[];
     for (final rule in rules) {

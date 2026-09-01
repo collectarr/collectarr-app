@@ -1,5 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,26 +63,26 @@ class LibraryWorkspaceChromePreferenceSnapshot {
 }
 
 class LibraryWorkspacePreferences {
-  const LibraryWorkspacePreferences(this.config);
+  const LibraryWorkspacePreferences(this.runtime);
 
   static final _cachedChromeByConfig =
       <String, LibraryWorkspaceChromePreferenceSnapshot>{};
   static final _cachedSnapshots =
       <String, LibraryWorkspacePreferenceSnapshot>{};
 
-  final LibraryTypeConfig config;
+  final LibraryKindRuntime runtime;
 
   static LibraryWorkspaceChromePreferenceSnapshot? cachedChromeFor(
-    LibraryTypeConfig config,
+    LibraryKindRuntime runtime,
   ) =>
-      _cachedChromeByConfig[config.preferenceKey('')];
+      _cachedChromeByConfig[runtime.identity.preferenceKey('')];
 
   /// Returns the last loaded/written snapshot for [config], or `null` if the
   /// preferences have not been loaded yet for this media type.
   static LibraryWorkspacePreferenceSnapshot? cachedSnapshot(
-    LibraryTypeConfig config,
+    LibraryKindRuntime runtime,
   ) =>
-      _cachedSnapshots[config.preferenceKey('')];
+      _cachedSnapshots[runtime.identity.preferenceKey('')];
 
   static void resetCachedChromeForTesting() {
     _cachedChromeByConfig.clear();
@@ -113,7 +112,7 @@ class LibraryWorkspacePreferences {
     final detailsHeight =
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
     final sortRules = _decodeSortRules(prefs.getStringList(_key('sort_rules')));
-    final module = libraryKindRuntimeForType(config);
+    final module = runtime;
     final savedSortColumn = prefs.getString(_key('sort_column'));
     var sortColumn = module.fields.defaultSort.value;
     if (savedSortColumn != null) {
@@ -144,7 +143,7 @@ class LibraryWorkspacePreferences {
           ) ??
           defaultViewMode,
       densityPreset: _enumByName(
-            config.availableDensityPresets,
+            runtime.identity.availableDensityPresets,
             prefs.getString(_key('density_preset')),
           ) ??
           defaultDensityPreset,
@@ -178,8 +177,8 @@ class LibraryWorkspacePreferences {
       visibleColumns: visibleColumns,
       columnWidths: columnWidths,
     );
-    _cachedChromeByConfig[config.preferenceKey('')] = snapshot.chrome;
-    _cachedSnapshots[config.preferenceKey('')] = snapshot;
+    _cachedChromeByConfig[runtime.identity.preferenceKey('')] = snapshot.chrome;
+    _cachedSnapshots[runtime.identity.preferenceKey('')] = snapshot;
     return snapshot;
   }
 
@@ -191,7 +190,7 @@ class LibraryWorkspacePreferences {
       snapshot.columnWidths,
     );
     final normalizedSortRules = _normalizeSortRules(snapshot.sortRules);
-    final writeModule = libraryKindRuntimeForType(config);
+    final writeModule = runtime;
     final sortDef = writeModule.fields.findSortDefinition(
       writeModule.fields.decodeSortId(snapshot.sortColumn),
     );
@@ -206,17 +205,19 @@ class LibraryWorkspacePreferences {
       sortAscending: snapshot.sortAscending,
       sortRules: normalizedSortRules,
       coverSize: snapshot.coverSize,
-      densityPreset: config.supportsDensityPreset(snapshot.densityPreset)
+      densityPreset: runtime.identity.availableDensityPresets
+              .contains(snapshot.densityPreset)
           ? snapshot.densityPreset
-          : config.defaultDensityPreset,
+          : runtime.identity.defaultDensityPreset,
       sidebarWidth: snapshot.sidebarWidth,
       detailsWidth: snapshot.detailsWidth,
       detailsHeight: snapshot.detailsHeight,
       visibleColumns: normalizedVisibleColumns,
       columnWidths: normalizedColumnWidths,
     );
-    _cachedChromeByConfig[config.preferenceKey('')] = normalizedSnapshot.chrome;
-    _cachedSnapshots[config.preferenceKey('')] = normalizedSnapshot;
+    _cachedChromeByConfig[runtime.identity.preferenceKey('')] =
+        normalizedSnapshot.chrome;
+    _cachedSnapshots[runtime.identity.preferenceKey('')] = normalizedSnapshot;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _key('browser_mode'),
@@ -260,10 +261,10 @@ class LibraryWorkspacePreferences {
     );
   }
 
-  String _key(String suffix) => config.preferenceKey(suffix);
+  String _key(String suffix) => runtime.identity.preferenceKey(suffix);
 
   Set<String> _decodeVisibleColumns(List<String>? values) {
-    final module = libraryKindRuntimeForType(config);
+    final module = runtime;
     final defaultCols = module.fields.defaultVisibleColumns;
     if (values == null || values.isEmpty) {
       return defaultCols.map((column) => column.value).toSet();
@@ -308,7 +309,7 @@ class LibraryWorkspacePreferences {
     if (values == null || values.isEmpty) {
       return null;
     }
-    final module = libraryKindRuntimeForType(config);
+    final module = runtime;
     final rules = <LibrarySortRule>[];
     for (final value in values) {
       final parts = value.split(':');
@@ -336,7 +337,7 @@ class LibraryWorkspacePreferences {
     if (values == null || values.isEmpty) {
       return const {};
     }
-    final module = libraryKindRuntimeForType(config);
+    final module = runtime;
     final widths = <String, double>{};
     for (final value in values) {
       final parts = value.split(':');
@@ -359,7 +360,7 @@ class LibraryWorkspacePreferences {
   Set<String> _normalizeVisibleColumns(
     Set<String> columns,
   ) {
-    final module = libraryKindRuntimeForType(config);
+    final module = runtime;
     final defaultCols = module.fields.defaultVisibleColumns;
     final normalized = <String>{};
     for (final column in columns) {
@@ -384,7 +385,7 @@ class LibraryWorkspacePreferences {
   Map<String, double> _normalizeColumnWidths(
     Map<String, double> widths,
   ) {
-    final module = libraryKindRuntimeForType(config);
+    final module = runtime;
     final normalized = <String, double>{};
     for (final entry in widths.entries) {
       final colDef = module.fields.findColumnDefinition(
@@ -401,7 +402,7 @@ class LibraryWorkspacePreferences {
     if (rules == null || rules.isEmpty) {
       return null;
     }
-    final module = libraryKindRuntimeForType(config);
+    final module = runtime;
     final normalized = <LibrarySortRule>[];
     final seen = <String>{};
     for (final rule in rules) {

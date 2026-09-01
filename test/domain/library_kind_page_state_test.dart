@@ -1,33 +1,23 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import '../helpers/test_data_factories.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/page.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/page.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/page.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/page.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/page.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/page.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/page.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/page.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_drilldown_library_page_state.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +27,7 @@ void main() {
   test('known kind pages create concrete state classes', () {
     expect(
         BookLibraryPage(
-                type: booksLibraryConfig,
+                type: bookKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/books'))
@@ -45,7 +35,7 @@ void main() {
         isA<BookLibraryPageState>());
     expect(
         GameLibraryPage(
-                type: gamesLibraryConfig,
+                type: gameKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/games'))
@@ -53,7 +43,7 @@ void main() {
         isA<GameLibraryPageState>());
     expect(
         BoardGameLibraryPage(
-                type: boardGamesLibraryConfig,
+                type: boardGameKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/boardgames'))
@@ -61,7 +51,7 @@ void main() {
         isA<BoardGameLibraryPageState>());
     expect(
         MusicLibraryPage(
-                type: musicLibraryConfig,
+                type: musicKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/music'))
@@ -69,7 +59,7 @@ void main() {
         isA<MusicLibraryPageState>());
     expect(
         ComicLibraryPage(
-                type: comicsLibraryConfig,
+                type: comicKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/comics'))
@@ -77,7 +67,7 @@ void main() {
         isA<ComicLibraryPageState>());
     expect(
         MangaLibraryPage(
-                type: mangaLibraryConfig,
+                type: mangaKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/manga'))
@@ -85,7 +75,7 @@ void main() {
         isA<MangaLibraryPageState>());
     expect(
         MovieLibraryPage(
-                type: moviesLibraryConfig,
+                type: movieKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/movies'))
@@ -93,7 +83,7 @@ void main() {
         isA<MovieLibraryPageState>());
     expect(
         TvLibraryPage(
-                type: tvLibraryConfig,
+                type: tvKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/tv'))
@@ -101,7 +91,7 @@ void main() {
         isA<TvLibraryPageState>());
     expect(
         AnimeLibraryPage(
-                type: animeLibraryConfig,
+                type: animeKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/anime'))
@@ -137,7 +127,7 @@ void main() {
   test('video-like kinds share the explicit video drilldown state base', () {
     expect(
         MovieLibraryPage(
-                type: moviesLibraryConfig,
+                type: movieKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/movies'))
@@ -145,7 +135,7 @@ void main() {
         isA<VideoDrilldownLibraryPageState>());
     expect(
         TvLibraryPage(
-                type: tvLibraryConfig,
+                type: tvKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/tv'))
@@ -153,7 +143,7 @@ void main() {
         isA<GenericLibraryPageState>());
     expect(
         AnimeLibraryPage(
-                type: animeLibraryConfig,
+                type: animeKindModule,
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/anime'))
@@ -163,27 +153,27 @@ void main() {
 
   test('reading queue visibility is now kind-owned in page state', () {
     expect(
-        booksLibraryConfig.kindUiAdapter.showsReadingQueue(booksLibraryConfig),
-        isTrue);
-    expect(
-        gamesLibraryConfig.kindUiAdapter.showsReadingQueue(gamesLibraryConfig),
-        isFalse);
-  });
-
-  test('kind ui adapter owns track search and group mode categories', () {
-    expect(
-      musicLibraryConfig.kindUiAdapter.supportsTrackSearch(musicLibraryConfig),
+      bookKindModule.hierarchy.showsReadingQueue,
       isTrue,
     );
     expect(
-      moviesLibraryConfig.kindUiAdapter
-          .supportsTrackSearch(moviesLibraryConfig),
+      gameKindModule.hierarchy.showsReadingQueue,
+      isFalse,
+    );
+  });
+
+  test('kind capabilities own track search and group mode categories', () {
+    expect(
+      musicKindModule.capabilities.supportsTrackSearch,
+      isTrue,
+    );
+    expect(
+      movieKindModule.capabilities.supportsTrackSearch,
       isFalse,
     );
 
-    final comicCategories =
-        comicsLibraryConfig.kindUiAdapter.groupModeCategories(
-      comicsLibraryConfig,
+    final comicCategories = libraryGroupModeCategories(
+      comicKindModule,
       ['series', 'grade', 'writer'],
     );
     expect(comicCategories.map((category) => category.label), [
@@ -199,7 +189,7 @@ void main() {
     final context = tester.element(find.byType(SizedBox));
 
     final request = LibraryEditDialogRequest(
-      type: booksLibraryConfig,
+      type: bookKindModule,
       item: LibraryMetadataItem.fromCatalogItem(
         testCatalogItem(
           id: 'book-1',
@@ -225,7 +215,7 @@ void main() {
       () {
     expect(
       buildLibraryKindPage(
-        type: collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!,
+        type: defaultLibraryKindRegistry.require(CatalogMediaKind.comic),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/comic'),
@@ -234,7 +224,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!,
+        type: defaultLibraryKindRegistry.require(CatalogMediaKind.movie),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/movie'),
@@ -243,7 +233,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: collectarrLibraryTypes.byKind(CatalogMediaKind.tv)!,
+        type: defaultLibraryKindRegistry.require(CatalogMediaKind.tv),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/tv'),
@@ -252,7 +242,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: _unknownLibraryConfig,
+        type: genericKindModule,
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/unknown'),
@@ -261,18 +251,3 @@ void main() {
     );
   });
 }
-
-final _unknownLibraryConfig = LibraryTypeConfig(
-  workspace: const LibraryWorkspaceConfig(
-    kind: CatalogMediaKind.unknown,
-    title: 'Unknown',
-    icon: Icons.category_outlined,
-    accent: Colors.grey,
-    preferencePrefix: 'unknown',
-  ),
-  singularLabel: 'Unknown',
-  pluralLabel: 'Unknown',
-  defaultMetadataProvider: 'gcd',
-  metadataProviders: const [gcdMetadataProvider],
-  trackingProfile: comicTrackingProfile,
-);

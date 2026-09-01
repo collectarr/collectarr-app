@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ class LibraryToolbarActionContext {
     required this.onMissingSequenceReport,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjection? projection;
   final ValueChanged<String>? onJumpToNumberSubmitted;
   final ValueChanged<LibraryProjection?>? onMissingSequenceReport;
@@ -154,10 +154,10 @@ class LibraryToolbarActionAvailability {
       declaredActions.contains(action);
 }
 
-extension LibraryTypeConfigToolbarAvailability on LibraryTypeConfig {
+extension LibraryKindRuntimeToolbarAvailability on LibraryKindRuntime {
   LibraryToolbarActionAvailability get toolbarActionAvailability {
     return LibraryToolbarActionAvailability(
-      declaredActions: workspace.toolbarActions.toSet(),
+      declaredActions: identity.toolbarActions.toSet(),
       capabilities: KindToolbarCapabilities(
         canScanCover: capabilities.canScanCover,
         canDownloadAllCovers: capabilities.canScanCover,

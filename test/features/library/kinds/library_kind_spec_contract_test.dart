@@ -21,7 +21,8 @@ void main() {
     test('all active kind specs have non-null required core properties', () {
       for (final spec in collectarrKindModules) {
         expect(spec.kind, isNotNull);
-        expect(spec.type, isNotNull);
+        expect(spec.identity, isNotNull);
+        expect(spec.metadata, isNotNull);
         expect(spec.capabilities, isNotNull);
         expect(spec.viewProfile, isNotNull);
         expect(spec.fields, isNotNull);
@@ -92,18 +93,31 @@ void main() {
     });
 
     test('validation detects kind and namespace mismatches', () {
-      // Create invalid spec with kind/type mismatch
+      // Create an invalid spec with a kind/field namespace mismatch.
       final mismatchedTypeSpec =
           LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
-        type: bookKindModule.type, // Book config with comic schema
+        identity: LibraryKindIdentity(
+          kind: bookKindModule.identity.kind,
+          singularLabel: comicKindModule.identity.singularLabel,
+          pluralLabel: comicKindModule.identity.pluralLabel,
+          title: bookKindModule.identity.title,
+          icon: bookKindModule.identity.icon,
+          accent: bookKindModule.identity.accent,
+          preferencePrefix: bookKindModule.identity.preferencePrefix,
+          defaultDensityPreset: bookKindModule.identity.defaultDensityPreset,
+          availableDensityPresets:
+              bookKindModule.identity.availableDensityPresets,
+          toolbarActions: bookKindModule.identity.toolbarActions,
+        ),
         viewProfile: comicKindModule.viewProfile,
         fields: comicKindModule.fields,
         projector: comicKindModule.projector,
         ownedDetailsCodec: comicKindModule.ownedDetailsCodec,
-        identity: comicKindModule.identity,
         metadata: comicKindModule.metadata,
         hierarchy: comicKindModule.hierarchy,
         inspector: comicKindModule.inspector,
+        presentation: comicKindModule.presentation,
+        trackingProfile: comicKindModule.trackingProfile,
         transfer: comicKindModule.transfer,
         add: comicKindModule.add,
         edit: comicKindModule.edit,

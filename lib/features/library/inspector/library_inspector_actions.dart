@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +15,7 @@ class InspectorPrimaryActions extends StatelessWidget {
   });
 
   final LibraryProjectionRuntime item;
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
@@ -48,7 +48,7 @@ class InspectorPrimaryActions extends StatelessWidget {
           FilledButton.icon(
             onPressed: onRemoveOwned,
             icon: const Icon(Icons.remove_circle_outline),
-            label: Text('Remove ${type.singularLabel.toLowerCase()}'),
+            label: Text('Remove ${type.identity.singularLabel.toLowerCase()}'),
           ),
         ],
       );

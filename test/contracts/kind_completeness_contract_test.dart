@@ -30,9 +30,6 @@ void main() {
             reason: '$kind runtime.kind must match declared kind');
         expect(runtime.identity.kind, equals(kind),
             reason: '$kind identity.kind must match declared kind');
-        expect(runtime.type.workspace.kind, equals(kind),
-            reason: '$kind workspace.kind must match declared kind');
-
         // Add capability
         final addCap = runtime.add;
         expect(addCap, isNotNull,

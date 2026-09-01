@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
@@ -15,6 +14,8 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -32,6 +33,15 @@ const _musicArtistFilterId = LibraryAddFilterId('music.artist');
 const _musicLabelFilterId = LibraryAddFilterId('music.label');
 const _musicYearFilterId = LibraryAddFilterId('music.year');
 
+const _musicAddChrome = LibraryAddChromeConfig(
+  mediaReferenceLabel: 'Album',
+  trackScopeSummary:
+      'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.',
+  mediaReferenceHelperLabel: 'Track or save the album itself.',
+  editionReferenceHelperLabel:
+      'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
+);
+
 Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
       metadata.artist,
       metadata.series?.seriesTitle,
@@ -46,7 +56,8 @@ Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
     ];
 
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
-  type: musicLibraryConfig,
+  presentation: musicLibraryMediaPresentation,
+  trackingProfile: listeningTrackingProfile,
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: musicLibraryKindSchema.toRegistry(),
@@ -65,6 +76,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'musicbrainz',
+    supportsServerCompare: true,
     providers: [musicBrainzMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(
@@ -73,6 +85,15 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Release',
     mediaReleaseScopeLabel: 'Media',
+  ),
+  capabilities: const LibraryTypeCapabilities(
+    showsTrackData: true,
+    supportsTrackSearch: true,
+    usesTrackListCard: true,
+    supportsMediaReleaseSplit: true,
+    supportsMetadataCompare: true,
+    prefersSquareCovers: true,
+    compactBucketIcon: Icons.person_2_outlined,
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
@@ -135,6 +156,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
       ),
     ),
     manualPaneBuilder: buildMusicAddManualPane,
+    chrome: _musicAddChrome,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildMusicLibraryEditDialog,

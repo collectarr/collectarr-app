@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
     required this.onEdit,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final OwnedItem? activeOwnedItem;
   final List<OwnedItem> ownedCopies;
@@ -41,7 +41,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
         item.source.isOwned;
     final removeLabel = ownedCopies.length > 1
         ? 'Remove selected copy'
-        : 'Remove ${type.singularLabel.toLowerCase()}';
+        : 'Remove ${type.identity.singularLabel.toLowerCase()}';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -135,6 +135,7 @@ class LibraryDetailStatsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
@@ -153,7 +154,7 @@ class LibraryDetailStatsBar extends StatelessWidget {
       ),
       (
         label: 'Metadata',
-        value: dto.publisher == null || dto.publisher!.isEmpty
+        value: adapter?.publisher == null || adapter!.publisher!.isEmpty
             ? 'Missing'
             : 'Ready'
       ),
@@ -164,7 +165,8 @@ class LibraryDetailStatsBar extends StatelessWidget {
       (
         label: 'Updated',
         value:
-            formatNullableDate(ownedItem?.updatedAt ?? dto.releaseDate) ?? '-',
+            formatNullableDate(ownedItem?.updatedAt ?? adapter?.releaseDate) ??
+                '-',
       ),
     ];
 

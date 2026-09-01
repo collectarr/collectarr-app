@@ -1,14 +1,13 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 Future<Set<String>?> showGenericLibraryColumnChooser({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryWorkspaceViewState viewState,
   Set<String> pinnedFavoriteKeys = const {},
   ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite,
@@ -18,7 +17,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
   if (!context.mounted) {
     return null;
   }
-  final runtime = libraryKindRuntimeForType(type);
+  final runtime = type;
   return showDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
@@ -34,7 +33,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
       columnLabel: (column) => runtime.columnDisplayName(
         runtime.fields.decodeColumnId(column),
       ),
-      accent: type.workspace.accent,
+      accent: type.identity.accent,
       columnGroup: (column) => runtime.columnGroup(
         runtime.fields.decodeColumnId(column),
       ),

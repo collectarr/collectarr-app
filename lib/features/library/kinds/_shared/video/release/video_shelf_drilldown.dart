@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/release/video_release_source.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -30,7 +30,7 @@ class VideoShelfReleaseDrilldownItem {
 }
 
 bool canOpenVideoShelfDrilldown(
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
   LibraryProjectionRuntime item,
 ) {
   if (item.node.scope != LibraryBrowserScope.title) {
@@ -38,11 +38,9 @@ bool canOpenVideoShelfDrilldown(
   }
   final kind = item.source.catalogItem?.kind.trim().toLowerCase();
   if (kind == null) return false;
-  if (type != null &&
-      type.presentation.videoShelfDrilldownEntryTypes.contains(kind)) {
-    return true;
-  }
-  return kind == 'movie' || kind == 'tv' || kind == 'anime';
+  final runtime =
+      type ?? libraryKindRuntimeForKind(catalogMediaKindFromApiValue(kind));
+  return runtime.hierarchy.videoShelfDrilldownEntryTypes.contains(kind);
 }
 
 List<VideoShelfReleaseDrilldownItem> buildVideoShelfReleaseItems({

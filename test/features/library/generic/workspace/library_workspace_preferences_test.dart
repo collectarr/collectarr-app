@@ -2,51 +2,44 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_kind_identity.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  final config = LibraryWorkspaceConfig(
-    kind: CatalogMediaKind.comic,
-    title: 'Comics',
-    icon: Icons.menu_book,
-    accent: Colors.red,
-    preferencePrefix: 'comics',
-  );
-
-  final typeConfig = LibraryTypeConfig(
-    workspace: config,
-    singularLabel: 'Comic',
-    pluralLabel: 'Comics',
-    defaultMetadataProvider: 'mock',
-    metadataProviders: const [],
-    trackingProfile: const MediaTrackingProfile(
-      name: 'Mock',
-      options: [],
+  final comicRuntime = comicKindModule.withCatalogMetadata(
+    identity: const LibraryKindIdentity(
+      kind: CatalogMediaKind.comic,
+      singularLabel: 'Comic',
+      pluralLabel: 'Comics',
+      title: 'Comics',
+      icon: Icons.menu_book,
+      accent: Colors.red,
+      preferencePrefix: 'comics',
+    ),
+    metadata: const LibraryMetadataCapability(
+      defaultProviderId: 'mock',
+      providers: [],
     ),
   );
 
-  final mangaConfig = LibraryWorkspaceConfig(
-    kind: CatalogMediaKind.comic,
-    title: 'Manga',
-    icon: Icons.auto_stories,
-    accent: Colors.orange,
-    preferencePrefix: 'manga',
-  );
-
-  final mangaTypeConfig = LibraryTypeConfig(
-    workspace: mangaConfig,
-    singularLabel: 'Manga',
-    pluralLabel: 'Manga',
-    defaultMetadataProvider: 'mock',
-    metadataProviders: const [],
-    trackingProfile: const MediaTrackingProfile(
-      name: 'Mock',
-      options: [],
+  final mangaRuntime = comicKindModule.withCatalogMetadata(
+    identity: const LibraryKindIdentity(
+      kind: CatalogMediaKind.comic,
+      singularLabel: 'Manga',
+      pluralLabel: 'Manga',
+      title: 'Manga',
+      icon: Icons.auto_stories,
+      accent: Colors.orange,
+      preferencePrefix: 'manga',
+    ),
+    metadata: const LibraryMetadataCapability(
+      defaultProviderId: 'mock',
+      providers: [],
     ),
   );
 
@@ -57,7 +50,7 @@ void main() {
 
   test('library workspace preferences persist reusable view settings',
       () async {
-    final store = LibraryWorkspacePreferences(typeConfig);
+    final store = LibraryWorkspacePreferences(comicRuntime);
 
     await store.write(
       const LibraryWorkspacePreferenceSnapshot(
@@ -137,7 +130,7 @@ void main() {
       'comics.column_widths': ['title:320', 'publisher:120'],
     });
 
-    final store = LibraryWorkspacePreferences(typeConfig);
+    final store = LibraryWorkspacePreferences(comicRuntime);
     final restored = await store.read(
       defaultCoverSize: 128,
       defaultDensityPreset: LibraryWorkspaceDensityPreset.compact,
@@ -165,8 +158,8 @@ void main() {
   });
 
   test('workspace chrome size and position are retained per library', () async {
-    final comicsStore = LibraryWorkspacePreferences(typeConfig);
-    final mangaStore = LibraryWorkspacePreferences(mangaTypeConfig);
+    final comicsStore = LibraryWorkspacePreferences(comicRuntime);
+    final mangaStore = LibraryWorkspacePreferences(mangaRuntime);
 
     await comicsStore.write(
       const LibraryWorkspacePreferenceSnapshot(
@@ -205,9 +198,7 @@ void main() {
     expect(restored.sortColumn, 'comic.series');
     expect(
         restored.visibleColumns,
-        libraryKindRuntimeForType(mangaTypeConfig)
-            .fields
-            .defaultVisibleColumns
+        mangaRuntime.fields.defaultVisibleColumns
             .map((column) => column.value)
             .toSet());
     expect(restored.columnWidths, isEmpty);
@@ -215,7 +206,7 @@ void main() {
 
   test('library workspace preferences keep pane widths beyond the old caps',
       () async {
-    final store = LibraryWorkspacePreferences(typeConfig);
+    final store = LibraryWorkspacePreferences(comicRuntime);
 
     await store.write(
       const LibraryWorkspacePreferenceSnapshot(
@@ -250,8 +241,8 @@ void main() {
   });
 
   test('sort and chrome preferences stay isolated between libraries', () async {
-    final comicsStore = LibraryWorkspacePreferences(typeConfig);
-    final mangaStore = LibraryWorkspacePreferences(mangaTypeConfig);
+    final comicsStore = LibraryWorkspacePreferences(comicRuntime);
+    final mangaStore = LibraryWorkspacePreferences(mangaRuntime);
 
     await comicsStore.write(
       const LibraryWorkspacePreferenceSnapshot(

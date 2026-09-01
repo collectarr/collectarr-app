@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
@@ -14,7 +13,7 @@ import 'package:flutter/material.dart';
 /// Shows a rich statistics dashboard dialog for any media type.
 Future<void> showStatsDashboardDialog(
   BuildContext context, {
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required ShelfState state,
 }) {
   return showDialog<void>(
@@ -26,7 +25,7 @@ Future<void> showStatsDashboardDialog(
 class _GenericStatsDashboard extends StatelessWidget {
   const _GenericStatsDashboard({required this.type, required this.state});
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final ShelfState state;
 
   LibraryMediaStatsLabels get _statsLabels => type.presentation.statsLabels;
@@ -55,7 +54,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     final missingCovers = state.entries
         .where((e) => e.catalogItem?.common.coverImageUrl == null)
         .length;
-    final module = libraryKindRuntimeForType(type);
+    final module = type;
     final missingMetadata = _missingMetadataCount(state.entries, module);
     final valueCoverage =
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
@@ -75,8 +74,8 @@ class _GenericStatsDashboard extends StatelessWidget {
           child: Column(
             children: [
               AccentDialogHeader(
-                title: '${type.pluralLabel} Statistics',
-                icon: type.workspace.icon,
+                title: '${type.identity.pluralLabel} Statistics',
+                icon: type.identity.icon,
                 onClose: () => Navigator.of(context).pop(),
               ),
               Expanded(
@@ -91,7 +90,7 @@ class _GenericStatsDashboard extends StatelessWidget {
                         runSpacing: 8,
                         children: [
                           LibraryStatsTile(
-                            icon: type.workspace.icon,
+                            icon: type.identity.icon,
                             label: 'Total',
                             value: state.entries.length.toString(),
                           ),
@@ -441,7 +440,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _metadataAlertCounts(
     List<ShelfEntry> entries,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     LibraryKindRuntime module,
   ) {
     final labels = libraryMediaGroupLabels(type);

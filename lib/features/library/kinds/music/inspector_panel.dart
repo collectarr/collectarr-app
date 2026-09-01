@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/details/library_inspector_info_l
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -181,7 +181,8 @@ class _MusicInspectorMain extends StatelessWidget {
         metadata?.genres.isEmpty != false ? null : metadata!.genres.join(' | ');
     final dto = inspector.item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final formatLabel = adapter?.referenceFormatLabel ?? adapter?.variant ?? '-';
+    final formatLabel =
+        adapter?.referenceFormatLabel ?? adapter?.variant ?? '-';
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -222,7 +223,11 @@ class _MusicInspectorMain extends StatelessWidget {
                         ),
                   ),
                   if (dto is WorkspaceDtoAdapter &&
-                      (dto as WorkspaceDtoAdapter).seriesTitle?.trim().isNotEmpty == true) ...[
+                      (dto as WorkspaceDtoAdapter)
+                              .seriesTitle
+                              ?.trim()
+                              .isNotEmpty ==
+                          true) ...[
                     const SizedBox(height: 2),
                     Text(
                       (dto as WorkspaceDtoAdapter).seriesTitle!,
@@ -444,12 +449,14 @@ class _MusicProductDetails extends StatelessWidget {
     final metadata = _musicMetadata(inspector.item);
     final music = metadata?.music;
     final rows = <(String, String)>[
-      if (adapter?.publisher?.trim().isNotEmpty == true) ('Label', adapter!.publisher!),
+      if (adapter?.publisher?.trim().isNotEmpty == true)
+        ('Label', adapter!.publisher!),
       if (music?['catalog_number']?.toString().trim().isNotEmpty == true)
         ('Catalog number', music!['catalog_number'].toString()),
       if (music?['upc']?.toString().trim().isNotEmpty == true)
         ('UPC', music!['upc'].toString()),
-      if (adapter?.barcode?.trim().isNotEmpty == true) ('Barcode', adapter!.barcode!),
+      if (adapter?.barcode?.trim().isNotEmpty == true)
+        ('Barcode', adapter!.barcode!),
       if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true ||
           adapter?.variant?.trim().isNotEmpty == true)
         ('Format', adapter?.referenceFormatLabel ?? adapter?.variant ?? '-'),

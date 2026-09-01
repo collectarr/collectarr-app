@@ -573,7 +573,7 @@ class _AvailableImportCard extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () => showLibraryAddDialog(
                     context: context,
-                    type: animeLibraryConfig,
+                    type: animeKindModule,
                   ),
                   icon: const Icon(Icons.auto_awesome_outlined, size: 14),
                   label: const Text('Open Anime add flow'),
@@ -581,7 +581,7 @@ class _AvailableImportCard extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () => showLibraryAddDialog(
                     context: context,
-                    type: mangaLibraryConfig,
+                    type: mangaKindModule,
                   ),
                   icon: const Icon(Icons.import_contacts_outlined, size: 14),
                   label: const Text('Open Manga add flow'),

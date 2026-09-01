@@ -3,7 +3,7 @@ part of '../generic_library_page.dart';
 abstract final class _LibraryScopeControllerOps {
   static List<String> sidebarBreadcrumbs(GenericLibraryPageState state) {
     return buildLibrarySidebarBreadcrumbs(
-      rootLabel: 'All ${state.widget.type.pluralLabel}',
+      rootLabel: 'All ${state.widget.type.identity.pluralLabel}',
       history: state._scopeHistory,
       current: captureSidebarScope(state),
       labelForScope: (scope) => sidebarScopeLabel(state, scope),
@@ -13,7 +13,7 @@ abstract final class _LibraryScopeControllerOps {
   static List<LibraryBucketScopeFilter> sidebarBucketScopeFilters(
     GenericLibraryPageState state,
   ) {
-    final runtime = libraryKindRuntimeForType(state.widget.type);
+    final runtime = state.widget.type;
     return [
       for (final snapshot in state._scopeHistory)
         if (snapshot.selectedBucket != null)
@@ -262,7 +262,7 @@ abstract final class _LibraryScopeControllerOps {
             state._viewProfile,
           );
         } else if (smartList.sortColumn != null) {
-          final runtime = libraryKindRuntimeForType(state.widget.type);
+          final runtime = state.widget.type;
           state._viewState = state._viewState!.copyWith(
             sortId: runtime.fields.decodeSortId(smartList.sortColumn!),
             sortAscending: smartList.sortAscending ?? true,
@@ -329,6 +329,6 @@ abstract final class _LibraryScopeControllerOps {
     if (snapshot.searchQuery.trim().isNotEmpty) {
       return 'Search';
     }
-    return 'All ${state.widget.type.pluralLabel}';
+    return 'All ${state.widget.type.identity.pluralLabel}';
   }
 }

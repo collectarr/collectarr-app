@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:flutter/material.dart';
 
 Future<LibraryAddDialogResult?> showLibraryAddDialog({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   Color? accent,
   String? initialQuery,
   String? initialBarcode,
@@ -17,8 +17,7 @@ Future<LibraryAddDialogResult?> showLibraryAddDialog({
     initialQuery: initialQuery,
     initialBarcode: initialBarcode,
   );
-  final launcher = libraryKindRuntimeForType(type).add.dialogLauncher ??
-      _showDefaultLibraryAddDialog;
+  final launcher = type.add.dialogLauncher ?? _showDefaultLibraryAddDialog;
   return launcher(context, request);
 }
 

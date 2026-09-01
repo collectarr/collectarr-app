@@ -1,10 +1,8 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -15,8 +13,8 @@ void main() {
   testWidgets('desktop secondary toolbar exposes a split sort launcher', (
     tester,
   ) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
+    final type = comicKindModule;
+    final runtime = comicKindModule;
     var sortColumnsCount = 0;
     var manageSortFavoritesCount = 0;
     String? appliedSortFavorite;
@@ -97,8 +95,8 @@ void main() {
   testWidgets(
       'desktop secondary toolbar hides details layout control when the details panel is visible',
       (tester) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
+    final type = comicKindModule;
+    final runtime = comicKindModule;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -137,8 +135,8 @@ void main() {
   testWidgets(
       'desktop secondary toolbar shows details layout control when the details panel is hidden',
       (tester) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
+    final type = comicKindModule;
+    final runtime = comicKindModule;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -177,8 +175,8 @@ void main() {
   testWidgets('desktop secondary toolbar exposes a split column launcher', (
     tester,
   ) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
+    final type = comicKindModule;
+    final runtime = comicKindModule;
     var manageColumnsCount = 0;
     String? appliedPreset;
     final essentialPreset = LibraryTableColumnPreset(
@@ -324,8 +322,8 @@ void main() {
   testWidgets('desktop secondary toolbar shows folder preset chip with reset', (
     tester,
   ) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
+    final type = comicKindModule;
+    final runtime = comicKindModule;
     LibraryFolderPreset? changedPreset;
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
@@ -378,7 +376,7 @@ void main() {
 
   testWidgets('compact toolbar exposes a visible folders shortcut',
       (tester) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+    final type = comicKindModule;
     var foldersPressed = 0;
     final searchController = TextEditingController();
     addTearDown(searchController.dispose);
@@ -427,7 +425,7 @@ void main() {
       'sort favorites manager dialog renders pinned and available panes', (
     tester,
   ) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+    final type = comicKindModule;
     const sortFavorite = LibrarySortFavorite(
       id: 'series_issue',
       label: 'Series | Issue',

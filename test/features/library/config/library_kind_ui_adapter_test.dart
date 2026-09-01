@@ -1,38 +1,35 @@
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('sidebar facets alias matches group mode categories', () {
+  test('comic group mode categories are provided by runtime capabilities', () {
     const modes = [
       'series',
       'grade',
       'publisher',
     ];
 
-    final adapter = comicsLibraryConfig.kindUiAdapter;
-    final categories = adapter.groupModeCategories(comicsLibraryConfig, modes);
-    final facets = adapter.sidebarFacets(comicsLibraryConfig, modes);
+    final categories = libraryGroupModeCategories(comicKindModule, modes);
 
-    expect(facets.map((category) => category.label), [
-      for (final category in categories) category.label,
-    ]);
+    expect(categories, isNotEmpty);
+    expect(
+      categories.expand((category) => category.modes),
+      containsAll(modes),
+    );
   });
 
-  test('comic-only toolbar actions stay in the kind adapter', () {
-    expect(comicsLibraryConfig.kindUiAdapter, isNotNull);
+  test('comic-only toolbar actions stay in the kind runtime', () {
+    final actionIds =
+        comicKindModule.toolbar!.actions.map((action) => action.id);
+    expect(actionIds, contains('comic.jump_to_issue'));
+    expect(actionIds, contains('comic.missing_issues'));
   });
 
-  test('browser mode resolution stays in the kind adapter', () {
-    final adapter = booksLibraryConfig.kindUiAdapter;
-    final bookModule = libraryKindRuntimeForType(booksLibraryConfig);
+  test('browser mode resolution stays in the hierarchy capability', () {
+    final bookModule = bookKindModule;
     final state = LibraryWorkspaceViewState(
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
@@ -47,52 +44,23 @@ void main() {
       columnWidths: const {},
     );
 
-    expect(
-      adapter.browserModeForViewState(booksLibraryConfig, state),
-      equals(bookModule.hierarchy.browserModeForViewState(state)),
-    );
+    expect(bookModule.hierarchy.browserModeForViewState(state),
+        LibraryWorkspaceBrowserMode.media);
   });
 
-  test('issue jump gating stays in the kind adapter', () {
-    final adapter = comicsLibraryConfig.kindUiAdapter;
-    expect(
-      adapter.canJumpToSelectedEntry(
-        comicsLibraryConfig,
-        null,
-        activeGroupMode: 'series',
-        selectedBucket: 'Series A',
-      ),
-      isFalse,
-    );
+  test('comic edit semantics stay in the edit capability', () {
+    expect(comicKindModule.edit.manualAddUsesTitleAsSeries, isTrue);
+    expect(comicKindModule.edit.editUsesTitleAsSeries, isTrue);
   });
 
-  test('release folder labels stay in the kind adapter', () {
-    final source = ShelfEntry(
-      itemId: 'comic-1',
-      catalogItem: LibraryMetadataItem.fromCatalogItem(
-        testCatalogItem(
-          id: 'comic-1',
-          kind: 'comic',
-          title: 'Alpha',
-        ),
-      ),
-    );
-    final item = LibraryProjectionItem.fromShelf(source, comicsLibraryConfig);
-    final projection = LibraryProjection(
-      allItems: [item],
-      filteredItems: [item],
-      buckets: const [],
-      selectedItem: item,
-      counts: const LibraryToolbarCounts(),
-    );
-
+  test('release browser mode is owned by video hierarchy', () {
+    final state = movieKindModule.viewProfile.defaults();
     expect(
-      comicsLibraryConfig.kindUiAdapter.releaseFolderLabelForProjection(
-        comicsLibraryConfig,
-        projection,
-        releaseFolderTitleItemId: 'comic-1',
+      movieKindModule.hierarchy.browserModeForViewState(
+        state,
+        releaseFolderTitleItemId: 'movie-1',
       ),
-      'Alpha',
+      LibraryWorkspaceBrowserMode.releases,
     );
   });
 }

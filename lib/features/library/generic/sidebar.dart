@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_header.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +58,7 @@ class LibrarySidebar extends StatelessWidget {
     this.onToggleTreeNodeExpanded,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final List<LibraryBucket> buckets;
   final String groupMode;

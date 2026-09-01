@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -24,7 +24,7 @@ class LibrarySidebarFilteringPanel extends StatelessWidget {
     this.onCollectionStatusScopeChanged,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;

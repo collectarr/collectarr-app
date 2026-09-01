@@ -1,6 +1,5 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -15,12 +14,12 @@ const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
 
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   final coverGridHeightFactor =
       type.capabilities.prefersSquareCovers ? 1.0 : 1.53;
   return LibraryWorkspaceViewProfile(
-    type: type,
+    runtimeResolver: () => type,
     defaultCoverSize: kPlannedMediaDefaultCoverSize,
     minCoverSize: kPlannedMediaMinCoverSize,
     maxCoverSize: kPlannedMediaMaxCoverSize,
@@ -30,8 +29,7 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
         clampPlannedMediaTableColumnWidth(type, column, width),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: (column) =>
-        libraryKindRuntimeForType(type)
-            .fields
+        type.fields
             .findSortDefinition(
               column,
             )
@@ -41,11 +39,10 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
 }
 
 LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   LibraryWorkspacePreset preset,
 ) {
-  final defaultCols =
-      libraryKindRuntimeForType(type).fields.defaultVisibleColumns;
+  final defaultCols = type.fields.defaultVisibleColumns;
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
@@ -75,12 +72,11 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
 }
 
 String? plannedMediaSubgroupKeyForEntry(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   LibraryProjectionRuntime item,
   LibraryGroupIdRuntime groupId,
 ) {
-  final registry = libraryKindRuntimeForType(type).fields;
-  final definition = registry.findGroupDefinition(groupId);
+  final definition = type.fields.findGroupDefinition(groupId);
   return definition?.subgroupKey?.call(
     LibraryProjectionContext(
         source: item.source, node: item.node, dto: item.dto),

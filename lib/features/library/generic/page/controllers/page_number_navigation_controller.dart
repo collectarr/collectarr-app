@@ -5,12 +5,23 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     GenericLibraryPageState state,
     LibraryProjection? projection,
   ) {
-    return state.widget.type.kindUiAdapter.canJumpToSelectedEntry(
-      state.widget.type,
-      projection,
-      activeGroupMode: state._activeGroupMode,
-      selectedBucket: state._selectedBucket,
+    if (projection == null || state._selectedBucket == null) {
+      return false;
+    }
+    final runtime = state.widget.type;
+    final groupDef = runtime.fields.findGroupDefinition(
+      runtime.fields.decodeGroupId(state._activeGroupMode),
     );
+    if (groupDef == null || !groupDef.supportsJump) {
+      return false;
+    }
+    return projection.allItems.any((item) {
+      final adapter = item.dto is WorkspaceDtoAdapter
+          ? item.dto as WorkspaceDtoAdapter
+          : null;
+      return runtime.groupValue(item, groupDef.id) == state._selectedBucket &&
+          _selectionSortNumber(adapter?.itemNumber) != null;
+    });
   }
 
   static Future<void> jumpToNumber(

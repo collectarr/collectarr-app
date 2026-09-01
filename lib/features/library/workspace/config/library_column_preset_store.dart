@@ -1,18 +1,19 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryColumnPresetStore {
   const LibraryColumnPresetStore(this.config);
 
-  final LibraryTypeConfig config;
+  final LibraryKindRuntime config;
 
   Future<List<LibraryTableColumnPreset>> read() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(config.preferenceKey('table_column_presets'));
+    final raw = prefs.getString(
+      config.identity.preferenceKey('table_column_presets'),
+    );
     if (raw == null || raw.trim().isEmpty) {
       return const [];
     }
@@ -51,11 +52,9 @@ class LibraryColumnPresetStore {
       columns: {
         for (final column in columns)
           if (_columnById(column) != null) _columnById(column)!,
-        if (libraryKindRuntimeForType(config).fields.findColumnDefinition(
-                  libraryKindRuntimeForType(config)
-                      .fields
-                      .decodeColumnId('title'),
-                ) !=
+        if (config.fields.findColumnDefinition(
+              config.fields.decodeColumnId('title'),
+            ) !=
             null)
           'title',
       },
@@ -82,7 +81,7 @@ class LibraryColumnPresetStore {
   Future<void> _write(List<LibraryTableColumnPreset> presets) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      config.preferenceKey('table_column_presets'),
+      config.identity.preferenceKey('table_column_presets'),
       jsonEncode([for (final preset in presets) _presetToJson(preset)]),
     );
   }
@@ -95,11 +94,9 @@ class LibraryColumnPresetStore {
         for (final value in (json['columns'] as List<dynamic>? ?? []))
           if (_columnById(value.toString()) != null)
             _columnById(value.toString())!,
-        if (libraryKindRuntimeForType(config).fields.findColumnDefinition(
-                  libraryKindRuntimeForType(config)
-                      .fields
-                      .decodeColumnId('title'),
-                ) !=
+        if (config.fields.findColumnDefinition(
+              config.fields.decodeColumnId('title'),
+            ) !=
             null)
           'title',
       },
@@ -117,7 +114,7 @@ class LibraryColumnPresetStore {
   }
 
   String? _columnById(String id) {
-    final module = libraryKindRuntimeForType(config);
+    final module = config;
     final colDef = module.fields.findColumnDefinition(
       module.fields.decodeColumnId(id),
     );

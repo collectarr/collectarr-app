@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
-  LibraryTypeConfig type, {
+  LibraryKindRuntime type, {
   String? query,
   String? series,
   String? issueNumber,
@@ -16,7 +16,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
 }) {
   return MetadataSearchQuery(
     query: query,
-    kind: type.workspace.kind.apiValue,
+    kind: type.kind.apiValue,
     series: series,
     issueNumber: issueNumber,
     publisher: publisher,
@@ -28,7 +28,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
 
 Future<List<LibraryMetadataItem>> searchLibraryMetadata(
   ApiClient api,
-  LibraryTypeConfig type, {
+  LibraryKindRuntime type, {
   String? query,
   String? series,
   String? issueNumber,
@@ -54,13 +54,13 @@ Future<List<LibraryMetadataItem>> searchLibraryMetadata(
 
 Future<LibraryMetadataItem> lookupLibraryBarcode(
   ApiClient api,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   String barcode,
 ) async {
   return LibraryMetadataItem.fromMetadataMap(
     await api.lookupBarcode(
       barcode,
-      kind: type.workspace.kind.apiValue,
+      kind: type.kind.apiValue,
     ),
   );
 }

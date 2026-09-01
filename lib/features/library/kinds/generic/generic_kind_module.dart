@@ -7,41 +7,22 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:flutter/material.dart';
 
-final genericLibraryConfig = LibraryTypeConfig(
-  workspace: const LibraryWorkspaceConfig(
-    kind: CatalogMediaKind.unknown,
-    title: 'Generic',
-    icon: Icons.category_outlined,
-    accent: kLibraryFallbackAccent,
-    preferencePrefix: 'generic',
-  ),
-  singularLabel: 'Item',
-  pluralLabel: 'Items',
-  defaultMetadataProvider: '',
-  metadataProviders: const [],
-  trackingProfile: readingTrackingProfile,
-  presentation: genericLibraryMediaPresentation,
-);
-
 final genericKindModule =
     LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
-  type: genericLibraryConfig,
+  presentation: genericLibraryMediaPresentation,
+  trackingProfile: readingTrackingProfile,
   projector: const GenericWorkspaceProjector(),
   ownedDetailsCodec: const GenericOwnedDetailsCodec(),
   fields: genericLibraryKindSchema.toRegistry(),

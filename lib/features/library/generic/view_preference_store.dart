@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,8 +29,8 @@ class LibraryViewPreferenceStore {
 
   final Object? kind;
 
-  LibraryTypeConfig get _type =>
-      libraryKindRuntimeForKind(catalogMediaKindFromValue(kind)).type;
+  LibraryKindRuntime get _type =>
+      libraryKindRuntimeForKind(catalogMediaKindFromValue(kind));
 
   String _key(String suffix) =>
       'library.${catalogMediaKindFromValue(kind).apiValue}.$suffix';

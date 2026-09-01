@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -20,7 +20,7 @@ abstract interface class ReleaseProjectionCapability<
     TDto extends LibraryWorkspaceDto> {
   List<LibraryProjectionItem<TDto>> projectReleases({
     required ShelfEntry source,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
     required Map<String, Map<String, String>>
@@ -34,7 +34,7 @@ abstract interface class CopyProjectionCapability<
     TDto extends LibraryWorkspaceDto> {
   List<LibraryProjectionItem<TDto>> projectCopies({
     required ShelfEntry source,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
     required Map<String, Map<String, String>>

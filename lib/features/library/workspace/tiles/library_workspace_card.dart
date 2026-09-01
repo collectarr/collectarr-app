@@ -484,9 +484,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
                             if (item.node is! LibraryTitleNodeRef) ...[
                               Builder(
                                 builder: (context) {
-                                  final adapter = item.dto is WorkspaceDtoAdapter
-                                      ? (item.dto as WorkspaceDtoAdapter)
-                                      : null;
+                                  final adapter =
+                                      item.dto is WorkspaceDtoAdapter
+                                          ? (item.dto as WorkspaceDtoAdapter)
+                                          : null;
                                   final barcode = adapter?.barcode;
                                   return Text(
                                     barcode == null || barcode.isEmpty
@@ -837,7 +838,7 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   final runtime =
       defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
   if (runtime == null) return null;
-  return runtime.type.presentation.builder.buildMetadataPresentation(
+  return runtime.presentation.builder.buildMetadataPresentation(
     singularLabel: runtime.identity.singularLabel,
     mediaFields: runtime.edit.mediaFields,
     releaseFields: runtime.edit.releaseFields,

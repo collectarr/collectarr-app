@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -71,7 +71,7 @@ void main() {
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     final inspectorRequest = LibraryInspectorRequest(
-      type: musicLibraryConfig,
+      type: musicKindModule,
       item: item,
       ownedItem: ownedItem,
       ownedCopies: [ownedItem],
@@ -161,7 +161,7 @@ void main() {
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     final inspectorRequest = LibraryInspectorRequest(
-      type: musicLibraryConfig,
+      type: musicKindModule,
       item: item,
       ownedItem: ownedItem,
       ownedCopies: [ownedItem],

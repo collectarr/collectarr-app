@@ -53,19 +53,15 @@ bool itemHasMissingDetails(LibraryMetadataItem item) {
 }
 
 bool libraryShowsTrackData(Object? mediaType) {
-  return collectarrLibraryTypes
-          .byKind(catalogMediaKindFromValue(mediaType))
-          ?.capabilities
-          .showsTrackData ??
-      false;
+  return libraryKindRuntimeForKind(catalogMediaKindFromValue(mediaType))
+      .capabilities
+      .showsTrackData;
 }
 
 bool libraryShowsSynopsis(Object? mediaType) {
-  return collectarrLibraryTypes
-          .byKind(catalogMediaKindFromValue(mediaType))
-          ?.capabilities
-          .showsSynopsis ??
-      false;
+  return libraryKindRuntimeForKind(catalogMediaKindFromValue(mediaType))
+      .capabilities
+      .showsSynopsis;
 }
 
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
@@ -85,12 +81,10 @@ String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
 }
 
 bool libraryShowsReadingQueue(Object? mediaType) {
-  final type =
-      collectarrLibraryTypes.byKind(catalogMediaKindFromValue(mediaType));
-  if (type == null) {
-    return false;
-  }
-  return type.trackingProfile.name == readingTrackingProfile.name;
+  return libraryKindRuntimeForKind(catalogMediaKindFromValue(mediaType))
+          .trackingProfile
+          .name ==
+      readingTrackingProfile.name;
 }
 
 String libraryVolumeDisplayValue(double? volumeNumber) {
@@ -424,11 +418,9 @@ String? _referenceScopeLabelForAnchor(
 }
 
 LibraryReferenceLabels _libraryReferenceLabelsForMediaType(String? mediaType) {
-  return collectarrLibraryTypes
-          .byKind(catalogMediaKindFromValue(mediaType))
-          ?.presentation
-          .referenceLabels ??
-      const LibraryReferenceLabels();
+  return libraryKindRuntimeForKind(catalogMediaKindFromValue(mediaType))
+      .presentation
+      .referenceLabels;
 }
 
 String buildOwnedCopyLabel(

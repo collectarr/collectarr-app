@@ -1,9 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -90,7 +88,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.showBottomBorder = true,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
@@ -155,8 +153,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final mediaScopeLabel =
-        libraryKindRuntimeForType(type).hierarchy.mediaReleaseScopeLabel;
+    final mediaScopeLabel = type.hierarchy.mediaReleaseScopeLabel;
     final pinnedColumnPresets = [
       for (final preset in columnFavoritePresets)
         if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset)))
@@ -202,8 +199,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 type: type,
                                 folderPreset: folderPreset,
                                 availableModes: availableGroupModes,
-                                accent:
-                                    libraryAccentForKind(type.workspace.kind),
+                                accent: type.identity.accent,
                                 icon: folderPreset == null
                                     ? Icons.account_tree_outlined
                                     : genericFolderPresetIcon(
@@ -317,12 +313,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 child: LibraryCoverSizeSlider(
                                   viewMode: viewState.viewMode,
                                   coverSize: viewState.coverSize,
-                                  minCoverSize: libraryKindRuntimeForType(type)
-                                      .viewProfile
-                                      .minCoverSize,
-                                  maxCoverSize: libraryKindRuntimeForType(type)
-                                      .viewProfile
-                                      .maxCoverSize,
+                                  minCoverSize: type.viewProfile.minCoverSize,
+                                  maxCoverSize: type.viewProfile.maxCoverSize,
                                   onChanged: onCoverSizeChanged,
                                 ),
                               ),
@@ -337,7 +329,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   LibraryItemCountLabel(
                     shown: counts.shown,
                     total: counts.total,
-                    pluralLabel: type.pluralLabel,
+                    pluralLabel: type.identity.pluralLabel,
                   ),
                   if (showReleaseFolderBack && onReleaseFolderBack != null)
                     TextButton.icon(
@@ -709,7 +701,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
     this.onSearchTargetChanged,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final TextEditingController searchController;
   final LibraryCollectionStatusScope collectionStatusScope;
@@ -744,7 +736,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         LibraryToolbarPrimaryActions(
-          addLabel: 'Add ${type.pluralLabel}',
+          addLabel: 'Add ${type.identity.pluralLabel}',
           onAdd: onAdd,
           onScanBarcode: onScan,
           onRefreshMetadata: onRefreshMetadata,
@@ -798,7 +790,8 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                 width: 380,
                 child: LibraryToolbarSearch(
                   controller: searchController,
-                  hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                  hintText:
+                      'Search ${type.identity.pluralLabel.toLowerCase()}...',
                   onScanBarcode: onScan,
                   onScanCover: onScanCover,
                   onRandomPick: onRandomPick,
@@ -1014,7 +1007,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.searchActive = false,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final TextEditingController searchController;
   final Color accent;
   final LibraryToolbarCounts counts;
@@ -1096,7 +1089,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 child: SearchBar(
                   controller: searchController,
                   constraints: const BoxConstraints.tightFor(height: 36),
-                  hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                  hintText:
+                      'Search ${type.identity.pluralLabel.toLowerCase()}...',
                   leading: const Icon(Icons.search),
                   trailing: selectedBucket == null
                       ? (searchActive
@@ -1169,7 +1163,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 ),
                 onPressed: onAdd,
                 icon: const Icon(Icons.add),
-                tooltip: 'Add ${type.pluralLabel}',
+                tooltip: 'Add ${type.identity.pluralLabel}',
               ),
               const SizedBox(width: 4),
               if (onFolders != null) ...[
@@ -1240,7 +1234,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                     LibraryItemCountLabel(
                       shown: counts.shown,
                       total: counts.total,
-                      pluralLabel: type.pluralLabel,
+                      pluralLabel: type.identity.pluralLabel,
                     ),
                   ],
                 ),

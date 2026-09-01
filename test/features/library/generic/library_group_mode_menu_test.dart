@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,11 +14,11 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
-            type: moviesLibraryConfig,
+            type: movieKindModule,
             selectedPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
-            availableModes: libraryGroupModesForType(moviesLibraryConfig),
+            availableModes: libraryGroupModesForType(movieKindModule),
             initialPinnedPresets: [
               LibraryFolderPreset.single('movie.director'),
             ],
@@ -68,9 +68,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
-            type: moviesLibraryConfig,
+            type: movieKindModule,
             selectedPreset: null,
-            availableModes: libraryGroupModesForType(moviesLibraryConfig),
+            availableModes: libraryGroupModesForType(movieKindModule),
             initialPinnedPresets: const [],
             sidebarVisible: false,
             hasSidebarVisibilityToggle: true,
@@ -94,7 +94,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: moviesLibraryConfig,
+            type: movieKindModule,
             folderPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
@@ -140,7 +140,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: moviesLibraryConfig,
+            type: movieKindModule,
             folderPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
@@ -169,7 +169,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: moviesLibraryConfig,
+            type: movieKindModule,
             folderPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
@@ -204,7 +204,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: moviesLibraryConfig,
+            type: movieKindModule,
             folderPreset: LibraryFolderPreset(
               modes: ['movie.director', 'movie.publisher'],
             ),
@@ -224,7 +224,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: moviesLibraryConfig,
+            type: movieKindModule,
             folderPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
@@ -253,7 +253,7 @@ void main() {
           body: Align(
             alignment: Alignment.topLeft,
             child: LibraryGroupModeMenuButton(
-              type: moviesLibraryConfig,
+              type: movieKindModule,
               folderPreset: LibraryFolderPreset.single(
                 'movie.director',
               ),
@@ -285,9 +285,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
-            type: comicsLibraryConfig,
+            type: comicKindModule,
             selectedPreset: LibraryFolderPreset.single('comic.publisher'),
-            availableModes: libraryGroupModesForType(comicsLibraryConfig),
+            availableModes: libraryGroupModesForType(comicKindModule),
             initialPinnedPresets: [
               LibraryFolderPreset.single('comic.series'),
             ],

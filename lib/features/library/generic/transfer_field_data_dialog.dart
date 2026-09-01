@@ -4,10 +4,9 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
@@ -31,7 +30,7 @@ class TransferFieldResult {
 Future<TransferFieldResult?> showTransferFieldDataDialog({
   required BuildContext context,
   required LocalDatabase db,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required List<OwnedItem> items,
   required OwnedItemMutations mutations,
   required List<CustomFieldDefinition> customFieldDefinitions,
@@ -59,7 +58,7 @@ class _TransferFieldDataDialog extends StatefulWidget {
   });
 
   final LocalDatabase db;
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final List<OwnedItem> items;
   final OwnedItemMutations mutations;
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -80,11 +79,10 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
   @override
   void initState() {
     super.initState();
-    _fields =
-        libraryKindRuntimeForType(widget.type).transfer.fieldsWithCustomFields(
-              widget.customFieldDefinitions,
-              LibraryEditScope.all,
-            );
+    _fields = widget.type.transfer.fieldsWithCustomFields(
+      widget.customFieldDefinitions,
+      LibraryEditScope.all,
+    );
   }
 
   // ---------------------------------------------------------------------------

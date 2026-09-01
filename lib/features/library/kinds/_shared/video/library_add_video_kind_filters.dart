@@ -1,14 +1,14 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 const libraryAddVideoKindFilterId = LibraryAddFilterId('video.provider-kinds');
 
 Map<LibraryAddFilterId, Object?> buildLibraryAddVideoInitialFilters(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return {
     libraryAddVideoKindFilterId:
@@ -17,13 +17,20 @@ Map<LibraryAddFilterId, Object?> buildLibraryAddVideoInitialFilters(
 }
 
 Iterable<String> libraryAddVideoKindOverrides(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
+  LibraryAddSearchContext context,
+) {
+  return libraryAddVideoKindOverridesForChrome(type.addChrome, context);
+}
+
+Iterable<String> libraryAddVideoKindOverridesForChrome(
+  LibraryAddChromeConfig chrome,
   LibraryAddSearchContext context,
 ) {
   final rawSelected = context.valueFor(libraryAddVideoKindFilterId);
   final selected = rawSelected is Set<String> ? rawSelected : const <String>{};
   if (selected.isNotEmpty) return selected;
-  return type.addChrome.videoKindFilterOptions.map((option) => option.kind);
+  return chrome.videoKindFilterOptions.map((option) => option.kind);
 }
 
 bool libraryAddVideoHasSearchInput(LibraryAddSearchContext context) {

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
@@ -20,7 +20,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
     required this.videoEdit,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryMetadataItem item;
   final Color accent;
   final VideoEditController videoEdit;
@@ -30,7 +30,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
     final customEpisodesAsync = ref.watch(
       customEpisodesByCatalogRefProvider(
         CatalogEntityRef(
-          kind: type.workspace.kind.apiValue,
+          kind: type.kind.apiValue,
           entityType: CatalogEntityType.work,
           id: item.id,
         ),
@@ -198,7 +198,7 @@ Widget _manualEpisodeFallbackSection(
   BuildContext context, {
   required Color accent,
   required AsyncValue<Map<int, List<CustomEpisode>>> customEpisodesAsync,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required String itemId,
   required WidgetRef ref,
 }) {

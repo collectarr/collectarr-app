@@ -3,10 +3,10 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
@@ -42,7 +42,7 @@ void main() {
     );
 
     final presentation = buildLibraryMetadataPresentation(
-      type: musicLibraryConfig,
+      type: musicKindModule,
       item: musicItem,
     );
 
@@ -105,13 +105,13 @@ void main() {
     );
 
     final musicSections =
-        musicLibraryConfig.presentation.builder.buildInspectorSections(
+        musicKindModule.presentation.builder.buildInspectorSections(
       context: context,
       item: musicItem,
       accent: Colors.cyan,
     );
     final movieSections =
-        moviesLibraryConfig.presentation.builder.buildInspectorSections(
+        movieKindModule.presentation.builder.buildInspectorSections(
       context: context,
       item: movieItem,
       accent: Colors.red,
@@ -176,8 +176,7 @@ void main() {
       dto: dto,
     );
 
-    final sections =
-        booksLibraryConfig.presentation.builder.buildInspectorSections(
+    final sections = bookKindModule.presentation.builder.buildInspectorSections(
       context: context,
       item: bookItem,
       accent: Colors.amber,

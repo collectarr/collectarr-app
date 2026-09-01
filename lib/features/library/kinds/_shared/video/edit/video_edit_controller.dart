@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadat
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/domain/video_episode.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -35,8 +35,7 @@ class VideoEditController {
     this.initialCreators = const <Map<String, dynamic>>[],
     this.initialDiscCount,
   })  : runtimeController = TextEditingController(
-          text: initialRuntime ??
-              _resolveInitialRuntime(item.kindMetadata),
+          text: initialRuntime ?? _resolveInitialRuntime(item.kindMetadata),
         ),
         seasonNumberController = TextEditingController(
           text: initialSeasonNumber ??
@@ -87,9 +86,12 @@ class VideoEditController {
         );
 
   static String _resolveInitialRuntime(dynamic meta) {
-    if (meta is MovieCatalogMetadata) return meta.runtimeMinutes?.toString() ?? '';
-    if (meta is TvSeriesMetadata) return meta.episodeRuntimeMinutes?.toString() ?? '';
-    if (meta is AnimeMetadata) return meta.episodeRuntimeMinutes?.toString() ?? '';
+    if (meta is MovieCatalogMetadata)
+      return meta.runtimeMinutes?.toString() ?? '';
+    if (meta is TvSeriesMetadata)
+      return meta.episodeRuntimeMinutes?.toString() ?? '';
+    if (meta is AnimeMetadata)
+      return meta.episodeRuntimeMinutes?.toString() ?? '';
     return '';
   }
 
@@ -124,8 +126,10 @@ class VideoEditController {
 
   static String _resolveInitialEditionTitle(LibraryMetadataItem item) {
     final meta = item.kindMetadata;
-    if (meta is MovieCatalogMetadata) return meta.editionTitle ?? item.titleExtension ?? '';
-    if (meta is AnimeMetadata) return meta.editionTitle ?? item.titleExtension ?? '';
+    if (meta is MovieCatalogMetadata)
+      return meta.editionTitle ?? item.titleExtension ?? '';
+    if (meta is AnimeMetadata)
+      return meta.editionTitle ?? item.titleExtension ?? '';
     return item.titleExtension ?? '';
   }
 
@@ -144,9 +148,12 @@ class VideoEditController {
   }
 
   static String _resolveInitialPhysicalFormatLabel(dynamic meta) {
-    if (meta is MovieCatalogMetadata) return meta.physicalFormatLabel ?? meta.variant ?? '';
-    if (meta is TvSeriesMetadata) return meta.physicalFormatLabel ?? meta.variant ?? '';
-    if (meta is AnimeMetadata) return meta.physicalFormatLabel ?? meta.variant ?? '';
+    if (meta is MovieCatalogMetadata)
+      return meta.physicalFormatLabel ?? meta.variant ?? '';
+    if (meta is TvSeriesMetadata)
+      return meta.physicalFormatLabel ?? meta.variant ?? '';
+    if (meta is AnimeMetadata)
+      return meta.physicalFormatLabel ?? meta.variant ?? '';
     return '';
   }
 
@@ -158,7 +165,8 @@ class VideoEditController {
   }
 
   static String _resolveInitialPublisher(dynamic meta) {
-    if (meta is MovieCatalogMetadata) return meta.publisher ?? meta.studio ?? '';
+    if (meta is MovieCatalogMetadata)
+      return meta.publisher ?? meta.studio ?? '';
     if (meta is TvSeriesMetadata) return meta.publisher ?? meta.network ?? '';
     if (meta is AnimeMetadata) return meta.publisher ?? '';
     return '';
@@ -172,7 +180,8 @@ class VideoEditController {
   }
 
   static String _resolveInitialLanguage(dynamic meta) {
-    if (meta is MovieCatalogMetadata) return meta.language ?? meta.originalLanguage ?? '';
+    if (meta is MovieCatalogMetadata)
+      return meta.language ?? meta.originalLanguage ?? '';
     if (meta is TvSeriesMetadata) return meta.originalLanguage;
     if (meta is AnimeMetadata) return meta.language;
     return '';
@@ -190,15 +199,19 @@ class VideoEditController {
 
   static String _resolveInitialReleaseYear(LibraryMetadataItem item) {
     final meta = item.kindMetadata;
-    if (meta is MovieCatalogMetadata && meta.releaseDate != null) return meta.releaseDate!.year.toString();
-    if (meta is TvSeriesMetadata && meta.firstAirDate != null) return meta.firstAirDate!.year.toString();
-    if (meta is AnimeMetadata && meta.seasonYear != null) return meta.seasonYear!.toString();
-    if (meta is AnimeMetadata && meta.startDate != null) return meta.startDate!.year.toString();
+    if (meta is MovieCatalogMetadata && meta.releaseDate != null)
+      return meta.releaseDate!.year.toString();
+    if (meta is TvSeriesMetadata && meta.firstAirDate != null)
+      return meta.firstAirDate!.year.toString();
+    if (meta is AnimeMetadata && meta.seasonYear != null)
+      return meta.seasonYear!.toString();
+    if (meta is AnimeMetadata && meta.startDate != null)
+      return meta.startDate!.year.toString();
     return item.releaseYear?.toString() ?? '';
   }
 
   final WidgetRef? ref;
-  final LibraryTypeConfig? type;
+  final LibraryKindRuntime? type;
   final LibraryMetadataItem item;
   final LibraryEditDraft? draft;
   final List<Map<String, dynamic>> initialCreators;
@@ -252,8 +265,7 @@ class VideoEditController {
   bool get isVideoKind => item.mediaKind.isVideoLibraryKind;
 
   bool get isTvKind =>
-      isVideoKind &&
-      (type?.workspace.kind.apiValue ?? item.mediaKind.apiValue) == 'tv';
+      isVideoKind && (type?.kind.apiValue ?? item.mediaKind.apiValue) == 'tv';
 
   void initializeVideoEditors() {
     if (!isVideoKind) {
@@ -505,8 +517,7 @@ class VideoEditController {
     final api = ref!.read(apiClientProvider);
     final meta = item.kindMetadata;
     final seriesId =
-        (meta is TvSeriesMetadata ? meta.series?.seriesId : null) ??
-            item.id;
+        (meta is TvSeriesMetadata ? meta.series?.seriesId : null) ?? item.id;
     try {
       final dto = await api
           .getTvSeriesDto(seriesId)

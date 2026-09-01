@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 
 import 'package:flutter/material.dart';
@@ -53,7 +53,7 @@ void main() {
             child: MediaLibraryNavStrip(
               types: types,
               counts: const {},
-              registry: collectarrLibraryTypes,
+              registry: defaultLibraryKindRegistry,
               selectedKind: 'comic',
               onSelected: (_) {},
             ),
@@ -96,7 +96,7 @@ void main() {
               ],
               counts: const {},
               selectedLabel: 'Libraries',
-              registry: collectarrLibraryTypes,
+              registry: defaultLibraryKindRegistry,
               selectedKind: 'comic',
               onSelected: (_) {},
             ),

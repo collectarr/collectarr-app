@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,7 +22,7 @@ void main() {
               onPressed: () async {
                 result = await showLibrarySortDialog(
                   context: context,
-                  type: moviesLibraryConfig,
+                  type: movieKindModule,
                   currentRules: const [
                     LibrarySortRule(
                       column: 'title',
@@ -81,7 +81,7 @@ void main() {
                 onPressed: () async {
                   result = await showLibrarySortDialog(
                     context: context,
-                    type: moviesLibraryConfig,
+                    type: movieKindModule,
                     currentRules: rules,
                   );
                 },

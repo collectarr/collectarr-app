@@ -11,9 +11,8 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -160,7 +159,7 @@ class LibraryBody extends StatelessWidget {
     this.onFolderTreeNodeExpandedToggled,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjection projection;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
@@ -263,7 +262,7 @@ class LibraryBody extends StatelessWidget {
           selectedBucketLabel: resolvedSelectedBucket,
           ancestorScopeDepth: sidebarAncestorScopeLabels.length,
         );
-        final runtime = libraryKindRuntimeForType(type);
+        final runtime = type;
         final detailsLayout = resolveEffectiveLibraryDetailsLayout(
           preferredLayout: viewState.detailsLayout,
           compact: compact,

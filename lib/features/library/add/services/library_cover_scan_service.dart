@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,7 +39,7 @@ abstract class LibraryCoverScanService {
 
   Future<LibraryCoverScanResult?> scanCover({
     required BuildContext context,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
   });
 }
 
@@ -61,7 +61,7 @@ class LocalLibraryCoverScanService implements LibraryCoverScanService {
   @override
   Future<LibraryCoverScanResult?> scanCover({
     required BuildContext context,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
   }) async {
     final action = await sourcePrompt.selectAction(
       context: context,
@@ -106,7 +106,7 @@ class NoopLibraryCoverScanService implements LibraryCoverScanService {
   @override
   Future<LibraryCoverScanResult?> scanCover({
     required BuildContext context,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
   }) async {
     return null;
   }
@@ -119,7 +119,7 @@ abstract class LibraryCoverScanSourcePrompt {
 
   Future<LibraryCoverScanAction?> selectAction({
     required BuildContext context,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
   });
 }
 
@@ -130,7 +130,7 @@ class BottomSheetLibraryCoverScanSourcePrompt
   @override
   Future<LibraryCoverScanAction?> selectAction({
     required BuildContext context,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
   }) {
     return showModalBottomSheet<LibraryCoverScanAction>(
       context: context,
@@ -198,7 +198,7 @@ abstract class LibraryCoverImageReview {
 
   Future<LibraryCoverReviewedImage?> reviewImage({
     required BuildContext context,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required XFile file,
   });
 }
@@ -219,7 +219,7 @@ abstract class LibraryCoverImagePreprocessor {
   const LibraryCoverImagePreprocessor();
 
   Future<LibraryCoverPreparedImage> prepareImage({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryCoverReviewedImage image,
   });
 }
@@ -230,7 +230,7 @@ class LocalLibraryCoverImagePreprocessor
 
   @override
   Future<LibraryCoverPreparedImage> prepareImage({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryCoverReviewedImage image,
   }) async {
     if (!_needsImageTransform(image)) {
@@ -370,7 +370,7 @@ abstract class LibraryCoverTextRecognizer {
   const LibraryCoverTextRecognizer();
 
   Future<String?> recognizeText({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryCoverPreparedImage image,
   });
 }
@@ -381,7 +381,7 @@ class ReviewSeedLibraryCoverTextRecognizer
 
   @override
   Future<String?> recognizeText({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryCoverPreparedImage image,
   }) async {
     final extracted = image.reviewedImage.extractedText?.trim();
@@ -418,7 +418,7 @@ class CompositeLibraryCoverTextRecognizer
 
   @override
   Future<String?> recognizeText({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryCoverPreparedImage image,
   }) async {
     final nativeText = await nativeRecognizer.recognizeText(
@@ -438,7 +438,7 @@ class GoogleMlKitLibraryCoverTextRecognizer
 
   @override
   Future<String?> recognizeText({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryCoverPreparedImage image,
   }) async {
     if (!localCoverTextRecognitionSupported()) {
@@ -586,7 +586,7 @@ class DialogLibraryCoverImageReview implements LibraryCoverImageReview {
   @override
   Future<LibraryCoverReviewedImage?> reviewImage({
     required BuildContext context,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required XFile file,
   }) {
     return showDialog<LibraryCoverReviewedImage>(
@@ -610,7 +610,7 @@ class _LibraryCoverScanReviewDialog extends ConsumerStatefulWidget {
   });
 
   final XFile file;
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryCoverImagePreprocessor imagePreprocessor;
   final LibraryCoverTextRecognizer textRecognizer;
 

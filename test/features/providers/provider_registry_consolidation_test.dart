@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
@@ -14,7 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('PR 18: Provider Registry Consolidation', () {
     test('ProviderConnector dynamically exposes capabilities', () {
-      final connector = defaultProviderConnectorRegistry.getById(ProviderId.aniList);
+      final connector =
+          defaultProviderConnectorRegistry.getById(ProviderId.aniList);
 
       expect(connector, isNotNull);
       expect(connector!.supportsMetadata, isTrue);
@@ -28,7 +28,8 @@ void main() {
     });
 
     test('ProviderConnector without sync only exposes metadata', () {
-      final connector = defaultProviderConnectorRegistry.getById(ProviderId.openLibrary);
+      final connector =
+          defaultProviderConnectorRegistry.getById(ProviderId.openLibrary);
 
       expect(connector, isNotNull);
       expect(connector!.supportsMetadata, isTrue);
@@ -41,7 +42,8 @@ void main() {
     });
 
     test('ProviderConnector for MyAnimeList only exposes fileImport', () {
-      final connector = defaultProviderConnectorRegistry.getById(ProviderId.myAnimeList);
+      final connector =
+          defaultProviderConnectorRegistry.getById(ProviderId.myAnimeList);
 
       expect(connector, isNotNull);
       expect(connector!.supportsMetadata, isFalse);
@@ -51,7 +53,8 @@ void main() {
       expect(connector.canPush, isFalse);
     });
 
-    test('ProviderImportDescriptor derives capabilities directly from registry', () {
+    test('ProviderImportDescriptor derives capabilities directly from registry',
+        () {
       final aniListDesc = providerImportDescriptors.firstWhere(
         (d) => d.id == ProviderId.aniList,
       );
@@ -76,7 +79,8 @@ void main() {
       expect(malDesc.supportsAccountSync, isFalse);
     });
 
-    test('ProviderConnectorRegistry lookups by string, enum, byId, and forKind', () {
+    test('ProviderConnectorRegistry lookups by string, enum, byId, and forKind',
+        () {
       final registry = defaultProviderConnectorRegistry;
 
       expect(registry.get('gcd'), isNotNull);
@@ -94,7 +98,9 @@ void main() {
       expect(mangaConnectors.map((c) => c.id.value), contains('anilist'));
     });
 
-    test('collectarrMetadataProviderRegistry delegates to defaultProviderConnectorRegistry', () {
+    test(
+        'collectarrMetadataProviderRegistry delegates to defaultProviderConnectorRegistry',
+        () {
       final options = collectarrMetadataProviderRegistry.forKind('comic');
       expect(options.map((o) => o.id), ['gcd', 'comicvine']);
 
@@ -103,15 +109,17 @@ void main() {
       expect(comicvine?.label, 'Comic Vine');
     });
 
-    test('resolveWithCatalog resolves metadata providers from ProviderConnectorRegistry', () {
-      final resolved = comicsLibraryConfig.resolveWithCatalog(
+    test(
+        'resolveWithCatalog resolves metadata providers from ProviderConnectorRegistry',
+        () {
+      final resolved = comicKindModule.resolveWithCatalog(
         const [],
         providerRegistry: defaultProviderConnectorRegistry,
       );
 
-      expect(resolved.supportsMetadataProvider('gcd'), isTrue);
-      expect(resolved.supportsMetadataProvider('comicvine'), isTrue);
-      expect(resolved.metadataProviderLabel('gcd'), 'GCD');
+      expect(resolved.metadata.supportsProvider('gcd'), isTrue);
+      expect(resolved.metadata.supportsProvider('comicvine'), isTrue);
+      expect(resolved.metadata.providerLabel('gcd'), 'GCD');
     });
   });
 }

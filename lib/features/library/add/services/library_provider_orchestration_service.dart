@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
@@ -20,10 +20,10 @@ class LibraryProviderOrchestrationService {
   static const _workflow = LibraryAddWorkflowService();
 
   LibraryMetadataItem proposalDraftFromCandidate({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required ProviderCandidate candidate,
   }) {
-    final mediaKind = type.workspace.kind;
+    final mediaKind = type.kind;
     final id = _workflow.buildPreviewCatalogItemId(
       kind: mediaKind.apiValue,
       provider: candidate.provider,

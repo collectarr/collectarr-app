@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/page.dart';
@@ -13,13 +13,13 @@ import 'package:collectarr_app/features/library/workspace/layout/library_layout_
 import 'package:flutter/material.dart';
 
 Widget buildLibraryKindPage({
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required Widget topBar,
   required Color accent,
   required Uri routeUri,
   LibraryLayoutSnapshot? switchLayoutSnapshot,
 }) {
-  return switch (type.workspace.kind.apiValue) {
+  return switch (type.kind.apiValue) {
     'book' => BookLibraryPage(
         type: type,
         topBar: topBar,

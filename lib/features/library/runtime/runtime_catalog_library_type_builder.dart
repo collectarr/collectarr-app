@@ -1,68 +1,75 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
-LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
+LibraryKindRuntime buildRuntimeCatalogLibraryRuntime(CatalogMediaType type) {
   final normalizedType = normalizeCatalogMediaTypeDefaults(type);
   final mediaKind = catalogMediaKindFromApiValue(normalizedType.kind);
-  final knownType = collectarrLibraryTypes.byKind(mediaKind);
-  final presentation =
-      knownType?.presentation ?? genericLibraryMediaPresentation;
-  return LibraryTypeConfig(
-    workspace: LibraryWorkspaceConfig(
-      kind: mediaKind,
-      title: _runtimeCatalogDisplayLabel(
-        normalizedType.pluralLabel,
-        normalizedType.kind,
-        plural: true,
-      ),
-      icon: libraryIconForKind(mediaKind),
-      accent: libraryAccentForKind(mediaKind),
-      preferencePrefix: 'catalog_${normalizedType.kind}',
-    ),
-    singularLabel: _runtimeCatalogDisplayLabel(
-      normalizedType.singularLabel,
-      normalizedType.kind,
-    ),
-    pluralLabel: _runtimeCatalogDisplayLabel(
-      normalizedType.pluralLabel,
-      normalizedType.kind,
-      plural: true,
-    ),
-    defaultMetadataProvider: normalizedType.defaultProvider ??
-        (normalizedType.providers.isEmpty
-            ? ''
-            : normalizedType.providers.first),
-    metadataProviders: _resolveRuntimeMetadataProviders(normalizedType),
-    trackingProfile: catalogTrackingProfileForKind(mediaKind),
-    presentation: presentation,
+  final base = libraryKindRuntimeForKind(mediaKind);
+  final singularLabel = _runtimeCatalogDisplayLabel(
+    normalizedType.singularLabel,
+    normalizedType.kind,
   );
+  final pluralLabel = _runtimeCatalogDisplayLabel(
+    normalizedType.pluralLabel,
+    normalizedType.kind,
+    plural: true,
+  );
+  final resolvedProviders = _resolveRuntimeMetadataProviders(
+    normalizedType,
+    fallback: base.metadata.providers,
+  );
+  final identity = LibraryKindIdentity(
+    kind: mediaKind,
+    singularLabel: singularLabel,
+    pluralLabel: pluralLabel,
+    title: pluralLabel,
+    icon: base.identity.icon,
+    accent: base.identity.accent,
+    preferencePrefix: 'catalog_${normalizedType.kind}',
+    defaultDensityPreset: base.identity.defaultDensityPreset,
+    availableDensityPresets: base.identity.availableDensityPresets,
+    toolbarActions: base.identity.toolbarActions,
+  );
+  final metadata = LibraryMetadataCapability(
+    defaultProviderId: normalizedType.defaultProvider ??
+        (resolvedProviders.isEmpty
+            ? base.metadata.defaultProviderId
+            : resolvedProviders.first.id),
+    providers:
+        resolvedProviders.isEmpty ? base.metadata.providers : resolvedProviders,
+    supportsServerCompare: base.metadata.supportsServerCompare,
+  );
+  return base.withCatalogMetadata(identity: identity, metadata: metadata);
 }
 
 List<LibraryMetadataProviderOption> _resolveRuntimeMetadataProviders(
-  CatalogMediaType type,
-) {
+  CatalogMediaType type, {
+  required List<LibraryMetadataProviderOption> fallback,
+}) {
   return [
     for (final providerId in type.providers)
-      _resolveRuntimeMetadataProvider(type.kind, providerId),
+      _resolveRuntimeMetadataProvider(type.kind, providerId,
+          fallback: fallback),
   ];
 }
 
 LibraryMetadataProviderOption _resolveRuntimeMetadataProvider(
   String kind,
-  String providerId,
-) {
+  String providerId, {
+  required List<LibraryMetadataProviderOption> fallback,
+}) {
   final normalizedProviderId = providerId.trim();
-  final option = collectarrMetadataProviderRegistry.byId(normalizedProviderId);
+  final fallbackOption =
+      fallback.cast<LibraryMetadataProviderOption?>().firstWhere(
+            (option) => option?.id == normalizedProviderId,
+            orElse: () => null,
+          );
+  final option = fallbackOption ??
+      collectarrMetadataProviderRegistry.byId(normalizedProviderId);
   if (option == null) {
     return LibraryMetadataProviderOption(
       id: normalizedProviderId,

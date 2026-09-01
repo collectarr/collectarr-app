@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fiel
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
-import 'package:flutter/material.dart';
 
 const moviesMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Screen identity',
@@ -130,11 +129,5 @@ final moviesLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: moviesPreviewLabels,
   statsLabels: moviesStatsLabels,
   filterDefinitions: moviesLibraryFilterDefinitions,
-  defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
-  defaultVideoGrouping: VideoGroupingDefault.none,
-  videoSeriesEntryTypes: const {'tv'},
-  videoShelfDrilldownEntryTypes: const {'movie', 'tv', 'anime'},
-  compactBucketIcon: Icons.movie_filter_outlined,
-  emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
   fieldDefinitions: movieLibraryFieldDefinitions,
 );

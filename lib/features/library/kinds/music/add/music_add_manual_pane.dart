@@ -30,7 +30,7 @@ class MusicAddManualPane extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             LibraryAddManualIntroCard(
-              icon: request.type.workspace.icon,
+              icon: request.type.identity.icon,
               accent: request.accent,
               title: 'Manual music album setup',
               subtitle:

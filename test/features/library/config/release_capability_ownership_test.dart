@@ -1,15 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -23,26 +15,26 @@ void main() {
         'movie, tv, and anime kind specs register VideoReleaseProjectionCapability',
         () {
       expect(
-        moviesLibraryConfig.releaseCapability,
+        movieKindModule.releaseCapability,
         isA<VideoReleaseProjectionCapability>(),
       );
       expect(
-        tvLibraryConfig.releaseCapability,
+        tvKindModule.releaseCapability,
         isA<VideoReleaseProjectionCapability>(),
       );
       expect(
-        animeLibraryConfig.releaseCapability,
+        animeKindModule.releaseCapability,
         isA<VideoReleaseProjectionCapability>(),
       );
     });
 
     test('unsupported kinds have no release capability (null)', () {
-      expect(comicsLibraryConfig.releaseCapability, isNull);
-      expect(mangaLibraryConfig.releaseCapability, isNull);
-      expect(booksLibraryConfig.releaseCapability, isNull);
-      expect(gamesLibraryConfig.releaseCapability, isNull);
-      expect(boardGamesLibraryConfig.releaseCapability, isNull);
-      expect(musicLibraryConfig.releaseCapability, isNull);
+      expect(comicKindModule.releaseCapability, isNull);
+      expect(mangaKindModule.releaseCapability, isNull);
+      expect(bookKindModule.releaseCapability, isNull);
+      expect(gameKindModule.releaseCapability, isNull);
+      expect(boardGameKindModule.releaseCapability, isNull);
+      expect(musicKindModule.releaseCapability, isNull);
     });
 
     test(
@@ -71,7 +63,7 @@ void main() {
       expect(
         () => libraryItemsForShelf(
           shelf,
-          comicsLibraryConfig,
+          comicKindModule,
           browserMode: LibraryWorkspaceBrowserMode.releases,
         ),
         throwsA(isA<UnsupportedError>()),
@@ -110,7 +102,7 @@ void main() {
 
       final items = libraryItemsForShelf(
         shelf,
-        moviesLibraryConfig,
+        movieKindModule,
         browserMode: LibraryWorkspaceBrowserMode.releases,
       );
 

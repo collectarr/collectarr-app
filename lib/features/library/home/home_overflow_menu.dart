@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
 
   final List<CatalogMediaType> types;
   final Map<String, LibraryKindCount> counts;
-  final LibraryTypeRegistry registry;
+  final LibraryKindRegistry registry;
   final ValueChanged<CatalogMediaType> onSelected;
 
   @override
@@ -59,7 +59,7 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
             padding: EdgeInsets.zero,
             child: _OverflowMenuRow(
               type: type,
-              icon: registry.byKind(type.mediaKind)?.workspace.icon ??
+              icon: registry.tryGet(type.mediaKind)?.identity.icon ??
                   libraryIconForKind(type.mediaKind),
               count: counts[type.kind]?.total ?? 0,
             ),
@@ -135,7 +135,7 @@ class _OverflowMenuRow extends StatelessWidget {
           const SizedBox(width: 9),
           Expanded(
             child: Text(
-              type.pluralLabel,
+              type.identity.pluralLabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

@@ -1,10 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
@@ -42,7 +40,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
     this.onBoxSelectionChanged,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final List<GroupShelfEntry> groups;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
@@ -74,7 +72,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
       return emptyBuilder(context);
     }
     final presentation = groups.first.presentation;
-    final showSeasonGroupProgress = type.presentation.showsSeasonGroupProgress;
+    final showSeasonGroupProgress = type.capabilities.showsSeasonGroupProgress;
     return switch (presentation) {
       LibraryGroupPresentation.folderGrid =>
         _buildFolderGrid(context, showSeasonGroupProgress),
@@ -115,8 +113,8 @@ class LibraryGroupedShelfView extends StatelessWidget {
     bool showSeasonGroupProgress,
   ) {
     final defaultCoverSize = viewState.coverSize;
-    final mainAxisExtent = defaultCoverSize *
-        libraryKindRuntimeForType(type).viewProfile.coverGridHeightFactor;
+    final mainAxisExtent =
+        defaultCoverSize * type.viewProfile.coverGridHeightFactor;
     return ColoredBox(
       color: appPalette(context).gridCanvas,
       child: CustomScrollView(

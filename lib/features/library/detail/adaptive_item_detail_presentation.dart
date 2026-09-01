@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 /// - On medium/expanded viewports: Shows a modal or embedded presentation.
 Future<void> showAdaptiveItemDetail({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryProjectionRuntime item,
   required OwnedItem? ownedItem,
   required Color accent,
@@ -24,7 +24,7 @@ Future<void> showAdaptiveItemDetail({
   ValueChanged<String>? onFilterByValue,
 }) {
   final windowClass = AppWindowClass.of(context);
-  final title = item.source.catalogItem?.title ?? type.singularLabel;
+  final title = item.source.catalogItem?.title ?? type.identity.singularLabel;
   final kind = LibraryAccentScope.of(context).kind;
 
   if (windowClass.isCompact) {

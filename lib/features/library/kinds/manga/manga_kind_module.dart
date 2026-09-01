@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -11,9 +12,10 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
@@ -28,11 +30,79 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 const _mangaSeriesFilterId = LibraryAddFilterId('manga.series');
 const _mangaVolumeFilterId = LibraryAddFilterId('manga.volume');
 const _mangaPublisherFilterId = LibraryAddFilterId('manga.publisher');
 const _mangaYearFilterId = LibraryAddFilterId('manga.year');
+
+final _mangaTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'signedBy',
+    label: 'Signed by',
+    icon: Icons.draw_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.mangaDetails?.signedBy,
+    write: (item, value) {
+      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(details: details.copyWith(signedBy: value));
+    },
+  ),
+  TransferableField(
+    key: 'gradingCompany',
+    label: 'Grading company',
+    icon: Icons.verified_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.mangaDetails?.gradingCompany,
+    write: (item, value) {
+      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(details: details.copyWith(gradingCompany: value));
+    },
+  ),
+  TransferableField(
+    key: 'graderNotes',
+    label: 'Grader notes',
+    icon: Icons.note_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.mangaDetails?.graderNotes,
+    write: (item, value) {
+      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(details: details.copyWith(graderNotes: value));
+    },
+  ),
+  TransferableField(
+    key: 'dustJacketPresent',
+    label: 'Dust jacket',
+    icon: Icons.book_outlined,
+    type: TransferableFieldType.boolean,
+    scope: LibraryEditScope.release,
+    read: (item) =>
+        (item.mangaDetails?.dustJacketPresent == true) ? 'true' : null,
+    write: (item, value) {
+      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(
+        details: details.copyWith(dustJacketPresent: value == 'true'),
+      );
+    },
+  ),
+  TransferableField(
+    key: 'obiStripPresent',
+    label: 'Obi strip',
+    icon: Icons.bookmark_border,
+    type: TransferableFieldType.boolean,
+    scope: LibraryEditScope.release,
+    read: (item) =>
+        (item.mangaDetails?.obiStripPresent == true) ? 'true' : null,
+    write: (item, value) {
+      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(
+        details: details.copyWith(obiStripPresent: value == 'true'),
+      );
+    },
+  ),
+];
 
 Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
       metadata.seriesTitle,
@@ -50,7 +120,8 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
     ];
 
 final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
-  type: mangaLibraryConfig,
+  presentation: mangaLibraryMediaPresentation,
+  trackingProfile: comicTrackingProfile,
   projector: const MangaWorkspaceProjector(),
   ownedDetailsCodec: const MangaOwnedDetailsCodec(),
   fields: mangaLibraryKindSchema.toRegistry(),
@@ -69,6 +140,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   ),
   metadata: LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
+    usesTreeProviderCandidates: true,
     providers: [
       hardcoverMetadataProvider,
       comicVineMetadataProvider,
@@ -92,7 +164,13 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     _mangaLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
-    kindFields: mangaTransferableFields,
+    kindFields: _mangaTransferableFields,
+  ),
+  capabilities: const LibraryTypeCapabilities(
+    supportsMediaReleaseSplit: true,
+    supportsIndexReassignment: true,
+    contentHierarchy: LibraryContentHierarchy.volumes,
+    usesCompactTableLayout: true,
   ),
   stats: const MangaStatsCapability(),
   add: StandardLibraryAddCapability<MangaAddDraft>(
@@ -193,6 +271,10 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
     getFacetValues: _getFacetValues,
+    externalFacetBucketIdsByMode: {
+      'manga.genre': MangaFacetIds.genre,
+      'manga.demographic': MangaFacetIds.demographic,
+    },
   ),
   buildCardPresentation: buildMangaCardPresentation,
 );

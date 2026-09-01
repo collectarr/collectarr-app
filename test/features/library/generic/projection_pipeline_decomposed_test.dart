@@ -3,9 +3,9 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -16,11 +16,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Decomposed Projection Pipeline Parity & Performance Tests', () {
-    late LibraryTypeConfig comicType;
-    late final comicModule = libraryKindRuntimeForKind(CatalogMediaKind.comic);
+    late LibraryKindRuntime comicType;
+    late final comicModule = comicKindModule;
 
     setUp(() {
-      comicType = comicModule.type;
+      comicType = comicModule;
     });
 
     LibraryProjectionItem createTestProjectionItem({

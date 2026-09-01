@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> showTvCustomEpisodeDialog(
   BuildContext context, {
   required WidgetRef ref,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required String itemId,
   CustomEpisode? existingEpisode,
   int seasonNumber = 1,
@@ -146,7 +146,7 @@ Future<void> showTvCustomEpisodeDialog(
     await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
           id: existingEpisode?.id,
           catalogRef: CatalogEntityRef(
-            kind: type.workspace.kind.apiValue,
+            kind: type.kind.apiValue,
             entityType: CatalogEntityType.work,
             id: itemId,
           ),

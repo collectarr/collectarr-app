@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_d
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
@@ -20,6 +20,8 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
@@ -28,6 +30,9 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
@@ -36,6 +41,93 @@ const _bookAuthorFilterId = LibraryAddFilterId('book.author');
 const _bookIsbnFilterId = LibraryAddFilterId('book.isbn');
 const _bookPublisherFilterId = LibraryAddFilterId('book.publisher');
 const _bookYearFilterId = LibraryAddFilterId('book.year');
+
+final _bookTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'signedBy',
+    label: 'Signed by',
+    icon: Icons.draw_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.bookDetails?.signedBy,
+    write: (item, value) {
+      final details = item.bookDetails ?? const BookOwnedDetails();
+      return item.copyWith(details: details.copyWith(signedBy: value));
+    },
+  ),
+  TransferableField(
+    key: 'dustJacketPresent',
+    label: 'Dust jacket',
+    icon: Icons.book_outlined,
+    type: TransferableFieldType.boolean,
+    scope: LibraryEditScope.release,
+    read: (item) =>
+        (item.bookDetails?.dustJacketPresent == true) ? 'true' : null,
+    write: (item, value) {
+      final details = item.bookDetails ?? const BookOwnedDetails();
+      return item.copyWith(
+        details: details.copyWith(dustJacketPresent: value == 'true'),
+      );
+    },
+  ),
+  TransferableField(
+    key: 'dustJacketCondition',
+    label: 'Dust jacket condition',
+    icon: Icons.grade_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.bookDetails?.dustJacketCondition,
+    write: (item, value) {
+      final details = item.bookDetails ?? const BookOwnedDetails();
+      return item.copyWith(
+        details: details.copyWith(dustJacketCondition: value),
+      );
+    },
+  ),
+];
+
+final Set<LibraryGroupIdRuntime> _bookMediaGroupModes = Set.unmodifiable({
+  BookGroupIds.author,
+  BookGroupIds.publisher,
+  BookGroupIds.series,
+  BookGroupIds.condition,
+  BookGroupIds.location,
+  BookGroupIds.rating,
+});
+
+final Set<LibraryGroupIdRuntime> _bookReleaseGroupModes = Set.unmodifiable({
+  BookGroupIds.author,
+  BookGroupIds.publisher,
+  BookGroupIds.series,
+  BookGroupIds.condition,
+  BookGroupIds.location,
+  BookGroupIds.rating,
+});
+
+final Set<LibrarySortIdRuntime> _bookMediaSortColumns = Set.unmodifiable({
+  BookSortIds.status,
+  BookSortIds.title,
+  BookSortIds.author,
+  BookSortIds.publisher,
+  BookSortIds.releaseDate,
+  BookSortIds.pageCount,
+  BookSortIds.series,
+  BookSortIds.rating,
+  BookSortIds.pricePaid,
+  BookSortIds.updatedAt,
+});
+
+final Set<LibrarySortIdRuntime> _bookReleaseSortColumns = Set.unmodifiable({
+  BookSortIds.status,
+  BookSortIds.title,
+  BookSortIds.author,
+  BookSortIds.publisher,
+  BookSortIds.releaseDate,
+  BookSortIds.pageCount,
+  BookSortIds.series,
+  BookSortIds.rating,
+  BookSortIds.pricePaid,
+  BookSortIds.updatedAt,
+});
 
 Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       metadata.seriesTitle,
@@ -53,7 +145,8 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
     ];
 
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
-  type: booksLibraryConfig,
+  presentation: bookLibraryMediaPresentation,
+  trackingProfile: readingTrackingProfile,
   projector: const BookWorkspaceProjector(),
   ownedDetailsCodec: const BookOwnedDetailsCodec(),
   fields: bookLibraryKindSchema.toRegistry(),
@@ -86,6 +179,17 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',
   ),
+  capabilities: LibraryTypeCapabilities(
+    showsCreatorSpotlight: true,
+    supportsOwnedItemImages: false,
+    supportsMediaReleaseSplit: true,
+    supportsReadingQueue: true,
+    contentHierarchy: LibraryContentHierarchy.volumes,
+    mediaScopeGroupIds: _bookMediaGroupModes,
+    releaseScopeGroupIds: _bookReleaseGroupModes,
+    mediaScopeSortIds: _bookMediaSortColumns,
+    releaseScopeSortIds: _bookReleaseSortColumns,
+  ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: true,
   ),
@@ -93,7 +197,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     _bookLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
-    kindFields: bookTransferableFields,
+    kindFields: _bookTransferableFields,
   ),
   stats: const BookStatsCapability(),
   add: StandardLibraryAddCapability<BookAddDraft>(

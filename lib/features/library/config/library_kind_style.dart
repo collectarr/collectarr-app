@@ -15,8 +15,7 @@ Color libraryAccentForKind(CatalogMediaKind kind) {
 }
 
 Color libraryDefaultAccentForKind(CatalogMediaKind kind) {
-  return collectarrLibraryTypes.byKind(kind)?.workspace.accent ??
-      kLibraryFallbackAccent;
+  return libraryKindRuntimeForKind(kind).identity.accent;
 }
 
 LinearGradient libraryChromeGradient(
@@ -109,6 +108,5 @@ class AnimatedLibraryChromeGradient extends StatelessWidget {
 }
 
 IconData libraryIconForKind(CatalogMediaKind kind) {
-  return collectarrLibraryTypes.byKind(kind)?.workspace.icon ??
-      Icons.category_outlined;
+  return libraryKindRuntimeForKind(kind).identity.icon;
 }

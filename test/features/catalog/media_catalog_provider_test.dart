@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -53,19 +53,18 @@ void main() {
 
     await container.read(mediaCatalogProvider.future);
     final type = container.read(
-      resolvedLibraryTypeProvider(comicsLibraryConfig),
+      resolvedLibraryTypeProvider(comicKindModule),
     );
 
-    expect(type.singularLabel, 'Comic issue');
-    expect(type.pluralLabel, 'Comic issues');
-    expect(type.defaultMetadataProvider, 'comicvine');
-    expect(type.supportedMetadataProviders.map((provider) => provider.id), [
+    expect(type.identity.singularLabel, 'Comic issue');
+    expect(type.identity.pluralLabel, 'Comic issues');
+    expect(type.metadata.defaultProviderId, 'comicvine');
+    expect(type.metadata.providers.map((provider) => provider.id), [
       'comicvine',
       'gcd',
     ]);
-    final resolvedInspector = libraryKindRuntimeForType(type).inspector;
-    final baseInspector =
-        libraryKindRuntimeForType(comicsLibraryConfig).inspector;
+    final resolvedInspector = type.inspector;
+    final baseInspector = comicKindModule.inspector;
     expect(
       resolvedInspector.sectionsBuilder,
       same(baseInspector.sectionsBuilder),

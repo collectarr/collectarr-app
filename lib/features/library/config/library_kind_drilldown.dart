@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:flutter/material.dart';
 
 bool canOpenKindDrilldown(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   LibraryProjectionRuntime item,
 ) {
   return type.presentation.builder.canOpenKindDrilldown(item);
@@ -13,7 +13,7 @@ bool canOpenKindDrilldown(
 
 Widget? buildLibraryKindDrilldown({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryProjectionRuntime selectedItem,
   required Color accent,
   required double coverSize,

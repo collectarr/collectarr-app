@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -30,7 +30,7 @@ class LibraryMetadataRefreshResult {
 
 Future<LibraryMetadataRefreshResult?> showLibraryMetadataRefreshDialog({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required Color accent,
   required List<LibraryProjectionRuntime> allEntries,
   required List<LibraryProjectionRuntime> shownEntries,
@@ -58,7 +58,7 @@ class LibraryMetadataRefreshDialog extends ConsumerStatefulWidget {
     required this.selectedEntry,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final List<LibraryProjectionRuntime> allEntries;
   final List<LibraryProjectionRuntime> shownEntries;
@@ -99,7 +99,7 @@ class _LibraryMetadataRefreshDialogState
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Refresh ${widget.type.pluralLabel.toLowerCase()} metadata',
+              'Refresh ${widget.type.identity.pluralLabel.toLowerCase()} metadata',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -130,7 +130,9 @@ class _LibraryMetadataRefreshDialogState
                 type: widget.type,
                 accent: widget.accent,
               ),
-              if (widget.type.supportedMetadataProviders.isEmpty) ...[
+              if (widget.type.metadata
+                  .supportedProvidersForKind(widget.type.kind)
+                  .isEmpty) ...[
                 const SizedBox(height: 8),
                 _RefreshNotice(
                   icon: Icons.warning_amber_outlined,
@@ -325,15 +327,15 @@ class _LibraryMetadataRefreshDialogState
       _RefreshScope.selected => [
           if (widget.selectedEntry != null) widget.selectedEntry!,
         ],
-      _RefreshScope.missing => widget.shownEntries
-          .where((item) {
-            final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
-            return item.dto.coverImageUrl == null ||
-                item.dto.coverImageUrl!.isEmpty ||
-                adapter?.publisher == null ||
-                adapter!.publisher!.isEmpty;
-          })
-          .toList(growable: false),
+      _RefreshScope.missing => widget.shownEntries.where((item) {
+          final adapter = item.dto is WorkspaceDtoAdapter
+              ? item.dto as WorkspaceDtoAdapter
+              : null;
+          return item.dto.coverImageUrl == null ||
+              item.dto.coverImageUrl!.isEmpty ||
+              adapter?.publisher == null ||
+              adapter!.publisher!.isEmpty;
+        }).toList(growable: false),
       _RefreshScope.shown => widget.shownEntries,
       _RefreshScope.all => widget.allEntries,
     };
@@ -459,7 +461,7 @@ class _RefreshSourcePanel extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
 
   @override
@@ -667,13 +669,13 @@ List<LibraryProjectionRuntime> _dedupe(
   return result;
 }
 
-String _providerSummary(LibraryTypeConfig type) {
-  if (type.supportedMetadataProviders.isEmpty) {
+String _providerSummary(LibraryKindRuntime type) {
+  final supportedProviders = type.metadata.supportedProvidersForKind(type.kind);
+  if (supportedProviders.isEmpty) {
     return 'No providers are registered for this media type yet; existing Core catalog rows can still be searched.';
   }
-  final labels = type.supportedMetadataProviders
-      .map((provider) => provider.label)
-      .join(', ');
+  final labels =
+      supportedProviders.map((provider) => provider.label).join(', ');
   return 'Core may use: $labels.';
 }
 

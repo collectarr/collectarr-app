@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
@@ -51,20 +51,20 @@ abstract class LibraryKindBrowserDelegate {
   }
 
   bool canOpenItemDetailDrilldown(
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     LibraryProjectionItem item,
   ) {
     return false;
   }
 
   void openItemDetailDrilldown(
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     LibraryProjectionItem item,
   ) {}
 
   Widget? buildWorkspaceOverride({
     required BuildContext context,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryProjection projection,
     required LibraryProjectionItem selectedItem,
     required LibraryWorkspaceViewState viewState,
@@ -79,7 +79,7 @@ abstract class LibraryKindBrowserDelegate {
 
   Widget? buildDrilldown({
     required BuildContext context,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryProjectionItem selectedItem,
     required double coverSize,
     required Color accent,

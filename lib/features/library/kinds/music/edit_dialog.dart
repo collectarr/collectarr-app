@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/api/mappers/music_mapper.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
@@ -445,7 +445,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: _accent,
-      icon: widget.request.type.workspace.icon,
+      icon: widget.request.type.identity.icon,
       title: title,
       badges: const <Widget>[],
       tabController: _tabController,
@@ -459,8 +459,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
       footerContent: _isOwned ? _ownedSharedFooterRow() : null,
-      tabOrderKey:
-          'edit_tab_order_${widget.request.type.workspace.kind.apiValue}',
+      tabOrderKey: 'edit_tab_order_${widget.request.type.kind.apiValue}',
     );
   }
 

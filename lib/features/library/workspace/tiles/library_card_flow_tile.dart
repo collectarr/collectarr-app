@@ -45,6 +45,7 @@ class LibraryCardFlowTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final coverCacheWidth = _targetCacheWidth(context);
     final metadataPresentation = _metadataPresentationForEntry(item);
     final theme = Theme.of(context);
@@ -110,7 +111,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                           child: LibraryInteractiveCover(
                             title: dto.title,
-                            itemNumber: dto.itemNumber,
+                            itemNumber: adapter?.itemNumber,
                             imageUrl: dto.coverImageUrl,
                             ownedItemId: item.source.ownedItem?.id,
                             targetCacheWidth: coverCacheWidth,
@@ -128,8 +129,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                             isWishlisted: item.source.isWishlisted,
                             hasMissingCover: dto.coverImageUrl == null ||
                                 dto.coverImageUrl!.isEmpty,
-                            hasMissingMetadata:
-                                dto.publisher == null || dto.publisher!.isEmpty,
+                            hasMissingMetadata: adapter?.publisher == null ||
+                                adapter!.publisher!.isEmpty,
                             hasFrontImage: item.source.itemImages
                                 .any((img) => img.imageType == 'front_cover'),
                             hasBackImage: item.source.itemImages
@@ -167,9 +168,9 @@ class LibraryCardFlowTile extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (dto.itemNumber != null) ...[
+                            if (adapter?.itemNumber != null) ...[
                               const SizedBox(width: 6),
-                              _IssuePill(label: '#${dto.itemNumber}'),
+                              _IssuePill(label: '#${adapter!.itemNumber}'),
                             ],
                           ],
                         ),
@@ -191,16 +192,16 @@ class LibraryCardFlowTile extends StatelessWidget {
                         Text(
                           [
                             if (item.node is! LibraryTitleNodeRef &&
-                                dto.variant != null &&
-                                dto.variant!.isNotEmpty)
-                              dto.variant,
-                            if (dto.releaseDate != null)
-                              dateFormatter(dto.releaseDate!)
-                            else if (dto.releaseDate?.year != null)
-                              dto.releaseDate!.year.toString(),
-                            if (dto.publisher != null &&
-                                dto.publisher!.isNotEmpty)
-                              dto.publisher,
+                                adapter?.variant != null &&
+                                adapter!.variant!.isNotEmpty)
+                              adapter.variant,
+                            if (adapter?.releaseDate != null)
+                              dateFormatter(adapter!.releaseDate!)
+                            else if (adapter?.releaseDate?.year != null)
+                              adapter!.releaseDate!.year.toString(),
+                            if (adapter?.publisher != null &&
+                                adapter!.publisher!.isNotEmpty)
+                              adapter.publisher,
                           ].whereType<String>().join('  ·  '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -209,11 +210,11 @@ class LibraryCardFlowTile extends StatelessWidget {
                             fontSize: 12,
                           ),
                         ),
-                        if (dto.publisher != null &&
-                            dto.publisher!.isNotEmpty) ...[
+                        if (adapter?.publisher != null &&
+                            adapter!.publisher!.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            dto.publisher!,
+                            adapter.publisher!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -295,7 +296,7 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   if (runtime == null) {
     return null;
   }
-  return runtime.type.presentation.builder.buildMetadataPresentation(
+  return runtime.presentation.builder.buildMetadataPresentation(
     singularLabel: runtime.identity.singularLabel,
     mediaFields: runtime.edit.mediaFields,
     releaseFields: runtime.edit.releaseFields,

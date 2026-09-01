@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_conten
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
@@ -25,7 +25,7 @@ class InspectorMetadataSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;

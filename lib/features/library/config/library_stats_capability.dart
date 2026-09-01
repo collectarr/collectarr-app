@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter/material.dart';
 
 class LibraryStatsTileDescriptor {
@@ -17,13 +17,13 @@ class LibraryStatsTileDescriptor {
 abstract interface class LibraryStatsCapability {
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
   );
 
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
   );
 }
 
@@ -33,7 +33,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
   ) =>
       const [];
 
@@ -41,7 +41,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
   ) =>
       const [];
 }

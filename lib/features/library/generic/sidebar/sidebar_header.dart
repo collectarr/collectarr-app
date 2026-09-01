@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -47,7 +47,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.onFolderDisplayModeChanged,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final String groupMode;
   final LibraryFolderPreset? folderPreset;
   final Color accent;
@@ -237,7 +237,8 @@ class LibrarySidebarHeader extends StatelessWidget {
                 ] else if (!isRootScope && clearFilter != null) ...[
                   const SizedBox(width: 4),
                   _LibrarySidebarToolbarButton(
-                    tooltip: 'Back to all ${type.pluralLabel.toLowerCase()}',
+                    tooltip:
+                        'Back to all ${type.identity.pluralLabel.toLowerCase()}',
                     icon: Icons.arrow_back,
                     onPressed: clearFilter,
                     active: true,

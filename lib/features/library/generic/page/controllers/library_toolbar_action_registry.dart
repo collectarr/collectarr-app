@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_actions.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -55,12 +54,11 @@ class LibraryToolbarViewContext {
     required this.onTogglePinnedColumnFavorite,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryWorkspaceBrowserMode activeBrowserMode;
   final String? activeReleaseFolderTitleItemId;
 
-  LibraryWorkspaceViewProfile get viewProfile =>
-      libraryKindRuntimeForType(type).viewProfile;
+  LibraryWorkspaceViewProfile get viewProfile => type.viewProfile;
   final VoidCallback onShowAddDialogFlow;
   final VoidCallback onShowColumnChooserFlow;
   final VoidCallback onShowSortDialogFlow;
@@ -81,9 +79,7 @@ class LibraryToolbarViewContext {
   final ValueChanged<LibraryTableColumnPreset> onApplyColumnFavorite;
   final ValueChanged<LibraryTableColumnPreset> onTogglePinnedColumnFavorite;
 
-  bool get showReleaseFolderBack =>
-      type.kindUiAdapter.shouldShowReleaseFolderBack(
-        type,
+  bool get showReleaseFolderBack => type.hierarchy.shouldShowReleaseFolderBack(
         browserMode: activeBrowserMode,
         releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
       );
@@ -193,7 +189,7 @@ class LibraryToolbarActionRegistry {
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
     final kindCapabilities = availability.capabilities;
-    final runtime = libraryKindRuntimeForType(actionContext.view.type);
+    final runtime = actionContext.view.type;
     final kindToolbarActions = runtime.toolbar?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
     final extraUtilityActions = kindToolbarActions
@@ -326,10 +322,7 @@ class LibraryToolbarActionRegistry {
       onCompareMetadataWithServer: (() {
         if (projection == null ||
             !kindCapabilities.canCompareMetadataWithServer ||
-            !actionContext.view.type.kindUiAdapter
-                .supportsMetadataCompareWithServer(
-              actionContext.view.type,
-            )) {
+            !actionContext.view.type.metadata.supportsServerCompare) {
           return null;
         }
         final selected =

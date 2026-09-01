@@ -157,15 +157,14 @@ class LibraryPageEditCoordinator {
       item: freshMetadataItem,
       ownedItem: owned,
       scope: scope ??
-          libraryKindRuntimeForType(_s.widget.type)
-              .hierarchy
+          _s.widget.type.hierarchy
               .editScopeForBrowserMode(_s._activeBrowserMode),
       wishlistItem: wishlist,
       trackingEntry: activeTrackingEntry,
       accent: _s.widget.accent,
       physicalFormats: physicalMediaFormatsForKind(
         catalog,
-        _s.widget.type.workspace.kind,
+        _s.widget.type.kind,
       ),
       onPrevious:
           previousItem == null ? null : () => queueEditNavigation(previousItem),
@@ -179,7 +178,7 @@ class LibraryPageEditCoordinator {
         request: baseRequest,
         requestLoader: () async {
           final definitionsFuture = customFieldRepo.listDefinitions(
-            mediaKind: _s.widget.type.workspace.kind.apiValue,
+            mediaKind: _s.widget.type.kind.apiValue,
             targetScope: owned != null
                 ? CustomFieldTargetScope.ownedCopy
                 : CustomFieldTargetScope.media,
@@ -235,7 +234,7 @@ class LibraryPageEditCoordinator {
       }
       _s.ref.invalidate(shelfProvider);
       _s.ref.invalidate(
-        libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue),
+        libraryCustomFieldCacheProvider(_s.widget.type.kind.apiValue),
       );
       if (result.submitAction == LibraryEditSubmitAction.saveAndNext &&
           nextItem != null) {
@@ -248,7 +247,8 @@ class LibraryPageEditCoordinator {
         return;
       }
       ScaffoldMessenger.of(_s.context).showSnackBar(
-        SnackBar(content: Text('${_s.widget.type.singularLabel} updated')),
+        SnackBar(
+            content: Text('${_s.widget.type.identity.singularLabel} updated')),
       );
     } finally {
       _s._isEditDialogInFlight = false;
@@ -327,7 +327,7 @@ class LibraryPageEditCoordinator {
             ? Patch.set(personal.marketValueCents)
             : const Patch.clear(),
         details: Patch.set(
-          _s.widget.type.buildPersonalOwnedDetailsDraft(personal),
+          _s.widget.type.buildPersonalDetailsDraft(personal),
         ),
       );
       await coordinator.updateOwnedItem(

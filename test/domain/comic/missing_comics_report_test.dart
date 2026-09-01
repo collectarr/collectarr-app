@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/missing_comics_report.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -29,7 +29,7 @@ void main() {
         ),
         ownedItem: testOwnedItem(itemId: 'issue-1'),
       ),
-      comicsLibraryConfig,
+      comicKindModule,
     );
     final variantA = LibraryProjectionItem.fromShelf(
       testShelfEntry(
@@ -44,7 +44,7 @@ void main() {
           series: series,
         ),
       ),
-      comicsLibraryConfig,
+      comicKindModule,
     );
     final variantB = LibraryProjectionItem.fromShelf(
       testShelfEntry(
@@ -59,7 +59,7 @@ void main() {
           series: series,
         ),
       ),
-      comicsLibraryConfig,
+      comicKindModule,
     );
     final unreleased = LibraryProjectionItem.fromShelf(
       testShelfEntry(
@@ -74,7 +74,7 @@ void main() {
           releaseDate: DateTime.utc(2027, 1, 1),
         ),
       ),
-      comicsLibraryConfig,
+      comicKindModule,
     );
 
     final reports = buildMissingComicSeriesReports(

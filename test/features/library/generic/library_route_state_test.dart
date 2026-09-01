@@ -2,10 +2,10 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,7 +37,7 @@ void main() {
       isSidebarVisible: true,
     );
 
-    final uri = state.toUri(Uri.parse('/libraries'), type: moviesLibraryConfig);
+    final uri = state.toUri(Uri.parse('/libraries'), type: movieKindModule);
     final parsed = LibraryRouteState.fromUri(uri);
 
     expect(uri.queryParameters['kind'], 'movie');
@@ -119,7 +119,7 @@ void main() {
       ),
     );
 
-    final filtered = state.filteredForType(musicLibraryConfig);
+    final filtered = state.filteredForType(musicKindModule);
 
     expect(filtered.kind, 'music');
     expect(filtered.hasExplicitViewState, isFalse);
@@ -138,14 +138,14 @@ void main() {
       ),
     );
 
-    final filtered = state.filteredForType(musicLibraryConfig);
+    final filtered = state.filteredForType(musicKindModule);
 
     expect(filtered.quickView, isNull);
     expect(
         filtered.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
     expect(filtered.filterSelection.fieldValue('grade'), isNull);
 
-    final comicsFiltered = state.filteredForType(comicsLibraryConfig);
+    final comicsFiltered = state.filteredForType(comicKindModule);
     expect(comicsFiltered.quickView, isNull);
     expect(comicsFiltered.filterSelection.ownershipFilter,
         LibraryOwnershipFilter.all);
@@ -158,7 +158,7 @@ void main() {
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
     );
 
-    final filtered = state.filteredForType(booksLibraryConfig);
+    final filtered = state.filteredForType(bookKindModule);
     expect(filtered.groupMode, 'book.publisher');
     expect(filtered.bucketCompletionScope, LibraryBucketCompletionScope.all);
 
@@ -166,7 +166,7 @@ void main() {
       kind: 'book',
       groupMode: 'series',
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
-    ).filteredForType(booksLibraryConfig);
+    ).filteredForType(bookKindModule);
     expect(
       seriesFiltered.bucketCompletionScope,
       LibraryBucketCompletionScope.completed,

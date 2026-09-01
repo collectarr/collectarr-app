@@ -4,9 +4,9 @@ import 'package:collectarr_app/features/library/config/generic_library_media_pre
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/runtime/runtime_catalog_library_type_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -51,33 +51,27 @@ void main() {
       providers: ['podindex'],
     );
 
-    final config = libraryConfigForCatalogType(
-      type,
-      LibraryTypeRegistry([]),
-    );
+    final runtime = buildRuntimeCatalogLibraryRuntime(type);
 
-    expect(config.workspace.kind, CatalogMediaKind.unknown);
-    expect(config.singularLabel, 'Podcast');
-    expect(config.pluralLabel, 'Podcasts');
-    expect(config.defaultMetadataProvider, 'podindex');
-    expect(config.presentation, genericLibraryMediaPresentation);
+    expect(runtime.kind, CatalogMediaKind.unknown);
+    expect(runtime.identity.singularLabel, 'Podcast');
+    expect(runtime.identity.pluralLabel, 'Podcasts');
+    expect(runtime.metadata.defaultProviderId, 'podindex');
+    expect(runtime.presentation, genericLibraryMediaPresentation);
     expect(
-      libraryKindRuntimeForType(config)
-          .fields
-          .defaultVisibleColumns
-          .map((column) => column.value),
+      runtime.fields.defaultVisibleColumns.map((column) => column.value),
       contains('unknown.title'),
     );
-    expect(config.workspace.icon, Icons.category_outlined);
-    expect(config.workspace.accent, kLibraryFallbackAccent);
-    expect(config.trackingProfile.name, readingTrackingProfile.name);
-    expect(config.supportedMetadataProviders.single.id, 'podindex');
+    expect(runtime.identity.icon, Icons.category_outlined);
+    expect(runtime.identity.accent, kLibraryFallbackAccent);
+    expect(runtime.trackingProfile.name, readingTrackingProfile.name);
+    expect(runtime.metadata.providers.single.id, 'podindex');
     expect(
-        config.supportedMetadataProviders.single
+        runtime.metadata.providers.single
             .supportsKind(CatalogMediaKind.unknown),
         isFalse);
-    expect(config.supportedMetadataProviders.single.supportsRawKind('podcast'),
-        isTrue);
+    expect(
+        runtime.metadata.providers.single.supportsRawKind('podcast'), isTrue);
   });
 
   test('catalog-defined config expands registered providers to new kinds', () {
@@ -90,16 +84,13 @@ void main() {
       providers: ['openlibrary'],
     );
 
-    final config = libraryConfigForCatalogType(
-      type,
-      LibraryTypeRegistry([]),
-    );
+    final runtime = buildRuntimeCatalogLibraryRuntime(type);
 
-    expect(config.defaultMetadataProvider, 'openlibrary');
-    expect(config.supportedMetadataProviders.single.id, 'openlibrary');
-    expect(config.supportedMetadataProviders.single.label, 'Open Library');
-    expect(config.supportedMetadataProviders.single.supportsRawKind('podcast'),
-        isTrue);
+    expect(runtime.metadata.defaultProviderId, 'openlibrary');
+    expect(runtime.metadata.providers.single.id, 'openlibrary');
+    expect(runtime.metadata.providers.single.label, 'Open Library');
+    expect(
+        runtime.metadata.providers.single.supportsRawKind('podcast'), isTrue);
   });
 
   test('library nav labels use catalog kind defaults', () {

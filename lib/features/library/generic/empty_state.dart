@@ -1,5 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter/material.dart';
 
 class LibraryEmptyState extends StatelessWidget {
@@ -13,7 +13,7 @@ class LibraryEmptyState extends StatelessWidget {
     required this.onClearFilter,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final IconData icon;
   final Color accent;
   final bool hasActiveFilter;
@@ -50,8 +50,8 @@ class LibraryEmptyState extends StatelessWidget {
                           const SizedBox(height: 12),
                           Text(
                             hasActiveFilter
-                                ? 'No matching ${type.pluralLabel.toLowerCase()}'
-                                : 'Your local ${type.pluralLabel.toLowerCase()} shelf is empty',
+                                ? 'No matching ${type.identity.pluralLabel.toLowerCase()}'
+                                : 'Your local ${type.identity.pluralLabel.toLowerCase()} shelf is empty',
                             textAlign: TextAlign.center,
                             style:
                                 Theme.of(context).textTheme.panelTitle.copyWith(
@@ -89,7 +89,9 @@ class LibraryEmptyState extends StatelessWidget {
                               label: const Text('Add from Collectarr Core'),
                             ),
                           if (!hasActiveFilter &&
-                              type.supportedMetadataProviders.isEmpty)
+                              type.metadata
+                                  .supportedProvidersForKind(type.kind)
+                                  .isEmpty)
                             Padding(
                               padding: const EdgeInsets.only(top: 8),
                               child: Text(
@@ -118,12 +120,12 @@ class LibraryEmptyState extends StatelessWidget {
   }
 }
 
-String _emptyStateSummary(LibraryTypeConfig type) {
-  if (type.supportedMetadataProviders.isEmpty) {
+String _emptyStateSummary(LibraryKindRuntime type) {
+  final supportedProviders = type.metadata.supportedProvidersForKind(type.kind);
+  if (supportedProviders.isEmpty) {
     return 'No providers are registered for this library yet.';
   }
-  final providers =
-      type.supportedMetadataProviders.map((p) => p.label).join(', ');
-  final suffix = type.presentation.emptyStateProviderSummarySuffix;
+  final providers = supportedProviders.map((p) => p.label).join(', ');
+  final suffix = type.capabilities.emptyStateProviderSummarySuffix;
   return 'Search Core via $providers, scan a barcode, or add a manual local item.$suffix';
 }

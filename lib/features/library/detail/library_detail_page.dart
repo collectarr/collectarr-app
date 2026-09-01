@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -34,7 +34,7 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
     this.onFilterByValue,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final Color accent;
@@ -209,7 +209,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
-              kind: widget.type.workspace.kind.apiValue,
+              kind: widget.type.kind.apiValue,
               entityType: CatalogEntityType.work,
               id: item.node.titleItemId,
             ),
@@ -218,7 +218,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               variantId: anchor.variantId,
               bundleReleaseId: anchor.bundleReleaseId,
             ),
-            details: defaultDetailsDraftForKind(widget.type.workspace.kind),
+            details: defaultDetailsDraftForKind(widget.type.kind),
           ),
         );
     if (!mounted) {
@@ -261,7 +261,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
     required this.onAssignFolders,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final OwnedItem? activeOwnedItem;
   final List<OwnedItem> ownedCopies;
@@ -354,11 +354,11 @@ class _LibraryDetailToolbar extends StatelessWidget {
                 ),
               ],
               if ((item.dto is WorkspaceDtoAdapter &&
-                      (item.dto as WorkspaceDtoAdapter)
-                              .barcode
-                              ?.trim()
-                              .isNotEmpty ==
-                          true)) ...[
+                  (item.dto as WorkspaceDtoAdapter)
+                          .barcode
+                          ?.trim()
+                          .isNotEmpty ==
+                      true)) ...[
                 const SizedBox(width: 4),
                 LibraryDenseButton(
                   label: 'eBay',

@@ -8,15 +8,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -741,14 +734,15 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     }
   }
 
-  LibraryTypeConfig _resolvedTypeForTmdbEntry(TmdbImportEntry entry) {
-    final config = entry.looksLikeAnime
-        ? moviesLibraryConfig
+  LibraryKindRuntime _resolvedTypeForTmdbEntry(TmdbImportEntry entry) {
+    final runtime = entry.looksLikeAnime
+        ? libraryKindRuntimeForKind(CatalogMediaKind.movie)
         : switch (entry.mediaType) {
-            TmdbMediaType.movie => moviesLibraryConfig,
-            TmdbMediaType.tv => tvLibraryConfig,
+            TmdbMediaType.movie =>
+              libraryKindRuntimeForKind(CatalogMediaKind.movie),
+            TmdbMediaType.tv => libraryKindRuntimeForKind(CatalogMediaKind.tv),
           };
-    return ref.read(resolvedLibraryTypeProvider(config));
+    return ref.read(resolvedLibraryTypeProvider(runtime));
   }
 
   Future<void> _importTvSeasons({
@@ -817,21 +811,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     return value.round().clamp(1, 10);
   }
 
-  LibraryTypeConfig? _resolvedTypeForEntry(ProviderPersonalEntry entry) {
-    final config = switch (entry.kind) {
-      CatalogMediaKind.anime => animeLibraryConfig,
-      CatalogMediaKind.manga => mangaLibraryConfig,
-      CatalogMediaKind.book => booksLibraryConfig,
-      CatalogMediaKind.game => gamesLibraryConfig,
-      CatalogMediaKind.boardgame => boardGamesLibraryConfig,
-      CatalogMediaKind.movie => moviesLibraryConfig,
-      CatalogMediaKind.tv => tvLibraryConfig,
-      _ => null,
-    };
-    if (config == null) {
+  LibraryKindRuntime? _resolvedTypeForEntry(ProviderPersonalEntry entry) {
+    if (entry.kind.isUnknown) {
       return null;
     }
-    return ref.read(resolvedLibraryTypeProvider(config));
+    return ref.read(
+      resolvedLibraryTypeProvider(libraryKindRuntimeForKind(entry.kind)),
+    );
   }
 
   LibraryMetadataItem? _bestImportMatch(
@@ -950,7 +936,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         MediaTrackingStatus.inProgress,
       ProviderEntryStatus.paused => MediaTrackingStatus.paused,
       ProviderEntryStatus.dropped => MediaTrackingStatus.dropped,
-      ProviderEntryStatus.planning || null =>
+      ProviderEntryStatus.planning ||
+      null =>
         entry.progress != null && entry.progress! > 0
             ? MediaTrackingStatus.inProgress
             : null,

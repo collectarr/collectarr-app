@@ -1,11 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 
@@ -24,10 +23,10 @@ class LibraryGroupingEngine {
 
   String getGroupBucketForItem(
     LibraryProjectionItem item,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     LibraryGroupIdRuntime groupId,
   ) {
-    final runtime = libraryKindRuntimeForType(type);
+    final runtime = type;
     final groupDefinition = runtime.fields.findGroupDefinition(
       groupId,
     );
@@ -49,13 +48,13 @@ class LibraryGroupingEngine {
 
   List<LibraryBucket> buildBuckets(
     List<LibraryProjectionItem> items,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     LibraryGroupIdRuntime groupId, {
     LibraryProjectionIndex? index,
   }) {
+    final runtime = type;
     final allBucketLabel = genericAllBucketLabel(type);
     final counts = <String, int>{allBucketLabel: items.length};
-    final runtime = libraryKindRuntimeForType(type);
     final hasSequence = runtime.groupModeSupportsCompletion(groupId);
     final ownedCounts = hasSequence
         ? <String, int>{
@@ -150,7 +149,7 @@ class LibraryGroupingEngine {
 
   List<GroupShelfEntry> buildGroupEntries(
     List<LibraryProjectionItem> items,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     LibraryGroupIdRuntime groupId, {
     LibraryGroupPresentation? presentationOverride,
     LibraryProjectionIndex? index,

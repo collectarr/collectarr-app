@@ -5,8 +5,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/empty_state.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
@@ -30,11 +29,10 @@ typedef LibraryItemContextMenuCallback = void Function(
 );
 
 double libraryWorkspaceGridMainAxisExtent({
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required double coverSize,
 }) {
-  return coverSize *
-      libraryKindRuntimeForType(type).viewProfile.coverGridHeightFactor;
+  return coverSize * type.viewProfile.coverGridHeightFactor;
 }
 
 class LibraryWorkspace extends ConsumerWidget {
@@ -71,7 +69,7 @@ class LibraryWorkspace extends ConsumerWidget {
     this.initialCrossAxisCount,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final List<LibraryProjectionItem> items;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
@@ -107,10 +105,7 @@ class LibraryWorkspace extends ConsumerWidget {
       viewState.viewMode != LibraryViewMode.shelves &&
       selectedBucket == null &&
       (() {
-        final semantic = libraryKindRuntimeForType(type)
-            .fields
-            .decodeGroupId(groupMode)
-            .semantic;
+        final semantic = type.fields.decodeGroupId(groupMode).semantic;
         return semantic != LibraryGroupSemantic.title &&
             semantic != LibraryGroupSemantic.ownership;
       })();
@@ -160,7 +155,7 @@ class LibraryWorkspace extends ConsumerWidget {
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
-    final runtime = libraryKindRuntimeForType(type);
+    final runtime = type;
     final defaultCoverSize = runtime.viewProfile.defaultCoverSize;
     final isMusicLibrary = type.capabilities.prefersSquareCovers;
     final density = viewState.densityPreset;
@@ -342,7 +337,7 @@ class LibraryWorkspace extends ConsumerWidget {
   Widget _emptyBuilder(BuildContext context) {
     return LibraryEmptyState(
       type: type,
-      icon: type.workspace.icon,
+      icon: type.identity.icon,
       accent: accent,
       hasActiveFilter: hasActiveFilter,
       onAdd: onAdd,
@@ -357,9 +352,9 @@ class LibraryWorkspace extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final palette = appPalette(context);
-        final compact = type.presentation.usesCompactTableLayout;
+        final compact = type.capabilities.usesCompactTableLayout;
         final density = viewState.densityPreset;
-        final runtime = libraryKindRuntimeForType(type);
+        final runtime = type;
         final visibleColumns = runtime.orderedTableColumns(
           viewState.visibleColumnIds,
         );
@@ -496,7 +491,7 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _tableCell(LibraryProjectionItem item, String column) {
-    final runtime = libraryKindRuntimeForType(type);
+    final runtime = type;
     return runtime.buildTableCell(
       item,
       runtime.fields.decodeColumnId(column),

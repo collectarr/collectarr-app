@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -103,7 +103,7 @@ class LibraryAddDialogRequest {
     this.initialBarcode,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color? accent;
   final String? initialQuery;
   final String? initialBarcode;
@@ -143,7 +143,7 @@ class LibraryEditDialogRequest {
     this.openMetadataCompareOnOpen = false,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
   final Color accent;
@@ -163,7 +163,7 @@ class LibraryEditDialogRequest {
   final bool openMetadataCompareOnOpen;
 
   LibraryEditDialogRequest copyWith({
-    LibraryTypeConfig? type,
+    LibraryKindRuntime? type,
     LibraryMetadataItem? item,
     OwnedItem? ownedItem,
     Color? accent,
@@ -226,7 +226,7 @@ class LibraryDetailPageRequest {
         _onRemoveWishlist = onRemoveWishlist,
         _onEdit = onEdit;
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final Color accent;
@@ -268,7 +268,7 @@ class LibraryInspectorRequest {
     this.searchTarget = LibrarySearchTarget.all,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final VoidCallback? onEdit;

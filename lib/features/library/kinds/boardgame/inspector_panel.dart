@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -80,7 +80,9 @@ class _BoardGameInspectorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final item = inspector.item;
-    final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+    final adapter = item.dto is WorkspaceDtoAdapter
+        ? item.dto as WorkspaceDtoAdapter
+        : null;
     final seriesTitle = adapter?.seriesTitle?.trim();
     return LibraryInspectorTitleCard(
       item: item,
@@ -129,7 +131,7 @@ class _BoardGameInspectorMain extends StatelessWidget {
                 height: 164,
                 child: LibraryInteractiveCover(
                   title: dto.title,
-                  itemNumber: dto.itemNumber,
+                  itemNumber: adapter?.itemNumber,
                   imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
                 ),
@@ -140,10 +142,12 @@ class _BoardGameInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (dto.publisher?.isNotEmpty == true || releaseYear != null)
+                  if (adapter?.publisher?.isNotEmpty == true ||
+                      releaseYear != null)
                     Text(
                       [
-                        if (dto.publisher?.isNotEmpty == true) dto.publisher!,
+                        if (adapter?.publisher?.isNotEmpty == true)
+                          adapter!.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -151,21 +155,24 @@ class _BoardGameInspectorMain extends StatelessWidget {
                           ),
                     ),
                   const SizedBox(height: 8),
-                  if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
-                      dto.variant?.trim().isNotEmpty == true)
+                  if (adapter?.referenceFormatLabel?.trim().isNotEmpty ==
+                          true ||
+                      adapter?.variant?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.casino_outlined,
-                      text: dto.referenceFormatLabel ?? dto.variant ?? '-',
+                      text: adapter?.referenceFormatLabel ??
+                          adapter?.variant ??
+                          '-',
                     ),
                   if (designerText != null)
                     LibraryInspectorInfoLine(
                       icon: Icons.design_services_outlined,
                       text: designerText,
                     ),
-                  if (dto.barcode?.trim().isNotEmpty == true)
+                  if (adapter?.barcode?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
-                      text: dto.barcode!,
+                      text: adapter!.barcode!,
                     ),
                   if (_ebayUri(item) case final uri?) ...[
                     const SizedBox(height: 8),

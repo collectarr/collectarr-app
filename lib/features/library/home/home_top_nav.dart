@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
@@ -38,7 +38,7 @@ class MediaLibraryNav extends ConsumerWidget {
   final int overdueLoanCount;
   final int selectedOverdueLoanCount;
   final String selectedLabel;
-  final LibraryTypeRegistry registry;
+  final LibraryKindRegistry registry;
   final String selectedKind;
   final ValueChanged<CatalogMediaType> onSelected;
   final Duration animationDuration;
@@ -133,13 +133,13 @@ class MediaLibraryTitleBar extends ConsumerWidget {
   final int overdueLoanCount;
   final int selectedOverdueLoanCount;
   final String selectedLabel;
-  final LibraryTypeRegistry registry;
+  final LibraryKindRegistry registry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accentData = LibraryAccentScope.of(context);
     final palette = appPalette(context);
-    final icon = registry.byKind(type.mediaKind)?.workspace.icon ??
+    final icon = registry.tryGet(type.mediaKind)?.identity.icon ??
         libraryIconForKind(type.mediaKind);
     return AnimatedLibraryChromeGradient(
       accent: accentData.accent,
@@ -450,7 +450,7 @@ class MediaLibraryNavStrip extends StatefulWidget {
 
   final List<CatalogMediaType> types;
   final Map<String, LibraryKindCount> counts;
-  final LibraryTypeRegistry registry;
+  final LibraryKindRegistry registry;
   final String selectedKind;
   final ValueChanged<CatalogMediaType> onSelected;
   final Duration animationDuration;
@@ -560,8 +560,8 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
                                         representative.mediaKind,
                                       ),
                                       icon: widget.registry
-                                              .byKind(representative.mediaKind)
-                                              ?.workspace
+                                              .tryGet(representative.mediaKind)
+                                              ?.identity
                                               .icon ??
                                           libraryIconForKind(
                                             representative.mediaKind,

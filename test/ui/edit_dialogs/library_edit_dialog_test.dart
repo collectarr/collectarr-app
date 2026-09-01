@@ -3,15 +3,23 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -21,6 +29,8 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -50,20 +60,27 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = LibraryTypeConfig(
-      workspace: const LibraryWorkspaceConfig(
+    final type = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
+      projector: const GenericWorkspaceProjector(),
+      ownedDetailsCodec: const GenericOwnedDetailsCodec(),
+      fields: genericKindModule.fields,
+      identity: const LibraryKindIdentity(
         kind: CatalogMediaKind.unknown,
+        singularLabel: 'Item',
+        pluralLabel: 'Items',
         title: 'Generic',
         icon: Icons.category_outlined,
         accent: Colors.red,
         preferencePrefix: 'generic-test',
       ),
-      singularLabel: 'Item',
-      pluralLabel: 'Items',
-      defaultMetadataProvider: '',
-      metadataProviders: const [],
-      trackingProfile: readingTrackingProfile,
+      metadata: genericKindModule.metadata,
+      hierarchy: genericKindModule.hierarchy,
+      inspector: genericKindModule.inspector,
+      transfer: genericKindModule.transfer,
       presentation: genericLibraryMediaPresentation,
+      trackingProfile: readingTrackingProfile,
+      add: genericKindModule.add,
+      edit: genericKindModule.edit,
       capabilities: const LibraryTypeCapabilities(
         supportsMediaReleaseSplit: true,
       ),
@@ -153,7 +170,7 @@ void main() {
           ),
         );
 
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-1',
       kind: 'movie',
@@ -299,7 +316,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-edition-1',
       kind: 'movie',
@@ -401,7 +418,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'movie-publishing-1',
@@ -468,7 +485,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'movie-readonly-1',
@@ -570,7 +587,7 @@ void main() {
           ),
         );
 
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+    final type = comicKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'comic-1',
@@ -801,7 +818,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'book-1',
@@ -873,7 +890,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'book-preserve-1',
@@ -1019,7 +1036,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'book-links-1',
@@ -1095,7 +1112,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-tracked-1',
       kind: 'movie',
@@ -1186,7 +1203,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-bundle-1',
       kind: 'movie',
@@ -1283,7 +1300,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'movie-bundle-existing-1',
@@ -1362,7 +1379,7 @@ void main() {
           ),
         );
 
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'movie-digital-1',
@@ -1444,7 +1461,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-wishlist-1',
       kind: 'movie',
@@ -1558,7 +1575,7 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.music)!;
+    final type = musicKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'music-1',
@@ -1682,7 +1699,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.game)!;
+    final type = gameKindModule;
     final item = LibraryMetadataItem.fromMetadataMap(
       {
         'id': 'game-1',
@@ -1758,7 +1775,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.game)!;
+    final type = gameKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'game-1',
@@ -1825,7 +1842,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.boardgame)!;
+    final type = boardGameKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'bg-1',
@@ -1888,7 +1905,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+    final type = comicKindModule;
 
     await tester.pumpWidget(
       ProviderScope(

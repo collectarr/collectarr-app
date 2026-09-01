@@ -110,7 +110,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
                           LibraryAddResultBadge(
                             selectedItem == null
                                 ? request.providerLabel
-                                : request.type.singularLabel,
+                                : request.type.identity.singularLabel,
                             accent: request.accent,
                           ),
                           if (itemNumber != null)

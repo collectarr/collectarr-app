@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -24,7 +24,7 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
 
   static LibraryProjectionItem<LibraryWorkspaceDto> fromShelf(
     ShelfEntry source,
-    LibraryTypeConfig type, {
+    LibraryKindRuntime type, {
     List<String> customFieldBadges = const <String>[],
   }) {
     final item = source.catalogItem!;
@@ -73,7 +73,7 @@ Set<String> customFieldTargetIds({
 
 List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   ShelfState shelf,
-  LibraryTypeConfig type, {
+  LibraryKindRuntime type, {
   List<CustomFieldDefinition> customFieldDefinitions = const [],
   Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
       const {},
@@ -81,7 +81,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
   String? releaseFolderTitleItemId,
 }) {
-  final kind = type.workspace.kind;
+  final kind = type.kind;
   if (browserMode == LibraryWorkspaceBrowserMode.releases) {
     final releaseCap = type.releaseCapability;
     if (releaseCap == null) {

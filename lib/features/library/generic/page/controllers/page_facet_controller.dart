@@ -5,7 +5,7 @@ abstract final class _LibraryFacetControllerOps {
     GenericLibraryPageState state,
   ) {
     return state.ref.read(
-      libraryFacetControllerProvider(state.widget.type.workspace.kind.apiValue),
+      libraryFacetControllerProvider(state.widget.type.kind.apiValue),
     );
   }
 
@@ -14,7 +14,7 @@ abstract final class _LibraryFacetControllerOps {
   ) {
     return state.ref.read(
       libraryFacetControllerProvider(
-        state.widget.type.workspace.kind.apiValue,
+        state.widget.type.kind.apiValue,
       ).notifier,
     );
   }
@@ -51,7 +51,7 @@ abstract final class _LibraryFacetControllerOps {
     GenericLibraryPageState state,
     String mode,
   ) {
-    return state.widget.type.presentation.externalFacetBucketIdsByMode[mode];
+    return state.widget.type.facets?.externalFacetBucketIdsByMode[mode];
   }
 
   static FacetBuckets? facetBucketsForMode(
@@ -186,7 +186,7 @@ abstract final class _LibraryFacetControllerOps {
     LibraryFacetIdRuntime facetId,
     String signature,
   ) {
-    return '${state.widget.type.workspace.kind.apiValue}|${facetId.value}|$signature';
+    return '${state.widget.type.kind.apiValue}|${facetId.value}|$signature';
   }
 
   static String genericShelfSignature(

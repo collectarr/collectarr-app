@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_dr
 import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
@@ -322,25 +321,8 @@ class ComicFeature {}
   test(
       'extensibility: custom fake kind "foo" registers and operates without generic library edits',
       () {
-    final fooKindConfig = LibraryTypeConfig(
-      workspace: const LibraryWorkspaceConfig(
-        kind: CatalogMediaKind.unknown,
-        title: 'Foo',
-        icon: Icons.extension,
-        accent: Color(0xFF673AB7),
-        preferencePrefix: 'foo',
-      ),
-      singularLabel: 'Foo',
-      pluralLabel: 'Foos',
-      defaultMetadataProvider: '',
-      metadataProviders: const [],
-      trackingProfile: readingTrackingProfile,
-      presentation: genericLibraryMediaPresentation,
-    );
-
     final fooKindModule =
         LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
-      type: fooKindConfig,
       projector: const GenericWorkspaceProjector(),
       ownedDetailsCodec: const GenericOwnedDetailsCodec(),
       fields: genericLibraryKindSchema.toRegistry(),
@@ -360,6 +342,8 @@ class ComicFeature {}
       hierarchy: const LibraryHierarchyCapability(),
       inspector: const LibraryInspectorCapability(),
       transfer: const LibraryTransferCapability(),
+      presentation: genericLibraryMediaPresentation,
+      trackingProfile: readingTrackingProfile,
       add: StandardLibraryAddCapability<GenericAddDraft>(
         kind: CatalogMediaKind.unknown,
         initialDraftBuilder: GenericAddDraft.new,
@@ -373,7 +357,7 @@ class ComicFeature {}
     // Verify operations through the generic interface
     expect(fooKindModule.identity.title, equals('Foo'));
     expect(fooKindModule.identity.singularLabel, equals('Foo'));
-    expect(fooKindModule.type.singularLabel, equals('Foo'));
+    expect(fooKindModule.identity.pluralLabel, equals('Foos'));
 
     final entry = ShelfEntry(
       itemId: 'foo-1',
@@ -414,7 +398,7 @@ class ComicFeature {}
           soldCount: 0,
           totalSellCents: 0,
         ),
-        fooKindConfig,
+        fooKindModule,
       ),
       isEmpty,
     );

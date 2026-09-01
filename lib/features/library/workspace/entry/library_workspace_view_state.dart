@@ -2,8 +2,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 class LibraryWorkspaceViewPresetConfig {
@@ -34,7 +33,7 @@ typedef LibrarySortColumnDirectionResolver = bool Function(
 
 class LibraryWorkspaceViewProfile {
   const LibraryWorkspaceViewProfile({
-    required this.type,
+    required this.runtimeResolver,
     required this.defaultCoverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
@@ -52,7 +51,7 @@ class LibraryWorkspaceViewProfile {
     this.sortAscendingForColumn,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime Function() runtimeResolver;
   final double defaultCoverSize;
   final double minCoverSize;
   final double maxCoverSize;
@@ -76,65 +75,66 @@ class LibraryWorkspaceViewProfile {
     // Use cached snapshot from a previous load/save when available so that the
     // first frame renders with the user's last-known cover size, avoiding a
     // visible pop-in when the async load completes.
-    final cached = LibraryWorkspacePreferences.cachedSnapshot(type);
+    final runtime = runtimeResolver();
+    final cached = LibraryWorkspacePreferences.cachedSnapshot(runtime);
     if (cached != null) {
       return fromPreferences(cached)
-          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(type));
+          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(runtime));
     }
-    final module = libraryKindRuntimeForType(type);
     final defaults = LibraryWorkspaceViewState(
       browserMode: LibraryWorkspaceBrowserMode.media,
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
-      sortId: module.fields.defaultSort,
+      sortId: runtime.fields.defaultSort,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
-      densityPreset: type.defaultDensityPreset,
-      visibleColumnIds: module.fields.defaultVisibleColumns,
+      densityPreset: runtime.identity.defaultDensityPreset,
+      visibleColumnIds: runtime.fields.defaultVisibleColumns,
       columnWidths: const {},
     );
     return defaults
-        .withChrome(LibraryWorkspacePreferences.cachedChromeFor(type));
+        .withChrome(LibraryWorkspacePreferences.cachedChromeFor(runtime));
   }
 
   LibraryWorkspaceViewState fromPreferences(
     LibraryWorkspacePreferenceSnapshot preferences,
   ) {
-    final module = libraryKindRuntimeForType(type);
+    final runtime = runtimeResolver();
     return LibraryWorkspaceViewState(
       browserMode: preferences.browserMode,
       viewMode: preferences.viewMode,
       detailsLayout: preferences.detailsLayout,
       isSidebarVisible: preferences.isSidebarVisible,
-      sortId: module.fields
+      sortId: runtime.fields
               .findSortDefinition(
-                module.fields.decodeSortId(preferences.sortColumn),
+                runtime.fields.decodeSortId(preferences.sortColumn),
               )
               ?.id ??
-          module.fields.defaultSort,
+          runtime.fields.defaultSort,
       sortAscending: preferences.sortAscending,
-      sortRules: _decodeSortRules(module, preferences.sortRules),
+      sortRules: _decodeSortRules(runtime, preferences.sortRules),
       coverSize: preferences.coverSize,
       sidebarWidth: preferences.sidebarWidth,
       detailsWidth: preferences.detailsWidth,
       detailsHeight: preferences.detailsHeight,
       densityPreset: preferences.densityPreset,
       visibleColumnIds:
-          _decodeVisibleColumns(module, preferences.visibleColumns),
-      columnWidths: _decodeColumnWidths(module, preferences.columnWidths).map(
+          _decodeVisibleColumns(runtime, preferences.visibleColumns),
+      columnWidths: _decodeColumnWidths(runtime, preferences.columnWidths).map(
         (column, width) => MapEntry(column, clampColumnWidth(column, width)),
       ),
     );
   }
 
   Future<LibraryWorkspaceViewState> load() async {
-    final preferences = await LibraryWorkspacePreferences(type).read(
+    final runtime = runtimeResolver();
+    final preferences = await LibraryWorkspacePreferences(runtime).read(
       defaultCoverSize: defaultCoverSize,
-      defaultDensityPreset: type.defaultDensityPreset,
+      defaultDensityPreset: runtime.identity.defaultDensityPreset,
     );
     return fromPreferenceSnapshot(preferences);
   }
@@ -148,7 +148,7 @@ class LibraryWorkspaceViewProfile {
   }
 
   Future<void> save(LibraryWorkspaceViewState state) async {
-    await LibraryWorkspacePreferences(type).write(
+    await LibraryWorkspacePreferences(runtimeResolver()).write(
       state.toPreferenceSnapshot(),
     );
   }
@@ -160,13 +160,11 @@ class LibraryWorkspaceViewProfile {
   List<LibrarySortRuleRuntime> decodeSortRules(
     Iterable<LibrarySortRule> rules,
   ) {
-    final module = libraryKindRuntimeForType(type);
-    return _decodeSortRules(module, rules);
+    return _decodeSortRules(runtimeResolver(), rules);
   }
 
   Set<LibraryFieldIdRuntime> decodeColumnIds(Iterable<String> columns) {
-    final module = libraryKindRuntimeForType(type);
-    return _decodeVisibleColumns(module, columns);
+    return _decodeVisibleColumns(runtimeResolver(), columns);
   }
 }
 

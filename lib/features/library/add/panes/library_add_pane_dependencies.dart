@@ -16,7 +16,7 @@ export 'package:collectarr_app/features/library/add/models/library_add_reference
 export 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 export 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 export 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
-export 'package:collectarr_app/features/library/config/library_type_config.dart';
+export 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 export 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 export 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 export 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';

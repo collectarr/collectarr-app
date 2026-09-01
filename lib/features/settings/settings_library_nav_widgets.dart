@@ -502,12 +502,12 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
   final topLevelByKind = {
     for (final type in catalog)
       if (type.isTopLevel ||
-          collectarrLibraryTypes.byKind(type.mediaKind) != null)
+          defaultLibraryKindRegistry.tryGet(type.mediaKind) != null)
         type.kind: type,
   };
   final defaultKinds = [
-    for (final config in collectarrLibraryTypes.types)
-      config.workspace.kind.apiValue,
+    for (final runtime in defaultLibraryKindRegistry.allRuntimes)
+      runtime.kind.apiValue,
   ];
   for (final kind in defaultKinds) {
     topLevelByKind.putIfAbsent(kind, () {

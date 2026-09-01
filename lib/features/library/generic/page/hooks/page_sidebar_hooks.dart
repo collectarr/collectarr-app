@@ -155,7 +155,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     ];
     final searchState = _searchControllerOps.state;
     return LibraryRouteState(
-      kind: widget.type.workspace.kind.apiValue,
+      kind: widget.type.kind.apiValue,
       searchQuery: _trimmedQuery(searchState.query),
       groupMode: viewState.isSidebarVisible ? _activeGroupMode : null,
       folderPreset: viewState.isSidebarVisible ? _activeFolderPreset : null,

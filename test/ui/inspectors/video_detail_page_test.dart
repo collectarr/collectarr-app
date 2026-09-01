@@ -6,9 +6,9 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +26,7 @@ void main() {
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final source1 = ShelfEntry(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
@@ -60,8 +60,7 @@ void main() {
       ),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final item = libraryKindRuntimeForKind(CatalogMediaKind.movie)
-        .project(source: source1, node: node1);
+    final item = movieKindModule.project(source: source1, node: node1);
 
     final request = LibraryDetailPageRequest(
       type: type,
@@ -102,9 +101,7 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = libraryKindRuntimeForType(detailRequest.type)
-                .inspector
-                .detailPageBuilder!;
+            final builder = detailRequest.type.inspector.detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),
@@ -156,7 +153,7 @@ void main() {
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final source2 = ShelfEntry(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
@@ -195,8 +192,7 @@ void main() {
       ),
     );
     const node2 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final item = libraryKindRuntimeForKind(CatalogMediaKind.movie)
-        .project(source: source2, node: node2);
+    final item = movieKindModule.project(source: source2, node: node2);
 
     final request = LibraryDetailPageRequest(
       type: type,
@@ -237,9 +233,7 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = libraryKindRuntimeForType(detailRequest.type)
-                .inspector
-                .detailPageBuilder!;
+            final builder = detailRequest.type.inspector.detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),
@@ -288,7 +282,7 @@ void main() {
 
   testWidgets('release browser explains when core has no releases yet',
       (tester) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
+    final type = movieKindModule;
     final source3 = ShelfEntry(
       itemId: 'movie-2',
       catalogItem: testCatalogItem(
@@ -299,8 +293,7 @@ void main() {
       ),
     );
     const node3 = LibraryTitleNodeRef(titleItemId: 'movie-2');
-    final item = libraryKindRuntimeForKind(CatalogMediaKind.movie)
-        .project(source: source3, node: node3);
+    final item = movieKindModule.project(source: source3, node: node3);
 
     final request = LibraryDetailPageRequest(
       type: type,
@@ -341,9 +334,7 @@ void main() {
           path: AppRoutes.detail,
           builder: (context, state) {
             final detailRequest = state.extra! as LibraryDetailPageRequest;
-            final builder = libraryKindRuntimeForType(detailRequest.type)
-                .inspector
-                .detailPageBuilder!;
+            final builder = detailRequest.type.inspector.detailPageBuilder!;
             return builder(context, detailRequest);
           },
         ),

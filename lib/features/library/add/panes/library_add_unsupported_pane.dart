@@ -13,7 +13,7 @@ class LibraryAddUnsupportedManualPane extends StatelessWidget {
       icon: Icons.block_outlined,
       title: 'Manual add not supported',
       message:
-          'Manual item creation is not configured for kind "${request.type.workspace.title}". Please use provider search to add items.',
+          'Manual item creation is not configured for kind "${request.type.identity.title}". Please use provider search to add items.',
       accent: request.accent,
     );
   }

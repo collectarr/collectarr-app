@@ -60,8 +60,8 @@ class LibraryPageDialogCoordinator {
         SnackBar(
           content: Text(
             added.target == LibraryAddTarget.track
-                ? '${_page.type.singularLabel} added to tracking'
-                : '${_page.type.singularLabel} added',
+                ? '${_page.type.identity.singularLabel} added to tracking'
+                : '${_page.type.identity.singularLabel} added',
           ),
         ),
       );
@@ -102,8 +102,7 @@ class LibraryPageDialogCoordinator {
       return;
     }
     final customFieldCache = await _page.ref.read(
-      libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
-          .future,
+      libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
     if (!_page.mounted) {
       return;
@@ -138,8 +137,7 @@ class LibraryPageDialogCoordinator {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final customFieldCache = await _page.ref.read(
-      libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
-          .future,
+      libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
     if (!_page.mounted) {
       return;
@@ -147,7 +145,7 @@ class LibraryPageDialogCoordinator {
     if (!context.mounted) {
       return;
     }
-    final runtime = libraryKindRuntimeForType(_page.type);
+    final runtime = _page.type;
     final currentSortRules = _page.viewState?.sortRules
         .map(
           (rule) => LibrarySortRule(
@@ -159,7 +157,7 @@ class LibraryPageDialogCoordinator {
     final result = await showSmartListsDialog(
       context: context,
       db: db,
-      mediaKind: _page.type.workspace.kind.apiValue,
+      mediaKind: _page.type.kind.apiValue,
       currentFilter: _page.filterSelection,
       currentQuickView: _page.quickView,
       currentSortRules: currentSortRules,
@@ -202,7 +200,7 @@ class LibraryPageDialogCoordinator {
     if (viewState == null) {
       return;
     }
-    final runtime = libraryKindRuntimeForType(_page.type);
+    final runtime = _page.type;
     final sortRules = await showLibrarySortDialog(
       context: _page.context,
       type: _page.type,
@@ -275,7 +273,7 @@ class LibraryPageDialogCoordinator {
     await showReadingQueueDialog(
       context: context,
       db: db,
-      mediaKind: _page.type.workspace.kind.apiValue,
+      mediaKind: _page.type.kind.apiValue,
       ownedItems: queuedOwnedItems,
       catalogItemsById: catalogItemsById,
       onSelectItem: _page.selectItem,
@@ -284,7 +282,7 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showConditionPickListEditorFlow() async {
     final db = _page.ref.read(localDatabaseProvider);
-    final editCapability = libraryKindRuntimeForType(_page.type).edit;
+    final editCapability = _page.type.edit;
     final definition =
         editCapability.vocabularies?.definitionForSuffix('condition');
     await showPickListEditorDialog(
@@ -292,7 +290,7 @@ class LibraryPageDialogCoordinator {
       db: db,
       listName: definition?.key ?? UniversalVocabularies.condition.key,
       label: 'Condition',
-      mediaKind: _page.type.workspace.kind.apiValue,
+      mediaKind: _page.type.kind.apiValue,
       builtInValues:
           definition?.builtIns.map((value) => value.toString()).toList() ??
               editCapability.conditions,
@@ -304,7 +302,7 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showGradePickListEditorFlow() async {
     final db = _page.ref.read(localDatabaseProvider);
-    final editCapability = libraryKindRuntimeForType(_page.type).edit;
+    final editCapability = _page.type.edit;
     final definition =
         editCapability.vocabularies?.definitionForSuffix('grade');
     await showPickListEditorDialog(
@@ -312,7 +310,7 @@ class LibraryPageDialogCoordinator {
       db: db,
       listName: definition?.key ?? UniversalVocabularies.grade.key,
       label: 'Grade',
-      mediaKind: _page.type.workspace.kind.apiValue,
+      mediaKind: _page.type.kind.apiValue,
       builtInValues:
           definition?.builtIns.map((value) => value.toString()).toList() ??
               editCapability.grades,
@@ -329,7 +327,7 @@ class LibraryPageDialogCoordinator {
       db: db,
       listName: UniversalVocabularies.tags.key,
       label: 'Tag',
-      mediaKind: _page.type.workspace.kind.apiValue,
+      mediaKind: _page.type.kind.apiValue,
       builtInValues: const [],
     );
     if (_page.mounted) {
@@ -376,8 +374,7 @@ class LibraryPageDialogCoordinator {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final customFieldCache = await _page.ref.read(
-      libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
-          .future,
+      libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
     final ownedItems = await _page.ref.read(collectionProvider.future);
     final visibleIds = <String>{
@@ -404,7 +401,7 @@ class LibraryPageDialogCoordinator {
     if (result != null && _page.mounted && context.mounted) {
       _page.ref.invalidate(shelfProvider);
       _page.ref.invalidate(
-        libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue),
+        libraryCustomFieldCacheProvider(_page.type.kind.apiValue),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -424,8 +421,7 @@ class LibraryPageDialogCoordinator {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final customFieldCache = await _page.ref.read(
-      libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
-          .future,
+      libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
     final ownedItems = await _page.ref.read(collectionProvider.future);
     final visibleIds = <String>{
@@ -454,7 +450,7 @@ class LibraryPageDialogCoordinator {
     if (result != null && _page.mounted && context.mounted) {
       _page.ref.invalidate(shelfProvider);
       _page.ref.invalidate(
-        libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue),
+        libraryCustomFieldCacheProvider(_page.type.kind.apiValue),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

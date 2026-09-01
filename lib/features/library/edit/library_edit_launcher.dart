@@ -1,7 +1,6 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
@@ -15,7 +14,7 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   required LibraryEditDialogRequest request,
   LibraryEditDialogRequestLoader? requestLoader,
 }) {
-  final editCapability = libraryKindRuntimeForType(request.type).edit;
+  final editCapability = request.type.edit;
   final builder = switch (request.resolvedScope) {
     LibraryEditScope.media =>
       editCapability.mediaEditDialogBuilder ?? editCapability.editDialogBuilder,
@@ -25,7 +24,7 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   };
   if (builder == null) {
     throw StateError(
-      'No edit dialog builder registered for ${request.type.workspace.kind.apiValue}.',
+      'No edit dialog builder registered for ${request.type.kind.apiValue}.',
     );
   }
 

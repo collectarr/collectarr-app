@@ -6,18 +6,22 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/release/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -32,6 +36,9 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
@@ -39,6 +46,92 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_cache_
 
 const _movieCollectionFilterId = LibraryAddFilterId('movie.collection');
 const _movieYearFilterId = LibraryAddFilterId('movie.year');
+
+const _movieAddChrome = LibraryAddChromeConfig(
+  videoKindFilterOptions: [
+    LibraryAddVideoKindFilterOption(
+      kind: 'movie',
+      label: 'Movies',
+      icon: Icons.movie_outlined,
+    ),
+    LibraryAddVideoKindFilterOption(
+      kind: 'collection',
+      label: 'Box Sets',
+      icon: Icons.collections_bookmark_outlined,
+    ),
+  ],
+  defaultVideoKindFilters: {'movie'},
+);
+
+final _movieTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'features',
+    label: 'Features',
+    icon: Icons.featured_play_list_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.movieDetails?.features,
+    write: (item, value) {
+      final details = item.movieDetails ?? const MovieOwnedDetails();
+      return item.copyWith(details: details.copyWith(features: value));
+    },
+  ),
+  TransferableField(
+    key: 'boxSetName',
+    label: 'Box set name',
+    icon: Icons.inventory_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.movieDetails?.boxSetName,
+    write: (item, value) {
+      final details = item.movieDetails ?? const MovieOwnedDetails();
+      return item.copyWith(details: details.copyWith(boxSetName: value));
+    },
+  ),
+  TransferableField(
+    key: 'packaging',
+    label: 'Packaging',
+    icon: Icons.inventory_2_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.movieDetails?.packaging,
+    write: (item, value) {
+      final details = item.movieDetails ?? const MovieOwnedDetails();
+      return item.copyWith(details: details.copyWith(packaging: value));
+    },
+  ),
+];
+
+final Set<LibraryGroupIdRuntime> _movieMediaGroupModes = Set.unmodifiable({
+  MovieGroupIds.director,
+  MovieGroupIds.publisher,
+  MovieGroupIds.genre,
+  MovieGroupIds.releaseYear,
+  MovieGroupIds.audienceRating,
+  MovieGroupIds.movieOrTvSeries,
+  MovieGroupIds.location,
+});
+
+final Set<LibraryGroupIdRuntime> _movieEditionGroupModes = Set.unmodifiable({
+  MovieGroupIds.format,
+  MovieGroupIds.audioTracks,
+  MovieGroupIds.editionReleaseDate,
+  MovieGroupIds.location,
+});
+
+final Set<LibrarySortIdRuntime> _movieMediaSortColumns = Set.unmodifiable({
+  MovieSortIds.status,
+  MovieSortIds.title,
+  MovieSortIds.publisher,
+  MovieSortIds.releaseDate,
+});
+
+final Set<LibrarySortIdRuntime> _movieEditionSortColumns = Set.unmodifiable({
+  MovieSortIds.status,
+  MovieSortIds.title,
+  MovieSortIds.publisher,
+  MovieSortIds.releaseDate,
+});
 
 Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       metadata.seriesTitle,
@@ -55,7 +148,10 @@ Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
     ];
 
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
-  type: moviesLibraryConfig,
+  presentation: moviesLibraryMediaPresentation,
+  trackingProfile: videoTrackingProfile,
+  releaseCapability:
+      const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const MovieWorkspaceProjector(),
   ownedDetailsCodec: const MovieOwnedDetailsCodec(),
   fields: movieLibraryKindSchema.toRegistry(),
@@ -76,8 +172,23 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     defaultProviderId: 'tmdb',
     providers: [tmdbMetadataProvider],
   ),
+  capabilities: LibraryTypeCapabilities(
+    supportsMediaReleaseSplit: true,
+    wideDialog: true,
+    mediaScopeGroupIds: _movieMediaGroupModes,
+    releaseScopeGroupIds: _movieEditionGroupModes,
+    mediaScopeSortIds: _movieMediaSortColumns,
+    releaseScopeSortIds: _movieEditionSortColumns,
+    compactBucketIcon: Icons.movie_filter_outlined,
+    emptyStateProviderSummarySuffix:
+        ' Physical formats are tracked as editions.',
+  ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.flat,
+    defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
+    defaultVideoGrouping: VideoGroupingDefault.none,
+    videoSeriesEntryTypes: {'tv'},
+    videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
     browserDelegateBuilder: buildMovieBrowserDelegate,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Title',
@@ -91,7 +202,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     _movieLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
-    kindFields: movieTransferableFields,
+    kindFields: _movieTransferableFields,
   ),
   stats: const MovieStatsCapability(),
   add: StandardLibraryAddCapability<MovieAddDraft>(
@@ -100,19 +211,21 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     initialDraftBuilder: MovieAddDraft.new,
     manualDraftBuilder: MovieAddManualDraft.new,
     manualPaneBuilder: buildMovieAddManualPane,
+    chrome: _movieAddChrome,
     headerBuilder: buildMovieAddHeader,
     modeBarBuilder: buildMovieAddModeBar,
     previewPaneBuilder: buildMovieAddPreviewPane,
     searchPaneBuilder: buildMovieAddSearchPane,
     bottomBarBuilder: buildMovieAddBottomBar,
     search: LibraryAddSearchCapability(
-      initialAdvancedFilters:
-          buildLibraryAddVideoInitialFilters(moviesLibraryConfig),
+      initialAdvancedFilters: {
+        libraryAddVideoKindFilterId: {'movie'},
+      },
       advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
       searchInputPredicate: libraryAddVideoHasSearchInput,
       kindSpecificPaneBuilder: buildLibraryAddVideoKindFilterRow,
       providerKindOverridesBuilder: (context) =>
-          libraryAddVideoKindOverrides(moviesLibraryConfig, context),
+          libraryAddVideoKindOverridesForChrome(_movieAddChrome, context),
       coreSearchInputBuilder: _buildMovieCoreSearchInput,
       providerQueryBuilder: _buildMovieProviderQuery,
       ranking: buildLibraryAddSearchRanking(

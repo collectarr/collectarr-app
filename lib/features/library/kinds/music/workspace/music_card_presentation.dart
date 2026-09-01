@@ -483,7 +483,8 @@ String? musicCardArtist(LibraryProjectionRuntime item) {
       return rawName;
     }
   }
-  final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+  final adapter =
+      item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
   final publisher = adapter?.publisher?.trim();
   if (publisher != null && publisher.isNotEmpty) {
     return publisher;
@@ -537,7 +538,7 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   final runtime = defaultLibraryKindRegistry
       .tryGet(catalogMediaKindFromValue(item.source.catalogItem?.kind));
   if (runtime == null) return null;
-  return runtime.type.presentation.builder.buildMetadataPresentation(
+  return runtime.presentation.builder.buildMetadataPresentation(
     singularLabel: runtime.identity.singularLabel,
     mediaFields: runtime.edit.mediaFields,
     releaseFields: runtime.edit.releaseFields,

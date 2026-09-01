@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/detail/adaptive_item_detail_presentation.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +19,7 @@ void main() {
       (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+    final type = comicKindModule;
 
     final source = ShelfEntry(
       itemId: 'comic-1',

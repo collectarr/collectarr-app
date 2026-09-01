@@ -1,11 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
-import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
@@ -18,7 +17,7 @@ Future<void> showMetadataCorrectionDialog({
   required BuildContext context,
   required WidgetRef ref,
   required dynamic item,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
 }) async {
   final draft = await showDialog<_MetadataCorrectionDraft>(
     context: context,
@@ -27,7 +26,6 @@ Future<void> showMetadataCorrectionDialog({
   if (draft == null || !context.mounted) return;
 
   try {
-    final resolvedType = ref.read(resolvedLibraryTypeProvider(type));
     final query = draft.queryFor(item);
     final itemTitle =
         item is LibraryMetadataItem ? item.title : (item as CatalogItem).title;
@@ -35,14 +33,14 @@ Future<void> showMetadataCorrectionDialog({
         draft.title.trim().isEmpty ? itemTitle : draft.title.trim();
     final response = await createLibraryMetadataProposal(
       api: ref.read(apiClientProvider),
-      type: resolvedType,
+      type: type,
       query: query,
       title: title,
       summary: draft.summaryFor(item),
     );
     await recordLibraryMetadataProposalResponse(
       response: response,
-      type: resolvedType,
+      type: type,
       query: query,
       title: title,
       source: 'Metadata correction',

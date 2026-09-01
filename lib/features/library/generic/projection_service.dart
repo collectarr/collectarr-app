@@ -5,7 +5,7 @@ class LibraryProjectionService {
 
   LibraryProjection build({
     required ShelfState shelf,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryWorkspaceViewState viewState,
     LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
     String? releaseFolderTitleItemId,
@@ -28,7 +28,7 @@ class LibraryProjectionService {
     Set<String> activeLoanOwnedItemIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
-    final runtime = libraryKindRuntimeForType(type);
+    final runtime = type;
     final projectionQuery = LibraryProjectionQuery(
       searchQuery: query,
       groupId: runtime.fields.decodeGroupId(groupMode),

@@ -144,11 +144,5 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: mangaPreviewLabels,
   statsLabels: mangaStatsLabels,
   filterDefinitions: mangaLibraryFilterDefinitions,
-  usesTreeProviderCandidates: true,
-  externalFacetBucketIdsByMode: const {
-    'manga.genre': MangaFacetIds.genre,
-    'manga.demographic': MangaFacetIds.demographic,
-  },
-  usesCompactTableLayout: true,
   fieldDefinitions: mangaLibraryFieldDefinitions,
 );

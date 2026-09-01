@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +24,7 @@ void main() {
               width: 320,
               height: 420,
               child: LibrarySidebar(
-                type: moviesLibraryConfig,
+                type: movieKindModule,
                 accent: Colors.cyan,
                 buckets: const [
                   LibraryBucket(title: 'All Movies', count: 12),
@@ -53,15 +53,14 @@ void main() {
     );
 
     expect(
-      find.text(
-          genericGroupModeFolderSetLabel(selectedMode, moviesLibraryConfig)),
+      find.text(genericGroupModeFolderSetLabel(selectedMode, movieKindModule)),
       findsOneWidget,
     );
     expect(find.text('Folder set'), findsNothing);
     expect(find.text('Current folder'), findsNothing);
 
     await tester.tap(find
-        .text(genericGroupModeFolderSetLabel(selectedMode, moviesLibraryConfig))
+        .text(genericGroupModeFolderSetLabel(selectedMode, movieKindModule))
         .first);
     await tester.pumpAndSettle();
 
@@ -107,7 +106,7 @@ void main() {
               width: 320,
               height: 420,
               child: LibrarySidebar(
-                type: moviesLibraryConfig,
+                type: movieKindModule,
                 accent: Colors.cyan,
                 buckets: const [
                   LibraryBucket(title: 'All Movies', count: 12),
@@ -151,7 +150,7 @@ void main() {
               width: 320,
               height: 420,
               child: LibrarySidebar(
-                type: moviesLibraryConfig,
+                type: movieKindModule,
                 accent: Colors.cyan,
                 buckets: const [
                   LibraryBucket(title: '[All Movies]', count: 12),
@@ -194,7 +193,7 @@ void main() {
                   width: 320,
                   height: 420,
                   child: LibrarySidebar(
-                    type: moviesLibraryConfig,
+                    type: movieKindModule,
                     accent: Colors.cyan,
                     buckets: const [
                       LibraryBucket(

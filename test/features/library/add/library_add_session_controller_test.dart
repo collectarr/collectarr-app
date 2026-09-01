@@ -400,7 +400,7 @@ void main() {
       );
 
       final results = await runLibraryAddProviderSearch(
-        type: libraryKindRuntimeForKind(CatalogMediaKind.comic).type,
+        type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
         provider: 'all',
         query: 'Batman',
         ranking: libraryKindRuntimeForKind(CatalogMediaKind.comic)

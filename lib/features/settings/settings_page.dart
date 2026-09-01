@@ -24,12 +24,12 @@ import 'package:collectarr_app/features/settings/import_job_provider.dart';
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -197,7 +197,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 trailing: const Icon(Icons.chevron_right, size: 20),
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                       builder: (ctx) => Theme(
                         data: buildLibraryAccentTheme(Theme.of(ctx), accent),
                         child: Scaffold(

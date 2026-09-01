@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
@@ -325,7 +325,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
         children: [Text('Failed to load series issues: $error')],
       ),
       data: (items) {
-        final ownedIds = {
+        final Set<String> ownedIds = {
           for (final owned in request.ownedCopies) owned.itemId,
         };
         final missingNumbers = _computeMissingIssues(items, ownedIds);
@@ -490,11 +490,12 @@ List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
         label: 'Format', value: adapter!.referenceFormatLabel!.trim()));
   }
   if (adapter?.country?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Country', value: adapter!.country!.trim()));
+    rows.add(
+        LibraryDetailField(label: 'Country', value: adapter!.country!.trim()));
   }
   if (adapter?.language?.trim().isNotEmpty == true) {
-    rows.add(
-        LibraryDetailField(label: 'Language', value: adapter!.language!.trim()));
+    rows.add(LibraryDetailField(
+        label: 'Language', value: adapter!.language!.trim()));
   }
   if (publishing?.pageCount != null) {
     rows.add(LibraryDetailField(

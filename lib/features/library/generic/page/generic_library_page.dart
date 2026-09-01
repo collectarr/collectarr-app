@@ -49,11 +49,11 @@ import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/generic/facet_controller_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
@@ -105,7 +105,7 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
     this.switchLayoutSnapshot,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Widget topBar;
   final Color accent;
   final Uri routeUri;
@@ -179,7 +179,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Timer? _selectionHydrationDebounce;
   ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
   late final workspaceKey = LibraryWorkspaceKey(
-    kind: widget.type.workspace.kind,
+    kind: widget.type.kind,
   );
   ProviderSubscription<LibraryFilterState>? _filtersSubscription;
   ProviderSubscription<LibraryViewConfigState>? _viewConfigSubscription;
@@ -892,8 +892,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @protected
   bool supportsBucketManagement(String mode) {
-    return widget.type.kindUiAdapter
-        .supportsBucketManagement(widget.type, mode);
+    final fields = widget.type.fields;
+    final groupDef = fields.findGroupDefinition(fields.decodeGroupId(mode));
+    return groupDef?.supportsBucketManagement ?? false;
   }
 
   @protected
@@ -986,7 +987,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       final item = await ref
           .read(apiClientProvider)
           .getTypedMetadataItem(
-            kind: widget.type.workspace.kind.apiValue,
+            kind: widget.type.kind.apiValue,
             id: itemId,
           )
           .then(

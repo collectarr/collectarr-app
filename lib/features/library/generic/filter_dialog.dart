@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -17,7 +16,7 @@ enum LibraryOwnershipFilter { all, owned, wishlist, forSale, onOrder }
 
 String libraryOwnershipFilterLabel(
   LibraryOwnershipFilter filter, {
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -44,7 +43,7 @@ enum LibraryTrackingStatusFilter {
 
 String libraryTrackingStatusFilterLabel(
   LibraryTrackingStatusFilter filter, {
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -90,7 +89,7 @@ enum LibraryLoanStatusFilter { all, onLoan, available }
 
 String libraryLoanStatusFilterLabel(
   LibraryLoanStatusFilter filter, {
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -106,7 +105,7 @@ enum LibraryDateRangeField { updated, purchased, started, finished }
 
 String libraryDateRangeFieldLabel(
   LibraryDateRangeField field, {
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -120,15 +119,12 @@ String libraryDateRangeFieldLabel(
 }
 
 LibraryFilterOptionLabels _libraryFilterOptionLabels({
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
   CatalogMediaKind? mediaType,
 }) {
   return type?.presentation.filterOptionLabels ??
       (mediaType != null
-          ? collectarrLibraryTypes
-              .byKind(mediaType)
-              ?.presentation
-              .filterOptionLabels
+          ? libraryKindRuntimeForKind(mediaType).presentation.filterOptionLabels
           : null) ??
       const LibraryFilterOptionLabels();
 }
@@ -285,12 +281,12 @@ int _fieldValuesHash(Map<String, String?> values) {
 
 LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
   LibraryFilterSelection selection,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   final supportedFields = {
     for (final definition in type.presentation.filterDefinitions) definition.id,
   };
-  final editCap = libraryKindRuntimeForKind(type.workspace.kind).edit;
+  final editCap = type.edit;
   final grades = editCap.grades;
   final hasGrades = grades.isNotEmpty && supportedFields.contains('grade');
   final fieldValues = <String, String?>{};
@@ -491,7 +487,7 @@ bool libraryFilterMatches(
 /// if the user cancels.
 Future<LibraryFilterSelection?> showLibraryFilterDialog({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryFilterSelection current,
   required LibraryFilterOptions options,
 }) {
@@ -512,7 +508,7 @@ class _LibraryFilterDialog extends StatefulWidget {
     required this.options,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryFilterSelection initial;
   final LibraryFilterOptions options;
 
@@ -553,7 +549,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accent = widget.type.workspace.accent;
+    final accent = widget.type.identity.accent;
     final selectedCustomField = _selectedCustomFieldOption();
     final viewport = MediaQuery.sizeOf(context);
     final ownershipValues = [

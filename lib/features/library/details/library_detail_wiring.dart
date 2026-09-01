@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailEditorSections({
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryProjectionRuntime item,
   required Color accent,
   OwnedItem? ownedItem,
@@ -32,7 +32,7 @@ List<Widget> buildLibraryDetailEditorSections({
 }
 
 List<Widget> buildLibraryInspectorEditorSections({
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryProjectionRuntime item,
   required Color accent,
   OwnedItem? ownedItem,
@@ -49,7 +49,7 @@ List<Widget> buildLibraryInspectorEditorSections({
 
 List<Widget> buildLibraryDetailKindSections({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryProjectionRuntime item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
@@ -64,7 +64,7 @@ List<Widget> buildLibraryDetailKindSections({
 
 List<Widget> buildLibraryInspectorKindSections({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryProjectionRuntime item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,

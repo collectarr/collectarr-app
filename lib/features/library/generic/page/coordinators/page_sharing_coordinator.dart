@@ -12,7 +12,7 @@ class LibraryPageSharingCoordinator {
     final items = projection.filteredItems;
     showCollectionShareDialog(
       context: _page.context,
-      title: _page.type.workspace.title,
+      title: _page.type.identity.title,
       items: items,
     );
   }
@@ -26,7 +26,7 @@ class LibraryPageSharingCoordinator {
     if (items.isEmpty) return;
     showCollectionShareDialog(
       context: _page.context,
-      title: _page.type.workspace.title,
+      title: _page.type.identity.title,
       items: items,
     );
   }

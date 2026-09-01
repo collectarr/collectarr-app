@@ -1,8 +1,6 @@
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:flutter/material.dart';
 
 import 'library_filter_presentation.dart';
 import 'library_metadata_presentation.dart';
@@ -20,18 +18,6 @@ class LibraryMediaPresentation {
     required this.bucketLabelBuilder,
     this.previewLabels = const LibraryMediaPreviewLabels(),
     this.statsLabels = const LibraryMediaStatsLabels(),
-    this.usesTreeProviderCandidates = false,
-    this.externalFacetBucketIdsByMode = const {},
-    this.supportsTrackSearch = false,
-    this.usesTrackListCard = false,
-    this.showsSeasonGroupProgress = false,
-    this.defaultVideoDisplayLevel,
-    this.defaultVideoGrouping = VideoGroupingDefault.none,
-    this.videoSeriesEntryTypes = const {},
-    this.videoShelfDrilldownEntryTypes = const {},
-    this.usesCompactTableLayout = false,
-    this.compactBucketIcon = Icons.folder,
-    this.emptyStateProviderSummarySuffix = '',
     this.sortFavorites = defaultLibrarySortFavorites,
     this.columnFavorites = defaultLibraryColumnFavorites,
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
@@ -50,18 +36,6 @@ class LibraryMediaPresentation {
   final LibraryBucketLabelBuilder bucketLabelBuilder;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
-  final bool usesTreeProviderCandidates;
-  final Map<String, LibraryFacetIdRuntime> externalFacetBucketIdsByMode;
-  final bool supportsTrackSearch;
-  final bool usesTrackListCard;
-  final bool showsSeasonGroupProgress;
-  final VideoDisplayLevel? defaultVideoDisplayLevel;
-  final VideoGroupingDefault defaultVideoGrouping;
-  final Set<String> videoSeriesEntryTypes;
-  final Set<String> videoShelfDrilldownEntryTypes;
-  final bool usesCompactTableLayout;
-  final IconData compactBucketIcon;
-  final String emptyStateProviderSummarySuffix;
   final List<LibrarySortFavorite> sortFavorites;
   final List<LibraryTableColumnPreset> columnFavorites;
   final LibraryFilterOptionLabels filterOptionLabels;

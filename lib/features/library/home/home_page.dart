@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_rail.dart';
 import 'package:collectarr_app/features/library/home/library_switch_transition.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -248,7 +248,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
   Widget _buildCachedKindBody({
     required CatalogMediaType selected,
-    required LibraryTypeConfig selectedConfig,
+    required LibraryKindRuntime selectedConfig,
     required Widget resolvedTopBar,
     required Color accent,
     required Uri routeUri,
@@ -402,7 +402,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
       onSelected: (type) => _replaceLibraryKind(type.kind),
     );
-    final selectedConfig = libraryConfigForCatalogType(selected, registry);
+    final selectedConfig = libraryRuntimeForCatalogType(selected, registry);
     final offlineBanner = isCatalogOffline
         ? Container(
             width: double.infinity,

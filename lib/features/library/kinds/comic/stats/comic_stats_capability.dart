@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
   ) {
     return [
       if (state.keyComicCount > 0)
@@ -27,7 +27,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
   ) {
     final seriesGap = _seriesGapSummary(state.entries);
     final volumeGap = _numberedGapSummary(

@@ -374,8 +374,8 @@ class _ComicSearchRow extends StatelessWidget {
               LibraryAddResultBadge(
                 entry.catalog != null
                     ? 'core'
-                    : request.type
-                        .metadataProviderLabel(entry.candidate!.provider),
+                    : request.type.metadata
+                        .providerLabel(entry.candidate!.provider),
                 accent: request.accent,
               ),
               if (owned)

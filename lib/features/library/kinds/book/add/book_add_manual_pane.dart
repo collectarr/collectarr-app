@@ -105,7 +105,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             LibraryAddManualIntroCard(
-              icon: request.type.workspace.icon,
+              icon: request.type.identity.icon,
               accent: request.accent,
               title: 'Manual book',
               subtitle:

@@ -3,27 +3,23 @@ part of '../generic_library_page.dart';
 // ignore_for_file: invalid_use_of_protected_member, unused_element
 
 extension _PageKindHooks on GenericLibraryPageState {
-  LibraryWorkspaceViewProfile get _viewProfile =>
-      libraryKindRuntimeForType(widget.type).viewProfile;
+  LibraryWorkspaceViewProfile get _viewProfile => widget.type.viewProfile;
 
-  bool get _supportsTrackSearch =>
-      widget.type.kindUiAdapter.supportsTrackSearch(widget.type);
+  bool get _supportsTrackSearch => widget.type.capabilities.supportsTrackSearch;
 
   LibrarySearchTarget get _effectiveSearchTarget => _supportsTrackSearch
       ? _searchControllerOps.state.target
       : LibrarySearchTarget.all;
 
   LibraryViewPreferenceStore get _viewPrefs =>
-      LibraryViewPreferenceStore(widget.type.workspace.kind);
+      LibraryViewPreferenceStore(widget.type.kind);
 
   bool get _supportsMediaReleaseSplit {
-    return libraryKindRuntimeForType(widget.type)
-        .hierarchy
-        .supportsMediaReleaseSplit;
+    return widget.type.hierarchy.supportsMediaReleaseSplit;
   }
 
   bool showsReadingQueue() {
-    return widget.type.kindUiAdapter.showsReadingQueue(widget.type);
+    return widget.type.hierarchy.showsReadingQueue;
   }
 
   bool get _isScopedMediaReleaseSplit {
@@ -32,16 +28,14 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
-    return widget.type.kindUiAdapter.browserModeForViewState(
-      widget.type,
+    return widget.type.hierarchy.browserModeForViewState(
       _viewState ?? _viewProfile.defaults(),
       releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
     );
   }
 
   bool _shouldOpenReleaseFolder(LibraryProjectionItem item) {
-    return widget.type.kindUiAdapter.shouldOpenReleaseFolderOnOpen(
-      widget.type,
+    return widget.type.hierarchy.shouldOpenReleaseFolderOnOpen(
       browserMode: _activeBrowserMode,
       browseScope: item.node.scope,
     );
@@ -75,11 +69,16 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   String? _releaseFolderLabelForProjection(LibraryProjection? projection) {
-    return widget.type.kindUiAdapter.releaseFolderLabelForProjection(
-      widget.type,
-      projection,
-      releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
-    );
+    final titleId = activeReleaseFolderTitleItemId;
+    if (titleId == null || projection == null) {
+      return null;
+    }
+    for (final item in projection.allItems) {
+      if (item.node.titleItemId == titleId) {
+        return item.dto.title;
+      }
+    }
+    return null;
   }
 
   String? _releasePositionLabelForProjection(LibraryProjection projection) {
@@ -98,16 +97,16 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   List<String> get _scopeAvailableGroupModes {
     return [
-      for (final groupId in libraryKindRuntimeForType(widget.type)
-          .availableGroupIdsForBrowserMode(_activeBrowserMode))
+      for (final groupId
+          in widget.type.availableGroupIdsForBrowserMode(_activeBrowserMode))
         groupId.value,
     ];
   }
 
   List<String> get _scopeAvailableSortColumns {
     return [
-      for (final sortId in libraryKindRuntimeForType(widget.type)
-          .availableSortIdsForBrowserMode(_activeBrowserMode))
+      for (final sortId
+          in widget.type.availableSortIdsForBrowserMode(_activeBrowserMode))
         sortId.value,
     ];
   }

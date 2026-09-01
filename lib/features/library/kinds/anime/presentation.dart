@@ -137,12 +137,5 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: animePreviewLabels,
   statsLabels: animeStatsLabels,
   filterDefinitions: animeLibraryFilterDefinitions,
-  usesTreeProviderCandidates: true,
-  defaultVideoDisplayLevel: VideoDisplayLevel.season,
-  defaultVideoGrouping: VideoGroupingDefault.bySeries,
-  videoSeriesEntryTypes: const {'anime'},
-  videoShelfDrilldownEntryTypes: const {'anime'},
-  usesCompactTableLayout: true,
-  compactBucketIcon: Icons.tv_outlined,
   fieldDefinitions: animeLibraryFieldDefinitions,
 );

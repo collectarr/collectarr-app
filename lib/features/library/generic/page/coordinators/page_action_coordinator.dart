@@ -25,12 +25,18 @@ final class LibraryPageActionCoordinator {
 
   void updateSearch(String query) => session.updateSearch(query);
 
-  void updateSort(String sortId, {bool? ascending}) =>
-      session.updateSort(sortId, ascending: ascending);
+  void updateSort(String sortId, {bool? ascending}) => session.updateSort(
+        kindRuntime.fields.decodeSortId(sortId),
+        ascending: ascending,
+      );
 
-  void updateGroup(String? groupMode) => session.updateGroup(groupMode);
+  void updateGroup(String? groupMode) => session.updateGroup(
+        groupMode == null ? null : kindRuntime.fields.decodeGroupId(groupMode),
+      );
 
-  void toggleColumn(String columnId) => session.toggleColumn(columnId);
+  void toggleColumn(String columnId) => session.toggleColumn(
+        kindRuntime.fields.decodeColumnId(columnId),
+      );
 
   void selectItem(String itemId, {bool multiSelect = false}) =>
       session.selectItem(itemId, multiSelect: multiSelect);

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/auth/auth_page.dart';
 import 'package:collectarr_app/features/calendar/calendar_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
 import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
@@ -154,9 +154,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           if (request == null) {
             return LibraryHomePage(routeUri: state.uri);
           }
-          final builder = libraryKindRuntimeForType(request.type)
-                  .inspector
-                  .detailPageBuilder ??
+          final builder = request.type.inspector.detailPageBuilder ??
               _buildDefaultDetailPage;
           return builder(context, request);
         },

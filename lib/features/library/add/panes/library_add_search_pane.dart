@@ -37,7 +37,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.onSearchCore,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final bool isBusy;
   final String? error;
   final Color accent;
@@ -354,7 +354,7 @@ class _SearchResultsList extends StatelessWidget {
     required this.onToggleProviderCheck,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final bool useGridResults;
   final String selectedProvider;
@@ -419,7 +419,7 @@ class _SearchResultsList extends StatelessWidget {
         selectedProviderCandidateId: selectedProviderCandidateId,
         checkedResultIds: checkedResultIds,
         ownedCatalogItemIds: ownedCatalogItemIds,
-        providerLabel: type.metadataProviderLabel,
+        providerLabel: type.metadata.providerLabel,
         coreMatchSummary: coreMatchSummary,
         providerMatchSummary: providerMatchSummary,
         onSelectResult: onSelectResult,
@@ -441,7 +441,7 @@ class _SearchResultsList extends StatelessWidget {
         notice,
         if (fallbackProviderLabel != null)
           _ProviderFallbackNotice(
-            requestedProvider: type.metadataProviderLabel(selectedProvider),
+            requestedProvider: type.metadata.providerLabel(selectedProvider),
             fallbackProvider: fallbackProviderLabel,
           ),
         // mixed provider summary removed per UX preference.
@@ -456,7 +456,7 @@ class _SearchResultsList extends StatelessWidget {
             checkedResultIds: checkedResultIds,
             ownedCatalogItemIds: ownedCatalogItemIds,
             queuedProviderIngests: queuedProviderIngests,
-            providerLabel: type.metadataProviderLabel,
+            providerLabel: type.metadata.providerLabel,
             onSelectResult: onSelectResult,
             onSelectProviderCandidate: onSelectProviderCandidate,
             onToggleResultCheck: onToggleResultCheck,
@@ -478,7 +478,7 @@ class _SearchResultsList extends StatelessWidget {
     }
     final onlyProvider = providers.first;
     if (onlyProvider != selectedProvider) {
-      return type.metadataProviderLabel(onlyProvider);
+      return type.metadata.providerLabel(onlyProvider);
     }
     return null;
   }
@@ -513,7 +513,7 @@ class _SearchResultsGrid extends StatelessWidget {
     required this.onToggleResultCheck,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final List<LibraryMetadataItem> results;
   final List<ProviderCandidate> providerResults;
@@ -921,7 +921,7 @@ class SearchResultTile extends StatelessWidget {
     required this.onToggleCheck,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryMetadataItem item;
   final Color accent;
   final String? Function(LibraryMetadataItem item)? matchSummary;
@@ -1133,7 +1133,7 @@ class ProviderCandidateTile extends StatelessWidget {
     required this.onSelect,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final ProviderCandidate candidate;
   final Color accent;
   final String providerLabel;
@@ -1272,7 +1272,7 @@ class _NoSearchResults extends StatelessWidget {
     required this.searchedProvider,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final String selectedProvider;
   final bool searchedProvider;
@@ -1286,7 +1286,7 @@ class _NoSearchResults extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(type.workspace.icon, size: 28, color: accent),
+            Icon(type.identity.icon, size: 28, color: accent),
             const SizedBox(height: 8),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 360),
@@ -1307,12 +1307,12 @@ class _NoSearchResults extends StatelessWidget {
   }
 
   String get _message {
-    if (type.supportedMetadataProviders.isEmpty) {
+    if (type.metadata.supportedProvidersForKind(type.kind).isEmpty) {
       return 'No Core providers are configured for this library yet. Add a manual item to keep working locally.';
     }
     if (searchedProvider) {
-      return 'No ${type.metadataProviderLabel(selectedProvider)} candidates found. Try a broader query or add a manual item.';
+      return 'No ${type.metadata.providerLabel(selectedProvider)} candidates found. Try a broader query or add a manual item.';
     }
-    return 'Search Core, lookup a barcode, search ${type.metadataProviderLabel(selectedProvider)}, or add a manual item if Core is offline.';
+    return 'Search Core, lookup a barcode, search ${type.metadata.providerLabel(selectedProvider)}, or add a manual item if Core is offline.';
   }
 }

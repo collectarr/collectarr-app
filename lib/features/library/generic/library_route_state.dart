@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -75,9 +75,8 @@ class LibraryRouteState {
             .where((k) => k.apiValue == kindStr)
             .firstOrNull
         : null;
-    final type = kindEnum != null
-        ? defaultLibraryKindRegistry.tryGet(kindEnum)?.type
-        : null;
+    final type =
+        kindEnum != null ? defaultLibraryKindRegistry.tryGet(kindEnum) : null;
     final folderPreset = _decodeFolderPreset(params[folderKey], type);
     return LibraryRouteState(
       kind: kindStr,
@@ -103,8 +102,8 @@ class LibraryRouteState {
     );
   }
 
-  Uri toUri(Uri baseUri, {required LibraryTypeConfig type}) {
-    final kind = type.workspace.kind.apiValue;
+  Uri toUri(Uri baseUri, {required LibraryKindRuntime type}) {
+    final kind = type.kind.apiValue;
     final params = <String, String>{kindKey: kind.trim().toLowerCase()};
     final trimmedQuery = _trimmed(searchQuery);
     if (trimmedQuery != null) {
@@ -151,13 +150,13 @@ class LibraryRouteState {
     return baseUri.replace(queryParameters: params);
   }
 
-  LibraryRouteState filteredForType(LibraryTypeConfig type) {
-    final expectedKind = type.workspace.kind.apiValue;
+  LibraryRouteState filteredForType(LibraryKindRuntime type) {
+    final expectedKind = type.kind.apiValue;
     final routeKind = kind?.trim().toLowerCase();
     if (routeKind != null && routeKind != expectedKind) {
       return LibraryRouteState(kind: expectedKind);
     }
-    final runtime = libraryKindRuntimeForType(type);
+    final runtime = type;
     final allowedGroupModes =
         runtime.availableGroupIds.map((groupId) => groupId.value).toSet();
     final filteredFolderPreset = sanitizeLibraryFolderPreset(
@@ -211,7 +210,7 @@ class LibraryRouteState {
 
   static String? _encodeSortRules(
     List<LibrarySortRule>? rules,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
   ) {
     if (rules == null || rules.isEmpty) {
       return null;
@@ -273,7 +272,7 @@ class LibraryRouteState {
   }
 
   static LibraryFolderPreset? _decodeFolderPreset(String? rawValue,
-      [LibraryTypeConfig? type]) {
+      [LibraryKindRuntime? type]) {
     final trimmedValue = _trimmed(rawValue);
     if (trimmedValue == null) {
       return null;
@@ -402,13 +401,12 @@ String _normalizeFilterFieldId(String id) {
 
 LibraryQuickView? sanitizeLibraryQuickViewForType(
   LibraryQuickView? quickView,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   if (quickView == null) {
     return null;
   }
-  if (quickView.requiresGrades &&
-      libraryKindRuntimeForType(type).edit.grades.isEmpty) {
+  if (quickView.requiresGrades && type.edit.grades.isEmpty) {
     return null;
   }
   return quickView;

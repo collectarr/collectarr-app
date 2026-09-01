@@ -1,10 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -25,8 +20,8 @@ void main() {
   });
 
   test('music search labels use artist terminology', () {
-    final musicLabels = libraryMediaSearchFieldLabels(musicLibraryConfig);
-    final movieLabels = libraryMediaSearchFieldLabels(moviesLibraryConfig);
+    final musicLabels = libraryMediaSearchFieldLabels(musicKindModule);
+    final movieLabels = libraryMediaSearchFieldLabels(movieKindModule);
 
     expect(musicLabels.queryHint, 'Enter album, artist, release, or label...');
     expect(musicLabels.emptySearchMessage,
@@ -35,9 +30,9 @@ void main() {
   });
 
   test('filter labels vary by media type', () {
-    final musicLabels = libraryMediaFilterLabels(musicLibraryConfig);
-    final movieLabels = libraryMediaFilterLabels(moviesLibraryConfig);
-    final gameLabels = libraryMediaFilterLabels(gamesLibraryConfig);
+    final musicLabels = libraryMediaFilterLabels(musicKindModule);
+    final movieLabels = libraryMediaFilterLabels(movieKindModule);
+    final gameLabels = libraryMediaFilterLabels(gameKindModule);
 
     expect(musicLabels.labelFor('series'), 'Artist');
     expect(musicLabels.labelFor('series_any'), 'Any artist');
@@ -48,8 +43,8 @@ void main() {
   });
 
   test('group labels vary by media type', () {
-    final musicLabels = libraryMediaGroupLabels(musicLibraryConfig);
-    final movieLabels = libraryMediaGroupLabels(moviesLibraryConfig);
+    final musicLabels = libraryMediaGroupLabels(musicKindModule);
+    final movieLabels = libraryMediaGroupLabels(movieKindModule);
 
     expect(musicLabels.labelFor('series'), 'Artist');
     expect(musicLabels.labelFor('series_plural'), 'Artists');
@@ -63,9 +58,9 @@ void main() {
   });
 
   test('preview labels vary by media type', () {
-    final musicLabels = libraryMediaPreviewLabels(musicLibraryConfig);
-    final movieLabels = libraryMediaPreviewLabels(moviesLibraryConfig);
-    final bookLabels = libraryMediaPreviewLabels(booksLibraryConfig);
+    final musicLabels = libraryMediaPreviewLabels(musicKindModule);
+    final movieLabels = libraryMediaPreviewLabels(movieKindModule);
+    final bookLabels = libraryMediaPreviewLabels(bookKindModule);
 
     expect(musicLabels.labelFor('series'), 'Artist');
     expect(musicLabels.labelFor('item_count'), 'Releases');
@@ -75,31 +70,29 @@ void main() {
   });
 
   test('stats labels and candidate layout vary by media type', () {
-    expect(musicLibraryConfig.presentation.statsLabels.labelFor('top_series'),
+    expect(musicKindModule.presentation.statsLabels.labelFor('top_series'),
         'Top Artists');
-    expect(
-        musicLibraryConfig.presentation.statsLabels.labelFor('top_publisher'),
+    expect(musicKindModule.presentation.statsLabels.labelFor('top_publisher'),
         'Top Labels');
-    expect(moviesLibraryConfig.presentation.statsLabels.labelFor('top_series'),
+    expect(movieKindModule.presentation.statsLabels.labelFor('top_series'),
         'Top Franchises');
-    expect(
-        gamesLibraryConfig.presentation.statsLabels.labelFor('top_publisher'),
+    expect(gameKindModule.presentation.statsLabels.labelFor('top_publisher'),
         'Top Publishers / Studios');
-    expect(comicsLibraryConfig.presentation.usesTreeProviderCandidates, isTrue);
-    expect(booksLibraryConfig.presentation.usesTreeProviderCandidates, isFalse);
+    expect(comicKindModule.metadata.usesTreeProviderCandidates, isTrue);
+    expect(bookKindModule.metadata.usesTreeProviderCandidates, isFalse);
   });
 
   test('filter definitions are kind-owned and grade is not universal', () {
-    final comicFilterIds = comicsLibraryConfig.presentation.filterDefinitions
+    final comicFilterIds = comicKindModule.presentation.filterDefinitions
         .map((definition) => definition.id)
         .toSet();
-    final musicFilterIds = musicLibraryConfig.presentation.filterDefinitions
+    final musicFilterIds = musicKindModule.presentation.filterDefinitions
         .map((definition) => definition.id)
         .toSet();
 
     expect(comicFilterIds, contains('grade'));
     expect(
-      comicsLibraryConfig.presentation.filterDefinitions
+      comicKindModule.presentation.filterDefinitions
           .firstWhere((definition) => definition.id == 'grade')
           .missingValueLabel,
       'Missing grade',

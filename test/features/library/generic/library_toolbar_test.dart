@@ -1,16 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -43,11 +40,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: moviesLibraryConfig,
+              type: movieKindModule,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(moviesLibraryConfig)
-                  .viewProfile
-                  .defaults(),
+              viewState: movieKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -87,7 +82,7 @@ void main() {
     tester,
   ) async {
     const selectedLetter = 'A';
-    final accent = moviesLibraryConfig.workspace.accent;
+    final accent = movieKindModule.identity.accent;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -115,7 +110,7 @@ void main() {
           body: LibraryToolbarAlphabetRow(
             letters: const {'A', 'B'},
             selectedLetter: null,
-            accent: moviesLibraryConfig.workspace.accent,
+            accent: movieKindModule.identity.accent,
             onLetterSelected: (_) {},
           ),
         ),
@@ -182,7 +177,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     Future<void> expectScanCover({
-      required LibraryTypeConfig type,
+      required LibraryKindRuntime type,
       required LibraryWorkspaceViewState viewState,
       required bool expected,
     }) async {
@@ -225,34 +220,28 @@ void main() {
     }
 
     await expectScanCover(
-      type: moviesLibraryConfig,
-      viewState:
-          libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
+      type: movieKindModule,
+      viewState: movieKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: booksLibraryConfig,
-      viewState:
-          libraryKindRuntimeForType(booksLibraryConfig).viewProfile.defaults(),
+      type: bookKindModule,
+      viewState: bookKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: gamesLibraryConfig,
-      viewState:
-          libraryKindRuntimeForType(gamesLibraryConfig).viewProfile.defaults(),
+      type: gameKindModule,
+      viewState: gameKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: boardGamesLibraryConfig,
-      viewState: libraryKindRuntimeForType(boardGamesLibraryConfig)
-          .viewProfile
-          .defaults(),
+      type: boardGameKindModule,
+      viewState: boardGameKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: comicsLibraryConfig,
-      viewState:
-          libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
+      type: comicKindModule,
+      viewState: comicKindModule.viewProfile.defaults(),
       expected: true,
     );
   });
@@ -272,11 +261,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: moviesLibraryConfig,
+              type: movieKindModule,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(moviesLibraryConfig)
-                  .viewProfile
-                  .defaults(),
+              viewState: movieKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -312,11 +299,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: booksLibraryConfig,
+              type: bookKindModule,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(booksLibraryConfig)
-                  .viewProfile
-                  .defaults(),
+              viewState: bookKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -362,11 +347,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: moviesLibraryConfig,
+              type: movieKindModule,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(moviesLibraryConfig)
-                  .viewProfile
-                  .defaults(),
+              viewState: movieKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -401,11 +384,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicsLibraryConfig,
+              type: comicKindModule,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(comicsLibraryConfig)
-                  .viewProfile
-                  .defaults(),
+              viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -450,11 +431,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicsLibraryConfig,
+              type: comicKindModule,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(comicsLibraryConfig)
-                  .viewProfile
-                  .defaults(),
+              viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -503,11 +482,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicsLibraryConfig,
+              type: comicKindModule,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(comicsLibraryConfig)
-                  .viewProfile
-                  .defaults(),
+              viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -561,11 +538,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicsLibraryConfig,
+              type: comicKindModule,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(comicsLibraryConfig)
-                  .viewProfile
-                  .defaults(),
+              viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -624,8 +599,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    for (final type in collectarrLibraryTypes.types) {
-      final runtime = libraryKindRuntimeForType(type);
+    for (final type in defaultLibraryKindRegistry.allRuntimes) {
+      final runtime = type;
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -670,19 +645,17 @@ void main() {
       expect(
         filtering.onScanCover,
         type.capabilities.canScanCover ? isNotNull : isNull,
-        reason: 'scan-cover gate mismatch for ${type.workspace.kind.apiValue}',
+        reason: 'scan-cover gate mismatch for ${type.kind.apiValue}',
       );
       expect(
         secondary.onReadingQueue,
-        type.capabilities.supportsReadingQueue ? isNotNull : isNull,
-        reason:
-            'reading-queue gate mismatch for ${type.workspace.kind.apiValue}',
+        type.hierarchy.showsReadingQueue ? isNotNull : isNull,
+        reason: 'reading-queue gate mismatch for ${type.kind.apiValue}',
       );
       expect(
         secondary.onReassignIndex,
-        type.capabilities.supportsIndexReassignment ? isNotNull : isNull,
-        reason:
-            'reassign-index gate mismatch for ${type.workspace.kind.apiValue}',
+        type.hierarchy.supportsIndexReassignment ? isNotNull : isNull,
+        reason: 'reassign-index gate mismatch for ${type.kind.apiValue}',
       );
     }
   });
@@ -697,7 +670,7 @@ void main() {
     final action = descriptor.buildAction(
       _FakeBuildContext(),
       LibraryToolbarActionContext(
-        type: comicsLibraryConfig,
+        type: comicKindModule,
         projection: null,
         onJumpToNumberSubmitted: (_) {},
         onMissingSequenceReport: (_) {},

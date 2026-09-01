@@ -1,17 +1,29 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 
-extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
-  LibraryTypeConfig resolveWithCatalog(
+extension LibraryKindRegistryCatalogResolution on LibraryKindRegistry {
+  LibraryKindRegistry resolveWithCatalog(
     Iterable<CatalogMediaType> catalog, {
     ProviderConnectorRegistry? providerRegistry,
   }) {
-    final rawMediaType = _mediaTypeForKind(catalog, workspace.kind);
+    return LibraryKindRegistry([
+      for (final type in allRuntimes)
+        type.resolveWithCatalog(catalog, providerRegistry: providerRegistry),
+    ]);
+  }
+}
+
+extension LibraryKindRuntimeCatalogResolution on LibraryKindRuntime {
+  LibraryKindRuntime resolveWithCatalog(
+    Iterable<CatalogMediaType> catalog, {
+    ProviderConnectorRegistry? providerRegistry,
+  }) {
+    final rawMediaType = _mediaTypeForKind(catalog, kind);
     if (rawMediaType == null) {
       return this;
     }
@@ -21,37 +33,36 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
     final resolvedProviders = _resolveProviderOptions(
       mediaType.providers,
       kind: mediaType.kind,
-      fallback: metadataProviders,
+      fallback: metadata.providers,
       registry: effectiveRegistry,
     );
-    return LibraryTypeConfig(
-      workspace: workspace,
+    final resolvedIdentity = LibraryKindIdentity(
+      kind: identity.kind,
       singularLabel: mediaType.singularLabel.isEmpty
-          ? singularLabel
+          ? identity.singularLabel
           : mediaType.singularLabel,
-      pluralLabel:
-          mediaType.pluralLabel.isEmpty ? pluralLabel : mediaType.pluralLabel,
-      defaultMetadataProvider:
-          mediaType.defaultProvider ?? defaultMetadataProvider,
-      metadataProviders:
-          resolvedProviders.isEmpty ? metadataProviders : resolvedProviders,
-      trackingProfile: trackingProfile,
-      capabilities: capabilities,
-      presentation: presentation,
-      addChrome: addChrome,
+      pluralLabel: mediaType.pluralLabel.isEmpty
+          ? identity.pluralLabel
+          : mediaType.pluralLabel,
+      title: identity.title,
+      icon: identity.icon,
+      accent: identity.accent,
+      preferencePrefix: identity.preferencePrefix,
+      defaultDensityPreset: identity.defaultDensityPreset,
+      availableDensityPresets: identity.availableDensityPresets,
+      toolbarActions: identity.toolbarActions,
     );
-  }
-}
-
-extension LibraryTypeRegistryCatalogResolution on LibraryTypeRegistry {
-  LibraryTypeRegistry resolveWithCatalog(
-    Iterable<CatalogMediaType> catalog, {
-    ProviderConnectorRegistry? providerRegistry,
-  }) {
-    return LibraryTypeRegistry([
-      for (final type in types)
-        type.resolveWithCatalog(catalog, providerRegistry: providerRegistry),
-    ]);
+    final resolvedMetadata = LibraryMetadataCapability(
+      defaultProviderId:
+          mediaType.defaultProvider ?? metadata.defaultProviderId,
+      providers:
+          resolvedProviders.isEmpty ? metadata.providers : resolvedProviders,
+      supportsServerCompare: metadata.supportsServerCompare,
+    );
+    return withCatalogMetadata(
+      identity: resolvedIdentity,
+      metadata: resolvedMetadata,
+    );
   }
 }
 

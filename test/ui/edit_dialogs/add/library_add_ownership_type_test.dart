@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +30,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: moviesLibraryConfig,
+              type: movieKindModule,
               autoLookupInitialBarcode: false,
             ),
           ),

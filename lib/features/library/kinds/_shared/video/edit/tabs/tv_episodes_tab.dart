@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/dialogs/tv_custom_episode_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/widgets/tv_episode_row.dart';
@@ -24,7 +24,7 @@ class TvEpisodesTab extends ConsumerWidget {
     required this.videoEdit,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryMetadataItem item;
   final Color accent;
   final VideoEditController videoEdit;
@@ -32,7 +32,7 @@ class TvEpisodesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seriesRef = CatalogEntityRef(
-      kind: type.workspace.kind.apiValue,
+      kind: type.kind.apiValue,
       entityType: CatalogEntityType.work,
       id: item.id,
     );
@@ -294,7 +294,7 @@ Widget _buildSeasonCard(
   required List<TrackingUnit> trackedUnits,
   required List<WatchSession> watchSessions,
   required Color accent,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required String itemId,
   required WidgetRef ref,
 }) {

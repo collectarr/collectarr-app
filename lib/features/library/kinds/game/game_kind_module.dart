@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_p
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
@@ -12,6 +11,8 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/game/inspector_panel.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -46,7 +47,8 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
     ];
 
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
-  type: gamesLibraryConfig,
+  presentation: gamesLibraryMediaPresentation,
+  trackingProfile: gameTrackingProfile,
   projector: const GameWorkspaceProjector(),
   ownedDetailsCodec: const GameOwnedDetailsCodec(),
   fields: gameLibraryKindSchema.toRegistry(),
@@ -73,6 +75,9 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',
+  ),
+  capabilities: const LibraryTypeCapabilities(
+    supportsMediaReleaseSplit: true,
   ),
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildGameInspectorSections,

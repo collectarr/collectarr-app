@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 class LibraryToolbarConfig {
@@ -9,7 +9,7 @@ class LibraryToolbarConfig {
     required this.includeDesktopSecondaryBand,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryWorkspaceBrowserMode browserMode;
   final bool supportsMediaReleaseSplit;
   final bool includeDesktopSecondaryBand;

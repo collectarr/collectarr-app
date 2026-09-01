@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:flutter/material.dart';
 
 Future<LibraryMetadataRefreshResult?> showGenericLibraryMetadataRefreshDialog({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required Color accent,
   required LibraryProjection projection,
 }) {

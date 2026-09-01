@@ -617,10 +617,8 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     final publisher = adapter?.publisher;
     final releaseDate = adapter?.releaseDate;
     final subtitle = [
-      if (itemNumber != null && itemNumber.trim().isNotEmpty)
-        '#$itemNumber',
-      if (publisher != null && publisher.trim().isNotEmpty)
-        publisher,
+      if (itemNumber != null && itemNumber.trim().isNotEmpty) '#$itemNumber',
+      if (publisher != null && publisher.trim().isNotEmpty) publisher,
       if (releaseDate != null) releaseDate.year.toString(),
     ].join('  ·  ');
     final cardColor = widget.focused
@@ -827,8 +825,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
     final meta = [
       _metadataFactValue(metadataPresentation, 'Series'),
       _metadataFactValue(metadataPresentation, 'Artist'),
-      if (publisher != null && publisher.trim().isNotEmpty)
-        publisher,
+      if (publisher != null && publisher.trim().isNotEmpty) publisher,
       if (releaseDate != null)
         '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       if (formatLabel != null) formatLabel,
@@ -837,7 +834,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
     final payload =
         widget.item.source.catalogItem?.kindMetadata.toSyncPayload();
     final editions = (payload?['editions'] as List?)
-            ?.whereType<Map>()
+            ?.whereType<Map<Object?, Object?>>()
             .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         const <CatalogEdition>[];
@@ -967,17 +964,16 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionRuntime item,
 ) {
-  final type = collectarrLibraryTypes.byKind(
+  final type = defaultLibraryKindRegistry.tryGet(
     catalogMediaKindFromValue(item.source.catalogItem?.kind),
   );
   if (type == null) {
     return null;
   }
-  final runtime = libraryKindRuntimeForType(type);
   return type.presentation.builder.buildMetadataPresentation(
-    singularLabel: type.singularLabel,
-    mediaFields: runtime.edit.mediaFields,
-    releaseFields: runtime.edit.releaseFields,
+    singularLabel: type.identity.singularLabel,
+    mediaFields: type.edit.mediaFields,
+    releaseFields: type.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

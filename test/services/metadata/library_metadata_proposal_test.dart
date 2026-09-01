@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,12 +9,12 @@ void main() {
   test('resolves default and explicit proposal providers from library config',
       () {
     expect(
-      resolveLibraryMetadataProposalProvider(comicsLibraryConfig),
+      resolveLibraryMetadataProposalProvider(comicKindModule),
       'gcd',
     );
     expect(
       resolveLibraryMetadataProposalProvider(
-        comicsLibraryConfig,
+        comicKindModule,
         provider: 'comicvine',
       ),
       'comicvine',
@@ -24,7 +24,7 @@ void main() {
   test('rejects unsupported proposal providers for the library type', () {
     expect(
       () => resolveLibraryMetadataProposalProvider(
-        comicsLibraryConfig,
+        comicKindModule,
         provider: 'openlibrary',
       ),
       throwsArgumentError,
@@ -36,7 +36,7 @@ void main() {
 
     final response = await createLibraryMetadataProposal(
       api: api,
-      type: comicsLibraryConfig,
+      type: comicKindModule,
       query: 'Batman #1',
       title: 'Batman',
       summary: 'Missing comic metadata',
@@ -55,7 +55,7 @@ void main() {
 
     final response = await createAndRecordLibraryMetadataProposal(
       api: api,
-      type: comicsLibraryConfig,
+      type: comicKindModule,
       provider: 'comicvine',
       providerItemId: 'cv-42',
       query: 'Absolute Batman #1',

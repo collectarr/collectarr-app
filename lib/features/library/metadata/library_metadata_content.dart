@@ -1,14 +1,13 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 LibraryMetadataPresentation buildLibraryMetadataPresentation({
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryProjectionRuntime item,
   ValueChanged<String>? onFilterByValue,
   bool includeIdentityFacts = false,
@@ -20,11 +19,10 @@ LibraryMetadataPresentation buildLibraryMetadataPresentation({
     return () => onFilterByValue(value.trim());
   }
 
-  final runtime = libraryKindRuntimeForType(type);
   return type.presentation.builder.buildMetadataPresentation(
-    singularLabel: type.singularLabel,
-    mediaFields: runtime.edit.mediaFields,
-    releaseFields: runtime.edit.releaseFields,
+    singularLabel: type.identity.singularLabel,
+    mediaFields: type.edit.mediaFields,
+    releaseFields: type.edit.releaseFields,
     item: item,
     includeIdentityFacts: includeIdentityFacts,
     tapFor: tapFor,
@@ -40,7 +38,7 @@ class LibraryMetadataContent extends StatelessWidget {
     this.includeIdentityFacts = false,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final ValueChanged<String>? onFilterByValue;
   final bool includeIdentityFacts;

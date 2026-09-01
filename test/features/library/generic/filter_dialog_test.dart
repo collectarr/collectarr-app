@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -24,7 +24,7 @@ void main() {
               onPressed: () {
                 showLibraryFilterDialog(
                   context: context,
-                  type: musicLibraryConfig,
+                  type: musicKindModule,
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
                     valuesByFilterId: {
@@ -62,7 +62,7 @@ void main() {
               onPressed: () {
                 showLibraryFilterDialog(
                   context: context,
-                  type: comicsLibraryConfig,
+                  type: comicKindModule,
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
                     valuesByFilterId: {
@@ -182,7 +182,7 @@ void main() {
 
     final sanitizedMusic = sanitizeLibraryFilterSelectionForType(
       selection,
-      musicLibraryConfig,
+      musicKindModule,
     );
     expect(sanitizedMusic.ownershipFilter, LibraryOwnershipFilter.all);
     expect(sanitizedMusic.fieldValue('grade'), isNull);
@@ -192,7 +192,7 @@ void main() {
 
     final sanitizedComics = sanitizeLibraryFilterSelectionForType(
       selection,
-      comicsLibraryConfig,
+      comicKindModule,
     );
     expect(sanitizedComics.ownershipFilter, LibraryOwnershipFilter.all);
     expect(
@@ -263,7 +263,7 @@ void main() {
               onPressed: () async {
                 selection = await showLibraryFilterDialog(
                   context: context,
-                  type: comicsLibraryConfig,
+                  type: comicKindModule,
                   current: LibraryFilterSelection.none,
                   options: LibraryFilterOptions.fromEntries(
                     const [],
@@ -322,7 +322,7 @@ void main() {
               onPressed: () async {
                 selection = await showLibraryFilterDialog(
                   context: context,
-                  type: comicsLibraryConfig,
+                  type: comicKindModule,
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
                     valuesByFilterId: {

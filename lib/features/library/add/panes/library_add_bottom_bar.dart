@@ -33,7 +33,7 @@ class LibraryAddBottomBar extends StatelessWidget {
     required this.onPropose,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final bool isWideLayout;
   final List<String> conditions;
   final List<String> grades;
@@ -67,16 +67,16 @@ class LibraryAddBottomBar extends StatelessWidget {
     final palette = appPalette(context);
     final hasSelection = selectedItem != null || selectedCandidate != null;
     final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
-    final addLabel =
-        selectedCandidate != null && (!isAdmin || selectedCandidate!.isStub)
-            ? _localCandidateAddLabel()
-            : effectiveCount > 0
-                ? LibraryAddCopy.addToTargetLabel(
-                    count: effectiveCount,
-                    type: type,
-                    target: addTarget,
-                  )
-                : 'Select a ${type.singularLabel.toLowerCase()} to add';
+    final addLabel = selectedCandidate != null &&
+            (!isAdmin || selectedCandidate!.isStub)
+        ? _localCandidateAddLabel()
+        : effectiveCount > 0
+            ? LibraryAddCopy.addToTargetLabel(
+                count: effectiveCount,
+                type: type,
+                target: addTarget,
+              )
+            : 'Select a ${type.identity.singularLabel.toLowerCase()} to add';
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -206,7 +206,7 @@ class LibraryAddBottomBar extends StatelessWidget {
   }
 
   String _localCandidateAddLabel() {
-    final noun = type.singularLabel.toLowerCase();
+    final noun = type.identity.singularLabel.toLowerCase();
     return switch (addTarget) {
       LibraryAddTarget.owned => 'Add local $noun to Collection',
       LibraryAddTarget.wishlist => 'Add local $noun to Wishlist',

@@ -3,17 +3,16 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -43,7 +42,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorHero(
-              type: collectarrLibraryTypes.byKind(CatalogMediaKind.book)!,
+              type: bookKindModule,
               item: testProjectionItem(
                 id: 'book-hero-1',
                 kind: 'book',
@@ -80,7 +79,7 @@ void main() {
           home: Scaffold(
             body: ComicInspectorHero(
               request: LibraryInspectorRequest(
-                type: comicsLibraryConfig,
+                type: comicKindModule,
                 item: testProjectionItem(
                   id: 'comic-hero-1',
                   kind: 'comic',
@@ -128,7 +127,7 @@ void main() {
                   width: 664,
                   child: ComicInspectorHero(
                     request: LibraryInspectorRequest(
-                      type: comicsLibraryConfig,
+                      type: comicKindModule,
                       item: testProjectionItem(
                         id: 'comic-hero-narrow-1',
                         kind: 'comic',
@@ -172,7 +171,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryInspector(
-              type: comicsLibraryConfig,
+              type: comicKindModule,
               item: testProjectionItem(
                 id: 'comic-hero-2',
                 kind: 'comic',
@@ -247,7 +246,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryInspector(
-              type: comicsLibraryConfig,
+              type: comicKindModule,
               item: testProjectionItem(
                 id: 'comic-multi-1',
                 kind: 'comic',
@@ -289,7 +288,7 @@ void main() {
             body: BookInspectorPanel(
               request: LibraryInspectorPanelRequest(
                 inspector: LibraryInspectorRequest(
-                  type: booksLibraryConfig,
+                  type: bookKindModule,
                   item: testProjectionItem(
                     id: 'book-1',
                     kind: 'book',
@@ -441,7 +440,7 @@ void main() {
   testWidgets('inspector action bar avoids overflow on narrow widths', (
     tester,
   ) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -492,7 +491,7 @@ void main() {
   testWidgets('book inspector hides the item images section', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -583,7 +582,7 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -642,7 +641,7 @@ void main() {
   testWidgets('inspector edit uses the selected copy', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -719,7 +718,7 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final type = bookKindModule;
 
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(

@@ -2,11 +2,9 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,13 +44,13 @@ final mediaCatalogProvider =
   return fallbackMediaCatalog;
 });
 
-final resolvedLibraryTypesProvider = Provider<LibraryTypeRegistry>((ref) {
+final resolvedLibraryTypesProvider = Provider<LibraryKindRegistry>((ref) {
   final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
-  return collectarrLibraryTypes.resolveWithCatalog(catalog);
+  return defaultLibraryKindRegistry.resolveWithCatalog(catalog);
 });
 
 final resolvedLibraryTypeProvider =
-    Provider.family<LibraryTypeConfig, LibraryTypeConfig>((ref, type) {
+    Provider.family<LibraryKindRuntime, LibraryKindRuntime>((ref, type) {
   final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
   return type.resolveWithCatalog(catalog);
 });
@@ -174,4 +172,3 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     providers: ['musicbrainz'],
   ),
 ];
-

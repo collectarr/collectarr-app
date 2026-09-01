@@ -4,11 +4,11 @@ abstract final class _LibraryViewStateControllerOps {
   static Future<void> loadViewState(GenericLibraryPageState state) async {
     try {
       final token = ++state._viewStateLoadToken;
-      final expectedKind = state.widget.type.workspace.kind;
+      final expectedKind = state.widget.type.kind;
       final loaded = await state._viewProfile.load();
       if (state.mounted &&
           token == state._viewStateLoadToken &&
-          state.widget.type.workspace.kind == expectedKind) {
+          state.widget.type.kind == expectedKind) {
         if (viewStateEquals(state, state._viewState, loaded)) {
           return;
         }

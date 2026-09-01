@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
@@ -28,7 +28,7 @@ void main() {
     );
 
     final draft = LibraryEditDraft.fromFields(
-      type: comicsLibraryConfig,
+      type: comicKindModule,
       item: item,
       ownedItem: null,
       wishlistItem: null,
@@ -77,7 +77,7 @@ void main() {
     );
 
     final draft = LibraryEditDraft.fromFields(
-      type: comicsLibraryConfig,
+      type: comicKindModule,
       item: item,
       ownedItem: null,
       wishlistItem: null,

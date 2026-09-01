@@ -3,7 +3,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_type_registry.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 
@@ -22,7 +22,7 @@ class MediaLibraryRail extends ConsumerStatefulWidget {
 
   final List<CatalogMediaType> types;
   final Map<String, LibraryKindCount> counts;
-  final LibraryTypeRegistry registry;
+  final LibraryKindRegistry registry;
   final String selectedKind;
   final ValueChanged<CatalogMediaType> onSelected;
 
@@ -74,7 +74,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
     final accent = libraryAccentForKind(selected.mediaKind);
     final palette = appPalette(context);
     final selectedIcon =
-        widget.registry.byKind(selected.mediaKind)?.workspace.icon ??
+        widget.registry.tryGet(selected.mediaKind)?.identity.icon ??
             libraryIconForKind(selected.mediaKind);
     return AnimatedLibraryChromeGradient(
       accent: accent,
@@ -176,8 +176,8 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                     children: [
                                       Icon(
                                         widget.registry
-                                                .byKind(type.mediaKind)
-                                                ?.workspace
+                                                .tryGet(type.mediaKind)
+                                                ?.identity
                                                 .icon ??
                                             libraryIconForKind(type.mediaKind),
                                         size: 19,

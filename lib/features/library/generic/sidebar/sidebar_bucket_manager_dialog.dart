@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
@@ -19,7 +19,7 @@ class LibraryBucketManagerEntry {
 }
 
 bool libraryGroupModeSupportsBucketManagement(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   String mode,
 ) {
   return libraryGroupModeDefinitionOrNull(mode, type)
@@ -29,7 +29,7 @@ bool libraryGroupModeSupportsBucketManagement(
 
 String libraryBucketManagerListLabel(
   String mode,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return libraryGroupModeDefinitionOrNull(mode, type)
           ?.resolvedBucketManagerListLabel ??
@@ -38,7 +38,7 @@ String libraryBucketManagerListLabel(
 
 Future<void> showLibraryBucketManagerDialog({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required String groupMode,
   required Color accent,
   required List<LibraryBucketManagerEntry> entries,
@@ -73,7 +73,7 @@ class _LibraryBucketManagerDialog extends StatefulWidget {
     required this.onDeleteBucket,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final String groupMode;
   final Color accent;
   final List<LibraryBucketManagerEntry> entries;

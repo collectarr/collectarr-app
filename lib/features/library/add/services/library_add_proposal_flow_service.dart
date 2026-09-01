@@ -4,8 +4,9 @@ import 'package:collectarr_app/features/library/add/services/library_provider_ac
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
@@ -17,7 +18,7 @@ class LibraryAddProposalFlowService {
   Future<void> proposeCandidate({
     required BuildContext context,
     required ApiClient api,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required ProviderCandidate candidate,
     required LibraryProviderActionService providerActionService,
     required LibraryProviderOrchestrationService orchestrationService,
@@ -99,7 +100,7 @@ class LibraryAddProposalFlowService {
       }
       showAppToast(
         context,
-        '${type.singularLabel} metadata proposal sent for review.',
+        '${type.identity.singularLabel} metadata proposal sent for review.',
         tone: AppToastTone.success,
       );
       Navigator.of(context).pop(

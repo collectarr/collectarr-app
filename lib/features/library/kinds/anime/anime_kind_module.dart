@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -11,9 +12,14 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/release/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
@@ -25,6 +31,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadat
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -32,6 +39,56 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 const _animeSeriesFilterId = LibraryAddFilterId('anime.series');
 const _animeStudioFilterId = LibraryAddFilterId('anime.studio');
 const _animeYearFilterId = LibraryAddFilterId('anime.year');
+
+const _animeAddChrome = LibraryAddChromeConfig(
+  videoKindFilterOptions: [
+    LibraryAddVideoKindFilterOption(
+      kind: 'anime',
+      label: 'Anime',
+      icon: Icons.auto_awesome_outlined,
+    ),
+  ],
+  defaultVideoKindFilters: {'anime'},
+);
+
+final _animeTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'features',
+    label: 'Features',
+    icon: Icons.featured_play_list_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.animeDetails?.features,
+    write: (item, value) {
+      final details = item.animeDetails ?? const AnimeOwnedDetails();
+      return item.copyWith(details: details.copyWith(features: value));
+    },
+  ),
+  TransferableField(
+    key: 'boxSetName',
+    label: 'Box set name',
+    icon: Icons.inventory_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.animeDetails?.boxSetName,
+    write: (item, value) {
+      final details = item.animeDetails ?? const AnimeOwnedDetails();
+      return item.copyWith(details: details.copyWith(boxSetName: value));
+    },
+  ),
+  TransferableField(
+    key: 'packaging',
+    label: 'Packaging',
+    icon: Icons.inventory_2_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.animeDetails?.packaging,
+    write: (item, value) {
+      final details = item.animeDetails ?? const AnimeOwnedDetails();
+      return item.copyWith(details: details.copyWith(packaging: value));
+    },
+  ),
+];
 
 Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
       metadata.seriesTitle,
@@ -48,7 +105,10 @@ Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
     ];
 
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
-  type: animeLibraryConfig,
+  presentation: animeLibraryMediaPresentation,
+  trackingProfile: videoTrackingProfile,
+  releaseCapability:
+      const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const AnimeWorkspaceProjector(),
   ownedDetailsCodec: const AnimeOwnedDetailsCodec(),
   fields: animeLibraryKindSchema.toRegistry(),
@@ -67,12 +127,17 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'anilist',
+    usesTreeProviderCandidates: true,
     providers: [anilistMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.seasons,
     childrenTitleBuilder: _animeChildrenTitle,
     supportsMediaReleaseSplit: true,
+    defaultVideoDisplayLevel: VideoDisplayLevel.season,
+    defaultVideoGrouping: VideoGroupingDefault.bySeries,
+    videoSeriesEntryTypes: {'anime'},
+    videoShelfDrilldownEntryTypes: {'anime'},
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',
   ),
@@ -83,20 +148,27 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
     _animeLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
-    kindFields: animeTransferableFields,
+    kindFields: _animeTransferableFields,
+  ),
+  capabilities: const LibraryTypeCapabilities(
+    supportsMediaReleaseSplit: true,
+    wideDialog: true,
+    usesCompactTableLayout: true,
+    compactBucketIcon: Icons.tv_outlined,
   ),
   add: StandardLibraryAddCapability<AnimeAddDraft>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,
     manualDraftBuilder: AnimeAddManualDraft.new,
     search: LibraryAddSearchCapability(
-      initialAdvancedFilters:
-          buildLibraryAddVideoInitialFilters(animeLibraryConfig),
+      initialAdvancedFilters: {
+        libraryAddVideoKindFilterId: {'anime'},
+      },
       advancedFilterDescriptorsBuilder: buildAnimeAddAdvancedFilterFields,
       searchInputPredicate: libraryAddVideoHasSearchInput,
       kindSpecificPaneBuilder: buildLibraryAddVideoKindFilterRow,
       providerKindOverridesBuilder: (context) =>
-          libraryAddVideoKindOverrides(animeLibraryConfig, context),
+          libraryAddVideoKindOverridesForChrome(_animeAddChrome, context),
       coreSearchInputBuilder: _buildAnimeCoreSearchInput,
       providerQueryBuilder: _buildAnimeProviderQuery,
       ranking: buildLibraryAddSearchRanking(
@@ -150,6 +222,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
       providerCandidateIsGroup: libraryAddVideoProviderCandidateIsGroup,
     ),
     manualPaneBuilder: buildAnimeAddManualPane,
+    chrome: _animeAddChrome,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildAnimeLibraryEditDialog,

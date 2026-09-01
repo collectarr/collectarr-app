@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/config/workspace_presentation_su
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
-import 'package:flutter/material.dart';
 
 const tvPreviewLabels = LibraryMediaPreviewLabels(
   values: {'series': 'Series', 'item_count': 'Episodes'},
@@ -118,12 +117,5 @@ final tvLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: tvPreviewLabels,
   statsLabels: tvStatsLabels,
   filterDefinitions: tvLibraryFilterDefinitions,
-  showsSeasonGroupProgress: true,
-  defaultVideoDisplayLevel: tvDefaultVideoDisplayLevel,
-  defaultVideoGrouping: tvDefaultVideoGrouping,
-  videoSeriesEntryTypes: const {'tv'},
-  videoShelfDrilldownEntryTypes: const {'tv'},
-  compactBucketIcon: Icons.tv_outlined,
-  emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
   fieldDefinitions: tvLibraryFieldDefinitions,
 );

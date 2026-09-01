@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -43,7 +43,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: musicLibraryConfig,
+                  type: musicKindModule,
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -134,7 +134,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: gamesLibraryConfig,
+                  type: gameKindModule,
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -199,7 +199,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: comicsLibraryConfig,
+                  type: comicKindModule,
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -257,7 +257,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: comicsLibraryConfig,
+                  type: comicKindModule,
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -315,7 +315,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: moviesLibraryConfig,
+                  type: movieKindModule,
                   state: state,
                 ),
                 child: const Text('Open stats'),

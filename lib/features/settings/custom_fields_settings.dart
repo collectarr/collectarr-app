@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -442,10 +442,10 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                     value: null,
                     child: Text('All libraries'),
                   ),
-                  for (final type in collectarrLibraryTypes.types)
+                  for (final type in defaultLibraryKindRegistry.allRuntimes)
                     DropdownMenuItem<String>(
-                      value: type.workspace.kind.apiValue,
-                      child: Text(type.singularLabel),
+                      value: type.kind.apiValue,
+                      child: Text(type.identity.singularLabel),
                     ),
                 ],
                 onChanged: (value) => setState(() => _mediaKind = value),
@@ -539,9 +539,9 @@ String _mediaKindLabel(String? kind) {
     return 'All libraries';
   }
   final normalized = kind.trim().toLowerCase();
-  for (final type in collectarrLibraryTypes.types) {
-    if (type.workspace.kind.apiValue == normalized) {
-      return type.singularLabel;
+  for (final type in defaultLibraryKindRegistry.allRuntimes) {
+    if (type.kind.apiValue == normalized) {
+      return type.identity.singularLabel;
     }
   }
   return kind.trim();

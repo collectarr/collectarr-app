@@ -46,9 +46,7 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   bool canCompareMetadataWithServerItem(LibraryProjectionItem item) {
-    if (!_page.type.kindUiAdapter.supportsMetadataCompareWithServer(
-      _page.type,
-    )) {
+    if (!_page.type.metadata.supportsServerCompare) {
       return false;
     }
     final catalogId = item.source.catalogItem?.id ?? item.node.id;
@@ -71,7 +69,7 @@ class LibraryPageCollectionActionCoordinator {
     final confirmed = await _page.confirmSingleRemove(
       _page.context,
       title: item.dto.title,
-      itemLabel: _page.type.singularLabel.toLowerCase(),
+      itemLabel: _page.type.identity.singularLabel.toLowerCase(),
     );
     if (!confirmed || !_page.mounted) {
       return;
@@ -203,12 +201,14 @@ class LibraryPageCollectionActionCoordinator {
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => BarcodeScanSheet(
-        title: 'Scan ${_page.type.singularLabel.toLowerCase()} barcode',
+        title:
+            'Scan ${_page.type.identity.singularLabel.toLowerCase()} barcode',
         description:
-            'Scan or enter a barcode, UPC, or ISBN. Collectarr will open Add ${_page.type.pluralLabel} with this code prefilled.',
-        manualLabel: '${_page.type.singularLabel} barcode / UPC / ISBN',
-        submitLabel: 'Continue to Add ${_page.type.pluralLabel}',
-        leadingIcon: _page.type.workspace.icon,
+            'Scan or enter a barcode, UPC, or ISBN. Collectarr will open Add ${_page.type.identity.pluralLabel} with this code prefilled.',
+        manualLabel:
+            '${_page.type.identity.singularLabel} barcode / UPC / ISBN',
+        submitLabel: 'Continue to Add ${_page.type.identity.pluralLabel}',
+        leadingIcon: _page.type.identity.icon,
       ),
     );
     if (code != null && _page.mounted) {
@@ -259,10 +259,9 @@ class LibraryPageCollectionActionCoordinator {
     final prefill = await PrefillDefaults.load();
     await _page.bulkActions().moveSelectedToOwned(
           entries,
-          defaultCondition: prefill.condition ??
-              libraryKindRuntimeForType(_page.type).edit.defaultCondition,
-          defaultGrade: prefill.grade ??
-              libraryKindRuntimeForType(_page.type).edit.defaultGrade,
+          defaultCondition:
+              prefill.condition ?? _page.type.edit.defaultCondition,
+          defaultGrade: prefill.grade ?? _page.type.edit.defaultGrade,
           defaultLocationId: prefill.locationId,
           defaultReadStatus: prefill.readStatus,
           defaultTags: prefill.tags,
@@ -291,7 +290,7 @@ class LibraryPageCollectionActionCoordinator {
     final confirmed = await _page.confirmBulkRemove(
       _page.context,
       count: entries.length,
-      itemLabel: _page.type.pluralLabel.toLowerCase(),
+      itemLabel: _page.type.identity.pluralLabel.toLowerCase(),
     );
     if (!confirmed || !_page.mounted) return;
     await _page.bulkActions().removeSelected(entries);

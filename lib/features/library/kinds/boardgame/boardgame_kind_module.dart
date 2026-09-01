@@ -9,14 +9,16 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
@@ -25,10 +27,40 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 
 const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
 const _boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
 const _boardGameYearFilterId = LibraryAddFilterId('boardgame.year');
+
+final _boardgameTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'isSleeved',
+    label: 'Sleeved',
+    icon: Icons.shield_outlined,
+    type: TransferableFieldType.boolean,
+    read: (item) => (item.boardgameDetails?.isSleeved == true) ? 'true' : null,
+    write: (item, value) {
+      final details = item.boardgameDetails ?? const BoardgameOwnedDetails();
+      return item.copyWith(
+          details: details.copyWith(isSleeved: value == 'true'));
+    },
+  ),
+  TransferableField(
+    key: 'hasCustomInsert',
+    label: 'Custom insert',
+    icon: Icons.grid_view_outlined,
+    type: TransferableFieldType.boolean,
+    read: (item) =>
+        (item.boardgameDetails?.hasCustomInsert == true) ? 'true' : null,
+    write: (item, value) {
+      final details = item.boardgameDetails ?? const BoardgameOwnedDetails();
+      return item.copyWith(
+        details: details.copyWith(hasCustomInsert: value == 'true'),
+      );
+    },
+  ),
+];
 
 Iterable<String?> _boardGameLinkedMetadataValues(
   BoardGameMetadata metadata,
@@ -47,7 +79,8 @@ Iterable<String?> _boardGameLinkedMetadataValues(
 
 final boardGameKindModule =
     LibraryKindSpec<BoardGameWorkspaceDto, BoardgameOwnedDetails>(
-  type: boardGamesLibraryConfig,
+  presentation: boardGamesLibraryMediaPresentation,
+  trackingProfile: gameTrackingProfile,
   projector: const BoardGameWorkspaceProjector(),
   ownedDetailsCodec: const BoardgameOwnedDetailsCodec(),
   fields: boardgameLibraryKindSchema.toRegistry(),
@@ -82,7 +115,7 @@ final boardGameKindModule =
     _boardGameLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
-    kindFields: boardgameTransferableFields,
+    kindFields: _boardgameTransferableFields,
   ),
   add: StandardLibraryAddCapability<BoardgameAddDraft>(
     kind: CatalogMediaKind.boardgame,

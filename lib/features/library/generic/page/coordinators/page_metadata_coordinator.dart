@@ -81,9 +81,7 @@ class LibraryPageMetadataCoordinator {
     LibraryProjection projection, {
     LibraryProjectionItem? item,
   }) async {
-    if (!_page.type.kindUiAdapter.supportsMetadataCompareWithServer(
-      _page.type,
-    )) {
+    if (!_page.type.metadata.supportsServerCompare) {
       return;
     }
     final targetItem = item ?? _selectedProjectionItemFor(projection);

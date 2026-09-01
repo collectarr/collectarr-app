@@ -1,8 +1,7 @@
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +33,7 @@ class CompactLibraryToolbar extends StatelessWidget {
     this.extraActions = const [],
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final TextEditingController searchController;
   final LibraryToolbarCounts counts;
   final String? selectedBucket;
@@ -59,7 +58,7 @@ class CompactLibraryToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final targetAccent = libraryAccentForKind(type.workspace.kind);
+    final targetAccent = type.identity.accent;
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: targetAccent),
       duration: kAppAnimNormal,
@@ -74,7 +73,8 @@ class CompactLibraryToolbar extends StatelessWidget {
                 child: SearchBar(
                   controller: searchController,
                   constraints: const BoxConstraints.tightFor(height: 32),
-                  hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
+                  hintText:
+                      'Search ${type.identity.pluralLabel.toLowerCase()}...',
                   leading: const Icon(Icons.search),
                   onChanged: onSearchChanged,
                   onSubmitted: onSearchChanged,
@@ -92,7 +92,7 @@ class CompactLibraryToolbar extends StatelessWidget {
                 const SizedBox(width: 8),
               ],
               Tooltip(
-                message: 'Add ${type.pluralLabel}',
+                message: 'Add ${type.identity.pluralLabel}',
                 child: IconButton.filled(
                   style: IconButton.styleFrom(
                     backgroundColor: accent,

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:flutter/material.dart';
 
 Future<LibraryAddDialogResult?> showTvLibraryAddDialog(

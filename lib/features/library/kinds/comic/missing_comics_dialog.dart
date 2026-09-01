@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/missing_comics_report.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -9,7 +9,7 @@ import 'package:printing/printing.dart';
 
 Future<void> showComicMissingComicsDialog({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryProjection projection,
   required Color accent,
 }) async {
@@ -30,7 +30,7 @@ class _MissingComicsDialog extends StatefulWidget {
     required this.accent,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjection projection;
   final Color accent;
 
@@ -182,7 +182,7 @@ class _MissingComicsSeriesCard extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final MissingComicSeriesReport report;
   final bool includeVariants;
   final bool verbose;
@@ -258,7 +258,7 @@ class _CompactRangeView extends StatelessWidget {
 
   final String compactRanges;
   final MissingComicSeriesReport report;
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
 
   @override
@@ -298,7 +298,7 @@ class _VerboseIssueRow extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final MissingComicSeriesReport report;
   final MissingComicIssueGroup group;
   final bool includeVariants;
@@ -339,7 +339,7 @@ class _VerboseIssueRow extends StatelessWidget {
 
 Future<void> _quickAddComicIssue(
   BuildContext context, {
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required String seriesTitle,
   required String issueLabel,
   required Color accent,

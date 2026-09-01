@@ -25,9 +25,8 @@ import 'package:collectarr_app/features/library/add/panes/library_add_preview_pa
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -78,7 +77,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.itemImages = const [],
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color? accent;
   final String? initialQuery;
   final String? initialBarcode;
@@ -150,14 +149,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _manualDraft = LibraryAddManualDraft(
       customFieldValues: widget.customFieldValues,
       itemImages: widget.itemImages,
-      kindDraft: libraryKindRuntimeForKind(widget.type.workspace.kind)
-          .add
-          .createManualDraft(),
+      kindDraft: widget.type.add.createManualDraft(),
     );
     _manualDraft.titleController.text = _queryController.text;
 
     _controller = LibraryAddSessionController(
-      kind: widget.type.workspace.kind,
+      kind: widget.type.kind,
       type: widget.type,
       ownedMutations: ref.read(ownedItemMutationsProvider),
       wishlistMutations: ref.read(wishlistMutationsProvider),
@@ -174,7 +171,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     _controller.addListener(_onControllerStateChanged);
 
-    final editCap = libraryKindRuntimeForKind(widget.type.workspace.kind).edit;
+    final editCap = widget.type.edit;
     _conditionOptions =
         editCap.conditions.isNotEmpty ? editCap.conditions : kGeneralConditions;
     _gradeOptions = editCap.grades;
@@ -220,14 +217,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   @override
   void didUpdateWidget(covariant LibraryAddDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.type.workspace.kind != widget.type.workspace.kind) {
+    if (oldWidget.type.kind != widget.type.kind) {
       _manualDraft.dispose();
       _manualDraft = LibraryAddManualDraft(
         customFieldValues: widget.customFieldValues,
         itemImages: widget.itemImages,
-        kindDraft: libraryKindRuntimeForKind(widget.type.workspace.kind)
-            .add
-            .createManualDraft(),
+        kindDraft: widget.type.add.createManualDraft(),
       );
     }
   }
@@ -264,7 +259,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   Future<void> _loadPickListOptions() async {
     final state = _controller.state;
-    final editCap = libraryKindRuntimeForKind(widget.type.workspace.kind).edit;
+    final editCap = widget.type.edit;
     final conditionDefinition =
         editCap.vocabularies?.definitionForSuffix('condition');
     final gradeDefinition = editCap.vocabularies?.definitionForSuffix('grade');
@@ -278,7 +273,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         : [for (final value in gradeDefinition.builtIns) value.toString()];
     final options = await loadConditionGradePickListOptions(
       ref.read(localDatabaseProvider),
-      mediaKind: widget.type.workspace.kind.apiValue,
+      mediaKind: widget.type.kind.apiValue,
       builtInConditions: builtInConditions,
       builtInGrades: builtInGrades,
       conditionListName: conditionDefinition?.key,
@@ -288,7 +283,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     final tagOptions = await loadTagPickListOptions(
       ref.read(localDatabaseProvider),
-      mediaKind: widget.type.workspace.kind.apiValue,
+      mediaKind: widget.type.kind.apiValue,
       selectedTags: splitPickListValues(state.defaultTags),
     );
     if (!mounted) return;
@@ -375,7 +370,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
       },
       visibleProviderResults: () => _controller.state.visibleProviderResults(
-        libraryKindRuntimeForType(widget.type).add.resultPolicy,
+        widget.type.add.resultPolicy,
       ),
       currentPhysicalFormats: () => const [],
       showEditDialog: (ctx, req) =>
@@ -397,7 +392,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     Color accent,
   ) {
     return LibraryAddManualPaneRequest(
-      kind: widget.type.workspace.kind,
+      kind: widget.type.kind,
       accent: accent,
       type: widget.type,
       commonDraft: state.commonDraft,
@@ -464,12 +459,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Widget build(BuildContext context) {
     final accent = widget.accent ??
         LibraryAccentScope.accentOf(context,
-            fallback: widget.type.workspace.accent);
+            fallback: widget.type.identity.accent);
     final state = _controller.state;
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
     final isWideLayout = widget.type.capabilities.wideDialog;
-    final resultPolicy =
-        libraryKindRuntimeForType(widget.type).add.resultPolicy;
+    final resultPolicy = widget.type.add.resultPolicy;
     final visibleCore = state.visibleCoreResults(
       resultPolicy,
       isOwnedCatalogItem: (id) => ownedByCatalogId.containsKey(id),
@@ -478,8 +472,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
 
-    final kind = widget.type.workspace.kind;
-    final addCapability = libraryKindRuntimeForKind(kind).add;
+    final kind = widget.type.kind;
+    final addCapability = widget.type.add;
     final searchContext = LibraryAddSearchContext(
       query: state.search.query,
       barcode: state.search.barcode,
@@ -570,9 +564,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       header: widget.headerBuilder?.call(context, headerRequest) ??
           addCapability.headerBuilder?.call(context, headerRequest) ??
           AccentDialogHeader(
-            title: 'Add ${widget.type.pluralLabel}',
+            title: 'Add ${widget.type.identity.pluralLabel}',
             accent: accent,
-            icon: widget.type.workspace.icon,
+            icon: widget.type.identity.icon,
             onClose: () => Navigator.of(context).pop(),
           ),
       contextBar: Column(
@@ -770,8 +764,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     (selectedItem != null &&
                         state.preview.pendingHydratedResultIds
                             .contains(selectedItem.id)),
-                providerLabel: widget.type
-                    .metadataProviderLabel(state.search.selectedProvider),
+                providerLabel: widget.type.metadata.providerLabel(
+                  state.search.selectedProvider,
+                ),
                 searched: state.search.results.isNotEmpty ||
                     state.search.searchedProvider,
                 addTarget: state.target,
@@ -861,8 +856,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   .queuedProviderIngests[selectedCandidate.localCatalogId]
               : null,
           providerLabel: selectedCandidate == null
-              ? widget.type.metadataProviderLabel(state.search.selectedProvider)
-              : widget.type.metadataProviderLabel(selectedCandidate.provider),
+              ? widget.type.metadata
+                  .providerLabel(state.search.selectedProvider)
+              : widget.type.metadata.providerLabel(selectedCandidate.provider),
           addTarget: state.target,
           addCount: state.selection.checkedResultIds.length > 1
               ? state.selection.checkedResultIds.length
@@ -917,10 +913,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       .queuedProviderIngests[selectedCandidate.localCatalogId]
                   : null,
               providerLabel: selectedCandidate == null
-                  ? widget.type
-                      .metadataProviderLabel(state.search.selectedProvider)
-                  : widget.type
-                      .metadataProviderLabel(selectedCandidate.provider),
+                  ? widget.type.metadata.providerLabel(
+                      state.search.selectedProvider,
+                    )
+                  : widget.type.metadata.providerLabel(
+                      selectedCandidate.provider,
+                    ),
               addTarget: state.target,
               addCount: state.selection.checkedResultIds.length > 1
                   ? state.selection.checkedResultIds.length

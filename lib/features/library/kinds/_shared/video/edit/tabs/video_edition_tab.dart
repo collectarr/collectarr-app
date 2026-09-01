@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
@@ -16,16 +16,15 @@ class VideoEditEditionTab extends StatelessWidget {
     required this.physicalFormats,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryEditDraft draft;
   final Color accent;
   final List<PhysicalMediaFormat> physicalFormats;
 
   @override
   Widget build(BuildContext context) {
-    final runtime = libraryKindRuntimeForType(type);
-    final releaseFields = runtime.edit.releaseFields;
-    final mediaFields = runtime.edit.mediaFields;
+    final releaseFields = type.edit.releaseFields;
+    final mediaFields = type.edit.mediaFields;
     final videoEdit = (draft.kindDetails is VideoKindEditDraft)
         ? (draft.kindDetails as VideoKindEditDraft).videoEdit
         : null;
@@ -48,10 +47,10 @@ class VideoEditEditionTab extends StatelessWidget {
             editionTitleController: editionTitleController,
             variantController: variantController,
             barcodeController: barcodeController,
-            releaseDateController: videoEdit?.releaseDateController ??
-                TextEditingController(),
-            releaseYearController: videoEdit?.releaseYearController ??
-                TextEditingController(),
+            releaseDateController:
+                videoEdit?.releaseDateController ?? TextEditingController(),
+            releaseYearController:
+                videoEdit?.releaseYearController ?? TextEditingController(),
             physicalFormatController: physicalFormatController,
             physicalFormatOptions: [
               for (final format in physicalFormats) format.label,

@@ -7,11 +7,13 @@ class LibraryMetadataCapability {
     required this.defaultProviderId,
     required this.providers,
     this.supportsServerCompare = false,
+    this.usesTreeProviderCandidates = false,
   });
 
   final String defaultProviderId;
   final List<LibraryMetadataProviderOption> providers;
   final bool supportsServerCompare;
+  final bool usesTreeProviderCandidates;
 
   List<LibraryMetadataProviderOption> supportedProvidersForKind(
       CatalogMediaKind kind) {

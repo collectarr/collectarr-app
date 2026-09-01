@@ -6,10 +6,9 @@ import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_
 import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_state.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
@@ -215,7 +214,7 @@ class LibraryToolbar extends StatelessWidget {
         onGroupPresentationChanged = actions.onGroupPresentationChanged,
         includeDesktopSecondaryBand = config.includeDesktopSecondaryBand;
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final TextEditingController searchController;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;
@@ -309,13 +308,13 @@ class LibraryToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final targetAccent = libraryAccentForKind(type.workspace.kind);
+    final targetAccent = type.identity.accent;
     final effectiveScanCover =
         type.capabilities.canScanCover ? onScanCover : null;
     final effectiveReadingQueue =
-        type.capabilities.supportsReadingQueue ? onReadingQueue : null;
+        type.hierarchy.showsReadingQueue ? onReadingQueue : null;
     final effectiveReassignIndex =
-        type.capabilities.supportsIndexReassignment ? onReassignIndex : null;
+        type.hierarchy.supportsIndexReassignment ? onReassignIndex : null;
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: targetAccent),
       duration: kAppAnimNormal,

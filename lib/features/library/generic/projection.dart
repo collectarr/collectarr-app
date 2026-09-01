@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_folder_tree_builder.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_grouping_engine.dart';
@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/generic/projection/library_proje
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
@@ -114,7 +113,7 @@ class LibraryFolderPreset {
   factory LibraryFolderPreset.single(String mode) =>
       LibraryFolderPreset(modes: [mode]);
 
-  factory LibraryFolderPreset.parse(String raw, [LibraryTypeConfig? type]) {
+  factory LibraryFolderPreset.parse(String raw, [LibraryKindRuntime? type]) {
     final names = raw
         .split('>')
         .map((value) => value.trim())
@@ -172,7 +171,7 @@ LibraryFolderPreset? sanitizeLibraryFolderPreset(
 
 String genericFolderPresetLabel(
   LibraryFolderPreset preset,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return preset.modes
       .map((mode) => genericGroupModeLabel(mode, type))
@@ -181,7 +180,7 @@ String genericFolderPresetLabel(
 
 IconData genericFolderPresetIcon(
   LibraryFolderPreset preset, [
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
 ]) {
   return genericGroupModeIcon(preset.primaryMode, type);
 }
@@ -189,23 +188,20 @@ IconData genericFolderPresetIcon(
 LibraryGroupDefinition<dynamic, dynamic, Object?>?
     libraryGroupModeDefinitionOrNull(
   String mode, [
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
 ]) {
   if (type != null) {
-    final module = libraryKindRuntimeForType(type);
-    return module.fields.findGroupDefinition(
-      module.fields.decodeGroupId(mode),
-    );
+    return type.fields.findGroupDefinition(type.fields.decodeGroupId(mode));
   }
   return null;
 }
 
 String genericGroupModeLabel(
   String mode,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
-  final normalizedMode = mode.startsWith('${type.workspace.kind.name}.')
-      ? mode.substring(type.workspace.kind.name.length + 1)
+  final normalizedMode = mode.startsWith('${type.kind.name}.')
+      ? mode.substring(type.kind.name.length + 1)
       : mode;
   final def = libraryGroupModeDefinitionOrNull(mode, type);
   final presentationLabel = type.presentation.groupLabels.labelFor(
@@ -219,7 +215,7 @@ String genericGroupModeLabel(
 
 String? genericGroupModeDrilldownChildMode(
   String mode,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return libraryGroupModeDefinitionOrNull(mode, type)?.drilldownChildId;
 }
@@ -227,7 +223,7 @@ String? genericGroupModeDrilldownChildMode(
 bool libraryAllowsGroupDrilldown({
   required String currentMode,
   required String? childMode,
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
 }) {
   if (childMode == null || childMode == currentMode) {
     return false;
@@ -243,14 +239,14 @@ bool libraryAllowsGroupDrilldown({
 
 String genericGroupModeFolderSetLabel(
   String mode,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return genericFolderPresetLabel(LibraryFolderPreset.single(mode), type);
 }
 
 String genericGroupModeSidebarTitle(
   String mode,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return libraryGroupModeDefinitionOrNull(mode, type)?.resolvedSidebarTitle ??
       genericGroupModeLabel(mode, type);
@@ -258,7 +254,7 @@ String genericGroupModeSidebarTitle(
 
 IconData genericGroupModeIcon(
   String mode, [
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
 ]) {
   return libraryGroupModeDefinitionOrNull(mode, type)?.icon ??
       Icons.account_tree_outlined;
@@ -266,32 +262,31 @@ IconData genericGroupModeIcon(
 
 LibraryGroupPresentation genericGroupPresentationForMode(
   String mode, [
-  LibraryTypeConfig? type,
+  LibraryKindRuntime? type,
 ]) {
   return libraryGroupModeDefinitionOrNull(mode, type)?.presentation ??
       LibraryGroupPresentation.inlineHeaders;
 }
 
 List<String> libraryGroupModesForType(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return [
-    for (final mode in libraryKindRuntimeForType(type).availableGroupIds)
-      mode.value,
+    for (final mode in type.availableGroupIds) mode.value,
   ];
 }
 
-String libraryDefaultGroupMode(LibraryTypeConfig type) {
+String libraryDefaultGroupMode(LibraryKindRuntime type) {
   return libraryGroupModesForType(type).first;
 }
 
-String libraryGroupModeStorageValue(String mode, [LibraryTypeConfig? type]) {
+String libraryGroupModeStorageValue(String mode, [LibraryKindRuntime? type]) {
   final def = libraryGroupModeDefinitionOrNull(mode, type);
   return 'group.${def?.id.value ?? mode}';
 }
 
 String? libraryGroupModeFromStorageValue(String value,
-    [LibraryTypeConfig? type]) {
+    [LibraryKindRuntime? type]) {
   final normalized = value.trim();
   if (normalized.isEmpty) {
     return null;
@@ -300,12 +295,11 @@ String? libraryGroupModeFromStorageValue(String value,
       normalized.startsWith('group.') ? normalized.substring(6) : normalized;
 
   if (type != null) {
-    final module = libraryKindRuntimeForType(type);
-    final groupId = module.fields.decodeGroupId(candidate);
+    final groupId = type.fields.decodeGroupId(candidate);
     if (groupId.semantic != LibraryGroupSemantic.unknown) {
       return groupId.value;
     }
-    return module.fields.findGroupDefinition(groupId)?.id.value;
+    return type.fields.findGroupDefinition(groupId)?.id.value;
   }
 
   return candidate;
@@ -322,7 +316,7 @@ class LibraryProjection {
 
   factory LibraryProjection.fromShelf({
     required ShelfState shelf,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryWorkspaceViewState viewState,
     LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
     String? releaseFolderTitleItemId,
@@ -379,10 +373,10 @@ class LibraryProjection {
 
 List<LibraryBucket> libraryBucketsForItems(
   List<LibraryProjectionItem> items,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   String groupMode,
 ) {
-  final runtime = libraryKindRuntimeForType(type);
+  final runtime = type;
   return const LibraryGroupingEngine().buildBuckets(
     items,
     type,
@@ -392,11 +386,11 @@ List<LibraryBucket> libraryBucketsForItems(
 
 List<GroupShelfEntry> libraryGroupEntriesForItems(
   List<LibraryProjectionItem> items,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   String groupMode, {
   LibraryGroupPresentation? presentationOverride,
 }) {
-  final runtime = libraryKindRuntimeForType(type);
+  final runtime = type;
   return const LibraryGroupingEngine().buildGroupEntries(
     items,
     type,
@@ -422,9 +416,9 @@ LibraryProjectionItem? librarySelectedItem(
 
 String genericBucketForItem(
   LibraryProjectionItem item,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
-  final runtime = libraryKindRuntimeForType(type);
+  final runtime = type;
   return const LibraryGroupingEngine().getGroupBucketForItem(
     item,
     type,
@@ -434,20 +428,19 @@ String genericBucketForItem(
 
 String genericBucketForItemMode(
   LibraryProjectionItem item,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   String groupMode,
 ) {
-  final runtime = libraryKindRuntimeForType(type);
   return genericBucketForItemGroup(
     item,
     type,
-    runtime.fields.decodeGroupId(groupMode),
+    type.fields.decodeGroupId(groupMode),
   );
 }
 
 String genericBucketForItemGroup(
   LibraryProjectionItem item,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   LibraryGroupIdRuntime groupId,
 ) {
   return const LibraryGroupingEngine().getGroupBucketForItem(
@@ -457,8 +450,8 @@ String genericBucketForItemGroup(
   );
 }
 
-String genericAllBucketLabel(LibraryTypeConfig type) {
-  return '[All ${type.pluralLabel}]';
+String genericAllBucketLabel(LibraryKindRuntime type) {
+  return '[All ${type.identity.pluralLabel}]';
 }
 
 String libraryFolderTreeNodeId({
@@ -476,7 +469,7 @@ String libraryFolderTreeNodeId({
 
 List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
   List<LibraryProjectionItem> items,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   LibraryFolderPreset preset, {
   Set<String> expandedNodeIds = const {},
   String? selectedNodeId,
@@ -493,15 +486,13 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
 bool libraryEntryMatchesLinkedMetadataFilter(
   LibraryProjectionRuntime item,
   String value,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   final normalized = value.trim().toLowerCase();
   if (normalized.isEmpty) {
     return true;
   }
-  for (final candidate in libraryKindRuntimeForType(type)
-      .linkedMetadata
-      .candidatesForEntry(item.source)) {
+  for (final candidate in type.linkedMetadata.candidatesForEntry(item.source)) {
     if (candidate.trim().toLowerCase() == normalized) {
       return true;
     }

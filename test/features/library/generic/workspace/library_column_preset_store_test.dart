@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   test('saves updates and deletes table column presets', () async {
     SharedPreferences.setMockInitialValues({});
-    final store = LibraryColumnPresetStore(comicsLibraryConfig);
+    final store = LibraryColumnPresetStore(comicKindModule);
 
     final saved = await store.savePreset(
       label: 'My Value View',

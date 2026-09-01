@@ -2,9 +2,8 @@ part of '../generic_library_page.dart';
 
 abstract final class _LibraryPageLifecycleControllerOps {
   static void initState(GenericLibraryPageState state) {
-    state._kindBrowserDelegate = libraryKindRuntimeForType(state.widget.type)
-        .hierarchy
-        .buildBrowserDelegate();
+    state._kindBrowserDelegate =
+        state.widget.type.hierarchy.buildBrowserDelegate();
     state._shelfSubscription = state.ref.listenManual<AsyncValue<ShelfState>>(
       shelfProvider,
       (_, next) {
@@ -38,7 +37,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
   static Future<void> loadViewPreferences(GenericLibraryPageState state) async {
     try {
       final loadToken = ++state._viewPreferenceLoadToken;
-      final expectedKind = state.widget.type.workspace.kind;
+      final expectedKind = state.widget.type.kind;
       final quickViewFuture = state._viewPrefs.readQuickView();
       final folderPresetFuture = state._viewPrefs.readFolderPreset(
         allowedModes: state._scopeAvailableGroupModes,
@@ -77,7 +76,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       ).wait;
       if (!state.mounted ||
           loadToken != state._viewPreferenceLoadToken ||
-          state.widget.type.workspace.kind != expectedKind) {
+          state.widget.type.kind != expectedKind) {
         return;
       }
 
@@ -181,7 +180,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
     GenericLibraryPageState state,
     GenericLibraryPage oldWidget,
   ) {
-    if (oldWidget.type.workspace.kind != state.widget.type.workspace.kind) {
+    if (oldWidget.type.kind != state.widget.type.kind) {
       state._selectedId = null;
       state._selectedBucket = null;
       state._selectedLetter = null;
@@ -207,14 +206,14 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state.ref
           .read(
             libraryFacetControllerProvider(
-              oldWidget.type.workspace.kind.apiValue,
+              oldWidget.type.kind.apiValue,
             ).notifier,
           )
           .clearAll();
       state.ref
           .read(
             libraryFacetControllerProvider(
-              state.widget.type.workspace.kind.apiValue,
+              state.widget.type.kind.apiValue,
             ).notifier,
           )
           .clearAll();
@@ -239,7 +238,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
   static Future<void> loadActiveLoanIds(GenericLibraryPageState state) async {
     try {
       final loadToken = ++state._activeLoanIdsLoadToken;
-      final expectedKind = state.widget.type.workspace.kind;
+      final expectedKind = state.widget.type.kind;
       final db = state.ref.read(localDatabaseProvider);
       final repo = LoanRepository(db);
       final activeLoans = await repo.getActiveLoans();
@@ -248,7 +247,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       };
       if (!state.mounted ||
           loadToken != state._activeLoanIdsLoadToken ||
-          state.widget.type.workspace.kind != expectedKind) {
+          state.widget.type.kind != expectedKind) {
         return;
       }
       state._mutateState(() => state._activeLoanOwnedItemIds = next);

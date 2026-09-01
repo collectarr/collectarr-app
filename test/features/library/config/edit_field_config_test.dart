@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -52,7 +52,8 @@ void main() {
 
   test('top-level library registry exposes split manga/anime/tv kinds', () {
     expect(
-      collectarrLibraryTypes.supportedKinds,
+      defaultLibraryKindRegistry.allRuntimes
+          .map((runtime) => runtime.kind.apiValue),
       containsAll(['comic', 'manga', 'movie', 'tv', 'anime']),
     );
   });

@@ -22,10 +22,10 @@ import 'package:collectarr_app/features/library/inspector/inspector_personal_det
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -125,7 +125,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     this.contextLabel,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime? item;
   final OwnedItem? ownedItem;
   final LibraryDetailsLayout detailsLayout;
@@ -225,16 +225,17 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         : widget.onAddWishlist;
     final onEdit =
         widget.onEdit == null ? null : () => widget.onEdit!(activeOwnedItem);
-    final onCorrectMetadata =
-        widget.type.supportedMetadataProviders.isNotEmpty &&
-                selected.source.catalogItem != null
-            ? () => showMetadataCorrectionDialog(
-                  context: context,
-                  ref: ref,
-                  item: selected.source.catalogItem!,
-                  type: widget.type,
-                )
-            : null;
+    final onCorrectMetadata = widget.type.metadata
+                .supportedProvidersForKind(widget.type.kind)
+                .isNotEmpty &&
+            selected.source.catalogItem != null
+        ? () => showMetadataCorrectionDialog(
+              context: context,
+              ref: ref,
+              item: selected.source.catalogItem!,
+              type: widget.type,
+            )
+        : null;
     final onDuplicate = activeOwnedItem == null
         ? null
         : () => _duplicateOwnedCopy(selected, activeOwnedItem);
@@ -249,9 +250,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 accent: widget.accent,
               ),
             );
-    final onRefreshMetadata = widget.type.supportedMetadataProviders.isEmpty
-        ? null
-        : () => _refreshSelectedEntryMetadata(selected);
+    final onRefreshMetadata =
+        widget.type.metadata.supportedProvidersForKind(widget.type.kind).isEmpty
+            ? null
+            : () => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
     void onOpenDetails() {
       showLibraryDetailPage(
@@ -336,7 +338,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required VoidCallback onOpenDetails,
     required LibraryWorkspaceDensityPreset density,
   }) {
-    final runtime = libraryKindRuntimeForType(widget.type);
+    final runtime = widget.type;
     final editCapability = runtime.edit;
     final inspectorCapability = runtime.inspector;
     final hero = inspectorCapability.heroBuilder?.call(
@@ -401,7 +403,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             true) {
       conditionGradeSection = Builder(
         builder: (context) {
-          final editCapability = libraryKindRuntimeForType(widget.type).edit;
+          final editCapability = widget.type.edit;
           final conditionDefinition =
               editCapability.vocabularies?.definitionForSuffix('condition');
           final gradeDefinition =
@@ -422,7 +424,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 _inspectorConditionGradeOptionsProvider(
                   _InspectorConditionGradeOptionsRequest(
                     db: widget.db ?? ref.read(localDatabaseProvider),
-                    mediaKind: widget.type.workspace.kind.apiValue,
+                    mediaKind: widget.type.kind.apiValue,
                     builtInConditions: builtInConditions,
                     builtInGrades: builtInGrades,
                     conditionListName: conditionDefinition?.key,
@@ -468,7 +470,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       if (activeOwnedItem != null && widget.db != null)
         InspectorCustomFieldsSection(
           ownedItemId: activeOwnedItem.id,
-          mediaKind: widget.type.workspace.kind.apiValue,
+          mediaKind: widget.type.kind.apiValue,
           db: widget.db!,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
@@ -646,7 +648,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
-              kind: widget.type.workspace.kind.apiValue,
+              kind: widget.type.kind.apiValue,
               entityType: CatalogEntityType.work,
               id: item.node.titleItemId,
             ),
@@ -655,7 +657,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               variantId: anchor.variantId,
               bundleReleaseId: anchor.bundleReleaseId,
             ),
-            details: defaultDetailsDraftForKind(widget.type.workspace.kind),
+            details: defaultDetailsDraftForKind(widget.type.kind),
           ),
         );
     if (!mounted) {
@@ -916,13 +918,13 @@ class EmptyInspector extends StatelessWidget {
     super.key,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('No ${type.singularLabel.toLowerCase()} selected'),
+      child: Text('No ${type.identity.singularLabel.toLowerCase()} selected'),
     );
   }
 }

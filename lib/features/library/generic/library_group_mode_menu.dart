@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -20,7 +20,7 @@ class _ManageFavoritesRequest {
 
 Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required List<String> availableModes,
   List<LibraryFolderPreset> initialFavorites = const [],
 }) {
@@ -51,7 +51,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
     this.availableModes,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryFolderPreset? folderPreset;
   final Color accent;
   final IconData icon;
@@ -248,10 +248,7 @@ class _LibraryGroupModeMenuButtonState
     final textStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
           fontWeight: FontWeight.w800,
         );
-    final categories = widget.type.kindUiAdapter.sidebarFacets(
-      widget.type,
-      modes,
-    );
+    final categories = libraryGroupModeCategories(widget.type, modes);
     final labels = <String>[
       if (widget.onSidebarVisibilityChanged != null && widget.sidebarVisible)
         'No folders',
@@ -262,11 +259,9 @@ class _LibraryGroupModeMenuButtonState
       for (final preset in widget.pinnedFolderPresets)
         if (preset.modes.every((m) =>
             modes.contains(m) ||
-            libraryKindRuntimeForType(widget.type).fields.findGroupDefinition(
-                      libraryKindRuntimeForType(widget.type)
-                          .fields
-                          .decodeGroupId(m),
-                    ) !=
+            widget.type.fields.findGroupDefinition(
+                  widget.type.fields.decodeGroupId(m),
+                ) !=
                 null))
           genericFolderPresetLabel(preset, widget.type),
     ];
@@ -301,7 +296,7 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
     this.onSelected,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryFolderPreset? selectedPreset;
   final List<String> availableModes;
   final List<LibraryFolderPreset> initialPinnedPresets;
@@ -333,7 +328,7 @@ class _LibraryGroupModeDropdownMenuState
   }
 
   bool _isModeMatching(String m1, String m2) {
-    final fields = libraryKindRuntimeForType(widget.type).fields;
+    final fields = widget.type.fields;
     return fields.decodeGroupId(m1).sameIdentityAs(fields.decodeGroupId(m2));
   }
 
@@ -350,7 +345,7 @@ class _LibraryGroupModeDropdownMenuState
     super.initState();
     _pinnedPresets =
         List<LibraryFolderPreset>.from(widget.initialPinnedPresets);
-    _categories = widget.type.kindUiAdapter.groupModeCategories(
+    _categories = libraryGroupModeCategories(
       widget.type,
       widget.availableModes,
     );
@@ -375,11 +370,9 @@ class _LibraryGroupModeDropdownMenuState
       for (final preset in _pinnedPresets)
         if (preset.modes.every((m) =>
             widget.availableModes.contains(m) ||
-            libraryKindRuntimeForType(widget.type).fields.findGroupDefinition(
-                      libraryKindRuntimeForType(widget.type)
-                          .fields
-                          .decodeGroupId(m),
-                    ) !=
+            widget.type.fields.findGroupDefinition(
+                  widget.type.fields.decodeGroupId(m),
+                ) !=
                 null))
           preset,
     ];
@@ -644,7 +637,7 @@ class _GroupModeFavoritesDialog extends StatefulWidget {
     required this.initialFavorites,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final List<String> availableModes;
   final List<LibraryFolderPreset> initialFavorites;
 
@@ -672,7 +665,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     _fieldSearchController = TextEditingController();
     _draftModes = const [];
     _expandedEditorSections = {
-      for (final category in widget.type.kindUiAdapter.groupModeCategories(
+      for (final category in libraryGroupModeCategories(
         widget.type,
         widget.availableModes,
       ))
@@ -844,7 +837,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   List<LibraryGroupModeCategory> get _filteredCategories {
     final query = _fieldSearch.trim().toLowerCase();
-    final categories = widget.type.kindUiAdapter.groupModeCategories(
+    final categories = libraryGroupModeCategories(
       widget.type,
       widget.availableModes,
     );

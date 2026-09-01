@@ -195,12 +195,6 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: comicLibraryBucketLabelBuilder,
   previewLabels: comicsPreviewLabels,
   filterDefinitions: comicLibraryFilterDefinitions,
-  usesTreeProviderCandidates: true,
-  externalFacetBucketIdsByMode: const {
-    'comic.story_arc': ComicFacetIds.storyArc,
-    'comic.character': ComicFacetIds.character,
-  },
-  usesCompactTableLayout: true,
   sortFavorites: comicLibrarySortFavorites,
   columnFavorites: comicsTableColumnPresets,
   fieldDefinitions: comicLibraryFieldDefinitions,

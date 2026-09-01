@@ -2,41 +2,36 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/config/library_kind_identity.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  final config = LibraryWorkspaceConfig(
-    kind: CatalogMediaKind.comic,
-    title: 'Comics',
-    icon: Icons.menu_book,
-    accent: Colors.red,
-    preferencePrefix: 'test.comics',
-  );
-
-  final typeConfig = LibraryTypeConfig(
-    workspace: config,
-    singularLabel: 'Comic',
-    pluralLabel: 'Comics',
-    defaultMetadataProvider: 'mock',
-    metadataProviders: const [],
-    trackingProfile: const MediaTrackingProfile(
-      name: 'Mock',
-      options: [],
+  final runtime = comicKindModule.withCatalogMetadata(
+    identity: const LibraryKindIdentity(
+      kind: CatalogMediaKind.comic,
+      singularLabel: 'Comic',
+      pluralLabel: 'Comics',
+      title: 'Comics',
+      icon: Icons.menu_book,
+      accent: Colors.red,
+      preferencePrefix: 'test.comics',
+    ),
+    metadata: const LibraryMetadataCapability(
+      defaultProviderId: 'mock',
+      providers: [],
     ),
   );
-  final runtime = libraryKindRuntimeForType(typeConfig);
   LibraryFieldIdRuntime field(String value) =>
       runtime.fields.decodeColumnId(value);
   LibrarySortIdRuntime sort(String value) => runtime.fields.decodeSortId(value);
 
   final profile = LibraryWorkspaceViewProfile(
-    type: typeConfig,
+    runtimeResolver: () => runtime,
     defaultCoverSize: 128,
     minCoverSize: 100,
     maxCoverSize: 200,
@@ -179,7 +174,7 @@ void main() {
 
   test('workspace view profile controls initial sort direction', () {
     final newestFirstProfile = LibraryWorkspaceViewProfile(
-      type: typeConfig,
+      runtimeResolver: () => runtime,
       defaultCoverSize: 128,
       minCoverSize: 100,
       maxCoverSize: 200,
@@ -237,7 +232,7 @@ void main() {
   });
 
   test('workspace view defaults reuse cached library chrome', () async {
-    await LibraryWorkspacePreferences(typeConfig).write(
+    await LibraryWorkspacePreferences(runtime).write(
       profile
           .defaults()
           .copyWith(

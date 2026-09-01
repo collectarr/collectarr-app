@@ -1,9 +1,8 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +17,7 @@ class LibraryFilterEngine {
     required LibraryProjectionItem item,
     required LibraryProjectionQuery query,
     required LibrarySearchDocument searchDoc,
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     LibraryProjectionIndex? index,
     Set<String> activeLoanOwnedItemIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
@@ -63,7 +62,7 @@ class LibraryFilterEngine {
 
   bool _matchesBucket(
     LibraryProjectionItem item,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     LibraryGroupIdRuntime groupId,
     String? selectedBucket,
     LibraryProjectionIndex? index,
@@ -81,7 +80,7 @@ class LibraryFilterEngine {
 
   bool _matchesBucketScopeFilters(
     LibraryProjectionItem item,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     List<LibraryBucketScopeFilter> filters,
     LibraryProjectionIndex? index,
   ) {
@@ -102,10 +101,10 @@ class LibraryFilterEngine {
   }
 
   LibraryGroupIdRuntime _defaultGroupId(
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     LibraryProjectionQuery query,
   ) {
-    final fields = libraryKindRuntimeForType(type).fields;
+    final fields = type.fields;
     return query.groupId ?? fields.defaultGroup ?? fields.groups.first.id;
   }
 
@@ -153,7 +152,7 @@ class LibraryFilterEngine {
 
   bool _matchesFilter(
     LibraryProjectionItem item,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
     LibraryFilterSelection filters,
     Set<String> activeLoanOwnedItemIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
@@ -286,7 +285,7 @@ class LibraryFilterEngine {
   bool _matchesLinkedMetadata(
     LibraryProjectionItem item,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
-    LibraryTypeConfig type,
+    LibraryKindRuntime type,
   ) {
     if (linkedMetadataFilter == null) {
       return true;
@@ -295,9 +294,8 @@ class LibraryFilterEngine {
     if (normalized.isEmpty) {
       return true;
     }
-    for (final candidate in libraryKindRuntimeForType(type)
-        .linkedMetadata
-        .candidatesForEntry(item.source)) {
+    for (final candidate
+        in type.linkedMetadata.candidatesForEntry(item.source)) {
       if (candidate.trim().toLowerCase() == normalized) {
         return true;
       }

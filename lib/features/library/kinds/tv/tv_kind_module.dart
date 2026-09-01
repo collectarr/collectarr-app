@@ -11,12 +11,16 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit_presentation_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/release/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -32,6 +36,8 @@ import 'package:collectarr_app/features/library/kinds/tv/stats/tv_stats_capabili
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -39,6 +45,56 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 const _tvShowFilterId = LibraryAddFilterId('tv.show');
 const _tvNetworkFilterId = LibraryAddFilterId('tv.network');
 const _tvYearFilterId = LibraryAddFilterId('tv.year');
+
+const _tvAddChrome = LibraryAddChromeConfig(
+  videoKindFilterOptions: [
+    LibraryAddVideoKindFilterOption(
+      kind: 'tv',
+      label: 'TV Shows',
+      icon: Icons.tv_outlined,
+    ),
+  ],
+  defaultVideoKindFilters: {'tv'},
+);
+
+final _tvTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'features',
+    label: 'Features',
+    icon: Icons.featured_play_list_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.tvDetails?.features,
+    write: (item, value) {
+      final details = item.tvDetails ?? const TvOwnedDetails();
+      return item.copyWith(details: details.copyWith(features: value));
+    },
+  ),
+  TransferableField(
+    key: 'boxSetName',
+    label: 'Box set name',
+    icon: Icons.inventory_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.tvDetails?.boxSetName,
+    write: (item, value) {
+      final details = item.tvDetails ?? const TvOwnedDetails();
+      return item.copyWith(details: details.copyWith(boxSetName: value));
+    },
+  ),
+  TransferableField(
+    key: 'packaging',
+    label: 'Packaging',
+    icon: Icons.inventory_2_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.tvDetails?.packaging,
+    write: (item, value) {
+      final details = item.tvDetails ?? const TvOwnedDetails();
+      return item.copyWith(details: details.copyWith(packaging: value));
+    },
+  ),
+];
 
 Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       metadata.seriesTitle,
@@ -55,7 +111,10 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
     ];
 
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
-  type: tvLibraryConfig,
+  presentation: tvLibraryMediaPresentation,
+  trackingProfile: videoTrackingProfile,
+  releaseCapability:
+      const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const TvWorkspaceProjector(),
   ownedDetailsCodec: const TvOwnedDetailsCodec(),
   fields: tvLibraryKindSchema.toRegistry(),
@@ -76,8 +135,19 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     defaultProviderId: 'tmdb',
     providers: [tmdbMetadataProvider],
   ),
+  capabilities: const LibraryTypeCapabilities(
+    supportsMediaReleaseSplit: true,
+    wideDialog: true,
+    showsSeasonGroupProgress: true,
+    compactBucketIcon: Icons.tv_outlined,
+    emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
+  ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.seasons,
+    defaultVideoDisplayLevel: tvDefaultVideoDisplayLevel,
+    defaultVideoGrouping: tvDefaultVideoGrouping,
+    videoSeriesEntryTypes: {'tv'},
+    videoShelfDrilldownEntryTypes: {'tv'},
     fetchChildrenCallback: _fetchTvSeasons,
     childrenTitleBuilder: _tvChildrenTitle,
     supportsMediaReleaseSplit: true,
@@ -93,7 +163,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     _tvLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
-    kindFields: tvTransferableFields,
+    kindFields: _tvTransferableFields,
   ),
   stats: const TvStatsCapability(),
   add: StandardLibraryAddCapability<TvAddDraft>(
@@ -101,13 +171,14 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     initialDraftBuilder: TvAddDraft.new,
     manualDraftBuilder: TvAddManualDraft.new,
     search: LibraryAddSearchCapability(
-      initialAdvancedFilters:
-          buildLibraryAddVideoInitialFilters(tvLibraryConfig),
+      initialAdvancedFilters: {
+        libraryAddVideoKindFilterId: {'tv'},
+      },
       advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
       searchInputPredicate: libraryAddVideoHasSearchInput,
       kindSpecificPaneBuilder: buildLibraryAddVideoKindFilterRow,
       providerKindOverridesBuilder: (context) =>
-          libraryAddVideoKindOverrides(tvLibraryConfig, context),
+          libraryAddVideoKindOverridesForChrome(_tvAddChrome, context),
       coreSearchInputBuilder: _buildTvCoreSearchInput,
       providerQueryBuilder: _buildTvProviderQuery,
       ranking: buildLibraryAddSearchRanking(
@@ -169,6 +240,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
       providerCandidateIsGroup: libraryAddVideoProviderCandidateIsGroup,
     ),
     manualPaneBuilder: buildTvAddManualPane,
+    chrome: _tvAddChrome,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildTvLibraryEditDialog,

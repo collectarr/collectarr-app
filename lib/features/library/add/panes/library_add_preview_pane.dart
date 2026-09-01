@@ -57,7 +57,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
@@ -163,13 +163,12 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     if (launcherPreview != null) {
       return launcherPreview;
     }
-    final runtime = libraryKindRuntimeForType(type);
     final customPreview = type.presentation.builder.buildAddPreviewPane(
       context: context,
       accent: accent,
-      singularLabel: type.singularLabel,
-      mediaFields: runtime.edit.mediaFields,
-      releaseFields: runtime.edit.releaseFields,
+      singularLabel: type.identity.singularLabel,
+      mediaFields: type.edit.mediaFields,
+      releaseFields: type.edit.releaseFields,
       previewLabels: type.presentation.previewLabels,
       item: selectedItem,
       candidate: selectedCandidate,
@@ -227,7 +226,9 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                   ),
                 ),
                 LibraryAddResultBadge(
-                  selectedItem == null ? providerLabel : type.singularLabel,
+                  selectedItem == null
+                      ? providerLabel
+                      : type.identity.singularLabel,
                 ),
               ],
             ),
@@ -499,7 +500,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
@@ -537,19 +538,19 @@ class LibraryAddReferenceSelector extends StatelessWidget {
 
 List<(String, String?)> libraryAddMetadataRowsForItem(
   LibraryMetadataItem item,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) =>
     _metadataRowsForItem(item, type);
 
 List<(String, String?)> libraryAddMetadataRowsForCandidate(
   ProviderCandidate candidate,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) =>
     _metadataRowsForCandidate(candidate, type);
 
 List<(String, String?)> libraryAddMetadataRowsForFullPreview(
   AdminProviderPreview preview,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) =>
     _metadataRowsForFullPreview(preview, type);
 
@@ -751,7 +752,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
@@ -1176,11 +1177,10 @@ Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
 
 List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
-  final runtime = libraryKindRuntimeForType(type);
-  final media = runtime.edit.mediaFields;
-  final release = runtime.edit.releaseFields;
+  final media = type.edit.mediaFields;
+  final release = type.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   return [
     if (candidate.series?.seriesTitle != null)
@@ -1258,11 +1258,10 @@ CatalogEditionDto? _findMatchingEdition(
 
 List<(String, String?)> _metadataRowsForItem(
   LibraryMetadataItem item,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
-  final runtime = libraryKindRuntimeForType(type);
-  final media = runtime.edit.mediaFields;
-  final release = runtime.edit.releaseFields;
+  final media = type.edit.mediaFields;
+  final release = type.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final payload = item.kindMetadata.toSyncPayload();
   final seriesMap = payload['series'] as Map?;
@@ -1360,11 +1359,10 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
 
 List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
-  final runtime = libraryKindRuntimeForType(type);
-  final media = runtime.edit.mediaFields;
-  final release = runtime.edit.releaseFields;
+  final media = type.edit.mediaFields;
+  final release = type.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final series = preview.series;
   final publishing = preview.publishing;
@@ -1406,8 +1404,8 @@ List<(String, String?)> _metadataRowsForFullPreview(
       ('Format', preview.physicalFormatLabel),
     if (preview.variantName != null)
       (release.variantLabel, preview.variantName),
-    if (collectarrLibraryTypes
-            .capabilitiesForKind(catalogMediaKindFromValue(preview.kind))
+    if (libraryKindRuntimeForKind(catalogMediaKindFromValue(preview.kind))
+            .capabilities
             .showsTrackData &&
         musicTrackCount != null)
       ('Tracks', musicTrackCount),

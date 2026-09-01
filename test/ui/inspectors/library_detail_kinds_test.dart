@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
@@ -7,7 +6,10 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
@@ -25,7 +27,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+      final type = comicKindModule;
       final source = ShelfEntry(
         itemId: 'comic-1',
         catalogItem: testCatalogItem(
@@ -77,7 +79,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.music)!;
+      final type = musicKindModule;
       final source = ShelfEntry(
         itemId: 'music-1',
         catalogItem: testCatalogItem(
@@ -128,7 +130,7 @@ void main() {
     testWidgets('renders game-specific fields', (tester) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.game)!;
+      final type = gameKindModule;
       final source = ShelfEntry(
         itemId: 'game-1',
         catalogItem: testCatalogItem(
@@ -182,7 +184,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+      final type = bookKindModule;
       final source = ShelfEntry(
         itemId: 'book-1',
         catalogItem: testCatalogItem(
@@ -237,7 +239,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+      final type = comicKindModule;
       final source = ShelfEntry(
         itemId: 'comic-1',
         catalogItem: testCatalogItem(

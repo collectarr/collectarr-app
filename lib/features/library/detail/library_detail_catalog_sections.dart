@@ -1,30 +1,28 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailCatalogSections({
   required BuildContext context,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   required LibraryProjectionRuntime item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
-  final runtime = libraryKindRuntimeForType(type);
   return type.presentation.builder.buildDetailCatalogSections(
     context: context,
-    singularLabel: type.singularLabel,
-    mediaFields: runtime.edit.mediaFields,
-    releaseFields: runtime.edit.releaseFields,
+    singularLabel: type.identity.singularLabel,
+    mediaFields: type.edit.mediaFields,
+    releaseFields: type.edit.releaseFields,
     item: item,
     accent: accent,
-    relationCapability: runtime.relations,
+    relationCapability: type.relations,
     onFilterByValue: onFilterByValue,
   );
 }
@@ -38,22 +36,21 @@ class LibraryDetailMetadataSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
-    final runtime = libraryKindRuntimeForType(type);
     return type.presentation.builder.buildDetailIdentitySection(
       context: context,
-      singularLabel: type.singularLabel,
-      mediaFields: runtime.edit.mediaFields,
-      releaseFields: runtime.edit.releaseFields,
+      singularLabel: type.identity.singularLabel,
+      mediaFields: type.edit.mediaFields,
+      releaseFields: type.edit.releaseFields,
       item: item,
       accent: accent,
-      relationCapability: runtime.relations,
+      relationCapability: type.relations,
       onFilterByValue: onFilterByValue,
     );
   }
@@ -68,19 +65,18 @@ class LibraryDetailContextSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
-    final runtime = libraryKindRuntimeForType(type);
     return type.presentation.builder.buildDetailContextSection(
       context: context,
-      singularLabel: type.singularLabel,
-      mediaFields: runtime.edit.mediaFields,
-      releaseFields: runtime.edit.releaseFields,
+      singularLabel: type.identity.singularLabel,
+      mediaFields: type.edit.mediaFields,
+      releaseFields: type.edit.releaseFields,
       item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -97,19 +93,18 @@ class LibraryDetailCreditsSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
-    final runtime = libraryKindRuntimeForType(type);
     return type.presentation.builder.buildDetailCreditsSection(
       context: context,
-      singularLabel: type.singularLabel,
-      mediaFields: runtime.edit.mediaFields,
-      releaseFields: runtime.edit.releaseFields,
+      singularLabel: type.identity.singularLabel,
+      mediaFields: type.edit.mediaFields,
+      releaseFields: type.edit.releaseFields,
       item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -125,14 +120,14 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final sourceKind = _sourceKind(item.node.titleItemId);
-    final defaultProvider = type.defaultSupportedMetadataProviderOption;
+    final defaultProvider = type.metadata.defaultSupportedOption(type.kind);
 
     return LibraryDetailSection(
       title: 'Metadata source & system IDs',
@@ -146,7 +141,7 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
               LibraryDetailField(
                   label: 'Metadata provider', value: defaultProvider.label),
             LibraryDetailField(
-                label: 'Sync profile', value: type.singularLabel),
+                label: 'Sync profile', value: type.identity.singularLabel),
           ],
         ),
       ],
@@ -163,7 +158,7 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -259,25 +254,30 @@ class LibraryDetailProviderSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
+    final supportedProviders =
+        type.metadata.supportedProvidersForKind(type.kind);
+    final defaultProvider = type.metadata.defaultSupportedOption(type.kind);
+    final defaultProviderId =
+        defaultProvider?.id ?? type.metadata.defaultProviderId;
     return LibraryDetailSection(
       title: 'Providers',
       accentColor: accent,
       children: [
-        if (type.supportedMetadataProviders.isEmpty)
+        if (supportedProviders.isEmpty)
           const Text(
             'No providers are registered for this media type yet. Manual local records still work and will sync as local snapshots.',
           )
         else ...[
           LibraryDetailChipGroupWidget(
             values: [
-              for (final provider in type.supportedMetadataProviders)
-                provider.id == type.defaultSupportedMetadataProvider
+              for (final provider in supportedProviders)
+                provider.id == defaultProviderId
                     ? '${provider.label} default'
                     : provider.label,
             ],
@@ -288,15 +288,13 @@ class LibraryDetailProviderSection extends StatelessWidget {
             fields: [
               LibraryDetailField(
                   label: 'Default provider',
-                  value: type.metadataProviderLabel(
-                    type.defaultSupportedMetadataProvider,
-                  )),
+                  value: type.metadata.providerLabel(defaultProviderId)),
               LibraryDetailField(
                   label: 'Provider count',
-                  value: type.supportedMetadataProviders.length.toString()),
+                  value: supportedProviders.length.toString()),
               LibraryDetailField(
                   label: 'API keys',
-                  value: type.supportedMetadataProviders.any(
+                  value: supportedProviders.any(
                     (provider) => provider.requiresApiKey,
                   )
                       ? 'Some required'
@@ -311,7 +309,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
           ),
-          for (final provider in type.supportedMetadataProviders)
+          for (final provider in supportedProviders)
             if (provider.usagePolicy != null) ...[
               const SizedBox(height: 8),
               Text(
@@ -365,16 +363,15 @@ class _MetadataHealth {
 }
 
 _MetadataHealth _buildMetadataHealth(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   LibraryProjectionRuntime item,
 ) {
   var score = 0;
   final missingSignals = <String>[];
-  final runtime = libraryKindRuntimeForType(type);
   final metadata = type.presentation.builder.buildMetadataPresentation(
-    singularLabel: type.singularLabel,
-    mediaFields: runtime.edit.mediaFields,
-    releaseFields: runtime.edit.releaseFields,
+    singularLabel: type.identity.singularLabel,
+    mediaFields: type.edit.mediaFields,
+    releaseFields: type.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

@@ -11,7 +11,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -61,7 +62,7 @@ class LibraryEditDraft {
 
   final TextControllerGroup _textControllers;
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
@@ -107,7 +108,7 @@ class LibraryEditDraft {
   }
 
   factory LibraryEditDraft.fromItem({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryMetadataItem item,
     OwnedItem? ownedItem,
     WishlistItem? wishlistItem,
@@ -135,7 +136,7 @@ class LibraryEditDraft {
   }
 
   factory LibraryEditDraft.fromFields({
-    required LibraryTypeConfig type,
+    required LibraryKindRuntime type,
     required LibraryMetadataItem item,
     required OwnedItem? ownedItem,
     required WishlistItem? wishlistItem,
@@ -303,13 +304,12 @@ class LibraryEditDraft {
       finishedAt: trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
     );
 
-    final kindDetails =
-        libraryKindRuntimeForKind(type.workspace.kind).edit.createDraft(
-              item: item,
-              ownedItem: ownedItem,
-              trackingEntry: trackingEntry,
-              textControllers: textControllers,
-            );
+    final kindDetails = type.edit.createDraft(
+      item: item,
+      ownedItem: ownedItem,
+      trackingEntry: trackingEntry,
+      textControllers: textControllers,
+    );
 
     return LibraryEditDraft._(
       textControllers: textControllers,
@@ -611,13 +611,13 @@ class LibraryEditDraft {
   }
 
   OwnedDetailsDraft buildDetailsDraft() => libraryKindRuntimeForKind(
-        type.workspace.kind,
+        type.kind,
       ).edit.buildDetailsDraft(kindDetails);
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
-        kind: type.workspace.kind.apiValue,
+        kind: type.kind.apiValue,
         entityType: CatalogEntityType.ownedCopy,
         id: item.id,
       ),
@@ -627,9 +627,7 @@ class LibraryEditDraft {
   }
 
   UpdateOwnedItemCommand toUpdateOwnedItemCommand(String ownedItemId) {
-    return libraryKindRuntimeForKind(type.workspace.kind)
-        .edit
-        .buildUpdateCommand(
+    return libraryKindRuntimeForKind(type.kind).edit.buildUpdateCommand(
           session: this,
           ownedItemId: ownedItemId,
           kindDraft: kindDetails,

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -24,7 +24,9 @@ class BookInspectorPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = request.inspector.item;
     final accent = request.inspector.accent;
-    final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+    final adapter = item.dto is WorkspaceDtoAdapter
+        ? item.dto as WorkspaceDtoAdapter
+        : null;
     final series = adapter?.seriesTitle?.trim();
     final sections = const BookLibraryMediaPresentationBuilder(
       showSummary: true,

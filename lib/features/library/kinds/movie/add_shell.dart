@@ -163,8 +163,8 @@ Widget buildMovieAddSearchPane(
                                   publisher.trim(),
                               ].whereType<String>().join(' · ')
                             : [
-                                request.type
-                                    .metadataProviderLabel(candidate!.provider),
+                                request.type.metadata
+                                    .providerLabel(candidate!.provider),
                                 if (candidate.summary?.trim().isNotEmpty ==
                                     true)
                                   candidate.summary,
@@ -220,8 +220,8 @@ Widget buildMovieAddSearchPane(
                                             child: LibraryAddResultBadge(
                                               isCore
                                                   ? 'core'
-                                                  : request.type
-                                                      .metadataProviderLabel(
+                                                  : request.type.metadata
+                                                      .providerLabel(
                                                           candidate!.provider),
                                               accent: request.accent,
                                             ),

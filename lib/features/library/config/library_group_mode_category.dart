@@ -1,5 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 typedef LibraryGroupModeCategoryBuilder = List<LibraryGroupModeCategory>
     Function(
@@ -14,10 +13,10 @@ class LibraryGroupModeCategory {
 }
 
 List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   List<String> modes,
 ) {
-  final fields = libraryKindRuntimeForType(type).fields;
+  final fields = type.fields;
   final categoriesMap = <String, List<String>>{};
 
   for (final mode in modes) {
@@ -30,4 +29,12 @@ List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
     for (final entry in categoriesMap.entries)
       LibraryGroupModeCategory(entry.key, entry.value),
   ];
+}
+
+List<LibraryGroupModeCategory> libraryGroupModeCategories(
+  LibraryKindRuntime type,
+  List<String> modes,
+) {
+  return type.capabilities.groupModeCategoriesBuilder?.call(modes) ??
+      defaultLibraryGroupModeCategories(type, modes);
 }

@@ -8,11 +8,18 @@ import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
+import 'package:collectarr_app/features/library/config/library_kind_identity.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
+import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
+import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
+import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
+import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
+import 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
@@ -20,6 +27,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -27,6 +35,8 @@ import 'package:collectarr_app/features/library/workspace/shared/library_media_a
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -51,7 +61,9 @@ export 'package:collectarr_app/features/library/workspace/schema/library_field_r
 abstract interface class LibraryKindRuntime {
   CatalogMediaKind get kind;
   LibraryKindIdentity get identity;
+  LibraryMediaPresentation get presentation;
   LibraryMetadataCapability get metadata;
+  MediaTrackingProfile get trackingProfile;
   LibraryHierarchyCapability get hierarchy;
   LibraryInspectorCapability get inspector;
   LibraryEditCapability get edit;
@@ -59,14 +71,15 @@ abstract interface class LibraryKindRuntime {
   LibraryStatsCapability get stats;
   LibraryValueCapability? get value;
   LibraryRelationCapability? get relations;
-  LibraryTypeConfig get type;
   LibraryTypeCapabilities get capabilities;
-  LibraryUiPolicy get uiPolicy => type.uiPolicy;
+  LibraryUiPolicy get uiPolicy;
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
   LibraryLinkedMetadataCapability get linkedMetadata;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
   LibraryAddCapability get add;
-
+  LibraryAddChromeConfig get addChrome => add.chrome;
+  TitleProjectionCapability<LibraryWorkspaceDto> get titleCapability;
+  ReleaseProjectionCapability<LibraryWorkspaceDto>? get releaseCapability;
   LibraryKindToolbarModule? get toolbar;
   LibraryKindProviderMapper? get providerMapper;
   LibraryFacetModule? get facets;
@@ -177,12 +190,16 @@ abstract interface class LibraryKindRuntime {
     required ShelfEntry source,
     required LibraryNodeRef node,
   });
+
+  LibraryKindRuntime withCatalogMetadata({
+    required LibraryKindIdentity identity,
+    required LibraryMetadataCapability metadata,
+  });
 }
 
 class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     TDetails extends OwnedItemDetails> implements LibraryKindRuntime {
   const LibraryKindSpec({
-    required this.type,
     required this.fields,
     required this.projector,
     required this.ownedDetailsCodec,
@@ -192,6 +209,11 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.metadata,
     required this.hierarchy,
     required this.inspector,
+    required this.presentation,
+    required this.trackingProfile,
+    this.capabilities = const LibraryTypeCapabilities(),
+    this.titleCapability = const DefaultTitleProjectionCapability(),
+    this.releaseCapability,
     this.linkedMetadata = const DefaultLibraryLinkedMetadataCapability(),
     required this.transfer,
     this.stats = const DefaultLibraryStatsCapability(),
@@ -214,6 +236,9 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   final CatalogKindCodec<LibraryKindMetadataRuntime>? catalogCodec;
   @override
   final LibraryKindIdentity identity;
+
+  @override
+  final LibraryMediaPresentation presentation;
   @override
   final LibraryMetadataCapability metadata;
   @override
@@ -232,6 +257,53 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   final LibraryRelationCapability? relations;
   @override
   final LibraryEditCapability edit;
+  @override
+  final MediaTrackingProfile trackingProfile;
+  @override
+  final LibraryTypeCapabilities capabilities;
+  @override
+  LibraryUiPolicy get uiPolicy => capabilities.uiPolicy;
+  @override
+  final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
+  @override
+  final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
+
+  @override
+  LibraryAddChromeConfig get addChrome => add.chrome;
+
+  @override
+  LibraryKindRuntime withCatalogMetadata({
+    required LibraryKindIdentity identity,
+    required LibraryMetadataCapability metadata,
+  }) {
+    return LibraryKindSpec<TDto, TDetails>(
+      fields: fields,
+      projector: projector,
+      ownedDetailsCodec: ownedDetailsCodec,
+      add: add,
+      edit: edit,
+      identity: identity,
+      metadata: metadata,
+      hierarchy: hierarchy,
+      inspector: inspector,
+      presentation: presentation,
+      trackingProfile: trackingProfile,
+      capabilities: capabilities,
+      titleCapability: titleCapability,
+      releaseCapability: releaseCapability,
+      linkedMetadata: linkedMetadata,
+      transfer: transfer,
+      stats: stats,
+      value: value,
+      relations: relations,
+      toolbar: toolbar,
+      providerMapper: providerMapper,
+      facets: facets,
+      catalogCodec: catalogCodec,
+      viewProfile: _viewProfile,
+      buildCardPresentation: _buildCardPresentation,
+    );
+  }
 
   @override
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json) =>
@@ -267,20 +339,11 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   CatalogMediaKind get kind => identity.kind;
 
-  @override
-  final LibraryTypeConfig type;
-
-  @override
-  LibraryTypeCapabilities get capabilities => type.capabilities;
-
-  @override
-  LibraryUiPolicy get uiPolicy => type.uiPolicy;
-
   final LibraryWorkspaceViewProfile? _viewProfile;
 
   @override
   LibraryWorkspaceViewProfile get viewProfile =>
-      _viewProfile ?? plannedMediaWorkspaceViewProfile(type);
+      _viewProfile ?? plannedMediaWorkspaceViewProfile(this);
 
   @override
   List<LibraryGroupIdRuntime> get availableGroupIds => [
@@ -292,7 +355,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryWorkspaceBrowserMode browserMode,
   ) {
     final allGroups = availableGroupIds;
-    final typeCapabilities = type.capabilities;
+    final typeCapabilities = capabilities;
     if (!typeCapabilities.scopesOptionsByBrowserMode) {
       return allGroups;
     }
@@ -316,7 +379,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     final allSorts = [
       for (final definition in fields.sorts) definition.id,
     ];
-    final typeCapabilities = type.capabilities;
+    final typeCapabilities = capabilities;
     if (!typeCapabilities.scopesOptionsByBrowserMode) {
       return allSorts;
     }
@@ -351,7 +414,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     Map<LibraryFieldIdRuntime, double> customWidths,
   ) =>
       plannedMediaTableWidthForColumns(
-        type: type,
+        type: this,
         columns: columns,
         customWidths: customWidths,
       );
@@ -361,23 +424,23 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryFieldIdRuntime column,
     Map<LibraryFieldIdRuntime, double> customWidths,
   ) =>
-      plannedMediaTableColumnWidth(type, column, customWidths);
+      plannedMediaTableColumnWidth(this, column, customWidths);
 
   @override
   double defaultTableColumnWidth(LibraryFieldIdRuntime column) =>
-      defaultPlannedMediaTableColumnWidth(type, column);
+      defaultPlannedMediaTableColumnWidth(this, column);
 
   @override
   String columnLabel(LibraryFieldIdRuntime column) =>
-      plannedMediaTableColumnLabelForType(type, column);
+      plannedMediaTableColumnLabelForType(this, column);
 
   @override
   String columnDisplayName(LibraryFieldIdRuntime column) =>
-      plannedMediaTableColumnDisplayNameForType(type, column);
+      plannedMediaTableColumnDisplayNameForType(this, column);
 
   @override
   LibraryTableColumnGroup columnGroup(LibraryFieldIdRuntime column) =>
-      plannedMediaTableColumnGroup(type, column);
+      plannedMediaTableColumnGroup(this, column);
 
   @override
   String columnGroupLabel(LibraryTableColumnGroup group) =>
@@ -385,18 +448,18 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
 
   @override
   bool columnIsNumeric(LibraryFieldIdRuntime column) =>
-      plannedMediaTableColumnIsNumeric(type, column);
+      plannedMediaTableColumnIsNumeric(this, column);
 
   @override
   LibrarySortIdRuntime? columnSort(LibraryFieldIdRuntime column) =>
-      plannedMediaTableColumnSort(type, column);
+      plannedMediaTableColumnSort(this, column);
 
   @override
   Widget buildTableCell(
     LibraryProjectionRuntime item,
     LibraryFieldIdRuntime column,
   ) =>
-      plannedMediaTableCell(type, item, column);
+      plannedMediaTableCell(this, item, column);
 
   @override
   int compareEntriesByRules(
@@ -428,7 +491,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryProjectionRuntime item,
     LibraryGroupIdRuntime groupId,
   ) =>
-      plannedMediaSubgroupKeyForEntry(type, item, groupId);
+      plannedMediaSubgroupKeyForEntry(this, item, groupId);
 
   @override
   int compareSubgroupKeys(
@@ -594,15 +657,9 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
 }
 
 void validateKindRuntime(LibraryKindRuntime runtime) {
-  if (runtime.kind != runtime.type.workspace.kind) {
-    throw StateError(
-      'Kind mismatch in spec for "${runtime.type.workspace.title}": runtime.kind=${runtime.kind}, type.kind=${runtime.type.workspace.kind}',
-    );
-  }
-
   if (runtime.fields.kindNamespace != runtime.kind.apiValue) {
     throw StateError(
-      'Namespace mismatch in spec for "${runtime.type.workspace.title}": fields.kindNamespace=${runtime.fields.kindNamespace}, expected=${runtime.kind.apiValue}',
+      'Namespace mismatch in spec for "${runtime.identity.title}": fields.kindNamespace=${runtime.fields.kindNamespace}, expected=${runtime.kind.apiValue}',
     );
   }
 
@@ -610,7 +667,7 @@ void validateKindRuntime(LibraryKindRuntime runtime) {
   for (final col in runtime.fields.columns) {
     if (!columnIds.add(col.id.value)) {
       throw StateError(
-        'Duplicate column ID "${col.id.value}" in kind spec "${runtime.type.workspace.title}"',
+        'Duplicate column ID "${col.id.value}" in kind spec "${runtime.identity.title}"',
       );
     }
   }
@@ -619,7 +676,7 @@ void validateKindRuntime(LibraryKindRuntime runtime) {
   for (final sort in runtime.fields.sorts) {
     if (!sortIds.add(sort.id.value)) {
       throw StateError(
-        'Duplicate sort ID "${sort.id.value}" in kind spec "${runtime.type.workspace.title}"',
+        'Duplicate sort ID "${sort.id.value}" in kind spec "${runtime.identity.title}"',
       );
     }
   }
@@ -628,7 +685,7 @@ void validateKindRuntime(LibraryKindRuntime runtime) {
   for (final group in runtime.fields.groups) {
     if (!groupIds.add(group.id.value)) {
       throw StateError(
-        'Duplicate group ID "${group.id.value}" in kind spec "${runtime.type.workspace.title}"',
+        'Duplicate group ID "${group.id.value}" in kind spec "${runtime.identity.title}"',
       );
     }
   }
@@ -636,14 +693,14 @@ void validateKindRuntime(LibraryKindRuntime runtime) {
   for (final colId in runtime.fields.defaultVisibleColumns) {
     if (runtime.fields.findColumnDefinition(colId) == null) {
       throw StateError(
-        'Default visible column ID "$colId" not found in columns for kind spec "${runtime.type.workspace.title}"',
+        'Default visible column ID "$colId" not found in columns for kind spec "${runtime.identity.title}"',
       );
     }
   }
 
   if (runtime.fields.findSortDefinition(runtime.fields.defaultSort) == null) {
     throw StateError(
-      'Default sort ID "${runtime.fields.defaultSort.value}" not found in sorts for kind spec "${runtime.type.workspace.title}"',
+      'Default sort ID "${runtime.fields.defaultSort.value}" not found in sorts for kind spec "${runtime.identity.title}"',
     );
   }
 
@@ -651,7 +708,7 @@ void validateKindRuntime(LibraryKindRuntime runtime) {
       runtime.fields.findGroupDefinition(runtime.fields.defaultGroup!) ==
           null) {
     throw StateError(
-      'Default group ID "${runtime.fields.defaultGroup!.value}" not found in groups for kind spec "${runtime.type.workspace.title}"',
+      'Default group ID "${runtime.fields.defaultGroup!.value}" not found in groups for kind spec "${runtime.identity.title}"',
     );
   }
 
@@ -686,6 +743,7 @@ class LibraryFacetModule {
     this.loadRows,
     this.getFacetValues,
     this.definitions = const [],
+    this.externalFacetBucketIdsByMode = const {},
   });
 
   final LibraryFacetRowsLoader? loadRows;
@@ -693,6 +751,7 @@ class LibraryFacetModule {
           LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId)?
       getFacetValues;
   final List<LibraryFacetDefinition<dynamic, dynamic, dynamic>> definitions;
+  final Map<String, LibraryFacetIdRuntime> externalFacetBucketIdsByMode;
 }
 
 typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({

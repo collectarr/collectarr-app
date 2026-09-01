@@ -1,17 +1,17 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('catalog resolution normalizes known catalog display labels', () {
-    final resolvedMusic = musicLibraryConfig.resolveWithCatalog(const [
+    final resolvedMusic = musicKindModule.resolveWithCatalog(const [
       CatalogMediaType(
         kind: 'music',
         singularLabel: 'Album',
@@ -21,7 +21,7 @@ void main() {
         providers: ['musicbrainz'],
       ),
     ]);
-    final resolvedMovies = moviesLibraryConfig.resolveWithCatalog(const [
+    final resolvedMovies = movieKindModule.resolveWithCatalog(const [
       CatalogMediaType(
         kind: 'movie',
         singularLabel: 'Film',
@@ -32,14 +32,14 @@ void main() {
       ),
     ]);
 
-    expect(resolvedMusic.singularLabel, 'Music');
-    expect(resolvedMusic.pluralLabel, 'Music');
-    expect(resolvedMovies.singularLabel, 'Film');
-    expect(resolvedMovies.pluralLabel, 'Films');
+    expect(resolvedMusic.identity.singularLabel, 'Music');
+    expect(resolvedMusic.identity.pluralLabel, 'Music');
+    expect(resolvedMovies.identity.singularLabel, 'Film');
+    expect(resolvedMovies.identity.pluralLabel, 'Films');
   });
 
   test('catalog resolution titleizes unknown provider ids', () {
-    final resolvedBooks = booksLibraryConfig.resolveWithCatalog(const [
+    final resolvedBooks = bookKindModule.resolveWithCatalog(const [
       CatalogMediaType(
         kind: 'book',
         singularLabel: 'Book',
@@ -50,15 +50,13 @@ void main() {
       ),
     ]);
 
-    expect(
-        resolvedBooks.supportedMetadataProviders.single.id, 'custom-provider');
-    expect(resolvedBooks.supportedMetadataProviders.single.label,
-        'Custom Provider');
+    expect(resolvedBooks.metadata.providers.single.id, 'custom-provider');
+    expect(resolvedBooks.metadata.providers.single.label, 'Custom Provider');
   });
 
   test('catalog resolution preserves first-class manga, tv, and anime kinds',
       () {
-    final resolvedManga = mangaLibraryConfig.resolveWithCatalog(const [
+    final resolvedManga = mangaKindModule.resolveWithCatalog(const [
       CatalogMediaType(
         kind: 'manga',
         singularLabel: 'Manga',
@@ -68,7 +66,7 @@ void main() {
         providers: ['mangadex', 'anilist'],
       ),
     ]);
-    final resolvedTv = tvLibraryConfig.resolveWithCatalog(const [
+    final resolvedTv = tvKindModule.resolveWithCatalog(const [
       CatalogMediaType(
         kind: 'tv',
         singularLabel: 'TV Show',
@@ -78,7 +76,7 @@ void main() {
         providers: ['tmdb'],
       ),
     ]);
-    final resolvedAnime = animeLibraryConfig.resolveWithCatalog(const [
+    final resolvedAnime = animeKindModule.resolveWithCatalog(const [
       CatalogMediaType(
         kind: 'anime',
         singularLabel: 'Anime',
@@ -89,11 +87,20 @@ void main() {
       ),
     ]);
 
-    expect(resolvedManga.workspace.kind, CatalogMediaKind.manga);
-    expect(resolvedManga.defaultSupportedMetadataProvider, 'mangadex');
-    expect(resolvedTv.workspace.kind, CatalogMediaKind.tv);
-    expect(resolvedTv.defaultSupportedMetadataProvider, 'tmdb');
-    expect(resolvedAnime.workspace.kind, CatalogMediaKind.anime);
-    expect(resolvedAnime.defaultSupportedMetadataProvider, 'anilist');
+    expect(resolvedManga.kind, CatalogMediaKind.manga);
+    expect(
+      resolvedManga.metadata.defaultSupportedOption(resolvedManga.kind)?.id,
+      'mangadex',
+    );
+    expect(resolvedTv.kind, CatalogMediaKind.tv);
+    expect(
+      resolvedTv.metadata.defaultSupportedOption(resolvedTv.kind)?.id,
+      'tmdb',
+    );
+    expect(resolvedAnime.kind, CatalogMediaKind.anime);
+    expect(
+      resolvedAnime.metadata.defaultSupportedOption(resolvedAnime.kind)?.id,
+      'anilist',
+    );
   });
 }

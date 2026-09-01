@@ -9,15 +9,15 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_cach
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_bucket_coordinator.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
@@ -35,7 +35,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = booksLibraryConfig;
+    final type = bookKindModule;
     final firstCatalog = testCatalogItem(
       id: 'book-1',
       kind: 'book',
@@ -87,7 +87,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = booksLibraryConfig;
+    final type = bookKindModule;
     final catalog = testCatalogItem(
       id: 'book-delete-1',
       kind: 'book',
@@ -124,7 +124,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = musicLibraryConfig;
+    final type = musicKindModule;
     final owned = testOwnedItem(
       id: 'owned-music-1',
       itemId: 'music-1',
@@ -172,7 +172,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = booksLibraryConfig;
+    final type = bookKindModule;
     final catalog = testCatalogItem(
       id: 'book-noop-1',
       kind: 'book',
@@ -224,7 +224,7 @@ void main() {
 }
 
 LibraryProjection _projection(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
   List<ShelfEntry> sources,
 ) {
   final items = [
@@ -291,14 +291,14 @@ final class _CoordinatorHarness {
     );
   }
 
-  LibraryPageCoordinatorContext contextFor(LibraryTypeConfig type) {
+  LibraryPageCoordinatorContext contextFor(LibraryKindRuntime type) {
     return LibraryPageCoordinatorContext(
       context: buildContext,
       ref: ref,
       getType: () => type,
-      getAccent: () => type.workspace.accent,
+      getAccent: () => type.identity.accent,
       getMounted: () => true,
-      getViewPrefs: () => LibraryViewPreferenceStore(type.workspace.kind),
+      getViewPrefs: () => LibraryViewPreferenceStore(type.kind),
       getSearchQuery: () => '',
       setSearchQuery: (_) {},
       getViewState: () => null,

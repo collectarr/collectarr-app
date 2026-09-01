@@ -1,9 +1,8 @@
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -38,7 +37,7 @@ class LibraryBulkEditDialog extends ConsumerStatefulWidget {
     required this.selectedCount,
   });
 
-  final LibraryTypeConfig type;
+  final LibraryKindRuntime type;
   final int selectedCount;
 
   @override
@@ -62,7 +61,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   @override
   void initState() {
     super.initState();
-    final editCapability = libraryKindRuntimeForType(widget.type).edit;
+    final editCapability = widget.type.edit;
     _conditionOptions = editCapability.conditions;
     _gradeOptions = editCapability.grades;
     _loadAvailableLocations();
@@ -234,7 +233,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   }
 
   Future<void> _loadPickListOptions() async {
-    final editCapability = libraryKindRuntimeForType(widget.type).edit;
+    final editCapability = widget.type.edit;
     final conditionDefinition =
         editCapability.vocabularies?.definitionForSuffix('condition');
     final gradeDefinition =
@@ -247,7 +246,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
         : [for (final value in gradeDefinition.builtIns) value.toString()];
     final options = await loadConditionGradePickListOptions(
       ref.read(localDatabaseProvider),
-      mediaKind: widget.type.workspace.kind.apiValue,
+      mediaKind: widget.type.kind.apiValue,
       builtInConditions: builtInConditions,
       builtInGrades: builtInGrades,
       conditionListName: conditionDefinition?.key,
@@ -257,7 +256,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
     );
     final tagOptions = await loadTagPickListOptions(
       ref.read(localDatabaseProvider),
-      mediaKind: widget.type.workspace.kind.apiValue,
+      mediaKind: widget.type.kind.apiValue,
       selectedTags: splitPickListValues(_tagsController.text),
     );
     if (!mounted) {

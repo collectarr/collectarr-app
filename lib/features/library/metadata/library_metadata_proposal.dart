@@ -1,20 +1,21 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 
 String resolveLibraryMetadataProposalProvider(
-  LibraryTypeConfig type, {
+  LibraryKindRuntime type, {
   String? provider,
 }) {
   final requestedProvider = provider?.trim();
   if (requestedProvider == null || requestedProvider.isEmpty) {
-    return type.defaultSupportedMetadataProvider;
+    return type.metadata.defaultSupportedOption(type.kind)?.id ??
+        type.metadata.defaultProviderId;
   }
-  if (!type.supportsMetadataProvider(requestedProvider)) {
+  if (!type.metadata.supportsProvider(requestedProvider, type.kind)) {
     throw ArgumentError.value(
       requestedProvider,
       'provider',
-      '${type.pluralLabel} does not support this metadata provider',
+      '${type.identity.pluralLabel} does not support this metadata provider',
     );
   }
   return requestedProvider;
@@ -22,7 +23,7 @@ String resolveLibraryMetadataProposalProvider(
 
 Future<Map<String, dynamic>> createLibraryMetadataProposal({
   required ApiClient api,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   String? provider,
   String? providerItemId,
   required String query,
@@ -48,7 +49,7 @@ Future<Map<String, dynamic>> createLibraryMetadataProposal({
 Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
   MetadataProposalStore store = const MetadataProposalStore(),
   required ApiClient api,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   String? provider,
   String? providerItemId,
   required String query,
@@ -84,7 +85,7 @@ Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
 Future<void> recordLibraryMetadataProposalResponse({
   MetadataProposalStore store = const MetadataProposalStore(),
   required Map<String, dynamic> response,
-  required LibraryTypeConfig type,
+  required LibraryKindRuntime type,
   String? provider,
   required String query,
   String? title,

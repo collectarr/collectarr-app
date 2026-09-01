@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/generic/body.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
@@ -11,7 +10,7 @@ void main() {
     required LibraryViewMode mode,
     required double coverSize,
   }) {
-    final runtime = libraryKindRuntimeForType(comicsLibraryConfig);
+    final runtime = comicKindModule;
     return LibraryWorkspaceViewState(
       viewMode: mode,
       detailsLayout: LibraryDetailsLayout.right,

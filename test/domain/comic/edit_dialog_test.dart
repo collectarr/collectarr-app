@@ -7,11 +7,11 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -74,7 +74,7 @@ void main() {
       ['Opening', 'Finale'],
       mediaKind: 'comic',
     );
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+    final type = comicKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'comic-1',
@@ -321,7 +321,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+    final type = comicKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'comic-restore-order',
@@ -407,7 +407,7 @@ void main() {
     const imageBase64 =
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS1cAAAAASUVORK5CYII=';
 
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+    final type = comicKindModule;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'comic-2',

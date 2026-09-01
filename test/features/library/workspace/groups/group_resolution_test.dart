@@ -70,7 +70,7 @@ void main() {
     test('libraryGroupModeFromStorageValue decodes with kind scope', () {
       final mode = libraryGroupModeFromStorageValue(
         'group.series',
-        comicModule.type,
+        comicModule,
       );
       expect(mode, 'comic.series');
     });
@@ -78,19 +78,19 @@ void main() {
     test('libraryGroupModeFromStorageValue preserves standard semantic groups',
         () {
       expect(
-        libraryGroupModeFromStorageValue('group.title', comicModule.type),
+        libraryGroupModeFromStorageValue('group.title', comicModule),
         'title',
       );
       expect(
-        libraryGroupModeFromStorageValue('location', comicModule.type),
+        libraryGroupModeFromStorageValue('location', comicModule),
         'location',
       );
       expect(
-        libraryGroupModeFromStorageValue('comic.location', comicModule.type),
+        libraryGroupModeFromStorageValue('comic.location', comicModule),
         'location',
       );
       expect(
-        libraryGroupModeFromStorageValue('ownership', comicModule.type),
+        libraryGroupModeFromStorageValue('ownership', comicModule),
         'ownership',
       );
     });
@@ -98,7 +98,7 @@ void main() {
     test('LibraryFolderPreset parses and formats canonical group modes', () {
       final preset = LibraryFolderPreset.parse(
         'group.publisher > group.series',
-        comicModule.type,
+        comicModule,
       );
       expect(preset.modes, ['comic.publisher', 'comic.series']);
       expect(preset.primaryMode, 'comic.publisher');
@@ -109,7 +109,7 @@ void main() {
 
     test('LibraryFolderPreset rejects unknown group ID', () {
       expect(
-        () => LibraryFolderPreset.parse('unknown_mode_123', comicModule.type),
+        () => LibraryFolderPreset.parse('unknown_mode_123', comicModule),
         throwsArgumentError,
       );
     });
@@ -121,7 +121,7 @@ void main() {
       final allowed = libraryAllowsGroupDrilldown(
         currentMode: 'comic.publisher',
         childMode: 'comic.series',
-        type: comicModule.type,
+        type: comicModule,
       );
       expect(allowed, isTrue);
 
@@ -129,7 +129,7 @@ void main() {
       final sameNotAllowed = libraryAllowsGroupDrilldown(
         currentMode: 'comic.publisher',
         childMode: 'comic.publisher',
-        type: comicModule.type,
+        type: comicModule,
       );
       expect(sameNotAllowed, isFalse);
     });

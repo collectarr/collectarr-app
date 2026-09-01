@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
 
   final List<CatalogMediaType> types;
   final Map<String, LibraryKindCount> counts;
-  final LibraryTypeRegistry registry;
+  final LibraryKindRegistry registry;
   final String selectedKind;
   final ValueChanged<CatalogMediaType> onSelected;
 
@@ -28,7 +28,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final selected = selectedLibraryHomeType(types, selectedKind);
     final count = counts[selected.kind]?.owned ?? 0;
-    final icon = registry.byKind(selected.mediaKind)?.workspace.icon ??
+    final icon = registry.tryGet(selected.mediaKind)?.identity.icon ??
         libraryIconForKind(selected.mediaKind);
     final palette = appPalette(context);
     final accentData = LibraryAccentScope.of(context);
@@ -144,7 +144,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
                       final itemType = types[index];
                       final isCurrent = itemType.kind == selected.kind;
                       final icon =
-                          registry.byKind(itemType.mediaKind)?.workspace.icon ??
+                          registry.tryGet(itemType.mediaKind)?.identity.icon ??
                               libraryIconForKind(itemType.mediaKind);
                       final count = counts[itemType.kind]?.owned ?? 0;
                       final kindAccent =

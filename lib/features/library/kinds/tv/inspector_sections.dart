@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -38,7 +38,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final dto = item.dto;
   final catalogItem = item.source.catalogItem;
   final seriesRef = CatalogEntityRef(
-    kind: request.type.workspace.kind.apiValue,
+    kind: request.type.kind.apiValue,
     entityType: CatalogEntityType.work,
     id: item.node.titleItemId,
   );
@@ -116,7 +116,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       children: [
         InspectorEpisodeGridSection(
           seriesRef: seriesRef,
-          kind: request.type.workspace.kind.apiValue,
+          kind: request.type.kind.apiValue,
           accent: request.accent,
           itemId: item.node.titleItemId,
         ),

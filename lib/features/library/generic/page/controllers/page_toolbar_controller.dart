@@ -139,17 +139,11 @@ class LibraryPageToolbarController {
         totalSelectableCount: projection?.filteredItems.length ?? 0,
         showReleaseFolderBack:
             _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
-                _s.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
-                  _s.widget.type,
+                _s.widget.type.hierarchy.shouldShowReleaseFolderBack(
                   browserMode: _s._activeBrowserMode,
                   releaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
                 ),
-        releaseFolderLabel:
-            _s.widget.type.kindUiAdapter.releaseFolderLabelForProjection(
-          _s.widget.type,
-          projection,
-          releaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
-        ),
+        releaseFolderLabel: _s._releaseFolderLabelForProjection(projection),
       ),
       actions: const LibraryToolbarActionRegistry().build(
         buildContext: context,
@@ -245,15 +239,12 @@ class LibraryPageToolbarController {
             onScanCover: _s._coverCoordinator.scanCoverFlow,
             onDownloadAllCovers: _s._coverCoordinator.downloadAllCoversFlow,
             onShowConditionPickListEditorFlow:
-                libraryKindRuntimeForType(_s.widget.type)
-                        .edit
-                        .hasConditionPickList
+                _s.widget.type.edit.hasConditionPickList
                     ? _s._dialogCoordinator.showConditionPickListEditorFlow
                     : null,
-            onShowGradePickListEditorFlow:
-                libraryKindRuntimeForType(_s.widget.type).edit.hasGradePickList
-                    ? _s._dialogCoordinator.showGradePickListEditorFlow
-                    : null,
+            onShowGradePickListEditorFlow: _s.widget.type.edit.hasGradePickList
+                ? _s._dialogCoordinator.showGradePickListEditorFlow
+                : null,
             onShowTagPickListEditorFlow:
                 _s._dialogCoordinator.showTagPickListEditorFlow,
           ),

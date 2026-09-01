@@ -23,11 +23,11 @@ void main() {
     final comics = libraryKindRuntime(CatalogMediaKind.comic);
 
     expect(
-      libraryWorkspaceGridMainAxisExtent(type: music.type, coverSize: 128),
+      libraryWorkspaceGridMainAxisExtent(type: music, coverSize: 128),
       equals(128),
     );
     expect(
-      libraryWorkspaceGridMainAxisExtent(type: comics.type, coverSize: 128),
+      libraryWorkspaceGridMainAxisExtent(type: comics, coverSize: 128),
       closeTo(195.84, 0.001),
     );
   });

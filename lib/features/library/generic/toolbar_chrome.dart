@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -100,7 +100,7 @@ String libraryColumnFavoriteKey(LibraryTableColumnPreset preset) {
 }
 
 Set<LibraryWorkspacePreset> libraryDefaultPinnedViewPresetsForType(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return const {
     LibraryWorkspacePreset.cover,
@@ -109,13 +109,13 @@ Set<LibraryWorkspacePreset> libraryDefaultPinnedViewPresetsForType(
 }
 
 List<LibrarySortFavorite> librarySortFavoritesForType(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return type.presentation.sortFavorites;
 }
 
 Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   final favorites = librarySortFavoritesForType(type);
   return {
@@ -124,13 +124,13 @@ Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
 }
 
 List<LibraryTableColumnPreset> libraryColumnFavoritesForType(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   return type.presentation.columnFavorites;
 }
 
 Set<String> libraryDefaultPinnedColumnFavoriteKeysForType(
-  LibraryTypeConfig type,
+  LibraryKindRuntime type,
 ) {
   final presets = libraryColumnFavoritesForType(type);
   return {

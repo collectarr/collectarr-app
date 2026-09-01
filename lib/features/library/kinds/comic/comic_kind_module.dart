@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -35,17 +35,118 @@ import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/relations/comic_relation_capability.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 
 const _comicSeriesFilterId = LibraryAddFilterId('comic.series');
 const _comicIssueFilterId = LibraryAddFilterId('comic.issue');
 const _comicPublisherFilterId = LibraryAddFilterId('comic.publisher');
 const _comicYearFilterId = LibraryAddFilterId('comic.year');
+
+const _comicTransferableFieldKeys = <String>[
+  ...kDefaultTransferableFieldKeys,
+  'rawOrSlabbed',
+  'gradingCompany',
+  'graderNotes',
+  'signedBy',
+  'keyReason',
+  'keyComic',
+];
+
+final _comicTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'rawOrSlabbed',
+    label: 'Raw / Slabbed',
+    icon: Icons.layers_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.rawOrSlabbed,
+    write: (item, value) {
+      final details = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: details.copyWith(rawOrSlabbed: value));
+    },
+  ),
+  TransferableField(
+    key: 'gradingCompany',
+    label: 'Grading company',
+    icon: Icons.verified_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.gradingCompany,
+    write: (item, value) {
+      final details = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: details.copyWith(gradingCompany: value));
+    },
+  ),
+  TransferableField(
+    key: 'graderNotes',
+    label: 'Grader notes',
+    icon: Icons.note_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.graderNotes,
+    write: (item, value) {
+      final details = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: details.copyWith(graderNotes: value));
+    },
+  ),
+  TransferableField(
+    key: 'signedBy',
+    label: 'Signed by',
+    icon: Icons.draw_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.signedBy,
+    write: (item, value) {
+      final details = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: details.copyWith(signedBy: value));
+    },
+  ),
+  TransferableField(
+    key: 'keyReason',
+    label: 'Key reason',
+    icon: Icons.vpn_key_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.keyReason,
+    write: (item, value) {
+      final details = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: details.copyWith(keyReason: value));
+    },
+  ),
+  TransferableField(
+    key: 'keyComic',
+    label: 'Key issue',
+    icon: Icons.vpn_key,
+    type: TransferableFieldType.boolean,
+    read: (item) => (item.comicDetails?.keyComic == true) ? 'true' : null,
+    write: (item, value) {
+      final details = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(
+          details: details.copyWith(keyComic: value == 'true'));
+    },
+  ),
+  TransferableField(
+    key: 'coverPriceCents',
+    label: 'Cover price',
+    icon: Icons.price_check,
+    type: TransferableFieldType.integer,
+    scope: LibraryEditScope.release,
+    read: (item) => item.comicDetails?.coverPriceCents?.toString(),
+    write: (item, value) {
+      final details = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(
+        details: details.copyWith(
+          coverPriceCents: value != null ? int.tryParse(value) : null,
+        ),
+      );
+    },
+  ),
+];
 
 Iterable<String?> _comicLinkedMetadataValues(ComicCatalogMetadata metadata) => [
       metadata.seriesTitle,
@@ -63,7 +164,8 @@ Iterable<String?> _comicLinkedMetadataValues(ComicCatalogMetadata metadata) => [
     ];
 
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
-  type: comicsLibraryConfig,
+  presentation: comicLibraryMediaPresentation,
+  trackingProfile: comicTrackingProfile,
   viewProfile: comicsWorkspaceViewProfile,
   projector: const ComicWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
@@ -83,6 +185,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   ),
   metadata: LibraryMetadataCapability(
     defaultProviderId: 'gcd',
+    supportsServerCompare: true,
+    usesTreeProviderCandidates: true,
     providers: [
       gcdMetadataProvider,
       comicVineMetadataProvider,
@@ -111,8 +215,13 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   ),
   relations: comicRelationCapability,
   transfer: LibraryTransferCapability(
-    transferableFieldKeys: comicTransferableFieldKeys,
-    kindFields: comicTransferableFields,
+    transferableFieldKeys: _comicTransferableFieldKeys,
+    kindFields: _comicTransferableFields,
+  ),
+  capabilities: LibraryTypeCapabilities(
+    supportsMetadataCompare: true,
+    groupModeCategoriesBuilder: buildComicGroupModeCategories,
+    usesCompactTableLayout: true,
   ),
   stats: const ComicStatsCapability(),
   value: const ComicValueCapability(),
@@ -269,9 +378,109 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   facets: const LibraryFacetModule(
     loadRows: _loadComicFacetRows,
     getFacetValues: _getFacetValues,
+    externalFacetBucketIdsByMode: {
+      'comic.story_arc': ComicFacetIds.storyArc,
+      'comic.character': ComicFacetIds.character,
+    },
   ),
   buildCardPresentation: buildComicCardPresentation,
 );
+
+List<LibraryGroupModeCategory> buildComicGroupModeCategories(
+  List<String> modes,
+) {
+  String modeId(Object mode) {
+    final normalized = mode.toString().contains('.')
+        ? mode.toString().split('.').last
+        : mode.toString();
+    return normalized
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+  }
+
+  const mainIds = {
+    'series',
+    'age_rating',
+    'country',
+    'crossover',
+    'genre',
+    'imprint',
+    'language',
+    'publisher',
+    'release_date',
+    'release_month',
+    'release_year',
+    'series_group',
+    'story_arc',
+  };
+  const valueIds = {
+    'grade',
+    'condition',
+    'is_key_comic',
+    'raw_or_slabbed',
+    'my_rating',
+    'purchase_date',
+    'purchase_month',
+    'purchase_year',
+    'purchase_store',
+    'owner',
+  };
+  const editionIds = {
+    'cover_date',
+    'cover_month',
+    'cover_year',
+    'format',
+  };
+  const creatorsAndCharactersIds = {
+    'creator',
+    'artist',
+    'character',
+    'colorist',
+    'cover_artist',
+    'cover_colorist',
+    'cover_inker',
+    'cover_painter',
+    'cover_penciller',
+    'cover_separator',
+    'editor',
+    'editor_in_chief',
+    'inker',
+    'layouts',
+    'letterer',
+    'painter',
+    'penciller',
+    'plotter',
+    'scripter',
+    'separator',
+    'translator',
+    'writer',
+  };
+  final main = modes.where((mode) => mainIds.contains(modeId(mode))).toList();
+  final value = modes.where((mode) => valueIds.contains(modeId(mode))).toList();
+  final edition =
+      modes.where((mode) => editionIds.contains(modeId(mode))).toList();
+  final creatorsAndCharacters = modes
+      .where((mode) => creatorsAndCharactersIds.contains(modeId(mode)))
+      .toList();
+  final personal = modes
+      .where((mode) =>
+          !mainIds.contains(modeId(mode)) &&
+          !valueIds.contains(modeId(mode)) &&
+          !editionIds.contains(modeId(mode)) &&
+          !creatorsAndCharactersIds.contains(modeId(mode)))
+      .toList();
+  return [
+    if (main.isNotEmpty) LibraryGroupModeCategory('Main', main),
+    if (value.isNotEmpty) LibraryGroupModeCategory('Value', value),
+    if (edition.isNotEmpty) LibraryGroupModeCategory('Edition', edition),
+    if (creatorsAndCharacters.isNotEmpty)
+      LibraryGroupModeCategory('Creators & Characters', creatorsAndCharacters),
+    if (personal.isNotEmpty) LibraryGroupModeCategory('Personal', personal),
+  ];
+}
 
 String _comicChildrenTitle(int count) => 'Volumes ($count)';
 
