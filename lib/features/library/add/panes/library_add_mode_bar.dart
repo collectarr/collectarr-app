@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'library_add_pane_dependencies.dart';
 
 class LibraryAddBarcodePrefillBanner extends StatelessWidget {
@@ -44,7 +45,7 @@ class LibraryAddBarcodePrefillBanner extends StatelessWidget {
   }
 }
 
-class LibraryAddModeBar extends StatelessWidget {
+class LibraryAddModeBar extends StatefulWidget {
   const LibraryAddModeBar({
     super.key,
     required this.type,
@@ -69,10 +70,18 @@ class LibraryAddModeBar extends StatelessWidget {
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
-    required this.seriesController,
-    required this.numberController,
-    required this.publisherController,
-    required this.yearController,
+    this.seriesController,
+    this.numberController,
+    this.publisherController,
+    this.yearController,
+    this.seriesText,
+    this.numberText,
+    this.publisherText,
+    this.yearText,
+    this.onSeriesChanged,
+    this.onNumberChanged,
+    this.onPublisherChanged,
+    this.onYearChanged,
     this.advancedFilterFields = const [],
     this.advancedFiltersBuilder,
     this.videoKindFilters,
@@ -101,10 +110,18 @@ class LibraryAddModeBar extends StatelessWidget {
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
-  final TextEditingController seriesController;
-  final TextEditingController numberController;
-  final TextEditingController publisherController;
-  final TextEditingController yearController;
+  final TextEditingController? seriesController;
+  final TextEditingController? numberController;
+  final TextEditingController? publisherController;
+  final TextEditingController? yearController;
+  final String? seriesText;
+  final String? numberText;
+  final String? publisherText;
+  final String? yearText;
+  final ValueChanged<String>? onSeriesChanged;
+  final ValueChanged<String>? onNumberChanged;
+  final ValueChanged<String>? onPublisherChanged;
+  final ValueChanged<String>? onYearChanged;
   final List<LibraryAddAdvancedFilterField> advancedFilterFields;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       advancedFiltersBuilder;
@@ -112,11 +129,118 @@ class LibraryAddModeBar extends StatelessWidget {
   final void Function(String kind, bool checked)? onVideoKindFilterChanged;
 
   @override
+  State<LibraryAddModeBar> createState() => _LibraryAddModeBarState();
+}
+
+class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
+  late final TextEditingController _seriesController;
+  late final TextEditingController _numberController;
+  late final TextEditingController _publisherController;
+  late final TextEditingController _yearController;
+  late final bool _ownsControllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _ownsControllers = widget.seriesController == null;
+    _seriesController = widget.seriesController ??
+        TextEditingController(text: widget.seriesText ?? '');
+    _numberController = widget.numberController ??
+        TextEditingController(text: widget.numberText ?? '');
+    _publisherController = widget.publisherController ??
+        TextEditingController(text: widget.publisherText ?? '');
+    _yearController = widget.yearController ??
+        TextEditingController(text: widget.yearText ?? '');
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryAddModeBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_ownsControllers) {
+      if (widget.seriesText != null &&
+          widget.seriesText != _seriesController.text) {
+        _seriesController.text = widget.seriesText!;
+      }
+      if (widget.numberText != null &&
+          widget.numberText != _numberController.text) {
+        _numberController.text = widget.numberText!;
+      }
+      if (widget.publisherText != null &&
+          widget.publisherText != _publisherController.text) {
+        _publisherController.text = widget.publisherText!;
+      }
+      if (widget.yearText != null &&
+          widget.yearText != _yearController.text) {
+        _yearController.text = widget.yearText!;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_ownsControllers) {
+      _seriesController.dispose();
+      _numberController.dispose();
+      _publisherController.dispose();
+      _yearController.dispose();
+    }
+    super.dispose();
+  }
+
+  void _handleSearch() {
+    widget.onSeriesChanged?.call(_seriesController.text);
+    widget.onNumberChanged?.call(_numberController.text);
+    widget.onPublisherChanged?.call(_publisherController.text);
+    widget.onYearChanged?.call(_yearController.text);
+    widget.onSearch();
+  }
+
+  List<LibraryAddAdvancedFilterField> _resolveAdvancedFields() {
+    if (widget.advancedFilterFields.isNotEmpty) {
+      return widget.advancedFilterFields;
+    }
+    final req = LibraryAddModeBarRequest(
+      type: widget.type,
+      accent: widget.accent,
+      isMovieDesktopChrome: widget.isMovieDesktopChrome,
+      mode: widget.mode,
+      queryController: widget.queryController,
+      barcodeController: widget.barcodeController,
+      isSearching: widget.isSearching,
+      isSearchingProvider: widget.isSearchingProvider,
+      onModeChanged: widget.onModeChanged,
+      onSearch: _handleSearch,
+      onQueryChanged: widget.onQueryChanged,
+      suggestions: widget.suggestions,
+      showSuggestions: widget.showSuggestions,
+      onSelectSuggestion: widget.onSelectSuggestion,
+      onDismissSuggestions: widget.onDismissSuggestions,
+      canScanCover: widget.canScanCover,
+      isScanningCover: widget.isScanningCover,
+      onScanCover: widget.onScanCover,
+      onLookupBarcode: widget.onLookupBarcode,
+      onManual: widget.onManual,
+      showAdvanced: widget.showAdvanced,
+      onToggleAdvanced: widget.onToggleAdvanced,
+      seriesController: _seriesController,
+      numberController: _numberController,
+      publisherController: _publisherController,
+      yearController: _yearController,
+    );
+    return libraryKindRuntimeForKind(widget.type.workspace.kind)
+            .add
+            .advancedFilterFieldsBuilder
+            ?.call(req) ??
+        const [];
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isBusy = isSearching || isSearchingProvider;
-    final searchLabels = libraryMediaSearchFieldLabels(type);
+    final isBusy = widget.isSearching || widget.isSearchingProvider;
+    final searchLabels = libraryMediaSearchFieldLabels(widget.type);
     final palette = appPalette(context);
-    if (isMovieDesktopChrome) {
+    final advancedFields = _resolveAdvancedFields();
+    if (widget.isMovieDesktopChrome) {
       return DecoratedBox(
         decoration: BoxDecoration(
           color: palette.panelRaised,
@@ -128,24 +252,24 @@ class LibraryAddModeBar extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  if (mode == LibraryAddDialogMode.search) ...[
+                  if (widget.mode == LibraryAddDialogMode.search) ...[
                     _AdvancedToggleButton(
-                      expanded: showAdvanced,
-                      accent: accent,
-                      onPressed: onToggleAdvanced,
+                      expanded: widget.showAdvanced,
+                      accent: widget.accent,
+                      onPressed: widget.onToggleAdvanced,
                     ),
                     _LibraryAddModeActionButton(
                       icon: Icons.qr_code_2,
                       label: 'Barcode',
-                      accent: accent,
+                      accent: widget.accent,
                       onPressed: () =>
-                          onModeChanged(LibraryAddDialogMode.barcode),
+                          widget.onModeChanged(LibraryAddDialogMode.barcode),
                     ),
                     _LibraryAddModeActionButton(
                       icon: Icons.edit_note,
                       label: 'Manual',
-                      accent: accent,
-                      onPressed: onManual,
+                      accent: widget.accent,
+                      onPressed: widget.onManual,
                     ),
                     const Spacer(),
                     Expanded(
@@ -154,47 +278,47 @@ class LibraryAddModeBar extends StatelessWidget {
                         child: LibraryToolbarSearch(
                           textFieldKey:
                               const ValueKey('library-add-query-field'),
-                          controller: queryController,
+                          controller: widget.queryController,
                           hintText: searchLabels.queryHint,
-                          onSearch: (_) => onSearch(),
-                          onChanged: onQueryChanged,
+                          onSearch: (_) => _handleSearch(),
+                          onChanged: widget.onQueryChanged,
                           onScanBarcode: () =>
-                              onModeChanged(LibraryAddDialogMode.barcode),
-                          onScanCover: canScanCover ? onScanCover : null,
-                          selectionColor: accent,
+                              widget.onModeChanged(LibraryAddDialogMode.barcode),
+                          onScanCover: widget.canScanCover ? widget.onScanCover : null,
+                          selectionColor: widget.accent,
                           maxWidth: 620,
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     _LibraryAddModeButton(
-                      label: 'Search ${type.pluralLabel}',
+                      label: 'Search ${widget.type.pluralLabel}',
                       icon: Icons.search,
-                      accent: accent,
-                      isBusy: isSearching,
-                      onPressed: isBusy ? null : onSearch,
+                      accent: widget.accent,
+                      isBusy: widget.isSearching,
+                      onPressed: isBusy ? null : _handleSearch,
                     ),
-                  ] else if (mode == LibraryAddDialogMode.barcode) ...[
+                  ] else if (widget.mode == LibraryAddDialogMode.barcode) ...[
                     _LibraryAddModeButton(
                       label: 'Lookup',
                       icon: Icons.manage_search,
-                      accent: accent,
-                      isBusy: isSearching,
-                      onPressed: isBusy ? null : onLookupBarcode,
+                      accent: widget.accent,
+                      isBusy: widget.isSearching,
+                      onPressed: isBusy ? null : widget.onLookupBarcode,
                     ),
                     const SizedBox(width: 6),
                     _LibraryAddModeActionButton(
                       icon: Icons.search,
                       label: 'Search',
-                      accent: accent,
+                      accent: widget.accent,
                       onPressed: () =>
-                          onModeChanged(LibraryAddDialogMode.search),
+                          widget.onModeChanged(LibraryAddDialogMode.search),
                     ),
                     _LibraryAddModeActionButton(
                       icon: Icons.edit_note,
                       label: 'Manual',
-                      accent: accent,
-                      onPressed: onManual,
+                      accent: widget.accent,
+                      onPressed: widget.onManual,
                     ),
                     const Spacer(),
                     Expanded(
@@ -202,11 +326,11 @@ class LibraryAddModeBar extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         child: _LibraryAddModeTextField(
                           fieldKey: const ValueKey('library-add-barcode-field'),
-                          controller: barcodeController,
+                          controller: widget.barcodeController,
                           label: 'Barcode / UPC / ISBN',
                           hintText: 'Scan or enter barcode / UPC / ISBN...',
                           keyboardType: TextInputType.number,
-                          onSubmitted: onLookupBarcode,
+                          onSubmitted: widget.onLookupBarcode,
                         ),
                       ),
                     ),
@@ -227,43 +351,44 @@ class LibraryAddModeBar extends StatelessWidget {
                     _LibraryAddModeActionButton(
                       icon: Icons.search,
                       label: 'Back to Search',
-                      accent: accent,
+                      accent: widget.accent,
                       onPressed: () =>
-                          onModeChanged(LibraryAddDialogMode.search),
+                          widget.onModeChanged(LibraryAddDialogMode.search),
                     ),
                   ],
                 ],
               ),
-              if (mode == LibraryAddDialogMode.search && showAdvanced) ...[
+              if (widget.mode == LibraryAddDialogMode.search && widget.showAdvanced) ...[
                 const SizedBox(height: 6),
                 _AdvancedSearchFields(
                   searchLabels: searchLabels,
-                  seriesController: seriesController,
-                  numberController: numberController,
-                  publisherController: publisherController,
-                  yearController: yearController,
-                  onSubmitted: onSearch,
+                  seriesController: _seriesController,
+                  numberController: _numberController,
+                  publisherController: _publisherController,
+                  yearController: _yearController,
+                  advancedFilterFields: advancedFields,
+                  onSubmitted: _handleSearch,
                 ),
               ],
-              if (mode == LibraryAddDialogMode.search &&
-                  videoKindFilters != null &&
-                  onVideoKindFilterChanged != null) ...[
+              if (widget.mode == LibraryAddDialogMode.search &&
+                  widget.videoKindFilters != null &&
+                  widget.onVideoKindFilterChanged != null) ...[
                 const SizedBox(height: 6),
                 _VideoKindFilterRow(
-                  options: type.addChrome.videoKindFilterOptions,
-                  filters: videoKindFilters!,
-                  accent: accent,
-                  onChanged: onVideoKindFilterChanged!,
+                  options: widget.type.addChrome.videoKindFilterOptions,
+                  filters: widget.videoKindFilters!,
+                  accent: widget.accent,
+                  onChanged: widget.onVideoKindFilterChanged!,
                 ),
               ],
-              if (mode == LibraryAddDialogMode.search &&
-                  showSuggestions &&
-                  suggestions.isNotEmpty)
+              if (widget.mode == LibraryAddDialogMode.search &&
+                  widget.showSuggestions &&
+                  widget.suggestions.isNotEmpty)
                 _SuggestionDropdown(
-                  suggestions: suggestions,
-                  accent: accent,
-                  onSelect: onSelectSuggestion,
-                  onDismiss: onDismissSuggestions,
+                  suggestions: widget.suggestions,
+                  accent: widget.accent,
+                  onSelect: widget.onSelectSuggestion,
+                  onDismiss: widget.onDismissSuggestions,
                 ),
             ],
           ),
@@ -280,76 +405,77 @@ class LibraryAddModeBar extends StatelessWidget {
         child: Column(
           children: [
             _LibraryAddModeTabStrip(
-              type: type,
-              accent: accent,
-              mode: mode,
-              onModeChanged: onModeChanged,
-              onManual: onManual,
-              onScan: () => onModeChanged(LibraryAddDialogMode.barcode),
+              type: widget.type,
+              accent: widget.accent,
+              mode: widget.mode,
+              onModeChanged: widget.onModeChanged,
+              onManual: widget.onManual,
+              onScan: () => widget.onModeChanged(LibraryAddDialogMode.barcode),
             ),
             const SizedBox(height: 7),
-            switch (mode) {
+            switch (widget.mode) {
               LibraryAddDialogMode.search => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       children: [
                         _AdvancedToggleButton(
-                          expanded: showAdvanced,
-                          accent: accent,
-                          onPressed: onToggleAdvanced,
+                          expanded: widget.showAdvanced,
+                          accent: widget.accent,
+                          onPressed: widget.onToggleAdvanced,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: LibraryToolbarSearch(
                             textFieldKey:
                                 const ValueKey('library-add-query-field'),
-                            controller: queryController,
+                            controller: widget.queryController,
                             hintText: searchLabels.queryHint,
-                            onSearch: (_) => onSearch(),
-                            onChanged: onQueryChanged,
+                            onSearch: (_) => _handleSearch(),
+                            onChanged: widget.onQueryChanged,
                             onScanBarcode: () =>
-                                onModeChanged(LibraryAddDialogMode.barcode),
-                            onScanCover: canScanCover ? onScanCover : null,
-                            selectionColor: accent,
+                                widget.onModeChanged(LibraryAddDialogMode.barcode),
+                            onScanCover: widget.canScanCover ? widget.onScanCover : null,
+                            selectionColor: widget.accent,
                             maxWidth: 620,
                           ),
                         ),
                         const SizedBox(width: 8),
                         _LibraryAddModeButton(
-                          label: 'Search ${type.pluralLabel}',
+                          label: 'Search ${widget.type.pluralLabel}',
                           icon: Icons.search,
-                          accent: accent,
-                          isBusy: isSearching,
-                          onPressed: isBusy ? null : onSearch,
+                          accent: widget.accent,
+                          isBusy: widget.isSearching,
+                          onPressed: isBusy ? null : _handleSearch,
                         ),
                       ],
                     ),
-                    if (showAdvanced) ...[
+                    if (widget.showAdvanced) ...[
                       const SizedBox(height: 6),
                       _AdvancedSearchFields(
                         searchLabels: searchLabels,
-                        seriesController: seriesController,
-                        numberController: numberController,
-                        publisherController: publisherController,
-                        yearController: yearController,
-                        onSubmitted: onSearch,
+                        seriesController: _seriesController,
+                        numberController: _numberController,
+                        publisherController: _publisherController,
+                        yearController: _yearController,
+                        advancedFilterFields: advancedFields,
+                        onSubmitted: _handleSearch,
                       ),
                     ],
-                    if (videoKindFilters != null &&
-                        onVideoKindFilterChanged != null)
+                    if (widget.videoKindFilters != null &&
+                        widget.onVideoKindFilterChanged != null)
                       _VideoKindFilterRow(
-                        options: type.addChrome.videoKindFilterOptions,
-                        filters: videoKindFilters!,
-                        accent: accent,
-                        onChanged: onVideoKindFilterChanged!,
+                        options: widget.type.addChrome.videoKindFilterOptions,
+                        filters: widget.videoKindFilters!,
+                        accent: widget.accent,
+                        onChanged: widget.onVideoKindFilterChanged!,
                       ),
-                    if (showSuggestions && suggestions.isNotEmpty)
+                    if (widget.showSuggestions && widget.suggestions.isNotEmpty)
                       _SuggestionDropdown(
-                        suggestions: suggestions,
-                        accent: accent,
-                        onSelect: onSelectSuggestion,
-                        onDismiss: onDismissSuggestions,
+                        suggestions: widget.suggestions,
+                        accent: widget.accent,
+                        onSelect: widget.onSelectSuggestion,
+                        onDismiss: widget.onDismissSuggestions,
                       ),
                   ],
                 ),
@@ -358,26 +484,26 @@ class LibraryAddModeBar extends StatelessWidget {
                     Expanded(
                       child: _LibraryAddModeTextField(
                         fieldKey: const ValueKey('library-add-barcode-field'),
-                        controller: barcodeController,
+                        controller: widget.barcodeController,
                         label: 'Barcode / UPC / ISBN',
                         hintText: 'Scan or enter barcode / UPC / ISBN...',
                         keyboardType: TextInputType.number,
-                        onSubmitted: onLookupBarcode,
+                        onSubmitted: widget.onLookupBarcode,
                       ),
                     ),
                     const SizedBox(width: 10),
                     _LibraryAddModeButton(
                       label: 'Lookup barcode',
                       icon: Icons.manage_search,
-                      accent: accent,
-                      isBusy: isSearching,
-                      onPressed: isBusy ? null : onLookupBarcode,
+                      accent: widget.accent,
+                      isBusy: widget.isSearching,
+                      onPressed: isBusy ? null : widget.onLookupBarcode,
                     ),
                   ],
                 ),
               LibraryAddDialogMode.manual => Row(
                   children: [
-                    Icon(Icons.edit_note, size: 18, color: accent),
+                    Icon(Icons.edit_note, size: 18, color: widget.accent),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -395,9 +521,9 @@ class LibraryAddModeBar extends StatelessWidget {
                     _LibraryAddModeButton(
                       label: 'Manual draft',
                       icon: Icons.edit_note,
-                      accent: accent,
+                      accent: widget.accent,
                       outlined: true,
-                      onPressed: onManual,
+                      onPressed: widget.onManual,
                     ),
                   ],
                 ),
@@ -703,64 +829,106 @@ class _AdvancedToggleButton extends StatelessWidget {
 class _AdvancedSearchFields extends StatelessWidget {
   const _AdvancedSearchFields({
     required this.searchLabels,
-    required this.seriesController,
-    required this.numberController,
-    required this.publisherController,
-    required this.yearController,
+    this.seriesController,
+    this.numberController,
+    this.publisherController,
+    this.yearController,
+    this.advancedFilterFields = const [],
     required this.onSubmitted,
   });
 
   final LibraryMediaSearchFieldLabels searchLabels;
-  final TextEditingController seriesController;
-  final TextEditingController numberController;
-  final TextEditingController publisherController;
-  final TextEditingController yearController;
+  final TextEditingController? seriesController;
+  final TextEditingController? numberController;
+  final TextEditingController? publisherController;
+  final TextEditingController? yearController;
+  final List<LibraryAddAdvancedFilterField> advancedFilterFields;
   final VoidCallback onSubmitted;
 
   @override
   Widget build(BuildContext context) {
+    if (advancedFilterFields.isNotEmpty) {
+      return Row(
+        children: [
+          for (int i = 0; i < advancedFilterFields.length; i++) ...[
+            if (i > 0) const SizedBox(width: 6),
+            if (advancedFilterFields[i].width != null)
+              SizedBox(
+                width: advancedFilterFields[i].width,
+                child: _AdvancedField(
+                  fieldKey: advancedFilterFields[i].key,
+                  controller: advancedFilterFields[i].controller,
+                  hint: advancedFilterFields[i].label,
+                  onSubmitted: onSubmitted,
+                ),
+              )
+            else
+              Expanded(
+                flex: i == 0 ? 3 : (i == 1 ? 1 : 2),
+                child: _AdvancedField(
+                  fieldKey: advancedFilterFields[i].key,
+                  controller: advancedFilterFields[i].controller,
+                  hint: advancedFilterFields[i].label,
+                  onSubmitted: onSubmitted,
+                ),
+              ),
+          ],
+        ],
+      );
+    }
     return Row(
       children: [
-        Expanded(
-          flex: 3,
-          child: _AdvancedField(
-            fieldKey: const ValueKey('library-add-series-field'),
-            controller: seriesController,
-            hint: searchLabels.seriesHint,
-            onSubmitted: onSubmitted,
+        if (seriesController != null)
+          Expanded(
+            flex: 3,
+            child: _AdvancedField(
+              fieldKey: const ValueKey('library-add-series-field'),
+              controller: seriesController!,
+              hint: searchLabels.seriesHint,
+              onSubmitted: onSubmitted,
+            ),
           ),
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          flex: 1,
-          child: _AdvancedField(
-            fieldKey: const ValueKey('library-add-number-field'),
-            controller: numberController,
-            hint: searchLabels.numberHint,
-            onSubmitted: onSubmitted,
+        if (numberController != null) ...[
+          if (seriesController != null) const SizedBox(width: 6),
+          Expanded(
+            flex: 1,
+            child: _AdvancedField(
+              fieldKey: const ValueKey('library-add-number-field'),
+              controller: numberController!,
+              hint: searchLabels.numberHint,
+              onSubmitted: onSubmitted,
+            ),
           ),
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          flex: 2,
-          child: _AdvancedField(
-            fieldKey: const ValueKey('library-add-publisher-field'),
-            controller: publisherController,
-            hint: searchLabels.publisherHint,
-            onSubmitted: onSubmitted,
+        ],
+        if (publisherController != null) ...[
+          if (seriesController != null || numberController != null)
+            const SizedBox(width: 6),
+          Expanded(
+            flex: 2,
+            child: _AdvancedField(
+              fieldKey: const ValueKey('library-add-publisher-field'),
+              controller: publisherController!,
+              hint: searchLabels.publisherHint,
+              onSubmitted: onSubmitted,
+            ),
           ),
-        ),
-        const SizedBox(width: 6),
-        SizedBox(
-          width: 60,
-          child: _AdvancedField(
-            fieldKey: const ValueKey('library-add-year-field'),
-            controller: yearController,
-            hint: 'Year',
-            keyboardType: TextInputType.number,
-            onSubmitted: onSubmitted,
+        ],
+        if (yearController != null) ...[
+          if (seriesController != null ||
+              numberController != null ||
+              publisherController != null)
+            const SizedBox(width: 6),
+          SizedBox(
+            width: 60,
+            child: _AdvancedField(
+              fieldKey: const ValueKey('library-add-year-field'),
+              controller: yearController!,
+              hint: 'Year',
+              keyboardType: TextInputType.number,
+              onSubmitted: onSubmitted,
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

@@ -1,31 +1,98 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BookAddManualPane extends StatelessWidget {
+class BookAddManualPane extends ConsumerStatefulWidget {
   const BookAddManualPane({super.key, required this.request});
 
   final LibraryAddManualPaneRequest request;
 
   @override
+  ConsumerState<BookAddManualPane> createState() => _BookAddManualPaneState();
+}
+
+class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
+  List<String> _publisherOptions = const [];
+  List<String> _physicalFormatOptions = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVocabularies();
+  }
+
+  List<PhysicalMediaFormat> _currentPhysicalFormats() {
+    return physicalMediaFormatsForKind(
+      ref.read(mediaCatalogProvider).maybeWhen(
+            data: (value) => value,
+            orElse: () => fallbackMediaCatalog,
+          ),
+      CatalogMediaKind.book,
+    );
+  }
+
+  Future<void> _loadVocabularies() async {
+    final db = ref.read(localDatabaseProvider);
+    final draft = widget.request.manualDraftAs<BookAddManualDraft>();
+    final formats = _currentPhysicalFormats();
+    final results = await Future.wait<dynamic>([
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPublisherPickListName,
+        mediaKind: CatalogMediaKind.book.apiValue,
+        selectedValue: draft.publisherController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPhysicalFormatPickListName,
+        mediaKind: CatalogMediaKind.book.apiValue,
+        builtInValues: [for (final format in formats) format.label],
+        selectedValue: draft.physicalFormatLabelController.text,
+      ),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      _publisherOptions = List<String>.from(results[0] as List<String>);
+      _physicalFormatOptions = List<String>.from(results[1] as List<String>);
+    });
+  }
+
+  Future<void> _manageSingleValuePickList({
+    required String listName,
+    required String label,
+    List<String> builtInValues = const [],
+  }) async {
+    await showPickListEditorDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      listName: listName,
+      label: label,
+      mediaKind: CatalogMediaKind.book.apiValue,
+      builtInValues: builtInValues,
+    );
+    if (!mounted) return;
+    await _loadVocabularies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final draft = request.manualDraftAs<BookAddManualDraft>();
-    final copyTypeLabel = ownedCopyTypeLabel(
-      digitalPhysicalMediaFormatFlag(
-        request.physicalFormatId,
-        formats: request.physicalFormats,
-      ),
-    );
+    final draft = widget.request.manualDraftAs<BookAddManualDraft>();
+    final request = widget.request;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -45,7 +112,7 @@ class BookAddManualPane extends StatelessWidget {
               badges: [
                 const LibraryAddResultBadge('main'),
                 libraryAddManualIntroBadge(
-                  copyTypeLabel ?? 'owned defaults',
+                  'owned defaults',
                   accent: request.accent,
                 ),
                 if (request.defaultLocationLabel != null)
@@ -120,9 +187,12 @@ class BookAddManualPane extends StatelessWidget {
                             LibraryResponsiveFormItem(
                               child: SingleValuePickField(
                                 controller: draft.publisherController,
-                                options: request.publisherOptions,
+                                options: _publisherOptions,
                                 label: 'Publisher',
-                                onManage: request.onManagePublishers,
+                                onManage: () => _manageSingleValuePickList(
+                                  listName: kPublisherPickListName,
+                                  label: 'Publishers',
+                                ),
                               ),
                             ),
                             LibraryResponsiveFormItem(
@@ -160,20 +230,25 @@ class BookAddManualPane extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (request.physicalFormats.isNotEmpty ||
-                                request.physicalFormatOptions.isNotEmpty)
-                              LibraryResponsiveFormItem(
-                                flex: 2,
-                                child: SingleValuePickField(
-                                  controller:
-                                      request.physicalFormatLabelController,
-                                  options: request.physicalFormatOptions,
-                                  label: 'Format',
-                                  onChanged:
-                                      request.onPhysicalFormatLabelChanged,
-                                  onManage: request.onManagePhysicalFormats,
+                            LibraryResponsiveFormItem(
+                              flex: 2,
+                              child: SingleValuePickField(
+                                controller:
+                                    draft.physicalFormatLabelController,
+                                options: _physicalFormatOptions,
+                                label: 'Format',
+                                onChanged: (_) {},
+                                onManage: () => _manageSingleValuePickList(
+                                  listName: kPhysicalFormatPickListName,
+                                  label: 'Physical Formats',
+                                  builtInValues: [
+                                    for (final format
+                                        in _currentPhysicalFormats())
+                                      format.label,
+                                  ],
                                 ),
                               ),
+                            ),
                           ],
                         ),
                       ],

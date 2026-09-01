@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -364,10 +365,15 @@ LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
     for (final definition in type.presentation.filterFieldDefinitions)
       definition.id,
   };
+  final editCap = libraryKindRuntimeForKind(type.workspace.kind).edit;
+  final grades = editCap.grades.isNotEmpty ? editCap.grades : type.grades;
+  final conditions = editCap.conditions.isNotEmpty
+      ? editCap.conditions
+      : (type.conditions.isNotEmpty ? type.conditions : kGeneralConditions);
   final hasGrades =
-      type.grades.isNotEmpty && supportedFields.contains('grade');
+      grades.isNotEmpty && supportedFields.contains('grade');
   final hasConditions =
-      type.conditions.isNotEmpty && supportedFields.contains('condition');
+      conditions.isNotEmpty && supportedFields.contains('condition');
 
   return LibraryFilterSelection(
     ownershipFilter:

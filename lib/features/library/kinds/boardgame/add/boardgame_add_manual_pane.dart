@@ -19,12 +19,6 @@ class BoardgameAddManualPane extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final draft = request.manualDraftAs<BoardgameAddManualDraft>();
-    final copyTypeLabel = ownedCopyTypeLabel(
-      digitalPhysicalMediaFormatFlag(
-        request.physicalFormatId,
-        formats: request.physicalFormats,
-      ),
-    );
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -44,7 +38,7 @@ class BoardgameAddManualPane extends StatelessWidget {
               badges: [
                 const LibraryAddResultBadge('main'),
                 libraryAddManualIntroBadge(
-                  copyTypeLabel ?? 'owned defaults',
+                  'owned defaults',
                   accent: request.accent,
                 ),
                 if (request.defaultLocationLabel != null)

@@ -1,32 +1,142 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ComicAddManualPane extends StatelessWidget {
+class ComicAddManualPane extends ConsumerStatefulWidget {
   const ComicAddManualPane({super.key, required this.request});
 
   final LibraryAddManualPaneRequest request;
 
   @override
+  ConsumerState<ComicAddManualPane> createState() => _ComicAddManualPaneState();
+}
+
+class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
+  List<String> _publisherOptions = const [];
+  List<String> _physicalFormatOptions = const [];
+  List<SeriesRegistryEntry> _seriesEntries = const [];
+  String? _selectedSeriesId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVocabularies();
+  }
+
+  List<PhysicalMediaFormat> _currentPhysicalFormats() {
+    return physicalMediaFormatsForKind(
+      ref.read(mediaCatalogProvider).maybeWhen(
+            data: (value) => value,
+            orElse: () => fallbackMediaCatalog,
+          ),
+      CatalogMediaKind.comic,
+    );
+  }
+
+  Future<void> _loadVocabularies() async {
+    final db = ref.read(localDatabaseProvider);
+    final comicDraft = widget.request.manualDraftAs<ComicAddManualDraft>();
+    final formats = _currentPhysicalFormats();
+    final results = await Future.wait<dynamic>([
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPublisherPickListName,
+        mediaKind: CatalogMediaKind.comic.apiValue,
+        selectedValue: comicDraft.publisherController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPhysicalFormatPickListName,
+        mediaKind: CatalogMediaKind.comic.apiValue,
+        builtInValues: [for (final format in formats) format.label],
+        selectedValue: comicDraft.physicalFormatLabelController.text,
+      ),
+      SeriesRegistryRepository(db).searchEntries(
+        mediaKind: CatalogMediaKind.comic.apiValue,
+        selectedTitle: widget.request.titleController.text,
+        selectedSeriesId: _selectedSeriesId,
+      ),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      _publisherOptions = List<String>.from(results[0] as List<String>);
+      _physicalFormatOptions = List<String>.from(results[1] as List<String>);
+      _seriesEntries =
+          List<SeriesRegistryEntry>.from(results[2] as List<SeriesRegistryEntry>);
+    });
+  }
+
+  Future<void> _openManualSeriesPicker() async {
+    final selected = await showSeriesPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      mediaKind: CatalogMediaKind.comic.apiValue,
+      selectedTitle: widget.request.titleController.text,
+      selectedSeriesId: _selectedSeriesId,
+    );
+    if (!mounted || selected == null) return;
+    setState(() {
+      _selectedSeriesId = selected.coreSeriesId;
+      widget.request.titleController.value = TextEditingValue(
+        text: selected.title,
+        selection: TextSelection.collapsed(offset: selected.title.length),
+      );
+    });
+    await _loadVocabularies();
+  }
+
+  void _setManualSeries(String? value) {
+    final normalized = (value ?? '').trim();
+    final match = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+          (entry) =>
+              entry != null &&
+              entry.title.trim().toLowerCase() == normalized.toLowerCase(),
+          orElse: () => null,
+        );
+    setState(() {
+      _selectedSeriesId = match?.coreSeriesId;
+    });
+  }
+
+  Future<void> _manageSingleValuePickList({
+    required String listName,
+    required String label,
+    List<String> builtInValues = const [],
+  }) async {
+    await showPickListEditorDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      listName: listName,
+      label: label,
+      mediaKind: CatalogMediaKind.comic.apiValue,
+      builtInValues: builtInValues,
+    );
+    if (!mounted) return;
+    await _loadVocabularies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final comicDraft = request.manualDraftAs<ComicAddManualDraft>();
-    final copyTypeLabel = ownedCopyTypeLabel(
-      digitalPhysicalMediaFormatFlag(
-        request.physicalFormatId,
-        formats: request.physicalFormats,
-      ),
-    );
+    final comicDraft = widget.request.manualDraftAs<ComicAddManualDraft>();
+    final request = widget.request;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -46,7 +156,7 @@ class ComicAddManualPane extends StatelessWidget {
               badges: [
                 const LibraryAddResultBadge('main'),
                 libraryAddManualIntroBadge(
-                  copyTypeLabel ?? 'owned defaults',
+                  'owned defaults',
                   accent: request.accent,
                 ),
                 if (request.defaultLocationLabel != null)
@@ -72,12 +182,12 @@ class ComicAddManualPane extends StatelessWidget {
                               child: SingleValuePickField(
                                 controller: request.titleController,
                                 options: [
-                                  for (final entry in request.seriesEntries)
+                                  for (final entry in _seriesEntries)
                                     entry.title,
                                 ],
                                 label: 'Series',
-                                onChanged: request.onSeriesChanged,
-                                onManage: request.onManageSeries,
+                                onChanged: _setManualSeries,
+                                onManage: _openManualSeriesPicker,
                                 manageTooltip: 'Select or manage series',
                               ),
                             ),
@@ -117,23 +227,25 @@ class ComicAddManualPane extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (request.physicalFormats.isNotEmpty ||
-                                request.physicalFormatOptions.isNotEmpty ||
-                                request.physicalFormatLabelController.text
-                                    .trim()
-                                    .isNotEmpty)
-                              LibraryResponsiveFormItem(
-                                flex: 2,
-                                child: SingleValuePickField(
-                                  controller:
-                                      request.physicalFormatLabelController,
-                                  options: request.physicalFormatOptions,
-                                  label: 'Format',
-                                  onChanged:
-                                      request.onPhysicalFormatLabelChanged,
-                                  onManage: request.onManagePhysicalFormats,
+                            LibraryResponsiveFormItem(
+                              flex: 2,
+                              child: SingleValuePickField(
+                                controller:
+                                    comicDraft.physicalFormatLabelController,
+                                options: _physicalFormatOptions,
+                                label: 'Format',
+                                onChanged: (_) {},
+                                onManage: () => _manageSingleValuePickList(
+                                  listName: kPhysicalFormatPickListName,
+                                  label: 'Physical Formats',
+                                  builtInValues: [
+                                    for (final format
+                                        in _currentPhysicalFormats())
+                                      format.label,
+                                  ],
                                 ),
                               ),
+                            ),
                             LibraryResponsiveFormItem(
                               child: TextField(
                                 controller: comicDraft.yearController,
@@ -158,9 +270,12 @@ class ComicAddManualPane extends StatelessWidget {
                               flex: 2,
                               child: SingleValuePickField(
                                 controller: comicDraft.publisherController,
-                                options: request.publisherOptions,
+                                options: _publisherOptions,
                                 label: 'Publisher',
-                                onManage: request.onManagePublishers,
+                                onManage: () => _manageSingleValuePickList(
+                                  listName: kPublisherPickListName,
+                                  label: 'Publishers',
+                                ),
                               ),
                             ),
                             LibraryResponsiveFormItem(

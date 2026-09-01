@@ -74,20 +74,23 @@ List<LibraryAddAdvancedFilterField> buildGenericAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
     [
-      LibraryAddAdvancedFilterField(
-        key: const ValueKey('library-add-series-field'),
-        label: 'Series / Group',
-        controller: req.seriesController,
-      ),
-      LibraryAddAdvancedFilterField(
-        key: const ValueKey('library-add-publisher-field'),
-        label: 'Publisher / Brand',
-        controller: req.publisherController,
-      ),
-      LibraryAddAdvancedFilterField(
-        key: const ValueKey('library-add-year-field'),
-        label: 'Year',
-        controller: req.yearController,
-        width: 120,
-      ),
+      if (req.seriesController != null)
+        LibraryAddAdvancedFilterField(
+          key: const ValueKey('library-add-series-field'),
+          label: 'Series / Group',
+          controller: req.seriesController!,
+        ),
+      if (req.publisherController != null)
+        LibraryAddAdvancedFilterField(
+          key: const ValueKey('library-add-publisher-field'),
+          label: 'Publisher / Brand',
+          controller: req.publisherController!,
+        ),
+      if (req.yearController != null)
+        LibraryAddAdvancedFilterField(
+          key: const ValueKey('library-add-year-field'),
+          label: 'Year',
+          controller: req.yearController!,
+          width: 120,
+        ),
     ];

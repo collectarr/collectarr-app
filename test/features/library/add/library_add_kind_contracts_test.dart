@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -144,39 +145,6 @@ void main() {
         type: comicsLibraryConfig,
         manualDraft: draft,
         titleController: TextEditingController(text: 'Batman'),
-        numberController: draft.numberController,
-        publisherController: draft.publisherController,
-        yearController: draft.yearController,
-        barcodeController: draft.barcodeController,
-        variantController: draft.variantController,
-        physicalFormatLabelController: TextEditingController(),
-        coverController: draft.coverController,
-        backCoverController: TextEditingController(),
-        creatorsController: TextEditingController(),
-        charactersController: TextEditingController(),
-        physicalFormats: const [],
-        physicalFormatId: null,
-        onPhysicalFormatChanged: (_) {},
-        onPhysicalFormatLabelChanged: (_) {},
-        isAdding: false,
-        defaultCondition: 'Near Mint',
-        defaultGrade: '9.4',
-        defaultLocationLabel: null,
-        defaultPurchaseDate: null,
-        defaultTags: null,
-        onAddOwned: () {},
-        onAddWishlist: () {},
-        onAddTrack: () {},
-        editionTitleController: TextEditingController(),
-        releaseDateController: TextEditingController(),
-        pageCountController: TextEditingController(),
-        imprintController: TextEditingController(),
-        seriesGroupController: TextEditingController(),
-        countryController: TextEditingController(),
-        languageController: TextEditingController(),
-        ageRatingController: TextEditingController(),
-        genresEditController: TextEditingController(),
-        synopsisController: TextEditingController(),
         tagsController: TextEditingController(),
         personalNotesController: TextEditingController(),
         coverPriceController: TextEditingController(),
@@ -187,31 +155,27 @@ void main() {
         soldDateController: TextEditingController(),
         ownerLabelController: TextEditingController(),
         linksController: TextEditingController(),
-        seriesEntries: const [],
-        onSeriesChanged: (_) {},
-        onManageSeries: () {},
-        publisherOptions: const [],
-        onManagePublishers: () {},
-        imprintOptions: const [],
-        onManageImprints: () {},
-        seriesGroupOptions: const [],
-        onManageSeriesGroups: () {},
-        physicalFormatOptions: const [],
-        onManagePhysicalFormats: () {},
-        customFieldDefinitions: const [],
-        customFieldValues: const {},
-        onCustomFieldValuesChanged: (_) {},
-        itemImages: const [],
-        onItemImagesChanged: (_) {},
+        isAdding: false,
+        defaultCondition: 'Near Mint',
+        defaultGrade: '9.4',
+        defaultLocationLabel: null,
+        defaultPurchaseDate: null,
+        defaultTags: null,
+        onAddOwned: () {},
+        onAddWishlist: () {},
+        onAddTrack: () {},
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ComicAddManualPane(request: request),
+        ProviderScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: ComicAddManualPane(request: request),
+            ),
           ),
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.byType(LibraryFormSection), findsNWidgets(2));
       expect(find.byType(LibraryResponsiveFormRow), findsWidgets);

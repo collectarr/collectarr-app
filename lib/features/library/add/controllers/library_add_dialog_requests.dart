@@ -62,52 +62,7 @@ class LibraryAddManualPaneRequest {
     this.onCommonDraftChanged,
     this.onKindDraftChanged,
     required this.titleController,
-    required this.numberController,
-    required this.publisherController,
-    required this.yearController,
-    required this.barcodeController,
-    required this.variantController,
-    required this.physicalFormatLabelController,
-    required this.coverController,
-    required this.backCoverController,
-    required this.creatorsController,
-    required this.charactersController,
-    required this.physicalFormats,
-    required this.physicalFormatId,
-    required this.onPhysicalFormatChanged,
-    required this.onPhysicalFormatLabelChanged,
-    required this.isAdding,
-    required this.defaultCondition,
-    required this.defaultGrade,
-    required this.defaultLocationLabel,
-    required this.defaultPurchaseDate,
-    required this.defaultTags,
-    required this.onAddOwned,
-    required this.onAddWishlist,
-    required this.onAddTrack,
-    required this.editionTitleController,
-    required this.releaseDateController,
-    required this.pageCountController,
-    required this.imprintController,
-    required this.seriesGroupController,
-    required this.countryController,
-    required this.languageController,
-    required this.ageRatingController,
-    required this.genresEditController,
-    required this.synopsisController,
     required this.tagsController,
-    required this.publisherOptions,
-    required this.imprintOptions,
-    required this.seriesGroupOptions,
-    required this.physicalFormatOptions,
-    required this.seriesEntries,
-    required this.onManagePublishers,
-    required this.onManageImprints,
-    required this.onManageSeriesGroups,
-    required this.onManagePhysicalFormats,
-    required this.onManageSeries,
-    required this.onSeriesChanged,
-    required this.manualDraft,
     required this.personalNotesController,
     required this.coverPriceController,
     required this.priceController,
@@ -117,11 +72,21 @@ class LibraryAddManualPaneRequest {
     required this.soldDateController,
     required this.ownerLabelController,
     required this.linksController,
-    required this.customFieldDefinitions,
-    required this.customFieldValues,
-    required this.onCustomFieldValuesChanged,
-    required this.itemImages,
-    required this.onItemImagesChanged,
+    required this.isAdding,
+    required this.defaultCondition,
+    required this.defaultGrade,
+    required this.defaultLocationLabel,
+    required this.defaultPurchaseDate,
+    required this.defaultTags,
+    required this.onAddOwned,
+    required this.onAddWishlist,
+    required this.onAddTrack,
+    required this.manualDraft,
+    this.customFieldDefinitions = const [],
+    this.customFieldValues = const {},
+    this.onCustomFieldValuesChanged,
+    this.itemImages = const [],
+    this.onItemImagesChanged,
   });
 
   final CatalogMediaKind kind;
@@ -133,41 +98,6 @@ class LibraryAddManualPaneRequest {
   final ValueChanged<LibraryAddCommonDraft>? onCommonDraftChanged;
   final ValueChanged<LibraryAddKindDraft>? onKindDraftChanged;
   final TextEditingController titleController;
-  final TextEditingController numberController;
-  final TextEditingController publisherController;
-  final TextEditingController yearController;
-  final TextEditingController barcodeController;
-  final TextEditingController variantController;
-  final TextEditingController physicalFormatLabelController;
-  final TextEditingController coverController;
-  final TextEditingController backCoverController;
-  final TextEditingController creatorsController;
-  final TextEditingController charactersController;
-  final List<PhysicalMediaFormat> physicalFormats;
-  final String? physicalFormatId;
-  final ValueChanged<String?> onPhysicalFormatChanged;
-  final ValueChanged<String?> onPhysicalFormatLabelChanged;
-  final bool isAdding;
-  final String defaultCondition;
-  final String defaultGrade;
-  final String? defaultLocationLabel;
-  final DateTime? defaultPurchaseDate;
-  final String? defaultTags;
-  final VoidCallback onAddOwned;
-  final VoidCallback onAddWishlist;
-  final VoidCallback onAddTrack;
-
-  // Additional catalog & personal fields for the tabbed manual interface
-  final TextEditingController editionTitleController;
-  final TextEditingController releaseDateController;
-  final TextEditingController pageCountController;
-  final TextEditingController imprintController;
-  final TextEditingController seriesGroupController;
-  final TextEditingController countryController;
-  final TextEditingController languageController;
-  final TextEditingController ageRatingController;
-  final TextEditingController genresEditController;
-  final TextEditingController synopsisController;
   final TextEditingController tagsController;
   final TextEditingController personalNotesController;
   final TextEditingController coverPriceController;
@@ -178,24 +108,22 @@ class LibraryAddManualPaneRequest {
   final TextEditingController soldDateController;
   final TextEditingController ownerLabelController;
   final TextEditingController linksController;
-  final List<String> publisherOptions;
-  final List<String> imprintOptions;
-  final List<String> seriesGroupOptions;
-  final List<String> physicalFormatOptions;
-  final List<SeriesRegistryEntry> seriesEntries;
-  final VoidCallback onManagePublishers;
-  final VoidCallback onManageImprints;
-  final VoidCallback onManageSeriesGroups;
-  final VoidCallback onManagePhysicalFormats;
-  final VoidCallback onManageSeries;
-  final ValueChanged<String?> onSeriesChanged;
+  final bool isAdding;
+  final String defaultCondition;
+  final String defaultGrade;
+  final String? defaultLocationLabel;
+  final DateTime? defaultPurchaseDate;
+  final String? defaultTags;
+  final VoidCallback onAddOwned;
+  final VoidCallback onAddWishlist;
+  final VoidCallback onAddTrack;
 
   // Custom fields and images
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, String?> customFieldValues;
-  final ValueChanged<Map<String, String?>> onCustomFieldValuesChanged;
+  final ValueChanged<Map<String, String?>>? onCustomFieldValuesChanged;
   final List<ItemImage> itemImages;
-  final ValueChanged<List<ItemImageEdit>> onItemImagesChanged;
+  final ValueChanged<List<ItemImageEdit>>? onItemImagesChanged;
 
   TDraft manualDraftAs<TDraft extends LibraryKindAddDraft>() =>
       manualDraft as TDraft;
@@ -285,10 +213,18 @@ class LibraryAddModeBarRequest {
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
-    required this.seriesController,
-    required this.numberController,
-    required this.publisherController,
-    required this.yearController,
+    this.seriesController,
+    this.numberController,
+    this.publisherController,
+    this.yearController,
+    this.seriesText,
+    this.numberText,
+    this.publisherText,
+    this.yearText,
+    this.onSeriesChanged,
+    this.onNumberChanged,
+    this.onPublisherChanged,
+    this.onYearChanged,
     this.advancedFilterFields = const [],
     this.advancedFiltersBuilder,
   });
@@ -315,10 +251,18 @@ class LibraryAddModeBarRequest {
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
-  final TextEditingController seriesController;
-  final TextEditingController numberController;
-  final TextEditingController publisherController;
-  final TextEditingController yearController;
+  final TextEditingController? seriesController;
+  final TextEditingController? numberController;
+  final TextEditingController? publisherController;
+  final TextEditingController? yearController;
+  final String? seriesText;
+  final String? numberText;
+  final String? publisherText;
+  final String? yearText;
+  final ValueChanged<String>? onSeriesChanged;
+  final ValueChanged<String>? onNumberChanged;
+  final ValueChanged<String>? onPublisherChanged;
+  final ValueChanged<String>? onYearChanged;
   final List<LibraryAddAdvancedFilterField> advancedFilterFields;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       advancedFiltersBuilder;

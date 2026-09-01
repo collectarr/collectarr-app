@@ -1,31 +1,114 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MangaAddManualPane extends StatelessWidget {
+class MangaAddManualPane extends ConsumerStatefulWidget {
   const MangaAddManualPane({super.key, required this.request});
 
   final LibraryAddManualPaneRequest request;
 
   @override
+  ConsumerState<MangaAddManualPane> createState() => _MangaAddManualPaneState();
+}
+
+class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
+  List<String> _publisherOptions = const [];
+  List<SeriesRegistryEntry> _seriesEntries = const [];
+  String? _selectedSeriesId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVocabularies();
+  }
+
+  Future<void> _loadVocabularies() async {
+    final db = ref.read(localDatabaseProvider);
+    final draft = widget.request.manualDraftAs<MangaAddManualDraft>();
+    final results = await Future.wait<dynamic>([
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPublisherPickListName,
+        mediaKind: CatalogMediaKind.manga.apiValue,
+        selectedValue: draft.publisherController.text,
+      ),
+      SeriesRegistryRepository(db).searchEntries(
+        mediaKind: CatalogMediaKind.manga.apiValue,
+        selectedTitle: widget.request.titleController.text,
+        selectedSeriesId: _selectedSeriesId,
+      ),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      _publisherOptions = List<String>.from(results[0] as List<String>);
+      _seriesEntries =
+          List<SeriesRegistryEntry>.from(results[1] as List<SeriesRegistryEntry>);
+    });
+  }
+
+  Future<void> _openManualSeriesPicker() async {
+    final selected = await showSeriesPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      mediaKind: CatalogMediaKind.manga.apiValue,
+      selectedTitle: widget.request.titleController.text,
+      selectedSeriesId: _selectedSeriesId,
+    );
+    if (!mounted || selected == null) return;
+    setState(() {
+      _selectedSeriesId = selected.coreSeriesId;
+      widget.request.titleController.value = TextEditingValue(
+        text: selected.title,
+        selection: TextSelection.collapsed(offset: selected.title.length),
+      );
+    });
+    await _loadVocabularies();
+  }
+
+  void _setManualSeries(String? value) {
+    final normalized = (value ?? '').trim();
+    final match = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+          (entry) =>
+              entry != null &&
+              entry.title.trim().toLowerCase() == normalized.toLowerCase(),
+          orElse: () => null,
+        );
+    setState(() {
+      _selectedSeriesId = match?.coreSeriesId;
+    });
+  }
+
+  Future<void> _managePublishers() async {
+    await showPickListEditorDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      listName: kPublisherPickListName,
+      label: 'Publishers',
+      mediaKind: CatalogMediaKind.manga.apiValue,
+    );
+    if (!mounted) return;
+    await _loadVocabularies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final draft = request.manualDraftAs<MangaAddManualDraft>();
-    final copyTypeLabel = ownedCopyTypeLabel(
-      digitalPhysicalMediaFormatFlag(
-        request.physicalFormatId,
-        formats: request.physicalFormats,
-      ),
-    );
+    final draft = widget.request.manualDraftAs<MangaAddManualDraft>();
+    final request = widget.request;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -45,7 +128,7 @@ class MangaAddManualPane extends StatelessWidget {
               badges: [
                 const LibraryAddResultBadge('main'),
                 libraryAddManualIntroBadge(
-                  copyTypeLabel ?? 'owned defaults',
+                  'owned defaults',
                   accent: request.accent,
                 ),
                 if (request.defaultLocationLabel != null)
@@ -71,12 +154,12 @@ class MangaAddManualPane extends StatelessWidget {
                               child: SingleValuePickField(
                                 controller: request.titleController,
                                 options: [
-                                  for (final entry in request.seriesEntries)
+                                  for (final entry in _seriesEntries)
                                     entry.title,
                                 ],
                                 label: 'Series',
-                                onChanged: request.onSeriesChanged,
-                                onManage: request.onManageSeries,
+                                onChanged: _setManualSeries,
+                                onManage: _openManualSeriesPicker,
                               ),
                             ),
                             LibraryResponsiveFormItem(
@@ -142,9 +225,9 @@ class MangaAddManualPane extends StatelessWidget {
                             LibraryResponsiveFormItem(
                               child: SingleValuePickField(
                                 controller: draft.publisherController,
-                                options: request.publisherOptions,
+                                options: _publisherOptions,
                                 label: 'Publisher',
-                                onManage: request.onManagePublishers,
+                                onManage: _managePublishers,
                               ),
                             ),
                             LibraryResponsiveFormItem(

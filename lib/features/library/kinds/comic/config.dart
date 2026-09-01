@@ -158,10 +158,6 @@ final comicsLibraryConfig = LibraryTypeConfig(
     releaseScopeGroupIds: _comicReleaseGroupModes,
     groupModeCategoriesBuilder: buildComicGroupModeCategories,
   ),
-  conditions: kComicConditions,
-  grades: kComicGrades,
-  defaultCondition: 'Near Mint',
-  defaultGrade: 'Ungraded',
 );
 
 List<LibraryGroupModeCategory> buildComicGroupModeCategories(
