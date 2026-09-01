@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -495,6 +496,7 @@ bool? resolveOwnedDigitalFlag(
   final variantFlag = digitalPhysicalMediaFormatFlag(
     matchedVariant?.physicalFormat,
     label: matchedVariant?.physicalFormatLabel ?? matchedVariant?.name,
+    formats: allKnownPhysicalMediaFormats,
   );
   if (variantFlag != null) {
     return variantFlag;
@@ -503,6 +505,7 @@ bool? resolveOwnedDigitalFlag(
   final editionFlag = digitalPhysicalMediaFormatFlag(
     matchedEdition?.physicalFormat,
     label: matchedEdition?.physicalFormatLabel ?? matchedEdition?.title,
+    formats: allKnownPhysicalMediaFormats,
   );
   if (editionFlag != null) {
     return editionFlag;
@@ -511,6 +514,7 @@ bool? resolveOwnedDigitalFlag(
   return digitalPhysicalMediaFormatFlag(
     fallbackFormat,
     label: fallbackLabel,
+    formats: allKnownPhysicalMediaFormats,
   );
 }
 

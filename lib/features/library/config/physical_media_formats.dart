@@ -26,198 +26,6 @@ class PhysicalMediaFormat {
   }
 }
 
-const videoPhysicalMediaFormats = [
-  PhysicalMediaFormat(
-    id: 'dvd',
-    label: 'DVD',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  PhysicalMediaFormat(
-    id: 'blu-ray',
-    label: 'Blu-ray',
-    mediaFamily: 'video',
-    variantType: 'physical',
-    aliases: {'bluray', 'blu ray'},
-  ),
-  PhysicalMediaFormat(
-    id: '4k-uhd',
-    label: '4K UHD',
-    mediaFamily: 'video',
-    variantType: 'physical',
-    aliases: {'4k', 'uhd', '4k blu-ray', '4k bluray', 'ultra hd'},
-  ),
-  PhysicalMediaFormat(
-    id: 'vhs',
-    label: 'VHS',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  PhysicalMediaFormat(
-    id: 'laserdisc',
-    label: 'LaserDisc',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  PhysicalMediaFormat(
-    id: 'digital',
-    label: 'Digital',
-    mediaFamily: 'video',
-    variantType: 'digital',
-  ),
-];
-
-const musicPhysicalMediaFormats = [
-  PhysicalMediaFormat(
-    id: 'vinyl',
-    label: 'Vinyl',
-    mediaFamily: 'audio',
-    variantType: 'physical',
-    aliases: {'lp', 'record'},
-  ),
-  PhysicalMediaFormat(
-    id: 'cd',
-    label: 'CD',
-    mediaFamily: 'audio',
-    variantType: 'physical',
-    aliases: {'compact disc'},
-  ),
-  PhysicalMediaFormat(
-    id: 'cassette',
-    label: 'Cassette',
-    mediaFamily: 'audio',
-    variantType: 'physical',
-    aliases: {'tape'},
-  ),
-  PhysicalMediaFormat(
-    id: 'digital-audio',
-    label: 'Digital',
-    mediaFamily: 'audio',
-    variantType: 'digital',
-  ),
-];
-
-const bookPhysicalMediaFormats = [
-  PhysicalMediaFormat(
-    id: 'hardcover',
-    label: 'Hardcover',
-    mediaFamily: 'print',
-    variantType: 'physical',
-    aliases: {'hardback', 'hc'},
-  ),
-  PhysicalMediaFormat(
-    id: 'paperback',
-    label: 'Paperback',
-    mediaFamily: 'print',
-    variantType: 'physical',
-    aliases: {'softcover', 'pb', 'tpb', 'trade paperback'},
-  ),
-  PhysicalMediaFormat(
-    id: 'mass-market',
-    label: 'Mass Market Paperback',
-    mediaFamily: 'print',
-    variantType: 'physical',
-    aliases: {'mmpb', 'mass market'},
-  ),
-  PhysicalMediaFormat(
-    id: 'ebook',
-    label: 'eBook',
-    mediaFamily: 'print',
-    variantType: 'digital',
-    aliases: {'kindle', 'epub', 'digital book'},
-  ),
-  PhysicalMediaFormat(
-    id: 'audiobook',
-    label: 'Audiobook',
-    mediaFamily: 'print',
-    variantType: 'digital',
-    aliases: {'audio book'},
-  ),
-];
-
-const comicPhysicalMediaFormats = [
-  PhysicalMediaFormat(
-    id: 'single-issue',
-    label: 'Single Issue',
-    mediaFamily: 'print',
-    variantType: 'physical',
-    aliases: {'floppy', 'pamphlet'},
-  ),
-  PhysicalMediaFormat(
-    id: 'trade-paperback',
-    label: 'Trade Paperback',
-    mediaFamily: 'print',
-    variantType: 'physical',
-    aliases: {'tpb', 'trade'},
-  ),
-  PhysicalMediaFormat(
-    id: 'hardcover-comic',
-    label: 'Hardcover',
-    mediaFamily: 'print',
-    variantType: 'physical',
-    aliases: {'hc', 'deluxe'},
-  ),
-  PhysicalMediaFormat(
-    id: 'omnibus',
-    label: 'Omnibus',
-    mediaFamily: 'print',
-    variantType: 'physical',
-  ),
-  PhysicalMediaFormat(
-    id: 'graphic-novel',
-    label: 'Graphic Novel',
-    mediaFamily: 'print',
-    variantType: 'physical',
-    aliases: {'gn'},
-  ),
-  PhysicalMediaFormat(
-    id: 'digital-comic',
-    label: 'Digital',
-    mediaFamily: 'print',
-    variantType: 'digital',
-    aliases: {'comixology', 'digital comic'},
-  ),
-];
-
-const gamePhysicalMediaFormats = [
-  PhysicalMediaFormat(
-    id: 'physical-disc',
-    label: 'Physical Disc',
-    mediaFamily: 'game',
-    variantType: 'physical',
-    aliases: {'disc', 'blu-ray disc'},
-  ),
-  PhysicalMediaFormat(
-    id: 'cartridge',
-    label: 'Cartridge',
-    mediaFamily: 'game',
-    variantType: 'physical',
-    aliases: {'cart', 'game pak'},
-  ),
-  PhysicalMediaFormat(
-    id: 'digital-game',
-    label: 'Digital',
-    mediaFamily: 'game',
-    variantType: 'digital',
-    aliases: {'download', 'digital download'},
-  ),
-  PhysicalMediaFormat(
-    id: 'collectors-edition',
-    label: "Collector's Edition",
-    mediaFamily: 'game',
-    variantType: 'physical',
-    aliases: {'ce', 'special edition', 'limited edition'},
-  ),
-];
-
-const allKnownPhysicalMediaFormats = [
-  ...videoPhysicalMediaFormats,
-  ...musicPhysicalMediaFormats,
-  ...bookPhysicalMediaFormats,
-  ...comicPhysicalMediaFormats,
-  ...gamePhysicalMediaFormats,
-];
-
 List<PhysicalMediaFormat> physicalMediaFormatsFromCatalog(
   Iterable<CatalogMediaType> mediaTypes, {
   String? kind,
@@ -244,7 +52,7 @@ List<PhysicalMediaFormat> physicalMediaFormatsFromCatalog(
 
 PhysicalMediaFormat? physicalMediaFormatById(
   String id, {
-  Iterable<PhysicalMediaFormat> formats = videoPhysicalMediaFormats,
+  required Iterable<PhysicalMediaFormat> formats,
 }) {
   final normalized = id.trim().toLowerCase();
   for (final format in formats) {
@@ -260,7 +68,7 @@ PhysicalMediaFormat? physicalMediaFormatById(
 
 PhysicalMediaFormat? physicalMediaFormatByLabelOrId(
   String? value, {
-  Iterable<PhysicalMediaFormat> formats = videoPhysicalMediaFormats,
+  required Iterable<PhysicalMediaFormat> formats,
 }) {
   final normalized = value?.trim().toLowerCase();
   if (normalized == null || normalized.isEmpty) {
@@ -280,7 +88,7 @@ PhysicalMediaFormat? physicalMediaFormatByLabelOrId(
 bool isDigitalPhysicalMediaFormat(
   String? id, {
   String? label,
-  Iterable<PhysicalMediaFormat> formats = allKnownPhysicalMediaFormats,
+  required Iterable<PhysicalMediaFormat> formats,
 }) {
   return digitalPhysicalMediaFormatFlag(
         id,
@@ -293,7 +101,7 @@ bool isDigitalPhysicalMediaFormat(
 bool? digitalPhysicalMediaFormatFlag(
   String? id, {
   String? label,
-  Iterable<PhysicalMediaFormat> formats = allKnownPhysicalMediaFormats,
+  required Iterable<PhysicalMediaFormat> formats,
 }) {
   final format = physicalMediaFormatById(
         id ?? '',

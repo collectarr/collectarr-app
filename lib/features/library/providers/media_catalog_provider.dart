@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/config/library_catalog_kind_defa
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -174,43 +175,3 @@ const fallbackMediaCatalog = <CatalogMediaType>[
   ),
 ];
 
-const fallbackVideoCatalogPhysicalFormats = <CatalogPhysicalFormat>[
-  CatalogPhysicalFormat(
-    id: 'dvd',
-    label: 'DVD',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  CatalogPhysicalFormat(
-    id: 'blu-ray',
-    label: 'Blu-ray',
-    mediaFamily: 'video',
-    variantType: 'physical',
-    aliases: ['bluray', 'blu ray'],
-  ),
-  CatalogPhysicalFormat(
-    id: '4k-uhd',
-    label: '4K UHD',
-    mediaFamily: 'video',
-    variantType: 'physical',
-    aliases: ['4k', 'uhd', '4k blu-ray', '4k bluray', 'ultra hd'],
-  ),
-  CatalogPhysicalFormat(
-    id: 'vhs',
-    label: 'VHS',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  CatalogPhysicalFormat(
-    id: 'laserdisc',
-    label: 'LaserDisc',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  CatalogPhysicalFormat(
-    id: 'digital',
-    label: 'Digital',
-    mediaFamily: 'video',
-    variantType: 'digital',
-  ),
-];

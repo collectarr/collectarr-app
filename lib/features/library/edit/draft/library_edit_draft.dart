@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';

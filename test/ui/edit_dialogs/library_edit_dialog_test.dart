@@ -19,6 +19,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';

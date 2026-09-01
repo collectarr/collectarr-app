@@ -1,6 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
 class LibraryCatalogKindDefaults {

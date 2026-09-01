@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart'
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -591,10 +592,28 @@ void main() {
       videoPhysicalMediaFormats.map((format) => format.id),
       ['dvd', 'blu-ray', '4k-uhd', 'vhs', 'laserdisc', 'digital'],
     );
-    expect(physicalMediaFormatById(' blu-ray ')?.label, 'Blu-ray');
-    expect(physicalMediaFormatById('bluray')?.label, 'Blu-ray');
-    expect(physicalMediaFormatById('4k blu-ray')?.label, '4K UHD');
-    expect(physicalMediaFormatById('digital')?.variantType, 'digital');
+    expect(
+      physicalMediaFormatById(
+        ' blu-ray ',
+        formats: videoPhysicalMediaFormats,
+      )?.label,
+      'Blu-ray',
+    );
+    expect(
+      physicalMediaFormatById('bluray', formats: videoPhysicalMediaFormats)
+          ?.label,
+      'Blu-ray',
+    );
+    expect(
+      physicalMediaFormatById('4k blu-ray', formats: videoPhysicalMediaFormats)
+          ?.label,
+      '4K UHD',
+    );
+    expect(
+      physicalMediaFormatById('digital', formats: videoPhysicalMediaFormats)
+          ?.variantType,
+      'digital',
+    );
   });
 
   test('comics runtime exposes reusable workspace table behavior', () {
