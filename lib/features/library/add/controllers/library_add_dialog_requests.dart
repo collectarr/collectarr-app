@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
@@ -268,21 +269,18 @@ class LibraryAddSearchPaneRequest {
     required this.ownedCatalogItemIds,
     this.coreMatchSummary,
     this.providerMatchSummary,
+    required this.resultPolicy,
+    required this.resultPolicyState,
+    required this.onResultPolicyOptionChanged,
     required this.isWideLayout,
     required this.showCoreResults,
     required this.showProviderResults,
-    required this.showMediaResults,
-    required this.showSeasonResults,
-    required this.showReleaseResults,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
     required this.onToggleProviderCheck,
     required this.onShowCoreResultsChanged,
     required this.onShowProviderResultsChanged,
-    required this.onShowMediaResultsChanged,
-    required this.onShowSeasonResultsChanged,
-    required this.onShowReleaseResultsChanged,
     required this.onSearchCore,
   });
 
@@ -302,21 +300,18 @@ class LibraryAddSearchPaneRequest {
   final Set<String> ownedCatalogItemIds;
   final String? Function(LibraryMetadataItem item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
+  final LibraryAddResultPolicy resultPolicy;
+  final LibraryAddResultPolicyState resultPolicyState;
+  final void Function(String id, bool value) onResultPolicyOptionChanged;
   final bool isWideLayout;
   final bool showCoreResults;
   final bool showProviderResults;
-  final bool showMediaResults;
-  final bool showSeasonResults;
-  final bool showReleaseResults;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
   final ValueChanged<bool> onShowCoreResultsChanged;
   final ValueChanged<bool> onShowProviderResultsChanged;
-  final ValueChanged<bool> onShowMediaResultsChanged;
-  final ValueChanged<bool> onShowSeasonResultsChanged;
-  final ValueChanged<bool> onShowReleaseResultsChanged;
   final VoidCallback onSearchCore;
 }
 

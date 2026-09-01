@@ -31,7 +31,10 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 import 'package:collectarr_app/features/library/kinds/tv/stats/tv_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 const _tvShowFilterId = LibraryAddFilterId('tv.show');
 const _tvNetworkFilterId = LibraryAddFilterId('tv.network');
@@ -139,6 +142,14 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
           ),
         ],
       ),
+    ),
+    resultPolicy: buildLibraryAddVideoResultPolicy(
+      mediaLabel: 'Series',
+      supportsSeasonScope: true,
+      coreScopeForItem: _tvAddResultScope,
+      providerScopeForCandidate: _tvAddProviderResultScope,
+      coreGroupTitleBuilder: _tvAddGroupTitle,
+      providerCandidateIsGroup: libraryAddVideoProviderCandidateIsGroup,
     ),
     manualPaneBuilder: buildTvAddManualPane,
   ),
@@ -251,4 +262,52 @@ String _buildTvProviderQuery(LibraryAddSearchContext context) {
 String? _optionalTvText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
+}
+
+LibraryAddVideoResultScope _tvAddResultScope(LibraryMetadataItem item) {
+  final metadata = item.kindMetadata;
+  if (metadata is TvSeriesMetadata) {
+    if (metadata.seasonNumber != null ||
+        metadata.series?.seasonNumber != null) {
+      return LibraryAddVideoResultScope.season;
+    }
+    if ([
+      metadata.itemNumber,
+      metadata.physicalFormat,
+      metadata.physicalFormatLabel,
+      metadata.barcode,
+      metadata.variant,
+    ].any((value) => value?.trim().isNotEmpty == true)) {
+      return LibraryAddVideoResultScope.release;
+    }
+  }
+  return LibraryAddVideoResultScope.media;
+}
+
+LibraryAddVideoResultScope _tvAddProviderResultScope(
+  ProviderCandidate candidate,
+) {
+  final candidateType = candidate.candidateType?.trim().toLowerCase();
+  if (candidateType == 'season') {
+    return LibraryAddVideoResultScope.season;
+  }
+  if (candidateType == 'release' ||
+      candidateType == 'edition' ||
+      candidateType == 'episode' ||
+      candidateType == 'issue' ||
+      candidate.issueNumber?.trim().isNotEmpty == true ||
+      candidate.isVariant) {
+    return LibraryAddVideoResultScope.release;
+  }
+  return LibraryAddVideoResultScope.media;
+}
+
+String _tvAddGroupTitle(LibraryMetadataItem item) {
+  final metadata = item.kindMetadata;
+  if (metadata is TvSeriesMetadata) {
+    return metadata.seriesTitle?.trim() ??
+        metadata.series?.seriesTitle?.trim() ??
+        item.title;
+  }
+  return item.title;
 }

@@ -13,7 +13,10 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:flutter/widgets.dart';
+
+export 'library_add_result_policy.dart';
 
 typedef LibraryAddAdvancedFilterFieldsBuilder
     = List<LibraryAddAdvancedFilterField<String>> Function(
@@ -137,6 +140,7 @@ abstract interface class LibraryAddCapability<
   LibraryAddSearchPaneBuilder? get searchPaneBuilder;
   LibraryAddBottomBarBuilder? get bottomBarBuilder;
   LibraryAddSearchCapability get search;
+  LibraryAddResultPolicy get resultPolicy;
 
   Widget? buildPreviewPane(
     BuildContext context,
@@ -169,6 +173,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.searchPaneBuilder,
     this.bottomBarBuilder,
     required this.search,
+    this.resultPolicy = const LibraryAddResultPolicy.identity(),
   });
 
   @override
@@ -190,6 +195,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddBottomBarBuilder? bottomBarBuilder;
   @override
   final LibraryAddSearchCapability search;
+  @override
+  final LibraryAddResultPolicy resultPolicy;
 
   @override
   TDraft createInitialDraft() => initialDraftBuilder();

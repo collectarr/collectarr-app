@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
+
 import 'library_add_pane_dependencies.dart';
 import 'library_add_search_unified.dart';
 
@@ -6,7 +8,6 @@ class LibraryAddSearchPane extends StatelessWidget {
     super.key,
     required this.type,
     required this.isBusy,
-    required this.isMovieDesktopChrome,
     required this.error,
     required this.accent,
     required this.results,
@@ -22,32 +23,22 @@ class LibraryAddSearchPane extends StatelessWidget {
     this.coreMatchSummary,
     this.providerMatchSummary,
     required this.isWideLayout,
+    required this.resultPolicy,
+    required this.resultPolicyState,
+    required this.onResultPolicyOptionChanged,
     required this.showCoreResults,
     required this.showProviderResults,
-    required this.showMediaResults,
-    required this.showSeasonResults,
-    required this.showReleaseResults,
-    required this.hideComicOwnedResults,
-    required this.hideComicVariantResults,
-    required this.compactComicIssues,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
     required this.onToggleProviderCheck,
     required this.onShowCoreResultsChanged,
     required this.onShowProviderResultsChanged,
-    required this.onShowMediaResultsChanged,
-    required this.onShowSeasonResultsChanged,
-    required this.onShowReleaseResultsChanged,
-    required this.onHideComicOwnedResultsChanged,
-    required this.onHideComicVariantResultsChanged,
-    required this.onCompactComicIssuesChanged,
     required this.onSearchCore,
   });
 
   final LibraryTypeConfig type;
   final bool isBusy;
-  final bool isMovieDesktopChrome;
   final String? error;
   final Color accent;
   final List<LibraryMetadataItem> results;
@@ -63,26 +54,17 @@ class LibraryAddSearchPane extends StatelessWidget {
   final String? Function(LibraryMetadataItem item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final bool isWideLayout;
+  final LibraryAddResultPolicy resultPolicy;
+  final LibraryAddResultPolicyState resultPolicyState;
+  final void Function(String id, bool value) onResultPolicyOptionChanged;
   final bool showCoreResults;
   final bool showProviderResults;
-  final bool showMediaResults;
-  final bool showSeasonResults;
-  final bool showReleaseResults;
-  final bool hideComicOwnedResults;
-  final bool hideComicVariantResults;
-  final bool compactComicIssues;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
   final ValueChanged<bool> onShowCoreResultsChanged;
   final ValueChanged<bool> onShowProviderResultsChanged;
-  final ValueChanged<bool> onShowMediaResultsChanged;
-  final ValueChanged<bool> onShowSeasonResultsChanged;
-  final ValueChanged<bool> onShowReleaseResultsChanged;
-  final ValueChanged<bool> onHideComicOwnedResultsChanged;
-  final ValueChanged<bool> onHideComicVariantResultsChanged;
-  final ValueChanged<bool> onCompactComicIssuesChanged;
   final VoidCallback onSearchCore;
 
   @override
@@ -96,29 +78,28 @@ class LibraryAddSearchPane extends StatelessWidget {
       child: Column(
         children: [
           LibraryAddSearchSourceToggles(
-            type: type,
             showCoreResults: showCoreResults,
             showProviderResults: showProviderResults,
-            showMediaResults: showMediaResults,
-            showSeasonResults: showSeasonResults,
-            showReleaseResults: showReleaseResults,
             onShowCoreResultsChanged: onShowCoreResultsChanged,
             onShowProviderResultsChanged: onShowProviderResultsChanged,
-            onShowMediaResultsChanged: onShowMediaResultsChanged,
-            onShowSeasonResultsChanged: onShowSeasonResultsChanged,
-            onShowReleaseResultsChanged: onShowReleaseResultsChanged,
+            resultOptions: resultPolicy.options
+                .where((option) => option.showInSourceToggles)
+                .toList(growable: false),
+            resultPolicyState: resultPolicyState,
+            onResultPolicyOptionChanged: onResultPolicyOptionChanged,
           ),
           Expanded(
             child: _SearchResultsList(
               type: type,
               accent: accent,
-              isMovieDesktopChrome: isMovieDesktopChrome,
+              useGridResults: resultPolicy.useGridResults,
               selectedProvider: selectedProvider,
               isBusy: isBusy,
               error: error,
               searchedProvider: searchedProvider,
               results: results,
               providerResults: providerResults,
+              resultPolicy: resultPolicy,
               queuedProviderIngests: queuedProviderIngests,
               selectedResultId: selectedResultId,
               selectedProviderCandidateId: selectedProviderCandidateId,
@@ -127,9 +108,6 @@ class LibraryAddSearchPane extends StatelessWidget {
               ownedCatalogItemIds: ownedCatalogItemIds,
               coreMatchSummary: coreMatchSummary,
               providerMatchSummary: providerMatchSummary,
-              hideComicOwnedResults: hideComicOwnedResults,
-              hideComicVariantResults: hideComicVariantResults,
-              compactComicIssues: compactComicIssues,
               onSearchCore: onSearchCore,
               onSelectResult: onSelectResult,
               onSelectProviderCandidate: onSelectProviderCandidate,
@@ -146,30 +124,22 @@ class LibraryAddSearchPane extends StatelessWidget {
 class LibraryAddSearchSourceToggles extends StatelessWidget {
   const LibraryAddSearchSourceToggles({
     super.key,
-    required this.type,
     required this.showCoreResults,
     required this.showProviderResults,
-    required this.showMediaResults,
-    required this.showSeasonResults,
-    required this.showReleaseResults,
     required this.onShowCoreResultsChanged,
     required this.onShowProviderResultsChanged,
-    required this.onShowMediaResultsChanged,
-    required this.onShowSeasonResultsChanged,
-    required this.onShowReleaseResultsChanged,
+    required this.resultOptions,
+    required this.resultPolicyState,
+    required this.onResultPolicyOptionChanged,
   });
 
-  final LibraryTypeConfig type;
   final bool showCoreResults;
   final bool showProviderResults;
-  final bool showMediaResults;
-  final bool showSeasonResults;
-  final bool showReleaseResults;
   final ValueChanged<bool> onShowCoreResultsChanged;
   final ValueChanged<bool> onShowProviderResultsChanged;
-  final ValueChanged<bool> onShowMediaResultsChanged;
-  final ValueChanged<bool> onShowSeasonResultsChanged;
-  final ValueChanged<bool> onShowReleaseResultsChanged;
+  final List<LibraryAddResultOption> resultOptions;
+  final LibraryAddResultPolicyState resultPolicyState;
+  final void Function(String id, bool value) onResultPolicyOptionChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -197,22 +167,16 @@ class LibraryAddSearchSourceToggles extends StatelessWidget {
               value: showProviderResults,
               onChanged: onShowProviderResultsChanged,
             ),
-            _SearchSourceToggle(
-              label: type.capabilities.usesSeasonHierarchy ? 'Series' : 'Media',
-              value: showMediaResults,
-              onChanged: onShowMediaResultsChanged,
-            ),
-            if (type.capabilities.usesSeasonHierarchy)
+            for (final option in resultOptions)
               _SearchSourceToggle(
-                label: 'Seasons',
-                value: showSeasonResults,
-                onChanged: onShowSeasonResultsChanged,
+                label: option.label,
+                value: resultPolicyState.valueFor(
+                  option.id,
+                  fallback: option.initialValue,
+                ),
+                onChanged: (value) =>
+                    onResultPolicyOptionChanged(option.id, value),
               ),
-            _SearchSourceToggle(
-              label: 'Releases',
-              value: showReleaseResults,
-              onChanged: onShowReleaseResultsChanged,
-            ),
           ],
         ),
       ),
@@ -367,13 +331,14 @@ class _SearchResultsList extends StatelessWidget {
   const _SearchResultsList({
     required this.type,
     required this.accent,
-    required this.isMovieDesktopChrome,
+    required this.useGridResults,
     required this.selectedProvider,
     required this.isBusy,
     required this.error,
     required this.searchedProvider,
     required this.results,
     required this.providerResults,
+    required this.resultPolicy,
     required this.queuedProviderIngests,
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
@@ -382,9 +347,6 @@ class _SearchResultsList extends StatelessWidget {
     required this.ownedCatalogItemIds,
     this.coreMatchSummary,
     this.providerMatchSummary,
-    required this.hideComicOwnedResults,
-    required this.hideComicVariantResults,
-    required this.compactComicIssues,
     required this.onSearchCore,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
@@ -394,13 +356,14 @@ class _SearchResultsList extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final bool isMovieDesktopChrome;
+  final bool useGridResults;
   final String selectedProvider;
   final bool isBusy;
   final String? error;
   final bool searchedProvider;
   final List<LibraryMetadataItem> results;
   final List<ProviderCandidate> providerResults;
+  final LibraryAddResultPolicy resultPolicy;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
@@ -409,9 +372,6 @@ class _SearchResultsList extends StatelessWidget {
   final Set<String> ownedCatalogItemIds;
   final String? Function(LibraryMetadataItem item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
-  final bool hideComicOwnedResults;
-  final bool hideComicVariantResults;
-  final bool compactComicIssues;
   final VoidCallback onSearchCore;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
@@ -448,8 +408,8 @@ class _SearchResultsList extends StatelessWidget {
         ],
       );
     }
-    if (isMovieDesktopChrome) {
-      return _MovieSearchResultsGrid(
+    if (useGridResults) {
+      return _SearchResultsGrid(
         type: type,
         accent: accent,
         results: results,
@@ -473,6 +433,7 @@ class _SearchResultsList extends StatelessWidget {
     final groups = buildUnifiedGroups(
       coreResults: results,
       providerResults: providerResults,
+      resultPolicy: resultPolicy,
     );
     return ListView(
       padding: EdgeInsets.zero,
@@ -533,8 +494,8 @@ class _SearchResultsList extends StatelessWidget {
   }
 }
 
-class _MovieSearchResultsGrid extends StatelessWidget {
-  const _MovieSearchResultsGrid({
+class _SearchResultsGrid extends StatelessWidget {
+  const _SearchResultsGrid({
     required this.type,
     required this.accent,
     required this.results,
@@ -570,10 +531,10 @@ class _MovieSearchResultsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entries = <_MovieSearchGridEntry>[
-      for (final item in results) _MovieSearchGridEntry.core(item),
+    final entries = <_SearchGridEntry>[
+      for (final item in results) _SearchGridEntry.core(item),
       for (final candidate in providerResults)
-        _MovieSearchGridEntry.provider(candidate),
+        _SearchGridEntry.provider(candidate),
     ];
     final palette = appPalette(context);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
@@ -801,9 +762,9 @@ class _MovieSearchResultsGrid extends StatelessWidget {
   }
 }
 
-class _MovieSearchGridEntry {
-  const _MovieSearchGridEntry.core(this.item) : candidate = null;
-  const _MovieSearchGridEntry.provider(this.candidate) : item = null;
+class _SearchGridEntry {
+  const _SearchGridEntry.core(this.item) : candidate = null;
+  const _SearchGridEntry.provider(this.candidate) : item = null;
 
   final LibraryMetadataItem? item;
   final ProviderCandidate? candidate;
@@ -987,7 +948,6 @@ class SearchResultTile extends StatelessWidget {
     final publisher = (payload['publisher'] ??
         (payload['publishing'] as Map?)?['original_publisher']) as String?;
     final physicalFormatLabel = payload['physical_format_label'] as String?;
-    final variant = payload['variant'] as String?;
     final barcode = payload['barcode'] as String?;
     final itemNumber = (payload['item_number'] ??
         (payload['publishing'] as Map?)?['issue_number']) as String?;
@@ -996,7 +956,6 @@ class SearchResultTile extends StatelessWidget {
           if (publisher != null) publisher,
           if (item.releaseYear != null) item.releaseYear.toString(),
           if (physicalFormatLabel != null) physicalFormatLabel,
-          if (variant != null) variant,
           if (barcode != null) barcode,
         ].whereType<String>().join(' | ');
     final detailLine = resultDisplay?.detailLine;

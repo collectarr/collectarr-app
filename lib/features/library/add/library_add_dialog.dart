@@ -373,8 +373,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           search: _controller.state.search.copyWith(error: message),
         );
       },
-      visibleProviderResults: () =>
-          _controller.state.visibleProviderResults(widget.type),
+      visibleProviderResults: () => _controller.state.visibleProviderResults(
+        libraryKindRuntimeForType(widget.type).add.resultPolicy,
+      ),
       currentPhysicalFormats: () => const [],
       showEditDialog: (ctx, req) =>
           showLibraryEditDialog(context: ctx, request: req),
@@ -466,11 +467,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final state = _controller.state;
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
     final isMovieDesktopChrome = widget.type.capabilities.wideDialog;
+    final resultPolicy =
+        libraryKindRuntimeForType(widget.type).add.resultPolicy;
     final visibleCore = state.visibleCoreResults(
-      widget.type,
+      resultPolicy,
       isOwnedCatalogItem: (id) => ownedByCatalogId.containsKey(id),
     );
-    final visibleProvider = state.visibleProviderResults(widget.type);
+    final visibleProvider = state.visibleProviderResults(resultPolicy);
     final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
 
@@ -676,12 +679,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     addCapability.search.coreMatchSummary(item, searchContext),
                 providerMatchSummary: (candidate) => addCapability.search
                     .providerMatchSummary(candidate, searchContext),
+                resultPolicy: resultPolicy,
+                resultPolicyState: state.selection.resultPolicyState,
+                onResultPolicyOptionChanged: _controller.setResultPolicyOption,
                 isWideLayout: constraints.maxWidth >= 720,
                 showCoreResults: state.selection.showCoreResults,
                 showProviderResults: state.selection.showProviderResults,
-                showMediaResults: state.selection.showMediaResults,
-                showSeasonResults: state.selection.showSeasonResults,
-                showReleaseResults: state.selection.showReleaseResults,
                 onSelectResult: _controller.selectResult,
                 onSelectProviderCandidate: _controller.selectProviderCandidate,
                 onToggleResultCheck: _controller.toggleCheckedResult,
@@ -689,9 +692,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 onShowCoreResultsChanged: _controller.setShowCoreResults,
                 onShowProviderResultsChanged:
                     _controller.setShowProviderResults,
-                onShowMediaResultsChanged: _controller.setShowMediaResults,
-                onShowSeasonResultsChanged: _controller.setShowSeasonResults,
-                onShowReleaseResultsChanged: _controller.setShowReleaseResults,
                 onSearchCore: _controller.executeSearch,
               );
 
@@ -702,7 +702,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   LibraryAddSearchPane(
                     type: searchPaneRequest.type,
                     isBusy: searchPaneRequest.isBusy,
-                    isMovieDesktopChrome: isMovieDesktopChrome,
                     error: searchPaneRequest.error,
                     accent: searchPaneRequest.accent,
                     results: searchPaneRequest.results,
@@ -721,16 +720,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     providerMatchSummary:
                         searchPaneRequest.providerMatchSummary,
                     isWideLayout: searchPaneRequest.isWideLayout,
+                    resultPolicy: searchPaneRequest.resultPolicy,
+                    resultPolicyState: searchPaneRequest.resultPolicyState,
+                    onResultPolicyOptionChanged:
+                        searchPaneRequest.onResultPolicyOptionChanged,
                     showCoreResults: searchPaneRequest.showCoreResults,
                     showProviderResults: searchPaneRequest.showProviderResults,
-                    showMediaResults: searchPaneRequest.showMediaResults,
-                    showSeasonResults: searchPaneRequest.showSeasonResults,
-                    showReleaseResults: searchPaneRequest.showReleaseResults,
-                    hideComicOwnedResults:
-                        state.selection.hideComicOwnedResults,
-                    hideComicVariantResults:
-                        state.selection.hideComicVariantResults,
-                    compactComicIssues: state.selection.compactComicIssues,
                     onSelectResult: searchPaneRequest.onSelectResult,
                     onSelectProviderCandidate:
                         searchPaneRequest.onSelectProviderCandidate,
@@ -741,18 +736,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         searchPaneRequest.onShowCoreResultsChanged,
                     onShowProviderResultsChanged:
                         searchPaneRequest.onShowProviderResultsChanged,
-                    onShowMediaResultsChanged:
-                        searchPaneRequest.onShowMediaResultsChanged,
-                    onShowSeasonResultsChanged:
-                        searchPaneRequest.onShowSeasonResultsChanged,
-                    onShowReleaseResultsChanged:
-                        searchPaneRequest.onShowReleaseResultsChanged,
-                    onHideComicOwnedResultsChanged:
-                        _controller.setHideComicOwnedResults,
-                    onHideComicVariantResultsChanged:
-                        _controller.setHideComicVariantResults,
-                    onCompactComicIssuesChanged:
-                        _controller.setCompactComicIssues,
                     onSearchCore: searchPaneRequest.onSearchCore,
                   );
 

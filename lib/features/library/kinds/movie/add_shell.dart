@@ -99,17 +99,15 @@ Widget buildMovieAddSearchPane(
       children: [
         if (request.error != null) AppErrorBanner(request.error!),
         LibraryAddSearchSourceToggles(
-          type: request.type,
           showCoreResults: request.showCoreResults,
           showProviderResults: request.showProviderResults,
-          showMediaResults: request.showMediaResults,
-          showSeasonResults: request.showSeasonResults,
-          showReleaseResults: request.showReleaseResults,
           onShowCoreResultsChanged: request.onShowCoreResultsChanged,
           onShowProviderResultsChanged: request.onShowProviderResultsChanged,
-          onShowMediaResultsChanged: request.onShowMediaResultsChanged,
-          onShowSeasonResultsChanged: request.onShowSeasonResultsChanged,
-          onShowReleaseResultsChanged: request.onShowReleaseResultsChanged,
+          resultOptions: request.resultPolicy.options
+              .where((option) => option.showInSourceToggles)
+              .toList(growable: false),
+          resultPolicyState: request.resultPolicyState,
+          onResultPolicyOptionChanged: request.onResultPolicyOptionChanged,
         ),
         Expanded(
           child: request.isBusy && entries.isEmpty

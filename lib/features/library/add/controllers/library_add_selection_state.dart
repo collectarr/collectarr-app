@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -14,12 +15,7 @@ class LibraryAddSelectionState {
     this.referenceType = LibraryAddReferenceType.media,
     this.showCoreResults = true,
     this.showProviderResults = true,
-    this.showMediaResults = true,
-    this.showSeasonResults = true,
-    this.showReleaseResults = true,
-    this.hideComicOwnedResults = false,
-    this.hideComicVariantResults = false,
-    this.compactComicIssues = true,
+    this.resultPolicyState = const LibraryAddResultPolicyState(),
   });
 
   final String? selectedResultId;
@@ -32,12 +28,7 @@ class LibraryAddSelectionState {
   final LibraryAddReferenceType referenceType;
   final bool showCoreResults;
   final bool showProviderResults;
-  final bool showMediaResults;
-  final bool showSeasonResults;
-  final bool showReleaseResults;
-  final bool hideComicOwnedResults;
-  final bool hideComicVariantResults;
-  final bool compactComicIssues;
+  final LibraryAddResultPolicyState resultPolicyState;
 
   String? get selectedId => selectedResultId;
 
@@ -58,12 +49,7 @@ class LibraryAddSelectionState {
     LibraryAddReferenceType? referenceType,
     bool? showCoreResults,
     bool? showProviderResults,
-    bool? showMediaResults,
-    bool? showSeasonResults,
-    bool? showReleaseResults,
-    bool? hideComicOwnedResults,
-    bool? hideComicVariantResults,
-    bool? compactComicIssues,
+    LibraryAddResultPolicyState? resultPolicyState,
   }) {
     return LibraryAddSelectionState(
       selectedResultId: clearSelectedResultId
@@ -86,14 +72,7 @@ class LibraryAddSelectionState {
       referenceType: referenceType ?? this.referenceType,
       showCoreResults: showCoreResults ?? this.showCoreResults,
       showProviderResults: showProviderResults ?? this.showProviderResults,
-      showMediaResults: showMediaResults ?? this.showMediaResults,
-      showSeasonResults: showSeasonResults ?? this.showSeasonResults,
-      showReleaseResults: showReleaseResults ?? this.showReleaseResults,
-      hideComicOwnedResults:
-          hideComicOwnedResults ?? this.hideComicOwnedResults,
-      hideComicVariantResults:
-          hideComicVariantResults ?? this.hideComicVariantResults,
-      compactComicIssues: compactComicIssues ?? this.compactComicIssues,
+      resultPolicyState: resultPolicyState ?? this.resultPolicyState,
     );
   }
 }

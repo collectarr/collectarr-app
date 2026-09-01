@@ -77,7 +77,12 @@ class LibraryAddSessionController
                       .search
                       .initialAdvancedFilters,
                 ),
-                selection: const LibraryAddSelectionState(),
+                selection: LibraryAddSelectionState(
+                  resultPolicyState: libraryKindRuntimeForKind(kind)
+                      .add
+                      .resultPolicy
+                      .initialState,
+                ),
                 preview: const LibraryAddPreviewState.initial(),
                 commonDraft: const LibraryAddCommonDraft(),
                 manualDraft:
@@ -641,39 +646,20 @@ class LibraryAddSessionController
     );
   }
 
-  void setShowMediaResults(bool value) {
+  void setResultPolicyOption(String id, bool value) {
     state = state.copyWith(
-      selection: state.selection.copyWith(showMediaResults: value),
+      selection: state.selection.copyWith(
+        resultPolicyState: state.selection.resultPolicyState.withValue(
+          id,
+          value,
+        ),
+      ),
     );
   }
 
-  void setShowSeasonResults(bool value) {
+  void setResultPolicyState(LibraryAddResultPolicyState value) {
     state = state.copyWith(
-      selection: state.selection.copyWith(showSeasonResults: value),
-    );
-  }
-
-  void setShowReleaseResults(bool value) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(showReleaseResults: value),
-    );
-  }
-
-  void setHideComicOwnedResults(bool value) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(hideComicOwnedResults: value),
-    );
-  }
-
-  void setHideComicVariantResults(bool value) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(hideComicVariantResults: value),
-    );
-  }
-
-  void setCompactComicIssues(bool value) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(compactComicIssues: value),
+      selection: state.selection.copyWith(resultPolicyState: value),
     );
   }
 
@@ -1331,7 +1317,9 @@ class LibraryAddSessionController
                             {required LibraryMetadataItem edited,
                             required LibraryMetadataItem preview}) =>
                         const <String, Object?>{}),
-            visibleProviderResults: () => state.visibleProviderResults(type),
+            visibleProviderResults: () => state.visibleProviderResults(
+              libraryKindRuntimeForType(type).add.resultPolicy,
+            ),
             showEditDialog: (ctx, req) =>
                 showLibraryEditDialog(context: ctx, request: req),
             clearRejectedMetadataSession: _handleAuthExpiration,
@@ -1488,7 +1476,10 @@ class LibraryAddSessionController
         selectedProvider: type.defaultSupportedMetadataProvider,
         advancedFilters: _searchCapability.initialAdvancedFilters,
       ),
-      selection: const LibraryAddSelectionState(),
+      selection: LibraryAddSelectionState(
+        resultPolicyState:
+            libraryKindRuntimeForKind(kind).add.resultPolicy.initialState,
+      ),
       preview: const LibraryAddPreviewState.initial(),
       commonDraft: const LibraryAddCommonDraft(),
       manualDraft: libraryKindRuntimeForKind(kind).add.createInitialDraft(),

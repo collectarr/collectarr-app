@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/add/add_bottom_bar.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_add_search_options_scope.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -68,29 +69,37 @@ class _ComicAddSearchPane extends StatefulWidget {
 }
 
 class _ComicAddSearchPaneState extends State<_ComicAddSearchPane> {
-  bool _hideOwnedResults = false;
-  bool _hideVariantResults = false;
-  bool _compactIssues = false;
-
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final policyState = widget.request.resultPolicyState;
+    final hideOwnedResults = policyState.valueFor(
+      comicAddHideOwnedOptionId,
+      fallback: false,
+    );
+    final hideVariantResults = policyState.valueFor(
+      comicAddHideVariantsOptionId,
+      fallback: false,
+    );
+    final compactIssues = policyState.valueFor(
+      comicAddCompactIssuesOptionId,
+      fallback: false,
+    );
     final entries = [
-      for (final item in widget.request.results)
-        if (!_hideOwnedResults ||
-            !widget.request.ownedCatalogItemIds.contains(item.id))
-          _ComicSearchEntry.core(item),
+      for (final item in widget.request.results) _ComicSearchEntry.core(item),
       for (final candidate in widget.request.providerResults)
         _ComicSearchEntry.provider(candidate),
     ];
     return ComicAddSearchOptionsScope(
-      hideOwnedResults: _hideOwnedResults,
-      hideVariantResults: _hideVariantResults,
-      compactIssues: _compactIssues,
-      onHideOwnedResultsChanged: (v) => setState(() => _hideOwnedResults = v),
-      onHideVariantResultsChanged: (v) =>
-          setState(() => _hideVariantResults = v),
-      onCompactIssuesChanged: (v) => setState(() => _compactIssues = v),
+      hideOwnedResults: hideOwnedResults,
+      hideVariantResults: hideVariantResults,
+      compactIssues: compactIssues,
+      onHideOwnedResultsChanged: (value) => widget.request
+          .onResultPolicyOptionChanged(comicAddHideOwnedOptionId, value),
+      onHideVariantResultsChanged: (value) => widget.request
+          .onResultPolicyOptionChanged(comicAddHideVariantsOptionId, value),
+      onCompactIssuesChanged: (value) => widget.request
+          .onResultPolicyOptionChanged(comicAddCompactIssuesOptionId, value),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: palette.panelRaised,

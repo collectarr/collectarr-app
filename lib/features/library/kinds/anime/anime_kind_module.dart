@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
@@ -25,7 +24,10 @@ import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_work
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 const _animeSeriesFilterId = LibraryAddFilterId('anime.series');
 const _animeStudioFilterId = LibraryAddFilterId('anime.studio');
@@ -122,6 +124,14 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
         ],
       ),
     ),
+    resultPolicy: buildLibraryAddVideoResultPolicy(
+      mediaLabel: 'Series',
+      supportsSeasonScope: true,
+      coreScopeForItem: _animeAddResultScope,
+      providerScopeForCandidate: _animeAddProviderResultScope,
+      coreGroupTitleBuilder: _animeAddGroupTitle,
+      providerCandidateIsGroup: libraryAddVideoProviderCandidateIsGroup,
+    ),
     manualPaneBuilder: buildAnimeAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -204,4 +214,52 @@ String _buildAnimeProviderQuery(LibraryAddSearchContext context) {
 String? _optionalAnimeText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
+}
+
+LibraryAddVideoResultScope _animeAddResultScope(LibraryMetadataItem item) {
+  final metadata = item.kindMetadata;
+  if (metadata is AnimeMetadata) {
+    if (metadata.series?.seasonNumber != null) {
+      return LibraryAddVideoResultScope.season;
+    }
+    if ([
+      metadata.itemNumber,
+      metadata.editionTitle,
+      metadata.physicalFormat,
+      metadata.physicalFormatLabel,
+      metadata.barcode,
+      metadata.variant,
+    ].any((value) => value?.trim().isNotEmpty == true)) {
+      return LibraryAddVideoResultScope.release;
+    }
+  }
+  return LibraryAddVideoResultScope.media;
+}
+
+LibraryAddVideoResultScope _animeAddProviderResultScope(
+  ProviderCandidate candidate,
+) {
+  final candidateType = candidate.candidateType?.trim().toLowerCase();
+  if (candidateType == 'season') {
+    return LibraryAddVideoResultScope.season;
+  }
+  if (candidateType == 'release' ||
+      candidateType == 'edition' ||
+      candidateType == 'episode' ||
+      candidateType == 'issue' ||
+      candidate.issueNumber?.trim().isNotEmpty == true ||
+      candidate.isVariant) {
+    return LibraryAddVideoResultScope.release;
+  }
+  return LibraryAddVideoResultScope.media;
+}
+
+String _animeAddGroupTitle(LibraryMetadataItem item) {
+  final metadata = item.kindMetadata;
+  if (metadata is AnimeMetadata) {
+    return metadata.seriesTitle?.trim() ??
+        metadata.series?.seriesTitle?.trim() ??
+        item.title;
+  }
+  return item.title;
 }

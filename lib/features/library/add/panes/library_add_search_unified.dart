@@ -1,8 +1,9 @@
 import 'library_add_pane_dependencies.dart';
 import 'library_add_search_pane.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
 // ---------------------------------------------------------------------------
-// Unified series-first search results.
+// Unified grouped search results.
 //
 // Merges Core results (LibraryMetadataItem) and Provider candidates
 // (ProviderCandidate) into series groups, displayed collapsed by default
@@ -19,7 +20,7 @@ class LibraryAddUnifiedSearchGroup {
     this.year,
     this.coverUrl,
     this.coreItems = const [],
-    this.seriesCandidate,
+    this.groupCandidate,
     this.providerItems = const [],
     this.sources = const {},
   });
@@ -30,7 +31,7 @@ class LibraryAddUnifiedSearchGroup {
   final int? year;
   final String? coverUrl;
   final List<LibraryMetadataItem> coreItems;
-  final ProviderCandidate? seriesCandidate;
+  final ProviderCandidate? groupCandidate;
   final List<ProviderCandidate> providerItems;
   final Set<String> sources;
 
@@ -38,56 +39,20 @@ class LibraryAddUnifiedSearchGroup {
   bool get isSingleton =>
       coreItems.length +
           providerItems.length +
-          (seriesCandidate != null ? 1 : 0) ==
+          (groupCandidate != null ? 1 : 0) ==
       1;
 }
 
 // -- Grouping logic ----------------------------------------------------------
 
-/// Extracts the series title from a Core [LibraryMetadataItem].
-String _coreGroupTitle(LibraryMetadataItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
-  final seriesTitle = ((payload['series_title'] ??
-          (payload['series'] as Map?)?['series_title']) as String?)
-      ?.trim();
-  if (seriesTitle != null && seriesTitle.isNotEmpty) {
-    return seriesTitle;
-  }
-  return item.title;
-}
-
-/// Extracts the series title from a [ProviderCandidate] for any media type.
-String _providerGroupTitle(ProviderCandidate candidate) {
-  final seriesTitle = candidate.series?.seriesTitle?.trim();
-  if (seriesTitle != null && seriesTitle.isNotEmpty) {
-    return seriesTitle;
-  }
-  return candidate.title.trim().isEmpty ? 'Untitled' : candidate.title.trim();
-}
-
-/// Returns true when the candidate represents a series rather than an
-/// individual item (issue, episode, etc.).
-bool isSeriesCandidate(ProviderCandidate candidate) {
-  if (candidate.candidateType == 'series') {
-    return true;
-  }
-  if (candidate.candidateType == 'issue' || candidate.isVariant) {
-    return false;
-  }
-  final issueNumber = candidate.issueNumber?.trim();
-  if (issueNumber != null && issueNumber.isNotEmpty) {
-    return false;
-  }
-  return true;
-}
-
-/// Builds a unified list of [_UnifiedSearchGroup] from Core and Provider
+/// Builds a unified list of [LibraryAddUnifiedSearchGroup] from Core and Provider
 /// results.  Provider groups are created first (preserving search order),
 /// then Core items are merged into matching groups or added as new groups
 /// at the top.
 List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   required List<LibraryMetadataItem> coreResults,
   required List<ProviderCandidate> providerResults,
+  required LibraryAddResultPolicy resultPolicy,
 }) {
   final orderedKeys = <String>[];
   final titles = <String, String>{};
@@ -95,7 +60,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   final years = <String, int?>{};
   final coverUrls = <String, String?>{};
   final coreItems = <String, List<LibraryMetadataItem>>{};
-  final seriesCandidates = <String, ProviderCandidate>{};
+  final groupCandidates = <String, ProviderCandidate>{};
   final providerItemsMap = <String, List<ProviderCandidate>>{};
   final sourceSets = <String, Set<String>>{};
 
@@ -116,7 +81,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
 
   // 1. Process Provider results first.
   for (final candidate in providerResults) {
-    final groupTitle = _providerGroupTitle(candidate);
+    final groupTitle = resultPolicy.providerGroupTitle(candidate);
     final key = '${candidate.provider}::${groupTitle.toLowerCase()}';
     ensureKey(key, groupTitle);
 
@@ -125,8 +90,8 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     years[key] ??= candidate.series?.volumeStartYear;
     coverUrls[key] ??= candidate.imageUrl;
 
-    if (isSeriesCandidate(candidate)) {
-      seriesCandidates.putIfAbsent(key, () => candidate);
+    if (resultPolicy.isProviderGroupCandidate(candidate)) {
+      groupCandidates.putIfAbsent(key, () => candidate);
     } else {
       providerItemsMap[key]!.add(candidate);
     }
@@ -136,7 +101,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   //    titles match, otherwise create a Core-only group at the front.
   final coreOnlyKeys = <String>[];
   for (final item in coreResults) {
-    final groupTitle = _coreGroupTitle(item);
+    final groupTitle = resultPolicy.coreGroupTitle(item);
     final lowerTitle = groupTitle.toLowerCase();
     final existingKey = titleIndex[lowerTitle];
 
@@ -169,9 +134,9 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     ...orderedKeys.where((k) => !coreOnlySet.contains(k)),
   ];
 
-  // Sort provider items within each group (numeric by issue number).
+  // Sort provider items within each group using the kind policy.
   for (final key in finalKeys) {
-    providerItemsMap[key]?.sort(_compareProviderCandidates);
+    providerItemsMap[key]?.sort(resultPolicy.compareProviderCandidates);
   }
 
   return [
@@ -184,41 +149,11 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
           year: years[key],
           coverUrl: coverUrls[key],
           coreItems: coreItems[key]!,
-          seriesCandidate: seriesCandidates[key],
+          groupCandidate: groupCandidates[key],
           providerItems: providerItemsMap[key]!,
           sources: sourceSets[key]!,
         ),
   ];
-}
-
-int _compareProviderCandidates(
-  ProviderCandidate left,
-  ProviderCandidate right,
-) {
-  final leftNumber = left.issueNumber?.trim();
-  final rightNumber = right.issueNumber?.trim();
-  if (leftNumber == null || leftNumber.isEmpty) {
-    if (rightNumber != null && rightNumber.isNotEmpty) {
-      return 1;
-    }
-  } else if (rightNumber == null || rightNumber.isEmpty) {
-    return -1;
-  } else {
-    final numericLeft = int.tryParse(leftNumber);
-    final numericRight = int.tryParse(rightNumber);
-    if (numericLeft != null &&
-        numericRight != null &&
-        numericLeft != numericRight) {
-      return numericLeft.compareTo(numericRight);
-    }
-    final byNumber = leftNumber.toLowerCase().compareTo(
-          rightNumber.toLowerCase(),
-        );
-    if (byNumber != 0) {
-      return byNumber;
-    }
-  }
-  return left.title.toLowerCase().compareTo(right.title.toLowerCase());
 }
 
 // -- Widgets -----------------------------------------------------------------
@@ -292,7 +227,7 @@ class LibraryAddUnifiedGroupNodeState
     )) {
       return true;
     }
-    if (widget.group.seriesCandidate?.localCatalogId ==
+    if (widget.group.groupCandidate?.localCatalogId ==
         widget.selectedProviderCandidateId) {
       return true;
     }
@@ -342,8 +277,8 @@ class LibraryAddUnifiedGroupNodeState
           ),
         );
       }
-      if (group.seriesCandidate != null) {
-        final candidate = group.seriesCandidate!;
+      if (group.groupCandidate != null) {
+        final candidate = group.groupCandidate!;
         return KeyedSubtree(
           key: ValueKey(candidate.localCatalogId),
           child: ProviderCandidateTile(
@@ -467,17 +402,17 @@ class LibraryAddUnifiedGroupNodeState
       child: Column(
         children: [
           // Series-level candidate (if any).
-          if (group.seriesCandidate != null) ...[
+          if (group.groupCandidate != null) ...[
             _UnifiedChildTile(
               title: '${group.title} (series)',
-              subtitle: widget.providerLabel(group.seriesCandidate!.provider),
-              imageUrl: group.seriesCandidate!.imageUrl,
-              selected: group.seriesCandidate!.localCatalogId ==
+              subtitle: widget.providerLabel(group.groupCandidate!.provider),
+              imageUrl: group.groupCandidate!.imageUrl,
+              selected: group.groupCandidate!.localCatalogId ==
                   widget.selectedProviderCandidateId,
               accent: widget.accent,
               badges: const ['series'],
               onTap: () => widget.onSelectProviderCandidate(
-                group.seriesCandidate!.localCatalogId,
+                group.groupCandidate!.localCatalogId,
               ),
             ),
             Divider(height: 1, thickness: 1, color: palette.divider),
@@ -656,12 +591,10 @@ class _UnifiedCoreChildTile extends StatelessWidget {
     final publisher = (payload['publisher'] ??
         (payload['publishing'] as Map?)?['original_publisher']) as String?;
     final physicalFormatLabel = payload['physical_format_label'] as String?;
-    final variant = payload['variant'] as String?;
     final subtitleParts = <String>[
       if (publisher != null) publisher,
       if (item.releaseYear != null) item.releaseYear.toString(),
       if (physicalFormatLabel != null) physicalFormatLabel,
-      if (variant != null) variant,
     ];
     return Material(
       color: selected ? palette.selection : Colors.transparent,
@@ -786,9 +719,6 @@ class _UnifiedProviderChildTile extends StatelessWidget {
       providerLabel,
       if (candidate.publisher != null && candidate.publisher!.trim().isNotEmpty)
         candidate.publisher!,
-      if (candidate.variantName != null &&
-          candidate.variantName!.trim().isNotEmpty)
-        candidate.variantName!,
     ];
     return Material(
       color: selected ? palette.selection : Colors.transparent,
@@ -828,8 +758,6 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                       runSpacing: 3,
                       children: [
                         LibraryAddResultBadge(providerLabel),
-                        if (candidate.isVariant)
-                          const LibraryAddResultBadge('variant'),
                         if (queuedIngest != null)
                           LibraryAddResultBadge(
                             '${queuedIngest!.statusLabel} '

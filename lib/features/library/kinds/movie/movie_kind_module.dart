@@ -9,9 +9,7 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
@@ -21,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
@@ -122,6 +123,14 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
         ],
       ),
     ),
+    resultPolicy: buildLibraryAddVideoResultPolicy(
+      mediaLabel: 'Media',
+      supportsSeasonScope: false,
+      coreScopeForItem: _movieAddResultScope,
+      providerScopeForCandidate: _movieAddProviderResultScope,
+      coreGroupTitleBuilder: _movieAddGroupTitle,
+      providerCandidateIsGroup: libraryAddVideoProviderCandidateIsGroup,
+    ),
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildMovieLibraryEditDialog,
@@ -197,4 +206,43 @@ String _buildMovieProviderQuery(LibraryAddSearchContext context) {
 String? _optionalMovieText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
+}
+
+LibraryAddVideoResultScope _movieAddResultScope(LibraryMetadataItem item) {
+  final metadata = item.kindMetadata;
+  if (metadata is MovieCatalogMetadata &&
+      [
+        metadata.editionTitle,
+        metadata.itemNumber,
+        metadata.physicalFormat,
+        metadata.physicalFormatLabel,
+        metadata.barcode,
+        metadata.variant,
+      ].any((value) => value?.trim().isNotEmpty == true)) {
+    return LibraryAddVideoResultScope.release;
+  }
+  return LibraryAddVideoResultScope.media;
+}
+
+LibraryAddVideoResultScope _movieAddProviderResultScope(
+  ProviderCandidate candidate,
+) {
+  final candidateType = candidate.candidateType?.trim().toLowerCase();
+  if (candidateType == 'release' ||
+      candidateType == 'edition' ||
+      candidate.issueNumber?.trim().isNotEmpty == true ||
+      candidate.isVariant) {
+    return LibraryAddVideoResultScope.release;
+  }
+  return LibraryAddVideoResultScope.media;
+}
+
+String _movieAddGroupTitle(LibraryMetadataItem item) {
+  final metadata = item.kindMetadata;
+  if (metadata is MovieCatalogMetadata) {
+    return metadata.seriesTitle?.trim() ??
+        metadata.series?.seriesTitle?.trim() ??
+        item.title;
+  }
+  return item.title;
 }

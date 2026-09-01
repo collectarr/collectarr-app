@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
@@ -36,6 +37,8 @@ class LibraryAddSelectionController {
   Set<String> get checkedResultIds => state.checkedResultIds;
   Set<String> get checkedProviderIds => state.checkedProviderIds;
 
+  LibraryAddResultPolicyState get resultPolicyState => state.resultPolicyState;
+
   LibraryAddReferenceType get referenceType => state.referenceType;
   set referenceType(LibraryAddReferenceType value) =>
       state = state.copyWith(referenceType: value);
@@ -48,29 +51,13 @@ class LibraryAddSelectionController {
   set showProviderResults(bool value) =>
       state = state.copyWith(showProviderResults: value);
 
-  bool get showMediaResults => state.showMediaResults;
-  set showMediaResults(bool value) =>
-      state = state.copyWith(showMediaResults: value);
+  void setResultPolicyState(LibraryAddResultPolicyState value) {
+    state = state.copyWith(resultPolicyState: value);
+  }
 
-  bool get showSeasonResults => state.showSeasonResults;
-  set showSeasonResults(bool value) =>
-      state = state.copyWith(showSeasonResults: value);
-
-  bool get showReleaseResults => state.showReleaseResults;
-  set showReleaseResults(bool value) =>
-      state = state.copyWith(showReleaseResults: value);
-
-  bool get hideComicOwnedResults => state.hideComicOwnedResults;
-  set hideComicOwnedResults(bool value) =>
-      state = state.copyWith(hideComicOwnedResults: value);
-
-  bool get hideComicVariantResults => state.hideComicVariantResults;
-  set hideComicVariantResults(bool value) =>
-      state = state.copyWith(hideComicVariantResults: value);
-
-  bool get compactComicIssues => state.compactComicIssues;
-  set compactComicIssues(bool value) =>
-      state = state.copyWith(compactComicIssues: value);
+  void setResultPolicyOption(String id, bool value) {
+    setResultPolicyState(state.resultPolicyState.withValue(id, value));
+  }
 
   void toggleCheckedResult(String id) {
     final updated = Set<String>.from(state.checkedResultIds);
