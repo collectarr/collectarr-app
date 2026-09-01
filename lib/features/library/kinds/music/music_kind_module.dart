@@ -19,13 +19,20 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+
+const _musicArtistFilterId = LibraryAddFilterId('music.artist');
+const _musicLabelFilterId = LibraryAddFilterId('music.label');
+const _musicYearFilterId = LibraryAddFilterId('music.year');
 
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   type: musicLibraryConfig,
@@ -60,11 +67,59 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     showsDefaultPersonalSection: false,
   ),
   transfer: const LibraryTransferCapability(),
-  add: const StandardLibraryAddCapability<MusicAddDraft>(
+  add: StandardLibraryAddCapability<MusicAddDraft>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
     manualDraftBuilder: MusicAddManualDraft.new,
-    advancedFilterFieldsBuilder: buildMusicAddAdvancedFilterFields,
+    search: LibraryAddSearchCapability(
+      advancedFilterFieldsBuilder: buildMusicAddAdvancedFilterFields,
+      coreSearchInputBuilder: _buildMusicCoreSearchInput,
+      providerQueryBuilder: _buildMusicProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: _musicArtistFilterId,
+            exactWeight: 120,
+            containsWeight: 48,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is MusicCatalogMetadata
+                  ? [metadata.artist]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.series?.seriesTitle],
+          ),
+          LibraryAddSearchRankField(
+            id: _musicLabelFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is MusicCatalogMetadata
+                  ? [metadata.publisher, metadata.publishing?.imprint]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.publisher],
+          ),
+          LibraryAddSearchRankField(
+            id: _musicYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is MusicCatalogMetadata
+                  ? [
+                      item.releaseYear,
+                      metadata.originalReleaseDate?.year,
+                      metadata.recordingDate?.year,
+                    ]
+                  : [item.releaseYear];
+            },
+            providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          ),
+        ],
+      ),
+    ),
     manualPaneBuilder: buildMusicAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -93,27 +148,59 @@ String _musicChildrenTitle(int count) => 'Discs ($count)';
 
 Map<String, dynamic> _encodeMusicMetadata(MusicCatalogMetadata m) => m.toJson();
 
-List<LibraryAddAdvancedFilterField> buildMusicAddAdvancedFilterFields(
+List<LibraryAddAdvancedFilterField<String>> buildMusicAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
     [
-      if (req.seriesController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-series-field'),
-          label: 'Artist',
-          controller: req.seriesController!,
-        ),
-      if (req.publisherController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-publisher-field'),
-          label: 'Record Label',
-          controller: req.publisherController!,
-        ),
-      if (req.yearController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-year-field'),
-          label: 'Year',
-          controller: req.yearController!,
-          width: 120,
-        ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _musicArtistFilterId,
+        key: const ValueKey('library-add-series-field'),
+        label: 'Artist',
+        value: req.advancedFilterText(_musicArtistFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _musicLabelFilterId,
+        key: const ValueKey('library-add-label-field'),
+        label: 'Record Label',
+        value: req.advancedFilterText(_musicLabelFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _musicYearFilterId,
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        value: req.advancedFilterText(_musicYearFilterId),
+        parse: (text) => text.trim(),
+        width: 120,
+      ),
     ];
+
+LibraryMetadataSearchInput _buildMusicCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  return LibraryMetadataSearchInput(
+    query: _optionalMusicText(context.query),
+    series: _optionalMusicText(context.textValueFor(_musicArtistFilterId)),
+    publisher: _optionalMusicText(context.textValueFor(_musicLabelFilterId)),
+    year: int.tryParse(context.textValueFor(_musicYearFilterId)),
+    barcode: _optionalMusicText(context.barcode),
+    limit: limit,
+  );
+}
+
+String _buildMusicProviderQuery(LibraryAddSearchContext context) {
+  return buildLibraryAddSearchQuery([
+    context.query,
+    context.textValueFor(_musicArtistFilterId),
+    context.textValueFor(_musicLabelFilterId),
+    context.textValueFor(_musicYearFilterId),
+    context.barcode,
+  ]);
+}
+
+String? _optionalMusicText(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}

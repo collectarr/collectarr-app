@@ -2,13 +2,12 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
-import 'package:dio/dio.dart';
 
 class LibraryAddCoreSearchResult {
   const LibraryAddCoreSearchResult({
@@ -30,16 +29,6 @@ class LibraryAddProviderSearchDebounceDecision {
   final bool shouldSkip;
   final String signature;
   final DateTime at;
-}
-
-String buildLibraryAddProviderQuery(Iterable<String> parts) {
-  final seen = <String>{};
-  return parts.map((part) => part.trim()).where((part) {
-    if (part.isEmpty) {
-      return false;
-    }
-    return seen.add(part.toLowerCase());
-  }).join(' ');
 }
 
 LibraryAddProviderSearchDebounceDecision
@@ -68,7 +57,8 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   required CatalogCacheRepository catalog,
   required LibraryMetadataSearchInput input,
   required Duration timeout,
-  required LibraryAddLocalRerankHints rerankHints,
+  required LibraryAddSearchRanking ranking,
+  required LibraryAddSearchContext searchContext,
   required bool providerSearchAvailable,
 }) async {
   final items = await searchAndCacheLibraryMetadata(
@@ -77,11 +67,11 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
     catalog: catalog,
     input: input,
   ).timeout(timeout);
-  final rankedItems = rerankLibraryMetadataItems(items, rerankHints);
+  final rankedItems = ranking.rankMetadata(items, searchContext);
   return LibraryAddCoreSearchResult(
     items: rankedItems,
     shouldSearchProvider: providerSearchAvailable &&
-        shouldSearchProviderForCoreResults(rankedItems, rerankHints),
+        ranking.shouldSearchProviderForCoreResults(rankedItems, searchContext),
   );
 }
 
@@ -89,22 +79,21 @@ Future<List<LibraryMetadataItem>> fetchLibraryAddSuggestions({
   required ApiClient api,
   required LibraryTypeConfig type,
   required CatalogCacheRepository catalog,
-  required String query,
-  required int limit,
+  required LibraryMetadataSearchInput input,
+  required LibraryAddSearchRanking ranking,
+  required LibraryAddSearchContext searchContext,
   Duration timeout = const Duration(seconds: 5),
 }) async {
   final items = await searchAndCacheLibraryMetadata(
     api: api,
     type: type,
     catalog: catalog,
-    input: LibraryMetadataSearchInput(
-      query: query,
-      limit: limit,
-    ),
+    input: input,
   ).timeout(timeout);
-  return filterAndRerankLibraryMetadataItems(
+  return filterAndRankLibraryMetadataItems(
     items,
-    LibraryAddLocalRerankHints(query: query),
+    ranking,
+    searchContext,
   );
 }
 
@@ -137,18 +126,15 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   required LibraryTypeConfig type,
   required String provider,
   required String query,
-  required LibraryAddLocalRerankHints rerankHints,
+  required LibraryAddSearchRanking ranking,
+  required LibraryAddSearchContext searchContext,
   ProviderRegistry? providerRegistry,
-  String? series,
-  String? issueNumber,
-  int? year,
   String? kindOverride,
 }) async {
   final targetKind = kindOverride ?? type.workspace.kind.apiValue;
   final normalizedProvider =
       provider.trim().isEmpty ? null : provider.trim().toLowerCase();
-  final effectiveQuery =
-      query.trim().isNotEmpty ? query.trim() : (series?.trim() ?? '');
+  final effectiveQuery = query.trim();
 
   List<ProviderCandidate> candidates = [];
 
@@ -205,5 +191,5 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
     }
   }
 
-  return rerankProviderCandidates(candidates, rerankHints);
+  return ranking.rankProvider(candidates, searchContext);
 }

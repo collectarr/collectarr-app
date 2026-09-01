@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/add/models/library_kind_add_draf
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -212,18 +211,8 @@ class LibraryAddModeBarRequest {
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
-    this.seriesController,
-    this.numberController,
-    this.publisherController,
-    this.yearController,
-    this.seriesText,
-    this.numberText,
-    this.publisherText,
-    this.yearText,
-    this.onSeriesChanged,
-    this.onNumberChanged,
-    this.onPublisherChanged,
-    this.onYearChanged,
+    required this.advancedFilterValues,
+    required this.onAdvancedFilterChanged,
     this.advancedFilterFields = const [],
     this.advancedFiltersBuilder,
   });
@@ -250,21 +239,15 @@ class LibraryAddModeBarRequest {
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
-  final TextEditingController? seriesController;
-  final TextEditingController? numberController;
-  final TextEditingController? publisherController;
-  final TextEditingController? yearController;
-  final String? seriesText;
-  final String? numberText;
-  final String? publisherText;
-  final String? yearText;
-  final ValueChanged<String>? onSeriesChanged;
-  final ValueChanged<String>? onNumberChanged;
-  final ValueChanged<String>? onPublisherChanged;
-  final ValueChanged<String>? onYearChanged;
-  final List<LibraryAddAdvancedFilterField> advancedFilterFields;
+  final Map<LibraryAddFilterId, Object?> advancedFilterValues;
+  final LibraryAddAdvancedFilterChanged onAdvancedFilterChanged;
+  final List<LibraryAddAdvancedFilterField<String>> advancedFilterFields;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       advancedFiltersBuilder;
+
+  String advancedFilterText(LibraryAddFilterId id) {
+    return advancedFilterValues[id]?.toString() ?? '';
+  }
 }
 
 class LibraryAddSearchPaneRequest {
@@ -283,11 +266,8 @@ class LibraryAddSearchPaneRequest {
     required this.checkedResultIds,
     required this.checkedProviderIds,
     required this.ownedCatalogItemIds,
-    required this.providerQueryText,
-    required this.providerSeriesText,
-    required this.providerNumberText,
-    required this.providerPublisherText,
-    required this.providerYearText,
+    this.coreMatchSummary,
+    this.providerMatchSummary,
     required this.isWideLayout,
     required this.showCoreResults,
     required this.showProviderResults,
@@ -320,11 +300,8 @@ class LibraryAddSearchPaneRequest {
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
   final Set<String> ownedCatalogItemIds;
-  final String providerQueryText;
-  final String providerSeriesText;
-  final String providerNumberText;
-  final String providerPublisherText;
-  final String providerYearText;
+  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final bool isWideLayout;
   final bool showCoreResults;
   final bool showProviderResults;

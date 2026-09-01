@@ -6,7 +6,9 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
@@ -26,9 +28,14 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fiel
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+
+const _movieCollectionFilterId = LibraryAddFilterId('movie.collection');
+const _movieYearFilterId = LibraryAddFilterId('movie.year');
 
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   type: moviesLibraryConfig,
@@ -66,7 +73,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     kindFields: movieTransferableFields,
   ),
   stats: const MovieStatsCapability(),
-  add: const StandardLibraryAddCapability<MovieAddDraft>(
+  add: StandardLibraryAddCapability<MovieAddDraft>(
     kind: CatalogMediaKind.movie,
     initialDraftBuilder: MovieAddDraft.new,
     manualDraftBuilder: MovieAddManualDraft.new,
@@ -76,7 +83,45 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     previewPaneBuilder: buildMovieAddPreviewPane,
     searchPaneBuilder: buildMovieAddSearchPane,
     bottomBarBuilder: buildMovieAddBottomBar,
-    advancedFilterFieldsBuilder: buildMovieAddAdvancedFilterFields,
+    search: LibraryAddSearchCapability(
+      initialAdvancedFilters:
+          buildLibraryAddVideoInitialFilters(moviesLibraryConfig),
+      advancedFilterFieldsBuilder: buildMovieAddAdvancedFilterFields,
+      searchInputPredicate: libraryAddVideoHasSearchInput,
+      advancedFiltersBuilder: buildLibraryAddVideoKindFilterRow,
+      providerKindOverridesBuilder: (context) =>
+          libraryAddVideoKindOverrides(moviesLibraryConfig, context),
+      coreSearchInputBuilder: _buildMovieCoreSearchInput,
+      providerQueryBuilder: _buildMovieProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: _movieCollectionFilterId,
+            exactWeight: 110,
+            containsWeight: 44,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is MovieCatalogMetadata
+                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.series?.seriesTitle],
+          ),
+          LibraryAddSearchRankField(
+            id: _movieYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is MovieCatalogMetadata
+                  ? [item.releaseYear, metadata.releaseDate?.year]
+                  : [item.releaseYear];
+            },
+            providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          ),
+        ],
+      ),
+    ),
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildMovieLibraryEditDialog,
@@ -102,27 +147,54 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
 
 Map<String, dynamic> _encodeMovieMetadata(MovieCatalogMetadata m) => m.toJson();
 
-List<LibraryAddAdvancedFilterField> buildMovieAddAdvancedFilterFields(
+List<LibraryAddAdvancedFilterField<String>> buildMovieAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
     [
-      if (req.seriesController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-series-field'),
-          label: 'Series / Franchise',
-          controller: req.seriesController!,
-        ),
-      if (req.publisherController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-publisher-field'),
-          label: 'Studio',
-          controller: req.publisherController!,
-        ),
-      if (req.yearController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-year-field'),
-          label: 'Year',
-          controller: req.yearController!,
-          width: 120,
-        ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _movieCollectionFilterId,
+        key: const ValueKey('library-add-collection-field'),
+        label: 'Collection',
+        value: req.advancedFilterText(_movieCollectionFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _movieYearFilterId,
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        value: req.advancedFilterText(_movieYearFilterId),
+        parse: (text) => text.trim(),
+        width: 120,
+      ),
     ];
+
+LibraryMetadataSearchInput _buildMovieCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  return LibraryMetadataSearchInput(
+    query: _optionalMovieText(
+      buildLibraryAddSearchQuery([
+        context.query,
+        context.textValueFor(_movieCollectionFilterId),
+      ]),
+    ),
+    year: int.tryParse(context.textValueFor(_movieYearFilterId)),
+    barcode: _optionalMovieText(context.barcode),
+    limit: limit,
+  );
+}
+
+String _buildMovieProviderQuery(LibraryAddSearchContext context) {
+  return buildLibraryAddSearchQuery([
+    context.query,
+    context.textValueFor(_movieCollectionFilterId),
+    context.textValueFor(_movieYearFilterId),
+    context.barcode,
+  ]);
+}
+
+String? _optionalMovieText(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}

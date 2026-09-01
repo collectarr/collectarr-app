@@ -1,205 +1,186 @@
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-class LibraryAddLocalRerankHints {
-  const LibraryAddLocalRerankHints({
-    this.query = '',
-    this.series = '',
-    this.issueNumber = '',
-    this.publisher = '',
-    this.year,
+typedef LibraryAddMetadataSearchScore = int Function(
+  LibraryMetadataItem item,
+  LibraryAddSearchContext context,
+);
+
+typedef LibraryAddProviderSearchScore = int Function(
+  ProviderCandidate candidate,
+  LibraryAddSearchContext context,
+);
+
+class LibraryAddSearchRankField {
+  const LibraryAddSearchRankField({
+    required this.id,
+    required this.exactWeight,
+    required this.containsWeight,
+    required this.metadataValues,
+    required this.providerValues,
   });
 
-  final String query;
-  final String series;
-  final String issueNumber;
-  final String publisher;
-  final int? year;
-
-  bool get hasAnyHint {
-    return query.trim().isNotEmpty ||
-        series.trim().isNotEmpty ||
-        issueNumber.trim().isNotEmpty ||
-        publisher.trim().isNotEmpty ||
-        year != null;
-  }
+  final LibraryAddFilterId id;
+  final int exactWeight;
+  final int containsWeight;
+  final Iterable<Object?> Function(LibraryMetadataItem item) metadataValues;
+  final Iterable<Object?> Function(ProviderCandidate candidate) providerValues;
 }
 
-List<LibraryMetadataItem> rerankLibraryMetadataItems(
-  List<LibraryMetadataItem> items,
-  LibraryAddLocalRerankHints hints,
-) {
-  if (items.length < 2 || !hints.hasAnyHint) {
-    return items;
-  }
-  final indexed = items.indexed.toList(growable: false);
-  indexed.sort((left, right) {
-    final leftScore = _scoreMetadataItem(left.$2, hints);
-    final rightScore = _scoreMetadataItem(right.$2, hints);
-    if (leftScore != rightScore) {
-      return rightScore.compareTo(leftScore);
+class LibraryAddSearchRanking {
+  const LibraryAddSearchRanking({
+    required this.scoreMetadata,
+    required this.scoreProvider,
+    required this.maxScore,
+  });
+
+  final LibraryAddMetadataSearchScore scoreMetadata;
+  final LibraryAddProviderSearchScore scoreProvider;
+  final int Function(LibraryAddSearchContext context) maxScore;
+
+  List<LibraryMetadataItem> rankMetadata(
+    List<LibraryMetadataItem> items,
+    LibraryAddSearchContext context,
+  ) {
+    if (items.length < 2 || !context.hasAnyInput) {
+      return items;
     }
-    return left.$1.compareTo(right.$1);
-  });
-  return indexed.map((entry) => entry.$2).toList(growable: false);
-}
-
-List<LibraryMetadataItem> filterAndRerankLibraryMetadataItems(
-  List<LibraryMetadataItem> items,
-  LibraryAddLocalRerankHints hints, {
-  int minimumScore = 1,
-}) {
-  if (items.isEmpty || !hints.hasAnyHint) {
-    return items;
+    return _stableRank(items, (item) => scoreMetadata(item, context));
   }
-  final ranked = rerankLibraryMetadataItems(items, hints);
-  return [
-    for (final item in ranked)
-      if (_scoreMetadataItem(item, hints) >= minimumScore) item,
-  ];
-}
 
-List<ProviderCandidate> rerankProviderCandidates(
-  List<ProviderCandidate> items,
-  LibraryAddLocalRerankHints hints,
-) {
-  if (items.length < 2 || !hints.hasAnyHint) {
-    return items;
-  }
-  final indexed = items.indexed.toList(growable: false);
-  indexed.sort((left, right) {
-    final leftScore = _scoreProviderCandidate(left.$2, hints);
-    final rightScore = _scoreProviderCandidate(right.$2, hints);
-    if (leftScore != rightScore) {
-      return rightScore.compareTo(leftScore);
+  List<ProviderCandidate> rankProvider(
+    List<ProviderCandidate> items,
+    LibraryAddSearchContext context,
+  ) {
+    if (items.length < 2 || !context.hasAnyInput) {
+      return items;
     }
-    return left.$1.compareTo(right.$1);
-  });
-  return indexed.map((entry) => entry.$2).toList(growable: false);
+    return _stableRank(items, (candidate) => scoreProvider(candidate, context));
+  }
+
+  bool shouldSearchProviderForCoreResults(
+    List<LibraryMetadataItem> items,
+    LibraryAddSearchContext context, {
+    double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
+  }) {
+    if (items.isEmpty) {
+      return true;
+    }
+    final possibleScore = maxScore(context);
+    if (possibleScore <= 0) {
+      return true;
+    }
+    final confidence = scoreMetadata(items.first, context) / possibleScore;
+    return confidence < confidenceThreshold;
+  }
 }
 
 const libraryAddProviderFallbackConfidenceThreshold = 0.72;
 
-bool shouldSearchProviderForCoreResults(
-  List<LibraryMetadataItem> items,
-  LibraryAddLocalRerankHints hints, {
-  double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
+LibraryAddSearchRanking buildLibraryAddSearchRanking({
+  required List<LibraryAddSearchRankField> fields,
 }) {
-  if (items.isEmpty) {
-    return true;
+  int scoreMetadata(
+    LibraryMetadataItem item,
+    LibraryAddSearchContext context,
+  ) {
+    var score = _scoreText(
+      item.title,
+      context.query,
+      exactWeight: 100,
+      containsWeight: 36,
+    );
+    for (final field in fields) {
+      score += _scoreField(
+        context.valueFor(field.id),
+        field.metadataValues(item),
+        exactWeight: field.exactWeight,
+        containsWeight: field.containsWeight,
+      );
+    }
+    return score;
   }
-  return _topMetadataMatchConfidence(items, hints) < confidenceThreshold;
-}
 
-double _topMetadataMatchConfidence(
-  List<LibraryMetadataItem> items,
-  LibraryAddLocalRerankHints hints,
-) {
-  if (items.isEmpty || !hints.hasAnyHint) {
-    return 0;
+  int scoreProvider(
+    ProviderCandidate candidate,
+    LibraryAddSearchContext context,
+  ) {
+    var score = _scoreText(
+      candidate.title,
+      context.query,
+      exactWeight: 100,
+      containsWeight: 36,
+    );
+    for (final field in fields) {
+      score += _scoreField(
+        context.valueFor(field.id),
+        field.providerValues(candidate),
+        exactWeight: field.exactWeight,
+        containsWeight: field.containsWeight,
+      );
+    }
+    return score;
   }
-  final maxScore = _maxPossibleMatchScore(hints);
-  if (maxScore <= 0) {
-    return 0;
-  }
-  final topScore = _scoreMetadataItem(items.first, hints);
-  return (topScore / maxScore).clamp(0, 1).toDouble();
-}
 
-int _scoreMetadataItem(
-    LibraryMetadataItem item, LibraryAddLocalRerankHints hints) {
-  final payload = item.kindMetadata.toSyncPayload();
-  final seriesMap = payload['series'] as Map?;
-  final seriesTitle =
-      (payload['series_title'] ?? seriesMap?['series_title']) as String?;
-  final itemNumber = (payload['item_number'] ??
-      (payload['publishing'] as Map?)?['issue_number']) as String?;
-  final publisher = (payload['publisher'] ??
-      (payload['publishing'] as Map?)?['original_publisher']) as String?;
-  final volumeStartYear = (seriesMap?['volume_start_year'] as num?)?.toInt();
-  return _scoreMatchFields(
-    title: item.title,
-    series: seriesTitle,
-    issueNumber: itemNumber,
-    publisher: publisher,
-    year: item.releaseYear ?? volumeStartYear,
-    hints: hints,
+  int maxScore(LibraryAddSearchContext context) {
+    var score = context.query.trim().isEmpty ? 0 : 100;
+    for (final field in fields) {
+      if (_normalize(context.valueFor(field.id)).isNotEmpty) {
+        score += field.exactWeight;
+      }
+    }
+    return score;
+  }
+
+  return LibraryAddSearchRanking(
+    scoreMetadata: scoreMetadata,
+    scoreProvider: scoreProvider,
+    maxScore: maxScore,
   );
 }
 
-int _scoreProviderCandidate(
-    ProviderCandidate item, LibraryAddLocalRerankHints hints) {
-  return _scoreMatchFields(
-    title: item.title,
-    series: item.series?.seriesTitle,
-    issueNumber: item.issueNumber,
-    publisher: item.publisher,
-    year: item.series?.volumeStartYear,
-    hints: hints,
-  );
+List<T> _stableRank<T>(List<T> items, int Function(T item) score) {
+  final indexed = items.indexed.toList(growable: false);
+  indexed.sort((left, right) {
+    final leftScore = score(left.$2);
+    final rightScore = score(right.$2);
+    if (leftScore != rightScore) {
+      return rightScore.compareTo(leftScore);
+    }
+    return left.$1.compareTo(right.$1);
+  });
+  return indexed.map((entry) => entry.$2).toList(growable: false);
 }
 
-int _maxPossibleMatchScore(LibraryAddLocalRerankHints hints) {
-  var score = 0;
-  if (_normalizeHint(hints.query).isNotEmpty) {
-    score += 100;
-  }
-  if (_normalizeHint(hints.series).isNotEmpty) {
-    score += 120;
-  }
-  if (_normalizeHint(hints.publisher).isNotEmpty) {
-    score += 60;
-  }
-  if (_normalizeHint(hints.issueNumber).isNotEmpty) {
-    score += 75;
-  }
-  if (hints.year != null) {
-    score += 55;
-  }
-  return score;
-}
-
-int _scoreMatchFields({
-  required String title,
-  required String? series,
-  required String? issueNumber,
-  required String? publisher,
-  required int? year,
-  required LibraryAddLocalRerankHints hints,
+int _scoreField(
+  Object? hint,
+  Iterable<Object?> values, {
+  required int exactWeight,
+  required int containsWeight,
 }) {
-  var score = 0;
-  score +=
-      _scoreTextHint(title, hints.query, exactWeight: 100, containsWeight: 36);
-  score += _scoreTextHint(
-    series ?? title,
-    hints.series,
-    exactWeight: 120,
-    containsWeight: 48,
-  );
-  score += _scoreTextHint(
-    publisher,
-    hints.publisher,
-    exactWeight: 60,
-    containsWeight: 24,
-  );
-  if (_normalizeHint(issueNumber).isNotEmpty &&
-      _normalizeHint(issueNumber) == _normalizeHint(hints.issueNumber)) {
-    score += 75;
+  var best = 0;
+  for (final value in values) {
+    final score = _scoreText(
+      value?.toString(),
+      hint?.toString(),
+      exactWeight: exactWeight,
+      containsWeight: containsWeight,
+    );
+    if (score > best) best = score;
   }
-  if (hints.year != null && year == hints.year) {
-    score += 55;
-  }
-  return score;
+  return best;
 }
 
-int _scoreTextHint(
+int _scoreText(
   String? candidate,
   String? hint, {
   required int exactWeight,
   required int containsWeight,
 }) {
-  final normalizedCandidate = _normalizeHint(candidate);
-  final normalizedHint = _normalizeHint(hint);
+  final normalizedCandidate = _normalize(candidate);
+  final normalizedHint = _normalize(hint);
   if (normalizedCandidate.isEmpty || normalizedHint.isEmpty) {
     return 0;
   }
@@ -210,19 +191,18 @@ int _scoreTextHint(
       normalizedHint.contains(normalizedCandidate)) {
     return containsWeight;
   }
-  final candidateTokens = _tokenizeHint(normalizedCandidate);
-  final hintTokens = _tokenizeHint(normalizedHint);
-  if (candidateTokens.isNotEmpty &&
-      hintTokens.isNotEmpty &&
-      candidateTokens.any(hintTokens.contains)) {
+  final candidateTokens = normalizedCandidate.split(' ');
+  final hintTokens = normalizedHint.split(' ');
+  if (candidateTokens.any(hintTokens.contains)) {
     return (containsWeight / 2).round().clamp(1, containsWeight);
   }
   return 0;
 }
 
-String _normalizeHint(String? value) {
+String _normalize(Object? value) {
   return value
-          ?.trim()
+          ?.toString()
+          .trim()
           .toLowerCase()
           .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
           .replaceAll(RegExp(r'\s+'), ' ')
@@ -230,12 +210,18 @@ String _normalizeHint(String? value) {
       '';
 }
 
-List<String> _tokenizeHint(String value) {
-  if (value.isEmpty) {
-    return const <String>[];
+List<LibraryMetadataItem> filterAndRankLibraryMetadataItems(
+  List<LibraryMetadataItem> items,
+  LibraryAddSearchRanking ranking,
+  LibraryAddSearchContext context, {
+  int minimumScore = 1,
+}) {
+  if (items.isEmpty || !context.hasAnyInput) {
+    return items;
   }
-  return value
-      .split(' ')
-      .where((token) => token.isNotEmpty)
-      .toList(growable: false);
+  final ranked = ranking.rankMetadata(items, context);
+  return [
+    for (final item in ranked)
+      if (ranking.scoreMetadata(item, context) >= minimumScore) item,
+  ];
 }

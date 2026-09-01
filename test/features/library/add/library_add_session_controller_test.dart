@@ -18,6 +18,8 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_sess
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
@@ -232,6 +234,21 @@ void main() {
       expect(controller.state.search.isSearching, false);
     });
 
+    test('video kind defaults do not count as search input', () async {
+      final movieController = LibraryAddSessionController(
+        kind: CatalogMediaKind.movie,
+        ownedMutations: ownedMutations,
+        wishlistMutations: wishlistMutations,
+        trackingMutations: trackingMutations,
+      );
+      addTearDown(movieController.dispose);
+
+      await movieController.executeSearch();
+
+      expect(movieController.state.search.error, isNotNull);
+      expect(movieController.state.search.isSearching, false);
+    });
+
     test('selectSuggestion updates query and selects suggestion', () {
       final suggestion = LibraryMetadataItem.fromMetadataMap({
         'id': 'sugg-1',
@@ -247,16 +264,20 @@ void main() {
     });
 
     test('advanced search fields update state', () {
-      controller.updateSearchSeries('X-Men');
-      controller.updateSearchNumber('1');
-      controller.updateSearchPublisher('Marvel');
-      controller.updateSearchYear('1963');
+      const seriesId = LibraryAddFilterId('comic.series');
+      const issueId = LibraryAddFilterId('comic.issue');
+      const publisherId = LibraryAddFilterId('comic.publisher');
+      const yearId = LibraryAddFilterId('comic.year');
+      controller.updateAdvancedFilter(seriesId, 'X-Men');
+      controller.updateAdvancedFilter(issueId, '1');
+      controller.updateAdvancedFilter(publisherId, 'Marvel');
+      controller.updateAdvancedFilter(yearId, '1963');
       controller.toggleAdvancedSearch();
 
-      expect(controller.state.search.series, 'X-Men');
-      expect(controller.state.search.number, '1');
-      expect(controller.state.search.publisher, 'Marvel');
-      expect(controller.state.search.year, '1963');
+      expect(controller.state.search.advancedFilters[seriesId], 'X-Men');
+      expect(controller.state.search.advancedFilters[issueId], '1');
+      expect(controller.state.search.advancedFilters[publisherId], 'Marvel');
+      expect(controller.state.search.advancedFilters[yearId], '1963');
       expect(controller.state.search.showAdvancedSearch, true);
     });
 
@@ -382,7 +403,11 @@ void main() {
         type: libraryKindRuntimeForKind(CatalogMediaKind.comic).type,
         provider: 'all',
         query: 'Batman',
-        rerankHints: const LibraryAddLocalRerankHints(query: 'Batman'),
+        ranking: libraryKindRuntimeForKind(CatalogMediaKind.comic)
+            .add
+            .search
+            .ranking,
+        searchContext: LibraryAddSearchContext(query: 'Batman'),
         providerRegistry: registry,
       );
 

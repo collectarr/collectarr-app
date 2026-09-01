@@ -6,9 +6,118 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
+import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter/widgets.dart';
+
+typedef LibraryAddAdvancedFilterFieldsBuilder
+    = List<LibraryAddAdvancedFilterField<String>> Function(
+  LibraryAddModeBarRequest request,
+);
+
+typedef LibraryAddCoreSearchInputBuilder = LibraryMetadataSearchInput Function(
+  LibraryAddSearchContext context, {
+  required int limit,
+});
+
+typedef LibraryAddProviderQueryBuilder = String Function(
+  LibraryAddSearchContext context,
+);
+
+typedef LibraryAddProviderKindOverridesBuilder = Iterable<String> Function(
+  LibraryAddSearchContext context,
+);
+
+typedef LibraryAddSearchInputPredicate = bool Function(
+  LibraryAddSearchContext context,
+);
+
+typedef LibraryAddCoverScanFilterValuesBuilder
+    = Map<LibraryAddFilterId, Object?> Function(LibraryCoverScanResult result);
+
+typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
+  T candidate,
+  LibraryAddSearchContext context,
+);
+
+class LibraryAddSearchCapability {
+  const LibraryAddSearchCapability({
+    this.initialAdvancedFilters = const {},
+    required this.advancedFilterFieldsBuilder,
+    required this.coreSearchInputBuilder,
+    required this.providerQueryBuilder,
+    required this.ranking,
+    this.searchInputPredicate,
+    this.providerKindOverridesBuilder,
+    this.advancedFiltersBuilder,
+    this.coverScanQueryBuilder,
+    this.coverScanFilterValuesBuilder,
+    this.coreMatchSummaryBuilder,
+    this.providerMatchSummaryBuilder,
+  });
+
+  final Map<LibraryAddFilterId, Object?> initialAdvancedFilters;
+  final LibraryAddAdvancedFilterFieldsBuilder advancedFilterFieldsBuilder;
+  final LibraryAddCoreSearchInputBuilder coreSearchInputBuilder;
+  final LibraryAddProviderQueryBuilder providerQueryBuilder;
+  final LibraryAddSearchRanking ranking;
+  final LibraryAddSearchInputPredicate? searchInputPredicate;
+  final LibraryAddProviderKindOverridesBuilder? providerKindOverridesBuilder;
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      advancedFiltersBuilder;
+  final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
+  final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
+  final LibraryAddMatchSummaryBuilder<LibraryMetadataItem>?
+      coreMatchSummaryBuilder;
+  final LibraryAddMatchSummaryBuilder<ProviderCandidate>?
+      providerMatchSummaryBuilder;
+
+  Iterable<String> providerKindOverrides(LibraryAddSearchContext context) =>
+      providerKindOverridesBuilder?.call(context) ?? const [];
+
+  bool hasSearchInput(LibraryAddSearchContext context) =>
+      searchInputPredicate?.call(context) ?? context.hasAnyInput;
+
+  String? coverScanQuery(LibraryCoverScanResult result) =>
+      coverScanQueryBuilder?.call(result) ?? result.query;
+
+  Map<LibraryAddFilterId, Object?> coverScanFilterValues(
+    LibraryCoverScanResult result,
+  ) =>
+      coverScanFilterValuesBuilder?.call(result) ?? const {};
+
+  String? coreMatchSummary(
+    LibraryMetadataItem item,
+    LibraryAddSearchContext context,
+  ) {
+    final custom = coreMatchSummaryBuilder?.call(item, context);
+    if (custom != null) return custom;
+    return _matchesQuery(item.title, context.query) ? 'Title' : null;
+  }
+
+  String? providerMatchSummary(
+    ProviderCandidate candidate,
+    LibraryAddSearchContext context,
+  ) {
+    final custom = providerMatchSummaryBuilder?.call(candidate, context);
+    if (custom != null) return custom;
+    return _matchesQuery(candidate.title, context.query) ? 'Title' : null;
+  }
+}
+
+bool _matchesQuery(String candidate, String query) {
+  final normalizedCandidate = candidate.trim().toLowerCase();
+  final normalizedQuery = query.trim().toLowerCase();
+  return normalizedCandidate.isNotEmpty &&
+      normalizedQuery.isNotEmpty &&
+      (normalizedCandidate == normalizedQuery ||
+          normalizedCandidate.contains(normalizedQuery));
+}
 
 abstract interface class LibraryAddCapability<
     TDraft extends LibraryAddKindDraft> {
@@ -27,11 +136,7 @@ abstract interface class LibraryAddCapability<
   LibraryAddPreviewPaneBuilder? get previewPaneBuilder;
   LibraryAddSearchPaneBuilder? get searchPaneBuilder;
   LibraryAddBottomBarBuilder? get bottomBarBuilder;
-
-  List<LibraryAddAdvancedFilterField> Function(LibraryAddModeBarRequest request)?
-      get advancedFilterFieldsBuilder;
-  Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
-      get advancedFiltersBuilder;
+  LibraryAddSearchCapability get search;
 
   Widget? buildPreviewPane(
     BuildContext context,
@@ -63,15 +168,15 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.previewPaneBuilder,
     this.searchPaneBuilder,
     this.bottomBarBuilder,
-    this.advancedFilterFieldsBuilder,
-    this.advancedFiltersBuilder,
+    required this.search,
   });
 
   @override
   final CatalogMediaKind kind;
   final TDraft Function() initialDraftBuilder;
   final LibraryKindAddDraft Function()? manualDraftBuilder;
-  final Widget Function(BuildContext context, LibraryAddManualPaneRequest request)?
+  final Widget Function(
+          BuildContext context, LibraryAddManualPaneRequest request)?
       manualPaneBuilder;
   @override
   final LibraryAddHeaderBuilder? headerBuilder;
@@ -84,11 +189,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   @override
   final LibraryAddBottomBarBuilder? bottomBarBuilder;
   @override
-  final List<LibraryAddAdvancedFilterField> Function(LibraryAddModeBarRequest request)?
-      advancedFilterFieldsBuilder;
-  @override
-  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
-      advancedFiltersBuilder;
+  final LibraryAddSearchCapability search;
 
   @override
   TDraft createInitialDraft() => initialDraftBuilder();

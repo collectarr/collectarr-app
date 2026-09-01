@@ -152,13 +152,16 @@ Widget buildMovieAddSearchPane(
                         final title = isCore ? item.title : candidate!.title;
                         final coverUrl =
                             isCore ? item.displayCoverUrl : candidate!.imageUrl;
-                        final publisher = (item?.kindMetadata.toSyncPayload()['publisher'] as String?) ??
-                            ((item?.kindMetadata.toSyncPayload()['publishing'] as Map?)?['original_publisher'] as String?);
+                        final publisher = (item?.kindMetadata
+                                .toSyncPayload()['publisher'] as String?) ??
+                            ((item?.kindMetadata.toSyncPayload()['publishing']
+                                as Map?)?['original_publisher'] as String?);
                         final subtitle = isCore
                             ? [
                                 if (item.releaseYear != null)
                                   item.releaseYear.toString(),
-                                if (publisher != null && publisher.trim().isNotEmpty)
+                                if (publisher != null &&
+                                    publisher.trim().isNotEmpty)
                                   publisher.trim(),
                               ].whereType<String>().join(' · ')
                             : [
@@ -169,16 +172,8 @@ Widget buildMovieAddSearchPane(
                                   candidate.summary,
                               ].whereType<String>().join(' · ');
                         final matchSummary = isCore
-                            ? _movieMetadataMatchSummary(
-                                item,
-                                request.providerQueryText,
-                                request.providerPublisherText,
-                                request.providerYearText)
-                            : _movieProviderMatchSummary(
-                                candidate!,
-                                request.providerQueryText,
-                                request.providerPublisherText,
-                                request.providerYearText);
+                            ? request.coreMatchSummary?.call(item)
+                            : request.providerMatchSummary?.call(candidate!);
                         return Material(
                           color: Colors.transparent,
                           child: InkWell(
@@ -339,64 +334,4 @@ class _MovieSearchGridEntry {
 
   final LibraryMetadataItem? item;
   final ProviderCandidate? candidate;
-}
-
-String? _movieMetadataMatchSummary(
-  LibraryMetadataItem item,
-  String queryText,
-  String publisherText,
-  String yearText,
-) {
-  final matches = <String>[];
-  void addIfContains(String label, String needle, Iterable<String?> haystacks) {
-    final normalizedNeedle = needle.trim().toLowerCase();
-    if (normalizedNeedle.isEmpty || matches.contains(label)) {
-      return;
-    }
-    for (final haystack in haystacks) {
-      final normalizedHaystack = haystack?.trim().toLowerCase();
-      if (normalizedHaystack != null &&
-          normalizedHaystack.contains(normalizedNeedle)) {
-        matches.add(label);
-        return;
-      }
-    }
-  }
-
-  final publisher = (item.kindMetadata.toSyncPayload()['publisher'] as String?) ??
-      ((item.kindMetadata.toSyncPayload()['publishing'] as Map?)?['original_publisher'] as String?);
-  addIfContains('Title', queryText, [item.title]);
-  addIfContains('Studio', publisherText, [publisher]);
-  addIfContains('Year', yearText,
-      [item.releaseYear?.toString(), item.releaseDate?.year.toString()]);
-  return matches.isEmpty ? null : matches.join(', ');
-}
-
-String? _movieProviderMatchSummary(
-  ProviderCandidate candidate,
-  String queryText,
-  String publisherText,
-  String yearText,
-) {
-  final matches = <String>[];
-  void addIfContains(String label, String needle, Iterable<String?> haystacks) {
-    final normalizedNeedle = needle.trim().toLowerCase();
-    if (normalizedNeedle.isEmpty || matches.contains(label)) {
-      return;
-    }
-    for (final haystack in haystacks) {
-      final normalizedHaystack = haystack?.trim().toLowerCase();
-      if (normalizedHaystack != null &&
-          normalizedHaystack.contains(normalizedNeedle)) {
-        matches.add(label);
-        return;
-      }
-    }
-  }
-
-  addIfContains('Title', queryText, [candidate.title, candidate.summary]);
-  addIfContains('Studio', publisherText, [candidate.publisher]);
-  addIfContains(
-      'Year', yearText, [candidate.series?.volumeStartYear?.toString()]);
-  return matches.isEmpty ? null : matches.join(', ');
 }

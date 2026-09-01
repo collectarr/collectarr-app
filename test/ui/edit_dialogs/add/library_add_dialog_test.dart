@@ -15,6 +15,8 @@ import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -26,6 +28,7 @@ import 'package:collectarr_app/features/library/metadata/provider_status_provide
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -740,7 +743,11 @@ void main() {
   });
 
   test('provider candidate reranking favors exact local scan hints', () {
-    final ranked = rerankProviderCandidates(
+    final ranked = libraryKindRuntimeForKind(CatalogMediaKind.comic)
+        .add
+        .search
+        .ranking
+        .rankProvider(
       const [
         ProviderCandidate(
           provider: 'comicvine',
@@ -767,12 +774,14 @@ void main() {
           ),
         ),
       ],
-      const LibraryAddLocalRerankHints(
+      LibraryAddSearchContext(
         query: 'Batman',
-        series: 'Batman',
-        issueNumber: '423',
-        publisher: 'DC',
-        year: 1988,
+        advancedFilters: {
+          LibraryAddFilterId('comic.series'): 'Batman',
+          LibraryAddFilterId('comic.issue'): '423',
+          LibraryAddFilterId('comic.publisher'): 'DC',
+          LibraryAddFilterId('comic.year'): '1988',
+        },
       ),
     );
 

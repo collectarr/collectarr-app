@@ -239,11 +239,8 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
     required this.onToggleProviderCheck,
-    required this.queryText,
-    required this.seriesText,
-    required this.numberText,
-    required this.publisherText,
-    required this.yearText,
+    this.coreMatchSummary,
+    this.providerMatchSummary,
   });
 
   final LibraryTypeConfig type;
@@ -259,11 +256,8 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
-  final String queryText;
-  final String seriesText;
-  final String numberText;
-  final String publisherText;
-  final String yearText;
+  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
 
   @override
   State<LibraryAddUnifiedGroupNode> createState() =>
@@ -319,11 +313,7 @@ class LibraryAddUnifiedGroupNodeState
           type: widget.type,
           item: group.coreItems.first,
           accent: widget.accent,
-          queryText: widget.queryText,
-          seriesText: widget.seriesText,
-          numberText: widget.numberText,
-          publisherText: widget.publisherText,
-          yearText: widget.yearText,
+          matchSummary: widget.coreMatchSummary,
           selected: group.coreItems.first.id == widget.selectedResultId,
           checked: widget.checkedResultIds.contains(group.coreItems.first.id),
           isOwned:
@@ -344,11 +334,7 @@ class LibraryAddUnifiedGroupNodeState
             providerLabel: widget.providerLabel(candidate.provider),
             queuedIngest:
                 widget.queuedProviderIngests[candidate.localCatalogId],
-            providerQueryText: widget.queryText,
-            providerSeriesText: widget.seriesText,
-            providerNumberText: widget.numberText,
-            providerPublisherText: widget.publisherText,
-            providerYearText: widget.yearText,
+            matchSummary: widget.providerMatchSummary,
             selected:
                 candidate.localCatalogId == widget.selectedProviderCandidateId,
             onSelect: () =>
@@ -367,11 +353,7 @@ class LibraryAddUnifiedGroupNodeState
             providerLabel: widget.providerLabel(candidate.provider),
             queuedIngest:
                 widget.queuedProviderIngests[candidate.localCatalogId],
-            providerQueryText: widget.queryText,
-            providerSeriesText: widget.seriesText,
-            providerNumberText: widget.numberText,
-            providerPublisherText: widget.publisherText,
-            providerYearText: widget.yearText,
+            matchSummary: widget.providerMatchSummary,
             selected:
                 candidate.localCatalogId == widget.selectedProviderCandidateId,
             onSelect: () =>

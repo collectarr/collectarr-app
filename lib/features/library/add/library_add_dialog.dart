@@ -17,13 +17,12 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_sess
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
-import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
@@ -477,6 +476,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     final kind = widget.type.workspace.kind;
     final addCapability = libraryKindRuntimeForKind(kind).add;
+    final searchContext = LibraryAddSearchContext(
+      query: state.search.query,
+      barcode: state.search.barcode,
+      advancedFilters: state.search.advancedFilters,
+    );
 
     final headerRequest = LibraryAddHeaderRequest(
       type: widget.type,
@@ -524,15 +528,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       },
       showAdvanced: state.search.showAdvancedSearch,
       onToggleAdvanced: _controller.toggleAdvancedSearch,
-      seriesText: state.search.series,
-      numberText: state.search.number,
-      publisherText: state.search.publisher,
-      yearText: state.search.year,
-      onSeriesChanged: _controller.updateSearchSeries,
-      onNumberChanged: _controller.updateSearchNumber,
-      onPublisherChanged: _controller.updateSearchPublisher,
-      onYearChanged: _controller.updateSearchYear,
-      advancedFiltersBuilder: addCapability.advancedFiltersBuilder,
+      advancedFilterValues: state.search.advancedFilters,
+      onAdvancedFilterChanged: _controller.updateAdvancedFilter,
+      advancedFiltersBuilder: addCapability.search.advancedFiltersBuilder,
     );
 
     final palette = appPalette(context);
@@ -619,17 +617,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   },
                   showAdvanced: state.search.showAdvancedSearch,
                   onToggleAdvanced: _controller.toggleAdvancedSearch,
-                  seriesText: state.search.series,
-                  numberText: state.search.number,
-                  publisherText: state.search.publisher,
-                  yearText: state.search.year,
-                  onSeriesChanged: _controller.updateSearchSeries,
-                  onNumberChanged: _controller.updateSearchNumber,
-                  onPublisherChanged: _controller.updateSearchPublisher,
-                  onYearChanged: _controller.updateSearchYear,
-                  advancedFiltersBuilder: addCapability.advancedFiltersBuilder,
-                  videoKindFilters: state.search.videoKindFilters,
-                  onVideoKindFilterChanged: _controller.setVideoKindFilter,
+                  advancedFilterValues: state.search.advancedFilters,
+                  onAdvancedFilterChanged: _controller.updateAdvancedFilter,
+                  advancedFiltersBuilder:
+                      addCapability.search.advancedFiltersBuilder,
                 ),
           ),
           if (state.search.error != null)
@@ -681,11 +672,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 checkedResultIds: state.selection.checkedResultIds,
                 checkedProviderIds: state.selection.checkedProviderIds,
                 ownedCatalogItemIds: ownedByCatalogId.keys.toSet(),
-                providerQueryText: _queryController.text,
-                providerSeriesText: state.search.series,
-                providerNumberText: state.search.number,
-                providerPublisherText: state.search.publisher,
-                providerYearText: state.search.year,
+                coreMatchSummary: (item) =>
+                    addCapability.search.coreMatchSummary(item, searchContext),
+                providerMatchSummary: (candidate) => addCapability.search
+                    .providerMatchSummary(candidate, searchContext),
                 isWideLayout: constraints.maxWidth >= 720,
                 showCoreResults: state.selection.showCoreResults,
                 showProviderResults: state.selection.showProviderResults,
@@ -727,12 +717,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     checkedResultIds: searchPaneRequest.checkedResultIds,
                     checkedProviderIds: searchPaneRequest.checkedProviderIds,
                     ownedCatalogItemIds: searchPaneRequest.ownedCatalogItemIds,
-                    providerQueryText: searchPaneRequest.providerQueryText,
-                    providerSeriesText: searchPaneRequest.providerSeriesText,
-                    providerNumberText: searchPaneRequest.providerNumberText,
-                    providerPublisherText:
-                        searchPaneRequest.providerPublisherText,
-                    providerYearText: searchPaneRequest.providerYearText,
+                    coreMatchSummary: searchPaneRequest.coreMatchSummary,
+                    providerMatchSummary:
+                        searchPaneRequest.providerMatchSummary,
                     isWideLayout: searchPaneRequest.isWideLayout,
                     showCoreResults: searchPaneRequest.showCoreResults,
                     showProviderResults: searchPaneRequest.showProviderResults,

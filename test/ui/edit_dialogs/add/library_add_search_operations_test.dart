@@ -1,9 +1,10 @@
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('provider query trims blanks and deduplicates case-insensitively', () {
-    final query = buildLibraryAddProviderQuery([
+    final query = buildLibraryAddSearchQuery([
       ' Batman ',
       '',
       '423',

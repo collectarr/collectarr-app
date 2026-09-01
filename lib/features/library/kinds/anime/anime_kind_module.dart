@@ -4,7 +4,9 @@ import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
@@ -22,6 +24,12 @@ import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_work
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+
+const _animeSeriesFilterId = LibraryAddFilterId('anime.series');
+const _animeStudioFilterId = LibraryAddFilterId('anime.studio');
+const _animeYearFilterId = LibraryAddFilterId('anime.year');
 
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   type: animeLibraryConfig,
@@ -58,11 +66,62 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   transfer: LibraryTransferCapability(
     kindFields: animeTransferableFields,
   ),
-  add: const StandardLibraryAddCapability<AnimeAddDraft>(
+  add: StandardLibraryAddCapability<AnimeAddDraft>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,
     manualDraftBuilder: AnimeAddManualDraft.new,
-    advancedFilterFieldsBuilder: buildAnimeAddAdvancedFilterFields,
+    search: LibraryAddSearchCapability(
+      initialAdvancedFilters:
+          buildLibraryAddVideoInitialFilters(animeLibraryConfig),
+      advancedFilterFieldsBuilder: buildAnimeAddAdvancedFilterFields,
+      searchInputPredicate: libraryAddVideoHasSearchInput,
+      advancedFiltersBuilder: buildLibraryAddVideoKindFilterRow,
+      providerKindOverridesBuilder: (context) =>
+          libraryAddVideoKindOverrides(animeLibraryConfig, context),
+      coreSearchInputBuilder: _buildAnimeCoreSearchInput,
+      providerQueryBuilder: _buildAnimeProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: _animeSeriesFilterId,
+            exactWeight: 120,
+            containsWeight: 48,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is AnimeMetadata
+                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.series?.seriesTitle],
+          ),
+          LibraryAddSearchRankField(
+            id: _animeStudioFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is AnimeMetadata
+                  ? [...metadata.studios, ...metadata.producers]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) =>
+                [candidate.publisher, candidate.summary],
+          ),
+          LibraryAddSearchRankField(
+            id: _animeYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is AnimeMetadata
+                  ? [item.releaseYear, metadata.seasonYear]
+                  : [item.releaseYear];
+            },
+            providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          ),
+        ],
+      ),
+    ),
     manualPaneBuilder: buildAnimeAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -90,27 +149,59 @@ String _animeChildrenTitle(int count) => 'Seasons ($count)';
 
 Map<String, dynamic> _encodeAnimeMetadata(AnimeMetadata m) => m.toJson();
 
-List<LibraryAddAdvancedFilterField> buildAnimeAddAdvancedFilterFields(
+List<LibraryAddAdvancedFilterField<String>> buildAnimeAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
     [
-      if (req.seriesController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-series-field'),
-          label: 'Series',
-          controller: req.seriesController!,
-        ),
-      if (req.publisherController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-publisher-field'),
-          label: 'Studio',
-          controller: req.publisherController!,
-        ),
-      if (req.yearController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-year-field'),
-          label: 'Year',
-          controller: req.yearController!,
-          width: 120,
-        ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _animeSeriesFilterId,
+        key: const ValueKey('library-add-series-field'),
+        label: 'Series',
+        value: req.advancedFilterText(_animeSeriesFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _animeStudioFilterId,
+        key: const ValueKey('library-add-studio-field'),
+        label: 'Studio',
+        value: req.advancedFilterText(_animeStudioFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _animeYearFilterId,
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        value: req.advancedFilterText(_animeYearFilterId),
+        parse: (text) => text.trim(),
+        width: 120,
+      ),
     ];
+
+LibraryMetadataSearchInput _buildAnimeCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  return LibraryMetadataSearchInput(
+    query: _optionalAnimeText(context.query),
+    series: _optionalAnimeText(context.textValueFor(_animeSeriesFilterId)),
+    publisher: _optionalAnimeText(context.textValueFor(_animeStudioFilterId)),
+    year: int.tryParse(context.textValueFor(_animeYearFilterId)),
+    barcode: _optionalAnimeText(context.barcode),
+    limit: limit,
+  );
+}
+
+String _buildAnimeProviderQuery(LibraryAddSearchContext context) {
+  return buildLibraryAddSearchQuery([
+    context.query,
+    context.textValueFor(_animeSeriesFilterId),
+    context.textValueFor(_animeStudioFilterId),
+    context.textValueFor(_animeYearFilterId),
+    context.barcode,
+  ]);
+}
+
+String? _optionalAnimeText(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}

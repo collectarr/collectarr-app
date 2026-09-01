@@ -23,7 +23,11 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_utility
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
@@ -37,6 +41,11 @@ import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_ca
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
+
+const _comicSeriesFilterId = LibraryAddFilterId('comic.series');
+const _comicIssueFilterId = LibraryAddFilterId('comic.issue');
+const _comicPublisherFilterId = LibraryAddFilterId('comic.publisher');
+const _comicYearFilterId = LibraryAddFilterId('comic.year');
 
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   type: comicsLibraryConfig,
@@ -89,7 +98,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   ),
   stats: const ComicStatsCapability(),
   value: const ComicValueCapability(),
-  add: const StandardLibraryAddCapability<ComicAddDraft>(
+  add: StandardLibraryAddCapability<ComicAddDraft>(
     kind: CatalogMediaKind.comic,
     initialDraftBuilder: ComicAddDraft.new,
     manualDraftBuilder: ComicAddManualDraft.new,
@@ -99,7 +108,70 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     previewPaneBuilder: buildComicAddPreviewPane,
     searchPaneBuilder: buildComicAddSearchPane,
     bottomBarBuilder: buildComicAddBottomBar,
-    advancedFilterFieldsBuilder: buildComicAddAdvancedFilterFields,
+    search: LibraryAddSearchCapability(
+      advancedFilterFieldsBuilder: buildComicAddAdvancedFilterFields,
+      coreSearchInputBuilder: _buildComicCoreSearchInput,
+      providerQueryBuilder: _buildComicProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: _comicSeriesFilterId,
+            exactWeight: 120,
+            containsWeight: 48,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is ComicCatalogMetadata
+                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                  : const [];
+            },
+            providerValues: (candidate) => [candidate.series?.seriesTitle],
+          ),
+          LibraryAddSearchRankField(
+            id: _comicIssueFilterId,
+            exactWeight: 75,
+            containsWeight: 36,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is ComicCatalogMetadata
+                  ? [metadata.issueNumber]
+                  : const [];
+            },
+            providerValues: (candidate) => [candidate.issueNumber],
+          ),
+          LibraryAddSearchRankField(
+            id: _comicPublisherFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is ComicCatalogMetadata
+                  ? [metadata.publisher, metadata.imprint]
+                  : const [];
+            },
+            providerValues: (candidate) => [candidate.publisher],
+          ),
+          LibraryAddSearchRankField(
+            id: _comicYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is ComicCatalogMetadata
+                  ? [
+                      item.releaseYear,
+                      metadata.releaseDate?.year,
+                      metadata.coverDate?.year,
+                      metadata.series?.volumeStartYear,
+                    ]
+                  : [item.releaseYear];
+            },
+            providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          ),
+        ],
+      ),
+      coverScanQueryBuilder: (result) => result.query ?? result.series,
+      coverScanFilterValuesBuilder: _comicCoverScanFilterValues,
+    ),
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildComicLibraryEditDialog,
@@ -282,33 +354,89 @@ Future<void> _showJumpToIssueDialog(
 
 Map<String, dynamic> _encodeComicMetadata(ComicCatalogMetadata m) => m.toJson();
 
-List<LibraryAddAdvancedFilterField> buildComicAddAdvancedFilterFields(
+List<LibraryAddAdvancedFilterField<String>> buildComicAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
     [
-      if (req.seriesController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-series-field'),
-          label: 'Series',
-          controller: req.seriesController!,
-        ),
-      if (req.numberController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-number-field'),
-          label: 'Issue',
-          controller: req.numberController!,
-        ),
-      if (req.publisherController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-publisher-field'),
-          label: 'Publisher',
-          controller: req.publisherController!,
-        ),
-      if (req.yearController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-year-field'),
-          label: 'Year',
-          controller: req.yearController!,
-          width: 120,
-        ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _comicSeriesFilterId,
+        key: const ValueKey('library-add-series-field'),
+        label: 'Series',
+        value: req.advancedFilterText(_comicSeriesFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _comicIssueFilterId,
+        key: const ValueKey('library-add-number-field'),
+        label: 'Issue',
+        value: req.advancedFilterText(_comicIssueFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _comicPublisherFilterId,
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Publisher',
+        value: req.advancedFilterText(_comicPublisherFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _comicYearFilterId,
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        value: req.advancedFilterText(_comicYearFilterId),
+        parse: (text) => text.trim(),
+        width: 120,
+      ),
     ];
+
+LibraryMetadataSearchInput _buildComicCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  return LibraryMetadataSearchInput(
+    query: _optionalText(context.query),
+    series: _optionalFilterText(context, _comicSeriesFilterId),
+    issueNumber: _optionalFilterText(context, _comicIssueFilterId),
+    publisher: _optionalFilterText(context, _comicPublisherFilterId),
+    year: int.tryParse(context.textValueFor(_comicYearFilterId)),
+    barcode: _optionalText(context.barcode),
+    limit: limit,
+  );
+}
+
+String _buildComicProviderQuery(LibraryAddSearchContext context) {
+  return buildLibraryAddSearchQuery([
+    context.query,
+    context.textValueFor(_comicSeriesFilterId),
+    context.textValueFor(_comicIssueFilterId),
+    context.textValueFor(_comicPublisherFilterId),
+    context.textValueFor(_comicYearFilterId),
+    context.barcode,
+  ]);
+}
+
+Map<LibraryAddFilterId, Object?> _comicCoverScanFilterValues(
+  LibraryCoverScanResult result,
+) {
+  return {
+    if (result.series?.trim().isNotEmpty == true)
+      _comicSeriesFilterId: result.series!.trim(),
+    if (result.issueNumber?.trim().isNotEmpty == true)
+      _comicIssueFilterId: result.issueNumber!.trim(),
+    if (result.publisher?.trim().isNotEmpty == true)
+      _comicPublisherFilterId: result.publisher!.trim(),
+    if (result.year != null) _comicYearFilterId: result.year.toString(),
+  };
+}
+
+String? _optionalText(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}
+
+String? _optionalFilterText(
+  LibraryAddSearchContext context,
+  LibraryAddFilterId id,
+) {
+  return _optionalText(context.textValueFor(id));
+}

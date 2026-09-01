@@ -5,7 +5,9 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
@@ -28,6 +30,12 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 
 import 'package:collectarr_app/features/library/kinds/tv/stats/tv_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+
+const _tvShowFilterId = LibraryAddFilterId('tv.show');
+const _tvNetworkFilterId = LibraryAddFilterId('tv.network');
+const _tvYearFilterId = LibraryAddFilterId('tv.year');
 
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   type: tvLibraryConfig,
@@ -68,11 +76,70 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     kindFields: tvTransferableFields,
   ),
   stats: const TvStatsCapability(),
-  add: const StandardLibraryAddCapability<TvAddDraft>(
+  add: StandardLibraryAddCapability<TvAddDraft>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
     manualDraftBuilder: TvAddManualDraft.new,
-    advancedFilterFieldsBuilder: buildTvAddAdvancedFilterFields,
+    search: LibraryAddSearchCapability(
+      initialAdvancedFilters:
+          buildLibraryAddVideoInitialFilters(tvLibraryConfig),
+      advancedFilterFieldsBuilder: buildTvAddAdvancedFilterFields,
+      searchInputPredicate: libraryAddVideoHasSearchInput,
+      advancedFiltersBuilder: buildLibraryAddVideoKindFilterRow,
+      providerKindOverridesBuilder: (context) =>
+          libraryAddVideoKindOverrides(tvLibraryConfig, context),
+      coreSearchInputBuilder: _buildTvCoreSearchInput,
+      providerQueryBuilder: _buildTvProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: _tvShowFilterId,
+            exactWeight: 120,
+            containsWeight: 48,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is TvSeriesMetadata
+                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.series?.seriesTitle],
+          ),
+          LibraryAddSearchRankField(
+            id: _tvNetworkFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is TvSeriesMetadata
+                  ? [
+                      metadata.network,
+                      metadata.streamingService,
+                      ...metadata.productionCompanies,
+                    ]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) =>
+                [candidate.publisher, candidate.summary],
+          ),
+          LibraryAddSearchRankField(
+            id: _tvYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is TvSeriesMetadata
+                  ? [
+                      item.releaseYear,
+                      metadata.firstAirDate?.year,
+                      metadata.lastAirDate?.year,
+                    ]
+                  : [item.releaseYear];
+            },
+            providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          ),
+        ],
+      ),
+    ),
     manualPaneBuilder: buildTvAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -129,27 +196,59 @@ Future<List<LibraryHierarchyNode>> _fetchTvSeasons({
   ];
 }
 
-List<LibraryAddAdvancedFilterField> buildTvAddAdvancedFilterFields(
+List<LibraryAddAdvancedFilterField<String>> buildTvAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
     [
-      if (req.seriesController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-series-field'),
-          label: 'Show / Series',
-          controller: req.seriesController!,
-        ),
-      if (req.publisherController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-publisher-field'),
-          label: 'Network',
-          controller: req.publisherController!,
-        ),
-      if (req.yearController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-year-field'),
-          label: 'Year',
-          controller: req.yearController!,
-          width: 120,
-        ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _tvShowFilterId,
+        key: const ValueKey('library-add-show-field'),
+        label: 'Show / Series',
+        value: req.advancedFilterText(_tvShowFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _tvNetworkFilterId,
+        key: const ValueKey('library-add-network-field'),
+        label: 'Network',
+        value: req.advancedFilterText(_tvNetworkFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _tvYearFilterId,
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        value: req.advancedFilterText(_tvYearFilterId),
+        parse: (text) => text.trim(),
+        width: 120,
+      ),
     ];
+
+LibraryMetadataSearchInput _buildTvCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  return LibraryMetadataSearchInput(
+    query: _optionalTvText(context.query),
+    series: _optionalTvText(context.textValueFor(_tvShowFilterId)),
+    publisher: _optionalTvText(context.textValueFor(_tvNetworkFilterId)),
+    year: int.tryParse(context.textValueFor(_tvYearFilterId)),
+    barcode: _optionalTvText(context.barcode),
+    limit: limit,
+  );
+}
+
+String _buildTvProviderQuery(LibraryAddSearchContext context) {
+  return buildLibraryAddSearchQuery([
+    context.query,
+    context.textValueFor(_tvShowFilterId),
+    context.textValueFor(_tvNetworkFilterId),
+    context.textValueFor(_tvYearFilterId),
+    context.barcode,
+  ]);
+}
+
+String? _optionalTvText(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}

@@ -16,9 +16,12 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
@@ -27,6 +30,11 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 
 import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+
+const _bookAuthorFilterId = LibraryAddFilterId('book.author');
+const _bookIsbnFilterId = LibraryAddFilterId('book.isbn');
+const _bookPublisherFilterId = LibraryAddFilterId('book.publisher');
+const _bookYearFilterId = LibraryAddFilterId('book.year');
 
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   type: booksLibraryConfig,
@@ -68,11 +76,70 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     kindFields: bookTransferableFields,
   ),
   stats: const BookStatsCapability(),
-  add: const StandardLibraryAddCapability<BookAddDraft>(
+  add: StandardLibraryAddCapability<BookAddDraft>(
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
     manualDraftBuilder: BookAddManualDraft.new,
-    advancedFilterFieldsBuilder: buildBookAddAdvancedFilterFields,
+    search: LibraryAddSearchCapability(
+      advancedFilterFieldsBuilder: buildBookAddAdvancedFilterFields,
+      coreSearchInputBuilder: _buildBookCoreSearchInput,
+      providerQueryBuilder: _buildBookProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: _bookAuthorFilterId,
+            exactWeight: 110,
+            containsWeight: 44,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is BookCatalogMetadata
+                  ? metadata.authors
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.summary],
+          ),
+          LibraryAddSearchRankField(
+            id: _bookIsbnFilterId,
+            exactWeight: 90,
+            containsWeight: 30,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is BookCatalogMetadata
+                  ? [metadata.barcode, metadata.itemNumber]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.providerItemId],
+          ),
+          LibraryAddSearchRankField(
+            id: _bookPublisherFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is BookCatalogMetadata
+                  ? [metadata.publisher, metadata.originalPublisher]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.publisher],
+          ),
+          LibraryAddSearchRankField(
+            id: _bookYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is BookCatalogMetadata
+                  ? [
+                      item.releaseYear,
+                      metadata.originalPublicationDate?.year,
+                    ]
+                  : [item.releaseYear];
+            },
+            providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          ),
+        ],
+      ),
+    ),
     manualPaneBuilder: buildBookAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -137,27 +204,71 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumesFromApi({
   ];
 }
 
-List<LibraryAddAdvancedFilterField> buildBookAddAdvancedFilterFields(
+List<LibraryAddAdvancedFilterField<String>> buildBookAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
     [
-      if (req.seriesController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-series-field'),
-          label: 'Author / Series',
-          controller: req.seriesController!,
-        ),
-      if (req.publisherController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-publisher-field'),
-          label: 'Publisher',
-          controller: req.publisherController!,
-        ),
-      if (req.yearController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-year-field'),
-          label: 'Year',
-          controller: req.yearController!,
-          width: 120,
-        ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _bookAuthorFilterId,
+        key: const ValueKey('library-add-author-field'),
+        label: 'Author',
+        value: req.advancedFilterText(_bookAuthorFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _bookIsbnFilterId,
+        key: const ValueKey('library-add-isbn-field'),
+        label: 'ISBN',
+        value: req.advancedFilterText(_bookIsbnFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _bookPublisherFilterId,
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Publisher',
+        value: req.advancedFilterText(_bookPublisherFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _bookYearFilterId,
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        value: req.advancedFilterText(_bookYearFilterId),
+        parse: (text) => text.trim(),
+        width: 120,
+      ),
     ];
+
+LibraryMetadataSearchInput _buildBookCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  final author = context.textValueFor(_bookAuthorFilterId);
+  final isbn = context.textValueFor(_bookIsbnFilterId);
+  return LibraryMetadataSearchInput(
+    query:
+        _optionalBookText(buildLibraryAddSearchQuery([context.query, author])),
+    publisher: _optionalBookText(
+      context.textValueFor(_bookPublisherFilterId),
+    ),
+    year: int.tryParse(context.textValueFor(_bookYearFilterId)),
+    barcode: _optionalBookText(isbn.isNotEmpty ? isbn : context.barcode),
+    limit: limit,
+  );
+}
+
+String _buildBookProviderQuery(LibraryAddSearchContext context) {
+  return buildLibraryAddSearchQuery([
+    context.query,
+    context.textValueFor(_bookAuthorFilterId),
+    context.textValueFor(_bookIsbnFilterId),
+    context.textValueFor(_bookPublisherFilterId),
+    context.textValueFor(_bookYearFilterId),
+    context.barcode,
+  ]);
+}
+
+String? _optionalBookText(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}

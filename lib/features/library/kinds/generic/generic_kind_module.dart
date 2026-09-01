@@ -4,7 +4,9 @@ import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_ma
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
@@ -18,6 +20,7 @@ import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:flutter/material.dart';
 
 final genericLibraryConfig = LibraryTypeConfig(
@@ -58,11 +61,16 @@ final genericKindModule =
   hierarchy: const LibraryHierarchyCapability(),
   inspector: const LibraryInspectorCapability(),
   transfer: const LibraryTransferCapability(),
-  add: const StandardLibraryAddCapability<GenericAddDraft>(
+  add: StandardLibraryAddCapability<GenericAddDraft>(
     kind: CatalogMediaKind.unknown,
     initialDraftBuilder: GenericAddDraft.new,
     manualDraftBuilder: GenericAddManualDraft.new,
-    advancedFilterFieldsBuilder: buildGenericAddAdvancedFilterFields,
+    search: LibraryAddSearchCapability(
+      advancedFilterFieldsBuilder: buildGenericAddAdvancedFilterFields,
+      coreSearchInputBuilder: _buildGenericCoreSearchInput,
+      providerQueryBuilder: _buildGenericProviderQuery,
+      ranking: buildLibraryAddSearchRanking(fields: const []),
+    ),
     manualPaneBuilder: buildGenericAddManualPane,
   ),
   edit: const LibraryEditCapability(),
@@ -70,27 +78,24 @@ final genericKindModule =
       const LibraryCardPresentation(),
 );
 
-List<LibraryAddAdvancedFilterField> buildGenericAddAdvancedFilterFields(
+List<LibraryAddAdvancedFilterField<String>> buildGenericAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
-    [
-      if (req.seriesController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-series-field'),
-          label: 'Series / Group',
-          controller: req.seriesController!,
-        ),
-      if (req.publisherController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-publisher-field'),
-          label: 'Publisher / Brand',
-          controller: req.publisherController!,
-        ),
-      if (req.yearController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-year-field'),
-          label: 'Year',
-          controller: req.yearController!,
-          width: 120,
-        ),
-    ];
+    const [];
+
+LibraryMetadataSearchInput _buildGenericCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  final query = context.query.trim();
+  final barcode = context.barcode.trim();
+  return LibraryMetadataSearchInput(
+    query: query.isEmpty ? null : query,
+    barcode: barcode.isEmpty ? null : barcode,
+    limit: limit,
+  );
+}
+
+String _buildGenericProviderQuery(LibraryAddSearchContext context) {
+  return buildLibraryAddSearchQuery([context.query, context.barcode]);
+}

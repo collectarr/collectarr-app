@@ -1,11 +1,19 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('exact core match suppresses provider fallback', () {
-    final shouldFallback = shouldSearchProviderForCoreResults(
+    final shouldFallback = libraryKindRuntimeForKind(CatalogMediaKind.comic)
+        .add
+        .search
+        .ranking
+        .shouldSearchProviderForCoreResults(
       [
         LibraryMetadataItem.fromMetadataMap({
           'id': 'comic-423',
@@ -20,12 +28,14 @@ void main() {
           },
         }),
       ],
-      const LibraryAddLocalRerankHints(
+      LibraryAddSearchContext(
         query: 'Batman',
-        series: 'Batman',
-        issueNumber: '423',
-        publisher: 'DC',
-        year: 1988,
+        advancedFilters: {
+          LibraryAddFilterId('comic.series'): 'Batman',
+          LibraryAddFilterId('comic.issue'): '423',
+          LibraryAddFilterId('comic.publisher'): 'DC',
+          LibraryAddFilterId('comic.year'): '1988',
+        },
       ),
     );
 
@@ -33,7 +43,11 @@ void main() {
   });
 
   test('weak core top match keeps provider fallback enabled', () {
-    final shouldFallback = shouldSearchProviderForCoreResults(
+    final shouldFallback = libraryKindRuntimeForKind(CatalogMediaKind.movie)
+        .add
+        .search
+        .ranking
+        .shouldSearchProviderForCoreResults(
       [
         LibraryMetadataItem.fromMetadataMap({
           'id': 'movie-1',
@@ -43,27 +57,23 @@ void main() {
           'release_year': 2017,
         }),
       ],
-      const LibraryAddLocalRerankHints(
-        query: 'Blade Runner',
-        series: '',
-        issueNumber: '',
-        publisher: '',
-        year: null,
-      ),
+      LibraryAddSearchContext(query: 'Blade Runner'),
     );
 
     expect(shouldFallback, isTrue);
   });
 
   test('empty core results still trigger provider fallback', () {
-    const hints = LibraryAddLocalRerankHints(
-      query: 'Naruto',
-      series: '',
-      issueNumber: '',
-      publisher: '',
-      year: null,
+    expect(
+      libraryKindRuntimeForKind(CatalogMediaKind.anime)
+          .add
+          .search
+          .ranking
+          .shouldSearchProviderForCoreResults(
+        const [],
+        LibraryAddSearchContext(query: 'Naruto'),
+      ),
+      isTrue,
     );
-
-    expect(shouldSearchProviderForCoreResults(const [], hints), isTrue);
   });
 }

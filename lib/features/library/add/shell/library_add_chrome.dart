@@ -94,105 +94,74 @@ class _LibraryAddChromeModeBar extends StatefulWidget {
 }
 
 class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
-  late final TextEditingController _seriesController;
-  late final TextEditingController _numberController;
-  late final TextEditingController _publisherController;
-  late final TextEditingController _yearController;
-  late final bool _ownsControllers;
+  final Map<LibraryAddFilterId, TextEditingController> _advancedControllers =
+      {};
 
   @override
   void initState() {
     super.initState();
-    _ownsControllers = widget.request.seriesController == null;
-    _seriesController = widget.request.seriesController ??
-        TextEditingController(text: widget.request.seriesText ?? '');
-    _numberController = widget.request.numberController ??
-        TextEditingController(text: widget.request.numberText ?? '');
-    _publisherController = widget.request.publisherController ??
-        TextEditingController(text: widget.request.publisherText ?? '');
-    _yearController = widget.request.yearController ??
-        TextEditingController(text: widget.request.yearText ?? '');
+    _syncAdvancedControllers(_resolveAdvancedFields());
   }
 
   @override
   void didUpdateWidget(covariant _LibraryAddChromeModeBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_ownsControllers) {
-      if (widget.request.seriesText != null &&
-          widget.request.seriesText != _seriesController.text) {
-        _seriesController.text = widget.request.seriesText!;
-      }
-      if (widget.request.numberText != null &&
-          widget.request.numberText != _numberController.text) {
-        _numberController.text = widget.request.numberText!;
-      }
-      if (widget.request.publisherText != null &&
-          widget.request.publisherText != _publisherController.text) {
-        _publisherController.text = widget.request.publisherText!;
-      }
-      if (widget.request.yearText != null &&
-          widget.request.yearText != _yearController.text) {
-        _yearController.text = widget.request.yearText!;
-      }
-    }
+    _syncAdvancedControllers(_resolveAdvancedFields());
   }
 
   @override
   void dispose() {
-    if (_ownsControllers) {
-      _seriesController.dispose();
-      _numberController.dispose();
-      _publisherController.dispose();
-      _yearController.dispose();
+    for (final controller in _advancedControllers.values) {
+      controller.dispose();
     }
     super.dispose();
   }
 
   void _handleSearch() {
-    widget.request.onSeriesChanged?.call(_seriesController.text);
-    widget.request.onNumberChanged?.call(_numberController.text);
-    widget.request.onPublisherChanged?.call(_publisherController.text);
-    widget.request.onYearChanged?.call(_yearController.text);
+    final fields = _resolveAdvancedFields();
+    for (final field in fields) {
+      widget.request.onAdvancedFilterChanged(
+        field.id,
+        field.parse(_advancedControllers[field.id]!.text),
+      );
+    }
     widget.request.onSearch();
   }
 
-  List<LibraryAddAdvancedFilterField> _resolveAdvancedFields() {
+  TextEditingController _controllerFor(
+    LibraryAddAdvancedFilterField<String> field,
+  ) {
+    return _advancedControllers.putIfAbsent(
+      field.id,
+      () => TextEditingController(text: field.textValue),
+    );
+  }
+
+  void _syncAdvancedControllers(
+    List<LibraryAddAdvancedFilterField<String>> fields,
+  ) {
+    final ids = fields.map((field) => field.id).toSet();
+    for (final id in _advancedControllers.keys.toList()) {
+      if (!ids.contains(id)) {
+        _advancedControllers.remove(id)?.dispose();
+      }
+    }
+    for (final field in fields) {
+      final controller = _controllerFor(field);
+      if (controller.text != field.textValue) {
+        controller.text = field.textValue;
+      }
+    }
+  }
+
+  List<LibraryAddAdvancedFilterField<String>> _resolveAdvancedFields() {
     if (widget.request.advancedFilterFields.isNotEmpty) {
       return widget.request.advancedFilterFields;
     }
-    final req = LibraryAddModeBarRequest(
-      type: widget.request.type,
-      accent: widget.request.accent,
-      isMovieDesktopChrome: widget.request.isMovieDesktopChrome,
-      mode: widget.request.mode,
-      queryController: widget.request.queryController,
-      barcodeController: widget.request.barcodeController,
-      isSearching: widget.request.isSearching,
-      isSearchingProvider: widget.request.isSearchingProvider,
-      onModeChanged: widget.request.onModeChanged,
-      onSearch: _handleSearch,
-      onQueryChanged: widget.request.onQueryChanged,
-      suggestions: widget.request.suggestions,
-      showSuggestions: widget.request.showSuggestions,
-      onSelectSuggestion: widget.request.onSelectSuggestion,
-      onDismissSuggestions: widget.request.onDismissSuggestions,
-      canScanCover: widget.request.canScanCover,
-      isScanningCover: widget.request.isScanningCover,
-      onScanCover: widget.request.onScanCover,
-      onLookupBarcode: widget.request.onLookupBarcode,
-      onManual: widget.request.onManual,
-      showAdvanced: widget.request.showAdvanced,
-      onToggleAdvanced: widget.request.onToggleAdvanced,
-      seriesController: _seriesController,
-      numberController: _numberController,
-      publisherController: _publisherController,
-      yearController: _yearController,
-    );
     return libraryKindRuntimeForKind(widget.request.type.workspace.kind)
-            .add
-            .advancedFilterFieldsBuilder
-            ?.call(req) ??
-        const [];
+        .add
+        .search
+        .advancedFilterFieldsBuilder(widget.request);
   }
 
   @override
@@ -206,6 +175,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
     final searchButtonLabel =
         labels.searchButtonLabel ?? 'Search ${request.type.pluralLabel}';
     final advancedFields = _resolveAdvancedFields();
+    _syncAdvancedControllers(advancedFields);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -229,9 +199,8 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                         ? request.barcodeController
                         : request.queryController,
                     onChanged: isSearch ? request.onQueryChanged : null,
-                    onSubmitted: (_) => isBarcode
-                        ? request.onLookupBarcode()
-                        : _handleSearch(),
+                    onSubmitted: (_) =>
+                        isBarcode ? request.onLookupBarcode() : _handleSearch(),
                     decoration: InputDecoration(
                       labelText: isBarcode
                           ? 'Barcode / UPC / ISBN'
@@ -268,8 +237,8 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                       ? null
                       : (isBarcode ? request.onLookupBarcode : _handleSearch),
                   style: libraryAddFilledButtonStyle(request.accent),
-                  icon:
-                      Icon(isBarcode ? Icons.qr_code_2 : Icons.search, size: 18),
+                  icon: Icon(isBarcode ? Icons.qr_code_2 : Icons.search,
+                      size: 18),
                   label: Text(isBarcode ? 'Lookup' : searchButtonLabel),
                 ),
               ],
@@ -326,11 +295,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
             ),
             if (isSearch && request.showAdvanced) ...[
               const SizedBox(height: 8),
-              if (labels.advancedFiltersBuilder != null)
-                labels.advancedFiltersBuilder!(context, request)
-              else if (request.advancedFiltersBuilder != null)
-                request.advancedFiltersBuilder!(context, request)
-              else if (advancedFields.isNotEmpty)
+              if (advancedFields.isNotEmpty)
                 Row(
                   children: [
                     for (var i = 0; i < advancedFields.length; i++) ...[
@@ -340,7 +305,8 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                           width: advancedFields[i].width,
                           child: TextField(
                             key: advancedFields[i].key,
-                            controller: advancedFields[i].controller,
+                            controller:
+                                _advancedControllers[advancedFields[i].id]!,
                             keyboardType: advancedFields[i].keyboardType,
                             onSubmitted: (_) => _handleSearch(),
                             decoration: InputDecoration(
@@ -354,7 +320,8 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                           flex: advancedFields[i].flex,
                           child: TextField(
                             key: advancedFields[i].key,
-                            controller: advancedFields[i].controller,
+                            controller:
+                                _advancedControllers[advancedFields[i].id]!,
                             keyboardType: advancedFields[i].keyboardType,
                             onSubmitted: (_) => _handleSearch(),
                             decoration: InputDecoration(
@@ -366,6 +333,10 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                     ],
                   ],
                 ),
+              if (labels.advancedFiltersBuilder != null)
+                labels.advancedFiltersBuilder!(context, request)
+              else if (request.advancedFiltersBuilder != null)
+                request.advancedFiltersBuilder!(context, request),
             ],
             if (labels.showSuggestions &&
                 isSearch &&

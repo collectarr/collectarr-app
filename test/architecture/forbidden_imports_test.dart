@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -359,9 +360,10 @@ class ComicFeature {}
       hierarchy: const LibraryHierarchyCapability(),
       inspector: const LibraryInspectorCapability(),
       transfer: const LibraryTransferCapability(),
-      add: const StandardLibraryAddCapability<GenericAddDraft>(
+      add: StandardLibraryAddCapability<GenericAddDraft>(
         kind: CatalogMediaKind.unknown,
         initialDraftBuilder: GenericAddDraft.new,
+        search: genericKindModule.add.search,
       ),
       edit: const LibraryEditCapability(),
       buildCardPresentation: (item, {required musicVertical}) =>

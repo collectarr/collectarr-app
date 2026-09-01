@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'library_add_pane_dependencies.dart';
 
 class LibraryAddBarcodePrefillBanner extends StatelessWidget {
@@ -70,22 +69,10 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
-    this.seriesController,
-    this.numberController,
-    this.publisherController,
-    this.yearController,
-    this.seriesText,
-    this.numberText,
-    this.publisherText,
-    this.yearText,
-    this.onSeriesChanged,
-    this.onNumberChanged,
-    this.onPublisherChanged,
-    this.onYearChanged,
+    required this.advancedFilterValues,
+    required this.onAdvancedFilterChanged,
     this.advancedFilterFields = const [],
     this.advancedFiltersBuilder,
-    this.videoKindFilters,
-    this.onVideoKindFilterChanged,
   });
 
   final LibraryTypeConfig type;
@@ -110,96 +97,79 @@ class LibraryAddModeBar extends StatefulWidget {
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
-  final TextEditingController? seriesController;
-  final TextEditingController? numberController;
-  final TextEditingController? publisherController;
-  final TextEditingController? yearController;
-  final String? seriesText;
-  final String? numberText;
-  final String? publisherText;
-  final String? yearText;
-  final ValueChanged<String>? onSeriesChanged;
-  final ValueChanged<String>? onNumberChanged;
-  final ValueChanged<String>? onPublisherChanged;
-  final ValueChanged<String>? onYearChanged;
-  final List<LibraryAddAdvancedFilterField> advancedFilterFields;
+  final Map<LibraryAddFilterId, Object?> advancedFilterValues;
+  final LibraryAddAdvancedFilterChanged onAdvancedFilterChanged;
+  final List<LibraryAddAdvancedFilterField<String>> advancedFilterFields;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       advancedFiltersBuilder;
-  final Set<String>? videoKindFilters;
-  final void Function(String kind, bool checked)? onVideoKindFilterChanged;
 
   @override
   State<LibraryAddModeBar> createState() => _LibraryAddModeBarState();
 }
 
 class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
-  late final TextEditingController _seriesController;
-  late final TextEditingController _numberController;
-  late final TextEditingController _publisherController;
-  late final TextEditingController _yearController;
-  late final bool _ownsControllers;
+  final Map<LibraryAddFilterId, TextEditingController> _advancedControllers =
+      {};
 
   @override
   void initState() {
     super.initState();
-    _ownsControllers = widget.seriesController == null;
-    _seriesController = widget.seriesController ??
-        TextEditingController(text: widget.seriesText ?? '');
-    _numberController = widget.numberController ??
-        TextEditingController(text: widget.numberText ?? '');
-    _publisherController = widget.publisherController ??
-        TextEditingController(text: widget.publisherText ?? '');
-    _yearController = widget.yearController ??
-        TextEditingController(text: widget.yearText ?? '');
+    _syncAdvancedControllers(_resolveAdvancedFields());
   }
 
   @override
   void didUpdateWidget(covariant LibraryAddModeBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_ownsControllers) {
-      if (widget.seriesText != null &&
-          widget.seriesText != _seriesController.text) {
-        _seriesController.text = widget.seriesText!;
-      }
-      if (widget.numberText != null &&
-          widget.numberText != _numberController.text) {
-        _numberController.text = widget.numberText!;
-      }
-      if (widget.publisherText != null &&
-          widget.publisherText != _publisherController.text) {
-        _publisherController.text = widget.publisherText!;
-      }
-      if (widget.yearText != null &&
-          widget.yearText != _yearController.text) {
-        _yearController.text = widget.yearText!;
-      }
-    }
+    _syncAdvancedControllers(_resolveAdvancedFields());
   }
 
   @override
   void dispose() {
-    if (_ownsControllers) {
-      _seriesController.dispose();
-      _numberController.dispose();
-      _publisherController.dispose();
-      _yearController.dispose();
+    for (final controller in _advancedControllers.values) {
+      controller.dispose();
     }
     super.dispose();
   }
 
   void _handleSearch() {
-    widget.onSeriesChanged?.call(_seriesController.text);
-    widget.onNumberChanged?.call(_numberController.text);
-    widget.onPublisherChanged?.call(_publisherController.text);
-    widget.onYearChanged?.call(_yearController.text);
+    final fields = _resolveAdvancedFields();
+    for (final field in fields) {
+      widget.onAdvancedFilterChanged(
+        field.id,
+        field.parse(_advancedControllers[field.id]!.text),
+      );
+    }
     widget.onSearch();
   }
 
-  List<LibraryAddAdvancedFilterField> _resolveAdvancedFields() {
-    if (widget.advancedFilterFields.isNotEmpty) {
-      return widget.advancedFilterFields;
+  TextEditingController _controllerFor(
+    LibraryAddAdvancedFilterField<String> field,
+  ) {
+    return _advancedControllers.putIfAbsent(
+      field.id,
+      () => TextEditingController(text: field.textValue),
+    );
+  }
+
+  void _syncAdvancedControllers(
+    List<LibraryAddAdvancedFilterField<String>> fields,
+  ) {
+    final ids = fields.map((field) => field.id).toSet();
+    for (final id in _advancedControllers.keys.toList()) {
+      if (!ids.contains(id)) {
+        _advancedControllers.remove(id)?.dispose();
+      }
     }
-    final req = LibraryAddModeBarRequest(
+    for (final field in fields) {
+      final controller = _controllerFor(field);
+      if (controller.text != field.textValue) {
+        controller.text = field.textValue;
+      }
+    }
+  }
+
+  LibraryAddModeBarRequest _buildRequest() {
+    return LibraryAddModeBarRequest(
       type: widget.type,
       accent: widget.accent,
       isMovieDesktopChrome: widget.isMovieDesktopChrome,
@@ -222,16 +192,21 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       onManual: widget.onManual,
       showAdvanced: widget.showAdvanced,
       onToggleAdvanced: widget.onToggleAdvanced,
-      seriesController: _seriesController,
-      numberController: _numberController,
-      publisherController: _publisherController,
-      yearController: _yearController,
+      advancedFilterValues: widget.advancedFilterValues,
+      onAdvancedFilterChanged: widget.onAdvancedFilterChanged,
+      advancedFilterFields: widget.advancedFilterFields,
+      advancedFiltersBuilder: widget.advancedFiltersBuilder,
     );
+  }
+
+  List<LibraryAddAdvancedFilterField<String>> _resolveAdvancedFields() {
+    if (widget.advancedFilterFields.isNotEmpty) {
+      return widget.advancedFilterFields;
+    }
     return libraryKindRuntimeForKind(widget.type.workspace.kind)
-            .add
-            .advancedFilterFieldsBuilder
-            ?.call(req) ??
-        const [];
+        .add
+        .search
+        .advancedFilterFieldsBuilder(_buildRequest());
   }
 
   @override
@@ -240,6 +215,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     final searchLabels = libraryMediaSearchFieldLabels(widget.type);
     final palette = appPalette(context);
     final advancedFields = _resolveAdvancedFields();
+    _syncAdvancedControllers(advancedFields);
     if (widget.isMovieDesktopChrome) {
       return DecoratedBox(
         decoration: BoxDecoration(
@@ -282,9 +258,10 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                           hintText: searchLabels.queryHint,
                           onSearch: (_) => _handleSearch(),
                           onChanged: widget.onQueryChanged,
-                          onScanBarcode: () =>
-                              widget.onModeChanged(LibraryAddDialogMode.barcode),
-                          onScanCover: widget.canScanCover ? widget.onScanCover : null,
+                          onScanBarcode: () => widget
+                              .onModeChanged(LibraryAddDialogMode.barcode),
+                          onScanCover:
+                              widget.canScanCover ? widget.onScanCover : null,
                           selectionColor: widget.accent,
                           maxWidth: 620,
                         ),
@@ -358,28 +335,17 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                   ],
                 ],
               ),
-              if (widget.mode == LibraryAddDialogMode.search && widget.showAdvanced) ...[
+              if (widget.mode == LibraryAddDialogMode.search &&
+                  widget.showAdvanced) ...[
                 const SizedBox(height: 6),
                 _AdvancedSearchFields(
-                  searchLabels: searchLabels,
-                  seriesController: _seriesController,
-                  numberController: _numberController,
-                  publisherController: _publisherController,
-                  yearController: _yearController,
                   advancedFilterFields: advancedFields,
+                  controllers: _advancedControllers,
                   onSubmitted: _handleSearch,
                 ),
-              ],
-              if (widget.mode == LibraryAddDialogMode.search &&
-                  widget.videoKindFilters != null &&
-                  widget.onVideoKindFilterChanged != null) ...[
                 const SizedBox(height: 6),
-                _VideoKindFilterRow(
-                  options: widget.type.addChrome.videoKindFilterOptions,
-                  filters: widget.videoKindFilters!,
-                  accent: widget.accent,
-                  onChanged: widget.onVideoKindFilterChanged!,
-                ),
+                if (widget.advancedFiltersBuilder != null)
+                  widget.advancedFiltersBuilder!(context, _buildRequest()),
               ],
               if (widget.mode == LibraryAddDialogMode.search &&
                   widget.showSuggestions &&
@@ -433,9 +399,10 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                             hintText: searchLabels.queryHint,
                             onSearch: (_) => _handleSearch(),
                             onChanged: widget.onQueryChanged,
-                            onScanBarcode: () =>
-                                widget.onModeChanged(LibraryAddDialogMode.barcode),
-                            onScanCover: widget.canScanCover ? widget.onScanCover : null,
+                            onScanBarcode: () => widget
+                                .onModeChanged(LibraryAddDialogMode.barcode),
+                            onScanCover:
+                                widget.canScanCover ? widget.onScanCover : null,
                             selectionColor: widget.accent,
                             maxWidth: 620,
                           ),
@@ -453,23 +420,13 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                     if (widget.showAdvanced) ...[
                       const SizedBox(height: 6),
                       _AdvancedSearchFields(
-                        searchLabels: searchLabels,
-                        seriesController: _seriesController,
-                        numberController: _numberController,
-                        publisherController: _publisherController,
-                        yearController: _yearController,
                         advancedFilterFields: advancedFields,
+                        controllers: _advancedControllers,
                         onSubmitted: _handleSearch,
                       ),
                     ],
-                    if (widget.videoKindFilters != null &&
-                        widget.onVideoKindFilterChanged != null)
-                      _VideoKindFilterRow(
-                        options: widget.type.addChrome.videoKindFilterOptions,
-                        filters: widget.videoKindFilters!,
-                        accent: widget.accent,
-                        onChanged: widget.onVideoKindFilterChanged!,
-                      ),
+                    if (widget.advancedFiltersBuilder != null)
+                      widget.advancedFiltersBuilder!(context, _buildRequest()),
                     if (widget.showSuggestions && widget.suggestions.isNotEmpty)
                       _SuggestionDropdown(
                         suggestions: widget.suggestions,
@@ -828,106 +785,44 @@ class _AdvancedToggleButton extends StatelessWidget {
 
 class _AdvancedSearchFields extends StatelessWidget {
   const _AdvancedSearchFields({
-    required this.searchLabels,
-    this.seriesController,
-    this.numberController,
-    this.publisherController,
-    this.yearController,
     this.advancedFilterFields = const [],
+    required this.controllers,
     required this.onSubmitted,
   });
 
-  final LibraryMediaSearchFieldLabels searchLabels;
-  final TextEditingController? seriesController;
-  final TextEditingController? numberController;
-  final TextEditingController? publisherController;
-  final TextEditingController? yearController;
-  final List<LibraryAddAdvancedFilterField> advancedFilterFields;
+  final List<LibraryAddAdvancedFilterField<String>> advancedFilterFields;
+  final Map<LibraryAddFilterId, TextEditingController> controllers;
   final VoidCallback onSubmitted;
 
   @override
   Widget build(BuildContext context) {
-    if (advancedFilterFields.isNotEmpty) {
-      return Row(
-        children: [
-          for (int i = 0; i < advancedFilterFields.length; i++) ...[
-            if (i > 0) const SizedBox(width: 6),
-            if (advancedFilterFields[i].width != null)
-              SizedBox(
-                width: advancedFilterFields[i].width,
-                child: _AdvancedField(
-                  fieldKey: advancedFilterFields[i].key,
-                  controller: advancedFilterFields[i].controller,
-                  hint: advancedFilterFields[i].label,
-                  onSubmitted: onSubmitted,
-                ),
-              )
-            else
-              Expanded(
-                flex: i == 0 ? 3 : (i == 1 ? 1 : 2),
-                child: _AdvancedField(
-                  fieldKey: advancedFilterFields[i].key,
-                  controller: advancedFilterFields[i].controller,
-                  hint: advancedFilterFields[i].label,
-                  onSubmitted: onSubmitted,
-                ),
-              ),
-          ],
-        ],
-      );
-    }
+    if (advancedFilterFields.isEmpty) return const SizedBox.shrink();
     return Row(
       children: [
-        if (seriesController != null)
-          Expanded(
-            flex: 3,
-            child: _AdvancedField(
-              fieldKey: const ValueKey('library-add-series-field'),
-              controller: seriesController!,
-              hint: searchLabels.seriesHint,
-              onSubmitted: onSubmitted,
+        for (int i = 0; i < advancedFilterFields.length; i++) ...[
+          if (i > 0) const SizedBox(width: 6),
+          if (advancedFilterFields[i].width != null)
+            SizedBox(
+              width: advancedFilterFields[i].width,
+              child: _AdvancedField(
+                fieldKey: advancedFilterFields[i].key,
+                controller: controllers[advancedFilterFields[i].id]!,
+                hint: advancedFilterFields[i].label,
+                keyboardType: advancedFilterFields[i].keyboardType,
+                onSubmitted: onSubmitted,
+              ),
+            )
+          else
+            Expanded(
+              flex: advancedFilterFields[i].flex,
+              child: _AdvancedField(
+                fieldKey: advancedFilterFields[i].key,
+                controller: controllers[advancedFilterFields[i].id]!,
+                hint: advancedFilterFields[i].label,
+                keyboardType: advancedFilterFields[i].keyboardType,
+                onSubmitted: onSubmitted,
+              ),
             ),
-          ),
-        if (numberController != null) ...[
-          if (seriesController != null) const SizedBox(width: 6),
-          Expanded(
-            flex: 1,
-            child: _AdvancedField(
-              fieldKey: const ValueKey('library-add-number-field'),
-              controller: numberController!,
-              hint: searchLabels.numberHint,
-              onSubmitted: onSubmitted,
-            ),
-          ),
-        ],
-        if (publisherController != null) ...[
-          if (seriesController != null || numberController != null)
-            const SizedBox(width: 6),
-          Expanded(
-            flex: 2,
-            child: _AdvancedField(
-              fieldKey: const ValueKey('library-add-publisher-field'),
-              controller: publisherController!,
-              hint: searchLabels.publisherHint,
-              onSubmitted: onSubmitted,
-            ),
-          ),
-        ],
-        if (yearController != null) ...[
-          if (seriesController != null ||
-              numberController != null ||
-              publisherController != null)
-            const SizedBox(width: 6),
-          SizedBox(
-            width: 60,
-            child: _AdvancedField(
-              fieldKey: const ValueKey('library-add-year-field'),
-              controller: yearController!,
-              hint: 'Year',
-              keyboardType: TextInputType.number,
-              onSubmitted: onSubmitted,
-            ),
-          ),
         ],
       ],
     );
@@ -1096,99 +991,6 @@ class _SuggestionTile extends StatelessWidget {
               ),
             ),
             Icon(Icons.arrow_forward_ios, size: 12, color: accent),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _VideoKindFilterRow extends StatelessWidget {
-  const _VideoKindFilterRow({
-    required this.options,
-    required this.filters,
-    required this.accent,
-    required this.onChanged,
-  });
-
-  final List<LibraryAddVideoKindFilterOption> options;
-  final Set<String> filters;
-  final Color accent;
-  final void Function(String kind, bool checked) onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: Row(
-        children: [
-          for (final option in options) ...[
-            _VideoKindCheckbox(
-              label: option.label,
-              icon: option.icon,
-              checked: filters.contains(option.kind),
-              accent: accent,
-              textColor: palette.textMuted,
-              onChanged: (checked) => onChanged(option.kind, checked),
-            ),
-            const SizedBox(width: 12),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _VideoKindCheckbox extends StatelessWidget {
-  const _VideoKindCheckbox({
-    required this.label,
-    required this.icon,
-    required this.checked,
-    required this.accent,
-    required this.textColor,
-    required this.onChanged,
-  });
-
-  final String label;
-  final IconData icon;
-  final bool checked;
-  final Color accent;
-  final Color textColor;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(4),
-      onTap: () => onChanged(!checked),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 18,
-              height: 18,
-              child: Checkbox(
-                value: checked,
-                onChanged: (v) => onChanged(v ?? false),
-                activeColor: accent,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(icon, size: 14, color: checked ? accent : textColor),
-            const SizedBox(width: 3),
-            Text(
-              label,
-              style: TextStyle(
-                color: checked ? accent : textColor,
-                fontSize: 11,
-                fontWeight: checked ? FontWeight.w800 : FontWeight.w600,
-              ),
-            ),
           ],
         ),
       ),

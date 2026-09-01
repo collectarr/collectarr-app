@@ -12,11 +12,14 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_prev
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
@@ -31,9 +34,7 @@ import 'package:collectarr_app/features/library/config/library_media_field_label
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -71,12 +72,10 @@ class LibraryAddSessionController
                   selectedProvider:
                       (type ?? libraryKindRuntimeForKind(kind).type)
                           .defaultSupportedMetadataProvider,
-                  videoKindFilters:
-                      (type ?? libraryKindRuntimeForKind(kind).type)
-                          .addChrome
-                          .defaultVideoKindFilters
-                          .map((k) => catalogMediaKindFromValue(k).apiValue)
-                          .toSet(),
+                  advancedFilters: libraryKindRuntimeForKind(kind)
+                      .add
+                      .search
+                      .initialAdvancedFilters,
                 ),
                 selection: const LibraryAddSelectionState(),
                 preview: const LibraryAddPreviewState.initial(),
@@ -117,6 +116,17 @@ class LibraryAddSessionController
 
   LibraryAddSessionState get state => value;
   set state(LibraryAddSessionState newState) => value = newState;
+
+  LibraryAddSearchCapability get _searchCapability =>
+      libraryKindRuntimeForKind(kind).add.search;
+
+  LibraryAddSearchContext _searchContext({String? query}) {
+    return LibraryAddSearchContext(
+      query: query ?? state.search.query,
+      barcode: state.search.barcode,
+      advancedFilters: state.search.advancedFilters,
+    );
+  }
 
   void setMode(LibraryAddDialogMode mode) {
     state = state.copyWith(mode: mode);
@@ -165,27 +175,17 @@ class LibraryAddSessionController
     );
   }
 
-  void updateSearchSeries(String series) {
-    state = state.copyWith(
-      search: state.search.copyWith(series: series),
+  void updateAdvancedFilter(LibraryAddFilterId id, Object? value) {
+    final filters = Map<LibraryAddFilterId, Object?>.from(
+      state.search.advancedFilters,
     );
-  }
-
-  void updateSearchNumber(String number) {
+    if (value == null) {
+      filters.remove(id);
+    } else {
+      filters[id] = value;
+    }
     state = state.copyWith(
-      search: state.search.copyWith(number: number),
-    );
-  }
-
-  void updateSearchPublisher(String publisher) {
-    state = state.copyWith(
-      search: state.search.copyWith(publisher: publisher),
-    );
-  }
-
-  void updateSearchYear(String year) {
-    state = state.copyWith(
-      search: state.search.copyWith(year: year),
+      search: state.search.copyWith(advancedFilters: filters),
     );
   }
 
@@ -203,28 +203,20 @@ class LibraryAddSessionController
     );
   }
 
-  void setVideoKindFilter(String kind, bool enabled) {
-    final canonicalKind = catalogMediaKindFromValue(kind).apiValue;
-    final currentFilters = Set<String>.from(state.search.videoKindFilters);
-    if (enabled) {
-      currentFilters.add(canonicalKind);
-    } else {
-      currentFilters.remove(canonicalKind);
-    }
-    state = state.copyWith(
-      search: state.search.copyWith(videoKindFilters: currentFilters),
-    );
-  }
-
   Future<void> fetchSuggestions(String query) async {
     if (api == null || catalog == null) return;
     try {
+      final searchContext = _searchContext(query: query);
       final filtered = await fetchLibraryAddSuggestions(
         api: api!,
         type: type,
         catalog: catalog!,
-        query: query,
-        limit: _autocompleteLimit,
+        input: _searchCapability.coreSearchInputBuilder(
+          searchContext,
+          limit: _autocompleteLimit,
+        ),
+        ranking: _searchCapability.ranking,
+        searchContext: searchContext,
       );
       state = state.copyWith(
         search: state.search.copyWith(
@@ -263,22 +255,11 @@ class LibraryAddSessionController
   }
 
   Future<void> executeSearch() async {
-    final searchLabels = libraryMediaSearchFieldLabels(type);
-    final query = state.search.query.trim();
-    final series = state.search.series.trim();
-    final number = state.search.number.trim();
-    final publisher = state.search.publisher.trim();
-    final yearText = state.search.year.trim();
-    final year = yearText.isNotEmpty ? int.tryParse(yearText) : null;
-
-    if (query.isEmpty &&
-        series.isEmpty &&
-        number.isEmpty &&
-        publisher.isEmpty &&
-        yearText.isEmpty) {
+    final searchContext = _searchContext();
+    if (!_searchCapability.hasSearchInput(searchContext)) {
       state = state.copyWith(
         search: state.search.copyWith(
-          error: searchLabels.emptySearchMessage,
+          error: libraryMediaSearchFieldLabels(type).emptySearchMessage,
         ),
       );
       return;
@@ -307,7 +288,7 @@ class LibraryAddSessionController
       );
       if (type.supportedMetadataProviders.isNotEmpty) {
         await searchProvider(
-          queryOverride: query,
+          queryOverride: searchContext.query,
           bypassDebounce: true,
         );
       }
@@ -319,16 +300,13 @@ class LibraryAddSessionController
         api: api!,
         type: type,
         catalog: catalog!,
-        input: LibraryMetadataSearchInput(
-          query: query.isNotEmpty ? query : null,
-          series: series.isNotEmpty ? series : null,
-          issueNumber: number.isNotEmpty ? number : null,
-          publisher: publisher.isNotEmpty ? publisher : null,
-          year: year,
+        input: _searchCapability.coreSearchInputBuilder(
+          searchContext,
           limit: 20,
         ),
         timeout: _coreSearchTimeout,
-        rerankHints: state.search.buildLocalRerankHints(),
+        ranking: _searchCapability.ranking,
+        searchContext: searchContext,
         providerSearchAvailable: type.supportedMetadataProviders.isNotEmpty,
       );
 
@@ -344,7 +322,7 @@ class LibraryAddSessionController
       if (searchGeneration == state.search.coreSearchGeneration &&
           searchResult.shouldSearchProvider) {
         await searchProvider(
-          queryOverride: query,
+          queryOverride: searchContext.query,
           bypassDebounce: true,
         );
       }
@@ -366,7 +344,7 @@ class LibraryAddSessionController
 
         if (canFallbackToProvider) {
           await searchProvider(
-            queryOverride: query,
+            queryOverride: searchContext.query,
             bypassDebounce: true,
           );
         }
@@ -391,24 +369,12 @@ class LibraryAddSessionController
     return type.defaultSupportedMetadataProvider;
   }
 
-  String get _providerQuery {
-    return buildLibraryAddProviderQuery([
-      state.search.query,
-      state.search.series,
-      state.search.number,
-      state.search.publisher,
-      state.search.year,
-      state.search.barcode,
-    ]);
-  }
-
   Future<void> searchProvider({
     String? queryOverride,
     bool bypassDebounce = false,
   }) async {
-    final query = queryOverride?.trim().isNotEmpty == true
-        ? queryOverride!.trim()
-        : _providerQuery;
+    final searchContext = _searchContext(query: queryOverride);
+    final query = _searchCapability.providerQueryBuilder(searchContext);
     if (query.isEmpty) {
       state = state.copyWith(
         search: state.search.copyWith(
@@ -457,29 +423,8 @@ class LibraryAddSessionController
     }
 
     try {
-      final isVideoKind = type.addChrome.videoKindFilterOptions.isNotEmpty;
-      final kindsToSearch = isVideoKind
-          ? (state.search.videoKindFilters.isEmpty
-              ? (type.addChrome.videoKindFilterOptions
-                  .map((o) => catalogMediaKindFromValue(o.kind).apiValue)
-                  .toSet()
-                  .toList())
-              : state.search.videoKindFilters
-                  .map((k) => catalogMediaKindFromValue(k).apiValue)
-                  .toSet()
-                  .toList())
-          : <String>[];
-
-      final seriesText = state.search.series.trim().isNotEmpty
-          ? state.search.series.trim()
-          : null;
-      final issueText = state.search.number.trim().isNotEmpty
-          ? state.search.number.trim()
-          : null;
-      final yearValue = state.search.year.trim().isNotEmpty
-          ? int.tryParse(state.search.year.trim())
-          : null;
-      final rerankHints = state.search.buildLocalRerankHints();
+      final kindsToSearch =
+          _searchCapability.providerKindOverrides(searchContext).toList();
 
       List<ProviderCandidate> results;
       if (kindsToSearch.length > 1) {
@@ -491,11 +436,9 @@ class LibraryAddSessionController
               type: type,
               provider: provider,
               query: query,
-              rerankHints: rerankHints,
+              ranking: _searchCapability.ranking,
+              searchContext: searchContext,
               providerRegistry: providerRegistry,
-              series: seriesText,
-              issueNumber: issueText,
-              year: yearValue,
               kindOverride: k,
             );
           } catch (_) {
@@ -511,11 +454,9 @@ class LibraryAddSessionController
           type: type,
           provider: provider,
           query: query,
-          rerankHints: rerankHints,
+          ranking: _searchCapability.ranking,
+          searchContext: searchContext,
           providerRegistry: providerRegistry,
-          series: seriesText,
-          issueNumber: issueText,
-          year: yearValue,
           kindOverride: kindsToSearch.first,
         );
       } else {
@@ -524,11 +465,9 @@ class LibraryAddSessionController
           type: type,
           provider: provider,
           query: query,
-          rerankHints: rerankHints,
+          ranking: _searchCapability.ranking,
+          searchContext: searchContext,
           providerRegistry: providerRegistry,
-          series: seriesText,
-          issueNumber: issueText,
-          year: yearValue,
         );
       }
 
@@ -867,15 +806,15 @@ class LibraryAddSessionController
         return;
       }
 
-      final query = (result.query ?? result.series ?? '').trim();
+      final query = (_searchCapability.coverScanQuery(result) ?? '').trim();
+      final advancedFilters =
+          Map<LibraryAddFilterId, Object?>.from(state.search.advancedFilters)
+            ..addAll(_searchCapability.coverScanFilterValues(result));
       state = state.copyWith(
         mode: LibraryAddDialogMode.search,
         search: state.search.copyWith(
           query: query,
-          series: result.series?.trim() ?? '',
-          number: result.issueNumber?.trim() ?? '',
-          publisher: result.publisher?.trim() ?? '',
-          year: result.year?.toString() ?? '',
+          advancedFilters: advancedFilters,
           showAdvancedSearch: result.showAdvancedFields,
           coverScanPrefill: result,
           results: const [],
@@ -1547,9 +1486,7 @@ class LibraryAddSessionController
       target: LibraryAddTarget.owned,
       search: LibraryAddSearchState.initial(
         selectedProvider: type.defaultSupportedMetadataProvider,
-        videoKindFilters: type.addChrome.defaultVideoKindFilters
-            .map((k) => catalogMediaKindFromValue(k).apiValue)
-            .toSet(),
+        advancedFilters: _searchCapability.initialAdvancedFilters,
       ),
       selection: const LibraryAddSelectionState(),
       preview: const LibraryAddPreviewState.initial(),

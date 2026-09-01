@@ -4,7 +4,9 @@ import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_ad
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
@@ -23,6 +25,11 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+
+const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
+const _boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
+const _boardGameYearFilterId = LibraryAddFilterId('boardgame.year');
 
 final boardGameKindModule =
     LibraryKindSpec<BoardGameWorkspaceDto, BoardgameOwnedDetails>(
@@ -59,11 +66,55 @@ final boardGameKindModule =
   transfer: LibraryTransferCapability(
     kindFields: boardgameTransferableFields,
   ),
-  add: const StandardLibraryAddCapability<BoardgameAddDraft>(
+  add: StandardLibraryAddCapability<BoardgameAddDraft>(
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardgameAddDraft.new,
     manualDraftBuilder: BoardgameAddManualDraft.new,
-    advancedFilterFieldsBuilder: buildBoardGameAddAdvancedFilterFields,
+    search: LibraryAddSearchCapability(
+      advancedFilterFieldsBuilder: buildBoardGameAddAdvancedFilterFields,
+      coreSearchInputBuilder: _buildBoardGameCoreSearchInput,
+      providerQueryBuilder: _buildBoardGameProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: _boardGameDesignerFilterId,
+            exactWeight: 110,
+            containsWeight: 44,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is BoardGameMetadata
+                  ? [...metadata.designers, ...metadata.artists]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.summary],
+          ),
+          LibraryAddSearchRankField(
+            id: _boardGamePublisherFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is BoardGameMetadata
+                  ? [...metadata.publishers, metadata.publisher]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.publisher],
+          ),
+          LibraryAddSearchRankField(
+            id: _boardGameYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is BoardGameMetadata
+                  ? [item.releaseYear, metadata.yearPublished]
+                  : [item.releaseYear];
+            },
+            providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          ),
+        ],
+      ),
+    ),
     manualPaneBuilder: buildBoardgameAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -90,27 +141,60 @@ final boardGameKindModule =
 Map<String, dynamic> _encodeBoardGameMetadata(BoardGameMetadata m) =>
     m.toJson();
 
-List<LibraryAddAdvancedFilterField> buildBoardGameAddAdvancedFilterFields(
+List<LibraryAddAdvancedFilterField<String>>
+    buildBoardGameAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
-    [
-      if (req.seriesController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-series-field'),
-          label: 'Franchise / Designer',
-          controller: req.seriesController!,
-        ),
-      if (req.publisherController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-publisher-field'),
-          label: 'Publisher',
-          controller: req.publisherController!,
-        ),
-      if (req.yearController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-year-field'),
-          label: 'Year',
-          controller: req.yearController!,
-          width: 120,
-        ),
-    ];
+        [
+          LibraryAddAdvancedFilterField<String>(
+            id: _boardGameDesignerFilterId,
+            key: const ValueKey('library-add-designer-field'),
+            label: 'Designer',
+            value: req.advancedFilterText(_boardGameDesignerFilterId),
+            parse: (text) => text.trim(),
+          ),
+          LibraryAddAdvancedFilterField<String>(
+            id: _boardGamePublisherFilterId,
+            key: const ValueKey('library-add-publisher-field'),
+            label: 'Publisher',
+            value: req.advancedFilterText(_boardGamePublisherFilterId),
+            parse: (text) => text.trim(),
+          ),
+          LibraryAddAdvancedFilterField<String>(
+            id: _boardGameYearFilterId,
+            key: const ValueKey('library-add-year-field'),
+            label: 'Year',
+            value: req.advancedFilterText(_boardGameYearFilterId),
+            parse: (text) => text.trim(),
+            width: 120,
+          ),
+        ];
+
+LibraryMetadataSearchInput _buildBoardGameCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  return LibraryMetadataSearchInput(
+    query: _optionalBoardGameText(context.query),
+    publisher: _optionalBoardGameText(
+        context.textValueFor(_boardGamePublisherFilterId)),
+    year: int.tryParse(context.textValueFor(_boardGameYearFilterId)),
+    barcode: _optionalBoardGameText(context.barcode),
+    limit: limit,
+  );
+}
+
+String _buildBoardGameProviderQuery(LibraryAddSearchContext context) {
+  return buildLibraryAddSearchQuery([
+    context.query,
+    context.textValueFor(_boardGameDesignerFilterId),
+    context.textValueFor(_boardGamePublisherFilterId),
+    context.textValueFor(_boardGameYearFilterId),
+    context.barcode,
+  ]);
+}
+
+String? _optionalBoardGameText(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}

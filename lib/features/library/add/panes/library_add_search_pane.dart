@@ -19,11 +19,8 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.checkedResultIds,
     required this.checkedProviderIds,
     required this.ownedCatalogItemIds,
-    required this.providerQueryText,
-    required this.providerSeriesText,
-    required this.providerNumberText,
-    required this.providerPublisherText,
-    required this.providerYearText,
+    this.coreMatchSummary,
+    this.providerMatchSummary,
     required this.isWideLayout,
     required this.showCoreResults,
     required this.showProviderResults,
@@ -63,11 +60,8 @@ class LibraryAddSearchPane extends StatelessWidget {
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
   final Set<String> ownedCatalogItemIds;
-  final String providerQueryText;
-  final String providerSeriesText;
-  final String providerNumberText;
-  final String providerPublisherText;
-  final String providerYearText;
+  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final bool isWideLayout;
   final bool showCoreResults;
   final bool showProviderResults;
@@ -131,11 +125,8 @@ class LibraryAddSearchPane extends StatelessWidget {
               checkedResultIds: checkedResultIds,
               checkedProviderIds: checkedProviderIds,
               ownedCatalogItemIds: ownedCatalogItemIds,
-              providerQueryText: providerQueryText,
-              providerSeriesText: providerSeriesText,
-              providerNumberText: providerNumberText,
-              providerPublisherText: providerPublisherText,
-              providerYearText: providerYearText,
+              coreMatchSummary: coreMatchSummary,
+              providerMatchSummary: providerMatchSummary,
               hideComicOwnedResults: hideComicOwnedResults,
               hideComicVariantResults: hideComicVariantResults,
               compactComicIssues: compactComicIssues,
@@ -389,11 +380,8 @@ class _SearchResultsList extends StatelessWidget {
     required this.checkedResultIds,
     required this.checkedProviderIds,
     required this.ownedCatalogItemIds,
-    required this.providerQueryText,
-    required this.providerSeriesText,
-    required this.providerNumberText,
-    required this.providerPublisherText,
-    required this.providerYearText,
+    this.coreMatchSummary,
+    this.providerMatchSummary,
     required this.hideComicOwnedResults,
     required this.hideComicVariantResults,
     required this.compactComicIssues,
@@ -419,11 +407,8 @@ class _SearchResultsList extends StatelessWidget {
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
   final Set<String> ownedCatalogItemIds;
-  final String providerQueryText;
-  final String providerSeriesText;
-  final String providerNumberText;
-  final String providerPublisherText;
-  final String providerYearText;
+  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final bool hideComicOwnedResults;
   final bool hideComicVariantResults;
   final bool compactComicIssues;
@@ -475,11 +460,8 @@ class _SearchResultsList extends StatelessWidget {
         checkedResultIds: checkedResultIds,
         ownedCatalogItemIds: ownedCatalogItemIds,
         providerLabel: type.metadataProviderLabel,
-        queryText: providerQueryText,
-        seriesText: providerSeriesText,
-        numberText: providerNumberText,
-        publisherText: providerPublisherText,
-        yearText: providerYearText,
+        coreMatchSummary: coreMatchSummary,
+        providerMatchSummary: providerMatchSummary,
         onSelectResult: onSelectResult,
         onSelectProviderCandidate: onSelectProviderCandidate,
         onToggleResultCheck: onToggleResultCheck,
@@ -518,11 +500,8 @@ class _SearchResultsList extends StatelessWidget {
             onSelectProviderCandidate: onSelectProviderCandidate,
             onToggleResultCheck: onToggleResultCheck,
             onToggleProviderCheck: onToggleProviderCheck,
-            queryText: providerQueryText,
-            seriesText: providerSeriesText,
-            numberText: providerNumberText,
-            publisherText: providerPublisherText,
-            yearText: providerYearText,
+            coreMatchSummary: coreMatchSummary,
+            providerMatchSummary: providerMatchSummary,
           ),
           if (i < groups.length - 1)
             Divider(height: 1, thickness: 1, color: palette.divider),
@@ -566,11 +545,8 @@ class _MovieSearchResultsGrid extends StatelessWidget {
     required this.checkedResultIds,
     required this.ownedCatalogItemIds,
     required this.providerLabel,
-    required this.queryText,
-    required this.seriesText,
-    required this.numberText,
-    required this.publisherText,
-    required this.yearText,
+    this.coreMatchSummary,
+    this.providerMatchSummary,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
@@ -586,11 +562,8 @@ class _MovieSearchResultsGrid extends StatelessWidget {
   final Set<String> checkedResultIds;
   final Set<String> ownedCatalogItemIds;
   final String Function(String providerId) providerLabel;
-  final String queryText;
-  final String seriesText;
-  final String numberText;
-  final String publisherText;
-  final String yearText;
+  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
@@ -647,24 +620,8 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                   candidate?.summary,
               ].whereType<String>().join(' · ');
         final matchSummary = isCore
-            ? _metadataItemMatchSummary(
-                type: type,
-                item: item,
-                queryText: queryText,
-                seriesText: seriesText,
-                numberText: numberText,
-                publisherText: publisherText,
-                yearText: yearText,
-              )
-            : _providerCandidateMatchSummary(
-                type: type,
-                candidate: candidate!,
-                queryText: queryText,
-                seriesText: seriesText,
-                numberText: numberText,
-                publisherText: publisherText,
-                yearText: yearText,
-              );
+            ? coreMatchSummary?.call(item)
+            : providerMatchSummary?.call(candidate!);
         final ownedTone = Theme.of(context).colorScheme.tertiary;
         final ownedFill = Color.alphaBlend(
           ownedTone.withValues(alpha: 0.16),
@@ -995,11 +952,7 @@ class SearchResultTile extends StatelessWidget {
     required this.type,
     required this.item,
     required this.accent,
-    required this.queryText,
-    required this.seriesText,
-    required this.numberText,
-    required this.publisherText,
-    required this.yearText,
+    this.matchSummary,
     required this.selected,
     required this.checked,
     this.isOwned = false,
@@ -1010,11 +963,7 @@ class SearchResultTile extends StatelessWidget {
   final LibraryTypeConfig type;
   final LibraryMetadataItem item;
   final Color accent;
-  final String queryText;
-  final String seriesText;
-  final String numberText;
-  final String publisherText;
-  final String yearText;
+  final String? Function(LibraryMetadataItem item)? matchSummary;
   final bool selected;
   final bool checked;
   final bool isOwned;
@@ -1031,15 +980,7 @@ class SearchResultTile extends StatelessWidget {
       LibraryDensity.compact => 0.9,
       LibraryDensity.dense => 0.82,
     };
-    final matchSummary = _metadataItemMatchSummary(
-      type: type,
-      item: item,
-      queryText: queryText,
-      seriesText: seriesText,
-      numberText: numberText,
-      publisherText: publisherText,
-      yearText: yearText,
-    );
+    final summary = matchSummary?.call(item);
     final resultDisplay =
         type.presentation.builder.buildSearchResultDisplay(item: item);
     final payload = item.kindMetadata.toSyncPayload();
@@ -1130,7 +1071,7 @@ class SearchResultTile extends StatelessWidget {
                     final showDetailLine =
                         detailLine != null && detailLine.trim().isNotEmpty;
                     final showMatchSummary =
-                        matchSummary != null && (!compact || !showDetailLine);
+                        summary != null && (!compact || !showDetailLine);
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -1186,7 +1127,7 @@ class SearchResultTile extends StatelessWidget {
                         if (showMatchSummary) ...[
                           SizedBox(height: 3 * densityScale),
                           Text(
-                            'Matched on: $matchSummary',
+                            'Matched on: $summary',
                             maxLines: compact ? 1 : 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -1220,88 +1161,6 @@ class SearchResultTile extends StatelessWidget {
   }
 }
 
-String? _metadataItemMatchSummary({
-  required LibraryTypeConfig type,
-  required LibraryMetadataItem item,
-  required String queryText,
-  required String seriesText,
-  required String numberText,
-  required String publisherText,
-  required String yearText,
-}) {
-  final groupLabels = libraryMediaGroupLabels(type);
-  final fieldLabels = libraryKindRuntimeForType(type).edit.mediaFields;
-  final payload = item.kindMetadata.toSyncPayload();
-  final seriesMap = payload['series'] as Map?;
-  final seriesTitle =
-      (payload['series_title'] ?? seriesMap?['series_title']) as String?;
-  final publisher = (payload['publisher'] ??
-      (payload['publishing'] as Map?)?['original_publisher']) as String?;
-  final itemNumber = (payload['item_number'] ??
-      (payload['publishing'] as Map?)?['issue_number']) as String?;
-  final displayEditionLabel =
-      (payload['edition_title'] ?? payload['title_extension']) as String?;
-  final barcode = payload['barcode'] as String?;
-  final volumeName = seriesMap?['volume_name'] as String?;
-  final volumeNumber = seriesMap?['volume_number']?.toString();
-  final seasonNumber =
-      (payload['season_number'] ?? seriesMap?['season_number'])?.toString();
-  final episodeNumber =
-      (payload['episode_number'] ?? seriesMap?['episode_number'])?.toString();
-  final reasons = <String>[];
-  final seen = <String>{};
-
-  void addIfMatch(String label, String needle, List<String?> haystacks) {
-    final normalizedNeedle = needle.trim().toLowerCase();
-    if (normalizedNeedle.isEmpty || !seen.add(label)) {
-      return;
-    }
-    for (final haystack in haystacks) {
-      final normalizedHaystack = haystack?.trim().toLowerCase();
-      if (normalizedHaystack != null &&
-          normalizedHaystack.isNotEmpty &&
-          normalizedHaystack.contains(normalizedNeedle)) {
-        reasons.add(label);
-        return;
-      }
-    }
-    seen.remove(label);
-  }
-
-  addIfMatch('Title', queryText, [item.title]);
-  addIfMatch(groupLabels.series, seriesText, [seriesTitle]);
-  addIfMatch(groupLabels.publisher, publisherText, [publisher]);
-  addIfMatch(fieldLabels.numberLabel, numberText, [
-    itemNumber,
-    volumeName,
-    volumeNumber,
-    seasonNumber,
-    episodeNumber,
-    displayEditionLabel,
-  ]);
-  addIfMatch('Year', yearText, [
-    item.releaseYear?.toString(),
-    item.releaseDate?.year.toString(),
-  ]);
-
-  final generalQuery = queryText.trim();
-  if (generalQuery.isNotEmpty) {
-    addIfMatch(groupLabels.series, generalQuery, [seriesTitle]);
-    addIfMatch(groupLabels.publisher, generalQuery, [publisher]);
-    addIfMatch(fieldLabels.numberLabel, generalQuery, [
-      itemNumber,
-      volumeName,
-      volumeNumber,
-      seasonNumber,
-      episodeNumber,
-      displayEditionLabel,
-      barcode,
-    ]);
-  }
-
-  return reasons.isEmpty ? null : reasons.join(', ');
-}
-
 class ProviderCandidateTile extends StatelessWidget {
   const ProviderCandidateTile({
     super.key,
@@ -1310,11 +1169,7 @@ class ProviderCandidateTile extends StatelessWidget {
     required this.accent,
     required this.providerLabel,
     required this.queuedIngest,
-    required this.providerQueryText,
-    required this.providerSeriesText,
-    required this.providerNumberText,
-    required this.providerPublisherText,
-    required this.providerYearText,
+    this.matchSummary,
     required this.selected,
     required this.onSelect,
   });
@@ -1324,11 +1179,7 @@ class ProviderCandidateTile extends StatelessWidget {
   final Color accent;
   final String providerLabel;
   final LibraryQueuedProviderIngest? queuedIngest;
-  final String providerQueryText;
-  final String providerSeriesText;
-  final String providerNumberText;
-  final String providerPublisherText;
-  final String providerYearText;
+  final String? Function(ProviderCandidate candidate)? matchSummary;
   final bool selected;
   final VoidCallback onSelect;
 
@@ -1342,15 +1193,7 @@ class ProviderCandidateTile extends StatelessWidget {
       LibraryDensity.compact => 0.9,
       LibraryDensity.dense => 0.82,
     };
-    final matchSummary = _providerCandidateMatchSummary(
-      type: type,
-      candidate: candidate,
-      queryText: providerQueryText,
-      seriesText: providerSeriesText,
-      numberText: providerNumberText,
-      publisherText: providerPublisherText,
-      yearText: providerYearText,
-    );
+    final summary = matchSummary?.call(candidate);
     final subtitle = [
       providerLabel,
       candidate.summary,
@@ -1415,10 +1258,10 @@ class ProviderCandidateTile extends StatelessWidget {
                             ),
                           ),
                         ],
-                        if (matchSummary != null) ...[
+                        if (summary != null) ...[
                           const SizedBox(height: 3),
                           Text(
-                            'Matched on: $matchSummary',
+                            'Matched on: $summary',
                             maxLines: compact ? 1 : 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -1460,65 +1303,6 @@ class ProviderCandidateTile extends StatelessWidget {
       ),
     );
   }
-}
-
-String? _providerCandidateMatchSummary({
-  required LibraryTypeConfig type,
-  required ProviderCandidate candidate,
-  required String queryText,
-  required String seriesText,
-  required String numberText,
-  required String publisherText,
-  required String yearText,
-}) {
-  final groupLabels = libraryMediaGroupLabels(type);
-  final fieldLabels = libraryKindRuntimeForType(type).edit.mediaFields;
-  final reasons = <String>[];
-  final seen = <String>{};
-
-  void addIfMatch(String label, String needle, List<String?> haystacks) {
-    final normalizedNeedle = needle.trim().toLowerCase();
-    if (normalizedNeedle.isEmpty || !seen.add(label)) {
-      return;
-    }
-    for (final haystack in haystacks) {
-      final normalizedHaystack = haystack?.trim().toLowerCase();
-      if (normalizedHaystack != null &&
-          normalizedHaystack.isNotEmpty &&
-          normalizedHaystack.contains(normalizedNeedle)) {
-        reasons.add(label);
-        return;
-      }
-    }
-    seen.remove(label);
-  }
-
-  addIfMatch('Title', queryText, [candidate.title]);
-  addIfMatch(groupLabels.series, seriesText, [candidate.series?.seriesTitle]);
-  addIfMatch(groupLabels.publisher, publisherText, [candidate.publisher]);
-  addIfMatch(fieldLabels.numberLabel, numberText, [
-    candidate.issueNumber,
-    candidate.variantName,
-  ]);
-  addIfMatch('Year', yearText, [candidate.series?.volumeStartYear?.toString()]);
-
-  final generalQuery = queryText.trim();
-  if (generalQuery.isNotEmpty) {
-    addIfMatch(
-        groupLabels.series, generalQuery, [candidate.series?.seriesTitle]);
-    addIfMatch(groupLabels.publisher, generalQuery, [candidate.publisher]);
-    addIfMatch(fieldLabels.numberLabel, generalQuery, [
-      candidate.issueNumber,
-      candidate.variantName,
-      candidate.series?.volumeStartYear?.toString(),
-    ]);
-    addIfMatch('Keyword', generalQuery, [
-      candidate.summary,
-      candidate.providerItemId,
-    ]);
-  }
-
-  return reasons.isEmpty ? null : reasons.join(', ');
 }
 
 class _NoSearchResults extends StatelessWidget {

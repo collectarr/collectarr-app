@@ -17,7 +17,9 @@ import 'package:collectarr_app/features/library/kinds/game/inspector_panel.dart'
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
@@ -29,6 +31,10 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_worksp
 
 import 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+
+const _gamePlatformFilterId = LibraryAddFilterId('game.platform');
+const _gameYearFilterId = LibraryAddFilterId('game.year');
 
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   type: gamesLibraryConfig,
@@ -64,11 +70,43 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   ),
   transfer: const LibraryTransferCapability(),
   stats: const GameStatsCapability(),
-  add: const StandardLibraryAddCapability<GameAddDraft>(
+  add: StandardLibraryAddCapability<GameAddDraft>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
     manualDraftBuilder: GameAddManualDraft.new,
-    advancedFilterFieldsBuilder: buildGameAddAdvancedFilterFields,
+    search: LibraryAddSearchCapability(
+      advancedFilterFieldsBuilder: buildGameAddAdvancedFilterFields,
+      coreSearchInputBuilder: _buildGameCoreSearchInput,
+      providerQueryBuilder: _buildGameProviderQuery,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: _gamePlatformFilterId,
+            exactWeight: 110,
+            containsWeight: 44,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is GameCatalogMetadata
+                  ? [metadata.platform, ...metadata.platforms]
+                  : const <Object?>[];
+            },
+            providerValues: (candidate) => [candidate.summary],
+          ),
+          LibraryAddSearchRankField(
+            id: _gameYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindMetadata;
+              return metadata is GameCatalogMetadata
+                  ? [item.releaseYear, metadata.releaseDate?.year]
+                  : [item.releaseYear];
+            },
+            providerValues: (candidate) => [candidate.series?.volumeStartYear],
+          ),
+        ],
+      ),
+    ),
     manualPaneBuilder: buildGameAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -95,27 +133,54 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
 
 Map<String, dynamic> _encodeGameMetadata(GameCatalogMetadata m) => m.toJson();
 
-List<LibraryAddAdvancedFilterField> buildGameAddAdvancedFilterFields(
+List<LibraryAddAdvancedFilterField<String>> buildGameAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
 ) =>
     [
-      if (req.seriesController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-series-field'),
-          label: 'Franchise / Developer',
-          controller: req.seriesController!,
-        ),
-      if (req.publisherController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-publisher-field'),
-          label: 'Publisher',
-          controller: req.publisherController!,
-        ),
-      if (req.yearController != null)
-        LibraryAddAdvancedFilterField(
-          key: const ValueKey('library-add-year-field'),
-          label: 'Year',
-          controller: req.yearController!,
-          width: 120,
-        ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _gamePlatformFilterId,
+        key: const ValueKey('library-add-platform-field'),
+        label: 'Platform',
+        value: req.advancedFilterText(_gamePlatformFilterId),
+        parse: (text) => text.trim(),
+      ),
+      LibraryAddAdvancedFilterField<String>(
+        id: _gameYearFilterId,
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        value: req.advancedFilterText(_gameYearFilterId),
+        parse: (text) => text.trim(),
+        width: 120,
+      ),
     ];
+
+LibraryMetadataSearchInput _buildGameCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  return LibraryMetadataSearchInput(
+    query: _optionalGameText(
+      buildLibraryAddSearchQuery([
+        context.query,
+        context.textValueFor(_gamePlatformFilterId),
+      ]),
+    ),
+    year: int.tryParse(context.textValueFor(_gameYearFilterId)),
+    barcode: _optionalGameText(context.barcode),
+    limit: limit,
+  );
+}
+
+String _buildGameProviderQuery(LibraryAddSearchContext context) {
+  return buildLibraryAddSearchQuery([
+    context.query,
+    context.textValueFor(_gamePlatformFilterId),
+    context.textValueFor(_gameYearFilterId),
+    context.barcode,
+  ]);
+}
+
+String? _optionalGameText(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}
