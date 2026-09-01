@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:flutter/material.dart';
 
@@ -9,8 +10,11 @@ const musicMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Album identity',
   contextSectionTitle: 'Album context',
   creditsSectionTitle: 'Contributors & Discovery',
-  creators: 'Contributors',
-  characters: 'Featured artists',
+  values: {
+    'creators': 'Contributors',
+    'characters': 'Featured artists',
+    'genres': 'Genres',
+  },
 );
 
 const musicLibraryMediaBuilder = MusicLibraryMediaPresentationBuilder(
@@ -18,25 +22,84 @@ const musicLibraryMediaBuilder = MusicLibraryMediaPresentationBuilder(
 );
 
 const musicPreviewLabels = LibraryMediaPreviewLabels(
-  series: 'Artist',
-  itemCount: 'Releases',
+  values: {'series': 'Artist', 'item_count': 'Releases'},
 );
 
 const musicStatsLabels = LibraryMediaStatsLabels(
-  topSeries: 'Top Artists',
-  topPublisher: 'Top Labels',
+  values: {'top_series': 'Top Artists', 'top_publisher': 'Top Labels'},
 );
 
 const musicLibraryGroupLabels = LibraryMediaGroupLabels(
-  series: 'Artist',
-  seriesPlural: 'Artists',
-  unknownSeries: 'Unknown artist',
-  publisher: 'Label',
-  publisherPlural: 'Labels',
-  unknownPublisher: 'Unknown label',
+  values: {
+    'series': 'Artist',
+    'series_plural': 'Artists',
+    'unknown_series': 'Unknown artist',
+    'publisher': 'Label',
+    'publisher_plural': 'Labels',
+    'unknown_publisher': 'Unknown label',
+  },
 );
 
 const musicLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+
+final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
+  LibraryFilterDefinition<dynamic>(
+    id: 'series',
+    label: 'Artist',
+    anyLabel: 'Any artist',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'location',
+    label: 'Location',
+    anyLabel: 'Any location',
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'tag',
+    label: 'Tag',
+    anyLabel: 'Any tag',
+    inputKind: LibraryFilterInputKind.autocomplete,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'publisher',
+    label: 'Label',
+    anyLabel: 'Any label',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).publisher
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'year',
+    label: 'Year',
+    anyLabel: 'Any year',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'condition',
+    label: 'Condition',
+    anyLabel: 'Any condition',
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'country',
+    label: 'Country',
+    anyLabel: 'Any country',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).country
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'language',
+    label: 'Language',
+    anyLabel: 'Any language',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).language
+        : null,
+  ),
+];
 
 String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   return defaultLibraryBucketLabel(
@@ -50,15 +113,16 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter album, artist, release, or label...',
     emptySearchMessage: 'Enter an album, artist, release, or label.',
-    seriesHint: 'Artist...',
-    numberHint: 'Album / Release...',
-    publisherHint: 'Label...',
   ),
   filterLabels: const LibraryMediaFilterLabels(
-    series: 'Artist',
-    anySeries: 'Any artist',
-    publisher: 'Label',
-    anyPublisher: 'Any label',
+    values: {
+      'series': 'Artist',
+      'series_any': 'Any artist',
+      'publisher': 'Label',
+      'publisher_any': 'Any label',
+      'year': 'Year',
+      'year_any': 'Any year',
+    },
   ),
   groupLabels: musicLibraryGroupLabels,
   builder: musicLibraryMediaBuilder,
@@ -66,9 +130,10 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: musicLibraryBucketLabelBuilder,
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,
+  filterDefinitions: musicLibraryFilterDefinitions,
   supportsTrackSearch: true,
   usesTrackListCard: true,
-  referenceLabels: const LibraryReferenceLabels(itemScope: 'Album'),
+  referenceLabels: const LibraryReferenceLabels(values: {'item': 'Album'}),
   compactBucketIcon: Icons.person_2_outlined,
   fieldDefinitions: musicLibraryFieldDefinitions,
 );

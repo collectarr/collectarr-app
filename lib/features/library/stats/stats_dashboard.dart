@@ -279,11 +279,14 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   String get _seriesLabel {
-    return _statsLabels.topSeries;
+    return _statsLabels.labelFor('top_series', fallback: 'Top Series');
   }
 
   String get _publisherLabel {
-    return _statsLabels.topPublisher;
+    return _statsLabels.labelFor(
+      'top_publisher',
+      fallback: 'Top Publishers',
+    );
   }
 
   static Map<String, int> _topSeriesCounts(
@@ -442,8 +445,10 @@ class _GenericStatsDashboard extends StatelessWidget {
     LibraryKindRuntime module,
   ) {
     final labels = libraryMediaGroupLabels(type);
-    final missingPublisherLabel = 'Missing ${labels.publisher.toLowerCase()}';
-    final missingSeriesLabel = 'Missing ${labels.series.toLowerCase()}';
+    final missingPublisherLabel =
+        'Missing ${labels.labelFor('publisher', fallback: 'publisher').toLowerCase()}';
+    final missingSeriesLabel =
+        'Missing ${labels.labelFor('series', fallback: 'series').toLowerCase()}';
     final counts = <String, int>{};
     for (final entry in entries) {
       final item = entry.catalogItem;
@@ -515,14 +520,16 @@ class _GenericStatsDashboard extends StatelessWidget {
       item.common.synopsis != null && item.common.synopsis!.trim().isNotEmpty,
       25,
     );
-    add(adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty, 15);
+    add(adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty,
+        15);
     add(
         item.releaseDate != null ||
             item.releaseYear != null ||
             adapter?.releaseDate != null,
         15);
     add(adapter?.seriesTitle != null && adapter!.seriesTitle!.isNotEmpty, 10);
-    add(adapter?.itemNumber != null && adapter!.itemNumber!.trim().isNotEmpty, 10);
+    add(adapter?.itemNumber != null && adapter!.itemNumber!.trim().isNotEmpty,
+        10);
 
     if (score >= 80) {
       return 'Strong';

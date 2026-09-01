@@ -46,8 +46,7 @@ class GameLibraryMediaPresentationBuilder
               value: variant,
               onTap: tapFor(variant)),
         if (barcode != null)
-          LibraryDetailField(
-              label: releaseFields.barcodeLabel, value: barcode),
+          LibraryDetailField(label: releaseFields.barcodeLabel, value: barcode),
         if (metadata?.ageRating != null)
           LibraryDetailField(label: 'Age Rating', value: metadata!.ageRating!),
       ],
@@ -64,10 +63,18 @@ class GameLibraryMediaPresentationBuilder
                 releaseDate.year.toString(),
           ),
       ],
-      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
-      characters: const <String>[],
-      storyArcs: const <String>[],
-      genres: metadata?.genres ?? const <String>[],
+      sections: {
+        'creators': LibraryMetadataSection(
+          values: metadata?.creators ?? const <Map<String, dynamic>>[],
+          placement: LibraryMetadataSectionPlacement.credits,
+          renderer: LibraryMetadataSectionRenderer.credits,
+          routePrefix: 'creator',
+          completenessWeight: 12,
+        ),
+        'genres': LibraryMetadataSection(
+          values: metadata?.genres ?? const <String>[],
+        ),
+      },
     );
   }
 }

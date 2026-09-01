@@ -2,18 +2,29 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
+const comicsMetadataLabels = LibraryMetadataLabels(
+  values: {
+    'creators': 'Creators',
+    'characters': 'Characters',
+    'story_arcs': 'Story Arcs',
+    'story_arcs_inline': 'Story arcs',
+    'genres': 'Genres',
+  },
+);
+
 const comicLibraryMediaBuilder = ComicLibraryMediaPresentationBuilder(
   showSummary: true,
+  metadataLabels: comicsMetadataLabels,
 );
 
 const comicsPreviewLabels = LibraryMediaPreviewLabels(
-  series: 'Series',
-  itemCount: 'Issues',
+  values: {'series': 'Series', 'item_count': 'Issues'},
 );
 
 const comicsIssueVisibleColumns = {
@@ -32,15 +43,87 @@ const comicsIssueVisibleColumns = {
 };
 
 const comicLibraryGroupLabels = LibraryMediaGroupLabels(
-  series: 'Series',
-  seriesPlural: 'Series',
-  unknownSeries: 'Unknown series',
-  publisher: 'Publisher',
-  publisherPlural: 'Publishers',
-  unknownPublisher: 'Unknown publisher',
+  values: {
+    'series': 'Series',
+    'series_plural': 'Series',
+    'unknown_series': 'Unknown series',
+    'publisher': 'Publisher',
+    'publisher_plural': 'Publishers',
+    'unknown_publisher': 'Unknown publisher',
+  },
 );
 
 const comicLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+
+final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
+  LibraryFilterDefinition<dynamic>(
+    id: 'series',
+    label: 'Series',
+    anyLabel: 'Any series',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'location',
+    label: 'Location',
+    anyLabel: 'Any location',
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'tag',
+    label: 'Tag',
+    anyLabel: 'Any tag',
+    inputKind: LibraryFilterInputKind.autocomplete,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'publisher',
+    label: 'Publisher',
+    anyLabel: 'Any publisher',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).publisher
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'year',
+    label: 'Year',
+    anyLabel: 'Any year',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'grade',
+    label: 'Grade',
+    anyLabel: 'Any grade',
+    missingValueLabel: 'Missing grade',
+    value: (item) => item.source.grade,
+    matches: (item, value) => value == LibraryFilterDefinition.missingValue
+        ? item.source.isOwned &&
+            (item.source.grade == null || item.source.grade!.trim().isEmpty)
+        : item.source.grade?.trim() == value,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'condition',
+    label: 'Condition',
+    anyLabel: 'Any condition',
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'country',
+    label: 'Country',
+    anyLabel: 'Any country',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).country
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'language',
+    label: 'Language',
+    anyLabel: 'Any language',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).language
+        : null,
+  ),
+];
 
 String comicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   return defaultLibraryBucketLabel(
@@ -95,21 +178,23 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
-    seriesHint: 'Series...',
-    numberHint: 'No. / Vol....',
-    publisherHint: 'Publisher / Studio / Creator...',
   ),
   filterLabels: const LibraryMediaFilterLabels(
-    series: 'Series',
-    anySeries: 'Any series',
-    publisher: 'Publisher',
-    anyPublisher: 'Any publisher',
+    values: {
+      'series': 'Series',
+      'series_any': 'Any series',
+      'publisher': 'Publisher',
+      'publisher_any': 'Any publisher',
+      'year': 'Year',
+      'year_any': 'Any year',
+    },
   ),
   groupLabels: comicLibraryGroupLabels,
   builder: comicLibraryMediaBuilder,
   projector: const ComicWorkspaceProjector(),
   bucketLabelBuilder: comicLibraryBucketLabelBuilder,
   previewLabels: comicsPreviewLabels,
+  filterDefinitions: comicLibraryFilterDefinitions,
   usesTreeProviderCandidates: true,
   externalFacetBucketIdsByMode: const {
     'comic.story_arc': ComicFacetIds.storyArc,

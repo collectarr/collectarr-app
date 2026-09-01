@@ -27,7 +27,7 @@ void main() {
       filterSelection: LibraryFilterSelection(
         ownershipFilter: LibraryOwnershipFilter.owned,
         trackingStatusFilter: LibraryTrackingStatusFilter.completed,
-        location: 'Shelf A',
+        fieldValues: {'location': 'Shelf A'},
         missingMetadata: true,
       ),
       sortRules: [
@@ -73,7 +73,7 @@ void main() {
       parsed.filterSelection.trackingStatusFilter,
       LibraryTrackingStatusFilter.completed,
     );
-    expect(parsed.filterSelection.location, 'Shelf A');
+    expect(parsed.filterSelection.fieldValue('location'), 'Shelf A');
     expect(parsed.filterSelection.missingMetadata, isTrue);
     expect(parsed.sortRules, hasLength(2));
     expect(parsed.sortRules!.first.column, 'title');
@@ -134,8 +134,7 @@ void main() {
       kind: 'music',
       quickView: LibraryQuickView.missingGrade,
       filterSelection: const LibraryFilterSelection(
-        ownershipFilter: LibraryOwnershipFilter.missingGrade,
-        grade: '9.8',
+        fieldValues: {'grade': '9.8'},
       ),
     );
 
@@ -144,7 +143,7 @@ void main() {
     expect(filtered.quickView, isNull);
     expect(
         filtered.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
-    expect(filtered.filterSelection.grade, isNull);
+    expect(filtered.filterSelection.fieldValue('grade'), isNull);
 
     final comicsFiltered = state.filteredForType(comicsLibraryConfig);
     expect(comicsFiltered.quickView, isNull);

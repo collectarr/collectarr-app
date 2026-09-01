@@ -68,7 +68,7 @@ void main() {
       'CompactFilterSurface displays removable chips for active deep filters',
       (tester) async {
     LibraryFilterSelection selection = const LibraryFilterSelection(
-      series: 'Batman',
+      fieldValues: {'series': 'Batman'},
       missingCover: true,
     );
 
@@ -106,7 +106,7 @@ void main() {
     await tester.tap(deleteIconFinder);
     await tester.pumpAndSettle();
 
-    expect(selection.series, isNull);
+    expect(selection.fieldValue('series'), isNull);
     expect(find.byKey(const ValueKey('active_filter_series')), findsNothing);
   });
 }

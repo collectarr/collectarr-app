@@ -47,6 +47,7 @@ class LibraryFilterEngine {
     }
     if (!_matchesFilter(
       item,
+      type,
       query.filterSelection,
       activeLoanOwnedItemIds,
       customFieldValuesByDefinitionByItem,
@@ -143,6 +144,7 @@ class LibraryFilterEngine {
 
   bool _matchesFilter(
     LibraryProjectionItem item,
+    LibraryTypeConfig type,
     LibraryFilterSelection filters,
     Set<String> activeLoanOwnedItemIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
@@ -150,7 +152,11 @@ class LibraryFilterEngine {
     if (!filters.hasActiveFilters) {
       return true;
     }
-    if (!libraryFilterMatches(item, filters)) {
+    if (!libraryFilterMatches(
+      item,
+      filters,
+      filterDefinitions: type.presentation.filterDefinitions,
+    )) {
       return false;
     }
     if (!libraryTrackingStatusMatchesFilter(

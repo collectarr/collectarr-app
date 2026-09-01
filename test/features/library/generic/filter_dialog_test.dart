@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
@@ -26,9 +27,11 @@ void main() {
                   type: musicLibraryConfig,
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
-                    series: ['Daft Punk'],
-                    publishers: ['Virgin'],
-                    releaseYears: ['2001'],
+                    valuesByFilterId: {
+                      'series': ['Daft Punk'],
+                      'publisher': ['Virgin'],
+                      'year': ['2001'],
+                    },
                   ),
                 );
               },
@@ -62,7 +65,9 @@ void main() {
                   type: comicsLibraryConfig,
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
-                    locations: ['Office > Shelf 2 > Short Box 1'],
+                    valuesByFilterId: {
+                      'location': ['Office > Shelf 2 > Short Box 1'],
+                    },
                   ),
                 );
               },
@@ -109,7 +114,9 @@ void main() {
       libraryFilterMatches(
         item,
         const LibraryFilterSelection(
-          location: 'Office > Shelf 2 > Short Box 1',
+          fieldValues: {
+            'location': 'Office > Shelf 2 > Short Box 1',
+          },
         ),
       ),
       isTrue,
@@ -117,7 +124,9 @@ void main() {
     expect(
       libraryFilterMatches(
         item,
-        const LibraryFilterSelection(location: 'Office > Shelf 2'),
+        const LibraryFilterSelection(
+          fieldValues: {'location': 'Office > Shelf 2'},
+        ),
       ),
       isFalse,
     );
@@ -148,14 +157,14 @@ void main() {
     expect(
       libraryFilterMatches(
         item,
-        const LibraryFilterSelection(tag: 'signed'),
+        const LibraryFilterSelection(fieldValues: {'tag': 'signed'}),
       ),
       isTrue,
     );
     expect(
       libraryFilterMatches(
         item,
-        const LibraryFilterSelection(tag: 'Exclusive'),
+        const LibraryFilterSelection(fieldValues: {'tag': 'Exclusive'}),
       ),
       isFalse,
     );
@@ -163,11 +172,12 @@ void main() {
 
   test('filter selection sanitization drops unsupported grade filters', () {
     const selection = LibraryFilterSelection(
-      ownershipFilter: LibraryOwnershipFilter.missingGrade,
-      grade: '9.8',
-      condition: 'Mint',
-      publisher: 'DC',
-      country: 'US',
+      fieldValues: {
+        'grade': LibraryFilterDefinition.missingValue,
+        'condition': 'Mint',
+        'publisher': 'DC',
+        'country': 'US',
+      },
     );
 
     final sanitizedMusic = sanitizeLibraryFilterSelectionForType(
@@ -175,20 +185,20 @@ void main() {
       musicLibraryConfig,
     );
     expect(sanitizedMusic.ownershipFilter, LibraryOwnershipFilter.all);
-    expect(sanitizedMusic.grade, isNull);
-    expect(sanitizedMusic.condition, 'Mint');
-    expect(sanitizedMusic.publisher, 'DC');
-    expect(sanitizedMusic.country, 'US');
+    expect(sanitizedMusic.fieldValue('grade'), isNull);
+    expect(sanitizedMusic.fieldValue('condition'), 'Mint');
+    expect(sanitizedMusic.fieldValue('publisher'), 'DC');
+    expect(sanitizedMusic.fieldValue('country'), 'US');
 
     final sanitizedComics = sanitizeLibraryFilterSelectionForType(
       selection,
       comicsLibraryConfig,
     );
+    expect(sanitizedComics.ownershipFilter, LibraryOwnershipFilter.all);
     expect(
-      sanitizedComics.ownershipFilter,
-      LibraryOwnershipFilter.missingGrade,
+      sanitizedComics.fieldValue('grade'),
+      LibraryFilterDefinition.missingValue,
     );
-    expect(sanitizedComics.grade, '9.8');
   });
 
   test('filter options extract normalized tags from entries', () {
@@ -236,7 +246,7 @@ void main() {
 
     final options = LibraryFilterOptions.fromEntries([item1, item2]);
 
-    expect(options.tags, ['Signed', 'Sketched', 'Variant']);
+    expect(options.valuesFor('tag'), ['Signed', 'Sketched', 'Variant']);
   });
 
   testWidgets('filter dialog exposes custom field filter and returns selection',
@@ -315,7 +325,9 @@ void main() {
                   type: comicsLibraryConfig,
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
-                    tags: ['Signed', 'Sketched', 'Variant'],
+                    valuesByFilterId: {
+                      'tag': ['Signed', 'Sketched', 'Variant'],
+                    },
                   ),
                 );
               },
@@ -339,6 +351,6 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    expect(selection!.tag, 'Signed');
+    expect(selection!.fieldValue('tag'), 'Signed');
   });
 }

@@ -29,13 +29,18 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadataPresentation = _metadataPresentationForEntry(type, item);
+    final creatorCredits = [
+      for (final section in metadataPresentation.sections.values)
+        if (section.renderer == LibraryMetadataSectionRenderer.credits)
+          ...libraryMetadataCreditValues(section),
+    ];
     final creatorNames = <String>[
-      for (final credit in metadataPresentation.creators)
+      for (final credit in creatorCredits)
         if (credit['name']?.toString().trim().isNotEmpty == true)
           credit['name'].toString().trim(),
     ];
     final creatorsByRole = <String, List<String>>{};
-    for (final credit in metadataPresentation.creators) {
+    for (final credit in creatorCredits) {
       final name = credit['name']?.toString().trim();
       if (name == null || name.isEmpty) continue;
       final role = credit['role']?.toString().trim();
@@ -144,7 +149,7 @@ Widget _buildEditionFormatBadges(LibraryProjectionRuntime item) {
       catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?;
   final editions = editionsPayload != null
       ? editionsPayload
-          .whereType<Map>()
+          .whereType<Map<Object?, Object?>>()
           .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
           .toList()
       : const <CatalogEdition>[];

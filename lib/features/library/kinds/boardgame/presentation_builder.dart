@@ -111,19 +111,23 @@ class BoardGameLibraryMediaPresentationBuilder
               value: metadata!.bggRating!.toStringAsFixed(1)),
         if (country != null)
           LibraryDetailField(
-              label: 'Country',
-              value: country,
-              onTap: tapFor(country)),
+              label: 'Country', value: country, onTap: tapFor(country)),
         if (language != null)
           LibraryDetailField(
-              label: 'Language',
-              value: language,
-              onTap: tapFor(language)),
+              label: 'Language', value: language, onTap: tapFor(language)),
       ],
-      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
-      characters: const <String>[],
-      storyArcs: const <String>[],
-      genres: metadata?.categories ?? const <String>[],
+      sections: {
+        'creators': LibraryMetadataSection(
+          values: metadata?.creators ?? const <Map<String, dynamic>>[],
+          placement: LibraryMetadataSectionPlacement.credits,
+          renderer: LibraryMetadataSectionRenderer.credits,
+          routePrefix: 'creator',
+          completenessWeight: 12,
+        ),
+        'genres': LibraryMetadataSection(
+          values: metadata?.categories ?? const <String>[],
+        ),
+      },
     );
   }
 }

@@ -31,10 +31,7 @@ void main() {
     expect(musicLabels.queryHint, 'Enter album, artist, release, or label...');
     expect(musicLabels.emptySearchMessage,
         'Enter an album, artist, release, or label.');
-    expect(musicLabels.seriesHint, 'Artist...');
-    expect(musicLabels.publisherHint, 'Label...');
-    expect(movieLabels.seriesHint, 'Series...');
-    expect(movieLabels.publisherHint, 'Studio...');
+    expect(movieLabels.queryHint, 'Enter title, creator, or keyword...');
   });
 
   test('filter labels vary by media type', () {
@@ -42,27 +39,27 @@ void main() {
     final movieLabels = libraryMediaFilterLabels(moviesLibraryConfig);
     final gameLabels = libraryMediaFilterLabels(gamesLibraryConfig);
 
-    expect(musicLabels.series, 'Artist');
-    expect(musicLabels.anySeries, 'Any artist');
-    expect(musicLabels.publisher, 'Label');
-    expect(movieLabels.publisher, 'Studio');
-    expect(movieLabels.anyPublisher, 'Any studio');
-    expect(gameLabels.publisher, 'Publisher / Studio');
+    expect(musicLabels.labelFor('series'), 'Artist');
+    expect(musicLabels.labelFor('series_any'), 'Any artist');
+    expect(musicLabels.labelFor('publisher'), 'Label');
+    expect(movieLabels.labelFor('publisher'), 'Studio');
+    expect(movieLabels.labelFor('publisher_any'), 'Any studio');
+    expect(gameLabels.labelFor('publisher'), 'Publisher / Studio');
   });
 
   test('group labels vary by media type', () {
     final musicLabels = libraryMediaGroupLabels(musicLibraryConfig);
     final movieLabels = libraryMediaGroupLabels(moviesLibraryConfig);
 
-    expect(musicLabels.series, 'Artist');
-    expect(musicLabels.seriesPlural, 'Artists');
-    expect(musicLabels.unknownSeries, 'Unknown artist');
-    expect(musicLabels.publisher, 'Label');
-    expect(musicLabels.publisherPlural, 'Labels');
-    expect(musicLabels.unknownPublisher, 'Unknown label');
-    expect(movieLabels.publisher, 'Studio');
-    expect(movieLabels.publisherPlural, 'Studios');
-    expect(movieLabels.unknownPublisher, 'Unknown studio');
+    expect(musicLabels.labelFor('series'), 'Artist');
+    expect(musicLabels.labelFor('series_plural'), 'Artists');
+    expect(musicLabels.labelFor('unknown_series'), 'Unknown artist');
+    expect(musicLabels.labelFor('publisher'), 'Label');
+    expect(musicLabels.labelFor('publisher_plural'), 'Labels');
+    expect(musicLabels.labelFor('unknown_publisher'), 'Unknown label');
+    expect(movieLabels.labelFor('publisher'), 'Studio');
+    expect(movieLabels.labelFor('publisher_plural'), 'Studios');
+    expect(movieLabels.labelFor('unknown_publisher'), 'Unknown studio');
   });
 
   test('preview labels vary by media type', () {
@@ -70,23 +67,43 @@ void main() {
     final movieLabels = libraryMediaPreviewLabels(moviesLibraryConfig);
     final bookLabels = libraryMediaPreviewLabels(booksLibraryConfig);
 
-    expect(musicLabels.series, 'Artist');
-    expect(musicLabels.itemCount, 'Releases');
-    expect(movieLabels.series, 'Series');
-    expect(movieLabels.itemCount, 'Items');
-    expect(bookLabels.itemCount, 'Volumes');
+    expect(musicLabels.labelFor('series'), 'Artist');
+    expect(musicLabels.labelFor('item_count'), 'Releases');
+    expect(movieLabels.labelFor('series'), 'Series');
+    expect(movieLabels.labelFor('item_count'), 'Items');
+    expect(bookLabels.labelFor('item_count'), 'Volumes');
   });
 
   test('stats labels and candidate layout vary by media type', () {
+    expect(musicLibraryConfig.presentation.statsLabels.labelFor('top_series'),
+        'Top Artists');
     expect(
-        musicLibraryConfig.presentation.statsLabels.topSeries, 'Top Artists');
-    expect(
-        musicLibraryConfig.presentation.statsLabels.topPublisher, 'Top Labels');
-    expect(moviesLibraryConfig.presentation.statsLabels.topSeries,
+        musicLibraryConfig.presentation.statsLabels.labelFor('top_publisher'),
+        'Top Labels');
+    expect(moviesLibraryConfig.presentation.statsLabels.labelFor('top_series'),
         'Top Franchises');
-    expect(gamesLibraryConfig.presentation.statsLabels.topPublisher,
+    expect(
+        gamesLibraryConfig.presentation.statsLabels.labelFor('top_publisher'),
         'Top Publishers / Studios');
     expect(comicsLibraryConfig.presentation.usesTreeProviderCandidates, isTrue);
     expect(booksLibraryConfig.presentation.usesTreeProviderCandidates, isFalse);
+  });
+
+  test('filter definitions are kind-owned and grade is not universal', () {
+    final comicFilterIds = comicsLibraryConfig.presentation.filterDefinitions
+        .map((definition) => definition.id)
+        .toSet();
+    final musicFilterIds = musicLibraryConfig.presentation.filterDefinitions
+        .map((definition) => definition.id)
+        .toSet();
+
+    expect(comicFilterIds, contains('grade'));
+    expect(
+      comicsLibraryConfig.presentation.filterDefinitions
+          .firstWhere((definition) => definition.id == 'grade')
+          .missingValueLabel,
+      'Missing grade',
+    );
+    expect(musicFilterIds, isNot(contains('grade')));
   });
 }

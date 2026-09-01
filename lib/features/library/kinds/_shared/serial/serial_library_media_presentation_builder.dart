@@ -177,21 +177,41 @@ class SerialLibraryMediaPresentationBuilder
             value:
                 publisher == null || publisher.isEmpty ? 'Missing' : 'Ready'),
       ],
-      creators: (catalogItem?.payload['creators'] as List?)
-              ?.cast<Map<String, dynamic>>() ??
-          const <Map<String, dynamic>>[],
-      characters: (catalogItem?.payload['characters'] as List?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const <String>[],
-      storyArcs: (catalogItem?.payload['story_arcs'] as List?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const <String>[],
-      genres: (catalogItem?.payload['genres'] as List?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const <String>[],
+      sections: {
+        'creators': LibraryMetadataSection(
+          values: (catalogItem?.payload['creators'] as List?)
+                  ?.cast<Map<String, dynamic>>() ??
+              const <Map<String, dynamic>>[],
+          placement: LibraryMetadataSectionPlacement.credits,
+          renderer: LibraryMetadataSectionRenderer.credits,
+          routePrefix: 'creator',
+          completenessWeight: 12,
+        ),
+        'characters': LibraryMetadataSection(
+          values: (catalogItem?.payload['characters'] as List?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              const <String>[],
+          placement: LibraryMetadataSectionPlacement.credits,
+          routePrefix: 'character',
+          completenessWeight: 6,
+        ),
+        'story_arcs': LibraryMetadataSection(
+          values: (catalogItem?.payload['story_arcs'] as List?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              const <String>[],
+          placement: LibraryMetadataSectionPlacement.credits,
+          inlineLabelKey: 'story_arcs_inline',
+          routePrefix: 'story-arc',
+        ),
+        'genres': LibraryMetadataSection(
+          values: (catalogItem?.payload['genres'] as List?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              const <String>[],
+        ),
+      },
     );
   }
 

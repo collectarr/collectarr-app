@@ -68,7 +68,8 @@ bool libraryShowsSynopsis(Object? mediaType) {
 }
 
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
-  final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+  final adapter =
+      item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
   final seriesTitle = adapter?.seriesTitle?.trim();
   if (seriesTitle == null || seriesTitle.isEmpty) {
     return 'Missing series title';
@@ -109,10 +110,14 @@ String? libraryOwnedReferenceLabel(OwnedItem? ownedItem, {String? mediaType}) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(
     ownedItem?.personalAnchor,
-    itemLabel: labels.ownedAsItem,
-    editionLabel: labels.ownedAsEdition,
-    variantLabel: labels.ownedAsVariant,
-    bundleLabel: labels.ownedAsBundle,
+    itemLabel:
+        'Owned as ${labels.labelFor('item', fallback: 'Media').toLowerCase()}',
+    editionLabel:
+        'Owned as ${labels.labelFor('edition', fallback: 'Edition').toLowerCase()}',
+    variantLabel:
+        'Owned as ${labels.labelFor('variant', fallback: 'Physical release').toLowerCase()}',
+    bundleLabel:
+        'Owned as ${labels.labelFor('bundle', fallback: 'Bundle').toLowerCase()}',
   );
 }
 
@@ -123,10 +128,14 @@ String? libraryWishlistReferenceLabel(
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(
     wishlistItem?.personalAnchor,
-    itemLabel: labels.wishlistedAsItem,
-    editionLabel: labels.wishlistedAsEdition,
-    variantLabel: labels.wishlistedAsVariant,
-    bundleLabel: labels.wishlistedAsBundle,
+    itemLabel:
+        'Wishlisted as ${labels.labelFor('item', fallback: 'Media').toLowerCase()}',
+    editionLabel:
+        'Wishlisted as ${labels.labelFor('edition', fallback: 'Edition').toLowerCase()}',
+    variantLabel:
+        'Wishlisted as ${labels.labelFor('variant', fallback: 'Physical release').toLowerCase()}',
+    bundleLabel:
+        'Wishlisted as ${labels.labelFor('bundle', fallback: 'Bundle').toLowerCase()}',
   );
 }
 
@@ -186,10 +195,13 @@ List<String> libraryReferenceHierarchySegments({
   String? bundleReleaseId,
 }) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
-  final segments = <String>[labels.itemScope];
+  final segments = <String>[
+    labels.labelFor('item', fallback: 'Media'),
+  ];
   final normalizedBundleId = bundleReleaseId?.trim();
   if (normalizedBundleId != null && normalizedBundleId.isNotEmpty) {
-    segments.add(labels.bundleHierarchy);
+    segments
+        .add(labels.labelFor('bundle_hierarchy', fallback: 'Bundle release'));
     return segments;
   }
   final resolved = _resolveLibraryReferenceRelease(
@@ -199,11 +211,15 @@ List<String> libraryReferenceHierarchySegments({
   );
   final editionTitle = resolved.edition?.title.trim();
   if (editionTitle != null && editionTitle.isNotEmpty) {
-    segments.add('${labels.editionHierarchy}: $editionTitle');
+    segments.add(
+      '${labels.labelFor('edition_hierarchy', fallback: 'Edition')}: $editionTitle',
+    );
   }
   final variantName = resolved.variant?.name.trim();
   if (variantName != null && variantName.isNotEmpty) {
-    segments.add('${labels.variantHierarchy}: $variantName');
+    segments.add(
+      '${labels.labelFor('variant_hierarchy', fallback: 'Physical')}: $variantName',
+    );
   }
   return segments;
 }
@@ -395,10 +411,13 @@ String? _referenceScopeLabelForAnchor(
 }) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return switch (anchor) {
-    PersonalItemAnchorType.item => labels.itemScope,
-    PersonalItemAnchorType.edition => labels.editionScope,
-    PersonalItemAnchorType.variant => labels.variantScope,
-    PersonalItemAnchorType.bundleRelease => labels.bundleScope,
+    PersonalItemAnchorType.item => labels.labelFor('item', fallback: 'Media'),
+    PersonalItemAnchorType.edition =>
+      labels.labelFor('edition', fallback: 'Edition'),
+    PersonalItemAnchorType.variant =>
+      labels.labelFor('variant', fallback: 'Physical release'),
+    PersonalItemAnchorType.bundleRelease =>
+      labels.labelFor('bundle', fallback: 'Bundle'),
     null => null,
   };
 }

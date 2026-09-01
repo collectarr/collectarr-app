@@ -4,6 +4,7 @@ export 'package:collectarr_app/features/library/workspace/config/library_typed_f
 export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart'
     show LibraryFacetId, LibraryFacetIdRuntime, DynamicLibraryFacetId;
 export 'package:collectarr_app/features/library/config/presentation/library_search_presentation.dart';
+export 'package:collectarr_app/features/library/config/presentation/library_personal_filter_presentation.dart';
 export 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
 export 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 export 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';

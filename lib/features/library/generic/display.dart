@@ -70,15 +70,15 @@ String genericLibraryStatusLabel(LibraryProjectionRuntime item) {
           .statusLabels ??
       const LibraryStatusLabels();
   if (item.source.isOwned) {
-    return labels.owned;
+    return labels.labelFor('owned', fallback: 'Owned');
   }
   if (item.source.isTracked) {
-    return labels.tracked;
+    return labels.labelFor('tracked', fallback: 'Tracked');
   }
   if (item.source.isWishlisted) {
-    return labels.wishlist;
+    return labels.labelFor('wishlist', fallback: 'Wishlist');
   }
-  return labels.localCatalog;
+  return labels.labelFor('local_catalog', fallback: 'Local catalog');
 }
 
 String genericLibraryDash(String? value) {

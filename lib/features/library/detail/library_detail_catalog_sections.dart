@@ -379,7 +379,10 @@ _MetadataHealth _buildMetadataHealth(
     includeIdentityFacts: true,
     tapFor: (_) => null,
   );
-  final seriesLabel = type.presentation.filterLabels.series;
+  final seriesLabel = type.presentation.filterLabels.labelFor(
+    'series',
+    fallback: 'Series',
+  );
 
   void addSignal({
     required bool present,
@@ -428,26 +431,13 @@ _MetadataHealth _buildMetadataHealth(
     weight: 6,
     missingLabel: 'Item number',
   );
-  addSignal(
-    present: metadata.creators.isNotEmpty,
-    weight: 12,
-    missingLabel: metadata.labels.creators,
-  );
-  addSignal(
-    present: metadata.characters.isNotEmpty,
-    weight: 6,
-    missingLabel: metadata.labels.characters,
-  );
-  addSignal(
-    present: metadata.storyArcs.isNotEmpty,
-    weight: 4,
-    missingLabel: metadata.labels.storyArcsInline,
-  );
-  addSignal(
-    present: metadata.genres.isNotEmpty,
-    weight: 4,
-    missingLabel: metadata.labels.genres,
-  );
+  for (final entry in metadata.sections.entries) {
+    addSignal(
+      present: entry.value.values.isNotEmpty,
+      weight: entry.value.completenessWeight,
+      missingLabel: metadata.labels.labelFor(entry.key),
+    );
+  }
   addSignal(
     present: !(adapter?.publisher == null || dto.coverImageUrl == null),
     weight: 4,

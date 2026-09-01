@@ -1,31 +1,38 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 const genericLibraryMediaBuilder = GenericLibraryMediaPresentationBuilder();
 
 const genericPreviewLabels = LibraryMediaPreviewLabels(
-  series: 'Series',
-  itemCount: 'Items',
+  values: {'item_count': 'Items'},
 );
 
-const genericLibraryGroupModes = [
-  'series',
-  'title',
-  'location',
-  'ownership',
+const genericLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
+  LibraryFilterDefinition<dynamic>(
+    id: 'location',
+    label: 'Location',
+    anyLabel: 'Any location',
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'tag',
+    label: 'Tag',
+    anyLabel: 'Any tag',
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'condition',
+    label: 'Condition',
+    anyLabel: 'Any condition',
+  ),
 ];
 
 const genericLibraryGroupLabels = LibraryMediaGroupLabels(
-  series: 'Series',
-  seriesPlural: 'Series',
-  unknownSeries: 'Unknown series',
-  publisher: 'Publisher',
-  publisherPlural: 'Publishers',
-  unknownPublisher: 'Unknown publisher',
+  values: {},
 );
 
-const genericLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+const genericLibraryBucketLabelOverrides =
+    LibraryBucketLabelOverrides(values: {});
 
 String genericLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   return _simpleLibraryBucketLabel(
@@ -41,20 +48,19 @@ String _simpleLibraryBucketLabel(
   LibraryBucketLabelOverrides overrides,
 ) {
   final dto = context.item.dto;
-  final seriesRaw = context.item.source.catalogItem?.payload['series'];
-  final seriesTitle =
-      seriesRaw is Map ? (seriesRaw['series_title'] as String?)?.trim() : null;
+  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final seriesTitle = adapter?.seriesTitle?.trim();
   return switch (context.groupMode) {
     'series' => (seriesTitle != null && seriesTitle.isNotEmpty)
         ? seriesTitle
-        : labels.unknownSeries,
+        : labels.labelFor('unknown_series', fallback: 'Unknown series'),
     'location' => _locationBucket(context.source.locationPath),
     'title' => _titleBucket(dto.title),
     'ownership' => context.source.isOwned
-        ? overrides.owned
+        ? overrides.labelFor('owned', fallback: 'Owned')
         : context.source.isWishlisted
-            ? overrides.wishlist
-            : overrides.catalogOnly,
+            ? overrides.labelFor('wishlist', fallback: 'Wishlist')
+            : overrides.labelFor('catalog_only', fallback: 'Catalog only'),
     _ => context.groupMode,
   };
 }
@@ -76,19 +82,14 @@ const genericLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Search catalog...',
     emptySearchMessage: 'Enter a search query.',
-    seriesHint: 'Series...',
-    numberHint: 'Number...',
-    publisherHint: 'Publisher...',
   ),
   filterLabels: LibraryMediaFilterLabels(
-    series: 'Series',
-    anySeries: 'Any series',
-    publisher: 'Publisher',
-    anyPublisher: 'Any publisher',
+    values: {},
   ),
   groupLabels: genericLibraryGroupLabels,
   builder: genericLibraryMediaBuilder,
   projector: GenericWorkspaceProjector(),
   bucketLabelBuilder: genericLibraryBucketLabelBuilder,
   previewLabels: genericPreviewLabels,
+  filterDefinitions: genericLibraryFilterDefinitions,
 );

@@ -2,11 +2,11 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/video_displa
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
 
 import 'library_filter_presentation.dart';
 import 'library_metadata_presentation.dart';
+import 'library_personal_filter_presentation.dart';
 import 'library_search_presentation.dart';
 import 'library_sort_presentation.dart';
 
@@ -18,10 +18,7 @@ class LibraryMediaPresentation {
     required this.builder,
     required this.projector,
     required this.bucketLabelBuilder,
-    this.previewLabels = const LibraryMediaPreviewLabels(
-      series: 'Series',
-      itemCount: 'Items',
-    ),
+    this.previewLabels = const LibraryMediaPreviewLabels(),
     this.statsLabels = const LibraryMediaStatsLabels(),
     this.usesTreeProviderCandidates = false,
     this.externalFacetBucketIdsByMode = const {},
@@ -38,7 +35,7 @@ class LibraryMediaPresentation {
     this.sortFavorites = defaultLibrarySortFavorites,
     this.columnFavorites = defaultLibraryColumnFavorites,
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
-    this.filterFieldDefinitions = defaultLibraryFilterFieldDefinitions,
+    this.filterDefinitions = const [],
     this.referenceLabels = const LibraryReferenceLabels(),
     this.statusLabels = const LibraryStatusLabels(),
     this.bucketLabelOverrides = const LibraryBucketLabelOverrides(),
@@ -68,7 +65,7 @@ class LibraryMediaPresentation {
   final List<LibrarySortFavorite> sortFavorites;
   final List<LibraryTableColumnPreset> columnFavorites;
   final LibraryFilterOptionLabels filterOptionLabels;
-  final List<LibraryFilterFieldDefinition> filterFieldDefinitions;
+  final List<LibraryFilterDefinition<dynamic>> filterDefinitions;
   final LibraryReferenceLabels referenceLabels;
   final LibraryStatusLabels statusLabels;
   final LibraryBucketLabelOverrides bucketLabelOverrides;

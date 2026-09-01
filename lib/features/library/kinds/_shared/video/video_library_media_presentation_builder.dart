@@ -48,17 +48,14 @@ class VideoLibraryMediaPresentationBuilder
         ],
         if (seriesTitle != null)
           LibraryDetailField(
-              label: 'Series',
-              value: seriesTitle,
-              onTap: tapFor(seriesTitle)),
+              label: 'Series', value: seriesTitle, onTap: tapFor(seriesTitle)),
         if (item.node.scope != LibraryBrowserScope.title && variant != null)
           LibraryDetailField(
               label: releaseFields.variantLabel,
               value: variant,
               onTap: tapFor(variant)),
         if (item.node.scope != LibraryBrowserScope.title && barcode != null)
-          LibraryDetailField(
-              label: releaseFields.barcodeLabel, value: barcode),
+          LibraryDetailField(label: releaseFields.barcodeLabel, value: barcode),
       ],
       contextFacts: [
         if (publisher != null)
@@ -76,14 +73,19 @@ class VideoLibraryMediaPresentationBuilder
         if (language != null)
           LibraryDetailField(label: 'Language', value: language),
       ],
-      creators: publisher != null
-          ? [
-              <String, dynamic>{'name': publisher}
-            ]
-          : const [],
-      characters: const [],
-      storyArcs: const [],
-      genres: const [],
+      sections: {
+        'creators': LibraryMetadataSection(
+          values: publisher != null
+              ? [
+                  <String, dynamic>{'name': publisher}
+                ]
+              : const [],
+          placement: LibraryMetadataSectionPlacement.credits,
+          renderer: LibraryMetadataSectionRenderer.credits,
+          routePrefix: 'creator',
+          completenessWeight: 12,
+        ),
+      },
     );
   }
 

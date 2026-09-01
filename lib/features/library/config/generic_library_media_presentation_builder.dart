@@ -31,10 +31,7 @@ class GenericLibraryMediaPresentationBuilder
         ],
       ],
       contextFacts: const [],
-      creators: const [],
-      characters: const [],
-      storyArcs: const [],
-      genres: const [],
+      sections: const {},
     );
   }
 }

@@ -30,32 +30,45 @@ class LibraryAddSearchResultDisplay {
   final String? detailLine;
 }
 
+enum LibraryMetadataSectionPlacement { context, credits }
+
+enum LibraryMetadataSectionRenderer { text, credits }
+
+class LibraryMetadataSection {
+  const LibraryMetadataSection({
+    required this.values,
+    this.placement = LibraryMetadataSectionPlacement.context,
+    this.renderer = LibraryMetadataSectionRenderer.text,
+    this.inlineLabelKey,
+    this.routePrefix,
+    this.completenessWeight = 4,
+  });
+
+  final List<Object?> values;
+  final LibraryMetadataSectionPlacement placement;
+  final LibraryMetadataSectionRenderer renderer;
+  final String? inlineLabelKey;
+  final String? routePrefix;
+  final int completenessWeight;
+}
+
 class LibraryMetadataPresentation {
   const LibraryMetadataPresentation({
     required this.identityFacts,
     required this.contextFacts,
-    required this.creators,
-    required this.characters,
-    required this.storyArcs,
-    required this.genres,
+    required this.sections,
     this.labels = const LibraryMetadataLabels(),
   });
 
   final List<LibraryDetailField> identityFacts;
   final List<LibraryDetailField> contextFacts;
-  final List<Map<String, dynamic>> creators;
-  final List<String> characters;
-  final List<String> storyArcs;
-  final List<String> genres;
+  final Map<String, LibraryMetadataSection> sections;
   final LibraryMetadataLabels labels;
 
   List<LibraryDetailField> get allFacts => [
         ...identityFacts,
         ...contextFacts,
       ];
-
-  bool get hasCredits =>
-      creators.isNotEmpty || characters.isNotEmpty || storyArcs.isNotEmpty;
 }
 
 class LibraryMetadataLabels {
@@ -63,24 +76,35 @@ class LibraryMetadataLabels {
     this.identitySectionTitle = 'Catalog identity',
     this.contextSectionTitle = 'Catalog context',
     this.creditsSectionTitle = 'Credits & Discovery',
-    this.creators = 'Creators',
-    this.characters = 'Characters',
-    this.storyArcs = 'Story Arcs',
-    this.storyArcsInline = 'Story arcs',
-    this.genres = 'Genres',
+    this.values = const {},
   });
 
   final String identitySectionTitle;
   final String contextSectionTitle;
   final String creditsSectionTitle;
-  final String creators;
-  final String characters;
-  final String storyArcs;
-  final String storyArcsInline;
-  final String genres;
+  final Map<String, String> values;
+
+  String labelFor(String key, {String? fallback}) =>
+      values[key] ?? fallback ?? key;
 }
 
 typedef LibraryMetadataFactTapResolver = VoidCallback? Function(String? value);
+
+List<String> libraryMetadataTextValues(LibraryMetadataSection section) {
+  return section.values
+      .map((value) => value?.toString().trim() ?? '')
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+}
+
+List<Map<String, dynamic>> libraryMetadataCreditValues(
+  LibraryMetadataSection section,
+) {
+  return section.values
+      .whereType<Map<Object?, Object?>>()
+      .map((value) => Map<String, dynamic>.from(value))
+      .toList(growable: false);
+}
 
 abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
@@ -254,14 +278,19 @@ abstract class LibraryMediaPresentationBuilder {
       accentColor: accent,
       children: [
         LibraryDetailFieldTable(fields: presentation.contextFacts),
-        if (presentation.genres.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryDetailChipGroupWidget(
-            label: presentation.labels.genres,
-            values: presentation.genres,
-            onValueTap: onFilterByValue,
-          ),
-        ],
+        for (final entry in presentation.sections.entries)
+          if (entry.value.placement ==
+                  LibraryMetadataSectionPlacement.context &&
+              entry.value.values.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            _buildMetadataSectionWidget(
+              context: context,
+              sectionKey: entry.key,
+              section: entry.value,
+              labels: presentation.labels,
+              onValueTap: onFilterByValue,
+            ),
+          ],
       ],
     );
   }
@@ -283,41 +312,29 @@ abstract class LibraryMediaPresentationBuilder {
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),
     );
-    if (!presentation.hasCredits) {
+    final creditSections = presentation.sections.entries
+        .where(
+          (entry) =>
+              entry.value.placement ==
+                  LibraryMetadataSectionPlacement.credits &&
+              entry.value.values.isNotEmpty,
+        )
+        .toList(growable: false);
+    if (creditSections.isEmpty) {
       return const SizedBox.shrink();
     }
     return LibraryDetailSection(
       title: presentation.labels.creditsSectionTitle,
       accentColor: accent,
       children: [
-        if (presentation.creators.isNotEmpty)
-          LibraryMetadataCreditsList(
-            title: presentation.labels.creators,
-            credits: presentation.creators,
-            onValueTap: (value) => context.push(
-              '/creator/${Uri.encodeComponent(value)}',
-            ),
-          ),
-        if (presentation.characters.isNotEmpty) ...[
-          if (presentation.creators.isNotEmpty) const SizedBox(height: 8),
-          LibraryDetailChipGroupWidget(
-            label: presentation.labels.characters,
-            values: presentation.characters,
-            onValueTap: (value) => context.push(
-              '/character/${Uri.encodeComponent(value)}',
-            ),
-          ),
-        ],
-        if (presentation.storyArcs.isNotEmpty) ...[
-          if (presentation.creators.isNotEmpty ||
-              presentation.characters.isNotEmpty)
-            const SizedBox(height: 8),
-          LibraryDetailChipGroupWidget(
-            label: presentation.labels.storyArcs,
-            values: presentation.storyArcs,
-            onValueTap: (value) => context.push(
-              '/story-arc/${Uri.encodeComponent(value)}',
-            ),
+        for (var index = 0; index < creditSections.length; index++) ...[
+          if (index > 0) const SizedBox(height: 8),
+          _buildMetadataSectionWidget(
+            context: context,
+            sectionKey: creditSections[index].key,
+            section: creditSections[index].value,
+            labels: presentation.labels,
+            onValueTap: onFilterByValue,
           ),
         ],
       ],
@@ -334,4 +351,33 @@ abstract class LibraryMediaPresentationBuilder {
       return () => onFilterByValue(value.trim());
     };
   }
+}
+
+Widget _buildMetadataSectionWidget({
+  required BuildContext context,
+  required String sectionKey,
+  required LibraryMetadataSection section,
+  required LibraryMetadataLabels labels,
+  ValueChanged<String>? onValueTap,
+}) {
+  final sectionValueTap = section.routePrefix == null
+      ? onValueTap
+      : (String value) => context.push(
+            '/${section.routePrefix}/${Uri.encodeComponent(value)}',
+          );
+  final label = labels.labelFor(
+    section.inlineLabelKey ?? sectionKey,
+  );
+  if (section.renderer == LibraryMetadataSectionRenderer.credits) {
+    return LibraryMetadataCreditsList(
+      title: label,
+      credits: libraryMetadataCreditValues(section),
+      onValueTap: sectionValueTap,
+    );
+  }
+  return LibraryDetailChipGroupWidget(
+    label: label,
+    values: libraryMetadataTextValues(section),
+    onValueTap: sectionValueTap,
+  );
 }

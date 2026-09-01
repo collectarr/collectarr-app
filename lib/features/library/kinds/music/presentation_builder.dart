@@ -182,8 +182,7 @@ class MusicLibraryMediaPresentationBuilder
               value: variant,
               onTap: tapFor(variant)),
         if (barcode != null)
-          LibraryDetailField(
-              label: releaseFields.barcodeLabel, value: barcode),
+          LibraryDetailField(label: releaseFields.barcodeLabel, value: barcode),
       ],
       contextFacts: [
         if (series?.seriesTitle != null)
@@ -194,9 +193,7 @@ class MusicLibraryMediaPresentationBuilder
         LibraryDetailField(label: 'Album', value: dto.title),
         if (publisher != null)
           LibraryDetailField(
-              label: 'Label',
-              value: publisher,
-              onTap: tapFor(publisher)),
+              label: 'Label', value: publisher, onTap: tapFor(publisher)),
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
@@ -235,14 +232,21 @@ class MusicLibraryMediaPresentationBuilder
                 : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
-            value: publisher == null || publisher.isEmpty
-                ? 'Missing'
-                : 'Ready'),
+            value:
+                publisher == null || publisher.isEmpty ? 'Missing' : 'Ready'),
       ],
-      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
-      characters: const <String>[],
-      storyArcs: const <String>[],
-      genres: metadata?.genres ?? const <String>[],
+      sections: {
+        'creators': LibraryMetadataSection(
+          values: metadata?.creators ?? const <Map<String, dynamic>>[],
+          placement: LibraryMetadataSectionPlacement.credits,
+          renderer: LibraryMetadataSectionRenderer.credits,
+          routePrefix: 'creator',
+          completenessWeight: 12,
+        ),
+        'genres': LibraryMetadataSection(
+          values: metadata?.genres ?? const <String>[],
+        ),
+      },
     );
   }
 
@@ -258,7 +262,7 @@ class MusicLibraryMediaPresentationBuilder
     final music = musicMeta?.music;
     final rawTracks = music?['tracks'] as List?;
     final tracks = rawTracks
-            ?.whereType<Map>()
+            ?.whereType<Map<Object?, Object?>>()
             .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         (musicMeta?.tracks.isNotEmpty == true ? musicMeta!.tracks : null);
@@ -292,22 +296,7 @@ MusicCatalogMetadata? _musicMetadataItem(LibraryMetadataItem? item) {
   if (item == null) return null;
   final metadata = item.kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
-  if (metadata != null) {
-    return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
-  }
-  final musicVal = item.payload['music'];
-  if (musicVal is Map) {
-    return MusicCatalogMetadata.fromJson(Map<String, dynamic>.from(musicVal));
-  }
-  if (musicVal != null) {
-    try {
-      final dynamic json = (musicVal as dynamic).toJson();
-      if (json is Map) {
-        return MusicCatalogMetadata.fromJson(Map<String, dynamic>.from(json));
-      }
-    } catch (_) {}
-  }
-  return null;
+  return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
 }
 
 String _stripTrailingMusicDescriptor(String title, String? descriptor) {

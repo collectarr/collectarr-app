@@ -11,7 +11,7 @@ const tvMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Series identity',
   contextSectionTitle: 'Broadcast context',
   creditsSectionTitle: 'Cast & Crew',
-  creators: 'Cast & Crew',
+  values: {'creators': 'Cast & Crew'},
 );
 
 class TvLibraryMediaPresentationBuilder

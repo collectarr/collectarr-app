@@ -57,38 +57,24 @@ class LibraryMetadataContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LibraryDetailFieldTable(fields: presentation.allFacts),
-        if (presentation.creators.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryMetadataCreditsList(
-            title: presentation.labels.creators,
-            credits: presentation.creators,
-            onValueTap: onFilterByValue,
-          ),
-        ],
-        if (presentation.characters.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          _LibraryMetadataValueList(
-            label: presentation.labels.characters,
-            values: presentation.characters,
-            onValueTap: onFilterByValue,
-          ),
-        ],
-        if (presentation.storyArcs.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          _LibraryMetadataValueList(
-            label: presentation.labels.storyArcsInline,
-            values: presentation.storyArcs,
-            onValueTap: onFilterByValue,
-          ),
-        ],
-        if (presentation.genres.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          _LibraryMetadataValueList(
-            label: presentation.labels.genres,
-            values: presentation.genres,
-            onValueTap: onFilterByValue,
-          ),
-        ],
+        for (final entry in presentation.sections.entries)
+          if (entry.value.values.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            if (entry.value.renderer == LibraryMetadataSectionRenderer.credits)
+              LibraryMetadataCreditsList(
+                title: presentation.labels.labelFor(entry.key),
+                credits: libraryMetadataCreditValues(entry.value),
+                onValueTap: onFilterByValue,
+              )
+            else
+              _LibraryMetadataValueList(
+                label: presentation.labels.labelFor(
+                  entry.value.inlineLabelKey ?? entry.key,
+                ),
+                values: libraryMetadataTextValues(entry.value),
+                onValueTap: onFilterByValue,
+              ),
+          ],
       ],
     );
   }

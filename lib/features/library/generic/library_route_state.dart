@@ -305,22 +305,11 @@ class LibraryRouteState {
         'customFieldDefinitionId': _trimmed(selection.customFieldDefinitionId),
       if (_trimmed(selection.customFieldValue) != null)
         'customFieldValue': _trimmed(selection.customFieldValue),
-      if (_trimmed(selection.series) != null)
-        'series': _trimmed(selection.series),
-      if (_trimmed(selection.location) != null)
-        'location': _trimmed(selection.location),
-      if (_trimmed(selection.tag) != null) 'tag': _trimmed(selection.tag),
-      if (_trimmed(selection.grade) != null) 'grade': _trimmed(selection.grade),
-      if (_trimmed(selection.condition) != null)
-        'condition': _trimmed(selection.condition),
-      if (_trimmed(selection.publisher) != null)
-        'publisher': _trimmed(selection.publisher),
-      if (_trimmed(selection.releaseYear) != null)
-        'releaseYear': _trimmed(selection.releaseYear),
-      if (_trimmed(selection.country) != null)
-        'country': _trimmed(selection.country),
-      if (_trimmed(selection.language) != null)
-        'language': _trimmed(selection.language),
+      if (selection.fieldValues.isNotEmpty)
+        'fields': {
+          for (final entry in selection.fieldValues.entries)
+            if (_trimmed(entry.value) != null) entry.key: _trimmed(entry.value),
+        },
       if (selection.missingCover) 'missingCover': true,
       if (selection.missingMetadata) 'missingMetadata': true,
     };
@@ -342,6 +331,32 @@ class LibraryRouteState {
       final map = decoded.map(
         (key, value) => MapEntry(key.toString(), value),
       );
+      final fieldValues = <String, String?>{};
+      final rawFields = map['fields'];
+      if (rawFields is Map) {
+        for (final entry in rawFields.entries) {
+          final value = _trimmed(entry.value);
+          if (value != null) {
+            fieldValues[_normalizeFilterFieldId(entry.key.toString())] = value;
+          }
+        }
+      }
+      for (final key in const [
+        'series',
+        'location',
+        'tag',
+        'grade',
+        'condition',
+        'publisher',
+        'releaseYear',
+        'country',
+        'language',
+      ]) {
+        final value = _trimmed(map[key]);
+        if (value != null) {
+          fieldValues[_normalizeFilterFieldId(key)] = value;
+        }
+      }
       return LibraryFilterSelection(
         ownershipFilter:
             _enumByName(LibraryOwnershipFilter.values, map['ownership']) ??
@@ -361,15 +376,7 @@ class LibraryRouteState {
         dateTo: _parseDateTime(map['dateTo']),
         customFieldDefinitionId: _trimmed(map['customFieldDefinitionId']),
         customFieldValue: _trimmed(map['customFieldValue']),
-        series: _trimmed(map['series']),
-        location: _trimmed(map['location']),
-        tag: _trimmed(map['tag']),
-        grade: _trimmed(map['grade']),
-        condition: _trimmed(map['condition']),
-        publisher: _trimmed(map['publisher']),
-        releaseYear: _trimmed(map['releaseYear']),
-        country: _trimmed(map['country']),
-        language: _trimmed(map['language']),
+        fieldValues: fieldValues,
         missingCover: map['missingCover'] == true,
         missingMetadata: map['missingMetadata'] == true,
       );
@@ -386,6 +393,10 @@ class LibraryRouteState {
       _ => null,
     };
   }
+}
+
+String _normalizeFilterFieldId(String id) {
+  return id == 'releaseYear' ? 'year' : id;
 }
 
 LibraryQuickView? sanitizeLibraryQuickViewForType(

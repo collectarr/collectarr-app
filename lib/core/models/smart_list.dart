@@ -108,21 +108,39 @@ class SmartList {
       if (f.customFieldDefinitionId != null)
         'custom_field_definition_id': f.customFieldDefinitionId,
       if (f.customFieldValue != null) 'custom_field_value': f.customFieldValue,
-      if (f.series != null) 'series': f.series,
-      if (f.location != null) 'location': f.location,
-      if (f.tag != null) 'tag': f.tag,
-      if (f.grade != null) 'grade': f.grade,
-      if (f.condition != null) 'condition': f.condition,
-      if (f.publisher != null) 'publisher': f.publisher,
-      if (f.releaseYear != null) 'release_year': f.releaseYear,
-      if (f.country != null) 'country': f.country,
-      if (f.language != null) 'language': f.language,
+      if (f.fieldValues.isNotEmpty) 'fields': f.fieldValues,
       if (f.missingCover) 'missing_cover': true,
       if (f.missingMetadata) 'missing_metadata': true,
     };
   }
 
   static LibraryFilterSelection _filterFromJson(Map<String, dynamic> json) {
+    final fieldValues = <String, String?>{};
+    final rawFields = json['fields'];
+    if (rawFields is Map) {
+      for (final entry in rawFields.entries) {
+        final value = entry.value?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          fieldValues[_normalizeFilterFieldId(entry.key.toString())] = value;
+        }
+      }
+    }
+    for (final key in const [
+      'series',
+      'location',
+      'tag',
+      'grade',
+      'condition',
+      'publisher',
+      'release_year',
+      'country',
+      'language',
+    ]) {
+      final value = json[key]?.toString().trim();
+      if (value != null && value.isNotEmpty) {
+        fieldValues[_normalizeFilterFieldId(key)] = value;
+      }
+    }
     return LibraryFilterSelection(
       ownershipFilter: _enumByNameOrNull(
             LibraryOwnershipFilter.values.asNameMap(),
@@ -148,18 +166,14 @@ class SmartList {
       dateTo: _dateFromJson(json['date_to']),
       customFieldDefinitionId: json['custom_field_definition_id'] as String?,
       customFieldValue: json['custom_field_value'] as String?,
-      series: json['series'] as String?,
-      location: json['location'] as String?,
-      tag: json['tag'] as String?,
-      grade: json['grade'] as String?,
-      condition: json['condition'] as String?,
-      publisher: json['publisher'] as String?,
-      releaseYear: json['release_year'] as String?,
-      country: json['country'] as String?,
-      language: json['language'] as String?,
+      fieldValues: fieldValues,
       missingCover: json['missing_cover'] as bool? ?? false,
       missingMetadata: json['missing_metadata'] as bool? ?? false,
     );
+  }
+
+  static String _normalizeFilterFieldId(String id) {
+    return id == 'release_year' ? 'year' : id;
   }
 
   static T? _enumByNameOrNull<T>(Map<String, T> values, Object? rawValue) {

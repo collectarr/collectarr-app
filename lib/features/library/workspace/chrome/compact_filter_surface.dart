@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -169,33 +171,23 @@ class CompactFilterSurface extends StatelessWidget {
             ),
 
             // Active Filter Removable Chips for Deep Filters
-            if (selection.series != null)
-              _buildRemovableChip(
-                key: const ValueKey('active_filter_series'),
-                label: 'Series: ${selection.series}',
-                accent: accentData.accent,
-                palette: palette,
-                onDeleted: () =>
-                    onFilterChanged(selection.copyWith(clearSeries: true)),
-              ),
-            if (selection.publisher != null)
-              _buildRemovableChip(
-                key: const ValueKey('active_filter_publisher'),
-                label: 'Publisher: ${selection.publisher}',
-                accent: accentData.accent,
-                palette: palette,
-                onDeleted: () =>
-                    onFilterChanged(selection.copyWith(clearPublisher: true)),
-              ),
-            if (selection.tag != null)
-              _buildRemovableChip(
-                key: const ValueKey('active_filter_tag'),
-                label: 'Tag: ${selection.tag}',
-                accent: accentData.accent,
-                palette: palette,
-                onDeleted: () =>
-                    onFilterChanged(selection.copyWith(clearTag: true)),
-              ),
+            for (final entry in selection.fieldValues.entries)
+              if (entry.value != null)
+                _buildRemovableChip(
+                  key: ValueKey('active_filter_${entry.key}'),
+                  label:
+                      '${libraryFallbackLabelForId(entry.key)}: ${entry.value == LibraryFilterDefinition.missingValue ? 'Missing' : entry.value}',
+                  accent: accentData.accent,
+                  palette: palette,
+                  onDeleted: () {
+                    final values = Map<String, String?>.from(
+                      selection.fieldValues,
+                    )..remove(entry.key);
+                    onFilterChanged(
+                      selection.copyWith(fieldValues: values),
+                    );
+                  },
+                ),
             if (selection.missingCover)
               _buildRemovableChip(
                 key: const ValueKey('active_filter_missing_cover'),

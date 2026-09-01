@@ -1184,7 +1184,10 @@ List<(String, String?)> _metadataRowsForCandidate(
   final previewLabels = type.presentation.previewLabels;
   return [
     if (candidate.series?.seriesTitle != null)
-      (previewLabels.series, candidate.series!.seriesTitle),
+      (
+        previewLabels.labelFor('series', fallback: 'Series'),
+        candidate.series!.seriesTitle
+      ),
     if (candidate.issueNumber != null)
       (media.numberLabel, candidate.issueNumber),
     if (candidate.publisher != null)
@@ -1194,7 +1197,10 @@ List<(String, String?)> _metadataRowsForCandidate(
     if (candidate.variantName != null)
       (release.variantLabel, candidate.variantName),
     if (candidate.issueCount != null)
-      (previewLabels.itemCount, candidate.issueCount.toString()),
+      (
+        previewLabels.labelFor('item_count', fallback: 'Items'),
+        candidate.issueCount.toString()
+      ),
   ];
 }
 
@@ -1285,7 +1291,8 @@ List<(String, String?)> _metadataRowsForItem(
       .where((e) => e.isNotEmpty)
       .toList();
   return [
-    if (seriesTitle != null) (previewLabels.series, seriesTitle),
+    if (seriesTitle != null)
+      (previewLabels.labelFor('series', fallback: 'Series'), seriesTitle),
     (media.publisherLabel, publisher),
     (
       'Released',
@@ -1380,7 +1387,10 @@ List<(String, String?)> _metadataRowsForFullPreview(
   final publishingSeriesGroup = publishing?.seriesGroup?.trim();
   return [
     if (series?.seriesTitle != null)
-      (previewLabels.series, series!.seriesTitle),
+      (
+        previewLabels.labelFor('series', fallback: 'Series'),
+        series!.seriesTitle
+      ),
     if (preview.publisher != null) (media.publisherLabel, preview.publisher),
     if (publishingImprint != null && publishingImprint.isNotEmpty)
       ('Imprint', publishingImprint),

@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_library_media_presentation_builder.dart';
 import 'package:flutter/material.dart';
 
@@ -9,8 +10,7 @@ const animeMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Anime identity',
   contextSectionTitle: 'Anime context',
   creditsSectionTitle: 'Cast & Discovery',
-  creators: 'Cast & Crew',
-  characters: 'Characters',
+  values: {'creators': 'Cast & Crew', 'characters': 'Characters'},
 );
 
 class AnimeLibraryMediaPresentationBuilder
@@ -25,25 +25,84 @@ class AnimeLibraryMediaPresentationBuilder
 const animeLibraryMediaBuilder = AnimeLibraryMediaPresentationBuilder();
 
 const animePreviewLabels = LibraryMediaPreviewLabels(
-  series: 'Series',
-  itemCount: 'Episodes',
+  values: {'series': 'Series', 'item_count': 'Episodes'},
 );
 
 const animeStatsLabels = LibraryMediaStatsLabels(
-  topSeries: 'Top Series',
-  topPublisher: 'Top Studios',
+  values: {'top_series': 'Top Series', 'top_publisher': 'Top Studios'},
 );
 
+final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
+  LibraryFilterDefinition<dynamic>(
+    id: 'series',
+    label: 'Series',
+    anyLabel: 'Any series',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'location',
+    label: 'Location',
+    anyLabel: 'Any location',
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'tag',
+    label: 'Tag',
+    anyLabel: 'Any tag',
+    inputKind: LibraryFilterInputKind.autocomplete,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'publisher',
+    label: 'Studio',
+    anyLabel: 'Any studio',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).publisher
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'year',
+    label: 'Year',
+    anyLabel: 'Any year',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'condition',
+    label: 'Condition',
+    anyLabel: 'Any condition',
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'country',
+    label: 'Country',
+    anyLabel: 'Any country',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).country
+        : null,
+  ),
+  LibraryFilterDefinition<dynamic>(
+    id: 'language',
+    label: 'Language',
+    anyLabel: 'Any language',
+    value: (item) => (item.dto is WorkspaceDtoAdapter)
+        ? (item.dto as WorkspaceDtoAdapter).language
+        : null,
+  ),
+];
+
 const animeLibraryGroupLabels = LibraryMediaGroupLabels(
-  series: 'Series',
-  seriesPlural: 'Series',
-  unknownSeries: 'Unknown series',
-  publisher: 'Studio',
-  publisherPlural: 'Studios',
-  unknownPublisher: 'Unknown studio',
-  publisherMode: 'Studios',
-  genre: 'Genres',
-  genrePlural: 'Genres',
+  values: {
+    'series': 'Series',
+    'series_plural': 'Series',
+    'unknown_series': 'Unknown series',
+    'publisher': 'Studio',
+    'publisher_plural': 'Studios',
+    'unknown_publisher': 'Unknown studio',
+    'publisher_mode': 'Studios',
+    'genre': 'Genres',
+    'genre_plural': 'Genres',
+  },
 );
 
 const animeLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
@@ -60,15 +119,16 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
-    seriesHint: 'Series...',
-    numberHint: 'Episode / season....',
-    publisherHint: 'Studio...',
   ),
   filterLabels: const LibraryMediaFilterLabels(
-    series: 'Series',
-    anySeries: 'Any series',
-    publisher: 'Studio',
-    anyPublisher: 'Any studio',
+    values: {
+      'series': 'Series',
+      'series_any': 'Any series',
+      'publisher': 'Studio',
+      'publisher_any': 'Any studio',
+      'year': 'Year',
+      'year_any': 'Any year',
+    },
   ),
   groupLabels: animeLibraryGroupLabels,
   builder: animeLibraryMediaBuilder,
@@ -76,6 +136,7 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: animeLibraryBucketLabelBuilder,
   previewLabels: animePreviewLabels,
   statsLabels: animeStatsLabels,
+  filterDefinitions: animeLibraryFilterDefinitions,
   usesTreeProviderCandidates: true,
   defaultVideoDisplayLevel: VideoDisplayLevel.season,
   defaultVideoGrouping: VideoGroupingDefault.bySeries,

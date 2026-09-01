@@ -143,10 +143,30 @@ class ComicLibraryMediaPresentationBuilder
                 ? 'Missing'
                 : 'Ready'),
       ],
-      creators: metadata.creators,
-      characters: metadata.characters,
-      storyArcs: metadata.storyArcs,
-      genres: metadata.genres,
+      sections: {
+        'creators': LibraryMetadataSection(
+          values: metadata.creators,
+          placement: LibraryMetadataSectionPlacement.credits,
+          renderer: LibraryMetadataSectionRenderer.credits,
+          routePrefix: 'creator',
+          completenessWeight: 12,
+        ),
+        'characters': LibraryMetadataSection(
+          values: metadata.characters,
+          placement: LibraryMetadataSectionPlacement.credits,
+          routePrefix: 'character',
+          completenessWeight: 6,
+        ),
+        'story_arcs': LibraryMetadataSection(
+          values: metadata.storyArcs,
+          placement: LibraryMetadataSectionPlacement.credits,
+          inlineLabelKey: 'story_arcs_inline',
+          routePrefix: 'story-arc',
+        ),
+        'genres': LibraryMetadataSection(
+          values: metadata.genres,
+        ),
+      },
     );
   }
 

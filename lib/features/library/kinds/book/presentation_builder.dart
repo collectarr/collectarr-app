@@ -159,14 +159,21 @@ class BookLibraryMediaPresentationBuilder
                 : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
-            value: publisher == null || publisher.isEmpty
-                ? 'Missing'
-                : 'Ready'),
+            value:
+                publisher == null || publisher.isEmpty ? 'Missing' : 'Ready'),
       ],
-      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
-      characters: const <String>[],
-      storyArcs: const <String>[],
-      genres: metadata?.genres ?? const <String>[],
+      sections: {
+        'creators': LibraryMetadataSection(
+          values: metadata?.creators ?? const <Map<String, dynamic>>[],
+          placement: LibraryMetadataSectionPlacement.credits,
+          renderer: LibraryMetadataSectionRenderer.credits,
+          routePrefix: 'creator',
+          completenessWeight: 12,
+        ),
+        'genres': LibraryMetadataSection(
+          values: metadata?.genres ?? const <String>[],
+        ),
+      },
     );
   }
 
@@ -214,9 +221,11 @@ class BookLibraryMediaPresentationBuilder
         LibraryDetailField(
             label: 'Format', value: adapter!.referenceFormatLabel!.trim()),
       if (adapter?.publisher?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Publisher', value: adapter!.publisher!.trim()),
+        LibraryDetailField(
+            label: 'Publisher', value: adapter!.publisher!.trim()),
       if (adapter?.barcode?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'ISBN / Barcode', value: adapter!.barcode!.trim()),
+        LibraryDetailField(
+            label: 'ISBN / Barcode', value: adapter!.barcode!.trim()),
       if (adapter?.country?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Country', value: adapter!.country!.trim()),
       if (adapter?.language?.trim().isNotEmpty == true)
@@ -794,8 +803,7 @@ String? _bookFormatLanguageLineForSelection({
   required AdminProviderPreview? preview,
 }) {
   final meta = _bookMetadataItem(item);
-  final displayEditionLabel = meta?.editionTitle ??
-      meta?.physicalFormatLabel;
+  final displayEditionLabel = meta?.editionTitle ?? meta?.physicalFormatLabel;
   final values = <String>[
     if (displayEditionLabel != null && displayEditionLabel.trim().isNotEmpty)
       displayEditionLabel.trim()

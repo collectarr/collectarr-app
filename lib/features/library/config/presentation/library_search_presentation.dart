@@ -2,34 +2,28 @@ class LibraryMediaSearchFieldLabels {
   const LibraryMediaSearchFieldLabels({
     required this.queryHint,
     required this.emptySearchMessage,
-    required this.seriesHint,
-    required this.numberHint,
-    required this.publisherHint,
   });
 
   final String queryHint;
   final String emptySearchMessage;
-  final String seriesHint;
-  final String numberHint;
-  final String publisherHint;
 }
 
 class LibraryMediaPreviewLabels {
-  const LibraryMediaPreviewLabels({
-    required this.series,
-    required this.itemCount,
-  });
+  const LibraryMediaPreviewLabels({this.values = const {}});
 
-  final String series;
-  final String itemCount;
+  final Map<String, String> values;
+
+  String labelFor(String id, {String fallback = ''}) {
+    return values[id] ?? fallback;
+  }
 }
 
 class LibraryMediaStatsLabels {
-  const LibraryMediaStatsLabels({
-    this.topSeries = 'Top Series',
-    this.topPublisher = 'Top Publishers',
-  });
+  const LibraryMediaStatsLabels({this.values = const {}});
 
-  final String topSeries;
-  final String topPublisher;
+  final Map<String, String> values;
+
+  String labelFor(String id, {String fallback = ''}) {
+    return values[id] ?? fallback;
+  }
 }

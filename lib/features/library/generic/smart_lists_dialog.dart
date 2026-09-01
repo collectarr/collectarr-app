@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -579,23 +580,9 @@ class _SmartListDetailsPane extends StatelessWidget {
       if (filter.hasActiveDateRange) 'Date: ${_dateRangeLabel(filter)}',
       if (filter.customFieldDefinitionId != null)
         'Custom: ${_customFieldChipLabel(filter)}',
-      if (filter.series != null && filter.series!.isNotEmpty)
-        'Series: ${filter.series!}',
-      if (filter.location != null && filter.location!.isNotEmpty)
-        'Location: ${filter.location!}',
-      if (filter.tag != null && filter.tag!.isNotEmpty) 'Tag: ${filter.tag!}',
-      if (filter.publisher != null && filter.publisher!.isNotEmpty)
-        'Publisher: ${filter.publisher!}',
-      if (filter.condition != null && filter.condition!.isNotEmpty)
-        'Condition: ${filter.condition!}',
-      if (filter.grade != null && filter.grade!.isNotEmpty)
-        'Grade: ${filter.grade!}',
-      if (filter.releaseYear != null && filter.releaseYear!.isNotEmpty)
-        'Year: ${filter.releaseYear!}',
-      if (filter.country != null && filter.country!.isNotEmpty)
-        'Country: ${filter.country!}',
-      if (filter.language != null && filter.language!.isNotEmpty)
-        'Language: ${filter.language!}',
+      for (final entry in filter.fieldValues.entries)
+        if (entry.value?.isNotEmpty == true)
+          '${libraryFallbackLabelForId(entry.key)}: ${entry.value}',
       if (filter.missingCover) 'Missing cover',
       if (filter.missingMetadata) 'Missing metadata',
     ];

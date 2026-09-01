@@ -126,14 +126,10 @@ class VideoLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Subtitles', value: subtitles),
         if (country != null)
           LibraryDetailField(
-              label: 'Country',
-              value: country,
-              onTap: tapFor(country)),
+              label: 'Country', value: country, onTap: tapFor(country)),
         if (language != null)
           LibraryDetailField(
-              label: 'Language',
-              value: language,
-              onTap: tapFor(language)),
+              label: 'Language', value: language, onTap: tapFor(language)),
         if (metadata?.ageRating != null)
           LibraryDetailField(
               label: 'Age Rating',
@@ -151,14 +147,21 @@ class VideoLibraryMediaPresentationBuilder
                 : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
-            value: publisher == null || publisher.isEmpty
-                ? 'Missing'
-                : 'Ready'),
+            value:
+                publisher == null || publisher.isEmpty ? 'Missing' : 'Ready'),
       ],
-      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
-      characters: const <String>[],
-      storyArcs: const <String>[],
-      genres: metadata?.genres ?? const <String>[],
+      sections: {
+        'creators': LibraryMetadataSection(
+          values: metadata?.creators ?? const <Map<String, dynamic>>[],
+          placement: LibraryMetadataSectionPlacement.credits,
+          renderer: LibraryMetadataSectionRenderer.credits,
+          routePrefix: 'creator',
+          completenessWeight: 12,
+        ),
+        'genres': LibraryMetadataSection(
+          values: metadata?.genres ?? const <String>[],
+        ),
+      },
     );
   }
 

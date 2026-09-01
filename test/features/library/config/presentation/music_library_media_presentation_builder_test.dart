@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
@@ -51,8 +50,7 @@ void main() {
         barcodeLabel: 'Barcode / Catalog no.',
       ),
       previewLabels: const LibraryMediaPreviewLabels(
-        series: 'Artist',
-        itemCount: 'Releases',
+        values: {'series': 'Artist', 'item_count': 'Releases'},
       ),
       item: LibraryMetadataItem.fromMetadataMap({
         'id': 'music-1',
@@ -137,8 +135,7 @@ void main() {
         barcodeLabel: 'Barcode / Catalog no.',
       ),
       previewLabels: const LibraryMediaPreviewLabels(
-        series: 'Artist',
-        itemCount: 'Releases',
+        values: {'series': 'Artist', 'item_count': 'Releases'},
       ),
       item: LibraryMetadataItem.fromMetadataMap({
         'id': 'music-1',
