@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
@@ -48,6 +49,7 @@ export 'package:collectarr_app/features/library/config/library_facet_types.dart'
 export 'package:collectarr_app/features/library/config/library_stats_capability.dart';
 export 'package:collectarr_app/features/library/config/library_value_capability.dart';
 export 'package:collectarr_app/features/library/config/library_relation_capability.dart';
+export 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
@@ -66,6 +68,7 @@ abstract interface class LibraryKindRuntime {
   LibraryTypeCapabilities get capabilities;
   LibraryUiPolicy get uiPolicy => type.uiPolicy;
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
+  LibraryLinkedMetadataCapability get linkedMetadata;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
   LibraryAddCapability get add;
 
@@ -99,7 +102,6 @@ abstract interface class LibraryKindRuntime {
     LibraryProjectionRuntime right,
     Iterable<LibrarySortRule> rules,
   );
-  Iterable<String> linkedMetadataCandidatesForEntry(ShelfEntry source);
   String? subgroupKeyForEntry(
     LibraryProjectionRuntime item,
     String groupMode,
@@ -179,6 +181,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.metadata,
     required this.hierarchy,
     required this.inspector,
+    this.linkedMetadata = const DefaultLibraryLinkedMetadataCapability(),
     required this.transfer,
     this.stats = const DefaultLibraryStatsCapability(),
     this.value,
@@ -206,6 +209,8 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   final LibraryHierarchyCapability hierarchy;
   @override
   final LibraryInspectorCapability inspector;
+  @override
+  final LibraryLinkedMetadataCapability linkedMetadata;
   @override
   final LibraryTransferCapability transfer;
   @override
@@ -350,10 +355,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
           right.dto.title.toLowerCase(),
         );
   }
-
-  @override
-  Iterable<String> linkedMetadataCandidatesForEntry(ShelfEntry source) =>
-      plannedMediaLinkedMetadataCandidatesForEntry(type, source);
 
   @override
   String? subgroupKeyForEntry(

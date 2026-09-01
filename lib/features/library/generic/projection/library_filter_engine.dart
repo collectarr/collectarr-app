@@ -287,7 +287,8 @@ class LibraryFilterEngine {
       return true;
     }
     for (final candidate in libraryKindRuntimeForType(type)
-        .linkedMetadataCandidatesForEntry(item.source)) {
+        .linkedMetadata
+        .candidatesForEntry(item.source)) {
       if (candidate.trim().toLowerCase() == normalized) {
         return true;
       }

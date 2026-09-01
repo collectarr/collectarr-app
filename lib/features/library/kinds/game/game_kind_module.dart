@@ -36,6 +36,16 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_cache_
 const _gamePlatformFilterId = LibraryAddFilterId('game.platform');
 const _gameYearFilterId = LibraryAddFilterId('game.year');
 
+Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
+      metadata.series,
+      metadata.country,
+      metadata.releaseRegion,
+      metadata.publishers.firstOrNull,
+      ...metadata.publishers,
+      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.genres,
+    ];
+
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   type: gamesLibraryConfig,
   projector: const GameWorkspaceProjector(),
@@ -67,6 +77,9 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildGameInspectorSections,
     showsDefaultPersonalSection: false,
+  ),
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<GameCatalogMetadata>(
+    _gameLinkedMetadataValues,
   ),
   transfer: const LibraryTransferCapability(),
   stats: const GameStatsCapability(),

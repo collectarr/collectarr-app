@@ -31,6 +31,21 @@ const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
 const _boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
 const _boardGameYearFilterId = LibraryAddFilterId('boardgame.year');
 
+Iterable<String?> _boardGameLinkedMetadataValues(
+  BoardGameMetadata metadata,
+) =>
+    [
+      metadata.seriesTitle,
+      metadata.series?.seriesTitle,
+      metadata.itemNumber,
+      metadata.publisher,
+      ...metadata.publishers,
+      metadata.variant,
+      ...metadata.languages,
+      ...metadata.categories,
+      ...metadata.creators.map((credit) => credit['name']?.toString()),
+    ];
+
 final boardGameKindModule =
     LibraryKindSpec<BoardGameWorkspaceDto, BoardgameOwnedDetails>(
   type: boardGamesLibraryConfig,
@@ -62,6 +77,9 @@ final boardGameKindModule =
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
+  ),
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<BoardGameMetadata>(
+    _boardGameLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
     kindFields: boardgameTransferableFields,

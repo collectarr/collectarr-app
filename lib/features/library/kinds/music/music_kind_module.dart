@@ -34,6 +34,19 @@ const _musicArtistFilterId = LibraryAddFilterId('music.artist');
 const _musicLabelFilterId = LibraryAddFilterId('music.label');
 const _musicYearFilterId = LibraryAddFilterId('music.year');
 
+Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
+      metadata.artist,
+      metadata.series?.seriesTitle,
+      metadata.publisher,
+      metadata.recordLabel,
+      metadata.publishing?.originalPublisher,
+      metadata.variant,
+      metadata.country,
+      metadata.language,
+      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.genres,
+    ];
+
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   type: musicLibraryConfig,
   projector: const MusicWorkspaceProjector(),
@@ -65,6 +78,9 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
+  ),
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<MusicCatalogMetadata>(
+    _musicLinkedMetadataValues,
   ),
   transfer: const LibraryTransferCapability(),
   add: StandardLibraryAddCapability<MusicAddDraft>(

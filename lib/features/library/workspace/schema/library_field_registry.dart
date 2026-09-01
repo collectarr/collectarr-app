@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
@@ -15,7 +14,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     required this.defaultSort,
     this.defaultGroup,
     required this.preferenceCodec,
-    this.customLinkedMetadataCandidates,
   }) {
     _validate();
   }
@@ -31,7 +29,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   final LibraryGroupIdRuntime? defaultGroup;
 
   final LibraryWorkspacePreferenceCodec<dynamic> preferenceCodec;
-  final Iterable<String> Function(ShelfEntry)? customLinkedMetadataCandidates;
 
   Set<String> get defaultVisibleColumnIds =>
       {for (final col in defaultVisibleColumns) col.value};
@@ -242,62 +239,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       if (titleCmp != 0) return titleCmp;
       return l.node.id.compareTo(r.node.id);
     });
-  }
-
-  Iterable<String> linkedMetadataCandidates(ShelfEntry source) sync* {
-    final item = source.catalogItem;
-    if (item == null) return;
-    final payload = item.kindMetadata.toSyncPayload();
-    final series = ((payload['series_title'] ??
-            (payload['series'] as Map?)?['series_title']) as String?)
-        ?.trim();
-    final itemNumber = payload['item_number'] as String?;
-    final publisher = (payload['publisher'] ??
-        (payload['publishing'] as Map?)?['original_publisher']) as String?;
-    final variant = payload['variant'] as String?;
-    final country = payload['country'] as String?;
-    final language = payload['language'] as String?;
-    final imprint = (payload['publishing'] as Map?)?['imprint'] as String?;
-
-    yield* nonEmptyStrings([
-      item.title,
-      series,
-      itemNumber,
-      publisher,
-      variant,
-      imprint,
-      country,
-      language,
-    ]);
-    yield* nonEmptyStrings(item.searchAliases);
-    final creators = payload['creators'] as List?;
-    if (creators != null) {
-      for (final credit in creators) {
-        if (credit is Map) {
-          final name = credit['name']?.toString().trim();
-          if (name != null && name.isNotEmpty) {
-            yield name;
-          }
-        }
-      }
-    }
-    yield* nonEmptyStrings(
-      (payload['genres'] as List?)?.map((e) => e.toString()),
-    );
-
-    if (customLinkedMetadataCandidates != null) {
-      yield* customLinkedMetadataCandidates!(source);
-    }
-  }
-
-  static Iterable<String> nonEmptyStrings(Iterable<String?>? values) sync* {
-    if (values == null) return;
-    for (final value in values) {
-      final trimmed = value?.trim();
-      if (trimmed != null && trimmed.isNotEmpty) {
-        yield trimmed;
-      }
-    }
   }
 
   void _validate() {

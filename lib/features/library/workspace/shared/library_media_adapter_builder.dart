@@ -1,11 +1,9 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
 
@@ -75,16 +73,6 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   };
 }
 
-
-
-Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
-  LibraryTypeConfig type,
-  ShelfEntry source,
-) {
-  final registry = libraryKindRuntimeForType(type).fields;
-  return registry.linkedMetadataCandidates(source);
-}
-
 String? plannedMediaSubgroupKeyForEntry(
   LibraryTypeConfig type,
   LibraryProjectionRuntime item,
@@ -112,11 +100,6 @@ int plannedMediaCompareSubgroupKeys(
     return leftNumber.compareTo(rightNumber);
   }
   return left.compareTo(right);
-}
-
-String? _trimmedOrNull(String? value) {
-  final trimmed = value?.trim();
-  return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
 
 int? _extractSubgroupNumber(String? value) {

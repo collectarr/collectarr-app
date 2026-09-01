@@ -38,6 +38,20 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_cache_
 const _movieCollectionFilterId = LibraryAddFilterId('movie.collection');
 const _movieYearFilterId = LibraryAddFilterId('movie.year');
 
+Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
+      metadata.seriesTitle,
+      metadata.series?.seriesTitle,
+      metadata.itemNumber,
+      metadata.publisher,
+      metadata.studio,
+      metadata.variant,
+      metadata.country,
+      metadata.originalLanguage,
+      metadata.language,
+      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.genres,
+    ];
+
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   type: moviesLibraryConfig,
   projector: const MovieWorkspaceProjector(),
@@ -69,6 +83,9 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildMovieInspectorSections,
     detailPageBuilder: buildVideoLibraryDetailPage,
+  ),
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<MovieCatalogMetadata>(
+    _movieLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
     kindFields: movieTransferableFields,

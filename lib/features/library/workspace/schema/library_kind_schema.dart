@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
@@ -16,7 +15,6 @@ class LibraryKindSchema<TKind, TDto extends LibraryWorkspaceDto> {
     required this.defaultSort,
     this.defaultGroup,
     required this.preferenceCodec,
-    this.customLinkedMetadataCandidates,
   }) : registry = LibraryFieldRegistry<TDto>(
           kindNamespace: kindNamespace,
           fields: fields,
@@ -27,7 +25,6 @@ class LibraryKindSchema<TKind, TDto extends LibraryWorkspaceDto> {
           defaultSort: defaultSort,
           defaultGroup: defaultGroup,
           preferenceCodec: preferenceCodec,
-          customLinkedMetadataCandidates: customLinkedMetadataCandidates,
         );
 
   final String kindNamespace;
@@ -41,7 +38,6 @@ class LibraryKindSchema<TKind, TDto extends LibraryWorkspaceDto> {
   final LibraryGroupIdRuntime? defaultGroup;
 
   final LibraryWorkspacePreferenceCodec<TKind> preferenceCodec;
-  final Iterable<String> Function(ShelfEntry)? customLinkedMetadataCandidates;
 
   final LibraryFieldRegistry<TDto> registry;
 

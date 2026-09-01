@@ -34,6 +34,21 @@ const _mangaVolumeFilterId = LibraryAddFilterId('manga.volume');
 const _mangaPublisherFilterId = LibraryAddFilterId('manga.publisher');
 const _mangaYearFilterId = LibraryAddFilterId('manga.year');
 
+Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
+      metadata.seriesTitle,
+      metadata.series?.seriesTitle,
+      metadata.itemNumber,
+      metadata.publisher,
+      metadata.originalPublisher,
+      metadata.localizedPublisher,
+      metadata.variant,
+      metadata.imprint,
+      metadata.country,
+      metadata.language,
+      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.genres,
+    ];
+
 final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   type: mangaLibraryConfig,
   projector: const MangaWorkspaceProjector(),
@@ -72,6 +87,9 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
+  ),
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<MangaMetadata>(
+    _mangaLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
     kindFields: mangaTransferableFields,

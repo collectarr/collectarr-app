@@ -40,6 +40,20 @@ const _tvShowFilterId = LibraryAddFilterId('tv.show');
 const _tvNetworkFilterId = LibraryAddFilterId('tv.network');
 const _tvYearFilterId = LibraryAddFilterId('tv.year');
 
+Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
+      metadata.seriesTitle,
+      metadata.series?.seriesTitle,
+      metadata.itemNumber,
+      metadata.publisher,
+      metadata.network,
+      metadata.streamingService,
+      metadata.variant,
+      metadata.country,
+      metadata.originalLanguage,
+      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.genres,
+    ];
+
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   type: tvLibraryConfig,
   projector: const TvWorkspaceProjector(),
@@ -74,6 +88,9 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     sectionsBuilder: buildTvInspectorSections,
     detailPageBuilder: buildVideoLibraryDetailPage,
     showsDefaultPersonalSection: false,
+  ),
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
+    _tvLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
     kindFields: tvTransferableFields,

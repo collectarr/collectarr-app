@@ -33,6 +33,18 @@ const _animeSeriesFilterId = LibraryAddFilterId('anime.series');
 const _animeStudioFilterId = LibraryAddFilterId('anime.studio');
 const _animeYearFilterId = LibraryAddFilterId('anime.year');
 
+Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
+      metadata.seriesTitle,
+      metadata.series?.seriesTitle,
+      metadata.itemNumber,
+      metadata.publisher,
+      metadata.variant,
+      metadata.country,
+      metadata.language,
+      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.genres,
+    ];
+
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   type: animeLibraryConfig,
   projector: const AnimeWorkspaceProjector(),
@@ -64,6 +76,9 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
+  ),
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<AnimeMetadata>(
+    _animeLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
     kindFields: animeTransferableFields,

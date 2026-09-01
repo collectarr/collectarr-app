@@ -47,6 +47,21 @@ const _comicIssueFilterId = LibraryAddFilterId('comic.issue');
 const _comicPublisherFilterId = LibraryAddFilterId('comic.publisher');
 const _comicYearFilterId = LibraryAddFilterId('comic.year');
 
+Iterable<String?> _comicLinkedMetadataValues(ComicCatalogMetadata metadata) => [
+      metadata.seriesTitle,
+      metadata.series?.seriesTitle,
+      metadata.issueNumber,
+      metadata.publisher,
+      metadata.publishing?.originalPublisher,
+      metadata.variant,
+      metadata.imprint,
+      metadata.publishing?.imprint,
+      metadata.country,
+      metadata.language,
+      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.genres,
+    ];
+
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   type: comicsLibraryConfig,
   viewProfile: comicsWorkspaceViewProfile,
@@ -90,6 +105,9 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     heroBuilder: buildComicInspectorHero,
     sectionsBuilder: buildComicInspectorSections,
     showsDefaultPersonalSection: false,
+  ),
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<ComicCatalogMetadata>(
+    _comicLinkedMetadataValues,
   ),
   relations: comicRelationCapability,
   transfer: LibraryTransferCapability(

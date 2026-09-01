@@ -36,6 +36,21 @@ const _bookIsbnFilterId = LibraryAddFilterId('book.isbn');
 const _bookPublisherFilterId = LibraryAddFilterId('book.publisher');
 const _bookYearFilterId = LibraryAddFilterId('book.year');
 
+Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
+      metadata.seriesTitle,
+      metadata.series?.seriesTitle,
+      metadata.itemNumber,
+      metadata.publisher,
+      metadata.originalPublisher,
+      metadata.publishing?.originalPublisher,
+      metadata.variant,
+      metadata.publishing?.imprint,
+      metadata.country,
+      metadata.language,
+      ...metadata.creators.map((credit) => credit['name']?.toString()),
+      ...metadata.genres,
+    ];
+
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   type: booksLibraryConfig,
   projector: const BookWorkspaceProjector(),
@@ -71,6 +86,9 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: true,
+  ),
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<BookCatalogMetadata>(
+    _bookLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
     kindFields: bookTransferableFields,
