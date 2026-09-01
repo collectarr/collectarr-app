@@ -14,6 +14,17 @@ abstract class LibraryKindVocabularyCapability {
     }
     return null;
   }
+
+  VocabularyDefinition<dynamic>? definitionForSuffix(String suffix) {
+    final normalized = suffix.trim().toLowerCase();
+    for (final definition in definitions) {
+      final key = definition.key.toLowerCase();
+      if (key == normalized || key.endsWith('.$normalized')) {
+        return definition;
+      }
+    }
+    return null;
+  }
 }
 
 class StandardKindVocabularyCapability extends LibraryKindVocabularyCapability {

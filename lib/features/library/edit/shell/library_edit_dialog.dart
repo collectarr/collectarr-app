@@ -186,7 +186,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     final locations = await LocationRepository(db).getAll();
     final owners = await loadSingleValuePickListOptions(
       db,
-      listName: 'owners',
+      listName: UniversalVocabularies.owners.key,
       mediaKind: mediaKind,
     );
     final tags = await loadTagPickListOptions(

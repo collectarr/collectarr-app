@@ -18,6 +18,7 @@ abstract final class ComicVocabularies {
   static const publisher = VocabularyDefinition<String>(
     id: ComicVocabularyIds.publisher,
     label: 'Publisher',
+    catalogValueReader: _publisherCatalogValues,
     builtIns: [
       'Marvel Comics',
       'DC Comics',
@@ -33,6 +34,7 @@ abstract final class ComicVocabularies {
   static const imprint = VocabularyDefinition<String>(
     id: ComicVocabularyIds.imprint,
     label: 'Imprint',
+    catalogValueReader: _imprintCatalogValues,
     builtIns: [
       'Vertigo',
       'Black Label',
@@ -47,6 +49,7 @@ abstract final class ComicVocabularies {
   static const seriesGroup = VocabularyDefinition<String>(
     id: ComicVocabularyIds.seriesGroup,
     label: 'Series Group',
+    catalogValueReader: _seriesGroupCatalogValues,
     builtIns: [
       'Spider-Man',
       'Batman',
@@ -61,6 +64,7 @@ abstract final class ComicVocabularies {
   static const physicalFormat = VocabularyDefinition<String>(
     id: ComicVocabularyIds.physicalFormat,
     label: 'Format',
+    catalogValueReader: _physicalFormatCatalogValues,
     builtIns: [
       'Single Issue',
       'Trade Paperback',
@@ -125,6 +129,7 @@ abstract final class ComicVocabularies {
   static const pageQuality = VocabularyDefinition<String>(
     id: ComicVocabularyIds.pageQuality,
     label: 'Page Quality',
+    catalogValueReader: _pageQualityCatalogValues,
     builtIns: [
       'White',
       'Off-White to White',
@@ -140,6 +145,7 @@ abstract final class ComicVocabularies {
   static const keyCategory = VocabularyDefinition<String>(
     id: ComicVocabularyIds.keyCategory,
     label: 'Key Category',
+    catalogValueReader: _keyCategoryCatalogValues,
     builtIns: [
       '1st appearance',
       '1st full appearance',
@@ -158,12 +164,14 @@ abstract final class ComicVocabularies {
     id: ComicVocabularyIds.storyArc,
     label: 'Story Arc',
     multiValue: true,
+    catalogValueReader: _storyArcCatalogValues,
   );
 
   static const crossover = VocabularyDefinition<String>(
     id: ComicVocabularyIds.crossover,
     label: 'Crossover',
     multiValue: true,
+    catalogValueReader: _crossoverCatalogValues,
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
@@ -178,4 +186,48 @@ abstract final class ComicVocabularies {
     storyArc,
     crossover,
   ];
+}
+
+Iterable<String?> _publisherCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'publisher');
+  yield* vocabularyNestedPayloadValuesForKey(
+    payload,
+    'publishing',
+    'original_publisher',
+  );
+}
+
+Iterable<String?> _imprintCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyNestedPayloadValuesForKey(payload, 'publishing', 'imprint');
+}
+
+Iterable<String?> _seriesGroupCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyNestedPayloadValuesForKey(
+    payload,
+    'publishing',
+    'series_group',
+  );
+}
+
+Iterable<String?> _physicalFormatCatalogValues(
+  Map<String, dynamic> payload,
+) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format');
+}
+
+Iterable<String?> _pageQualityCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyPayloadValuesForKey(payload, 'page_quality');
+}
+
+Iterable<String?> _keyCategoryCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyPayloadValuesForKey(payload, 'key_category');
+}
+
+Iterable<String?> _storyArcCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyPayloadValuesForKey(payload, 'story_arcs');
+}
+
+Iterable<String?> _crossoverCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyPayloadValuesForKey(payload, 'crossover');
 }

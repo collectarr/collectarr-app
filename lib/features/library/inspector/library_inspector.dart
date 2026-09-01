@@ -25,6 +25,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -44,6 +45,8 @@ class _InspectorConditionGradeOptionsRequest {
     required this.mediaKind,
     required this.builtInConditions,
     required this.builtInGrades,
+    this.conditionListName,
+    this.gradeListName,
     required this.selectedCondition,
     required this.selectedGrade,
   });
@@ -52,6 +55,8 @@ class _InspectorConditionGradeOptionsRequest {
   final String mediaKind;
   final List<String> builtInConditions;
   final List<String> builtInGrades;
+  final String? conditionListName;
+  final String? gradeListName;
   final String? selectedCondition;
   final String? selectedGrade;
 
@@ -62,6 +67,8 @@ class _InspectorConditionGradeOptionsRequest {
         mediaKind == other.mediaKind &&
         listEquals(builtInConditions, other.builtInConditions) &&
         listEquals(builtInGrades, other.builtInGrades) &&
+        conditionListName == other.conditionListName &&
+        gradeListName == other.gradeListName &&
         selectedCondition == other.selectedCondition &&
         selectedGrade == other.selectedGrade;
   }
@@ -72,6 +79,8 @@ class _InspectorConditionGradeOptionsRequest {
         mediaKind,
         Object.hashAll(builtInConditions),
         Object.hashAll(builtInGrades),
+        conditionListName,
+        gradeListName,
         selectedCondition,
         selectedGrade,
       );
@@ -86,6 +95,8 @@ final _inspectorConditionGradeOptionsProvider = FutureProvider.autoDispose
       mediaKind: request.mediaKind,
       builtInConditions: request.builtInConditions,
       builtInGrades: request.builtInGrades,
+      conditionListName: request.conditionListName,
+      gradeListName: request.gradeListName,
       selectedCondition: request.selectedCondition,
       selectedGrade: request.selectedGrade,
     );
@@ -387,14 +398,32 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             true) {
       conditionGradeSection = Builder(
         builder: (context) {
+          final editCapability = libraryKindRuntimeForType(widget.type).edit;
+          final conditionDefinition =
+              editCapability.vocabularies?.definitionForSuffix('condition');
+          final gradeDefinition =
+              editCapability.vocabularies?.definitionForSuffix('grade');
+          final builtInConditions = conditionDefinition == null
+              ? widget.type.conditions
+              : [
+                  for (final value in conditionDefinition.builtIns)
+                    value.toString()
+                ];
+          final builtInGrades = gradeDefinition == null
+              ? widget.type.grades
+              : [
+                  for (final value in gradeDefinition.builtIns) value.toString()
+                ];
           final options = ref
               .watch(
                 _inspectorConditionGradeOptionsProvider(
                   _InspectorConditionGradeOptionsRequest(
                     db: widget.db ?? ref.read(localDatabaseProvider),
                     mediaKind: widget.type.workspace.kind.apiValue,
-                    builtInConditions: widget.type.conditions,
-                    builtInGrades: widget.type.grades,
+                    builtInConditions: builtInConditions,
+                    builtInGrades: builtInGrades,
+                    conditionListName: conditionDefinition?.key,
+                    gradeListName: gradeDefinition?.key,
                     selectedCondition: activeOwnedItem.condition,
                     selectedGrade: activeOwnedItem.grade,
                   ),
@@ -407,12 +436,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             grade: activeOwnedItem.grade,
             conditions: options?.conditions ??
                 mergePickListValues(
-                  builtInValues: widget.type.conditions,
+                  builtInValues: builtInConditions,
                   selectedValues: [activeOwnedItem.condition],
                 ),
             grades: options?.grades ??
                 mergePickListValues(
-                  builtInValues: widget.type.grades,
+                  builtInValues: builtInGrades,
                   selectedValues: [activeOwnedItem.grade],
                 ),
             accent: widget.accent,

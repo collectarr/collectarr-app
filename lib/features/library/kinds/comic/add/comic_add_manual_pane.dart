@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -57,13 +58,13 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
     final results = await Future.wait<dynamic>([
       loadSingleValuePickListOptions(
         db,
-        listName: kPublisherPickListName,
+        listName: ComicVocabularyIds.publisher.value,
         mediaKind: CatalogMediaKind.comic.apiValue,
         selectedValue: comicDraft.publisherController.text,
       ),
       loadSingleValuePickListOptions(
         db,
-        listName: kPhysicalFormatPickListName,
+        listName: ComicVocabularyIds.physicalFormat.value,
         mediaKind: CatalogMediaKind.comic.apiValue,
         builtInValues: [for (final format in formats) format.label],
         selectedValue: comicDraft.physicalFormatLabelController.text,
@@ -78,8 +79,8 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
     setState(() {
       _publisherOptions = List<String>.from(results[0] as List<String>);
       _physicalFormatOptions = List<String>.from(results[1] as List<String>);
-      _seriesEntries =
-          List<SeriesRegistryEntry>.from(results[2] as List<SeriesRegistryEntry>);
+      _seriesEntries = List<SeriesRegistryEntry>.from(
+          results[2] as List<SeriesRegistryEntry>);
     });
   }
 
@@ -236,7 +237,8 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
                                 label: 'Format',
                                 onChanged: (_) {},
                                 onManage: () => _manageSingleValuePickList(
-                                  listName: kPhysicalFormatPickListName,
+                                  listName:
+                                      ComicVocabularyIds.physicalFormat.value,
                                   label: 'Physical Formats',
                                   builtInValues: [
                                     for (final format
@@ -273,7 +275,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
                                 options: _publisherOptions,
                                 label: 'Publisher',
                                 onManage: () => _manageSingleValuePickList(
-                                  listName: kPublisherPickListName,
+                                  listName: ComicVocabularyIds.publisher.value,
                                   label: 'Publishers',
                                 ),
                               ),

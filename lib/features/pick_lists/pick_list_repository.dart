@@ -410,20 +410,25 @@ class PickListRepository {
       'imprint': [('catalog_cache', 'imprint')],
       'language': [('catalog_cache', 'language')],
       'country': [('catalog_cache', 'country')],
-      'age_ratings': [('catalog_cache', 'ageRating')],
-      'series_groups': [('catalog_cache', 'seriesGroup')],
-      'physical_formats': [
+      'age_rating': [('catalog_cache', 'ageRating')],
+      'series_group': [('catalog_cache', 'seriesGroup')],
+      'physical_format': [
+        ('catalog_cache', 'physicalFormat'),
+        ('catalog_cache', 'physicalFormatLabel'),
+      ],
+      'format': [
         ('catalog_cache', 'physicalFormat'),
         ('catalog_cache', 'physicalFormatLabel'),
       ],
     };
+    final semanticName = pickListSemanticName(listName);
     final ownedColumns =
-        directColumns[listName] ?? const <(String table, String column)>[];
+        directColumns[semanticName] ?? const <(String table, String column)>[];
     var total = 0;
     for (final column in ownedColumns) {
       total += await _countTextColumn(column.$1, column.$2, normalized);
     }
-    if (listName == 'tags') {
+    if (semanticName == 'tags') {
       total += await _countTagField(normalized);
     }
     total += await _countCustomFieldValues(normalized);

@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:drift/drift.dart';
 
 class CatalogCacheRepository {
@@ -344,99 +344,25 @@ class CatalogCacheRepository {
       for (final entry in byKind.entries) {
         final mediaKind = entry.key;
         final scopedPayloads = entry.value;
-        await pickLists.captureValuesWithoutTransaction(
-          kCountryPickListName,
-          scopedPayloads.map((payload) => payload['country'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kLanguagePickListName,
-          scopedPayloads.map((payload) => payload['language'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kAgeRatingPickListName,
-          scopedPayloads.map((payload) => payload['age_rating'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kAudienceRatingPickListName,
-          scopedPayloads
-              .map((payload) => payload['audience_rating'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kScreenRatioPickListName,
-          scopedPayloads.map((payload) =>
-              _asMap(payload['video'])?['screen_ratio'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kLayersPickListName,
-          scopedPayloads
-              .map((payload) => _asMap(payload['video'])?['layers'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kColorPickListName,
-          scopedPayloads
-              .map((payload) => _asMap(payload['video'])?['color'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kAudioTrackPickListName,
-          scopedPayloads.map((payload) =>
-              _asMap(payload['video'])?['audio_tracks'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kSubtitlePickListName,
-          scopedPayloads.map(
-              (payload) => _asMap(payload['video'])?['subtitles'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kGamePlatformPickListName,
-          scopedPayloads.expand((payload) {
-            final gameMap = _asMap(payload['game']);
-            final platforms = (gameMap?['platforms'] as List?)
-                ?.map((e) => e.toString())
-                .toList();
-            return platforms ?? const <String>[];
-          }),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kMusicFormatPickListName,
-          scopedPayloads.map((payload) => (payload['physical_format_label'] ??
-              payload['physical_format']) as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kPublisherPickListName,
-          scopedPayloads.map((payload) => payload['publisher'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kImprintPickListName,
-          scopedPayloads.map((payload) =>
-              _asMap(payload['publishing'])?['imprint'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kSeriesGroupPickListName,
-          scopedPayloads.map((payload) =>
-              _asMap(payload['publishing'])?['series_group'] as String?),
-          mediaKind: mediaKind,
-        );
-        await pickLists.captureValuesWithoutTransaction(
-          kPhysicalFormatPickListName,
-          scopedPayloads.map(
-            (payload) => (payload['physical_format_label'] ??
-                payload['physical_format']) as String?,
-          ),
-          mediaKind: mediaKind,
-        );
+        final kind = catalogMediaKindFromApiValue(mediaKind);
+        final definitions =
+            libraryKindRuntimeForKind(kind).edit.vocabularies?.definitions ??
+                const [];
+        for (final definition in definitions) {
+          final reader = definition.catalogValueReader;
+          if (reader == null) {
+            continue;
+          }
+          final values = <String?>[];
+          for (final payload in scopedPayloads) {
+            values.addAll(reader(payload));
+          }
+          await pickLists.captureValuesWithoutTransaction(
+            definition.key,
+            values,
+            mediaKind: mediaKind,
+          );
+        }
       }
       await seriesRegistry.captureCatalogItemsWithoutTransaction(list);
     });

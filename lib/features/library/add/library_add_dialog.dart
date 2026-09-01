@@ -174,11 +174,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     _controller.addListener(_onControllerStateChanged);
 
-    final editCap =
-        libraryKindRuntimeForKind(widget.type.workspace.kind).edit;
-    _conditionOptions = editCap.conditions.isNotEmpty
-        ? editCap.conditions
-        : kGeneralConditions;
+    final editCap = libraryKindRuntimeForKind(widget.type.workspace.kind).edit;
+    _conditionOptions =
+        editCap.conditions.isNotEmpty ? editCap.conditions : kGeneralConditions;
     _gradeOptions = editCap.grades;
     _loadAvailableLocations();
     _loadPickListOptions();
@@ -266,16 +264,25 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   Future<void> _loadPickListOptions() async {
     final state = _controller.state;
-    final editCap =
-        libraryKindRuntimeForKind(widget.type.workspace.kind).edit;
-    final builtInConditions = editCap.conditions.isNotEmpty
-        ? editCap.conditions
-        : kGeneralConditions;
+    final editCap = libraryKindRuntimeForKind(widget.type.workspace.kind).edit;
+    final conditionDefinition =
+        editCap.vocabularies?.definitionForSuffix('condition');
+    final gradeDefinition = editCap.vocabularies?.definitionForSuffix('grade');
+    final builtInConditions = conditionDefinition == null
+        ? (editCap.conditions.isNotEmpty
+            ? editCap.conditions
+            : kGeneralConditions)
+        : [for (final value in conditionDefinition.builtIns) value.toString()];
+    final builtInGrades = gradeDefinition == null
+        ? editCap.grades
+        : [for (final value in gradeDefinition.builtIns) value.toString()];
     final options = await loadConditionGradePickListOptions(
       ref.read(localDatabaseProvider),
       mediaKind: widget.type.workspace.kind.apiValue,
       builtInConditions: builtInConditions,
-      builtInGrades: editCap.grades,
+      builtInGrades: builtInGrades,
+      conditionListName: conditionDefinition?.key,
+      gradeListName: gradeDefinition?.key,
       selectedCondition: state.defaultCondition,
       selectedGrade: state.defaultGrade,
     );
@@ -655,7 +662,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       ),
       body: switch (state.mode) {
         LibraryAddDialogMode.search ||
-        LibraryAddDialogMode.barcode => LayoutBuilder(
+        LibraryAddDialogMode.barcode =>
+          LayoutBuilder(
             builder: (context, constraints) {
               final searchPaneRequest = LibraryAddSearchPaneRequest(
                 type: widget.type,
@@ -664,8 +672,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 accent: accent,
                 results: visibleCore,
                 providerResults: visibleProvider,
-                queuedProviderIngests:
-                    state.preview.queuedProviderIngests,
+                queuedProviderIngests: state.preview.queuedProviderIngests,
                 selectedProvider: state.search.selectedProvider,
                 searchedProvider: state.search.searchedProvider,
                 selectedResultId: state.selection.selectedResultId,
@@ -686,19 +693,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 showSeasonResults: state.selection.showSeasonResults,
                 showReleaseResults: state.selection.showReleaseResults,
                 onSelectResult: _controller.selectResult,
-                onSelectProviderCandidate:
-                    _controller.selectProviderCandidate,
+                onSelectProviderCandidate: _controller.selectProviderCandidate,
                 onToggleResultCheck: _controller.toggleCheckedResult,
                 onToggleProviderCheck: _controller.toggleCheckedProvider,
                 onShowCoreResultsChanged: _controller.setShowCoreResults,
                 onShowProviderResultsChanged:
                     _controller.setShowProviderResults,
-                onShowMediaResultsChanged:
-                    _controller.setShowMediaResults,
-                onShowSeasonResultsChanged:
-                    _controller.setShowSeasonResults,
-                onShowReleaseResultsChanged:
-                    _controller.setShowReleaseResults,
+                onShowMediaResultsChanged: _controller.setShowMediaResults,
+                onShowSeasonResultsChanged: _controller.setShowSeasonResults,
+                onShowReleaseResultsChanged: _controller.setShowReleaseResults,
                 onSearchCore: _controller.executeSearch,
               );
 
@@ -716,51 +719,35 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     providerResults: searchPaneRequest.providerResults,
                     queuedProviderIngests:
                         searchPaneRequest.queuedProviderIngests,
-                    selectedProvider:
-                        searchPaneRequest.selectedProvider,
-                    searchedProvider:
-                        searchPaneRequest.searchedProvider,
-                    selectedResultId:
-                        searchPaneRequest.selectedResultId,
+                    selectedProvider: searchPaneRequest.selectedProvider,
+                    searchedProvider: searchPaneRequest.searchedProvider,
+                    selectedResultId: searchPaneRequest.selectedResultId,
                     selectedProviderCandidateId:
                         searchPaneRequest.selectedProviderCandidateId,
-                    checkedResultIds:
-                        searchPaneRequest.checkedResultIds,
-                    checkedProviderIds:
-                        searchPaneRequest.checkedProviderIds,
-                    ownedCatalogItemIds:
-                        searchPaneRequest.ownedCatalogItemIds,
-                    providerQueryText:
-                        searchPaneRequest.providerQueryText,
-                    providerSeriesText:
-                        searchPaneRequest.providerSeriesText,
-                    providerNumberText:
-                        searchPaneRequest.providerNumberText,
+                    checkedResultIds: searchPaneRequest.checkedResultIds,
+                    checkedProviderIds: searchPaneRequest.checkedProviderIds,
+                    ownedCatalogItemIds: searchPaneRequest.ownedCatalogItemIds,
+                    providerQueryText: searchPaneRequest.providerQueryText,
+                    providerSeriesText: searchPaneRequest.providerSeriesText,
+                    providerNumberText: searchPaneRequest.providerNumberText,
                     providerPublisherText:
                         searchPaneRequest.providerPublisherText,
-                    providerYearText:
-                        searchPaneRequest.providerYearText,
+                    providerYearText: searchPaneRequest.providerYearText,
                     isWideLayout: searchPaneRequest.isWideLayout,
                     showCoreResults: searchPaneRequest.showCoreResults,
-                    showProviderResults:
-                        searchPaneRequest.showProviderResults,
-                    showMediaResults:
-                        searchPaneRequest.showMediaResults,
-                    showSeasonResults:
-                        searchPaneRequest.showSeasonResults,
-                    showReleaseResults:
-                        searchPaneRequest.showReleaseResults,
+                    showProviderResults: searchPaneRequest.showProviderResults,
+                    showMediaResults: searchPaneRequest.showMediaResults,
+                    showSeasonResults: searchPaneRequest.showSeasonResults,
+                    showReleaseResults: searchPaneRequest.showReleaseResults,
                     hideComicOwnedResults:
                         state.selection.hideComicOwnedResults,
                     hideComicVariantResults:
                         state.selection.hideComicVariantResults,
-                    compactComicIssues:
-                        state.selection.compactComicIssues,
+                    compactComicIssues: state.selection.compactComicIssues,
                     onSelectResult: searchPaneRequest.onSelectResult,
                     onSelectProviderCandidate:
                         searchPaneRequest.onSelectProviderCandidate,
-                    onToggleResultCheck:
-                        searchPaneRequest.onToggleResultCheck,
+                    onToggleResultCheck: searchPaneRequest.onToggleResultCheck,
                     onToggleProviderCheck:
                         searchPaneRequest.onToggleProviderCheck,
                     onShowCoreResultsChanged:
@@ -792,11 +779,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 candidate: selectedCandidate,
                 candidatePreview: selectedCandidate == null
                     ? null
-                    : state.preview.providerPreviews[
-                        selectedCandidate.localCatalogId],
+                    : state.preview
+                        .providerPreviews[selectedCandidate.localCatalogId],
                 isFetchingPreview: (selectedCandidate != null &&
-                        state.preview.pendingProviderPreviewIds.contains(
-                            selectedCandidate.localCatalogId)) ||
+                        state.preview.pendingProviderPreviewIds
+                            .contains(selectedCandidate.localCatalogId)) ||
                     (selectedItem != null &&
                         state.preview.pendingHydratedResultIds
                             .contains(selectedItem.id)),
@@ -808,8 +795,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 referenceType: state.selection.referenceType,
                 availableBundleReleases: selectedItem == null
                     ? const <BundleReleaseSummary>[]
-                    : state.preview
-                            .bundleReleasesByItemId[selectedItem.id] ??
+                    : state.preview.bundleReleasesByItemId[selectedItem.id] ??
                         const <BundleReleaseSummary>[],
                 selectedBundleReleaseId:
                     state.selection.selectedBundleReleaseId,
@@ -818,18 +804,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         ? null
                         : state.preview.bundleReleaseDetailsById[
                             state.selection.selectedBundleReleaseId],
-                selectedEditionId:
-                    state.selection.selectedReferenceEditionId,
-                selectedVariantId:
-                    state.selection.selectedReferenceVariantId,
+                selectedEditionId: state.selection.selectedReferenceEditionId,
+                selectedVariantId: state.selection.selectedReferenceVariantId,
                 isLoadingBundleReleases: selectedItem != null &&
                     state.preview.pendingBundleReleaseItemIds
                         .contains(selectedItem.id),
                 isLoadingBundleReleaseDetail:
                     state.selection.selectedBundleReleaseId != null &&
                         state.preview.pendingBundleReleaseDetailIds
-                            .contains(
-                                state.selection.selectedBundleReleaseId),
+                            .contains(state.selection.selectedBundleReleaseId),
                 onReferenceTypeChanged: (value) =>
                     _controller.setReferenceType(value),
                 onEditionSelected: (editionId) =>

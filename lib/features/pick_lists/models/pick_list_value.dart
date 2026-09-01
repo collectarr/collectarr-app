@@ -2,6 +2,18 @@ String normalizePickListValue(String value) {
   return value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 }
 
+String pickListSemanticName(String listName) {
+  final normalized = listName.trim().toLowerCase();
+  final separator = normalized.lastIndexOf('.');
+  final semanticName =
+      separator < 0 ? normalized : normalized.substring(separator + 1);
+  return switch (semanticName) {
+    'conditions' => 'condition',
+    'grades' => 'grade',
+    _ => semanticName,
+  };
+}
+
 class PickListValue {
   const PickListValue({
     required this.id,

@@ -12,6 +12,7 @@ abstract final class BookVocabularies {
   static const publisher = VocabularyDefinition<String>(
     id: BookVocabularyIds.publisher,
     label: 'Publisher',
+    catalogValueReader: _publisherCatalogValues,
     builtIns: [
       'Penguin Random House',
       'HarperCollins',
@@ -30,6 +31,7 @@ abstract final class BookVocabularies {
   static const format = VocabularyDefinition<String>(
     id: BookVocabularyIds.format,
     label: 'Format',
+    catalogValueReader: _formatCatalogValues,
     builtIns: [
       'Hardcover',
       'Trade Paperback',
@@ -60,6 +62,7 @@ abstract final class BookVocabularies {
   static const language = VocabularyDefinition<String>(
     id: BookVocabularyIds.language,
     label: 'Language',
+    catalogValueReader: _languageCatalogValues,
     builtIns: [
       'English',
       'Spanish',
@@ -93,4 +96,28 @@ abstract final class BookVocabularies {
     language,
     condition,
   ];
+}
+
+Iterable<String?> _publisherCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'publisher');
+  yield* vocabularyNestedPayloadValuesForKey(
+    payload,
+    'publishing',
+    'original_publisher',
+  );
+}
+
+Iterable<String?> _formatCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'format');
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format');
+}
+
+Iterable<String?> _languageCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'language');
+  yield* vocabularyNestedPayloadValuesForKey(
+    payload,
+    'publishing',
+    'original_language',
+  );
 }

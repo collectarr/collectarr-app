@@ -16,6 +16,7 @@ abstract final class TvVocabularies {
   static const physicalFormat = VocabularyDefinition<String>(
     id: TvVocabularyIds.physicalFormat,
     label: 'Format',
+    catalogValueReader: _physicalFormatCatalogValues,
     builtIns: [
       '4K Ultra HD Blu-ray',
       'Blu-ray',
@@ -27,6 +28,7 @@ abstract final class TvVocabularies {
   static const region = VocabularyDefinition<String>(
     id: TvVocabularyIds.region,
     label: 'Region',
+    catalogValueReader: _regionCatalogValues,
     builtIns: [
       'Region A / Region 1',
       'Region B / Region 2',
@@ -38,6 +40,7 @@ abstract final class TvVocabularies {
   static const packaging = VocabularyDefinition<String>(
     id: TvVocabularyIds.packaging,
     label: 'Packaging',
+    catalogValueReader: _packagingCatalogValues,
     builtIns: [
       'Complete Series Box Set',
       'Season Box Set',
@@ -51,6 +54,7 @@ abstract final class TvVocabularies {
   static const distributor = VocabularyDefinition<String>(
     id: TvVocabularyIds.distributor,
     label: 'Distributor / Studio',
+    catalogValueReader: _distributorCatalogValues,
     builtIns: [
       'HBO Home Entertainment',
       'Warner Bros. Television',
@@ -65,6 +69,7 @@ abstract final class TvVocabularies {
   static const screenRatio = VocabularyDefinition<String>(
     id: TvVocabularyIds.screenRatio,
     label: 'Screen Ratio',
+    catalogValueReader: _screenRatioCatalogValues,
     builtIns: [
       '1.78:1 (16:9)',
       '1.33:1 (4:3 Fullscreen)',
@@ -76,6 +81,7 @@ abstract final class TvVocabularies {
   static const audio = VocabularyDefinition<String>(
     id: TvVocabularyIds.audio,
     label: 'Audio',
+    catalogValueReader: _audioCatalogValues,
     builtIns: [
       'Dolby Atmos',
       'DTS-HD Master Audio 5.1',
@@ -88,6 +94,7 @@ abstract final class TvVocabularies {
   static const subtitles = VocabularyDefinition<String>(
     id: TvVocabularyIds.subtitles,
     label: 'Subtitles',
+    catalogValueReader: _subtitlesCatalogValues,
     builtIns: [
       'English SDH',
       'Spanish',
@@ -100,6 +107,7 @@ abstract final class TvVocabularies {
   static const network = VocabularyDefinition<String>(
     id: TvVocabularyIds.network,
     label: 'Original Network',
+    catalogValueReader: _networkCatalogValues,
     builtIns: [
       'HBO',
       'Netflix',
@@ -129,4 +137,46 @@ abstract final class TvVocabularies {
     subtitles,
     network,
   ];
+}
+
+Iterable<String?> _physicalFormatCatalogValues(
+  Map<String, dynamic> payload,
+) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format');
+}
+
+Iterable<String?> _regionCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'region');
+  yield* vocabularyNestedPayloadValuesForKey(payload, 'video', 'region');
+}
+
+Iterable<String?> _packagingCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'packaging');
+  yield* vocabularyNestedPayloadValuesForKey(payload, 'video', 'packaging');
+}
+
+Iterable<String?> _distributorCatalogValues(
+  Map<String, dynamic> payload,
+) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'distributor');
+  yield* vocabularyNestedPayloadValuesForKey(payload, 'video', 'distributor');
+}
+
+Iterable<String?> _screenRatioCatalogValues(
+  Map<String, dynamic> payload,
+) {
+  return vocabularyNestedPayloadValuesForKey(payload, 'video', 'screen_ratio');
+}
+
+Iterable<String?> _audioCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyNestedPayloadValuesForKey(payload, 'video', 'audio_tracks');
+}
+
+Iterable<String?> _subtitlesCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyNestedPayloadValuesForKey(payload, 'video', 'subtitles');
+}
+
+Iterable<String?> _networkCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyPayloadValuesForKey(payload, 'network');
 }

@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -75,27 +74,6 @@ void main() {
       ['Opening', 'Finale'],
       mediaKind: 'comic',
     );
-    await pickLists.setValues(
-      kCountryPickListName,
-      ['US', 'Canada'],
-      mediaKind: 'comic',
-    );
-    await pickLists.setValues(
-      kLanguagePickListName,
-      ['English', 'French'],
-      mediaKind: 'comic',
-    );
-    await pickLists.setValues(
-      kAgeRatingPickListName,
-      ['Mature', 'Teen'],
-      mediaKind: 'comic',
-    );
-    await pickLists.setValues(
-      kGenrePickListName,
-      ['Sci-Fi', 'Fantasy'],
-      mediaKind: 'comic',
-    );
-
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(

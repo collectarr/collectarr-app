@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
@@ -259,13 +260,18 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showConditionPickListEditorFlow() async {
     final db = _page.ref.read(localDatabaseProvider);
+    final editCapability = libraryKindRuntimeForType(_page.type).edit;
+    final definition =
+        editCapability.vocabularies?.definitionForSuffix('condition');
     await showPickListEditorDialog(
       context: _page.context,
       db: db,
-      listName: kConditionPickListName,
+      listName: definition?.key ?? UniversalVocabularies.condition.key,
       label: 'Condition',
       mediaKind: _page.type.workspace.kind.apiValue,
-      builtInValues: _page.type.conditions,
+      builtInValues:
+          definition?.builtIns.map((value) => value.toString()).toList() ??
+              _page.type.conditions,
     );
     if (_page.mounted) {
       _page.rebuild(() {});
@@ -274,13 +280,18 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showGradePickListEditorFlow() async {
     final db = _page.ref.read(localDatabaseProvider);
+    final editCapability = libraryKindRuntimeForType(_page.type).edit;
+    final definition =
+        editCapability.vocabularies?.definitionForSuffix('grade');
     await showPickListEditorDialog(
       context: _page.context,
       db: db,
-      listName: kGradePickListName,
+      listName: definition?.key ?? UniversalVocabularies.grade.key,
       label: 'Grade',
       mediaKind: _page.type.workspace.kind.apiValue,
-      builtInValues: _page.type.grades,
+      builtInValues:
+          definition?.builtIns.map((value) => value.toString()).toList() ??
+              _page.type.grades,
     );
     if (_page.mounted) {
       _page.rebuild(() {});
@@ -292,7 +303,7 @@ class LibraryPageDialogCoordinator {
     await showPickListEditorDialog(
       context: _page.context,
       db: db,
-      listName: kTagPickListName,
+      listName: UniversalVocabularies.tags.key,
       label: 'Tag',
       mediaKind: _page.type.workspace.kind.apiValue,
       builtInValues: const [],

@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -43,22 +43,34 @@ void main() {
     final seriesRegistry = SeriesRegistryRepository(db);
 
     expect(
-      await pickLists.getValues(kPublisherPickListName, mediaKind: 'comic'),
+      await pickLists.getValues(ComicVocabularyIds.publisher.value,
+          mediaKind: 'comic'),
       contains('Image Comics'),
     );
     expect(
-      await pickLists.getValues(kImprintPickListName, mediaKind: 'comic'),
+      await pickLists.getValues(ComicVocabularyIds.imprint.value,
+          mediaKind: 'comic'),
       contains('DSTLRY'),
     );
     expect(
-      await pickLists.getValues(kSeriesGroupPickListName, mediaKind: 'comic'),
+      await pickLists.getValues(ComicVocabularyIds.seriesGroup.value,
+          mediaKind: 'comic'),
       contains('Deluxe Hardcovers'),
     );
     expect(
-      await pickLists.getValues(kPhysicalFormatPickListName,
+      await pickLists.getValues(ComicVocabularyIds.physicalFormat.value,
           mediaKind: 'comic'),
       contains('Hardcover'),
     );
+    final listNames = await pickLists.listNames();
+    expect(listNames, contains(ComicVocabularyIds.publisher.value));
+    expect(listNames, contains(ComicVocabularyIds.imprint.value));
+    expect(listNames, contains(ComicVocabularyIds.seriesGroup.value));
+    expect(listNames, contains(ComicVocabularyIds.physicalFormat.value));
+    expect(listNames, isNot(contains('publishers')));
+    expect(listNames, isNot(contains('imprints')));
+    expect(listNames, isNot(contains('series_groups')));
+    expect(listNames, isNot(contains('physical_formats')));
 
     final series = await seriesRegistry.searchEntries(mediaKind: 'comic');
     expect(series, hasLength(1));

@@ -96,50 +96,51 @@ class PickListMergeService {
     Set<String> sourceSet,
     String target,
   ) async {
+    final semanticName = pickListSemanticName(listName);
     final rows = await _db.select(_db.ownedItemsCache).get();
     for (final row in rows) {
-      if (listName == 'condition' &&
+      if (semanticName == 'condition' &&
           sourceSet.contains(normalizePickListValue(row.condition ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(condition: Value(target)));
-      } else if (listName == 'grade' &&
+      } else if (semanticName == 'grade' &&
           sourceSet.contains(normalizePickListValue(row.grade ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(grade: Value(target)));
-      } else if (listName == 'purchase_store' &&
+      } else if (semanticName == 'purchase_store' &&
           sourceSet.contains(normalizePickListValue(row.purchaseStore ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(purchaseStore: Value(target)));
-      } else if (listName == 'sold_to' &&
+      } else if (semanticName == 'sold_to' &&
           sourceSet.contains(normalizePickListValue(row.soldTo ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(soldTo: Value(target)));
-      } else if (listName == 'region' &&
+      } else if (semanticName == 'region' &&
           sourceSet.contains(normalizePickListValue(row.region ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(region: Value(target)));
-      } else if (listName == 'packaging' &&
+      } else if (semanticName == 'packaging' &&
           sourceSet.contains(normalizePickListValue(row.packaging ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(packaging: Value(target)));
-      } else if (listName == 'distributor' &&
+      } else if (semanticName == 'distributor' &&
           sourceSet.contains(normalizePickListValue(row.distributor ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(distributor: Value(target)));
-      } else if (listName == 'game_completeness' &&
+      } else if (semanticName == 'game_completeness' &&
           sourceSet
               .contains(normalizePickListValue(row.gameCompleteness ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(gameCompleteness: Value(target)));
-      } else if (listName == 'tags' && (row.tags?.isNotEmpty ?? false)) {
+      } else if (semanticName == 'tags' && (row.tags?.isNotEmpty ?? false)) {
         final tags = row.tags!
             .split(',')
             .map((value) => value.trim())
@@ -177,7 +178,7 @@ class PickListMergeService {
   }
 
   List<String> _valuesForRow(String listName, OwnedItemsCacheData row) {
-    return switch (listName) {
+    return switch (pickListSemanticName(listName)) {
       'condition' => [row.condition ?? ''],
       'grade' => [row.grade ?? ''],
       'purchase_store' => [row.purchaseStore ?? ''],

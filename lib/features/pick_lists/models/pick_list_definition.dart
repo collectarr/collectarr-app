@@ -1,4 +1,5 @@
 import 'pick_list_scope.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 
 class PickListDefinition {
   const PickListDefinition({
@@ -17,6 +18,26 @@ class PickListDefinition {
     this.allowSort = true,
     this.isSystem = false,
   });
+
+  factory PickListDefinition.fromVocabulary({
+    required VocabularyDefinition<dynamic> vocabulary,
+    required String mediaKind,
+  }) {
+    return PickListDefinition(
+      id: vocabulary.key,
+      listName: vocabulary.key,
+      label: vocabulary.label ?? vocabulary.key,
+      mediaKind: mediaKind,
+      scope: PickListScope.all,
+      valueMode: vocabulary.multiValue
+          ? PickListValueMode.multi
+          : PickListValueMode.single,
+      controlType: vocabulary.multiValue
+          ? PickListControlType.tagList
+          : PickListControlType.dropdown,
+      allowUserValues: vocabulary.allowCustomValues,
+    );
+  }
 
   final String id;
   final String listName;

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/pick_lists/models/pick_list_scope.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_registry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -23,7 +24,7 @@ void main() {
   test('registry resolves built-in fields and custom field lists', () {
     final registry = PickListRegistry();
     final condition = registry.definitionForField(
-      fieldKey: 'condition',
+      fieldKey: 'conditions',
       mediaKind: 'comic',
       scope: PickListScope.ownedCopy,
     );
@@ -33,8 +34,32 @@ void main() {
       scope: PickListScope.customField,
     );
 
-    expect(condition?.listName, 'condition');
+    expect(condition?.listName, 'conditions');
     expect(customField?.listName, 'customfield:abc');
+  });
+
+  test('kind definitions come from owned vocabulary modules', () {
+    final registry = PickListRegistry();
+    final comicDefinitions = registry.definitionsForKind('comic');
+
+    expect(
+      comicDefinitions.any(
+        (definition) =>
+            definition.listName == ComicVocabularyIds.publisher.value,
+      ),
+      isTrue,
+    );
+    expect(
+      comicDefinitions.any((definition) => definition.listName == 'publisher'),
+      isFalse,
+    );
+    expect(
+      comicDefinitions.any(
+        (definition) =>
+            definition.listName == ComicVocabularyIds.storyArc.value,
+      ),
+      isTrue,
+    );
   });
 
   test('registry definitions do not duplicate list/scope pairs per kind', () {

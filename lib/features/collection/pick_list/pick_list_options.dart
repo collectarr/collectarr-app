@@ -1,33 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/collection/vocabulary/universal_vocabularies.dart';
 
-const String kConditionPickListName = 'conditions';
-const String kGradePickListName = 'grades';
-const String kTagPickListName = 'tags';
-const String kPublisherPickListName = 'publishers';
-const String kImprintPickListName = 'imprints';
-const String kSeriesGroupPickListName = 'series_groups';
-const String kPhysicalFormatPickListName = 'physical_formats';
-const String kCountryPickListName = 'video.country';
-const String kLanguagePickListName = 'video.language';
-const String kAgeRatingPickListName = 'video.age_rating';
-const String kAudienceRatingPickListName = 'video.audience_rating';
-const String kRegionPickListName = 'video.region';
-const String kPackagingPickListName = 'video.packaging';
-const String kDistributorPickListName = 'video.distributor';
-const String kScreenRatioPickListName = 'video.screen_ratio';
-const String kLayersPickListName = 'video.layers';
-const String kColorPickListName = 'video.color';
-const String kAudioTrackPickListName = 'video.audio_track';
-const String kSubtitlePickListName = 'video.subtitle';
-const String kGamePlatformPickListName = 'game.platform';
-const String kGameRegionPickListName = 'game.region';
-const String kMusicFormatPickListName = 'music.format';
-const String kGenrePickListName = 'genres';
-const String kCrossoverPickListName = 'crossovers';
-const String kStoryArcPickListName = 'story_arcs';
-const String kPageQualityPickListName = 'page_qualities';
-const String kKeyCategoryPickListName = 'key_categories';
+export 'package:collectarr_app/features/collection/vocabulary/universal_vocabularies.dart';
 
 class PickListConditionGradeOptions {
   const PickListConditionGradeOptions({
@@ -46,7 +21,7 @@ Future<List<String>> loadTagPickListOptions(
 }) async {
   return loadMultiValuePickListOptions(
     db,
-    listName: kTagPickListName,
+    listName: UniversalVocabularies.tags.key,
     mediaKind: mediaKind,
     selectedValues: selectedTags,
   );
@@ -108,13 +83,17 @@ Future<PickListConditionGradeOptions> loadConditionGradePickListOptions(
   required String mediaKind,
   required List<String> builtInConditions,
   required List<String> builtInGrades,
+  String? conditionListName,
+  String? gradeListName,
   String? selectedCondition,
   String? selectedGrade,
 }) async {
   final repo = PickListRepository(db);
+  final conditionKey = conditionListName ?? UniversalVocabularies.condition.key;
+  final gradeKey = gradeListName ?? UniversalVocabularies.grade.key;
   final results = await Future.wait([
-    repo.getValues(kConditionPickListName, mediaKind: mediaKind),
-    repo.getValues(kGradePickListName, mediaKind: mediaKind),
+    repo.getValues(conditionKey, mediaKind: mediaKind),
+    repo.getValues(gradeKey, mediaKind: mediaKind),
   ]);
   return PickListConditionGradeOptions(
     conditions: mergePickListValues(

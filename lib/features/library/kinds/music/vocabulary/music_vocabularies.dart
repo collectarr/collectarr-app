@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
 
 abstract final class MusicVocabularyIds {
@@ -11,6 +11,7 @@ abstract final class MusicVocabularies {
   static const format = VocabularyDefinition<String>(
     id: MusicVocabularyIds.format,
     label: 'Format',
+    catalogValueReader: _formatCatalogValues,
     builtIns: [
       'Vinyl (12" LP)',
       'Vinyl (7" Single)',
@@ -26,6 +27,7 @@ abstract final class MusicVocabularies {
   static const packaging = VocabularyDefinition<String>(
     id: MusicVocabularyIds.packaging,
     label: 'Packaging',
+    catalogValueReader: _packagingCatalogValues,
     builtIns: [
       'Standard Jewel Case',
       'Digipak',
@@ -39,6 +41,7 @@ abstract final class MusicVocabularies {
   static const recordLabel = VocabularyDefinition<String>(
     id: MusicVocabularyIds.recordLabel,
     label: 'Record Label',
+    catalogValueReader: _recordLabelCatalogValues,
     builtIns: [
       'Columbia Records',
       'Atlantic Records',
@@ -58,4 +61,20 @@ abstract final class MusicVocabularies {
     packaging,
     recordLabel,
   ];
+}
+
+Iterable<String?> _formatCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'format');
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format');
+}
+
+Iterable<String?> _packagingCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyNestedPayloadValuesForKey(payload, 'music', 'packaging');
+}
+
+Iterable<String?> _recordLabelCatalogValues(
+    Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'record_label');
+  yield* vocabularyPayloadValuesForKey(payload, 'publisher');
 }

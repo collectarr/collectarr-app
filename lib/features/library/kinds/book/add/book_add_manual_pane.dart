@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -52,13 +53,13 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
     final results = await Future.wait<dynamic>([
       loadSingleValuePickListOptions(
         db,
-        listName: kPublisherPickListName,
+        listName: BookVocabularyIds.publisher.value,
         mediaKind: CatalogMediaKind.book.apiValue,
         selectedValue: draft.publisherController.text,
       ),
       loadSingleValuePickListOptions(
         db,
-        listName: kPhysicalFormatPickListName,
+        listName: BookVocabularyIds.format.value,
         mediaKind: CatalogMediaKind.book.apiValue,
         builtInValues: [for (final format in formats) format.label],
         selectedValue: draft.physicalFormatLabelController.text,
@@ -190,7 +191,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
                                 options: _publisherOptions,
                                 label: 'Publisher',
                                 onManage: () => _manageSingleValuePickList(
-                                  listName: kPublisherPickListName,
+                                  listName: BookVocabularyIds.publisher.value,
                                   label: 'Publishers',
                                 ),
                               ),
@@ -233,13 +234,12 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
                             LibraryResponsiveFormItem(
                               flex: 2,
                               child: SingleValuePickField(
-                                controller:
-                                    draft.physicalFormatLabelController,
+                                controller: draft.physicalFormatLabelController,
                                 options: _physicalFormatOptions,
                                 label: 'Format',
                                 onChanged: (_) {},
                                 onManage: () => _manageSingleValuePickList(
-                                  listName: kPhysicalFormatPickListName,
+                                  listName: BookVocabularyIds.format.value,
                                   label: 'Physical Formats',
                                   builtInValues: [
                                     for (final format

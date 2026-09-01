@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_manual_act
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
@@ -42,7 +43,7 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     final results = await Future.wait<dynamic>([
       loadSingleValuePickListOptions(
         db,
-        listName: kPublisherPickListName,
+        listName: MangaVocabularyIds.publisher.value,
         mediaKind: CatalogMediaKind.manga.apiValue,
         selectedValue: draft.publisherController.text,
       ),
@@ -55,8 +56,8 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     if (!mounted) return;
     setState(() {
       _publisherOptions = List<String>.from(results[0] as List<String>);
-      _seriesEntries =
-          List<SeriesRegistryEntry>.from(results[1] as List<SeriesRegistryEntry>);
+      _seriesEntries = List<SeriesRegistryEntry>.from(
+          results[1] as List<SeriesRegistryEntry>);
     });
   }
 
@@ -96,7 +97,7 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     await showPickListEditorDialog(
       context: context,
       db: ref.read(localDatabaseProvider),
-      listName: kPublisherPickListName,
+      listName: MangaVocabularyIds.publisher.value,
       label: 'Publishers',
       mediaKind: CatalogMediaKind.manga.apiValue,
     );

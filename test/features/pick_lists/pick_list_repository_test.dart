@@ -106,4 +106,32 @@ void main() {
       1,
     );
   });
+
+  test('usage counts resolve canonical kind vocabulary IDs', () async {
+    await db.into(db.pickListValuesCache).insert(
+          PickListValuesCacheCompanion.insert(
+            id: 'publisher-1',
+            listName: 'comic.publisher',
+            mediaKind: const Value('comic'),
+            value: 'Image Comics',
+            sortOrder: const Value(0),
+          ),
+        );
+    await db.into(db.catalogCache).insert(
+          CatalogCacheCompanion.insert(
+            id: 'catalog-1',
+            kind: 'comic',
+            title: 'Saga',
+            publisher: const Value('Image Comics'),
+            cachedAt: DateTime.utc(2026, 1, 1),
+          ),
+        );
+
+    final counts = await repo.usageCounts(
+      listName: 'comic.publisher',
+      mediaKind: 'comic',
+    );
+
+    expect(counts['publisher-1'], 1);
+  });
 }

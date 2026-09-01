@@ -19,7 +19,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await PickListRepository(db).addValue('condition', 'Near Mint');
+    await PickListRepository(db).addValue('conditions', 'Near Mint');
 
     await tester.pumpWidget(
       ProviderScope(

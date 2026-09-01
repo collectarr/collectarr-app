@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -232,11 +233,24 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   }
 
   Future<void> _loadPickListOptions() async {
+    final editCapability = libraryKindRuntimeForType(widget.type).edit;
+    final conditionDefinition =
+        editCapability.vocabularies?.definitionForSuffix('condition');
+    final gradeDefinition =
+        editCapability.vocabularies?.definitionForSuffix('grade');
+    final builtInConditions = conditionDefinition == null
+        ? widget.type.conditions
+        : [for (final value in conditionDefinition.builtIns) value.toString()];
+    final builtInGrades = gradeDefinition == null
+        ? widget.type.grades
+        : [for (final value in gradeDefinition.builtIns) value.toString()];
     final options = await loadConditionGradePickListOptions(
       ref.read(localDatabaseProvider),
       mediaKind: widget.type.workspace.kind.apiValue,
-      builtInConditions: widget.type.conditions,
-      builtInGrades: widget.type.grades,
+      builtInConditions: builtInConditions,
+      builtInGrades: builtInGrades,
+      conditionListName: conditionDefinition?.key,
+      gradeListName: gradeDefinition?.key,
       selectedCondition: _condition,
       selectedGrade: _grade,
     );

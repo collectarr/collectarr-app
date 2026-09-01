@@ -11,6 +11,7 @@ abstract final class BoardGameVocabularies {
   static const publisher = VocabularyDefinition<String>(
     id: BoardGameVocabularyIds.publisher,
     label: 'Publisher',
+    catalogValueReader: _publisherCatalogValues,
     builtIns: [
       'Fantasy Flight Games',
       'Asmodee',
@@ -29,6 +30,7 @@ abstract final class BoardGameVocabularies {
   static const format = VocabularyDefinition<String>(
     id: BoardGameVocabularyIds.format,
     label: 'Edition / Format',
+    catalogValueReader: _formatCatalogValues,
     builtIns: [
       'Base Game',
       'Expansion',
@@ -43,6 +45,7 @@ abstract final class BoardGameVocabularies {
   static const category = VocabularyDefinition<String>(
     id: BoardGameVocabularyIds.category,
     label: 'Category',
+    catalogValueReader: _categoryCatalogValues,
     builtIns: [
       'Strategy',
       'Eurogame',
@@ -62,4 +65,18 @@ abstract final class BoardGameVocabularies {
     format,
     category,
   ];
+}
+
+Iterable<String?> _publisherCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'publisher');
+  yield* vocabularyPayloadValuesForKey(payload, 'publishers');
+}
+
+Iterable<String?> _formatCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'format');
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
+}
+
+Iterable<String?> _categoryCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyPayloadValuesForKey(payload, 'category');
 }

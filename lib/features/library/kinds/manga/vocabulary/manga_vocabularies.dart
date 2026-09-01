@@ -13,6 +13,7 @@ abstract final class MangaVocabularies {
   static const publisher = VocabularyDefinition<String>(
     id: MangaVocabularyIds.publisher,
     label: 'Publisher',
+    catalogValueReader: _publisherCatalogValues,
     builtIns: [
       'VIZ Media',
       'Kodansha USA',
@@ -30,6 +31,7 @@ abstract final class MangaVocabularies {
   static const imprint = VocabularyDefinition<String>(
     id: MangaVocabularyIds.imprint,
     label: 'Imprint',
+    catalogValueReader: _imprintCatalogValues,
     builtIns: [
       'Shonen Jump',
       'Shojo Beat',
@@ -72,6 +74,7 @@ abstract final class MangaVocabularies {
   static const format = VocabularyDefinition<String>(
     id: MangaVocabularyIds.format,
     label: 'Format',
+    catalogValueReader: _formatCatalogValues,
     builtIns: [
       'Tankobon (Standard)',
       'Omnibus (2-in-1 / 3-in-1)',
@@ -89,4 +92,23 @@ abstract final class MangaVocabularies {
     serialization,
     format,
   ];
+}
+
+Iterable<String?> _publisherCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'publisher');
+  yield* vocabularyNestedPayloadValuesForKey(
+    payload,
+    'publishing',
+    'original_publisher',
+  );
+}
+
+Iterable<String?> _imprintCatalogValues(Map<String, dynamic> payload) {
+  return vocabularyNestedPayloadValuesForKey(payload, 'publishing', 'imprint');
+}
+
+Iterable<String?> _formatCatalogValues(Map<String, dynamic> payload) sync* {
+  yield* vocabularyPayloadValuesForKey(payload, 'format');
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
+  yield* vocabularyPayloadValuesForKey(payload, 'physical_format');
 }
