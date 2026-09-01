@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'game_edit_controller.dart';
 
 class GameEditDraft extends KindEditDraft {
@@ -69,28 +71,26 @@ KindEditDraft createGameEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final game = ownedItem?.gameDetails;
-  final payload = item.kindMetadata.toSyncPayload();
-  final creators =
-      (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-          const <Map<String, dynamic>>[];
-  final developerNames = creators
+  final meta = item.kindMetadata is GameCatalogMetadata
+      ? item.kindMetadata as GameCatalogMetadata
+      : null;
+  final developerNames = (meta?.creators ?? const <Map<String, dynamic>>[])
       .where((c) =>
           c['role']?.toString().toLowerCase().contains('developer') ?? false)
       .map((c) => c['name']?.toString().trim() ?? '')
       .where((n) => n.isNotEmpty)
       .join(', ');
-  final platforms = (payload['platforms'] as List?)?.map((e) => e.toString()) ??
-      const <String>[];
+  final platforms = meta?.platforms ?? const <String>[];
   final gameEdit = GameEditController(
     initialPlatforms: platforms.join(', '),
     initialDevelopers: developerNames,
-    initialSeriesTitle: (payload['series_title'] ??
-                (payload['series'] as Map?)?['series_title'])
-            ?.toString() ??
-        '',
-    initialPublisher: (payload['publisher'] ??
-                (payload['publishing'] as Map?)?['original_publisher'])
-            ?.toString() ??
+    initialSeriesTitle: meta?.series ?? '',
+    initialPublisher: meta?.publishers.join(', ') ?? '',
+    initialReleaseDate: meta?.releaseDate != null
+        ? formatDate(meta!.releaseDate!)
+        : (item.releaseDate != null ? formatDate(item.releaseDate!) : ''),
+    initialReleaseYear: meta?.releaseDate?.year.toString() ??
+        item.releaseYear?.toString() ??
         '',
   );
 

@@ -23,6 +23,10 @@ class MangaEditDraft extends KindEditDraft {
     this.localizedEdition,
     required this.pageCountController,
     required this.imprintController,
+    required this.releaseDateController,
+    required this.releaseYearController,
+    required this.publisherController,
+    required this.barcodeController,
   });
 
   String? signedBy;
@@ -36,6 +40,10 @@ class MangaEditDraft extends KindEditDraft {
   String? localizedEdition;
   final TextEditingController pageCountController;
   final TextEditingController imprintController;
+  final TextEditingController releaseDateController;
+  final TextEditingController releaseYearController;
+  final TextEditingController publisherController;
+  final TextEditingController barcodeController;
 
   @override
   OwnedDetailsDraft toDetailsDraft() => MangaOwnedDetailsDraft(
@@ -54,6 +62,10 @@ class MangaEditDraft extends KindEditDraft {
   void dispose() {
     pageCountController.dispose();
     imprintController.dispose();
+    releaseDateController.dispose();
+    releaseYearController.dispose();
+    publisherController.dispose();
+    barcodeController.dispose();
   }
 
   @override
@@ -63,10 +75,18 @@ class MangaEditDraft extends KindEditDraft {
         : null;
     final count = int.tryParse(pageCountController.text);
     final impr = emptyToNull(imprintController.text);
+    final pub = emptyToNull(publisherController.text);
+    final barcode = emptyToNull(barcodeController.text);
 
     final updatedMetadata = meta?.copyWith(
           pageCount: count ?? meta.pageCount,
           imprint: impr ?? meta.imprint,
+          publisher: pub ?? meta.publisher,
+          barcode: barcode ?? meta.barcode,
+          localizedPublisher: pub ?? meta.localizedPublisher,
+          isbn: barcode ?? meta.isbn,
+          localizedReleaseDate: parseDate(releaseDateController.text) ??
+              meta.localizedReleaseDate,
         ) ??
         selection.item.kindMetadata;
 
@@ -93,12 +113,8 @@ KindEditDraft createMangaEditDraft({
 }) {
   final manga = ownedItem?.mangaDetails;
   final rawMetadata = item.kindMetadata;
-  final MangaMetadata metadata;
-  if (rawMetadata is MangaMetadata) {
-    metadata = rawMetadata;
-  } else {
-    metadata = MangaMetadata.fromJson(rawMetadata.toSyncPayload());
-  }
+  final MangaMetadata? metadata =
+      rawMetadata is MangaMetadata ? rawMetadata : null;
   return MangaEditDraft(
     signedBy: manga?.signedBy,
     obiStripPresent: manga?.obiStripPresent ?? false,
@@ -110,10 +126,29 @@ KindEditDraft createMangaEditDraft({
     printing: manga?.printing,
     localizedEdition: manga?.localizedEdition,
     pageCountController: textControllers.create(
-      text: metadata.pageCount?.toString() ?? '',
+      text: metadata?.pageCount?.toString() ?? '',
     ),
     imprintController: textControllers.create(
-      text: metadata.imprint ?? '',
+      text: metadata?.imprint ?? '',
+    ),
+    publisherController: textControllers.create(
+      text: metadata?.publisher ?? metadata?.localizedPublisher ?? metadata?.originalPublisher ?? '',
+    ),
+    barcodeController: textControllers.create(
+      text: metadata?.barcode ?? metadata?.isbn ?? '',
+    ),
+    releaseDateController: textControllers.create(
+      text: metadata?.localizedReleaseDate != null
+          ? formatDate(metadata!.localizedReleaseDate!)
+          : (metadata?.originalPublicationDate != null
+              ? formatDate(metadata!.originalPublicationDate!)
+              : (item.releaseDate != null ? formatDate(item.releaseDate!) : '')),
+    ),
+    releaseYearController: textControllers.create(
+      text: metadata?.localizedReleaseDate?.year.toString() ??
+          metadata?.originalPublicationDate?.year.toString() ??
+          item.releaseYear?.toString() ??
+          '',
     ),
   );
 }

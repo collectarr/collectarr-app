@@ -352,10 +352,9 @@ class BookLibraryMediaPresentationBuilder
     final synopsis = item?.synopsis ?? preview?.synopsis ?? candidate?.summary;
     final coverUrl =
         item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
-    final itemNumber =
-        (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
-            preview?.itemNumber ??
-            candidate?.issueNumber;
+    final itemNumber = _bookMetadataItem(item)?.itemNumber ??
+        preview?.itemNumber ??
+        candidate?.issueNumber;
     return _BookAddPreviewPane(
       accent: accent,
       title: title,
@@ -702,10 +701,9 @@ String? _bookSubtitleForSelection({
   final seriesTitle = _bookMetadataItem(item)?.series?.seriesTitle ??
       preview?.series?.seriesTitle ??
       candidate?.series?.seriesTitle;
-  final number =
-      (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
-          preview?.itemNumber ??
-          candidate?.issueNumber;
+  final number = _bookMetadataItem(item)?.itemNumber ??
+      preview?.itemNumber ??
+      candidate?.issueNumber;
   if (seriesTitle != null &&
       seriesTitle.trim().isNotEmpty &&
       seriesTitle.trim() != title.trim()) {
@@ -717,7 +715,6 @@ String? _bookSubtitleForSelection({
 
   final edition = _bookMetadataItem(item)?.editionTitle ??
       _bookMetadataItem(item)?.physicalFormatLabel ??
-      (item?.kindMetadata.toSyncPayload()['edition_title'] as String?) ??
       preview?.physicalFormatLabel ??
       preview?.editionTitle;
   return edition?.trim().isEmpty ?? true ? null : edition!.trim();
@@ -779,7 +776,6 @@ String? _bookPublisherYearLineForSelection({
 }) {
   final publisher = _bookMetadataItem(item)?.publisher ??
       _bookMetadataItem(item)?.publishing?.originalPublisher ??
-      (item?.kindMetadata.toSyncPayload()['publisher'] as String?) ??
       preview?.publisher ??
       candidate?.publisher;
   final year = item?.releaseDate?.year ??
@@ -799,8 +795,7 @@ String? _bookFormatLanguageLineForSelection({
 }) {
   final meta = _bookMetadataItem(item);
   final displayEditionLabel = meta?.editionTitle ??
-      meta?.physicalFormatLabel ??
-      (meta?.toSyncPayload()['edition_title'] as String?);
+      meta?.physicalFormatLabel;
   final values = <String>[
     if (displayEditionLabel != null && displayEditionLabel.trim().isNotEmpty)
       displayEditionLabel.trim()

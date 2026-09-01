@@ -14,6 +14,8 @@ abstract class VideoKindEditDraft implements KindEditDraft {
   TextEditingController get distributorController;
   TextEditingController get featuresController;
   TextEditingController get boxSetNameController;
+  TextEditingController get releaseDateController;
+  TextEditingController get releaseYearController;
   List<String> get hdrFormats;
   VideoEditController get videoEdit;
 }

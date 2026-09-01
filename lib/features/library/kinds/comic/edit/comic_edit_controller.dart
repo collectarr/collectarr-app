@@ -50,7 +50,21 @@ class ComicEditController {
         countryController = TextEditingController(text: item.country),
         seriesTitleController = TextEditingController(
             text: item.seriesTitle ?? item.series?.seriesTitle ?? item.title),
-        seriesId = item.series?.seriesId;
+        seriesId = item.series?.seriesId,
+        releaseDateController = TextEditingController(
+            text: item.releaseDate == null ? '' : formatDate(item.releaseDate!)),
+        releaseDateYearPartController = TextEditingController(
+            text: item.releaseDate?.year.toString() ?? ''),
+        releaseDateMonthPartController = TextEditingController(
+            text: item.releaseDate == null
+                ? ''
+                : item.releaseDate!.month.toString().padLeft(2, '0')),
+        releaseDateDayPartController = TextEditingController(
+            text: item.releaseDate == null
+                ? ''
+                : item.releaseDate!.day.toString().padLeft(2, '0')),
+        releaseYearController = TextEditingController(
+            text: item.releaseDate?.year.toString() ?? '');
 
   final ComicCatalogMetadata item;
   final List<ItemImage> itemImages;
@@ -74,6 +88,11 @@ class ComicEditController {
   final TextEditingController coverDateYearPartController;
   final TextEditingController coverDateMonthPartController;
   final TextEditingController coverDateDayPartController;
+  final TextEditingController releaseDateController;
+  final TextEditingController releaseDateYearPartController;
+  final TextEditingController releaseDateMonthPartController;
+  final TextEditingController releaseDateDayPartController;
+  final TextEditingController releaseYearController;
   final TextEditingController languageController;
   final TextEditingController countryController;
   final TextEditingController seriesTitleController;
@@ -125,6 +144,11 @@ class ComicEditController {
     coverDateYearPartController.dispose();
     coverDateMonthPartController.dispose();
     coverDateDayPartController.dispose();
+    releaseDateController.dispose();
+    releaseDateYearPartController.dispose();
+    releaseDateMonthPartController.dispose();
+    releaseDateDayPartController.dispose();
+    releaseYearController.dispose();
     languageController.dispose();
     countryController.dispose();
     seriesTitleController.dispose();
@@ -201,6 +225,7 @@ class ComicEditController {
           currentMeta.physicalFormatLabel ??
           currentMeta.variant,
       coverDate: parseDate(coverDateController.text),
+      releaseDate: parseDate(releaseDateController.text),
       language: emptyToNull(languageController.text) ?? currentMeta.language,
       country: emptyToNull(countryController.text) ?? currentMeta.country,
       seriesTitle: emptyToNull(seriesTitleController.text),

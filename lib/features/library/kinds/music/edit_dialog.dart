@@ -250,7 +250,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     final musicMap = metadata.music;
     _catalogNumberController = TextEditingController(
         text: (musicMap?['catalog_number'] as String?) ?? '');
-    _releaseDateController = _draft.metadata.releaseDateController;
+    final initialRelDate = metadata.originalReleaseDate ??
+        metadata.releases.firstOrNull?.releaseDate ??
+        widget.request.item.releaseDate;
+    _releaseDateController = TextEditingController(
+      text: initialRelDate == null ? '' : formatDate(initialRelDate),
+    );
     _originalReleaseDateController = TextEditingController(
       text: metadata.originalReleaseDate == null
           ? ''
@@ -261,7 +266,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           ? ''
           : formatDate(metadata.recordingDate!),
     );
-    _releaseYearController = _draft.metadata.releaseYearController;
+    _releaseYearController = TextEditingController(
+      text: initialRelDate?.year.toString() ??
+          widget.request.item.releaseYear?.toString() ??
+          '',
+    );
     _releaseStatusController = TextEditingController(
         text: (musicMap?['release_status'] as String?) ?? '');
     _studioController = TextEditingController(
@@ -1960,13 +1969,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 timesCompleted: parseInt(_timesCompletedController.text),
                 notes: emptyToNull(_trackingNotesController.text),
                 seasonNumber: widget.request.trackingEntry?.seasonNumber ??
-                    ((_item.kindMetadata.toSyncPayload()['series']
-                            as Map?)?['season_number'] as num?)
-                        ?.toInt(),
+                    _musicMetadata.series?.seasonNumber,
                 episodeNumber: widget.request.trackingEntry?.episodeNumber ??
-                    ((_item.kindMetadata.toSyncPayload()['series']
-                            as Map?)?['episode_number'] as num?)
-                        ?.toInt(),
+                    _musicMetadata.series?.episodeNumber,
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,
@@ -1989,31 +1994,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  List<CatalogEdition> get _itemEditions {
-    final payload = _item.kindMetadata.toSyncPayload()['editions'] as List?;
-    if (payload != null) {
-      return payload
-          .whereType<Map>()
-          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
-    }
-    return const <CatalogEdition>[];
-  }
+  List<CatalogEdition> get _itemEditions => widget.request.item.editions;
 
-  List<TrailerLink> get _itemLinks {
-    final meta = _item.kindMetadata;
-    if (meta is MusicCatalogMetadata) {
-      return meta.links;
-    }
-    final payload = _item.kindMetadata.toSyncPayload()['trailer_urls'] as List?;
-    if (payload != null) {
-      return payload
-          .whereType<Map>()
-          .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
-    }
-    return const <TrailerLink>[];
-  }
+  List<TrailerLink> get _itemLinks => _musicMetadata.links;
 
   CatalogEdition? _selectedEdition() {
     final selectedId = _selectedEditionId;

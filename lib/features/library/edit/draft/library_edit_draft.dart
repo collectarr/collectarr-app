@@ -155,23 +155,6 @@ class LibraryEditDraft {
     final editionTitle = item.titleExtension;
 
     final titleController = create(item.title);
-    final releaseDateController = create(
-      item.releaseDate == null ? '' : formatDate(item.releaseDate!),
-    );
-    final releaseDateYearPartController = create(
-      item.releaseDate?.year.toString() ?? '',
-    );
-    final releaseDateMonthPartController = create(
-      item.releaseDate == null
-          ? ''
-          : item.releaseDate!.month.toString().padLeft(2, '0'),
-    );
-    final releaseDateDayPartController = create(
-      item.releaseDate == null
-          ? ''
-          : item.releaseDate!.day.toString().padLeft(2, '0'),
-    );
-    final releaseYearController = create(item.releaseYear?.toString() ?? '');
     final coverController = create(item.coverImageUrl ?? '');
     final thumbnailController = create(item.thumbnailImageUrl ?? '');
     final synopsisController = create(item.synopsis ?? '');
@@ -262,11 +245,6 @@ class LibraryEditDraft {
       synopsisController: synopsisController,
       coverController: coverController,
       thumbnailController: thumbnailController,
-      releaseDateController: releaseDateController,
-      releaseDateYearPartController: releaseDateYearPartController,
-      releaseDateMonthPartController: releaseDateMonthPartController,
-      releaseDateDayPartController: releaseDateDayPartController,
-      releaseYearController: releaseYearController,
     );
 
     final personal = PersonalStateDraft(
@@ -482,8 +460,6 @@ class LibraryEditDraft {
       synopsis: emptyToNull(metadata.synopsisController.text),
       coverImageUrl: emptyToNull(metadata.coverController.text),
       thumbnailImageUrl: emptyToNull(metadata.thumbnailController.text),
-      releaseDate: parseDate(metadata.releaseDateController.text),
-      releaseYear: parseInt(metadata.releaseYearController.text),
       trailerUrls: _externalLinks ?? item.common.trailerUrls,
     );
     final baseItem = LibraryMetadataItem(

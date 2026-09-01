@@ -3,8 +3,11 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:flutter/material.dart';
 
 class BoardGameEditDraft extends KindEditDraft {
   BoardGameEditDraft({
@@ -17,6 +20,8 @@ class BoardGameEditDraft extends KindEditDraft {
     this.hasCustomInsert = false,
     this.hasPaintedMiniatures = false,
     this.storageNotes,
+    required this.releaseDateController,
+    required this.releaseYearController,
   });
 
   String? editionLanguage;
@@ -28,6 +33,8 @@ class BoardGameEditDraft extends KindEditDraft {
   bool hasCustomInsert;
   bool hasPaintedMiniatures;
   String? storageNotes;
+  final TextEditingController releaseDateController;
+  final TextEditingController releaseYearController;
 
   @override
   OwnedDetailsDraft toDetailsDraft() => BoardgameOwnedDetailsDraft(
@@ -43,7 +50,23 @@ class BoardGameEditDraft extends KindEditDraft {
       );
 
   @override
+  void dispose() {
+    releaseDateController.dispose();
+    releaseYearController.dispose();
+  }
+
+  @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
+    final meta = selection.item.kindMetadata is BoardGameMetadata
+        ? (selection.item.kindMetadata as BoardGameMetadata)
+        : null;
+    final year = int.tryParse(releaseYearController.text);
+    if (meta != null && year != null) {
+      final updatedMeta = meta.copyWith(yearPublished: year);
+      return selection.copyWith(
+        item: selection.item.copyWith(kindMetadata: updatedMeta),
+      );
+    }
     return selection;
   }
 }
@@ -55,6 +78,9 @@ KindEditDraft createBoardGameEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final bg = ownedItem?.boardgameDetails;
+  final meta = item.kindMetadata is BoardGameMetadata
+      ? item.kindMetadata as BoardGameMetadata
+      : null;
   return BoardGameEditDraft(
     editionLanguage: bg?.editionLanguage,
     editionRegion: bg?.editionRegion,
@@ -65,5 +91,13 @@ KindEditDraft createBoardGameEditDraft({
     hasCustomInsert: bg?.hasCustomInsert ?? false,
     hasPaintedMiniatures: bg?.hasPaintedMiniatures ?? false,
     storageNotes: bg?.storageNotes,
+    releaseDateController: textControllers.create(
+      text: item.releaseDate != null ? formatDate(item.releaseDate!) : '',
+    ),
+    releaseYearController: textControllers.create(
+      text: meta?.yearPublished?.toString() ??
+          item.releaseYear?.toString() ??
+          '',
+    ),
   );
 }

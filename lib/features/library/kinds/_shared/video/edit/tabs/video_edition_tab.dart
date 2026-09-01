@@ -48,8 +48,10 @@ class VideoEditEditionTab extends StatelessWidget {
             editionTitleController: editionTitleController,
             variantController: variantController,
             barcodeController: barcodeController,
-            releaseDateController: draft.metadata.releaseDateController,
-            releaseYearController: draft.metadata.releaseYearController,
+            releaseDateController: videoEdit?.releaseDateController ??
+                TextEditingController(),
+            releaseYearController: videoEdit?.releaseYearController ??
+                TextEditingController(),
             physicalFormatController: physicalFormatController,
             physicalFormatOptions: [
               for (final format in physicalFormats) format.label,

@@ -123,7 +123,7 @@ void main() {
     expect(find.text('Tracking'), findsNothing);
     expect(find.text('Condition'), findsNothing);
     expect(find.text('Purchase date'), findsNothing);
-    expect(find.text('Release date'), findsOneWidget);
+    expect(find.text('Display title'), findsOneWidget);
   });
 
   testWidgets(

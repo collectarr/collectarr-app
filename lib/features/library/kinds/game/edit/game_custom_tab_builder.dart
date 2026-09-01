@@ -33,8 +33,14 @@ Widget? buildGameCustomTabView({
                 ),
                 variantController: TextEditingController(),
                 barcodeController: TextEditingController(),
-                releaseDateController: draft.metadata.releaseDateController,
-                releaseYearController: draft.metadata.releaseYearController,
+                releaseDateController: (draft.kindDetails as GameEditDraft?)
+                        ?.gameEdit
+                        .releaseDateController ??
+                    TextEditingController(),
+                releaseYearController: (draft.kindDetails as GameEditDraft?)
+                        ?.gameEdit
+                        .releaseYearController ??
+                    TextEditingController(),
                 physicalFormatController: TextEditingController(),
                 physicalFormatOptions: const [],
                 onPhysicalFormatChanged: (_) {},
@@ -95,7 +101,8 @@ Widget? buildGameCustomTabView({
                 label: gameKindModule.edit.mediaFields.publisherLabel,
               ),
               LibraryEditTextField(
-                controller: draft.metadata.releaseDateController,
+                controller: gameDraft?.gameEdit.releaseDateController ??
+                    TextEditingController(),
                 label: gameKindModule.edit.mediaFields.releaseDateLabel,
               ),
             ]),

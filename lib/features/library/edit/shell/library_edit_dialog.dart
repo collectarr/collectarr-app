@@ -372,13 +372,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   controller: _draft.metadata.displayTitleController,
                   label: 'Display title',
                 ),
-                LibraryEditTextField(
-                  controller: _draft.metadata.releaseDateController,
-                  label: libraryKindRuntimeForType(widget.type)
-                      .edit
-                      .mediaFields
-                      .releaseDateLabel,
-                ),
               ]),
             ],
           ),

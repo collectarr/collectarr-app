@@ -36,81 +36,166 @@ class VideoEditController {
     this.initialDiscCount,
   })  : runtimeController = TextEditingController(
           text: initialRuntime ??
-              (item.kindMetadata
-                      .toSyncPayload()['runtime_minutes']
-                      ?.toString() ??
-                  ''),
+              _resolveInitialRuntime(item.kindMetadata),
         ),
         seasonNumberController = TextEditingController(
           text: initialSeasonNumber ??
-              (item.kindMetadata.toSyncPayload()['season_number']?.toString() ??
-                  (item.kindMetadata.toSyncPayload()['series']
-                          as Map?)?['season_number']
-                      ?.toString() ??
-                  ''),
+              _resolveInitialSeasonNumber(item.kindMetadata),
         ),
         episodeNumberController = TextEditingController(
           text: initialEpisodeNumber ??
-              (item.kindMetadata
-                      .toSyncPayload()['episode_number']
-                      ?.toString() ??
-                  (item.kindMetadata.toSyncPayload()['series']
-                          as Map?)?['episode_number']
-                      ?.toString() ??
-                  ''),
+              _resolveInitialEpisodeNumber(item.kindMetadata),
         ),
         ageRatingController = TextEditingController(
-          text: (item.kindMetadata.toSyncPayload()['age_rating'] as String?) ??
-              (item.kindMetadata.toSyncPayload()['content_rating']
-                  as String?) ??
-              '',
+          text: _resolveInitialAgeRating(item.kindMetadata),
         ),
         audienceRatingController = TextEditingController(
-          text: (item.kindMetadata.toSyncPayload()['audience_rating']
-                  as String?) ??
-              '',
+          text: _resolveInitialAudienceRating(item.kindMetadata),
         ),
         genresEditController = TextEditingController(
-          text: ((item.kindMetadata.toSyncPayload()['genres'] as List?)
-                      ?.map((e) => e.toString()) ??
-                  const <String>[])
-              .join(', '),
+          text: _resolveInitialGenres(item.kindMetadata),
         ),
         episodeRatings =
             Map<String, int>.from(initialEpisodeRatings ?? const {}),
         editionTitleController = TextEditingController(
-          text: (item.kindMetadata.toSyncPayload()['edition_title'] ??
-                      item.kindMetadata.toSyncPayload()['title_extension'])
-                  ?.toString() ??
-              '',
+          text: _resolveInitialEditionTitle(item),
         ),
         variantController = TextEditingController(
-          text: item.kindMetadata.toSyncPayload()['variant']?.toString() ?? '',
+          text: _resolveInitialVariant(item.kindMetadata),
         ),
         barcodeController = TextEditingController(
-          text: item.kindMetadata.toSyncPayload()['barcode']?.toString() ?? '',
+          text: _resolveInitialBarcode(item.kindMetadata),
         ),
         physicalFormatLabelController = TextEditingController(
-          text: item.kindMetadata
-                  .toSyncPayload()['physical_format_label']
-                  ?.toString() ??
-              '',
+          text: _resolveInitialPhysicalFormatLabel(item.kindMetadata),
         ),
-        physicalFormatId =
-            item.kindMetadata.toSyncPayload()['physical_format']?.toString(),
+        physicalFormatId = _resolveInitialPhysicalFormat(item.kindMetadata),
         publisherController = TextEditingController(
-          text: (item.kindMetadata.toSyncPayload()['publisher'] ??
-                      (item.kindMetadata.toSyncPayload()['publishing']
-                          as Map?)?['original_publisher'])
-                  ?.toString() ??
-              '',
+          text: _resolveInitialPublisher(item.kindMetadata),
         ),
         countryController = TextEditingController(
-          text: item.kindMetadata.toSyncPayload()['country']?.toString() ?? '',
+          text: _resolveInitialCountry(item.kindMetadata),
         ),
         languageController = TextEditingController(
-          text: item.kindMetadata.toSyncPayload()['language']?.toString() ?? '',
+          text: _resolveInitialLanguage(item.kindMetadata),
+        ),
+        releaseDateController = TextEditingController(
+          text: _resolveInitialReleaseDate(item),
+        ),
+        releaseYearController = TextEditingController(
+          text: _resolveInitialReleaseYear(item),
         );
+
+  static String _resolveInitialRuntime(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.runtimeMinutes?.toString() ?? '';
+    if (meta is TvSeriesMetadata) return meta.episodeRuntimeMinutes?.toString() ?? '';
+    if (meta is AnimeMetadata) return meta.episodeRuntimeMinutes?.toString() ?? '';
+    return '';
+  }
+
+  static String _resolveInitialSeasonNumber(dynamic meta) {
+    if (meta is TvSeriesMetadata) return meta.seasonNumber?.toString() ?? '';
+    return '';
+  }
+
+  static String _resolveInitialEpisodeNumber(dynamic meta) {
+    if (meta is TvSeriesMetadata) return meta.episodeNumber?.toString() ?? '';
+    if (meta is AnimeMetadata) return meta.episodeCount?.toString() ?? '';
+    return '';
+  }
+
+  static String _resolveInitialAgeRating(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.ageRating ?? '';
+    if (meta is TvSeriesMetadata) return meta.contentRating ?? '';
+    return '';
+  }
+
+  static String _resolveInitialAudienceRating(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.audienceRating ?? '';
+    return '';
+  }
+
+  static String _resolveInitialGenres(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.genres.join(', ');
+    if (meta is TvSeriesMetadata) return meta.genres.join(', ');
+    if (meta is AnimeMetadata) return meta.genres.join(', ');
+    return '';
+  }
+
+  static String _resolveInitialEditionTitle(LibraryMetadataItem item) {
+    final meta = item.kindMetadata;
+    if (meta is MovieCatalogMetadata) return meta.editionTitle ?? item.titleExtension ?? '';
+    if (meta is AnimeMetadata) return meta.editionTitle ?? item.titleExtension ?? '';
+    return item.titleExtension ?? '';
+  }
+
+  static String _resolveInitialVariant(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.variant ?? '';
+    if (meta is TvSeriesMetadata) return meta.variant ?? '';
+    if (meta is AnimeMetadata) return meta.variant ?? '';
+    return '';
+  }
+
+  static String _resolveInitialBarcode(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.barcode ?? '';
+    if (meta is TvSeriesMetadata) return meta.barcode ?? '';
+    if (meta is AnimeMetadata) return meta.barcode ?? '';
+    return '';
+  }
+
+  static String _resolveInitialPhysicalFormatLabel(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.physicalFormatLabel ?? meta.variant ?? '';
+    if (meta is TvSeriesMetadata) return meta.physicalFormatLabel ?? meta.variant ?? '';
+    if (meta is AnimeMetadata) return meta.physicalFormatLabel ?? meta.variant ?? '';
+    return '';
+  }
+
+  static String? _resolveInitialPhysicalFormat(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.physicalFormat;
+    if (meta is TvSeriesMetadata) return meta.physicalFormat;
+    if (meta is AnimeMetadata) return meta.physicalFormat;
+    return null;
+  }
+
+  static String _resolveInitialPublisher(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.publisher ?? meta.studio ?? '';
+    if (meta is TvSeriesMetadata) return meta.publisher ?? meta.network ?? '';
+    if (meta is AnimeMetadata) return meta.publisher ?? '';
+    return '';
+  }
+
+  static String _resolveInitialCountry(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.country ?? '';
+    if (meta is TvSeriesMetadata) return meta.country;
+    if (meta is AnimeMetadata) return meta.country;
+    return '';
+  }
+
+  static String _resolveInitialLanguage(dynamic meta) {
+    if (meta is MovieCatalogMetadata) return meta.language ?? meta.originalLanguage ?? '';
+    if (meta is TvSeriesMetadata) return meta.originalLanguage;
+    if (meta is AnimeMetadata) return meta.language;
+    return '';
+  }
+
+  static String _resolveInitialReleaseDate(LibraryMetadataItem item) {
+    final meta = item.kindMetadata;
+    final date = meta is MovieCatalogMetadata
+        ? meta.releaseDate
+        : (meta is TvSeriesMetadata
+            ? meta.firstAirDate
+            : (meta is AnimeMetadata ? meta.startDate : item.releaseDate));
+    return date == null ? '' : formatDate(date);
+  }
+
+  static String _resolveInitialReleaseYear(LibraryMetadataItem item) {
+    final meta = item.kindMetadata;
+    if (meta is MovieCatalogMetadata && meta.releaseDate != null) return meta.releaseDate!.year.toString();
+    if (meta is TvSeriesMetadata && meta.firstAirDate != null) return meta.firstAirDate!.year.toString();
+    if (meta is AnimeMetadata && meta.seasonYear != null) return meta.seasonYear!.toString();
+    if (meta is AnimeMetadata && meta.startDate != null) return meta.startDate!.year.toString();
+    return item.releaseYear?.toString() ?? '';
+  }
 
   final WidgetRef? ref;
   final LibraryTypeConfig? type;
@@ -135,6 +220,8 @@ class VideoEditController {
   final TextEditingController publisherController;
   final TextEditingController countryController;
   final TextEditingController languageController;
+  final TextEditingController releaseDateController;
+  final TextEditingController releaseYearController;
 
   final List<EditableVideoCredit> castCredits = [];
   final List<EditableVideoCredit> crewCredits = [];
@@ -187,12 +274,7 @@ class VideoEditController {
     }
     final db = ref!.read(localDatabaseProvider);
     final repo = UserExternalLinksCacheRepository(db);
-    final trailerPayload =
-        ((item.kindMetadata.toSyncPayload()['trailer_urls'] as List?)
-                ?.whereType<Map>()
-                .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
-                .toList() ??
-            const <TrailerLink>[]);
+    final trailerPayload = item.trailerUrls;
     final links = [
       ...await repo.listByItemId(item.id),
       for (final link in trailerPayload.where((link) => !link.isAutomatic))
@@ -235,6 +317,8 @@ class VideoEditController {
     publisherController.dispose();
     countryController.dispose();
     languageController.dispose();
+    releaseDateController.dispose();
+    releaseYearController.dispose();
     for (final credit in castCredits) {
       credit.dispose();
     }
@@ -255,12 +339,6 @@ class VideoEditController {
     if (!isVideoKind) {
       return selection;
     }
-    final payload = selection.item.kindMetadata.toSyncPayload();
-    final currentSeriesMap = payload['series'] as Map?;
-    final updatedSeriesId = currentSeriesMap?['series_id'] as String? ??
-        (payload['series_id'] as String?);
-    final updatedSeriesTitle = currentSeriesMap?['series_title'] as String? ??
-        (payload['series_title'] as String?);
     final updatedTracking = selection.tracking?.copyWith(
       seasonNumber: int.tryParse(seasonNumberController.text),
       episodeNumber: int.tryParse(episodeNumberController.text),
@@ -271,13 +349,13 @@ class VideoEditController {
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList();
-    final trailerList = ((payload['trailer_urls'] as List?)
-            ?.whereType<Map>()
-            .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
-            .toList() ??
-        const <TrailerLink>[]);
-    final updatedLinks = buildUpdatedTrailerUrls(trailerList);
     final meta = selection.item.kindMetadata;
+    final List<TrailerLink> existingLinks = meta is MovieCatalogMetadata
+        ? meta.links
+        : (meta is TvSeriesMetadata
+            ? meta.links
+            : (meta is AnimeMetadata ? meta.links : const <TrailerLink>[]));
+    final updatedLinks = buildUpdatedTrailerUrls(existingLinks);
     final LibraryKindMetadataRuntime updatedMetadata;
     if (meta is MovieCatalogMetadata) {
       updatedMetadata = meta.copyWith(
@@ -307,6 +385,7 @@ class VideoEditController {
         publisher: emptyToNull(publisherController.text),
         country: emptyToNull(countryController.text) ?? meta.country,
         language: emptyToNull(languageController.text) ?? meta.language,
+        releaseDate: parseDate(releaseDateController.text),
         links: updatedLinks,
       );
     } else if (meta is TvSeriesMetadata) {
@@ -338,6 +417,7 @@ class VideoEditController {
         country: emptyToNull(countryController.text) ?? meta.country,
         originalLanguage:
             emptyToNull(languageController.text) ?? meta.originalLanguage,
+        firstAirDate: parseDate(releaseDateController.text),
         links: updatedLinks,
       );
     } else if (meta is AnimeMetadata) {
@@ -352,6 +432,7 @@ class VideoEditController {
         publisher: emptyToNull(publisherController.text),
         country: emptyToNull(countryController.text) ?? meta.country,
         language: emptyToNull(languageController.text) ?? meta.language,
+        startDate: parseDate(releaseDateController.text),
         links: updatedLinks,
       );
     } else {
@@ -422,10 +503,9 @@ class VideoEditController {
   Future<TvSeries?> loadTvSeriesSnapshot() async {
     if (ref == null) return null;
     final api = ref!.read(apiClientProvider);
+    final meta = item.kindMetadata;
     final seriesId =
-        (item.kindMetadata.toSyncPayload()['series_id'] as String?) ??
-            ((item.kindMetadata.toSyncPayload()['series'] as Map?)?['series_id']
-                as String?) ??
+        (meta is TvSeriesMetadata ? meta.series?.seriesId : null) ??
             item.id;
     try {
       final dto = await api
@@ -485,9 +565,14 @@ class VideoEditController {
     final episodeCount = flattenTvEpisodes(series).length;
     final discCount = (initialDiscCount ?? episodeCount).clamp(1, 20).toInt();
     final episodes = flattenTvEpisodes(series);
-    final formatLabel = (item.kindMetadata
-            .toSyncPayload()['physical_format_label'] as String?) ??
-        (item.kindMetadata.toSyncPayload()['physical_format'] as String?);
+    final meta = item.kindMetadata;
+    final formatLabel = meta is MovieCatalogMetadata
+        ? (meta.physicalFormatLabel ?? meta.physicalFormat)
+        : (meta is TvSeriesMetadata
+            ? (meta.physicalFormatLabel ?? meta.physicalFormat)
+            : (meta is AnimeMetadata
+                ? (meta.physicalFormatLabel ?? meta.physicalFormat)
+                : null));
     if (discCount == 1) {
       return [
         TvReleaseMedia(

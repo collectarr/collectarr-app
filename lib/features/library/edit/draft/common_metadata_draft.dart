@@ -12,11 +12,6 @@ class CommonMetadataDraft {
     required this.synopsisController,
     required this.coverController,
     required this.thumbnailController,
-    required this.releaseDateController,
-    required this.releaseDateYearPartController,
-    required this.releaseDateMonthPartController,
-    required this.releaseDateDayPartController,
-    required this.releaseYearController,
   });
 
   final TextEditingController titleController;
@@ -28,9 +23,4 @@ class CommonMetadataDraft {
   final TextEditingController synopsisController;
   final TextEditingController coverController;
   final TextEditingController thumbnailController;
-  final TextEditingController releaseDateController;
-  final TextEditingController releaseDateYearPartController;
-  final TextEditingController releaseDateMonthPartController;
-  final TextEditingController releaseDateDayPartController;
-  final TextEditingController releaseYearController;
 }

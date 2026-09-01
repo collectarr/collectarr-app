@@ -12,15 +12,21 @@ class GameEditController {
     String initialDevelopers = '',
     String initialSeriesTitle = '',
     String initialPublisher = '',
+    String initialReleaseDate = '',
+    String initialReleaseYear = '',
   })  : platformsController = TextEditingController(text: initialPlatforms),
         developersController = TextEditingController(text: initialDevelopers),
         seriesTitleController = TextEditingController(text: initialSeriesTitle),
-        publisherController = TextEditingController(text: initialPublisher);
+        publisherController = TextEditingController(text: initialPublisher),
+        releaseDateController = TextEditingController(text: initialReleaseDate),
+        releaseYearController = TextEditingController(text: initialReleaseYear);
 
   final TextEditingController platformsController;
   final TextEditingController developersController;
   final TextEditingController seriesTitleController;
   final TextEditingController publisherController;
+  final TextEditingController releaseDateController;
+  final TextEditingController releaseYearController;
   List<String> developerOptions = const [];
   List<String> genreOptions = const [];
   List<String> platformOptions = const [];
@@ -29,12 +35,14 @@ class GameEditController {
     required LibraryMetadataItem item,
     required LibraryEditDraft draft,
   }) {
+    final meta = item.kindMetadata is GameCatalogMetadata
+        ? (item.kindMetadata as GameCatalogMetadata)
+        : null;
     developerOptions = _mergePickListOptions(
       splitPickListValues(developersController.text),
     );
     genreOptions = _mergePickListOptions(
-      (item.kindMetadata.toSyncPayload()['genres'] as List?)?.cast<String>() ??
-          const <String>[],
+      meta?.genres ?? const <String>[],
     );
     platformOptions = splitPickListValues(platformsController.text);
   }
@@ -44,6 +52,8 @@ class GameEditController {
     developersController.dispose();
     seriesTitleController.dispose();
     publisherController.dispose();
+    releaseDateController.dispose();
+    releaseYearController.dispose();
   }
 
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
@@ -82,6 +92,7 @@ class GameEditController {
           creators: mergedCreators.isNotEmpty ? mergedCreators : meta.creators,
           series: emptyToNull(seriesTitleController.text) ?? meta.series,
           publishers: updatedPub != null ? [updatedPub] : meta.publishers,
+          releaseDate: parseDate(releaseDateController.text),
         ) ??
         selection.item.kindMetadata;
 

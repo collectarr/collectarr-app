@@ -79,6 +79,14 @@ class AnimeEditDraft extends KindEditDraft implements VideoKindEditDraft {
   }
 
   @override
+  TextEditingController get releaseDateController =>
+      videoEdit.releaseDateController;
+
+  @override
+  TextEditingController get releaseYearController =>
+      videoEdit.releaseYearController;
+
+  @override
   void dispose() {
     videoEdit.dispose();
   }
@@ -99,7 +107,6 @@ KindEditDraft createAnimeEditDraft({
   );
   videoEdit.initializeVideoEditors();
 
-  final payload = item.kindMetadata.toSyncPayload();
   return AnimeEditDraft(
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
@@ -107,18 +114,12 @@ KindEditDraft createAnimeEditDraft({
     packagingController: textControllers.create(text: video?.packaging ?? ''),
     distributorController:
         textControllers.create(text: video?.distributor ?? ''),
-    screenRatioController:
-        textControllers.create(text: payload['screen_ratio']?.toString() ?? ''),
-    audioTracksController:
-        textControllers.create(text: payload['audio_tracks']?.toString() ?? ''),
-    subtitlesController:
-        textControllers.create(text: payload['subtitles']?.toString() ?? ''),
-    layersController:
-        textControllers.create(text: payload['layers']?.toString() ?? ''),
-    colorController:
-        textControllers.create(text: payload['color']?.toString() ?? ''),
-    nrDiscsController:
-        textControllers.create(text: payload['nr_discs']?.toString() ?? ''),
+    screenRatioController: textControllers.create(text: ''),
+    audioTracksController: textControllers.create(text: ''),
+    subtitlesController: textControllers.create(text: ''),
+    layersController: textControllers.create(text: ''),
+    colorController: textControllers.create(text: ''),
+    nrDiscsController: textControllers.create(text: ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     videoEdit: videoEdit,
   );

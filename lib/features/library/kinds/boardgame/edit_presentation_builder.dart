@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -98,8 +99,12 @@ Widget? buildBoardGameCustomTabView({
                 ),
                 variantController: TextEditingController(),
                 barcodeController: TextEditingController(),
-                releaseDateController: draft.metadata.releaseDateController,
-                releaseYearController: draft.metadata.releaseYearController,
+                releaseDateController: (draft.kindDetails as BoardGameEditDraft?)
+                        ?.releaseDateController ??
+                    TextEditingController(),
+                releaseYearController: (draft.kindDetails as BoardGameEditDraft?)
+                        ?.releaseYearController ??
+                    TextEditingController(),
                 physicalFormatController: TextEditingController(),
                 physicalFormatOptions: const [],
                 onPhysicalFormatChanged: (_) {},

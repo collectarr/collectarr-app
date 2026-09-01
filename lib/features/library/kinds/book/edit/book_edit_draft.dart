@@ -18,6 +18,10 @@ class BookEditDraft extends KindEditDraft {
     this.dustJacketCondition,
     required this.pageCountController,
     required this.imprintController,
+    required this.releaseDateController,
+    required this.releaseYearController,
+    required this.publisherController,
+    required this.barcodeController,
   });
 
   String? signedBy;
@@ -25,6 +29,10 @@ class BookEditDraft extends KindEditDraft {
   String? dustJacketCondition;
   final TextEditingController pageCountController;
   final TextEditingController imprintController;
+  final TextEditingController releaseDateController;
+  final TextEditingController releaseYearController;
+  final TextEditingController publisherController;
+  final TextEditingController barcodeController;
 
   @override
   OwnedDetailsDraft toDetailsDraft() => BookOwnedDetailsDraft(
@@ -37,6 +45,10 @@ class BookEditDraft extends KindEditDraft {
   void dispose() {
     pageCountController.dispose();
     imprintController.dispose();
+    releaseDateController.dispose();
+    releaseYearController.dispose();
+    publisherController.dispose();
+    barcodeController.dispose();
   }
 
   List<TrailerLink> _externalLinks = const [];
@@ -53,20 +65,28 @@ class BookEditDraft extends KindEditDraft {
         : null;
     final count = int.tryParse(pageCountController.text);
     final impr = emptyToNull(imprintController.text);
+    final pub = emptyToNull(publisherController.text);
+    final barcode = emptyToNull(barcodeController.text);
 
     final updatedPublishing = meta?.publishing != null
         ? meta!.publishing!.copyWith(
             pageCount: count ?? meta.publishing?.pageCount,
             imprint: impr ?? meta.publishing?.imprint,
+            originalPublisher: pub ?? meta.publishing?.originalPublisher,
           )
-        : ((count != null || impr != null)
+        : ((count != null || impr != null || pub != null)
             ? CatalogPublishingDetailsDto(
                 imprint: impr,
                 pageCount: count,
+                originalPublisher: pub,
               )
             : null);
 
     final updatedMetadata = meta?.copyWith(
+          publisher: pub ?? meta.publisher,
+          barcode: barcode ?? meta.barcode,
+          originalPublicationDate: parseDate(releaseDateController.text) ??
+              meta.originalPublicationDate,
           publishing: updatedPublishing != null && updatedPublishing.hasData
               ? updatedPublishing
               : null,
@@ -98,21 +118,33 @@ KindEditDraft createBookEditDraft({
   final book = ownedItem?.bookDetails;
   final comic = ownedItem?.comicDetails;
   final rawMetadata = item.kindMetadata;
-  final BookCatalogMetadata metadata;
-  if (rawMetadata is BookCatalogMetadata) {
-    metadata = rawMetadata;
-  } else {
-    metadata = BookCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
-  }
+  final BookCatalogMetadata? metadata =
+      rawMetadata is BookCatalogMetadata ? rawMetadata : null;
   return BookEditDraft(
     signedBy: book?.signedBy ?? comic?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,
     dustJacketCondition: book?.dustJacketCondition,
     pageCountController: textControllers.create(
-      text: metadata.publishing?.pageCount?.toString() ?? '',
+      text: metadata?.publishing?.pageCount?.toString() ?? '',
     ),
     imprintController: textControllers.create(
-      text: metadata.publishing?.imprint ?? '',
+      text: metadata?.publishing?.imprint ?? '',
+    ),
+    publisherController: textControllers.create(
+      text: metadata?.publisher ?? metadata?.publishing?.originalPublisher ?? '',
+    ),
+    barcodeController: textControllers.create(
+      text: metadata?.barcode ?? '',
+    ),
+    releaseDateController: textControllers.create(
+      text: metadata?.originalPublicationDate != null
+          ? formatDate(metadata!.originalPublicationDate!)
+          : (item.releaseDate != null ? formatDate(item.releaseDate!) : ''),
+    ),
+    releaseYearController: textControllers.create(
+      text: metadata?.originalPublicationDate?.year.toString() ??
+          item.releaseYear?.toString() ??
+          '',
     ),
   );
 }
