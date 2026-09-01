@@ -86,9 +86,9 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     search: LibraryAddSearchCapability(
       initialAdvancedFilters:
           buildLibraryAddVideoInitialFilters(tvLibraryConfig),
-      advancedFilterFieldsBuilder: buildTvAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
       searchInputPredicate: libraryAddVideoHasSearchInput,
-      advancedFiltersBuilder: buildLibraryAddVideoKindFilterRow,
+      kindSpecificPaneBuilder: buildLibraryAddVideoKindFilterRow,
       providerKindOverridesBuilder: (context) =>
           libraryAddVideoKindOverrides(tvLibraryConfig, context),
       coreSearchInputBuilder: _buildTvCoreSearchInput,

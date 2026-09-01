@@ -4,7 +4,7 @@ class LibraryAddBottomBar extends StatelessWidget {
   const LibraryAddBottomBar({
     super.key,
     required this.type,
-    required this.isMovieDesktopChrome,
+    required this.isWideLayout,
     required this.conditions,
     required this.grades,
     required this.defaultTags,
@@ -34,7 +34,7 @@ class LibraryAddBottomBar extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final bool isMovieDesktopChrome;
+  final bool isWideLayout;
   final List<String> conditions;
   final List<String> grades;
   final String? defaultTags;
@@ -85,11 +85,11 @@ class LibraryAddBottomBar extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           kLibraryDialogFooterHorizontalPadding,
-          isMovieDesktopChrome
+          isWideLayout
               ? kLibraryDialogFooterVerticalPadding
               : kLibraryDialogFooterVerticalPadding,
           kLibraryDialogFooterHorizontalPadding,
-          isMovieDesktopChrome
+          isWideLayout
               ? kLibraryDialogFooterVerticalPadding
               : kLibraryDialogFooterVerticalPadding + 2,
         ),
@@ -110,7 +110,7 @@ class LibraryAddBottomBar extends StatelessWidget {
                   accent: accent,
                   onChanged: onAddTargetChanged,
                 ),
-                if (selectedCandidate != null && !isMovieDesktopChrome) ...[
+                if (selectedCandidate != null && !isWideLayout) ...[
                   LibraryAddResultBadge(providerLabel),
                   if (isAdmin)
                     _LibraryAddBottomActionButton(
@@ -138,8 +138,7 @@ class LibraryAddBottomBar extends StatelessWidget {
                 ],
               ],
             ),
-            if (addTarget == LibraryAddTarget.owned &&
-                !isMovieDesktopChrome) ...[
+            if (addTarget == LibraryAddTarget.owned && !isWideLayout) ...[
               const SizedBox(height: 8),
               _AddTargetDefaultsBar(
                 accent: accent,
@@ -160,7 +159,7 @@ class LibraryAddBottomBar extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                if (isMovieDesktopChrome && selectedCandidate != null) ...[
+                if (isWideLayout && selectedCandidate != null) ...[
                   if (isAdmin)
                     _LibraryAddBottomActionButton(
                       tooltip: selectedQueuedIngest == null
@@ -195,8 +194,7 @@ class LibraryAddBottomBar extends StatelessWidget {
                             dimension: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(
-                            isMovieDesktopChrome ? _movieAddLabel() : addLabel),
+                        : Text(isWideLayout ? _wideLayoutAddLabel() : addLabel),
                   ),
                 ),
               ],
@@ -216,7 +214,7 @@ class LibraryAddBottomBar extends StatelessWidget {
     };
   }
 
-  String _movieAddLabel() {
+  String _wideLayoutAddLabel() {
     return switch (addTarget) {
       LibraryAddTarget.owned => 'Add to Collection',
       LibraryAddTarget.wishlist => 'Add to Wishlist',

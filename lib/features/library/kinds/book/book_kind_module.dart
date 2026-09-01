@@ -81,7 +81,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     initialDraftBuilder: BookAddDraft.new,
     manualDraftBuilder: BookAddManualDraft.new,
     search: LibraryAddSearchCapability(
-      advancedFilterFieldsBuilder: buildBookAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildBookAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildBookCoreSearchInput,
       providerQueryBuilder: _buildBookProviderQuery,
       ranking: buildLibraryAddSearchRanking(

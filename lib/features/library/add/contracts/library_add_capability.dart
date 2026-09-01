@@ -18,7 +18,7 @@ import 'package:flutter/widgets.dart';
 
 export 'library_add_result_policy.dart';
 
-typedef LibraryAddAdvancedFilterFieldsBuilder
+typedef LibraryAddAdvancedFilterDescriptorsBuilder
     = List<LibraryAddAdvancedFilterField<String>> Function(
   LibraryAddModeBarRequest request,
 );
@@ -51,13 +51,13 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
 class LibraryAddSearchCapability {
   const LibraryAddSearchCapability({
     this.initialAdvancedFilters = const {},
-    required this.advancedFilterFieldsBuilder,
+    required this.advancedFilterDescriptorsBuilder,
     required this.coreSearchInputBuilder,
     required this.providerQueryBuilder,
     required this.ranking,
     this.searchInputPredicate,
     this.providerKindOverridesBuilder,
-    this.advancedFiltersBuilder,
+    this.kindSpecificPaneBuilder,
     this.coverScanQueryBuilder,
     this.coverScanFilterValuesBuilder,
     this.coreMatchSummaryBuilder,
@@ -65,14 +65,15 @@ class LibraryAddSearchCapability {
   });
 
   final Map<LibraryAddFilterId, Object?> initialAdvancedFilters;
-  final LibraryAddAdvancedFilterFieldsBuilder advancedFilterFieldsBuilder;
+  final LibraryAddAdvancedFilterDescriptorsBuilder
+      advancedFilterDescriptorsBuilder;
   final LibraryAddCoreSearchInputBuilder coreSearchInputBuilder;
   final LibraryAddProviderQueryBuilder providerQueryBuilder;
   final LibraryAddSearchRanking ranking;
   final LibraryAddSearchInputPredicate? searchInputPredicate;
   final LibraryAddProviderKindOverridesBuilder? providerKindOverridesBuilder;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
-      advancedFiltersBuilder;
+      kindSpecificPaneBuilder;
   final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
   final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
   final LibraryAddMatchSummaryBuilder<LibraryMetadataItem>?

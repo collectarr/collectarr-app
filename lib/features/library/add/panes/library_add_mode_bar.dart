@@ -49,7 +49,7 @@ class LibraryAddModeBar extends StatefulWidget {
     super.key,
     required this.type,
     required this.accent,
-    required this.isMovieDesktopChrome,
+    required this.isWideLayout,
     required this.mode,
     required this.queryController,
     required this.barcodeController,
@@ -69,15 +69,15 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
-    required this.advancedFilterValues,
+    required this.advancedFilterState,
     required this.onAdvancedFilterChanged,
-    this.advancedFilterFields = const [],
-    this.advancedFiltersBuilder,
+    required this.advancedFilterDescriptors,
+    this.kindSpecificPaneBuilder,
   });
 
   final LibraryTypeConfig type;
   final Color accent;
-  final bool isMovieDesktopChrome;
+  final bool isWideLayout;
   final LibraryAddDialogMode mode;
   final TextEditingController queryController;
   final TextEditingController barcodeController;
@@ -97,11 +97,11 @@ class LibraryAddModeBar extends StatefulWidget {
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
-  final Map<LibraryAddFilterId, Object?> advancedFilterValues;
+  final Map<LibraryAddFilterId, Object?> advancedFilterState;
   final LibraryAddAdvancedFilterChanged onAdvancedFilterChanged;
-  final List<LibraryAddAdvancedFilterField<String>> advancedFilterFields;
+  final List<LibraryAddAdvancedFilterField<String>> advancedFilterDescriptors;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
-      advancedFiltersBuilder;
+      kindSpecificPaneBuilder;
 
   @override
   State<LibraryAddModeBar> createState() => _LibraryAddModeBarState();
@@ -172,7 +172,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     return LibraryAddModeBarRequest(
       type: widget.type,
       accent: widget.accent,
-      isMovieDesktopChrome: widget.isMovieDesktopChrome,
+      isWideLayout: widget.isWideLayout,
       mode: widget.mode,
       queryController: widget.queryController,
       barcodeController: widget.barcodeController,
@@ -192,21 +192,15 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       onManual: widget.onManual,
       showAdvanced: widget.showAdvanced,
       onToggleAdvanced: widget.onToggleAdvanced,
-      advancedFilterValues: widget.advancedFilterValues,
+      advancedFilterState: widget.advancedFilterState,
       onAdvancedFilterChanged: widget.onAdvancedFilterChanged,
-      advancedFilterFields: widget.advancedFilterFields,
-      advancedFiltersBuilder: widget.advancedFiltersBuilder,
+      advancedFilterDescriptors: widget.advancedFilterDescriptors,
+      kindSpecificPaneBuilder: widget.kindSpecificPaneBuilder,
     );
   }
 
   List<LibraryAddAdvancedFilterField<String>> _resolveAdvancedFields() {
-    if (widget.advancedFilterFields.isNotEmpty) {
-      return widget.advancedFilterFields;
-    }
-    return libraryKindRuntimeForKind(widget.type.workspace.kind)
-        .add
-        .search
-        .advancedFilterFieldsBuilder(_buildRequest());
+    return widget.advancedFilterDescriptors;
   }
 
   @override
@@ -216,7 +210,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     final palette = appPalette(context);
     final advancedFields = _resolveAdvancedFields();
     _syncAdvancedControllers(advancedFields);
-    if (widget.isMovieDesktopChrome) {
+    if (widget.isWideLayout) {
       return DecoratedBox(
         decoration: BoxDecoration(
           color: palette.panelRaised,
@@ -339,13 +333,13 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                   widget.showAdvanced) ...[
                 const SizedBox(height: 6),
                 _AdvancedSearchFields(
-                  advancedFilterFields: advancedFields,
+                  advancedFilterDescriptors: advancedFields,
                   controllers: _advancedControllers,
                   onSubmitted: _handleSearch,
                 ),
                 const SizedBox(height: 6),
-                if (widget.advancedFiltersBuilder != null)
-                  widget.advancedFiltersBuilder!(context, _buildRequest()),
+                if (widget.kindSpecificPaneBuilder != null)
+                  widget.kindSpecificPaneBuilder!(context, _buildRequest()),
               ],
               if (widget.mode == LibraryAddDialogMode.search &&
                   widget.showSuggestions &&
@@ -420,13 +414,13 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                     if (widget.showAdvanced) ...[
                       const SizedBox(height: 6),
                       _AdvancedSearchFields(
-                        advancedFilterFields: advancedFields,
+                        advancedFilterDescriptors: advancedFields,
                         controllers: _advancedControllers,
                         onSubmitted: _handleSearch,
                       ),
                     ],
-                    if (widget.advancedFiltersBuilder != null)
-                      widget.advancedFiltersBuilder!(context, _buildRequest()),
+                    if (widget.kindSpecificPaneBuilder != null)
+                      widget.kindSpecificPaneBuilder!(context, _buildRequest()),
                     if (widget.showSuggestions && widget.suggestions.isNotEmpty)
                       _SuggestionDropdown(
                         suggestions: widget.suggestions,
@@ -785,41 +779,41 @@ class _AdvancedToggleButton extends StatelessWidget {
 
 class _AdvancedSearchFields extends StatelessWidget {
   const _AdvancedSearchFields({
-    this.advancedFilterFields = const [],
+    this.advancedFilterDescriptors = const [],
     required this.controllers,
     required this.onSubmitted,
   });
 
-  final List<LibraryAddAdvancedFilterField<String>> advancedFilterFields;
+  final List<LibraryAddAdvancedFilterField<String>> advancedFilterDescriptors;
   final Map<LibraryAddFilterId, TextEditingController> controllers;
   final VoidCallback onSubmitted;
 
   @override
   Widget build(BuildContext context) {
-    if (advancedFilterFields.isEmpty) return const SizedBox.shrink();
+    if (advancedFilterDescriptors.isEmpty) return const SizedBox.shrink();
     return Row(
       children: [
-        for (int i = 0; i < advancedFilterFields.length; i++) ...[
+        for (int i = 0; i < advancedFilterDescriptors.length; i++) ...[
           if (i > 0) const SizedBox(width: 6),
-          if (advancedFilterFields[i].width != null)
+          if (advancedFilterDescriptors[i].width != null)
             SizedBox(
-              width: advancedFilterFields[i].width,
+              width: advancedFilterDescriptors[i].width,
               child: _AdvancedField(
-                fieldKey: advancedFilterFields[i].key,
-                controller: controllers[advancedFilterFields[i].id]!,
-                hint: advancedFilterFields[i].label,
-                keyboardType: advancedFilterFields[i].keyboardType,
+                fieldKey: advancedFilterDescriptors[i].key,
+                controller: controllers[advancedFilterDescriptors[i].id]!,
+                hint: advancedFilterDescriptors[i].label,
+                keyboardType: advancedFilterDescriptors[i].keyboardType,
                 onSubmitted: onSubmitted,
               ),
             )
           else
             Expanded(
-              flex: advancedFilterFields[i].flex,
+              flex: advancedFilterDescriptors[i].flex,
               child: _AdvancedField(
-                fieldKey: advancedFilterFields[i].key,
-                controller: controllers[advancedFilterFields[i].id]!,
-                hint: advancedFilterFields[i].label,
-                keyboardType: advancedFilterFields[i].keyboardType,
+                fieldKey: advancedFilterDescriptors[i].key,
+                controller: controllers[advancedFilterDescriptors[i].id]!,
+                hint: advancedFilterDescriptors[i].label,
+                keyboardType: advancedFilterDescriptors[i].keyboardType,
                 onSubmitted: onSubmitted,
               ),
             ),

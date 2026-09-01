@@ -87,9 +87,9 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     search: LibraryAddSearchCapability(
       initialAdvancedFilters:
           buildLibraryAddVideoInitialFilters(moviesLibraryConfig),
-      advancedFilterFieldsBuilder: buildMovieAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
       searchInputPredicate: libraryAddVideoHasSearchInput,
-      advancedFiltersBuilder: buildLibraryAddVideoKindFilterRow,
+      kindSpecificPaneBuilder: buildLibraryAddVideoKindFilterRow,
       providerKindOverridesBuilder: (context) =>
           libraryAddVideoKindOverrides(moviesLibraryConfig, context),
       coreSearchInputBuilder: _buildMovieCoreSearchInput,

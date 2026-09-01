@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_sess
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
@@ -466,7 +467,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             fallback: widget.type.workspace.accent);
     final state = _controller.state;
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
-    final isMovieDesktopChrome = widget.type.capabilities.wideDialog;
+    final isWideLayout = widget.type.capabilities.wideDialog;
     final resultPolicy =
         libraryKindRuntimeForType(widget.type).add.resultPolicy;
     final visibleCore = state.visibleCoreResults(
@@ -491,49 +492,59 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       onClose: () => Navigator.of(context).pop(),
     );
 
-    final modeBarRequest = LibraryAddModeBarRequest(
-      type: widget.type,
-      accent: accent,
-      isMovieDesktopChrome: isMovieDesktopChrome,
-      mode: state.mode,
-      queryController: _queryController,
-      barcodeController: _barcodeController,
-      isSearching: state.search.isSearching,
-      isSearchingProvider: state.search.isSearchingProvider,
-      onModeChanged: (mode) {
-        if (mode == LibraryAddDialogMode.manual) {
+    LibraryAddModeBarRequest buildModeBarRequest(
+      List<LibraryAddAdvancedFilterField<String>> advancedFilterDescriptors,
+    ) {
+      return LibraryAddModeBarRequest(
+        type: widget.type,
+        accent: accent,
+        isWideLayout: isWideLayout,
+        mode: state.mode,
+        queryController: _queryController,
+        barcodeController: _barcodeController,
+        isSearching: state.search.isSearching,
+        isSearchingProvider: state.search.isSearchingProvider,
+        onModeChanged: (mode) {
+          if (mode == LibraryAddDialogMode.manual) {
+            _manualDraft.titleController.text = _queryController.text;
+          }
+          _controller.setMode(mode);
+        },
+        onSearch: () {
+          _controller.dismissSuggestions();
+          _controller.updateQuery(_queryController.text);
+          _controller.executeSearch();
+        },
+        onQueryChanged: _controller.updateQuery,
+        suggestions: state.search.suggestions,
+        showSuggestions: state.search.showSuggestions,
+        onSelectSuggestion: (item) {
+          _queryController.text = item.title;
+          _controller.selectSuggestion(item);
+        },
+        onDismissSuggestions: _controller.dismissSuggestions,
+        canScanCover: widget.type.capabilities.canScanCover,
+        isScanningCover: state.search.isScanningCover,
+        onScanCover: () => _controller.scanCover(context),
+        onLookupBarcode: () => _controller.lookupBarcode(
+          barcode: _barcodeController.text,
+        ),
+        onManual: () {
           _manualDraft.titleController.text = _queryController.text;
-        }
-        _controller.setMode(mode);
-      },
-      onSearch: () {
-        _controller.dismissSuggestions();
-        _controller.updateQuery(_queryController.text);
-        _controller.executeSearch();
-      },
-      onQueryChanged: _controller.updateQuery,
-      suggestions: state.search.suggestions,
-      showSuggestions: state.search.showSuggestions,
-      onSelectSuggestion: (item) {
-        _queryController.text = item.title;
-        _controller.selectSuggestion(item);
-      },
-      onDismissSuggestions: _controller.dismissSuggestions,
-      canScanCover: widget.type.capabilities.canScanCover,
-      isScanningCover: state.search.isScanningCover,
-      onScanCover: () => _controller.scanCover(context),
-      onLookupBarcode: () => _controller.lookupBarcode(
-        barcode: _barcodeController.text,
-      ),
-      onManual: () {
-        _manualDraft.titleController.text = _queryController.text;
-        _controller.setMode(LibraryAddDialogMode.manual);
-      },
-      showAdvanced: state.search.showAdvancedSearch,
-      onToggleAdvanced: _controller.toggleAdvancedSearch,
-      advancedFilterValues: state.search.advancedFilters,
-      onAdvancedFilterChanged: _controller.updateAdvancedFilter,
-      advancedFiltersBuilder: addCapability.search.advancedFiltersBuilder,
+          _controller.setMode(LibraryAddDialogMode.manual);
+        },
+        showAdvanced: state.search.showAdvancedSearch,
+        onToggleAdvanced: _controller.toggleAdvancedSearch,
+        advancedFilterState: state.search.advancedFilters,
+        onAdvancedFilterChanged: _controller.updateAdvancedFilter,
+        advancedFilterDescriptors: advancedFilterDescriptors,
+        kindSpecificPaneBuilder: addCapability.search.kindSpecificPaneBuilder,
+      );
+    }
+
+    final descriptorRequest = buildModeBarRequest(const []);
+    final modeBarRequest = buildModeBarRequest(
+      addCapability.search.advancedFilterDescriptorsBuilder(descriptorRequest),
     );
 
     final palette = appPalette(context);
@@ -583,7 +594,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 LibraryAddModeBar(
                   type: widget.type,
                   accent: accent,
-                  isMovieDesktopChrome: isMovieDesktopChrome,
+                  isWideLayout: isWideLayout,
                   mode: state.mode,
                   queryController: _queryController,
                   barcodeController: _barcodeController,
@@ -620,10 +631,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   },
                   showAdvanced: state.search.showAdvancedSearch,
                   onToggleAdvanced: _controller.toggleAdvancedSearch,
-                  advancedFilterValues: state.search.advancedFilters,
+                  advancedFilterState: state.search.advancedFilters,
                   onAdvancedFilterChanged: _controller.updateAdvancedFilter,
-                  advancedFiltersBuilder:
-                      addCapability.search.advancedFiltersBuilder,
+                  advancedFilterDescriptors:
+                      modeBarRequest.advancedFilterDescriptors,
+                  kindSpecificPaneBuilder:
+                      modeBarRequest.kindSpecificPaneBuilder,
                 ),
           ),
           if (state.search.error != null)
@@ -742,7 +755,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               final previewPaneWidget = LibraryAddPreviewPane(
                 type: widget.type,
                 accent: accent,
-                isMovieDesktopChrome: isMovieDesktopChrome,
+                isWideLayout: isWideLayout,
                 previewPaneBuilder: widget.previewPaneBuilder ??
                     addCapability.previewPaneBuilder,
                 item: selectedItem,
@@ -892,7 +905,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             addCapability.bottomBarBuilder?.call(context, bottomBarRequest) ??
             LibraryAddBottomBar(
               type: widget.type,
-              isMovieDesktopChrome: isMovieDesktopChrome,
+              isWideLayout: isWideLayout,
               conditions: _conditionOptions,
               grades: _gradeOptions,
               defaultTags: state.defaultTags,

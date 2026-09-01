@@ -59,7 +59,7 @@ class LibraryAddVideoKindFilterRow extends StatelessWidget {
     if (options.isEmpty) return const SizedBox.shrink();
 
     final rawSelected =
-        request.advancedFilterValues[libraryAddVideoKindFilterId];
+        request.advancedFilterState[libraryAddVideoKindFilterId];
     final selected =
         rawSelected is Set<String> ? rawSelected : const <String>{};
     final palette = appPalette(context);

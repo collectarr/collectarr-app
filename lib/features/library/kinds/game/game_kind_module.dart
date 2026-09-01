@@ -75,7 +75,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     initialDraftBuilder: GameAddDraft.new,
     manualDraftBuilder: GameAddManualDraft.new,
     search: LibraryAddSearchCapability(
-      advancedFilterFieldsBuilder: buildGameAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildGameAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildGameCoreSearchInput,
       providerQueryBuilder: _buildGameProviderQuery,
       ranking: buildLibraryAddSearchRanking(

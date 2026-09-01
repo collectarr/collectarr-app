@@ -34,7 +34,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     super.key,
     required this.type,
     required this.accent,
-    required this.isMovieDesktopChrome,
+    required this.isWideLayout,
     required this.previewPaneBuilder,
     required this.item,
     required this.candidate,
@@ -59,7 +59,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final bool isMovieDesktopChrome;
+  final bool isWideLayout;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
   final LibraryMetadataItem? item;
   final ProviderCandidate? candidate;

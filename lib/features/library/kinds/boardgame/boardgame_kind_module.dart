@@ -71,7 +71,7 @@ final boardGameKindModule =
     initialDraftBuilder: BoardgameAddDraft.new,
     manualDraftBuilder: BoardgameAddManualDraft.new,
     search: LibraryAddSearchCapability(
-      advancedFilterFieldsBuilder: buildBoardGameAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildBoardGameAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildBoardGameCoreSearchInput,
       providerQueryBuilder: _buildBoardGameProviderQuery,
       ranking: buildLibraryAddSearchRanking(

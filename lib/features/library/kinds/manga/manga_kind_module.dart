@@ -82,7 +82,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     initialDraftBuilder: MangaAddDraft.new,
     manualDraftBuilder: MangaAddManualDraft.new,
     search: LibraryAddSearchCapability(
-      advancedFilterFieldsBuilder: buildMangaAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildMangaAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildMangaCoreSearchInput,
       providerQueryBuilder: _buildMangaProviderQuery,
       ranking: buildLibraryAddSearchRanking(

@@ -66,7 +66,7 @@ final genericKindModule =
     initialDraftBuilder: GenericAddDraft.new,
     manualDraftBuilder: GenericAddManualDraft.new,
     search: LibraryAddSearchCapability(
-      advancedFilterFieldsBuilder: buildGenericAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildGenericAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildGenericCoreSearchInput,
       providerQueryBuilder: _buildGenericProviderQuery,
       ranking: buildLibraryAddSearchRanking(fields: const []),

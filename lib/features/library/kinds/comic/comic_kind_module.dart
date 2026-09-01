@@ -109,7 +109,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     searchPaneBuilder: buildComicAddSearchPane,
     bottomBarBuilder: buildComicAddBottomBar,
     search: LibraryAddSearchCapability(
-      advancedFilterFieldsBuilder: buildComicAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildComicAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildComicCoreSearchInput,
       providerQueryBuilder: _buildComicProviderQuery,
       ranking: buildLibraryAddSearchRanking(

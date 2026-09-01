@@ -72,7 +72,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     initialDraftBuilder: MusicAddDraft.new,
     manualDraftBuilder: MusicAddManualDraft.new,
     search: LibraryAddSearchCapability(
-      advancedFilterFieldsBuilder: buildMusicAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildMusicCoreSearchInput,
       providerQueryBuilder: _buildMusicProviderQuery,
       ranking: buildLibraryAddSearchRanking(

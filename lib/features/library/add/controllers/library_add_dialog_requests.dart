@@ -192,7 +192,7 @@ class LibraryAddModeBarRequest {
   const LibraryAddModeBarRequest({
     required this.type,
     required this.accent,
-    required this.isMovieDesktopChrome,
+    required this.isWideLayout,
     required this.mode,
     required this.queryController,
     required this.barcodeController,
@@ -212,15 +212,15 @@ class LibraryAddModeBarRequest {
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
-    required this.advancedFilterValues,
+    required this.advancedFilterState,
     required this.onAdvancedFilterChanged,
-    this.advancedFilterFields = const [],
-    this.advancedFiltersBuilder,
+    required this.advancedFilterDescriptors,
+    this.kindSpecificPaneBuilder,
   });
 
   final LibraryTypeConfig type;
   final Color accent;
-  final bool isMovieDesktopChrome;
+  final bool isWideLayout;
   final LibraryAddDialogMode mode;
   final TextEditingController queryController;
   final TextEditingController barcodeController;
@@ -240,14 +240,14 @@ class LibraryAddModeBarRequest {
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
-  final Map<LibraryAddFilterId, Object?> advancedFilterValues;
+  final Map<LibraryAddFilterId, Object?> advancedFilterState;
   final LibraryAddAdvancedFilterChanged onAdvancedFilterChanged;
-  final List<LibraryAddAdvancedFilterField<String>> advancedFilterFields;
+  final List<LibraryAddAdvancedFilterField<String>> advancedFilterDescriptors;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
-      advancedFiltersBuilder;
+      kindSpecificPaneBuilder;
 
   String advancedFilterText(LibraryAddFilterId id) {
-    return advancedFilterValues[id]?.toString() ?? '';
+    return advancedFilterState[id]?.toString() ?? '';
   }
 }
 

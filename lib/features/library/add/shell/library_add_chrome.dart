@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,6 @@ class LibraryAddChromeLabels {
     this.searchButtonLabel,
     this.showCoverScanSuffix = false,
     this.showSuggestions = false,
-    this.advancedFiltersBuilder,
   });
 
   final String? title;
@@ -25,8 +23,6 @@ class LibraryAddChromeLabels {
   final String? searchButtonLabel;
   final bool showCoverScanSuffix;
   final bool showSuggestions;
-  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
-      advancedFiltersBuilder;
 }
 
 /// Shared add-dialog header. Icon and title derive from the kind config.
@@ -100,13 +96,13 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
   @override
   void initState() {
     super.initState();
-    _syncAdvancedControllers(_resolveAdvancedFields());
+    _syncAdvancedControllers(widget.request.advancedFilterDescriptors);
   }
 
   @override
   void didUpdateWidget(covariant _LibraryAddChromeModeBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _syncAdvancedControllers(_resolveAdvancedFields());
+    _syncAdvancedControllers(widget.request.advancedFilterDescriptors);
   }
 
   @override
@@ -118,7 +114,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
   }
 
   void _handleSearch() {
-    final fields = _resolveAdvancedFields();
+    final fields = widget.request.advancedFilterDescriptors;
     for (final field in fields) {
       widget.request.onAdvancedFilterChanged(
         field.id,
@@ -154,16 +150,6 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
     }
   }
 
-  List<LibraryAddAdvancedFilterField<String>> _resolveAdvancedFields() {
-    if (widget.request.advancedFilterFields.isNotEmpty) {
-      return widget.request.advancedFilterFields;
-    }
-    return libraryKindRuntimeForKind(widget.request.type.workspace.kind)
-        .add
-        .search
-        .advancedFilterFieldsBuilder(widget.request);
-  }
-
   @override
   Widget build(BuildContext context) {
     final request = widget.request;
@@ -174,7 +160,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
     final isSearch = request.mode == LibraryAddDialogMode.search;
     final searchButtonLabel =
         labels.searchButtonLabel ?? 'Search ${request.type.pluralLabel}';
-    final advancedFields = _resolveAdvancedFields();
+    final advancedFields = request.advancedFilterDescriptors;
     _syncAdvancedControllers(advancedFields);
 
     return DecoratedBox(
@@ -333,10 +319,8 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                     ],
                   ],
                 ),
-              if (labels.advancedFiltersBuilder != null)
-                labels.advancedFiltersBuilder!(context, request)
-              else if (request.advancedFiltersBuilder != null)
-                request.advancedFiltersBuilder!(context, request),
+              if (request.kindSpecificPaneBuilder != null)
+                request.kindSpecificPaneBuilder!(context, request),
             ],
             if (labels.showSuggestions &&
                 isSearch &&

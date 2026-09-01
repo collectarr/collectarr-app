@@ -75,9 +75,9 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
     search: LibraryAddSearchCapability(
       initialAdvancedFilters:
           buildLibraryAddVideoInitialFilters(animeLibraryConfig),
-      advancedFilterFieldsBuilder: buildAnimeAddAdvancedFilterFields,
+      advancedFilterDescriptorsBuilder: buildAnimeAddAdvancedFilterFields,
       searchInputPredicate: libraryAddVideoHasSearchInput,
-      advancedFiltersBuilder: buildLibraryAddVideoKindFilterRow,
+      kindSpecificPaneBuilder: buildLibraryAddVideoKindFilterRow,
       providerKindOverridesBuilder: (context) =>
           libraryAddVideoKindOverrides(animeLibraryConfig, context),
       coreSearchInputBuilder: _buildAnimeCoreSearchInput,
