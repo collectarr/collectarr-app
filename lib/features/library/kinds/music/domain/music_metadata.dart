@@ -160,6 +160,8 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.publisher,
+    this.packaging,
+    this.recordLabel,
     this.barcode,
     this.variant,
     this.country,
@@ -193,6 +195,8 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final String? publisher;
+  final String? packaging;
+  final String? recordLabel;
   final String? barcode;
   final String? variant;
   final String? country;
@@ -232,6 +236,8 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
         if (physicalFormatLabel != null)
           'physical_format_label': physicalFormatLabel,
         if (publisher != null) 'publisher': publisher,
+        if (packaging != null) 'packaging': packaging,
+        if (recordLabel != null) 'record_label': recordLabel,
         if (barcode != null) 'barcode': barcode,
         if (variant != null) 'variant': variant,
         if (country != null) 'country': country,
@@ -273,6 +279,8 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
     String? physicalFormat,
     String? physicalFormatLabel,
     String? publisher,
+    String? packaging,
+    String? recordLabel,
     String? barcode,
     String? variant,
     String? country,
@@ -300,6 +308,8 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
       physicalFormat: physicalFormat ?? this.physicalFormat,
       physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
+      packaging: packaging ?? this.packaging,
+      recordLabel: recordLabel ?? this.recordLabel,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
       country: country ?? this.country,
@@ -428,6 +438,8 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
       publisher: json['publisher'] as String?,
+      packaging: (json['packaging'] ?? musicMap['packaging']) as String?,
+      recordLabel: (json['record_label'] ?? json['publisher']) as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant'] as String?,
       country: json['country'] as String?,

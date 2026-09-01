@@ -327,35 +327,45 @@ class CatalogCacheRepository {
     final list = items.toList(growable: false);
     final pickLists = PickListRepository(_db);
     final serialAuthority = SerialAuthorityRepository(_db);
-    final byKind = <String, List<Map<String, dynamic>>>{};
+    final byKind = <String, List<LibraryKindMetadataRuntime>>{};
     for (final item in list) {
-      final kind =
-          item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
-      final payload = item is LibraryMetadataItem
-          ? item.payload
-          : (item as CatalogItem).payload;
+      final String kind;
+      final LibraryKindMetadataRuntime metadata;
+      if (item is LibraryMetadataItem) {
+        kind = item.kind;
+        metadata = item.kindMetadata;
+      } else {
+        final catalogItem = item as CatalogItem;
+        kind = catalogItem.kind;
+        metadata = LibraryKindMetadataDecoders.decode(
+          catalogItem.mediaKind,
+          catalogItem.payload,
+        );
+      }
       byKind
           .putIfAbsent(
-              kind.trim().toLowerCase(), () => <Map<String, dynamic>>[])
-          .add(payload);
+            kind.trim().toLowerCase(),
+            () => <LibraryKindMetadataRuntime>[],
+          )
+          .add(metadata);
     }
 
     await _db.transaction(() async {
       for (final entry in byKind.entries) {
         final mediaKind = entry.key;
-        final scopedPayloads = entry.value;
+        final scopedMetadata = entry.value;
         final kind = catalogMediaKindFromApiValue(mediaKind);
         final definitions =
             libraryKindRuntimeForKind(kind).edit.vocabularies?.definitions ??
                 const [];
         for (final definition in definitions) {
-          final reader = definition.catalogValueReader;
-          if (reader == null) {
+          final projector = definition.valuesFrom;
+          if (projector == null) {
             continue;
           }
           final values = <String?>[];
-          for (final payload in scopedPayloads) {
-            values.addAll(reader(payload));
+          for (final metadata in scopedMetadata) {
+            values.addAll(projector(metadata));
           }
           await pickLists.captureValuesWithoutTransaction(
             definition.key,

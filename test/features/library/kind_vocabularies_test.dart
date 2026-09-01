@@ -3,7 +3,13 @@ import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_voc
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
@@ -79,6 +85,62 @@ void main() {
           contains('Fantasy Flight Games'));
       expect(BoardGameVocabularies.category.builtIns,
           contains('Worker Placement'));
+    });
+
+    test('typed catalog projectors reject metadata from another kind', () {
+      final projector = ComicVocabularies.publisher.valuesFrom;
+
+      expect(projector, isNotNull);
+      expect(
+          projector!(const EmptyKindMetadata(CatalogMediaKind.game)), isEmpty);
+      expect(
+        projector!(
+          const ComicCatalogMetadata(
+            title: 'Typed Comic',
+            publisher: 'Image Comics',
+          ),
+        ),
+        contains('Image Comics'),
+      );
+    });
+
+    test('typed projectors preserve legacy nested catalog fields', () {
+      expect(
+        MovieVocabularies.distributor.valuesFrom!(
+          const MovieCatalogMetadata(
+            title: 'Typed Movie',
+            distributor: 'Criterion Collection',
+          ),
+        ),
+        contains('Criterion Collection'),
+      );
+      expect(
+        MusicVocabularies.packaging.valuesFrom!(
+          const MusicCatalogMetadata(
+            title: 'Typed Album',
+            packaging: 'Digipak',
+          ),
+        ),
+        contains('Digipak'),
+      );
+      expect(
+        TvVocabularies.screenRatio.valuesFrom!(
+          const TvSeriesMetadata(
+            title: 'Typed Series',
+            screenRatio: '1.78:1 (16:9)',
+          ),
+        ),
+        contains('1.78:1 (16:9)'),
+      );
+      expect(
+        GameVocabularies.edition.valuesFrom!(
+          const GameCatalogMetadata(
+            title: 'Typed Game',
+            physicalFormatLabel: 'Collector Edition',
+          ),
+        ),
+        contains('Collector Edition'),
+      );
     });
 
     test('All 9 kind edit capabilities expose matching vocabulary definitions',

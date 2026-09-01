@@ -78,4 +78,32 @@ void main() {
     expect(series.single.coreSeriesId, 'series-1');
     expect(series.single.itemCount, 1);
   });
+
+  test('upsertMetadataItems captures vocabulary from decoded metadata',
+      () async {
+    final item = testCatalogItem(
+      id: 'comic-decoded-1',
+      kind: 'comic',
+      publisher: 'Image Comics',
+      physicalFormatLabel: 'Hardcover',
+    ).toLibraryMetadataItem();
+
+    await catalog.upsertMetadataItems([item]);
+
+    final pickLists = PickListRepository(db);
+    expect(
+      await pickLists.getValues(
+        ComicVocabularyIds.publisher.value,
+        mediaKind: 'comic',
+      ),
+      contains('Image Comics'),
+    );
+    expect(
+      await pickLists.getValues(
+        ComicVocabularyIds.physicalFormat.value,
+        mediaKind: 'comic',
+      ),
+      contains('Hardcover'),
+    );
+  });
 }

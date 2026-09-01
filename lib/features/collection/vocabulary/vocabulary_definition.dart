@@ -1,9 +1,25 @@
 ﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
-typedef VocabularyCatalogValueReader = Iterable<String?> Function(
-  Map<String, dynamic> payload,
-);
+abstract interface class VocabularyCatalogValueProjector {
+  Iterable<String?> call(LibraryKindMetadataRuntime metadata);
+}
+
+final class TypedVocabularyProjector<T extends LibraryKindMetadataRuntime>
+    implements VocabularyCatalogValueProjector {
+  const TypedVocabularyProjector(this._project);
+
+  final Iterable<String?> Function(T metadata) _project;
+
+  @override
+  Iterable<String?> call(LibraryKindMetadataRuntime metadata) {
+    if (metadata is! T) {
+      return const [];
+    }
+    return _project(metadata);
+  }
+}
 
 @immutable
 final class VocabularyDefinition<T> {
@@ -13,7 +29,7 @@ final class VocabularyDefinition<T> {
     this.builtIns = const [],
     this.allowCustomValues = true,
     this.multiValue = false,
-    this.catalogValueReader,
+    this.valuesFrom,
   });
 
   final VocabularyId<T> id;
@@ -21,7 +37,7 @@ final class VocabularyDefinition<T> {
   final List<T> builtIns;
   final bool allowCustomValues;
   final bool multiValue;
-  final VocabularyCatalogValueReader? catalogValueReader;
+  final VocabularyCatalogValueProjector? valuesFrom;
 
   String get key => id.value;
 
@@ -39,28 +55,12 @@ final class VocabularyDefinition<T> {
   String toString() => 'VocabularyDefinition(${id.value})';
 }
 
-Iterable<String?> vocabularyPayloadValuesForKey(
-  Map<String, dynamic> payload,
-  String key,
-) {
-  return _vocabularyValues(payload[key]);
-}
-
-Iterable<String?> vocabularyNestedPayloadValuesForKey(
-  Map<String, dynamic> payload,
-  String parentKey,
-  String key,
-) {
-  final nested = payload[parentKey];
-  if (nested is! Map) {
-    return const [];
+Iterable<String?> vocabularyValues(Iterable<Object?> values) sync* {
+  for (final value in values) {
+    if (value is Iterable) {
+      yield* value.map((item) => item?.toString());
+    } else {
+      yield value?.toString();
+    }
   }
-  return _vocabularyValues(nested[key]);
-}
-
-Iterable<String?> _vocabularyValues(Object? value) {
-  if (value is Iterable) {
-    return value.map((item) => item?.toString());
-  }
-  return [value?.toString()];
 }

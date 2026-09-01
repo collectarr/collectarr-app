@@ -1,5 +1,6 @@
 ﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 
 abstract final class AnimeVocabularyIds {
   static const demographic = VocabularyId<String>('anime.demographic');
@@ -24,7 +25,7 @@ abstract final class AnimeVocabularies {
   static const format = VocabularyDefinition<String>(
     id: AnimeVocabularyIds.format,
     label: 'Format',
-    catalogValueReader: _formatCatalogValues,
+    valuesFrom: TypedVocabularyProjector<AnimeMetadata>(_formatCatalogValues),
     builtIns: [
       'TV Series',
       'Movie',
@@ -38,7 +39,7 @@ abstract final class AnimeVocabularies {
   static const studio = VocabularyDefinition<String>(
     id: AnimeVocabularyIds.studio,
     label: 'Animation Studio',
-    catalogValueReader: _studioCatalogValues,
+    valuesFrom: TypedVocabularyProjector<AnimeMetadata>(_studioCatalogValues),
     builtIns: [
       'Kyoto Animation',
       'MAPPA',
@@ -59,7 +60,7 @@ abstract final class AnimeVocabularies {
   static const season = VocabularyDefinition<String>(
     id: AnimeVocabularyIds.season,
     label: 'Release Season',
-    catalogValueReader: _seasonCatalogValues,
+    valuesFrom: TypedVocabularyProjector<AnimeMetadata>(_seasonCatalogValues),
     builtIns: [
       'Winter',
       'Spring',
@@ -76,16 +77,18 @@ abstract final class AnimeVocabularies {
   ];
 }
 
-Iterable<String?> _formatCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'format');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
+Iterable<String?> _formatCatalogValues(AnimeMetadata metadata) sync* {
+  yield* vocabularyValues([
+    metadata.format.label,
+    metadata.physicalFormatLabel,
+    metadata.physicalFormat,
+  ]);
 }
 
-Iterable<String?> _studioCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'studio');
-  yield* vocabularyPayloadValuesForKey(payload, 'animation_studio');
+Iterable<String?> _studioCatalogValues(AnimeMetadata metadata) sync* {
+  yield* vocabularyValues([metadata.studios]);
 }
 
-Iterable<String?> _seasonCatalogValues(Map<String, dynamic> payload) {
-  return vocabularyPayloadValuesForKey(payload, 'season');
+Iterable<String?> _seasonCatalogValues(AnimeMetadata metadata) {
+  return vocabularyValues([metadata.season?.label]);
 }

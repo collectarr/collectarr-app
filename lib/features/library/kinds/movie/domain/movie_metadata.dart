@@ -64,6 +64,10 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.publisher,
+    this.region,
+    this.packaging,
+    this.distributor,
+    this.hdr,
     this.variant,
     this.itemNumber,
     this.series,
@@ -112,6 +116,10 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final String? publisher;
+  final String? region;
+  final String? packaging;
+  final String? distributor;
+  final String? hdr;
   final String? variant;
   final String? itemNumber;
   final CatalogSeriesDetailsDto? series;
@@ -159,6 +167,10 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
         if (physicalFormatLabel != null)
           'physical_format_label': physicalFormatLabel,
         if (publisher != null) 'publisher': publisher,
+        if (region != null) 'region': region,
+        if (packaging != null) 'packaging': packaging,
+        if (distributor != null) 'distributor': distributor,
+        if (hdr != null) 'hdr': hdr,
         if (variant != null) 'variant': variant,
         if (itemNumber != null) 'item_number': itemNumber,
         if (seriesTitle != null) 'series_title': seriesTitle,
@@ -221,6 +233,10 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     String? physicalFormat,
     String? physicalFormatLabel,
     String? publisher,
+    String? region,
+    String? packaging,
+    String? distributor,
+    String? hdr,
     String? variant,
     String? itemNumber,
     CatalogSeriesDetailsDto? series,
@@ -263,6 +279,10 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
       physicalFormat: physicalFormat ?? this.physicalFormat,
       physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
+      region: region ?? this.region,
+      packaging: packaging ?? this.packaging,
+      distributor: distributor ?? this.distributor,
+      hdr: hdr ?? this.hdr,
       variant: variant ?? this.variant,
       itemNumber: itemNumber ?? this.itemNumber,
       series: series ?? this.series,
@@ -403,6 +423,10 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
       publisher: (json['publisher'] ?? json['studio']) as String?,
+      region: (json['region'] ?? videoRaw['region']) as String?,
+      packaging: (json['packaging'] ?? videoRaw['packaging']) as String?,
+      distributor: (json['distributor'] ?? videoRaw['distributor']) as String?,
+      hdr: (json['hdr'] ?? videoRaw['hdr']) as String?,
       variant: json['variant'] as String?,
       itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
       series: series.hasData ? series : null,

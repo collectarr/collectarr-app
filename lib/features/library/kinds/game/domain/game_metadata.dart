@@ -15,6 +15,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
     this.toyType,
     this.releaseRegion,
     this.edition,
+    this.physicalFormat,
+    this.physicalFormatLabel,
     this.developers = const [],
     this.publishers = const [],
     this.franchise,
@@ -45,6 +47,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? toyType;
   final String? releaseRegion;
   final String? edition;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
   final List<String> developers;
   final List<String> publishers;
   final String? franchise;
@@ -69,6 +73,9 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
         if (toyType != null) 'toy_type': toyType,
         if (releaseRegion != null) 'release_region': releaseRegion,
         if (edition != null) 'edition': edition,
+        if (physicalFormat != null) 'physical_format': physicalFormat,
+        if (physicalFormatLabel != null)
+          'physical_format_label': physicalFormatLabel,
         if (developers.isNotEmpty) 'developers': developers,
         if (publishers.isNotEmpty) ...{
           'publishers': publishers,
@@ -108,6 +115,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
     String? toyType,
     String? releaseRegion,
     String? edition,
+    String? physicalFormat,
+    String? physicalFormatLabel,
     List<String>? developers,
     List<String>? publishers,
     String? franchise,
@@ -132,6 +141,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
       toyType: toyType ?? this.toyType,
       releaseRegion: releaseRegion ?? this.releaseRegion,
       edition: edition ?? this.edition,
+      physicalFormat: physicalFormat ?? this.physicalFormat,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       developers: developers ?? this.developers,
       publishers: publishers ?? this.publishers,
       franchise: franchise ?? this.franchise,
@@ -189,6 +200,10 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
       toyType: (gameMap['toy_type'] ?? json['toy_type']) as String?,
       releaseRegion: json['release_region'] as String?,
       edition: json['edition'] as String?,
+      physicalFormat:
+          (json['physical_format'] ?? gameMap['physical_format']) as String?,
+      physicalFormatLabel: (json['physical_format_label'] ??
+          gameMap['physical_format_label']) as String?,
       developers: (json['developers'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??

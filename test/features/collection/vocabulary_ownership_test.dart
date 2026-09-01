@@ -35,7 +35,9 @@ void main() {
       expect(publisherDef.allowCustomValues, isTrue);
     });
 
-    test('DatabaseVocabularyRepository loads and merges built-ins, custom values, and selected values', () async {
+    test(
+        'DatabaseVocabularyRepository loads and merges built-ins, custom values, and selected values',
+        () async {
       const gradeId = VocabularyId<String>('comic.grade');
       const gradeDef = VocabularyDefinition<String>(
         id: gradeId,
@@ -62,7 +64,9 @@ void main() {
       expect(options, contains('Ungraded'));
     });
 
-    test('LibraryKindVocabularyCapability provides typed lookup for definitions', () {
+    test(
+        'LibraryKindVocabularyCapability provides typed lookup for definitions',
+        () {
       const publisherId = VocabularyId<String>('comic.publisher');
       const pageQualityId = VocabularyId<String>('comic.page_quality');
 

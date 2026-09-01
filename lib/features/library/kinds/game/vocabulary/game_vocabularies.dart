@@ -1,5 +1,6 @@
-﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
 abstract final class GameVocabularyIds {
   static const platform = VocabularyId<String>('game.platform');
@@ -13,7 +14,8 @@ abstract final class GameVocabularies {
   static const platform = VocabularyDefinition<String>(
     id: GameVocabularyIds.platform,
     label: 'Platform',
-    catalogValueReader: _platformCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<GameCatalogMetadata>(_platformCatalogValues),
     builtIns: [
       'PlayStation 5',
       'PlayStation 4',
@@ -48,7 +50,8 @@ abstract final class GameVocabularies {
   static const region = VocabularyDefinition<String>(
     id: GameVocabularyIds.region,
     label: 'Region',
-    catalogValueReader: _regionCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<GameCatalogMetadata>(_regionCatalogValues),
     builtIns: [
       'NTSC-U/C (US/Canada)',
       'PAL (Europe/Australia)',
@@ -61,7 +64,8 @@ abstract final class GameVocabularies {
   static const edition = VocabularyDefinition<String>(
     id: GameVocabularyIds.edition,
     label: 'Edition / Format',
-    catalogValueReader: _editionCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<GameCatalogMetadata>(_editionCatalogValues),
     builtIns: [
       'Standard Edition',
       "Collector's Edition",
@@ -78,7 +82,8 @@ abstract final class GameVocabularies {
   static const ageRating = VocabularyDefinition<String>(
     id: GameVocabularyIds.ageRating,
     label: 'Age Rating',
-    catalogValueReader: _ageRatingCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<GameCatalogMetadata>(_ageRatingCatalogValues),
     builtIns: [
       'ESRB: Everyone (E)',
       'ESRB: Everyone 10+ (E10+)',
@@ -120,21 +125,22 @@ abstract final class GameVocabularies {
   ];
 }
 
-Iterable<String?> _platformCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'platforms');
-  yield* vocabularyNestedPayloadValuesForKey(payload, 'game', 'platforms');
+Iterable<String?> _platformCatalogValues(GameCatalogMetadata metadata) sync* {
+  yield* vocabularyValues([metadata.platform, metadata.platforms]);
 }
 
-Iterable<String?> _regionCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'region');
-  yield* vocabularyNestedPayloadValuesForKey(payload, 'game', 'region');
+Iterable<String?> _regionCatalogValues(GameCatalogMetadata metadata) {
+  return vocabularyValues([metadata.releaseRegion]);
 }
 
-Iterable<String?> _editionCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'edition');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
+Iterable<String?> _editionCatalogValues(GameCatalogMetadata metadata) sync* {
+  yield* vocabularyValues([
+    metadata.edition,
+    metadata.physicalFormatLabel,
+    metadata.physicalFormat,
+  ]);
 }
 
-Iterable<String?> _ageRatingCatalogValues(Map<String, dynamic> payload) {
-  return vocabularyPayloadValuesForKey(payload, 'age_rating');
+Iterable<String?> _ageRatingCatalogValues(GameCatalogMetadata metadata) {
+  return vocabularyValues([metadata.ageRating]);
 }

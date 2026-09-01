@@ -221,6 +221,12 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.publisher,
+    this.region,
+    this.packaging,
+    this.distributor,
+    this.screenRatio,
+    this.audioTracks,
+    this.subtitles,
     this.barcode,
     this.variant,
     this.creators = const [],
@@ -262,6 +268,12 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final String? publisher;
+  final String? region;
+  final String? packaging;
+  final String? distributor;
+  final String? screenRatio;
+  final String? audioTracks;
+  final String? subtitles;
   final String? barcode;
   final String? variant;
   final List<Map<String, dynamic>> creators;
@@ -304,6 +316,12 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
         if (physicalFormatLabel != null)
           'physical_format_label': physicalFormatLabel,
         if (publisher != null) 'publisher': publisher,
+        if (region != null) 'region': region,
+        if (packaging != null) 'packaging': packaging,
+        if (distributor != null) 'distributor': distributor,
+        if (screenRatio != null) 'screen_ratio': screenRatio,
+        if (audioTracks != null) 'audio_tracks': audioTracks,
+        if (subtitles != null) 'subtitles': subtitles,
         if (barcode != null) 'barcode': barcode,
         if (variant != null) 'variant': variant,
         if (creators.isNotEmpty) 'creators': creators,
@@ -352,6 +370,12 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
     String? physicalFormat,
     String? physicalFormatLabel,
     String? publisher,
+    String? region,
+    String? packaging,
+    String? distributor,
+    String? screenRatio,
+    String? audioTracks,
+    String? subtitles,
     String? barcode,
     String? variant,
     List<Map<String, dynamic>>? creators,
@@ -388,6 +412,12 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
       physicalFormat: physicalFormat ?? this.physicalFormat,
       physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
+      region: region ?? this.region,
+      packaging: packaging ?? this.packaging,
+      distributor: distributor ?? this.distributor,
+      screenRatio: screenRatio ?? this.screenRatio,
+      audioTracks: audioTracks ?? this.audioTracks,
+      subtitles: subtitles ?? this.subtitles,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
       creators: creators ?? this.creators,
@@ -397,6 +427,9 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
   }
 
   factory TvSeriesMetadata.fromJson(Map<String, dynamic> json) {
+    final videoRaw = json['video'] is Map
+        ? Map<String, dynamic>.from(json['video'] as Map)
+        : const <String, dynamic>{};
     final seriesRaw = json['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
@@ -486,6 +519,14 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
       physicalFormatLabel: json['physical_format_label'] as String?,
       publisher:
           (json['publisher'] ?? json['network'] ?? json['studio']) as String?,
+      region: (json['region'] ?? videoRaw['region']) as String?,
+      packaging: (json['packaging'] ?? videoRaw['packaging']) as String?,
+      distributor: (json['distributor'] ?? videoRaw['distributor']) as String?,
+      screenRatio:
+          (json['screen_ratio'] ?? videoRaw['screen_ratio']) as String?,
+      audioTracks:
+          (json['audio_tracks'] ?? videoRaw['audio_tracks']) as String?,
+      subtitles: (json['subtitles'] ?? videoRaw['subtitles']) as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant'] as String?,
       creators: rawCreators,

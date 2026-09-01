@@ -1,5 +1,6 @@
-﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 
 abstract final class BoardGameVocabularyIds {
   static const publisher = VocabularyId<String>('boardgame.publisher');
@@ -11,7 +12,8 @@ abstract final class BoardGameVocabularies {
   static const publisher = VocabularyDefinition<String>(
     id: BoardGameVocabularyIds.publisher,
     label: 'Publisher',
-    catalogValueReader: _publisherCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<BoardGameMetadata>(_publisherCatalogValues),
     builtIns: [
       'Fantasy Flight Games',
       'Asmodee',
@@ -30,7 +32,8 @@ abstract final class BoardGameVocabularies {
   static const format = VocabularyDefinition<String>(
     id: BoardGameVocabularyIds.format,
     label: 'Edition / Format',
-    catalogValueReader: _formatCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<BoardGameMetadata>(_formatCatalogValues),
     builtIns: [
       'Base Game',
       'Expansion',
@@ -45,7 +48,8 @@ abstract final class BoardGameVocabularies {
   static const category = VocabularyDefinition<String>(
     id: BoardGameVocabularyIds.category,
     label: 'Category',
-    catalogValueReader: _categoryCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<BoardGameMetadata>(_categoryCatalogValues),
     builtIns: [
       'Strategy',
       'Eurogame',
@@ -67,16 +71,17 @@ abstract final class BoardGameVocabularies {
   ];
 }
 
-Iterable<String?> _publisherCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'publisher');
-  yield* vocabularyPayloadValuesForKey(payload, 'publishers');
+Iterable<String?> _publisherCatalogValues(BoardGameMetadata metadata) sync* {
+  yield* vocabularyValues([metadata.publisher, metadata.publishers]);
 }
 
-Iterable<String?> _formatCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'format');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
+Iterable<String?> _formatCatalogValues(BoardGameMetadata metadata) sync* {
+  yield* vocabularyValues([
+    metadata.physicalFormatLabel,
+    metadata.physicalFormat,
+  ]);
 }
 
-Iterable<String?> _categoryCatalogValues(Map<String, dynamic> payload) {
-  return vocabularyPayloadValuesForKey(payload, 'category');
+Iterable<String?> _categoryCatalogValues(BoardGameMetadata metadata) {
+  return vocabularyValues([metadata.categories]);
 }

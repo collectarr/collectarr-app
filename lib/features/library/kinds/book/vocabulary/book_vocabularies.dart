@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 
 abstract final class BookVocabularyIds {
   static const publisher = VocabularyId<String>('book.publisher');
@@ -12,7 +13,9 @@ abstract final class BookVocabularies {
   static const publisher = VocabularyDefinition<String>(
     id: BookVocabularyIds.publisher,
     label: 'Publisher',
-    catalogValueReader: _publisherCatalogValues,
+    valuesFrom: TypedVocabularyProjector<BookCatalogMetadata>(
+      _publisherCatalogValues,
+    ),
     builtIns: [
       'Penguin Random House',
       'HarperCollins',
@@ -31,7 +34,9 @@ abstract final class BookVocabularies {
   static const format = VocabularyDefinition<String>(
     id: BookVocabularyIds.format,
     label: 'Format',
-    catalogValueReader: _formatCatalogValues,
+    valuesFrom: TypedVocabularyProjector<BookCatalogMetadata>(
+      _formatCatalogValues,
+    ),
     builtIns: [
       'Hardcover',
       'Trade Paperback',
@@ -62,7 +67,9 @@ abstract final class BookVocabularies {
   static const language = VocabularyDefinition<String>(
     id: BookVocabularyIds.language,
     label: 'Language',
-    catalogValueReader: _languageCatalogValues,
+    valuesFrom: TypedVocabularyProjector<BookCatalogMetadata>(
+      _languageCatalogValues,
+    ),
     builtIns: [
       'English',
       'Spanish',
@@ -98,26 +105,23 @@ abstract final class BookVocabularies {
   ];
 }
 
-Iterable<String?> _publisherCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'publisher');
-  yield* vocabularyNestedPayloadValuesForKey(
-    payload,
-    'publishing',
-    'original_publisher',
-  );
+Iterable<String?> _publisherCatalogValues(BookCatalogMetadata metadata) sync* {
+  yield* vocabularyValues([
+    metadata.publisher,
+    metadata.originalPublisher,
+  ]);
 }
 
-Iterable<String?> _formatCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'format');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format');
+Iterable<String?> _formatCatalogValues(BookCatalogMetadata metadata) sync* {
+  yield* vocabularyValues([
+    metadata.physicalFormatLabel,
+    metadata.physicalFormat,
+  ]);
 }
 
-Iterable<String?> _languageCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'language');
-  yield* vocabularyNestedPayloadValuesForKey(
-    payload,
-    'publishing',
-    'original_language',
-  );
+Iterable<String?> _languageCatalogValues(BookCatalogMetadata metadata) sync* {
+  yield* vocabularyValues([
+    metadata.language,
+    metadata.originalLanguage,
+  ]);
 }

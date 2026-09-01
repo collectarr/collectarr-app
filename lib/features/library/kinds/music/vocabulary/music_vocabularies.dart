@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 
 abstract final class MusicVocabularyIds {
   static const format = VocabularyId<String>('music.format');
@@ -11,7 +12,8 @@ abstract final class MusicVocabularies {
   static const format = VocabularyDefinition<String>(
     id: MusicVocabularyIds.format,
     label: 'Format',
-    catalogValueReader: _formatCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<MusicCatalogMetadata>(_formatCatalogValues),
     builtIns: [
       'Vinyl (12" LP)',
       'Vinyl (7" Single)',
@@ -27,7 +29,9 @@ abstract final class MusicVocabularies {
   static const packaging = VocabularyDefinition<String>(
     id: MusicVocabularyIds.packaging,
     label: 'Packaging',
-    catalogValueReader: _packagingCatalogValues,
+    valuesFrom: TypedVocabularyProjector<MusicCatalogMetadata>(
+      _packagingCatalogValues,
+    ),
     builtIns: [
       'Standard Jewel Case',
       'Digipak',
@@ -41,7 +45,9 @@ abstract final class MusicVocabularies {
   static const recordLabel = VocabularyDefinition<String>(
     id: MusicVocabularyIds.recordLabel,
     label: 'Record Label',
-    catalogValueReader: _recordLabelCatalogValues,
+    valuesFrom: TypedVocabularyProjector<MusicCatalogMetadata>(
+      _recordLabelCatalogValues,
+    ),
     builtIns: [
       'Columbia Records',
       'Atlantic Records',
@@ -63,18 +69,22 @@ abstract final class MusicVocabularies {
   ];
 }
 
-Iterable<String?> _formatCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'format');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format');
+Iterable<String?> _formatCatalogValues(MusicCatalogMetadata metadata) sync* {
+  yield* vocabularyValues([
+    metadata.physicalFormatLabel,
+    metadata.physicalFormat,
+    metadata.releases.map((release) => release.format),
+  ]);
 }
 
-Iterable<String?> _packagingCatalogValues(Map<String, dynamic> payload) {
-  return vocabularyNestedPayloadValuesForKey(payload, 'music', 'packaging');
+Iterable<String?> _packagingCatalogValues(MusicCatalogMetadata metadata) {
+  return vocabularyValues([metadata.packaging]);
 }
 
-Iterable<String?> _recordLabelCatalogValues(
-    Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'record_label');
-  yield* vocabularyPayloadValuesForKey(payload, 'publisher');
+Iterable<String?> _recordLabelCatalogValues(MusicCatalogMetadata metadata) {
+  return vocabularyValues([
+    metadata.recordLabel,
+    metadata.publisher,
+    metadata.releases.map((release) => release.label),
+  ]);
 }

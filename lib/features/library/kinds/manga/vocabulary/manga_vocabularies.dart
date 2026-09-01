@@ -1,5 +1,6 @@
-﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
 abstract final class MangaVocabularyIds {
   static const publisher = VocabularyId<String>('manga.publisher');
@@ -13,7 +14,8 @@ abstract final class MangaVocabularies {
   static const publisher = VocabularyDefinition<String>(
     id: MangaVocabularyIds.publisher,
     label: 'Publisher',
-    catalogValueReader: _publisherCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<MangaMetadata>(_publisherCatalogValues),
     builtIns: [
       'VIZ Media',
       'Kodansha USA',
@@ -31,7 +33,7 @@ abstract final class MangaVocabularies {
   static const imprint = VocabularyDefinition<String>(
     id: MangaVocabularyIds.imprint,
     label: 'Imprint',
-    catalogValueReader: _imprintCatalogValues,
+    valuesFrom: TypedVocabularyProjector<MangaMetadata>(_imprintCatalogValues),
     builtIns: [
       'Shonen Jump',
       'Shojo Beat',
@@ -74,7 +76,7 @@ abstract final class MangaVocabularies {
   static const format = VocabularyDefinition<String>(
     id: MangaVocabularyIds.format,
     label: 'Format',
-    catalogValueReader: _formatCatalogValues,
+    valuesFrom: TypedVocabularyProjector<MangaMetadata>(_formatCatalogValues),
     builtIns: [
       'Tankobon (Standard)',
       'Omnibus (2-in-1 / 3-in-1)',
@@ -94,21 +96,22 @@ abstract final class MangaVocabularies {
   ];
 }
 
-Iterable<String?> _publisherCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'publisher');
-  yield* vocabularyNestedPayloadValuesForKey(
-    payload,
-    'publishing',
-    'original_publisher',
-  );
+Iterable<String?> _publisherCatalogValues(MangaMetadata metadata) sync* {
+  yield* vocabularyValues([
+    metadata.publisher,
+    metadata.originalPublisher,
+    metadata.localizedPublisher,
+  ]);
 }
 
-Iterable<String?> _imprintCatalogValues(Map<String, dynamic> payload) {
-  return vocabularyNestedPayloadValuesForKey(payload, 'publishing', 'imprint');
+Iterable<String?> _imprintCatalogValues(MangaMetadata metadata) {
+  return vocabularyValues([metadata.imprint]);
 }
 
-Iterable<String?> _formatCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'format');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format');
+Iterable<String?> _formatCatalogValues(MangaMetadata metadata) sync* {
+  yield* vocabularyValues([
+    metadata.editionFormat.label,
+    metadata.physicalFormatLabel,
+    metadata.physicalFormat,
+  ]);
 }

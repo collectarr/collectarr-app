@@ -1,5 +1,6 @@
-﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 abstract final class TvVocabularyIds {
   static const physicalFormat = VocabularyId<String>('tv.physical_format');
@@ -16,7 +17,9 @@ abstract final class TvVocabularies {
   static const physicalFormat = VocabularyDefinition<String>(
     id: TvVocabularyIds.physicalFormat,
     label: 'Format',
-    catalogValueReader: _physicalFormatCatalogValues,
+    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+      _physicalFormatCatalogValues,
+    ),
     builtIns: [
       '4K Ultra HD Blu-ray',
       'Blu-ray',
@@ -28,7 +31,8 @@ abstract final class TvVocabularies {
   static const region = VocabularyDefinition<String>(
     id: TvVocabularyIds.region,
     label: 'Region',
-    catalogValueReader: _regionCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<TvSeriesMetadata>(_regionCatalogValues),
     builtIns: [
       'Region A / Region 1',
       'Region B / Region 2',
@@ -40,7 +44,9 @@ abstract final class TvVocabularies {
   static const packaging = VocabularyDefinition<String>(
     id: TvVocabularyIds.packaging,
     label: 'Packaging',
-    catalogValueReader: _packagingCatalogValues,
+    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+      _packagingCatalogValues,
+    ),
     builtIns: [
       'Complete Series Box Set',
       'Season Box Set',
@@ -54,7 +60,9 @@ abstract final class TvVocabularies {
   static const distributor = VocabularyDefinition<String>(
     id: TvVocabularyIds.distributor,
     label: 'Distributor / Studio',
-    catalogValueReader: _distributorCatalogValues,
+    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+      _distributorCatalogValues,
+    ),
     builtIns: [
       'HBO Home Entertainment',
       'Warner Bros. Television',
@@ -69,7 +77,9 @@ abstract final class TvVocabularies {
   static const screenRatio = VocabularyDefinition<String>(
     id: TvVocabularyIds.screenRatio,
     label: 'Screen Ratio',
-    catalogValueReader: _screenRatioCatalogValues,
+    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+      _screenRatioCatalogValues,
+    ),
     builtIns: [
       '1.78:1 (16:9)',
       '1.33:1 (4:3 Fullscreen)',
@@ -81,7 +91,7 @@ abstract final class TvVocabularies {
   static const audio = VocabularyDefinition<String>(
     id: TvVocabularyIds.audio,
     label: 'Audio',
-    catalogValueReader: _audioCatalogValues,
+    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(_audioCatalogValues),
     builtIns: [
       'Dolby Atmos',
       'DTS-HD Master Audio 5.1',
@@ -94,7 +104,9 @@ abstract final class TvVocabularies {
   static const subtitles = VocabularyDefinition<String>(
     id: TvVocabularyIds.subtitles,
     label: 'Subtitles',
-    catalogValueReader: _subtitlesCatalogValues,
+    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+      _subtitlesCatalogValues,
+    ),
     builtIns: [
       'English SDH',
       'Spanish',
@@ -107,7 +119,8 @@ abstract final class TvVocabularies {
   static const network = VocabularyDefinition<String>(
     id: TvVocabularyIds.network,
     label: 'Original Network',
-    catalogValueReader: _networkCatalogValues,
+    valuesFrom:
+        TypedVocabularyProjector<TvSeriesMetadata>(_networkCatalogValues),
     builtIns: [
       'HBO',
       'Netflix',
@@ -140,43 +153,50 @@ abstract final class TvVocabularies {
 }
 
 Iterable<String?> _physicalFormatCatalogValues(
-  Map<String, dynamic> payload,
+  TvSeriesMetadata metadata,
 ) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format_label');
-  yield* vocabularyPayloadValuesForKey(payload, 'physical_format');
+  yield* vocabularyValues([
+    metadata.physicalFormatLabel,
+    metadata.physicalFormat,
+  ]);
 }
 
-Iterable<String?> _regionCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'region');
-  yield* vocabularyNestedPayloadValuesForKey(payload, 'video', 'region');
+Iterable<String?> _regionCatalogValues(TvSeriesMetadata metadata) {
+  return vocabularyValues([
+    metadata.region,
+    metadata.releases.map((release) => release.region),
+  ]);
 }
 
-Iterable<String?> _packagingCatalogValues(Map<String, dynamic> payload) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'packaging');
-  yield* vocabularyNestedPayloadValuesForKey(payload, 'video', 'packaging');
+Iterable<String?> _packagingCatalogValues(TvSeriesMetadata metadata) {
+  return vocabularyValues([
+    metadata.packaging,
+    metadata.releases.map((release) => release.packaging),
+  ]);
 }
 
-Iterable<String?> _distributorCatalogValues(
-  Map<String, dynamic> payload,
-) sync* {
-  yield* vocabularyPayloadValuesForKey(payload, 'distributor');
-  yield* vocabularyNestedPayloadValuesForKey(payload, 'video', 'distributor');
+Iterable<String?> _distributorCatalogValues(TvSeriesMetadata metadata) {
+  return vocabularyValues([metadata.distributor]);
 }
 
-Iterable<String?> _screenRatioCatalogValues(
-  Map<String, dynamic> payload,
-) {
-  return vocabularyNestedPayloadValuesForKey(payload, 'video', 'screen_ratio');
+Iterable<String?> _screenRatioCatalogValues(TvSeriesMetadata metadata) {
+  return vocabularyValues([metadata.screenRatio]);
 }
 
-Iterable<String?> _audioCatalogValues(Map<String, dynamic> payload) {
-  return vocabularyNestedPayloadValuesForKey(payload, 'video', 'audio_tracks');
+Iterable<String?> _audioCatalogValues(TvSeriesMetadata metadata) {
+  return vocabularyValues([
+    metadata.audioTracks,
+    metadata.releases.expand((release) => release.audioTracks),
+  ]);
 }
 
-Iterable<String?> _subtitlesCatalogValues(Map<String, dynamic> payload) {
-  return vocabularyNestedPayloadValuesForKey(payload, 'video', 'subtitles');
+Iterable<String?> _subtitlesCatalogValues(TvSeriesMetadata metadata) {
+  return vocabularyValues([
+    metadata.subtitles,
+    metadata.releases.expand((release) => release.subtitles),
+  ]);
 }
 
-Iterable<String?> _networkCatalogValues(Map<String, dynamic> payload) {
-  return vocabularyPayloadValuesForKey(payload, 'network');
+Iterable<String?> _networkCatalogValues(TvSeriesMetadata metadata) {
+  return vocabularyValues([metadata.network]);
 }
