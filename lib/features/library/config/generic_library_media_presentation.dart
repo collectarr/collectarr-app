@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 const genericLibraryMediaBuilder = GenericLibraryMediaPresentationBuilder();
 
@@ -13,8 +12,6 @@ const genericPreviewLabels = LibraryMediaPreviewLabels(
 const genericLibraryGroupModes = [
   'series',
   'title',
-  'publisher',
-  'year',
   'location',
   'ownership',
 ];
@@ -44,16 +41,13 @@ String _simpleLibraryBucketLabel(
   LibraryBucketLabelOverrides overrides,
 ) {
   final dto = context.item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final publisher = adapter?.publisher?.trim();
+  final seriesRaw = context.item.source.catalogItem?.payload['series'];
+  final seriesTitle =
+      seriesRaw is Map ? (seriesRaw['series_title'] as String?)?.trim() : null;
   return switch (context.groupMode) {
-    'series' => adapter?.seriesTitle?.trim().isNotEmpty == true
-        ? adapter!.seriesTitle!.trim()
+    'series' => (seriesTitle != null && seriesTitle.isNotEmpty)
+        ? seriesTitle
         : labels.unknownSeries,
-    'year' => adapter?.releaseDate?.year.toString() ?? 'Unknown year',
-    'publisher' => publisher == null || publisher.isEmpty
-        ? labels.unknownPublisher
-        : publisher,
     'location' => _locationBucket(context.source.locationPath),
     'title' => _titleBucket(dto.title),
     'ownership' => context.source.isOwned
@@ -80,11 +74,11 @@ String _titleBucket(String title) {
 
 const genericLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter title, creator, or keyword...',
-    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    queryHint: 'Search catalog...',
+    emptySearchMessage: 'Enter a search query.',
     seriesHint: 'Series...',
-    numberHint: 'No. / Vol....',
-    publisherHint: 'Publisher / Studio / Creator...',
+    numberHint: 'Number...',
+    publisherHint: 'Publisher...',
   ),
   filterLabels: LibraryMediaFilterLabels(
     series: 'Series',
