@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -112,7 +111,6 @@ final mangaLibraryConfig = LibraryTypeConfig(
     supportsIndexReassignment: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
     supportsSeriesSubgroups: true,
-    vocabulary: StandardKindVocabularyCapability(MangaVocabularies.all),
   ),
   showsDefaultInspectorPersonalSection: false,
 );

@@ -78,6 +78,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildBookLibraryEditDialog,
+    vocabularies: StandardKindVocabularyCapability(BookVocabularies.all),
     presentation: const LibraryEditPresentation(
       builder: BookLibraryMediaEditPresentationBuilder(),
       mediaBuilder: BookLibraryMediaEditPresentationBuilder(),

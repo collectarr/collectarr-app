@@ -1,8 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
-import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 
-export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 export 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 
 enum LibraryContentHierarchy {
@@ -32,7 +30,6 @@ class LibraryTypeCapabilities {
     this.supportsSeriesSubgroups = false,
     this.wideDialog = false,
     this.contentHierarchy = LibraryContentHierarchy.flat,
-    this.vocabulary,
     this.groupModeCategoriesBuilder,
     this.mediaScopeGroupIds,
     this.releaseScopeGroupIds,
@@ -58,7 +55,6 @@ class LibraryTypeCapabilities {
   final bool supportsSeriesSubgroups;
   final bool wideDialog;
   final LibraryContentHierarchy contentHierarchy;
-  final LibraryKindVocabularyCapability? vocabulary;
   final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
 
   final Set<String>? mediaScopeGroupIds;

@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
+import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_card_presentation.dart';
@@ -73,6 +74,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildGameLibraryEditDialog,
+    vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
     presentation: gameLibraryEditPresentation,
     mediaFields: const MediaEditFields(
       numberLabel: 'Version',

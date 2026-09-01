@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -65,7 +64,6 @@ final boardGamesLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     canScanCover: true,
     supportsSeriesSubgroups: true,
-    vocabulary: StandardKindVocabularyCapability(BoardGameVocabularies.all),
   ),
   showsDefaultInspectorPersonalSection: false,
 );

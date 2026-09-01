@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
+import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
@@ -66,6 +67,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildAnimeLibraryEditDialog,
+    vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
     mediaFields: const MediaEditFields(
       numberLabel: 'Edition no.',
       publisherLabel: 'Studio',

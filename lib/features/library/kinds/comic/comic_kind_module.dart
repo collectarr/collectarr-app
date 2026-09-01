@@ -102,6 +102,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildComicLibraryEditDialog,
+    vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
     presentation: comicsLibraryEditPresentation,
     conditions: ComicVocabularies.condition.builtIns,
     grades: ComicVocabularies.grade.builtIns,

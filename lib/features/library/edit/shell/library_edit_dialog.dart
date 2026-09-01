@@ -29,7 +29,6 @@ import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_repository.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -121,6 +120,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   bool get _isOwned => _draft.isOwned;
 
+  LibraryEditCapability get _editCapability =>
+      libraryKindRuntimeForType(widget.type).edit;
+
   LibraryEditPresentationContext get _editPresentationContext =>
       LibraryEditPresentationContext(
         isOwned: _isOwned,
@@ -175,10 +177,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       vsync: this,
     );
 
-    _loadVocabulary();
+    _loadEditOptions();
   }
 
-  Future<void> _loadVocabulary() async {
+  Future<void> _loadEditOptions() async {
     final db = ref.read(localDatabaseProvider);
     final mediaKind = widget.type.workspace.kind.apiValue;
     final locations = await LocationRepository(db).getAll();
@@ -192,12 +194,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       mediaKind: mediaKind,
       selectedTags: splitPickListValues(_draft.personal.tagsController.text),
     );
-    final series = await SeriesRegistryRepository(db).searchEntries(
-      mediaKind: mediaKind,
-    );
-
     final kindVocabs = <String, List<String>>{};
-    final vocCapability = widget.type.capabilities.vocabulary;
+    final vocCapability = _editCapability.vocabularies;
     if (vocCapability != null) {
       final repo = DatabaseVocabularyRepository(db);
       for (final def in vocCapability.definitions) {
@@ -214,7 +212,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         _draft.locationOptions = locations.map((l) => l.name).toList();
         _draft.ownerOptions = owners;
         _draft.tagOptions = tags;
-        _draft.seriesEntries = series;
         _draft.kindVocabularies = kindVocabs;
       });
     }
@@ -288,6 +285,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   static String? _requiredValidator(String? v) =>
       (v == null || v.trim().isEmpty) ? 'Required' : null;
+
+  List<String> _kindVocabularyOptions({
+    required String suffix,
+    required List<String> fallback,
+  }) {
+    final vocabularies = _editCapability.vocabularies;
+    if (vocabularies == null) return fallback;
+    for (final definition in vocabularies.definitions) {
+      if (definition.key.endsWith('.$suffix')) {
+        return _draft.kindVocabularies[definition.key] ?? fallback;
+      }
+    }
+    return fallback;
+  }
 
   List<Widget> _tabViews() {
     return [for (final tab in _tabSpecs) _tabViewFor(tab.id)];
@@ -557,12 +568,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   SingleValuePickField(
                     controller: _draft.personal.conditionController,
                     label: 'Condition',
-                    options: widget.type.conditions,
+                    options: _kindVocabularyOptions(
+                      suffix: 'condition',
+                      fallback: _editCapability.conditions,
+                    ),
                   ),
                   SingleValuePickField(
                     controller: _draft.personal.gradeController,
                     label: 'Grade',
-                    options: widget.type.grades,
+                    options: _kindVocabularyOptions(
+                      suffix: 'grade',
+                      fallback: _editCapability.grades,
+                    ),
                   ),
                 ]),
                 const SizedBox(height: 10),
@@ -578,7 +595,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               LibraryEditResponsiveRow(children: [
                 TagPickListField(
                   controller: _draft.personal.tagsController,
-                  options: const [],
+                  options: _draft.tagOptions,
                   label: 'Tags',
                 ),
                 LibraryEditTextField(

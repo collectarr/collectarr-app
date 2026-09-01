@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_mode
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
@@ -388,8 +389,17 @@ class ComicEditHostAdapter implements ComicEditHost {
     markDirty();
   }
 
-  List<String> get comicSeriesOptions =>
-      draft.seriesEntries.map((e) => e.title).toList();
+  Future<List<SeriesRegistryEntry>> get _comicSeriesEntries {
+    final comicDraft = _comicDraft;
+    if (comicDraft == null) {
+      return Future.value(const <SeriesRegistryEntry>[]);
+    }
+    return comicDraft.seriesEntriesFuture ??= SeriesRegistryRepository(
+      comicRef.read(localDatabaseProvider),
+    ).searchEntries(
+      mediaKind: draft.type.workspace.kind.apiValue,
+    );
+  }
 
   @override
   List<String> get comicGenreOptions => const [
@@ -449,8 +459,8 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller:
           _comicDraft?.comicEdit.storyArcsController ?? TextEditingController(),
       label: label,
-      options: draft.kindVocabularies[ComicVocabularyIds.storyArc.value] ??
-          const [],
+      options:
+          draft.kindVocabularies[ComicVocabularyIds.storyArc.value] ?? const [],
       showPickerListAction: true,
     );
   }
@@ -461,7 +471,13 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller:
           _comicDraft?.comicEdit.countryController ?? TextEditingController(),
       label: label,
-      options: const ['United States', 'United Kingdom', 'Japan', 'France', 'Canada'],
+      options: const [
+        'United States',
+        'United Kingdom',
+        'Japan',
+        'France',
+        'Canada'
+      ],
       showPickerListAction: true,
     );
   }
@@ -488,38 +504,46 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   Widget buildComicSeriesField() {
-    return SingleValuePickField(
-      controller: _comicDraft?.comicEdit.seriesTitleController ??
-          TextEditingController(),
-      label: 'Series',
-      options: comicSeriesOptions,
-      showPickerListAction: true,
-      onChanged: (value) {
-        if (value != null && value.isNotEmpty) {
-          draft.metadata.titleController.text = value;
-        }
-        markDirty();
-      },
-      onManage: () async {
-        final db = ProviderScope.containerOf(context, listen: false)
-            .read(localDatabaseProvider);
-        final entry = await showSeriesPickerDialog(
-          context: context,
-          db: db,
-          mediaKind: draft.type.workspace.kind.apiValue,
-          selectedTitle:
-              _comicDraft?.comicEdit.seriesTitleController.text ?? '',
+    return FutureBuilder<List<SeriesRegistryEntry>>(
+      future: _comicSeriesEntries,
+      builder: (context, snapshot) {
+        return SingleValuePickField(
+          controller: _comicDraft?.comicEdit.seriesTitleController ??
+              TextEditingController(),
+          label: 'Series',
+          options: [
+            for (final entry in snapshot.data ?? const <SeriesRegistryEntry>[])
+              entry.title,
+          ],
+          showPickerListAction: true,
+          onChanged: (value) {
+            if (value != null && value.isNotEmpty) {
+              draft.metadata.titleController.text = value;
+            }
+            markDirty();
+          },
+          onManage: () async {
+            final db = ProviderScope.containerOf(context, listen: false)
+                .read(localDatabaseProvider);
+            final entry = await showSeriesPickerDialog(
+              context: context,
+              db: db,
+              mediaKind: draft.type.workspace.kind.apiValue,
+              selectedTitle:
+                  _comicDraft?.comicEdit.seriesTitleController.text ?? '',
+            );
+            if (entry != null) {
+              if (_comicDraft != null) {
+                _comicDraft!.comicEdit.seriesTitleController.text = entry.title;
+                _comicDraft!.comicEdit.seriesId = entry.id;
+              }
+              draft.metadata.titleController.text = entry.title;
+              markDirty();
+            }
+          },
+          manageTooltip: 'Select or manage series',
         );
-        if (entry != null) {
-          if (_comicDraft != null) {
-            _comicDraft!.comicEdit.seriesTitleController.text = entry.title;
-            _comicDraft!.comicEdit.seriesId = entry.id;
-          }
-          draft.metadata.titleController.text = entry.title;
-          markDirty();
-        }
       },
-      manageTooltip: 'Select or manage series',
     );
   }
 

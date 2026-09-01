@@ -28,7 +28,6 @@ import 'package:collectarr_app/features/library/models/library_common_metadata.d
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 
@@ -81,7 +80,6 @@ class LibraryEditDraft {
 
   Map<String, String?> customFieldEdits;
   List<ItemImageEdit> itemImageEdits;
-  List<SeriesRegistryEntry> seriesEntries = const [];
   List<String> locationOptions = const [];
   List<String> ownerOptions = const [];
   List<String> tagOptions = const [];

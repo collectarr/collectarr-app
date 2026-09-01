@@ -86,7 +86,6 @@ final booksLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsReadingQueue: true,
     supportsSeriesSubgroups: true,
-    vocabulary: StandardKindVocabularyCapability(BookVocabularies.all),
     mediaScopeGroupIds: _bookMediaGroupModes,
     releaseScopeGroupIds: _bookReleaseGroupModes,
     mediaScopeSortIds: _bookMediaSortColumns,

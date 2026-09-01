@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_bu
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -152,7 +151,6 @@ final comicsLibraryConfig = LibraryTypeConfig(
     supportsIndexReassignment: true,
     supportsMetadataCompare: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
-    vocabulary: StandardKindVocabularyCapability(ComicVocabularies.all),
     mediaScopeGroupIds: _comicMediaGroupModes,
     releaseScopeGroupIds: _comicReleaseGroupModes,
     groupModeCategoriesBuilder: buildComicGroupModeCategories,

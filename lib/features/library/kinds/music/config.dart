@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -45,7 +44,6 @@ final musicLibraryConfig = LibraryTypeConfig(
     supportsMetadataCompare: true,
     supportsSeriesSubgroups: true,
     prefersSquareCovers: true,
-    vocabulary: StandardKindVocabularyCapability(MusicVocabularies.all),
   ),
 );
 

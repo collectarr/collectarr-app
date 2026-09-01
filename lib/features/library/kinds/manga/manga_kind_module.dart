@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
@@ -78,6 +79,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildMangaLibraryEditDialog,
+    vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
     editChrome: const LibraryEditChromeConfig(
       titleUsesItemTitle: true,
       synopsisLabel: 'Plot',
