@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
 
 abstract final class ComicVocabularyIds {
@@ -93,6 +93,7 @@ abstract final class ComicVocabularies {
     id: ComicVocabularyIds.grade,
     label: 'Grade',
     builtIns: [
+      'Ungraded',
       '10.0 Gem Mint',
       '9.9 Mint',
       '9.8 Near Mint/Mint',

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_d
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
@@ -92,7 +92,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
       variantLabel: 'Edition / Binding',
       barcodeLabel: 'ISBN / Barcode',
     ),
-    conditions: kBookConditions,
+    conditions: BookVocabularies.condition.builtIns,
     createDraft: createBookEditDraft,
   ),
   providerMapper: const BookLibraryKindProviderMapper(),

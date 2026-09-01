@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
 import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
 
 abstract final class BookVocabularyIds {
@@ -73,10 +73,24 @@ abstract final class BookVocabularies {
     ],
   );
 
+  static const condition = VocabularyDefinition<String>(
+    id: VocabularyId<String>('book.condition'),
+    label: 'Condition',
+    builtIns: [
+      'New',
+      'Like New',
+      'Very Good',
+      'Good',
+      'Acceptable',
+      'Poor',
+    ],
+  );
+
   static const all = <VocabularyDefinition<dynamic>>[
     publisher,
     format,
     binding,
     language,
+    condition,
   ];
 }

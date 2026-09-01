@@ -102,7 +102,11 @@ Widget buildKindAddBottomBar(
                       isDense: true,
                     ),
                     items: [
-                      for (final value in request.conditions)
+                      for (final value in {
+                        if (request.defaultCondition != null)
+                          request.defaultCondition!,
+                        ...request.conditions,
+                      })
                         DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
@@ -127,7 +131,11 @@ Widget buildKindAddBottomBar(
                       isDense: true,
                     ),
                     items: [
-                      for (final value in request.grades)
+                      for (final value in {
+                        if (request.defaultGrade != null)
+                          request.defaultGrade!,
+                        ...request.grades,
+                      })
                         DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),

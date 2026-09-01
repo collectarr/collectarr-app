@@ -21,7 +21,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
+import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
@@ -103,8 +103,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   edit: LibraryEditCapability(
     editDialogBuilder: buildComicLibraryEditDialog,
     presentation: comicsLibraryEditPresentation,
-    conditions: kComicConditions,
-    grades: kComicGrades,
+    conditions: ComicVocabularies.condition.builtIns,
+    grades: ComicVocabularies.grade.builtIns,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     editChrome: const LibraryEditChromeConfig(

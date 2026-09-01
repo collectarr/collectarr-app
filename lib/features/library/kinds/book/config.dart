@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -94,7 +93,7 @@ final booksLibraryConfig = LibraryTypeConfig(
     releaseScopeSortIds: _bookReleaseSortColumns,
   ),
   showsDefaultInspectorPersonalSection: false,
-  conditions: kBookConditions,
+  conditions: BookVocabularies.condition.builtIns,
 );
 
 const Set<String> _bookMediaGroupModes = {
