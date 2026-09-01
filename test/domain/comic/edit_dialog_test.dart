@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/repositories/pick_list_reposi
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
@@ -65,12 +66,12 @@ void main() {
     await catalog.upsertAll(catalogItems);
     await seriesRegistry.captureCatalogItems(catalogItems);
     await pickLists.setValues(
-      kCrossoverPickListName,
+      ComicVocabularyIds.crossover.value,
       ['Annihilation', 'Image United'],
       mediaKind: 'comic',
     );
     await pickLists.setValues(
-      kStoryArcPickListName,
+      ComicVocabularyIds.storyArc.value,
       ['Opening', 'Finale'],
       mediaKind: 'comic',
     );

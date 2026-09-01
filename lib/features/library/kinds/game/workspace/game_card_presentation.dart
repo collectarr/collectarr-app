@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
 
@@ -14,12 +15,12 @@ LibraryCardPresentation buildGameCardPresentation(
 
 List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionRuntime item) {
   final dto = item.dto;
+  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
 
   final badges = <LibraryCardBadge>[];
-  final releasePlatform = dto.referenceFormatLabel?.trim();
-  final developer = dto.publisher?.trim();
-  final ageRating = dto.ageRating?.trim() ??
-      (item.source.catalogItem?.kindMetadata.toSyncPayload()['age_rating']
+  final releasePlatform = adapter?.referenceFormatLabel?.trim();
+  final developer = adapter?.publisher?.trim();
+  final ageRating = (item.source.catalogItem?.kindMetadata.toSyncPayload()['age_rating']
               as String?)
           ?.trim();
   final completion = item.source.ownedItem?.collectionStatus?.trim() ??

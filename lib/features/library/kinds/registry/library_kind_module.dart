@@ -96,7 +96,6 @@ abstract interface class LibraryKindRuntime {
     LibraryProjectionRuntime right,
     Iterable<LibrarySortRule> rules,
   );
-  LibraryEntryFilterValues filterValuesForEntry(ShelfEntry source);
   Iterable<String> linkedMetadataCandidatesForEntry(ShelfEntry source);
   String? subgroupKeyForEntry(
     LibraryProjectionRuntime item,
@@ -338,10 +337,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
           right.dto.title.toLowerCase(),
         );
   }
-
-  @override
-  LibraryEntryFilterValues filterValuesForEntry(ShelfEntry source) =>
-      plannedMediaFilterValuesForEntry(source);
 
   @override
   Iterable<String> linkedMetadataCandidatesForEntry(ShelfEntry source) =>

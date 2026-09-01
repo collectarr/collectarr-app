@@ -21,7 +21,7 @@ abstract final class AnimeKindSchema {
   static final studio = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.studio,
     label: 'Studio',
-    getValue: (dto) => dto.creator,
+    getValue: (dto) => dto.metadata?.studios.firstOrNull ?? dto.publisher,
   );
 
   static final publisher = textField<AnimeKind, AnimeWorkspaceDto>(

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -190,8 +191,10 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
 
   Future<void> _searchOnEbay(LibraryProjectionRuntime item) async {
     final dto = item.dto;
-    final query =
-        dto.itemNumber != null ? '${dto.title} #${dto.itemNumber}' : dto.title;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final query = adapter?.itemNumber != null
+        ? '${dto.title} #${adapter!.itemNumber}'
+        : dto.title;
     await launchEbaySearch(query);
   }
 
@@ -350,7 +353,12 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   onSelected: (value) => onSelectOwnedItem?.call(value),
                 ),
               ],
-              if (item.dto.barcode?.trim().isNotEmpty == true) ...[
+              if ((item.dto is WorkspaceDtoAdapter &&
+                      (item.dto as WorkspaceDtoAdapter)
+                              .barcode
+                              ?.trim()
+                              .isNotEmpty ==
+                          true)) ...[
                 const SizedBox(width: 4),
                 LibraryDenseButton(
                   label: 'eBay',

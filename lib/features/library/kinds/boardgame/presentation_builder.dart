@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class BoardGameLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -24,6 +25,15 @@ class BoardGameLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final itemNumber = adapter?.itemNumber;
+    final variant = adapter?.variant;
+    final barcode = adapter?.barcode;
+    final publisher = adapter?.publisher;
+    final releaseDate = adapter?.releaseDate;
+    final country = adapter?.country;
+    final language = adapter?.language;
+
     final kindMetadata = item.source.catalogItem?.kindMetadata;
     final metadata = kindMetadata is BoardGameMetadata ? kindMetadata : null;
     final series = metadata?.series;
@@ -43,26 +53,26 @@ class BoardGameLibraryMediaPresentationBuilder
               onTap: tapFor(series.seriesTitle)),
         LibraryDetailField(
             label: mediaFields.numberLabel,
-            value: genericLibraryDash(dto.itemNumber),
-            onTap: tapFor(dto.itemNumber)),
+            value: genericLibraryDash(itemNumber),
+            onTap: tapFor(itemNumber)),
         LibraryDetailField(
             label: releaseFields.variantLabel,
-            value: genericLibraryDash(dto.variant),
-            onTap: tapFor(dto.variant)),
+            value: genericLibraryDash(variant),
+            onTap: tapFor(variant)),
         LibraryDetailField(
             label: releaseFields.barcodeLabel,
-            value: genericLibraryDash(dto.barcode)),
+            value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
             label: mediaFields.publisherLabel,
-            value: genericLibraryDash(dto.publisher),
-            onTap: tapFor(dto.publisher)),
+            value: genericLibraryDash(publisher),
+            onTap: tapFor(publisher)),
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(dto.releaseDate) ??
-                  dto.releaseDate?.year.toString(),
+              formatPresentationNullableDate(releaseDate) ??
+                  releaseDate?.year.toString(),
             )),
         if (metadata?.minPlayers != null || metadata?.maxPlayers != null)
           LibraryDetailField(
@@ -99,16 +109,16 @@ class BoardGameLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'BGG Rating',
               value: metadata!.bggRating!.toStringAsFixed(1)),
-        if (dto.country != null)
+        if (country != null)
           LibraryDetailField(
               label: 'Country',
-              value: dto.country!,
-              onTap: tapFor(dto.country)),
-        if (dto.language != null)
+              value: country,
+              onTap: tapFor(country)),
+        if (language != null)
           LibraryDetailField(
               label: 'Language',
-              value: dto.language!,
-              onTap: tapFor(dto.language)),
+              value: language,
+              onTap: tapFor(language)),
       ],
       creators: metadata?.creators ?? const <Map<String, dynamic>>[],
       characters: const <String>[],

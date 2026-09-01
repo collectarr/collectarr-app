@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'library_workspace_query.dart';
 
@@ -247,9 +248,10 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     final queryStr = query.searchQuery.trim().toLowerCase();
     if (queryStr.isNotEmpty) {
       filtered = filtered.where((item) {
+        final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
         return item.dto.title.toLowerCase().contains(queryStr) ||
-            (item.dto.publisher?.toLowerCase().contains(queryStr) ?? false) ||
-            (item.dto.itemNumber?.toLowerCase().contains(queryStr) ?? false);
+            (adapter?.publisher?.toLowerCase().contains(queryStr) ?? false) ||
+            (adapter?.itemNumber?.toLowerCase().contains(queryStr) ?? false);
       }).toList();
     }
 
@@ -261,8 +263,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
 
     if (query.scopeId != null) {
       filtered = filtered.where((item) {
+        final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
         return item.node.titleItemId == query.scopeId ||
-            item.dto.seriesTitle == query.scopeId;
+            adapter?.seriesTitle == query.scopeId;
       }).toList();
     }
 

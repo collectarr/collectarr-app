@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailHero extends StatelessWidget {
@@ -30,12 +31,13 @@ class LibraryDetailHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(item, ownedItem);
     final resolvedIsOwned =
         isOwned ?? (ownedItem != null || item.source.isOwned);
     final referenceLabel = libraryOwnedReferenceLabel(ownedItem,
             mediaType: item.source.catalogItem?.kind) ??
-        dto.referenceFormatLabel;
+        adapter?.referenceFormatLabel;
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
@@ -92,7 +94,7 @@ class LibraryDetailHero extends StatelessWidget {
           label: 'Wishlisted',
           foreground: accent,
           background: palette.surfaceSubtle
-              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
+            .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (referenceLabel != null)
@@ -101,7 +103,7 @@ class LibraryDetailHero extends StatelessWidget {
           label: referenceLabel,
           foreground: accent,
           background: palette.surfaceSubtle
-              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
+            .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.condition != null)
@@ -110,7 +112,7 @@ class LibraryDetailHero extends StatelessWidget {
           label: ownedItem!.condition!,
           foreground: accent,
           background: palette.surfaceSubtle
-              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
+            .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];
@@ -120,6 +122,7 @@ class LibraryDetailHero extends StatelessWidget {
             const [];
     final authorName =
         creatorsList.isEmpty ? null : creatorsList.first['name'] as String?;
+    final seriesTitle = adapter?.seriesTitle;
 
     return Container(
       decoration: BoxDecoration(
@@ -141,7 +144,7 @@ class LibraryDetailHero extends StatelessWidget {
                 width: 140,
                 child: LibraryCoverImage(
                   title: dto.title,
-                  itemNumber: dto.itemNumber,
+                  itemNumber: adapter?.itemNumber,
                   imageUrl: dto.coverImageUrl,
                   targetCacheWidth: _targetCacheWidth(
                     context,
@@ -163,10 +166,10 @@ class LibraryDetailHero extends StatelessWidget {
                                 color: palette.textPrimary,
                               ),
                     ),
-                    if (dto.seriesTitle != null) ...[
+                    if (seriesTitle != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        dto.seriesTitle!,
+                        seriesTitle,
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   color: palette.textMuted,
@@ -258,7 +261,10 @@ String? _detailHeroValueCurrency(
   if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
     return ownedCurrency;
   }
-  final itemCurrency = item.dto.currency?.trim();
+  final itemCurrency = (item.dto is WorkspaceDtoAdapter
+          ? (item.dto as WorkspaceDtoAdapter).currency
+          : null)
+      ?.trim();
   if (itemCurrency != null && itemCurrency.isNotEmpty) {
     return itemCurrency;
   }

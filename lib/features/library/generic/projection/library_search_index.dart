@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -37,6 +38,7 @@ class LibrarySearchIndex {
 
     final tokens = <String>{};
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final source = item.source;
     final catalog = source.catalogItem;
 
@@ -47,13 +49,13 @@ class LibrarySearchIndex {
     }
 
     add(dto.title);
-    add(dto.seriesTitle);
-    add(dto.itemNumber);
-    add(dto.publisher);
-    add(dto.variant);
-    add(dto.barcode);
-    if (dto.releaseDate != null) {
-      add(dto.releaseDate!.year.toString());
+    add(adapter?.seriesTitle);
+    add(adapter?.itemNumber);
+    add(adapter?.publisher);
+    add(adapter?.variant);
+    add(adapter?.barcode);
+    if (adapter?.releaseDate != null) {
+      add(adapter!.releaseDate!.year.toString());
     }
     add(source.condition);
     add(source.grade);

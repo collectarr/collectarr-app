@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -195,7 +196,9 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                     Expanded(
                       child: LibraryInteractiveCover(
                         title: dto.title,
-                        itemNumber: dto.itemNumber,
+                        itemNumber: (dto is WorkspaceDtoAdapter
+                            ? (dto as WorkspaceDtoAdapter).itemNumber
+                            : null),
                         imageUrl: dto.coverImageUrl,
                         ownedItemId: item.source.ownedItem?.id,
                         targetCacheWidth: targetCacheWidth,
@@ -257,13 +260,14 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
 
   List<Widget> _auxiliaryBadges(LibraryProjectionRuntime item) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     return [
       if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty)
         const LibraryCoverBadge(
           icon: Icons.image_not_supported_outlined,
           label: 'Missing cover',
         ),
-      if (dto.publisher == null || dto.publisher!.isEmpty)
+      if (adapter?.publisher == null || adapter!.publisher!.isEmpty)
         const LibraryCoverBadge(
           icon: Icons.manage_search,
           label: 'Missing metadata',

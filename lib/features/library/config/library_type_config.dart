@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_browser_
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
@@ -141,9 +142,13 @@ class LibraryKindUiAdapter {
     }
     final issueSortNumber = _issueSortNumber;
     return projection.allItems.any(
-      (item) =>
-          runtime.groupValue(item, groupDef.id) == selectedBucket &&
-          issueSortNumber(item.dto.itemNumber) != null,
+      (item) {
+        final adapter = item.dto is WorkspaceDtoAdapter
+            ? item.dto as WorkspaceDtoAdapter
+            : null;
+        return runtime.groupValue(item, groupDef.id) == selectedBucket &&
+            issueSortNumber(adapter?.itemNumber) != null;
+      },
     );
   }
 

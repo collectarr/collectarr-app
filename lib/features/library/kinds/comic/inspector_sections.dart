@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -89,9 +90,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
               id: rawCatalog.identity.id,
             )
           : null);
-  final synopsis = dto.synopsis?.trim().isNotEmpty == true
-      ? dto.synopsis!.trim()
-      : catalogItem?.synopsis?.trim();
+  final synopsis = catalogItem?.synopsis?.trim();
   final genres = catalogItem?.genres ?? const <String>[];
   final storyArcs = catalogItem?.storyArcs ?? const <String>[];
   final characters = catalogItem?.characters ?? const <String>[];
@@ -481,20 +480,21 @@ final _comicSeriesItemsProvider =
 
 List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
   final dto = item.dto;
+  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final rawMetadata = item.source.catalogItem?.kindMetadata;
   final publishing =
       rawMetadata is ComicCatalogMetadata ? rawMetadata.publishing : null;
   final rows = <LibraryDetailField>[];
-  if (dto.referenceFormatLabel?.trim().isNotEmpty == true) {
+  if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Format', value: dto.referenceFormatLabel!.trim()));
+        label: 'Format', value: adapter!.referenceFormatLabel!.trim()));
   }
-  if (dto.country?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Country', value: dto.country!.trim()));
+  if (adapter?.country?.trim().isNotEmpty == true) {
+    rows.add(LibraryDetailField(label: 'Country', value: adapter!.country!.trim()));
   }
-  if (dto.language?.trim().isNotEmpty == true) {
+  if (adapter?.language?.trim().isNotEmpty == true) {
     rows.add(
-        LibraryDetailField(label: 'Language', value: dto.language!.trim()));
+        LibraryDetailField(label: 'Language', value: adapter!.language!.trim()));
   }
   if (publishing?.pageCount != null) {
     rows.add(LibraryDetailField(

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -108,9 +109,10 @@ class _CollectionShareDialog extends StatelessWidget {
     buffer.writeln('─' * title.length);
     for (final item in items) {
       final dto = item.dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final parts = <String>[dto.title];
-      if (dto.itemNumber != null) parts.add('#${dto.itemNumber}');
-      if (dto.seriesTitle != null) parts.add('(${dto.seriesTitle})');
+      if (adapter?.itemNumber != null) parts.add('#${adapter!.itemNumber}');
+      if (adapter?.seriesTitle != null) parts.add('(${adapter!.seriesTitle})');
       buffer.writeln(parts.join(' '));
     }
     Clipboard.setData(ClipboardData(text: buffer.toString()));
@@ -125,13 +127,14 @@ class _CollectionShareDialog extends StatelessWidget {
       ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
       ...items.map((item) {
         final dto = item.dto;
+        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
         return [
           dto.title,
-          dto.itemNumber ?? '',
-          dto.seriesTitle ?? '',
-          dto.publisher ?? '',
+          adapter?.itemNumber ?? '',
+          adapter?.seriesTitle ?? '',
+          adapter?.publisher ?? '',
           item.source.condition ?? '',
-          dto.barcode ?? '',
+          adapter?.barcode ?? '',
         ];
       }),
     ];
@@ -146,14 +149,15 @@ class _CollectionShareDialog extends StatelessWidget {
   void _copyAsJson(BuildContext context) {
     final data = items.map((item) {
       final dto = item.dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final condition = item.source.condition;
       return {
         'title': dto.title,
-        if (dto.itemNumber != null) 'issue': dto.itemNumber,
-        if (dto.seriesTitle != null) 'series': dto.seriesTitle,
-        if (dto.publisher != null) 'publisher': dto.publisher,
+        if (adapter?.itemNumber != null) 'issue': adapter!.itemNumber,
+        if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
+        if (adapter?.publisher != null) 'publisher': adapter!.publisher,
         if (condition != null) 'condition': condition,
-        if (dto.barcode != null) 'barcode': dto.barcode,
+        if (adapter?.barcode != null) 'barcode': adapter!.barcode,
       };
     }).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
@@ -169,13 +173,14 @@ class _CollectionShareDialog extends StatelessWidget {
       ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
       ...items.map((item) {
         final dto = item.dto;
+        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
         return [
           dto.title,
-          dto.itemNumber ?? '',
-          dto.seriesTitle ?? '',
-          dto.publisher ?? '',
+          adapter?.itemNumber ?? '',
+          adapter?.seriesTitle ?? '',
+          adapter?.publisher ?? '',
           item.source.condition ?? '',
-          dto.barcode ?? '',
+          adapter?.barcode ?? '',
         ];
       }),
     ];
@@ -186,14 +191,15 @@ class _CollectionShareDialog extends StatelessWidget {
   Future<void> _saveJsonToFile(BuildContext context) async {
     final data = items.map((item) {
       final dto = item.dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final condition = item.source.condition;
       return {
         'title': dto.title,
-        if (dto.itemNumber != null) 'issue': dto.itemNumber,
-        if (dto.seriesTitle != null) 'series': dto.seriesTitle,
-        if (dto.publisher != null) 'publisher': dto.publisher,
+        if (adapter?.itemNumber != null) 'issue': adapter!.itemNumber,
+        if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
+        if (adapter?.publisher != null) 'publisher': adapter!.publisher,
         if (condition != null) 'condition': condition,
-        if (dto.barcode != null) 'barcode': dto.barcode,
+        if (adapter?.barcode != null) 'barcode': adapter!.barcode,
       };
     }).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
@@ -235,12 +241,13 @@ class _CollectionShareDialog extends StatelessWidget {
     for (var i = 0; i < items.length; i++) {
       final item = items[i];
       final dto = item.dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       rows.writeln('<tr>');
       rows.writeln('  <td>${i + 1}</td>');
       rows.writeln('  <td>${_htmlEscape(dto.title)}</td>');
-      rows.writeln('  <td>${_htmlEscape(dto.itemNumber ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(dto.seriesTitle ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(dto.publisher ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(adapter?.itemNumber ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(adapter?.seriesTitle ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(adapter?.publisher ?? '')}</td>');
       rows.writeln('  <td>${_htmlEscape(item.source.condition ?? '')}</td>');
       rows.writeln('</tr>');
     }

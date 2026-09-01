@@ -21,8 +21,10 @@ class LibraryPageToolbarController {
         continue;
       }
       final normalizedTitle = title.toLowerCase();
-      final itemNumber = item.dto.itemNumber?.trim();
-      final publisher = item.dto.publisher?.trim();
+      final adapter =
+          item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+      final itemNumber = adapter?.itemNumber?.trim();
+      final publisher = adapter?.publisher?.trim();
       final subtitleParts = <String>[
         if (itemNumber != null && itemNumber.isNotEmpty) '#$itemNumber',
         if (publisher != null && publisher.isNotEmpty) publisher,

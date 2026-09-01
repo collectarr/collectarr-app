@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 String defaultLibraryBucketLabel(
     LibraryBucketingContext context, LibraryMediaGroupLabels labels,
@@ -17,15 +18,22 @@ String defaultLibraryBucketLabel(
   final pub = (payload['publishing'] as Map?) ?? payload;
   final video = (payload['video'] as Map?) ?? payload;
   final music = (payload['music'] as Map?) ?? payload;
-  final game = (payload['game'] as Map?) ?? payload;
-  final publisher = dto.publisher?.trim();
+  final game = (payload['game'] as Map?) ?? (payload['board_game'] as Map?) ?? payload;
+  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final publisher = adapter?.publisher?.trim() ?? (payload['publisher'] ?? pub['publisher'])?.toString();
+  final releaseDate = adapter?.releaseDate;
+  final country = adapter?.country ?? (payload['country'] ?? pub['original_country'])?.toString();
+  final language = adapter?.language ?? (payload['language'] ?? pub['original_language'])?.toString();
+  final audienceRating = (pub['audience_rating'] ?? video['audience_rating'] ?? payload['audience_rating'])?.toString();
+  final ageRating = (pub['age_rating'] ?? video['age_rating'] ?? game['age_rating'] ?? payload['age_rating'])?.toString();
+
   return switch (context.groupMode) {
     'series' => _seriesBucket(item, labels.unknownSeries),
     'story_arc' => overrides.storyArc,
     'character' => overrides.character,
-    'year' => dto.releaseDate?.year.toString() ?? 'Unknown year',
-    'audience_rating' => dto.audienceRating?.trim().isNotEmpty == true
-        ? dto.audienceRating!
+    'year' => releaseDate?.year.toString() ?? 'Unknown year',
+    'audience_rating' => audienceRating?.trim().isNotEmpty == true
+        ? audienceRating!
         : 'No audience rating',
     'color' => _stringBucket(video['color']?.toString(), 'No color'),
     'publisher' => publisher == null || publisher.isEmpty
@@ -42,14 +50,14 @@ String defaultLibraryBucketLabel(
         'No platform',
       ),
     'developer' => _creatorBucketByRole(item, 'developer'),
-    'country' => dto.country?.trim().isNotEmpty == true
-        ? dto.country!
+    'country' => country?.trim().isNotEmpty == true
+        ? country!
         : overrides.unknownCountry,
-    'language' => dto.language?.trim().isNotEmpty == true
-        ? dto.language!
+    'language' => language?.trim().isNotEmpty == true
+        ? language!
         : overrides.unknownLanguage,
     'age_rating' =>
-      dto.ageRating?.trim().isNotEmpty == true ? dto.ageRating! : 'Unrated',
+      ageRating?.trim().isNotEmpty == true ? ageRating! : 'Unrated',
     'crossover' =>
       _stringBucket(payload['crossover']?.toString(), 'No crossover'),
     'imprint' => _stringBucket(pub['imprint']?.toString(), 'No imprint'),
@@ -58,11 +66,11 @@ String defaultLibraryBucketLabel(
         'No series group',
       ),
     'movie_or_tv_series' => _movieOrTvSeriesBucket(item),
-    'release_date' => _dateBucket(dto.releaseDate, 'Unknown release date'),
+    'release_date' => _dateBucket(releaseDate, 'Unknown release date'),
     'release_month' =>
-      _monthBucket(dto.releaseDate, fallback: 'Unknown release month'),
+      _monthBucket(releaseDate, fallback: 'Unknown release month'),
     'release_year' => _yearBucket(
-        dto.releaseDate,
+        releaseDate,
         'Unknown release year',
       ),
     'publication_place' => _stringBucket(
@@ -173,7 +181,7 @@ String defaultLibraryBucketLabel(
     'toy_subtype' =>
       _stringBucket(game['toy_subtype']?.toString(), 'No subtype'),
     'toy_type' => _stringBucket(game['toy_type']?.toString(), 'No type'),
-    'edition' => _stringBucket(dto.variant ?? dto.editionLabel, 'No edition'),
+    'edition' => _stringBucket(adapter?.variant, 'No edition'),
     'audiobook_abridged' =>
       pub['audiobook_abridged'] == true ? 'Abridged' : 'Unabridged / Unknown',
     'first_edition' =>
@@ -511,7 +519,8 @@ String _movieOrTvSeriesBucket(LibraryProjectionRuntime item) {
   if (normalizedMediaType == 'tv') {
     return 'TV Series';
   }
-  if (item.dto.seriesTitle != null) {
+  final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+  if (adapter?.seriesTitle != null) {
     return 'TV Series';
   }
   return 'Movie';
@@ -535,15 +544,27 @@ String? _referenceRegionFor(ShelfEntry source, LibraryProjectionRuntime item) {
 }
 
 String _creatorBucketByRole(LibraryProjectionRuntime item, String? role) {
-  final creator = item.dto.creator;
-  if (creator != null && creator.trim().isNotEmpty) {
-    return creator.trim();
+  final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
+  final creators = (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
+  if (role != null) {
+    for (final creator in creators) {
+      final creatorRole = (creator['role'] ?? creator['type'] ?? '').toString().toLowerCase();
+      if (creatorRole.contains(role.toLowerCase())) {
+        final name = (creator['name'] ?? creator['display_name'])?.toString().trim();
+        if (name != null && name.isNotEmpty) return name;
+      }
+    }
+  }
+  final firstName = creators.firstOrNull?['name']?.toString().trim();
+  if (firstName != null && firstName.isNotEmpty) {
+    return firstName;
   }
   return role != null ? 'Unknown $role' : 'Unknown creator';
 }
 
 String _seriesBucket(LibraryProjectionRuntime item, String unknownLabel) {
-  final seriesTitle = item.dto.seriesTitle?.trim();
+  final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+  final seriesTitle = adapter?.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }

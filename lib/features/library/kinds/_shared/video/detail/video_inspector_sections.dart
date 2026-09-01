@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class InspectorVideoTitleMetadataSection extends StatelessWidget {
@@ -26,6 +27,7 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadataPresentation = _metadataPresentationForEntry(type, item);
     final creatorNames = <String>[
       for (final credit in metadataPresentation.creators)
@@ -48,8 +50,8 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
         LibraryDetailFieldTable(
           fields: [
             LibraryDetailField(label: 'Display title', value: dto.title),
-            if (dto.publisher?.trim().isNotEmpty == true)
-              LibraryDetailField(label: 'Studio', value: dto.publisher!),
+            if (adapter?.publisher?.trim().isNotEmpty == true)
+              LibraryDetailField(label: 'Studio', value: adapter!.publisher!),
             if (_metadataFactValue(metadataPresentation, 'Runtime')
                 case final runtime?)
               LibraryDetailField(label: 'Runtime', value: runtime),

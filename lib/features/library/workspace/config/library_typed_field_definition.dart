@@ -9,24 +9,7 @@ abstract interface class LibraryWorkspaceDto {
   const LibraryWorkspaceDto();
 
   String get title;
-  String? get seriesTitle;
-  String? get itemNumber;
-  String? get publisher;
-  DateTime? get releaseDate;
-
-  String? get variant;
-  String? get barcode;
-  String? get country;
-  String? get language;
-  String? get currency;
-  String? get referenceFormatLabel;
-  String? get format;
   String? get coverImageUrl;
-  String? get creator;
-  String? get synopsis;
-  String? get audienceRating;
-  String? get ageRating;
-  String? get editionLabel;
 }
 
 enum LibraryGroupPresentation { inlineHeaders, folderGrid }
@@ -45,18 +28,6 @@ extension LibraryGroupPresentationLabels on LibraryGroupPresentation {
       LibraryGroupPresentation.folderGrid => Icons.folder_open_outlined,
     };
   }
-}
-
-class LibraryEntryFilterValues {
-  const LibraryEntryFilterValues({
-    this.series,
-    this.country,
-    this.language,
-  });
-
-  final String? series;
-  final String? country;
-  final String? language;
 }
 
 class LibraryCellValue {

@@ -54,7 +54,9 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       return null;
     }
     for (final item in seriesBucketItems(state, projection)) {
-      if (_selectionSortNumber(item.dto.itemNumber) == target) {
+      final adapter =
+          item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+      if (_selectionSortNumber(adapter?.itemNumber) == target) {
         return item;
       }
     }

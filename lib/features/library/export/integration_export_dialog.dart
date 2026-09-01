@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -113,13 +114,14 @@ class _IntegrationExportDialog extends StatelessWidget {
         ),
       );
       final dto = projection.dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final own = entry.ownedItem;
       buffer.writeln([
         _escapeCsv(entry.title),
-        _escapeCsv(dto.itemNumber ?? ''),
-        _escapeCsv(dto.seriesTitle ?? ''),
-        _escapeCsv(dto.publisher ?? ''),
-        _escapeCsv(dto.barcode ?? ''),
+        _escapeCsv(adapter?.itemNumber ?? ''),
+        _escapeCsv(adapter?.seriesTitle ?? ''),
+        _escapeCsv(adapter?.publisher ?? ''),
+        _escapeCsv(adapter?.barcode ?? ''),
         _escapeCsv(own?.condition ?? ''),
         _escapeCsv(own?.grade ?? ''),
       ].join(','));
@@ -136,14 +138,15 @@ class _IntegrationExportDialog extends StatelessWidget {
         ),
       );
       final dto = projection.dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final cat = e.catalogItem;
       final own = e.ownedItem;
       return {
         'title': e.title,
-        if (dto.itemNumber != null) 'number': dto.itemNumber,
-        if (dto.seriesTitle != null) 'series': dto.seriesTitle,
-        if (dto.publisher != null) 'publisher': dto.publisher,
-        if (dto.barcode != null) 'barcode': dto.barcode,
+        if (adapter?.itemNumber != null) 'number': adapter!.itemNumber,
+        if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
+        if (adapter?.publisher != null) 'publisher': adapter!.publisher,
+        if (adapter?.barcode != null) 'barcode': adapter!.barcode,
         if (own?.condition != null) 'condition': own!.condition,
         if (own?.grade != null) 'grade': own!.grade,
         if (cat?.releaseYear != null) 'year': cat!.releaseYear,
@@ -170,21 +173,22 @@ class _IntegrationExportDialog extends StatelessWidget {
         ),
       );
       final dto = projection.dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final own = entry.ownedItem;
       buffer.writeln('  <item>');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
-      if (dto.itemNumber != null) {
-        buffer.writeln('    <number>${_escapeXml(dto.itemNumber!)}</number>');
+      if (adapter?.itemNumber != null) {
+        buffer.writeln('    <number>${_escapeXml(adapter!.itemNumber!)}</number>');
       }
-      if (dto.seriesTitle != null) {
-        buffer.writeln('    <series>${_escapeXml(dto.seriesTitle!)}</series>');
+      if (adapter?.seriesTitle != null) {
+        buffer.writeln('    <series>${_escapeXml(adapter!.seriesTitle!)}</series>');
       }
-      if (dto.publisher != null) {
+      if (adapter?.publisher != null) {
         buffer.writeln(
-            '    <publisher>${_escapeXml(dto.publisher!)}</publisher>');
+            '    <publisher>${_escapeXml(adapter!.publisher!)}</publisher>');
       }
-      if (dto.barcode != null) {
-        buffer.writeln('    <barcode>${_escapeXml(dto.barcode!)}</barcode>');
+      if (adapter?.barcode != null) {
+        buffer.writeln('    <barcode>${_escapeXml(adapter!.barcode!)}</barcode>');
       }
       if (own?.condition != null) {
         buffer.writeln(
@@ -210,12 +214,13 @@ class _IntegrationExportDialog extends StatelessWidget {
         ),
       );
       final dto = projection.dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final parts = <String>[entry.title];
-      if (dto.itemNumber != null && dto.itemNumber!.isNotEmpty) {
-        parts.add('#${dto.itemNumber}');
+      if (adapter?.itemNumber != null && adapter!.itemNumber!.isNotEmpty) {
+        parts.add('#${adapter.itemNumber}');
       }
-      if (dto.seriesTitle != null && dto.seriesTitle!.isNotEmpty) {
-        parts.add('(${dto.seriesTitle})');
+      if (adapter?.seriesTitle != null && adapter!.seriesTitle!.isNotEmpty) {
+        parts.add('(${adapter.seriesTitle})');
       }
       buffer.writeln('- [ ] ${parts.join(' ')}');
     }

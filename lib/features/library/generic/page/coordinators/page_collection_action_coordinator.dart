@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/generic/page/coordinators/page_c
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -180,7 +181,10 @@ class LibraryPageCollectionActionCoordinator {
           );
         }
       case LibraryItemContextAction.copyBarcode:
-        final barcode = item.dto.barcode;
+        final adapter = item.dto is WorkspaceDtoAdapter
+            ? item.dto as WorkspaceDtoAdapter
+            : null;
+        final barcode = adapter?.barcode;
         if (barcode != null && barcode.isNotEmpty) {
           await Clipboard.setData(ClipboardData(text: barcode));
           if (_page.mounted) {

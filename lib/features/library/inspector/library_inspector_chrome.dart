@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
@@ -33,7 +34,9 @@ class InspectorBackdrop extends StatelessWidget {
           opacity: 0.38,
           child: LibraryCoverImage(
             title: dto.title,
-            itemNumber: dto.itemNumber,
+            itemNumber: (dto is WorkspaceDtoAdapter
+                ? (dto as WorkspaceDtoAdapter).itemNumber
+                : null),
             imageUrl: dto.coverImageUrl,
             ownedItemId: ownedItemId,
           ),
@@ -278,12 +281,15 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final seriesTitle = dto.seriesTitle;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final seriesTitle = adapter?.seriesTitle;
+    final barcode = adapter?.barcode;
+    final releaseDate = adapter?.releaseDate;
     final ebayQuery = <String>[
-      if (dto.barcode?.trim().isNotEmpty == true) dto.barcode!.trim(),
+      if (barcode?.trim().isNotEmpty == true) barcode!.trim(),
       if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
       dto.title,
-      if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
+      if (releaseDate != null) releaseDate.year.toString(),
     ].join(' ');
     final ebayUri = buildEbaySearchUri(
       query: ebayQuery,

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class InspectorMetadataSection extends StatelessWidget {
@@ -43,9 +44,10 @@ class InspectorPersonalSection extends StatelessWidget {
   const InspectorPersonalSection({
     super.key,
     required this.item,
-    required this.ownedItem,
+    this.ownedItem,
     this.trackingEntry,
     required this.accent,
+    this.valueSnapshot,
     this.onFilterByValue,
   });
 
@@ -53,31 +55,34 @@ class InspectorPersonalSection extends StatelessWidget {
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
+  final LibraryValueSnapshot? valueSnapshot;
   final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final catalogEditions = item.source.catalogItem?.editions ?? const [];
-    final valueSnapshot = LibraryValueSnapshot.fromItem(
-      item,
-      ownedItem: ownedItem,
-      providerName: item.source.ownedItem?.marketValueCents != null
-          ? 'Provider snapshot'
-          : null,
-    );
+    final snapshot = valueSnapshot ??
+        LibraryValueSnapshot.fromItem(
+          item,
+          ownedItem: ownedItem,
+          providerName: item.source.ownedItem?.marketValueCents != null
+              ? 'Provider snapshot'
+              : null,
+        );
     final paid = formatMoney(
         ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
-        ownedItem?.currency ?? dto.currency);
+        ownedItem?.currency ?? adapter?.currency);
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
       ownedItem,
       catalogEditions,
-      fallbackLabel: dto.variant,
+      fallbackLabel: adapter?.variant,
     );
     final ownedIsDigital = resolveOwnedDigitalFlag(
       ownedItem,
       catalogEditions,
-      fallbackLabel: dto.variant,
+      fallbackLabel: adapter?.variant,
     );
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     final trackingStatus =
@@ -140,26 +145,26 @@ class InspectorPersonalSection extends StatelessWidget {
                   label: 'Location',
                   value: genericLibraryDash(item.source.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
-            if (valueSnapshot.providerValueCents != null)
+            if (snapshot.providerValueCents != null)
               LibraryDetailField(
                   label: 'Provider value',
                   value: formatMoney(
-                    valueSnapshot.providerValueCents,
-                    valueSnapshot.currency,
+                    snapshot.providerValueCents,
+                    snapshot.currency,
                   )),
-            if (valueSnapshot.manualEstimatedValueCents != null)
+            if (snapshot.manualEstimatedValueCents != null)
               LibraryDetailField(
                   label: 'Manual value',
                   value: formatMoney(
-                    valueSnapshot.manualEstimatedValueCents,
-                    valueSnapshot.currency,
+                    snapshot.manualEstimatedValueCents,
+                    snapshot.currency,
                   )),
             if (ownedItem?.coverPriceCents != null)
               LibraryDetailField(
                 label: 'Cover price',
                 value: formatMoney(
                   ownedItem!.coverPriceCents,
-                  ownedItem?.currency ?? dto.currency,
+                  ownedItem?.currency ?? adapter?.currency,
                 ),
               ),
             if (ownedItem?.soldAt != null)
@@ -177,14 +182,14 @@ class InspectorPersonalSection extends StatelessWidget {
               LibraryDetailField(
                 label: 'Sell price',
                 value: formatMoney(ownedItem!.sellPriceCents,
-                    ownedItem?.currency ?? dto.currency),
+                    ownedItem?.currency ?? adapter?.currency),
               ),
             if (ownedItem?.sellPriceCents != null)
               LibraryDetailField(
                 label: 'Profit / Loss',
                 value: formatMoney(
                   ownedItem!.sellPriceCents! - (ownedItem!.pricePaidCents ?? 0),
-                  ownedItem?.currency ?? dto.currency,
+                  ownedItem?.currency ?? adapter?.currency,
                 ),
               ),
           ],

@@ -26,6 +26,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -379,7 +380,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         resolveOwnedDigitalFlag(
               activeOwnedItem,
               selected.source.catalogItem?.editions ?? const [],
-              fallbackLabel: selected.dto.variant,
+              fallbackLabel: selected.dto is WorkspaceDtoAdapter
+                  ? (selected.dto as WorkspaceDtoAdapter).variant
+                  : null,
             ) !=
             true) {
       conditionGradeSection = Builder(
@@ -529,7 +532,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               resolveOwnedDigitalFlag(
                     activeOwnedItem,
                     selected.source.catalogItem?.editions ?? const [],
-                    fallbackLabel: selected.dto.variant,
+                    fallbackLabel: selected.dto is WorkspaceDtoAdapter
+                        ? (selected.dto as WorkspaceDtoAdapter).variant
+                        : null,
                   ) !=
                   true) ...[
             SizedBox(height: density.inspectorOuterGap),

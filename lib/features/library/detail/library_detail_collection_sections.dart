@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailPersonalSection extends StatelessWidget {
@@ -38,16 +39,17 @@ class LibraryDetailPersonalSection extends StatelessWidget {
         : ownedItem == null
             ? const <OwnedItem>[]
             : <OwnedItem>[ownedItem!];
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final paid = formatMoney(
       ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
-      ownedItem?.currency ?? dto.currency,
+      ownedItem?.currency ?? adapter?.currency,
     );
     final currentValue = formatMoney(
       ownedItem?.marketValueCents,
       ownedItem?.currency,
     );
     final coverPriceCents = ownedItem?.coverPriceCents;
-    final currency = ownedItem?.currency ?? dto.currency;
+    final currency = ownedItem?.currency ?? adapter?.currency;
     final coverPrice = formatMoney(coverPriceCents, currency);
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, currency);
     final profitLoss = _detailProfitLossLabel(ownedItem);

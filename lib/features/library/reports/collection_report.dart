@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:barcode/barcode.dart' as bc;
@@ -30,20 +31,21 @@ enum ReportColumn {
 
   String extractFrom(LibraryProjectionRuntime item) {
     final dto = item.dto;
-    final cat = item.source.catalogItem;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     return switch (this) {
       ReportColumn.title => dto.title,
-      ReportColumn.series => dto.seriesTitle ?? '',
-      ReportColumn.issue => dto.itemNumber ?? '',
+      ReportColumn.series => adapter?.seriesTitle ?? '',
+      ReportColumn.issue => adapter?.itemNumber ?? '',
       ReportColumn.condition => item.source.condition ?? '',
       ReportColumn.grade => item.source.grade ?? '',
-      ReportColumn.publisher => dto.publisher ?? '',
-      ReportColumn.barcode => dto.barcode ?? '',
-      ReportColumn.barcodeImage => dto.barcode ?? '',
-      ReportColumn.year => dto.releaseDate?.year.toString() ?? '',
+      ReportColumn.publisher => adapter?.publisher ?? '',
+      ReportColumn.barcode => adapter?.barcode ?? '',
+      ReportColumn.barcodeImage => adapter?.barcode ?? '',
+      ReportColumn.year => adapter?.releaseDate?.year.toString() ?? '',
       ReportColumn.format =>
-        dto.referenceFormatLabel ?? dto.format ?? dto.variant ?? '',
-      ReportColumn.creator => dto.creator ?? '',
+        adapter?.referenceFormatLabel ?? adapter?.format ?? adapter?.variant ?? '',
+      ReportColumn.creator =>
+        item.source.catalogItem?.toSyncPayload()['creator']?.toString() ?? '',
       ReportColumn.tags => item.source.tags ?? '',
       ReportColumn.location => item.source.locationPath ?? '',
     };

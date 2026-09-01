@@ -458,7 +458,7 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller:
           _comicDraft?.comicEdit.countryController ?? TextEditingController(),
       label: label,
-      options: const ['United States', 'United Kingdom', 'Japan', 'France'],
+      options: const ['United States', 'United Kingdom', 'Japan', 'France', 'Canada'],
       showPickerListAction: true,
     );
   }

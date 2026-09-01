@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
 
@@ -300,7 +301,8 @@ class _GenericStatsDashboard extends StatelessWidget {
               ),
             )
             .dto;
-        return dto.seriesTitle ?? dto.title;
+        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+        return adapter?.seriesTitle ?? dto.title;
       },
     );
   }
@@ -320,7 +322,8 @@ class _GenericStatsDashboard extends StatelessWidget {
               ),
             )
             .dto;
-        return dto.publisher ?? 'Unknown';
+        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+        return adapter?.publisher ?? 'Unknown';
       },
     );
   }
@@ -344,10 +347,11 @@ class _GenericStatsDashboard extends StatelessWidget {
             ),
           )
           .dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final hasSynopsis =
           cat.common.synopsis != null && cat.common.synopsis!.trim().isNotEmpty;
       final hasPublisher =
-          dto.publisher != null && dto.publisher!.trim().isNotEmpty;
+          adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty;
       if (!hasSynopsis && !hasPublisher) {
         count++;
       }
@@ -378,7 +382,8 @@ class _GenericStatsDashboard extends StatelessWidget {
               ),
             )
             .dto;
-        return dto.seriesTitle ?? dto.title;
+        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+        return adapter?.seriesTitle ?? dto.title;
       },
       (entry) => entry.ownedItem?.pricePaidCents,
     );
@@ -407,7 +412,8 @@ class _GenericStatsDashboard extends StatelessWidget {
               ),
             )
             .dto;
-        return dto.seriesTitle ?? dto.title;
+        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+        return adapter?.seriesTitle ?? dto.title;
       },
       (entry) => entry.ownedItem?.sellPriceCents,
     );
@@ -454,6 +460,7 @@ class _GenericStatsDashboard extends StatelessWidget {
             ),
           )
           .dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       if (item.common.displayCoverUrl == null ||
           item.common.displayCoverUrl!.trim().isEmpty) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
@@ -462,11 +469,11 @@ class _GenericStatsDashboard extends StatelessWidget {
           item.common.synopsis!.trim().isEmpty) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
-      if (dto.publisher == null || dto.publisher!.trim().isEmpty) {
+      if (adapter?.publisher == null || adapter!.publisher!.trim().isEmpty) {
         counts[missingPublisherLabel] =
             (counts[missingPublisherLabel] ?? 0) + 1;
       }
-      if (dto.seriesTitle == null || dto.seriesTitle!.isEmpty) {
+      if (adapter?.seriesTitle == null || adapter!.seriesTitle!.isEmpty) {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
       if (item.id.startsWith('provider:')) {
@@ -497,6 +504,7 @@ class _GenericStatsDashboard extends StatelessWidget {
           ),
         )
         .dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
 
     add(
       item.common.displayCoverUrl != null &&
@@ -507,14 +515,14 @@ class _GenericStatsDashboard extends StatelessWidget {
       item.common.synopsis != null && item.common.synopsis!.trim().isNotEmpty,
       25,
     );
-    add(dto.publisher != null && dto.publisher!.trim().isNotEmpty, 15);
+    add(adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty, 15);
     add(
         item.releaseDate != null ||
             item.releaseYear != null ||
-            dto.releaseDate != null,
+            adapter?.releaseDate != null,
         15);
-    add(dto.seriesTitle != null && dto.seriesTitle!.isNotEmpty, 10);
-    add(dto.itemNumber != null && dto.itemNumber!.trim().isNotEmpty, 10);
+    add(adapter?.seriesTitle != null && adapter!.seriesTitle!.isNotEmpty, 10);
+    add(adapter?.itemNumber != null && adapter!.itemNumber!.trim().isNotEmpty, 10);
 
     if (score >= 80) {
       return 'Strong';

@@ -169,43 +169,22 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   WorkspaceCommonProjection get common;
   PersonalCopyProjection get personal;
 
-  // Delegated LibraryWorkspaceDto getters from WorkspaceCommonProjection:
   @override
   String get title => common.title;
-  @override
-  String? get seriesTitle => common.seriesTitle;
-  @override
-  String? get itemNumber => common.itemNumber;
-  @override
-  String? get publisher => common.publisher;
-  @override
-  DateTime? get releaseDate => common.releaseDate;
-  @override
-  String? get variant => common.variant;
-  @override
-  String? get barcode => common.barcode;
-  String? get grade => common.grade;
-  @override
-  String? get country => common.country;
-  @override
-  String? get language => common.language;
-  @override
-  String? get currency => common.currency;
-  @override
-  String? get referenceFormatLabel => common.referenceFormatLabel;
-  @override
-  String? get format => common.referenceFormatLabel;
+
   @override
   String? get coverImageUrl => common.coverImageUrl;
 
-  @override
-  String? get creator => publisher;
-  @override
-  String? get synopsis => null;
-  @override
-  String? get audienceRating => null;
-  @override
-  String? get ageRating => null;
-  @override
-  String? get editionLabel => null;
+  String? get seriesTitle => common.seriesTitle;
+  String? get itemNumber => common.itemNumber;
+  String? get publisher => common.publisher;
+  DateTime? get releaseDate => common.releaseDate;
+  String? get variant => common.variant;
+  String? get barcode => common.barcode;
+  String? get grade => common.grade;
+  String? get country => common.country;
+  String? get language => common.language;
+  String? get currency => common.currency;
+  String? get referenceFormatLabel => common.referenceFormatLabel;
+  String? get format => common.referenceFormatLabel;
 }

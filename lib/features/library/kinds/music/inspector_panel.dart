@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -179,7 +180,8 @@ class _MusicInspectorMain extends StatelessWidget {
     final genreText =
         metadata?.genres.isEmpty != false ? null : metadata!.genres.join(' | ');
     final dto = inspector.item.dto;
-    final formatLabel = dto.referenceFormatLabel ?? dto.variant ?? '-';
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final formatLabel = adapter?.referenceFormatLabel ?? adapter?.variant ?? '-';
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -199,7 +201,9 @@ class _MusicInspectorMain extends StatelessWidget {
                 height: 164,
                 child: LibraryInteractiveCover(
                   title: dto.title,
-                  itemNumber: dto.itemNumber,
+                  itemNumber: (dto is WorkspaceDtoAdapter
+                      ? (dto as WorkspaceDtoAdapter).itemNumber
+                      : null),
                   imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
                 ),
@@ -217,10 +221,11 @@ class _MusicInspectorMain extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                   ),
-                  if (dto.seriesTitle?.trim().isNotEmpty == true) ...[
+                  if (dto is WorkspaceDtoAdapter &&
+                      (dto as WorkspaceDtoAdapter).seriesTitle?.trim().isNotEmpty == true) ...[
                     const SizedBox(height: 2),
                     Text(
-                      dto.seriesTitle!,
+                      (dto as WorkspaceDtoAdapter).seriesTitle!,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: palette.textMuted,
                             fontWeight: FontWeight.w600,
@@ -435,18 +440,19 @@ class _MusicProductDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = inspector.item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadata = _musicMetadata(inspector.item);
     final music = metadata?.music;
     final rows = <(String, String)>[
-      if (dto.publisher?.trim().isNotEmpty == true) ('Label', dto.publisher!),
+      if (adapter?.publisher?.trim().isNotEmpty == true) ('Label', adapter!.publisher!),
       if (music?['catalog_number']?.toString().trim().isNotEmpty == true)
         ('Catalog number', music!['catalog_number'].toString()),
       if (music?['upc']?.toString().trim().isNotEmpty == true)
         ('UPC', music!['upc'].toString()),
-      if (dto.barcode?.trim().isNotEmpty == true) ('Barcode', dto.barcode!),
-      if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
-          dto.variant?.trim().isNotEmpty == true)
-        ('Format', dto.referenceFormatLabel ?? dto.variant ?? '-'),
+      if (adapter?.barcode?.trim().isNotEmpty == true) ('Barcode', adapter!.barcode!),
+      if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true ||
+          adapter?.variant?.trim().isNotEmpty == true)
+        ('Format', adapter?.referenceFormatLabel ?? adapter?.variant ?? '-'),
       if (music?['release_status']?.toString().trim().isNotEmpty == true)
         ('Release status', music!['release_status'].toString()),
       if (metadata?.originalReleaseDate != null)
@@ -1072,16 +1078,17 @@ bool _matchesTrackTerms(CatalogTrackDto track, List<String> terms) {
 
 Uri? _ebayUri(LibraryProjectionRuntime item) {
   final dto = item.dto;
-  final barcode = dto.barcode?.trim();
+  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final barcode = adapter?.barcode?.trim();
   if (barcode == null || barcode.isEmpty) {
     return null;
   }
-  final seriesTitle = dto.seriesTitle;
+  final seriesTitle = adapter?.seriesTitle;
   final query = <String>[
     barcode,
     if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
     dto.title,
-    if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
+    if (adapter?.releaseDate != null) adapter!.releaseDate!.year.toString(),
   ].join(' ');
   return buildEbaySearchUri(
     query: query,

@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryOwnedItemResolution {
@@ -67,12 +68,13 @@ bool libraryShowsSynopsis(Object? mediaType) {
 }
 
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
-  final seriesTitle = item.dto.seriesTitle?.trim();
+  final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+  final seriesTitle = adapter?.seriesTitle?.trim();
   if (seriesTitle == null || seriesTitle.isEmpty) {
     return 'Missing series title';
   }
   if (item.node.scope != LibraryBrowserScope.title) {
-    final variant = item.dto.variant?.trim();
+    final variant = adapter?.variant?.trim();
     if (variant == null || variant.isEmpty) {
       return 'Missing release variant';
     }

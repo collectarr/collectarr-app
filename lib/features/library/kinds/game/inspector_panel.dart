@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -112,7 +113,8 @@ class _GameInspectorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = inspector.item.dto;
-    final series = dto.seriesTitle?.trim();
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final series = adapter?.seriesTitle?.trim();
     return LibraryInspectorTitleCard(
       item: inspector.item,
       eyebrow: series,
@@ -130,9 +132,10 @@ class _GameInspectorMain extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadata = _gameMetadata(item);
     final palette = appPalette(context);
-    final releaseYear = dto.releaseDate?.year.toString();
+    final releaseYear = adapter?.releaseDate?.year.toString();
     final genres = metadata?.genres;
     final genreText =
         genres == null || genres.isEmpty ? null : genres.join(' | ');
@@ -156,7 +159,7 @@ class _GameInspectorMain extends StatelessWidget {
                 height: 164,
                 child: LibraryInteractiveCover(
                   title: dto.title,
-                  itemNumber: dto.itemNumber,
+                  itemNumber: adapter?.itemNumber,
                   imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
                 ),
@@ -167,10 +170,10 @@ class _GameInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (dto.publisher?.isNotEmpty == true || releaseYear != null)
+                  if (adapter?.publisher?.isNotEmpty == true || releaseYear != null)
                     Text(
                       [
-                        if (dto.publisher?.isNotEmpty == true) dto.publisher!,
+                        if (adapter?.publisher?.isNotEmpty == true) adapter!.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -188,26 +191,26 @@ class _GameInspectorMain extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 8),
-                  if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
-                      dto.variant?.trim().isNotEmpty == true)
+                  if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true ||
+                      adapter?.variant?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.album_outlined,
-                      text: dto.referenceFormatLabel ?? dto.variant ?? '-',
+                      text: adapter?.referenceFormatLabel ?? adapter?.variant ?? '-',
                     ),
                   if (platforms.isNotEmpty)
                     LibraryInspectorInfoLine(
                       icon: Icons.sports_esports_outlined,
                       text: platforms.join(' | '),
                     ),
-                  if (dto.audienceRating?.trim().isNotEmpty == true)
+                  if (metadata?.ageRating?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.shield_outlined,
-                      text: 'Audience: ${dto.audienceRating!}',
+                      text: 'Age rating: ${metadata!.ageRating!}',
                     ),
-                  if (dto.barcode?.trim().isNotEmpty == true)
+                  if (adapter?.barcode?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
-                      text: dto.barcode!,
+                      text: adapter!.barcode!,
                     ),
                   if (_ebayUri(item) case final uri?) ...[
                     const SizedBox(height: 8),
@@ -217,19 +220,31 @@ class _GameInspectorMain extends StatelessWidget {
                         mode: LaunchMode.externalApplication,
                       ),
                       borderRadius: BorderRadius.circular(4),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: palette.panel,
-                          border: Border.all(color: palette.divider),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
                         ),
-                        child: const Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                          child: Text(
-                            'Find sold listings on eBay',
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.open_in_new,
+                              size: 13,
+                              color: palette.textMuted,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Search eBay',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: palette.textMuted,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -253,33 +268,32 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadata = _gameMetadata(item);
     final owned = item.source.ownedItem;
-    final releaseYear = dto.releaseDate?.year;
+    final releaseYear = adapter?.releaseDate?.year;
     final detailRows = <(String, String)>[
-      if (dto.publisher?.trim().isNotEmpty == true)
-        ('Publisher', dto.publisher!),
-      if (dto.releaseDate != null || releaseYear != null)
+      if (adapter?.publisher?.trim().isNotEmpty == true)
+        ('Publisher', adapter!.publisher!),
+      if (adapter?.releaseDate != null || releaseYear != null)
         (
           'Release',
-          formatNullableDate(dto.releaseDate) ?? releaseYear!.toString(),
+          formatNullableDate(adapter?.releaseDate) ?? releaseYear!.toString(),
         ),
-      if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
-          dto.variant?.trim().isNotEmpty == true)
-        ('Format', dto.referenceFormatLabel ?? dto.variant ?? '-'),
-      if (dto.audienceRating?.trim().isNotEmpty == true)
-        ('Audience rating', dto.audienceRating!),
-      if (dto.ageRating?.trim().isNotEmpty == true)
-        ('Age rating', dto.ageRating!),
-      if (dto.country?.trim().isNotEmpty == true) ('Country', dto.country!),
-      if (dto.language?.trim().isNotEmpty == true) ('Language', dto.language!),
+      if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true ||
+          adapter?.variant?.trim().isNotEmpty == true)
+        ('Format', adapter?.referenceFormatLabel ?? adapter?.variant ?? '-'),
+      if (metadata?.ageRating?.trim().isNotEmpty == true)
+        ('Age rating', metadata!.ageRating!),
+      if (adapter?.country?.trim().isNotEmpty == true) ('Country', adapter!.country!),
+      if (adapter?.language?.trim().isNotEmpty == true) ('Language', adapter!.language!),
       if (metadata?.platforms.isNotEmpty == true)
         ('Platforms', metadata!.platforms.join(', ')),
       if (metadata?.toySubtype?.trim().isNotEmpty == true)
         ('Subtype', metadata!.toySubtype!),
       if (metadata?.toyType?.trim().isNotEmpty == true)
         ('Type', metadata!.toyType!),
-      if (dto.barcode?.trim().isNotEmpty == true) ('Barcode', dto.barcode!),
+      if (adapter?.barcode?.trim().isNotEmpty == true) ('Barcode', adapter!.barcode!),
       if (metadata?.genres.isNotEmpty == true)
         ('Genres', metadata!.genres.join(', ')),
       if (item.source.tags?.trim().isNotEmpty == true)
@@ -402,12 +416,13 @@ class _GameInspectorFactRows extends StatelessWidget {
 
 Uri? _ebayUri(LibraryProjectionRuntime item) {
   final dto = item.dto;
-  final seriesTitle = dto.seriesTitle;
+  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final seriesTitle = adapter?.seriesTitle;
   final query = <String>[
-    if (dto.barcode?.trim().isNotEmpty == true) dto.barcode!.trim(),
+    if (adapter?.barcode?.trim().isNotEmpty == true) adapter!.barcode!.trim(),
     dto.title,
     if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
-    if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
+    if (adapter?.releaseDate != null) adapter!.releaseDate!.year.toString(),
   ].join(' ');
   if (query.trim().isEmpty) {
     return null;

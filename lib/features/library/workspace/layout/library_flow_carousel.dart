@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -481,7 +482,9 @@ class _FlowBackdrop extends StatelessWidget {
                   opacity: 0.34,
                   child: LibraryCoverImage(
                     title: item.dto.title,
-                    itemNumber: item.dto.itemNumber,
+                    itemNumber: (item.dto is WorkspaceDtoAdapter
+                        ? (item.dto as WorkspaceDtoAdapter).itemNumber
+                        : null),
                     imageUrl: item.dto.coverImageUrl,
                     ownedItemId: item.source.ownedItem?.id,
                     borderRadius: 0,
@@ -607,14 +610,18 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
   @override
   Widget build(BuildContext context) {
     final dto = widget.item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final palette = appPalette(context);
     final title = dto.title;
+    final itemNumber = adapter?.itemNumber;
+    final publisher = adapter?.publisher;
+    final releaseDate = adapter?.releaseDate;
     final subtitle = [
-      if (dto.itemNumber != null && dto.itemNumber!.trim().isNotEmpty)
-        '#${dto.itemNumber}',
-      if (dto.publisher != null && dto.publisher!.trim().isNotEmpty)
-        dto.publisher,
-      if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
+      if (itemNumber != null && itemNumber.trim().isNotEmpty)
+        '#$itemNumber',
+      if (publisher != null && publisher.trim().isNotEmpty)
+        publisher,
+      if (releaseDate != null) releaseDate.year.toString(),
     ].join('  ·  ');
     final cardColor = widget.focused
         ? Color.alphaBlend(
@@ -674,7 +681,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           borderRadius: BorderRadius.circular(18),
                           child: LibraryInteractiveCover(
                             title: title,
-                            itemNumber: dto.itemNumber,
+                            itemNumber: itemNumber,
                             imageUrl: dto.coverImageUrl,
                             ownedItemId: widget.item.source.ownedItem?.id,
                             accentColor: widget.accent,
@@ -693,7 +700,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           hasMissingCover: dto.coverImageUrl == null ||
                               dto.coverImageUrl!.isEmpty,
                           hasMissingMetadata:
-                              dto.publisher == null || dto.publisher!.isEmpty,
+                              publisher == null || publisher.isEmpty,
                           contractDiagnosticLabel:
                               libraryHierarchyContractDiagnosticLabel(
                                   widget.item),
@@ -811,16 +818,20 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
   @override
   Widget build(BuildContext context) {
     final dto = widget.item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadataPresentation = _metadataPresentationForEntry(widget.item);
     final palette = appPalette(context);
+    final publisher = adapter?.publisher;
+    final releaseDate = adapter?.releaseDate;
+    final formatLabel = adapter?.referenceFormatLabel;
     final meta = [
       _metadataFactValue(metadataPresentation, 'Series'),
       _metadataFactValue(metadataPresentation, 'Artist'),
-      if (dto.publisher != null && dto.publisher!.trim().isNotEmpty)
-        dto.publisher,
-      if (dto.releaseDate != null)
-        '${dto.releaseDate!.year}-${dto.releaseDate!.month.toString().padLeft(2, '0')}-${dto.releaseDate!.day.toString().padLeft(2, '0')}',
-      if (dto.referenceFormatLabel != null) dto.referenceFormatLabel,
+      if (publisher != null && publisher.trim().isNotEmpty)
+        publisher,
+      if (releaseDate != null)
+        '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
+      if (formatLabel != null) formatLabel,
     ].whereType<String>().join('  ·  ');
 
     final payload =
@@ -832,6 +843,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
         const <CatalogEdition>[];
     final hasReleases = editions.length > 1;
 
+    final itemNumber = adapter?.itemNumber;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -886,7 +898,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                     ],
                   ),
                 ),
-                if (dto.itemNumber != null && dto.itemNumber!.trim().isNotEmpty)
+                if (itemNumber != null && itemNumber.trim().isNotEmpty)
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -897,7 +909,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                           color: widget.accent.withValues(alpha: 0.35)),
                     ),
                     child: Text(
-                      '#${dto.itemNumber}',
+                      '#$itemNumber',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: palette.textPrimary,
                             fontWeight: FontWeight.w800,

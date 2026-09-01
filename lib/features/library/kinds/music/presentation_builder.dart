@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class MusicLibraryMediaPresentationBuilder
@@ -147,9 +148,17 @@ class MusicLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadata = _musicMetadata(item);
     final music = metadata?.music;
     final series = metadata?.series;
+    final variant = adapter?.variant;
+    final barcode = adapter?.barcode;
+    final publisher = adapter?.publisher;
+    final releaseDate = adapter?.releaseDate;
+    final country = adapter?.country;
+    final language = adapter?.language;
+
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -167,14 +176,14 @@ class MusicLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Disc',
               value: series?.volumeName ?? 'Disc ${series?.volumeNumber}'),
-        if (dto.variant != null)
+        if (variant != null)
           LibraryDetailField(
               label: releaseFields.variantLabel,
-              value: dto.variant!,
-              onTap: tapFor(dto.variant)),
-        if (dto.barcode != null)
+              value: variant,
+              onTap: tapFor(variant)),
+        if (barcode != null)
           LibraryDetailField(
-              label: releaseFields.barcodeLabel, value: dto.barcode!),
+              label: releaseFields.barcodeLabel, value: barcode),
       ],
       contextFacts: [
         if (series?.seriesTitle != null)
@@ -183,16 +192,16 @@ class MusicLibraryMediaPresentationBuilder
               value: series!.seriesTitle!,
               onTap: tapFor(series.seriesTitle)),
         LibraryDetailField(label: 'Album', value: dto.title),
-        if (dto.publisher != null)
+        if (publisher != null)
           LibraryDetailField(
               label: 'Label',
-              value: dto.publisher!,
-              onTap: tapFor(dto.publisher)),
+              value: publisher,
+              onTap: tapFor(publisher)),
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(dto.releaseDate) ??
-                  dto.releaseDate?.year.toString(),
+              formatPresentationNullableDate(releaseDate) ??
+                  releaseDate?.year.toString(),
             )),
         if (music?['track_count'] != null)
           LibraryDetailField(
@@ -207,10 +216,10 @@ class MusicLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Release Status',
               value: music!['release_status'].toString()),
-        if (dto.country != null)
-          LibraryDetailField(label: 'Country', value: dto.country!),
-        if (dto.language != null)
-          LibraryDetailField(label: 'Language', value: dto.language!),
+        if (country != null)
+          LibraryDetailField(label: 'Country', value: country),
+        if (language != null)
+          LibraryDetailField(label: 'Language', value: language),
         if (music?['length'] != null)
           LibraryDetailField(
               label: 'Length', value: music!['length'].toString()),
@@ -219,9 +228,6 @@ class MusicLibraryMediaPresentationBuilder
               label: 'Vinyl color', value: music!['vinyl_color'].toString()),
         if (music?['rpm'] != null)
           LibraryDetailField(label: 'RPM', value: music!['rpm'].toString()),
-        if (dto.audienceRating != null)
-          LibraryDetailField(
-              label: 'Audience Rating', value: dto.audienceRating!),
         LibraryDetailField(
             label: 'Cover',
             value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
@@ -229,7 +235,7 @@ class MusicLibraryMediaPresentationBuilder
                 : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
-            value: dto.publisher == null || dto.publisher!.isEmpty
+            value: publisher == null || publisher.isEmpty
                 ? 'Missing'
                 : 'Ready'),
       ],

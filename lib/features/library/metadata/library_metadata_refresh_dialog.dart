@@ -6,6 +6,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -324,12 +325,14 @@ class _LibraryMetadataRefreshDialogState
       _RefreshScope.selected => [
           if (widget.selectedEntry != null) widget.selectedEntry!,
         ],
-      _RefreshScope.missing => widget.allEntries
-          .where((item) =>
-              item.dto.coverImageUrl == null ||
-              item.dto.coverImageUrl!.isEmpty ||
-              item.dto.publisher == null ||
-              item.dto.publisher!.isEmpty)
+      _RefreshScope.missing => widget.shownEntries
+          .where((item) {
+            final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+            return item.dto.coverImageUrl == null ||
+                item.dto.coverImageUrl!.isEmpty ||
+                adapter?.publisher == null ||
+                adapter!.publisher!.isEmpty;
+          })
           .toList(growable: false),
       _RefreshScope.shown => widget.shownEntries,
       _RefreshScope.all => widget.allEntries,
@@ -339,7 +342,8 @@ class _LibraryMetadataRefreshDialogState
 
   LibraryMetadataSearchInput _inputForEntry(LibraryProjectionRuntime item) {
     final dto = item.dto;
-    final barcode = dto.barcode?.trim();
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final barcode = adapter?.barcode?.trim();
     if (barcode != null && barcode.isNotEmpty) {
       return LibraryMetadataSearchInput(
         query: dto.title,
@@ -349,24 +353,25 @@ class _LibraryMetadataRefreshDialogState
     }
     return LibraryMetadataSearchInput(
       query: dto.title,
-      issueNumber: dto.itemNumber,
-      publisher: dto.publisher,
-      year: dto.releaseDate?.year,
+      issueNumber: adapter?.itemNumber,
+      publisher: adapter?.publisher,
+      year: adapter?.releaseDate?.year,
       limit: 5,
     );
   }
 
   String _describeSearch(LibraryProjectionRuntime item) {
     final dto = item.dto;
-    final barcode = dto.barcode?.trim();
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final barcode = adapter?.barcode?.trim();
     if (barcode != null && barcode.isNotEmpty) {
       return 'Barcode $barcode';
     }
     final parts = [
       dto.title,
-      if (dto.itemNumber != null && dto.itemNumber!.isNotEmpty)
-        '#${dto.itemNumber}',
-      if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
+      if (adapter?.itemNumber != null && adapter!.itemNumber!.isNotEmpty)
+        '#${adapter.itemNumber}',
+      if (adapter?.releaseDate != null) adapter!.releaseDate!.year.toString(),
     ];
     return parts.join(' ');
   }

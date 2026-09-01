@@ -2679,19 +2679,12 @@ class _FakeMetadataProvider implements MetadataCapability {
         metadata: this,
       );
 
-  @override
   ProviderDescriptor get descriptor => ProviderDescriptor(
         name: name,
         displayName: name,
         kind: defaultKind,
         supportedKinds: [defaultKind],
       );
-
-  @override
-  bool get isConfigured => true;
-
-  @override
-  String get statusMessage => 'OK';
 
   @override
   Future<List<ProviderSearchResult>> search(

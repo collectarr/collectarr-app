@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -458,9 +458,9 @@ class LibraryFilterOptions {
 
     for (final entry in entries) {
       final dto = entry.dto;
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final source = entry.source;
-      final filterValues = plannedMediaFilterValuesForEntry(source);
-      final seriesTitle = filterValues.series;
+      final seriesTitle = adapter?.seriesTitle;
       if (seriesTitle != null && seriesTitle.isNotEmpty) {
         series.add(seriesTitle);
       }
@@ -480,16 +480,16 @@ class LibraryFilterOptions {
       if (source.condition?.trim().isNotEmpty == true) {
         conditions.add(source.condition!.trim());
       }
-      if (dto.publisher?.trim().isNotEmpty == true) {
-        publishers.add(dto.publisher!.trim());
+      if (adapter?.publisher?.trim().isNotEmpty == true) {
+        publishers.add(adapter!.publisher!.trim());
       }
-      final year = dto.releaseDate?.year.toString();
+      final year = adapter?.releaseDate?.year.toString();
       if (year != null) years.add(year);
-      if (filterValues.country?.isNotEmpty == true) {
-        countries.add(filterValues.country!);
+      if (adapter?.country?.isNotEmpty == true) {
+        countries.add(adapter!.country!);
       }
-      if (filterValues.language?.isNotEmpty == true) {
-        languages.add(filterValues.language!);
+      if (adapter?.language?.isNotEmpty == true) {
+        languages.add(adapter!.language!);
       }
       final ownedItemId = source.ownedItem?.id;
       if (ownedItemId != null) {
@@ -557,7 +557,7 @@ bool libraryFilterMatches(
   LibraryFilterSelection filters,
 ) {
   final source = item.source;
-  final filterValues = plannedMediaFilterValuesForEntry(item.source);
+  final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
   if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
       !source.isOwned) {
     return false;
@@ -579,7 +579,7 @@ bool libraryFilterMatches(
       !(source.isOwned && source.ownedItem?.collectionStatus == 'on_order')) {
     return false;
   }
-  if (filters.series != null && filterValues.series != filters.series) {
+  if (filters.series != null && adapter?.seriesTitle != filters.series) {
     return false;
   }
   if (filters.location != null &&
@@ -597,17 +597,17 @@ bool libraryFilterMatches(
     return false;
   }
   if (filters.publisher != null &&
-      item.dto.publisher?.trim() != filters.publisher) {
+      adapter?.publisher?.trim() != filters.publisher) {
     return false;
   }
   if (filters.releaseYear != null) {
-    final year = item.dto.releaseDate?.year.toString();
+    final year = adapter?.releaseDate?.year.toString();
     if (year != filters.releaseYear) return false;
   }
-  if (filters.country != null && filterValues.country != filters.country) {
+  if (filters.country != null && adapter?.country != filters.country) {
     return false;
   }
-  if (filters.language != null && filterValues.language != filters.language) {
+  if (filters.language != null && adapter?.language != filters.language) {
     return false;
   }
   if (filters.missingCover && item.dto.coverImageUrl != null) return false;

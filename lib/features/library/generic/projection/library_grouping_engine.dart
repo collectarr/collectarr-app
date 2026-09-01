@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 
@@ -62,7 +63,9 @@ class LibraryGroupingEngine {
           : getGroupBucketForItem(item, type, groupMode);
 
       counts[bucket] = (counts[bucket] ?? 0) + 1;
-      final number = isSeries ? _parseWholeNumber(item.dto.itemNumber) : null;
+      final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+      final itemNumber = adapter?.itemNumber;
+      final number = isSeries ? _parseWholeNumber(itemNumber) : null;
       if (number != null) {
         bucketNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
       }
@@ -75,7 +78,7 @@ class LibraryGroupingEngine {
       if (!coverUrls.containsKey(bucket)) {
         coverUrls[bucket] = item.dto.coverImageUrl;
       }
-      final year = item.dto.releaseDate?.year;
+      final year = adapter?.releaseDate?.year ?? item.source.catalogItem?.releaseDate?.year;
       if (year != null) {
         final existing = startYears[bucket];
         if (existing == null || year < existing) {

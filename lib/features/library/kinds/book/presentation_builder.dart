@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -39,6 +40,15 @@ class BookLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final itemNumber = adapter?.itemNumber;
+    final variant = adapter?.variant;
+    final barcode = adapter?.barcode;
+    final publisher = adapter?.publisher;
+    final releaseDate = adapter?.releaseDate;
+    final country = adapter?.country;
+    final language = adapter?.language;
+
     final metadata = _bookMetadata(item);
     final series = metadata?.series;
     final publishing = metadata?.publishing;
@@ -78,26 +88,26 @@ class BookLibraryMediaPresentationBuilder
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
             label: mediaFields.numberLabel,
-            value: genericLibraryDash(dto.itemNumber),
-            onTap: tapFor(dto.itemNumber)),
+            value: genericLibraryDash(itemNumber),
+            onTap: tapFor(itemNumber)),
         LibraryDetailField(
             label: releaseFields.variantLabel,
-            value: genericLibraryDash(dto.variant),
-            onTap: tapFor(dto.variant)),
+            value: genericLibraryDash(variant),
+            onTap: tapFor(variant)),
         LibraryDetailField(
             label: releaseFields.barcodeLabel,
-            value: genericLibraryDash(dto.barcode)),
+            value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
             label: mediaFields.publisherLabel,
-            value: genericLibraryDash(dto.publisher),
-            onTap: tapFor(dto.publisher)),
+            value: genericLibraryDash(publisher),
+            onTap: tapFor(publisher)),
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(dto.releaseDate) ??
-                  dto.releaseDate?.year.toString(),
+              formatPresentationNullableDate(releaseDate) ??
+                  releaseDate?.year.toString(),
             )),
         if (publishing?.pageCount != null)
           LibraryDetailField(
@@ -121,15 +131,10 @@ class BookLibraryMediaPresentationBuilder
               onTap: tapFor(publishing.seriesGroup)),
         if (publishing?.subtitle != null)
           LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
-        if (dto.country != null)
-          LibraryDetailField(label: 'Country', value: dto.country!),
-        if (dto.language != null)
-          LibraryDetailField(label: 'Language', value: dto.language!),
-        if (dto.ageRating != null)
-          LibraryDetailField(label: 'Age Rating', value: dto.ageRating!),
-        if (dto.audienceRating != null)
-          LibraryDetailField(
-              label: 'Audience Rating', value: dto.audienceRating!),
+        if (country != null)
+          LibraryDetailField(label: 'Country', value: country),
+        if (language != null)
+          LibraryDetailField(label: 'Language', value: language),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
@@ -154,7 +159,7 @@ class BookLibraryMediaPresentationBuilder
                 : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
-            value: dto.publisher == null || dto.publisher!.isEmpty
+            value: publisher == null || publisher.isEmpty
                 ? 'Missing'
                 : 'Ready'),
       ],
@@ -203,20 +208,19 @@ class BookLibraryMediaPresentationBuilder
       );
     }
 
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final productFacts = <LibraryDetailField>[
-      if (dto.referenceFormatLabel?.trim().isNotEmpty == true)
+      if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true)
         LibraryDetailField(
-            label: 'Format', value: dto.referenceFormatLabel!.trim()),
-      if (dto.publisher?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Publisher', value: dto.publisher!.trim()),
-      if (dto.barcode?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'ISBN / Barcode', value: dto.barcode!.trim()),
-      if (dto.country?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Country', value: dto.country!.trim()),
-      if (dto.language?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Language', value: dto.language!.trim()),
-      if (dto.ageRating?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Age Rating', value: dto.ageRating!.trim()),
+            label: 'Format', value: adapter!.referenceFormatLabel!.trim()),
+      if (adapter?.publisher?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Publisher', value: adapter!.publisher!.trim()),
+      if (adapter?.barcode?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'ISBN / Barcode', value: adapter!.barcode!.trim()),
+      if (adapter?.country?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Country', value: adapter!.country!.trim()),
+      if (adapter?.language?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Language', value: adapter!.language!.trim()),
     ];
     if (productFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -264,7 +268,7 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final identifierValues = <String>[
-      if (dto.barcode?.trim().isNotEmpty == true) dto.barcode!.trim(),
+      if (adapter?.barcode?.trim().isNotEmpty == true) adapter!.barcode!.trim(),
     ];
     if (identifierValues.isNotEmpty) {
       sectionSpecs.add(

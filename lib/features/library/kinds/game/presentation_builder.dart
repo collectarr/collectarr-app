@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class GameLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -23,6 +24,12 @@ class GameLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final variant = adapter?.variant;
+    final barcode = adapter?.barcode;
+    final publisher = adapter?.publisher;
+    final releaseDate = adapter?.releaseDate;
+
     final kindMetadata = item.source.catalogItem?.kindMetadata;
     final metadata = kindMetadata is GameCatalogMetadata ? kindMetadata : null;
     return LibraryMetadataPresentation(
@@ -33,28 +40,28 @@ class GameLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'ID', value: item.node.titleItemId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
-        if (dto.variant != null)
+        if (variant != null)
           LibraryDetailField(
               label: releaseFields.variantLabel,
-              value: dto.variant!,
-              onTap: tapFor(dto.variant)),
-        if (dto.barcode != null)
+              value: variant,
+              onTap: tapFor(variant)),
+        if (barcode != null)
           LibraryDetailField(
-              label: releaseFields.barcodeLabel, value: dto.barcode!),
+              label: releaseFields.barcodeLabel, value: barcode),
         if (metadata?.ageRating != null)
           LibraryDetailField(label: 'Age Rating', value: metadata!.ageRating!),
       ],
       contextFacts: [
-        if (dto.publisher != null)
+        if (publisher != null)
           LibraryDetailField(
               label: mediaFields.publisherLabel,
-              value: dto.publisher!,
-              onTap: tapFor(dto.publisher)),
-        if (dto.releaseDate != null)
+              value: publisher,
+              onTap: tapFor(publisher)),
+        if (releaseDate != null)
           LibraryDetailField(
             label: 'Released',
-            value: formatPresentationNullableDate(dto.releaseDate) ??
-                dto.releaseDate!.year.toString(),
+            value: formatPresentationNullableDate(releaseDate) ??
+                releaseDate.year.toString(),
           ),
       ],
       creators: metadata?.creators ?? const <Map<String, dynamic>>[],

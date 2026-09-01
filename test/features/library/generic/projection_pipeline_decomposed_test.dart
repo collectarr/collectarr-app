@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -148,7 +149,7 @@ void main() {
       final bucket1 = index.getGroupBucket(
         item,
         'publisher',
-        (it, mode) => it.dto.publisher ?? 'Unknown',
+        (it, mode) => (it.dto as WorkspaceDtoAdapter).publisher ?? 'Unknown',
       );
       expect(bucket1, 'Marvel Comics');
       expect(index.extractorCallCount, 1);
@@ -157,7 +158,7 @@ void main() {
       final bucket2 = index.getGroupBucket(
         item,
         'publisher',
-        (it, mode) => it.dto.publisher ?? 'Unknown',
+        (it, mode) => (it.dto as WorkspaceDtoAdapter).publisher ?? 'Unknown',
       );
       expect(bucket2, 'Marvel Comics');
       expect(index.extractorCallCount, 1);

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 const genericLibraryMediaBuilder = GenericLibraryMediaPresentationBuilder();
 
@@ -43,12 +44,13 @@ String _simpleLibraryBucketLabel(
   LibraryBucketLabelOverrides overrides,
 ) {
   final dto = context.item.dto;
-  final publisher = dto.publisher?.trim();
+  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final publisher = adapter?.publisher?.trim();
   return switch (context.groupMode) {
-    'series' => dto.seriesTitle?.trim().isNotEmpty == true
-        ? dto.seriesTitle!.trim()
+    'series' => adapter?.seriesTitle?.trim().isNotEmpty == true
+        ? adapter!.seriesTitle!.trim()
         : labels.unknownSeries,
-    'year' => dto.releaseDate?.year.toString() ?? 'Unknown year',
+    'year' => adapter?.releaseDate?.year.toString() ?? 'Unknown year',
     'publisher' => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,

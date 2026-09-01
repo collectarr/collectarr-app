@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class VideoLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -33,6 +34,15 @@ class VideoLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final itemNumber = adapter?.itemNumber;
+    final variant = adapter?.variant;
+    final barcode = adapter?.barcode;
+    final publisher = adapter?.publisher;
+    final releaseDate = adapter?.releaseDate;
+    final country = adapter?.country;
+    final language = adapter?.language;
+
     final movie = item.source.catalogItem?.kindMetadata;
     final metadata = movie is MovieCatalogMetadata ? movie : null;
     final series = metadata?.series;
@@ -85,26 +95,26 @@ class VideoLibraryMediaPresentationBuilder
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
             label: mediaFields.numberLabel,
-            value: genericLibraryDash(dto.itemNumber),
-            onTap: tapFor(dto.itemNumber)),
+            value: genericLibraryDash(itemNumber),
+            onTap: tapFor(itemNumber)),
         LibraryDetailField(
             label: releaseFields.variantLabel,
-            value: genericLibraryDash(dto.variant),
-            onTap: tapFor(dto.variant)),
+            value: genericLibraryDash(variant),
+            onTap: tapFor(variant)),
         LibraryDetailField(
             label: releaseFields.barcodeLabel,
-            value: genericLibraryDash(dto.barcode)),
+            value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
             label: mediaFields.publisherLabel,
-            value: genericLibraryDash(dto.publisher),
-            onTap: tapFor(dto.publisher)),
+            value: genericLibraryDash(publisher),
+            onTap: tapFor(publisher)),
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(dto.releaseDate) ??
-                  dto.releaseDate?.year.toString(),
+              formatPresentationNullableDate(releaseDate) ??
+                  releaseDate?.year.toString(),
             )),
         if (runtime != null)
           LibraryDetailField(label: 'Runtime', value: '$runtime min'),
@@ -114,16 +124,16 @@ class VideoLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Audio', value: audioTracks),
         if (subtitles != null && subtitles.isNotEmpty)
           LibraryDetailField(label: 'Subtitles', value: subtitles),
-        if (dto.country != null)
+        if (country != null)
           LibraryDetailField(
               label: 'Country',
-              value: dto.country!,
-              onTap: tapFor(dto.country)),
-        if (dto.language != null)
+              value: country,
+              onTap: tapFor(country)),
+        if (language != null)
           LibraryDetailField(
               label: 'Language',
-              value: dto.language!,
-              onTap: tapFor(dto.language)),
+              value: language,
+              onTap: tapFor(language)),
         if (metadata?.ageRating != null)
           LibraryDetailField(
               label: 'Age Rating',
@@ -141,7 +151,7 @@ class VideoLibraryMediaPresentationBuilder
                 : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
-            value: dto.publisher == null || dto.publisher!.isEmpty
+            value: publisher == null || publisher.isEmpty
                 ? 'Missing'
                 : 'Ready'),
       ],

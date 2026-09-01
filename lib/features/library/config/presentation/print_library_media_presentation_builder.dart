@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -29,6 +30,14 @@ class PrintLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final itemNumber = adapter?.itemNumber;
+    final variant = adapter?.variant;
+    final barcode = adapter?.barcode;
+    final publisher = adapter?.publisher;
+    final releaseDate = adapter?.releaseDate;
+    final country = adapter?.country;
+    final language = adapter?.language;
     final catalogItem = item.source.catalogItem;
     final payload = catalogItem?.payload;
     final seriesRaw = payload?['series'];
@@ -85,26 +94,26 @@ class PrintLibraryMediaPresentationBuilder
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
             label: mediaFields.numberLabel,
-            value: genericLibraryDash(dto.itemNumber),
-            onTap: tapFor(dto.itemNumber)),
+            value: genericLibraryDash(itemNumber),
+            onTap: tapFor(itemNumber)),
         LibraryDetailField(
             label: releaseFields.variantLabel,
-            value: genericLibraryDash(dto.variant),
-            onTap: tapFor(dto.variant)),
+            value: genericLibraryDash(variant),
+            onTap: tapFor(variant)),
         LibraryDetailField(
             label: releaseFields.barcodeLabel,
-            value: genericLibraryDash(dto.barcode)),
+            value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
             label: mediaFields.publisherLabel,
-            value: genericLibraryDash(dto.publisher),
-            onTap: tapFor(dto.publisher)),
+            value: genericLibraryDash(publisher),
+            onTap: tapFor(publisher)),
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(dto.releaseDate) ??
-                  dto.releaseDate?.year.toString(),
+              formatPresentationNullableDate(releaseDate) ??
+                  releaseDate?.year.toString(),
             )),
         if (publishing?.pageCount != null)
           LibraryDetailField(
@@ -130,13 +139,13 @@ class PrintLibraryMediaPresentationBuilder
               onTap: tapFor(publishing.seriesGroup)),
         if (publishing?.subtitle != null)
           LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
-        if (dto.country != null)
-          LibraryDetailField(label: 'Country', value: dto.country!),
+        if (country != null)
+          LibraryDetailField(label: 'Country', value: country),
         if (musicReleaseStatus != null)
           LibraryDetailField(
               label: 'Release Status', value: musicReleaseStatus),
-        if (dto.language != null)
-          LibraryDetailField(label: 'Language', value: dto.language!),
+        if (language != null)
+          LibraryDetailField(label: 'Language', value: language),
         if (ageRating != null)
           LibraryDetailField(label: 'Age Rating', value: ageRating),
         if (audienceRating != null)
@@ -165,7 +174,7 @@ class PrintLibraryMediaPresentationBuilder
                 : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
-            value: dto.publisher == null || dto.publisher!.isEmpty
+            value: publisher == null || publisher.isEmpty
                 ? 'Missing'
                 : 'Ready'),
       ],

@@ -20,7 +20,7 @@ abstract final class MovieKindSchema {
   static final director = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.director,
     label: 'Director',
-    getValue: (dto) => dto.director ?? dto.creator,
+    getValue: (dto) => dto.director,
   );
 
   static final publisher = textField<MovieKind, MovieWorkspaceDto>(

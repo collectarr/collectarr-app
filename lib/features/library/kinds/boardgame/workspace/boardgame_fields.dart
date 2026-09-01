@@ -27,7 +27,7 @@ abstract final class BoardGameKindSchema {
   static final designer = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.designer,
     label: 'Designer',
-    getValue: (dto) => dto.creator,
+    getValue: (dto) => dto.metadata?.designers.firstOrNull ?? dto.publisher,
   );
 
   static final releaseDate = dateField<BoardGameKind, BoardGameWorkspaceDto>(

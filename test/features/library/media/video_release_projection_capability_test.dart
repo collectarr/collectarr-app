@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/video_releas
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -288,9 +289,10 @@ void main() {
 
       expect(items.length, 1);
       final dto = items.first.dto;
-      expect(dto.barcode, '987654321');
+      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+      expect(adapter?.barcode, '987654321');
       expect(dto.coverImageUrl, 'https://img.com/cover.jpg');
-      expect(dto.releaseDate, DateTime(2022, 11, 15));
+      expect(adapter?.releaseDate, DateTime(2022, 11, 15));
     });
 
     test('custom field target IDs include release ID', () {

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 Widget buildBookInspectorPanel(
@@ -23,7 +24,8 @@ class BookInspectorPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = request.inspector.item;
     final accent = request.inspector.accent;
-    final series = item.dto.seriesTitle?.trim();
+    final adapter = item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+    final series = adapter?.seriesTitle?.trim();
     final sections = const BookLibraryMediaPresentationBuilder(
       showSummary: true,
     ).buildInspectorSections(

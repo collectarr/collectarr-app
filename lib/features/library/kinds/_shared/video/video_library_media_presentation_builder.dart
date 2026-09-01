@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class VideoLibraryMediaPresentationBuilder
@@ -28,6 +29,15 @@ class VideoLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final seriesTitle = adapter?.seriesTitle;
+    final variant = adapter?.variant;
+    final barcode = adapter?.barcode;
+    final publisher = adapter?.publisher;
+    final releaseDate = adapter?.releaseDate;
+    final country = adapter?.country;
+    final language = adapter?.language;
+
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -36,39 +46,39 @@ class VideoLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'ID', value: item.node.titleItemId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
-        if (dto.seriesTitle != null)
+        if (seriesTitle != null)
           LibraryDetailField(
               label: 'Series',
-              value: dto.seriesTitle!,
-              onTap: tapFor(dto.seriesTitle)),
-        if (item.node.scope != LibraryBrowserScope.title && dto.variant != null)
+              value: seriesTitle,
+              onTap: tapFor(seriesTitle)),
+        if (item.node.scope != LibraryBrowserScope.title && variant != null)
           LibraryDetailField(
               label: releaseFields.variantLabel,
-              value: dto.variant!,
-              onTap: tapFor(dto.variant)),
-        if (item.node.scope != LibraryBrowserScope.title && dto.barcode != null)
+              value: variant,
+              onTap: tapFor(variant)),
+        if (item.node.scope != LibraryBrowserScope.title && barcode != null)
           LibraryDetailField(
-              label: releaseFields.barcodeLabel, value: dto.barcode!),
+              label: releaseFields.barcodeLabel, value: barcode),
       ],
       contextFacts: [
-        if (dto.publisher != null)
+        if (publisher != null)
           LibraryDetailField(
               label: mediaFields.publisherLabel,
-              value: dto.publisher!,
-              onTap: tapFor(dto.publisher)),
+              value: publisher,
+              onTap: tapFor(publisher)),
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(dto.releaseDate),
+              formatPresentationNullableDate(releaseDate),
             )),
-        if (dto.country != null)
-          LibraryDetailField(label: 'Country', value: dto.country!),
-        if (dto.language != null)
-          LibraryDetailField(label: 'Language', value: dto.language!),
+        if (country != null)
+          LibraryDetailField(label: 'Country', value: country),
+        if (language != null)
+          LibraryDetailField(label: 'Language', value: language),
       ],
-      creators: dto.creator != null
+      creators: publisher != null
           ? [
-              <String, dynamic>{'name': dto.creator}
+              <String, dynamic>{'name': publisher}
             ]
           : const [],
       characters: const [],
@@ -84,7 +94,7 @@ class VideoLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = item.dto.synopsis;
+    final synopsis = item.source.catalogItem?.synopsis;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }
