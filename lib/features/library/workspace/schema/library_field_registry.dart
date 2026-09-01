@@ -188,6 +188,23 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     return groupDef.getValue(context);
   }
 
+  String? getGroupSequenceValue(
+    LibraryProjectionRuntime item,
+    Object groupId,
+  ) {
+    final groupDef = findGroupDefinition(groupId);
+    final sequenceValue = groupDef?.sequenceValue;
+    if (sequenceValue == null) {
+      return null;
+    }
+    final context = LibraryProjectionContext<TDto>(
+      source: item.source,
+      node: item.node,
+      dto: item.dto as TDto,
+    );
+    return sequenceValue(context);
+  }
+
   Object? getColumnValue(LibraryProjectionRuntime item, Object columnId) {
     final columnDef = findColumnDefinition(columnId);
     if (columnDef == null) return null;

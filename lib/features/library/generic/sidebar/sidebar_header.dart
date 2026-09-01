@@ -29,7 +29,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
-    this.seriesStatusSummary,
+    this.bucketStatusSummary,
     this.filterSelection = LibraryFilterSelection.none,
     this.hasActiveFilters = false,
     this.onEditFilters,
@@ -64,7 +64,7 @@ class LibrarySidebarHeader extends StatelessWidget {
   final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
-  final LibrarySeriesStatusSummary? seriesStatusSummary;
+  final LibraryBucketStatusSummary? bucketStatusSummary;
   final LibraryFilterSelection filterSelection;
   final bool hasActiveFilters;
   final VoidCallback? onEditFilters;

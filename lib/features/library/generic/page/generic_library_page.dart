@@ -65,7 +65,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot_provider.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_providers.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_toolbar_presenter.dart';
@@ -146,7 +146,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   LibraryLinkedMetadataFilter? _linkedMetadataFilter;
   LibraryQuickView? _quickView;
   var _collectionStatusScope = LibraryCollectionStatusScope.all;
-  var _seriesCompletionScope = LibrarySeriesCompletionScope.all;
+  var _bucketCompletionScope = LibraryBucketCompletionScope.all;
   String? _groupMode;
   LibraryFolderPreset? _folderPreset;
   LibraryGroupPresentation? _groupPresentationOverride;
@@ -307,8 +307,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       setLinkedMetadataFilter: (value) => _linkedMetadataFilter = value,
       getCollectionStatusScope: () => _collectionStatusScope,
       setCollectionStatusScope: (value) => _collectionStatusScope = value,
-      getSeriesCompletionScope: () => _seriesCompletionScope,
-      setSeriesCompletionScope: (value) => _seriesCompletionScope = value,
+      getBucketCompletionScope: () => _bucketCompletionScope,
+      setBucketCompletionScope: (value) => _bucketCompletionScope = value,
       getQuickView: () => _quickView,
       setQuickView: (value) => _quickView = value,
       getFilterSelection: () => _filterSelection,
@@ -556,12 +556,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-  void _setSeriesCompletionScope(LibrarySeriesCompletionScope scope) {
-    if (_activeGroupMode != 'series') {
+  void _setBucketCompletionScope(LibraryBucketCompletionScope scope) {
+    if (!libraryGroupModeSupportsCompletion(widget.type, _activeGroupMode)) {
       return;
     }
     _mutateSidebarScope(() {
-      _seriesCompletionScope = scope;
+      _bucketCompletionScope = scope;
     });
   }
 
@@ -659,13 +659,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-  LibrarySeriesStatusSummary? _seriesStatusSummaryForProjection(
+  LibraryBucketStatusSummary? _bucketStatusSummaryForProjection(
     LibraryProjection projection,
   ) {
-    if (_activeGroupMode != 'series' || _selectedBucket == null) {
+    if (!libraryGroupModeSupportsCompletion(widget.type, _activeGroupMode) ||
+        _selectedBucket == null) {
       return null;
     }
-    LibrarySeriesBucket? selectedBucket;
+    LibraryBucket? selectedBucket;
     for (final bucket in projection.buckets) {
       if (bucket.title == _selectedBucket) {
         selectedBucket = bucket;
@@ -681,8 +682,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     var onOrderCount = 0;
     var soldCount = 0;
     var catalogOnlyCount = 0;
-    for (final item
-        in LibraryPageNumberNavigationControllerOps.seriesBucketItems(
+    for (final item in LibraryPageNumberNavigationControllerOps
+        .bucketItemsForSelectedBucket(
       this,
       projection,
     )) {
@@ -710,7 +711,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       }
     }
 
-    return LibrarySeriesStatusSummary(
+    return LibraryBucketStatusSummary(
       title: selectedBucket.title,
       totalCount: selectedBucket.count,
       ownedCount: selectedBucket.ownedCount ?? 0,

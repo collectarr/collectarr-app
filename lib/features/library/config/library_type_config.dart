@@ -263,7 +263,6 @@ class LibraryTypeConfig {
       defaultGrade: edit.defaultGrade,
       capabilities: LibraryTypeCapabilities(
         contentHierarchy: hierarchy.contentHierarchy,
-        supportsSeriesSubgroups: hierarchy.supportsSeriesSubgroups,
         supportsMediaReleaseSplit: hierarchy.supportsMediaReleaseSplit,
         supportsIndexReassignment: hierarchy.supportsIndexReassignment,
         supportsMetadataCompareWithServer: metadata.supportsServerCompare,
@@ -357,12 +356,8 @@ class LibraryTypeConfig {
 
   bool get supportsIndexReassignment => capabilities.supportsIndexReassignment;
 
-  bool get supportsSeriesIssueJump => presentation.supportsSeriesIssueJump;
-
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
-
-  bool get supportsSeriesSubgroups => capabilities.supportsSeriesSubgroups;
 
   OwnedDetailsDraft buildPersonalOwnedDetailsDraft(
     LibraryPersonalEditSelection personal,

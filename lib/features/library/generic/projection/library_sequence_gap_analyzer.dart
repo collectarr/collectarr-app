@@ -1,5 +1,5 @@
-class LibrarySeriesGapAnalyzer {
-  const LibrarySeriesGapAnalyzer();
+class LibrarySequenceGapAnalyzer {
+  const LibrarySequenceGapAnalyzer();
 
   List<int> calculateMissingIssues({
     required List<int> ownedIssues,

@@ -42,7 +42,6 @@ final musicLibraryConfig = LibraryTypeConfig(
     showsTrackData: true,
     supportsMediaReleaseSplit: true,
     supportsMetadataCompare: true,
-    supportsSeriesSubgroups: true,
     prefersSquareCovers: true,
   ),
 );

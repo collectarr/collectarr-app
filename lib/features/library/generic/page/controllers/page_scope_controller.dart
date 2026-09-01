@@ -159,7 +159,7 @@ abstract final class _LibraryScopeControllerOps {
       selectedLetter: state._selectedLetter,
       linkedMetadataFilter: state._linkedMetadataFilter,
       collectionStatusScope: state._collectionStatusScope,
-      seriesCompletionScope: state._seriesCompletionScope,
+      bucketCompletionScope: state._bucketCompletionScope,
       quickView: state._quickView,
       filterSelection: state._filterSelection,
       activeSmartListId: state._activeSmartListId,
@@ -177,7 +177,7 @@ abstract final class _LibraryScopeControllerOps {
     state._selectedLetter = snapshot.selectedLetter;
     state._linkedMetadataFilter = snapshot.linkedMetadataFilter;
     state._collectionStatusScope = snapshot.collectionStatusScope;
-    state._seriesCompletionScope = snapshot.seriesCompletionScope;
+    state._bucketCompletionScope = snapshot.bucketCompletionScope;
     state._quickView = snapshot.quickView;
     state._filterSelection = snapshot.filterSelection;
     state._activeSmartListId = snapshot.activeSmartListId;
@@ -227,7 +227,7 @@ abstract final class _LibraryScopeControllerOps {
       state._selectedLetter = null;
       state._linkedMetadataFilter = null;
       state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
       state._quickView = null;
       state._filterSelection = LibraryFilterSelection.none;
       state._activeSmartListId = null;
@@ -271,7 +271,7 @@ abstract final class _LibraryScopeControllerOps {
       state._selectedLetter = null;
       state._linkedMetadataFilter = null;
       state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
       state._scopeHistory = const [];
     });
     state._syncRouteState();
@@ -284,7 +284,7 @@ abstract final class _LibraryScopeControllerOps {
       state._filterSelection = LibraryFilterSelection.none;
       state._quickView = null;
       state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
       state._searchController.clear();
       state._selectedBucket = null;
       state._selectedLetter = null;
@@ -308,8 +308,8 @@ abstract final class _LibraryScopeControllerOps {
     if (snapshot.collectionStatusScope != LibraryCollectionStatusScope.all) {
       return snapshot.collectionStatusScope.label;
     }
-    if (snapshot.seriesCompletionScope != LibrarySeriesCompletionScope.all) {
-      return snapshot.seriesCompletionScope.label;
+    if (snapshot.bucketCompletionScope != LibraryBucketCompletionScope.all) {
+      return snapshot.bucketCompletionScope.label;
     }
     if (snapshot.selectedLetter != null) {
       return 'Letter ${snapshot.selectedLetter}';

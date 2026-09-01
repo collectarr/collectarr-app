@@ -57,7 +57,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     contentHierarchy: LibraryContentHierarchy.volumes,
     fetchChildrenCallback: _fetchMangaVolumes,
     childrenTitleBuilder: _mangaChildrenTitle,
-    supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
     collectionExportTitleLabel: 'Series',

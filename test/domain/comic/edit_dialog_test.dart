@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +39,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     final catalog = CatalogCacheRepository(db);
     final pickLists = PickListRepository(db);
-    final seriesRegistry = SeriesRegistryRepository(db);
+    final seriesRegistry = SerialAuthorityRepository(db);
     addTearDown(db.close);
 
     final catalogItems = [

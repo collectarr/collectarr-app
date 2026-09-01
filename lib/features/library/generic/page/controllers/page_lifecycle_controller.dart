@@ -189,7 +189,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._selection = LibrarySelectionState.empty();
       state._filterSelection = LibraryFilterSelection.none;
       state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
       state._activeSmartListId = null;
       state._activeSmartListName = null;
       state._pinnedViewPresets = const {};

@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draf
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/comic/relations/comic_relation_capability.dart';
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
@@ -70,7 +71,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     contentHierarchy: LibraryContentHierarchy.volumes,
     fetchChildrenCallback: _fetchComicVolumes,
     childrenTitleBuilder: _comicChildrenTitle,
-    supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: false,
     supportsIndexReassignment: true,
     showsReadingQueue: true,
@@ -82,6 +82,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     sectionsBuilder: buildComicInspectorSections,
     showsDefaultPersonalSection: false,
   ),
+  relations: comicRelationCapability,
   transfer: LibraryTransferCapability(
     transferableFieldKeys: comicTransferableFieldKeys,
     kindFields: comicTransferableFields,

@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -24,7 +24,7 @@ class FacetBuckets {
   });
 
   final String shelfSignature;
-  final List<LibrarySeriesBucket> buckets;
+  final List<LibraryBucket> buckets;
   final Map<String, Set<String>> itemIdsByBucket;
 }
 
@@ -94,12 +94,12 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   }) {
     final sorted = [
       for (final entry in byBucket.entries)
-        LibrarySeriesBucket(title: entry.key, count: entry.value.length),
+        LibraryBucket(title: entry.key, count: entry.value.length),
     ]..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
 
-    final buckets = <LibrarySeriesBucket>[
+    final buckets = <LibraryBucket>[
       if (allBucketLabel != null)
-        LibrarySeriesBucket(
+        LibraryBucket(
           title: allBucketLabel,
           count: totalItemCount ?? 0,
         ),

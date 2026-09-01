@@ -71,7 +71,7 @@ abstract final class _LibraryFacetControllerOps {
     return FacetBuckets(
       shelfSignature: signature,
       buckets: [
-        LibrarySeriesBucket(
+        LibraryBucket(
           title: genericAllBucketLabel(state.widget.type),
           count: libraryItemsForShelf(shelf, state.widget.type).length,
         ),
@@ -155,7 +155,7 @@ abstract final class _LibraryFacetControllerOps {
       final fallback = FacetBuckets(
         shelfSignature: signature,
         buckets: [
-          LibrarySeriesBucket(
+          LibraryBucket(
             title: genericAllBucketLabel(state.widget.type),
             count: shelfItemIds.length,
           ),

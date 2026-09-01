@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +26,7 @@ export 'projection/library_projection_engine.dart';
 export 'projection/library_projection_index.dart';
 export 'projection/library_projection_query.dart';
 export 'projection/library_search_index.dart';
-export 'projection/library_series_gap_analyzer.dart';
+export 'projection/library_sequence_gap_analyzer.dart';
 export 'projection/library_toolbar_stats_calculator.dart';
 export 'projection_item.dart';
 export 'quick_view.dart';
@@ -324,7 +324,7 @@ class LibraryProjection {
         LibraryCollectionStatusScope.all,
     required String groupMode,
     List<LibraryBucketScopeFilter> bucketScopeFilters = const [],
-    List<LibrarySeriesBucket>? overrideBuckets,
+    List<LibraryBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
@@ -361,12 +361,12 @@ class LibraryProjection {
 
   final List<LibraryProjectionItem> allItems;
   final List<LibraryProjectionItem> filteredItems;
-  final List<LibrarySeriesBucket> buckets;
+  final List<LibraryBucket> buckets;
   final LibraryProjectionItem? selectedItem;
   final LibraryToolbarCounts counts;
 }
 
-List<LibrarySeriesBucket> libraryBucketsForItems(
+List<LibraryBucket> libraryBucketsForItems(
   List<LibraryProjectionItem> items,
   LibraryTypeConfig type,
   String groupMode,

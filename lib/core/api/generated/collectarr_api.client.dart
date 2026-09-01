@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/core/models/series_relation.dart';
+import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'collectarr_api.models.dart';
 import 'package:dio/dio.dart';
 
@@ -339,7 +339,7 @@ class CollectarrApiClient {
     return data;
   }
 
-  Future<List<SeriesRelation>> getSeriesRelations(String seriesId) async {
+  Future<List<LibraryRelationNode>> getSeriesRelations(String seriesId) async {
     final response =
         await _dio.get<List<dynamic>>('/series/$seriesId/relations');
     final data = response.data;
@@ -348,7 +348,7 @@ class CollectarrApiClient {
     }
     return data
         .cast<Map<String, dynamic>>()
-        .map(SeriesRelation.fromJson)
+        .map(LibraryRelationNode.fromJson)
         .toList(growable: false);
   }
 

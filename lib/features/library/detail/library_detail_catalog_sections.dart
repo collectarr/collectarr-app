@@ -24,6 +24,7 @@ List<Widget> buildLibraryDetailCatalogSections({
     releaseFields: runtime.edit.releaseFields,
     item: item,
     accent: accent,
+    relationCapability: runtime.relations,
     onFilterByValue: onFilterByValue,
   );
 }
@@ -52,6 +53,7 @@ class LibraryDetailMetadataSection extends StatelessWidget {
       releaseFields: runtime.edit.releaseFields,
       item: item,
       accent: accent,
+      relationCapability: runtime.relations,
       onFilterByValue: onFilterByValue,
     );
   }

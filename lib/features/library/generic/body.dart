@@ -111,15 +111,15 @@ class LibraryBody extends StatelessWidget {
     this.activeSmartListName,
     this.quickView,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
-    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
+    this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.sidebarSelectedLetter,
-    this.seriesStatusSummary,
+    this.bucketStatusSummary,
     this.filterSelection = LibraryFilterSelection.none,
     this.preferToolbarAlphabet = false,
     this.onCollectionStatusScopeChanged,
-    this.onSeriesCompletionScopeChanged,
+    this.onBucketCompletionScopeChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
@@ -193,17 +193,17 @@ class LibraryBody extends StatelessWidget {
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;
-  final LibrarySeriesCompletionScope seriesCompletionScope;
+  final LibraryBucketCompletionScope bucketCompletionScope;
   final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? sidebarSelectedLetter;
-  final LibrarySeriesStatusSummary? seriesStatusSummary;
+  final LibraryBucketStatusSummary? bucketStatusSummary;
   final LibraryFilterSelection filterSelection;
   final bool preferToolbarAlphabet;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
-  final ValueChanged<LibrarySeriesCompletionScope>?
-      onSeriesCompletionScopeChanged;
+  final ValueChanged<LibraryBucketCompletionScope>?
+      onBucketCompletionScopeChanged;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
   final void Function(String column, String? beforeColumn) onColumnReordered;
@@ -444,17 +444,17 @@ class LibraryBody extends StatelessWidget {
           activeSmartListName: activeSmartListName,
           quickView: quickView,
           collectionStatusScope: collectionStatusScope,
-          seriesCompletionScope: seriesCompletionScope,
+          bucketCompletionScope: bucketCompletionScope,
           collectionStatusScopeLabel: collectionStatusScopeLabel,
           linkedMetadataFilterLabel: linkedMetadataFilterLabel,
           selectedLetter: sidebarSelectedLetter,
-          seriesStatusSummary: seriesStatusSummary,
+          bucketStatusSummary: bucketStatusSummary,
           filterSelection: filterSelection,
           hasActiveFilters: hasActiveFilter,
           onEditFilters: onEditFilters,
           onClearFilters: onClearFilters,
           onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
-          onSeriesCompletionScopeChanged: onSeriesCompletionScopeChanged,
+          onBucketCompletionScopeChanged: onBucketCompletionScopeChanged,
           onClearFilter:
               selectedBucket == null ? null : () => onBucketChanged(null),
           onSidebarVisibilityChanged: onSidebarVisibilityChanged,

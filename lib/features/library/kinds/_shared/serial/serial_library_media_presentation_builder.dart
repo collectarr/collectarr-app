@@ -10,9 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 
-class PrintLibraryMediaPresentationBuilder
+class SerialLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
-  const PrintLibraryMediaPresentationBuilder({
+  const SerialLibraryMediaPresentationBuilder({
     this.showSummary = false,
     this.metadataLabels = const LibraryMetadataLabels(),
   });
@@ -174,9 +174,8 @@ class PrintLibraryMediaPresentationBuilder
                 : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
-            value: publisher == null || publisher.isEmpty
-                ? 'Missing'
-                : 'Ready'),
+            value:
+                publisher == null || publisher.isEmpty ? 'Missing' : 'Ready'),
       ],
       creators: (catalogItem?.payload['creators'] as List?)
               ?.cast<Map<String, dynamic>>() ??

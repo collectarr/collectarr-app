@@ -1,57 +1,57 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collectarr_app/core/models/series_relation.dart';
-import 'package:collectarr_app/features/library/providers/series_relations_provider.dart';
+import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-typedef SeriesRelationsSection = LibraryRelationStrip;
-
-class LibraryRelationStrip extends ConsumerWidget {
+class LibraryRelationStrip extends StatelessWidget {
   const LibraryRelationStrip({
     super.key,
-    required this.seriesId,
-    this.title = 'Related Series',
+    required this.relations,
+    this.title = 'Related',
+    this.onRelationTap,
   });
 
-  final String seriesId;
+  final List<LibraryRelationNode> relations;
   final String title;
+  final ValueChanged<LibraryRelationNode>? onRelationTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final relationsAsync = ref.watch(seriesRelationsProvider(seriesId));
-
-    return relationsAsync.when(
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (relations) {
-        if (relations.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                'Related Series',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            SizedBox(
-              height: 140,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: relations.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, index) =>
-                    _RelationCard(relation: relations[index]),
-              ),
-            ),
-          ],
-        );
-      },
+  Widget build(BuildContext context) {
+    if (relations.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
+        SizedBox(
+          height: 140,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: relations.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final relation = relations[index];
+              final card = _RelationCard(relation: relation);
+              if (onRelationTap == null) {
+                return card;
+              }
+              return InkWell(
+                onTap: () => onRelationTap!(relation),
+                borderRadius: BorderRadius.circular(6),
+                child: card,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -59,7 +59,7 @@ class LibraryRelationStrip extends ConsumerWidget {
 class _RelationCard extends StatelessWidget {
   const _RelationCard({required this.relation});
 
-  final SeriesRelation relation;
+  final LibraryRelationNode relation;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +87,10 @@ class _RelationCard extends StatelessWidget {
                     )
                   : const ColoredBox(
                       color: Colors.black12,
-                      child: Icon(Icons.movie, size: 32),
+                      child: Icon(
+                        Icons.collections_bookmark_outlined,
+                        size: 32,
+                      ),
                     ),
             ),
           ),
@@ -101,7 +104,7 @@ class _RelationCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           Text(
-            relation.targetSeriesTitle,
+            relation.targetTitle,
             style: Theme.of(context).textTheme.bodySmall,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,

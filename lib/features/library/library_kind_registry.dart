@@ -93,3 +93,10 @@ LibraryKindProviderMapper? libraryKindProviderMapperForType(
 }) {
   return libraryKindRuntimeForType(type, registry: registry).providerMapper;
 }
+
+bool libraryGroupModeSupportsCompletion(
+  LibraryTypeConfig type,
+  String groupMode,
+) {
+  return libraryKindRuntimeForType(type).groupModeSupportsCompletion(groupMode);
+}

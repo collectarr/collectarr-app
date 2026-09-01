@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/print_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/serial_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
@@ -13,7 +13,7 @@ const mangaMetadataLabels = LibraryMetadataLabels(
 );
 
 class MangaLibraryMediaPresentationBuilder
-    extends PrintLibraryMediaPresentationBuilder {
+    extends SerialLibraryMediaPresentationBuilder {
   const MangaLibraryMediaPresentationBuilder()
       : super(
           showSummary: true,
@@ -83,7 +83,6 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
     'manga.genre': MangaFacetIds.genre,
     'manga.demographic': MangaFacetIds.demographic,
   },
-  supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   fieldDefinitions: mangaLibraryFieldDefinitions,
 );

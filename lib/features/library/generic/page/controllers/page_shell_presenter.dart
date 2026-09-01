@@ -135,8 +135,8 @@ abstract final class LibraryPageShellPresenter {
     }
     final searchState = state._searchControllerOps.state;
     final trimmedSearchQuery = searchState.query.trim();
-    final seriesStatusSummary =
-        state._seriesStatusSummaryForProjection(projection);
+    final bucketStatusSummary =
+        state._bucketStatusSummaryForProjection(projection);
     if (kDebugMode &&
         kIsWeb &&
         state._selectedId == null &&
@@ -160,10 +160,13 @@ abstract final class LibraryPageShellPresenter {
             activeFacetId,
             state._genericShelfSignature(shelfState),
           );
-    final canUseSeriesCompletionScope = state._activeGroupMode == 'series';
-    final effectiveSeriesCompletionScope = canUseSeriesCompletionScope
-        ? state._seriesCompletionScope
-        : LibrarySeriesCompletionScope.all;
+    final canUseBucketCompletionScope = libraryGroupModeSupportsCompletion(
+      state.widget.type,
+      state._activeGroupMode,
+    );
+    final effectiveBucketCompletionScope = canUseBucketCompletionScope
+        ? state._bucketCompletionScope
+        : LibraryBucketCompletionScope.all;
     return LibraryBody(
       type: state.widget.type,
       projection: projection,
@@ -274,19 +277,19 @@ abstract final class LibraryPageShellPresenter {
       activeSmartListName: state._activeSmartListName,
       quickView: state._quickView,
       collectionStatusScope: state._collectionStatusScope,
-      seriesCompletionScope: effectiveSeriesCompletionScope,
+      bucketCompletionScope: effectiveBucketCompletionScope,
       collectionStatusScopeLabel:
           state._collectionStatusScope == LibraryCollectionStatusScope.all
               ? null
               : state._collectionStatusScope.label,
       linkedMetadataFilterLabel: state._linkedMetadataFilter?.chipLabel,
       sidebarSelectedLetter: state._selectedLetter,
-      seriesStatusSummary: seriesStatusSummary,
+      bucketStatusSummary: bucketStatusSummary,
       filterSelection: state._filterSelection,
       preferToolbarAlphabet: true,
       onCollectionStatusScopeChanged: state._toggleCollectionStatusScope,
-      onSeriesCompletionScopeChanged:
-          canUseSeriesCompletionScope ? state._setSeriesCompletionScope : null,
+      onBucketCompletionScopeChanged:
+          canUseBucketCompletionScope ? state._setBucketCompletionScope : null,
       onFilterByValue: state._toggleLinkedMetadataFilter,
       selectedLetter: state._selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(

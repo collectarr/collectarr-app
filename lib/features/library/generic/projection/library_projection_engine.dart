@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 
 class LibraryProjectionEngine {
   LibraryProjectionEngine({
@@ -36,7 +36,7 @@ class LibraryProjectionEngine {
     required LibraryProjectionQuery query,
     LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
     String? releaseFolderTitleItemId,
-    List<LibrarySeriesBucket>? overrideBuckets,
+    List<LibraryBucket>? overrideBuckets,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =

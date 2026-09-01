@@ -1,7 +1,7 @@
 /// Development seed data for the local database.
 ///
 /// Populates CatalogCache, OwnedItemsCache, TrackingEntriesCache,
-/// PickListValues, SeriesRegistry, CustomFieldDefinitions/Values
+/// PickListValues, SerialAuthority, CustomFieldDefinitions/Values
 /// with ~10 entries per library kind, all fields maximally populated.
 ///
 /// Usage: call `seedLocalDatabase(db)` from main.dart or a debug menu.
@@ -272,7 +272,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     ..._comicItems().map(_enrichSeedItem),
   ];
 
-  // upsertAll also auto-populates SeriesRegistry & PickLists from catalog data
+  // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);
 
   // --- Owned Items ---

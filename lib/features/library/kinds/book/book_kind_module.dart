@@ -56,7 +56,6 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.volumes,
     fetchChildrenCallback: _fetchBookVolumes,
-    supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: true,
     showsReadingQueue: true,
     collectionExportTitleLabel: 'Title',

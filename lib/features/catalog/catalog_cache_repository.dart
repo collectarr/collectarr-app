@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:drift/drift.dart';
 
@@ -326,7 +326,7 @@ class CatalogCacheRepository {
   Future<void> _captureDerivedVocabulary(Iterable<dynamic> items) async {
     final list = items.toList(growable: false);
     final pickLists = PickListRepository(_db);
-    final seriesRegistry = SeriesRegistryRepository(_db);
+    final serialAuthority = SerialAuthorityRepository(_db);
     final byKind = <String, List<Map<String, dynamic>>>{};
     for (final item in list) {
       final kind =
@@ -364,7 +364,7 @@ class CatalogCacheRepository {
           );
         }
       }
-      await seriesRegistry.captureCatalogItemsWithoutTransaction(list);
+      await serialAuthority.captureCatalogItemsWithoutTransaction(list);
     });
   }
 

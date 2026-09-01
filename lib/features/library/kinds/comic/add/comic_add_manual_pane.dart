@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/add/library_add_result_badge.dar
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -32,7 +32,7 @@ class ComicAddManualPane extends ConsumerStatefulWidget {
 class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
   List<String> _publisherOptions = const [];
   List<String> _physicalFormatOptions = const [];
-  List<SeriesRegistryEntry> _seriesEntries = const [];
+  List<SerialAuthorityEntry> _seriesEntries = const [];
   String? _selectedSeriesId;
 
   @override
@@ -69,7 +69,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
         builtInValues: [for (final format in formats) format.label],
         selectedValue: comicDraft.physicalFormatLabelController.text,
       ),
-      SeriesRegistryRepository(db).searchEntries(
+      SerialAuthorityRepository(db).searchEntries(
         mediaKind: CatalogMediaKind.comic.apiValue,
         selectedTitle: widget.request.titleController.text,
         selectedSeriesId: _selectedSeriesId,
@@ -79,8 +79,8 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
     setState(() {
       _publisherOptions = List<String>.from(results[0] as List<String>);
       _physicalFormatOptions = List<String>.from(results[1] as List<String>);
-      _seriesEntries = List<SeriesRegistryEntry>.from(
-          results[2] as List<SeriesRegistryEntry>);
+      _seriesEntries = List<SerialAuthorityEntry>.from(
+          results[2] as List<SerialAuthorityEntry>);
     });
   }
 
@@ -105,7 +105,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
 
   void _setManualSeries(String? value) {
     final normalized = (value ?? '').trim();
-    final match = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+    final match = _seriesEntries.cast<SerialAuthorityEntry?>().firstWhere(
           (entry) =>
               entry != null &&
               entry.title.trim().toLowerCase() == normalized.toLowerCase(),

@@ -1304,7 +1304,7 @@ _SchemaTableCategory _inferCategory(String tableName) {
       lower.contains('customfield') ||
       lower.contains('userfolder') ||
       lower.contains('smartlist') ||
-      lower.contains('seriesregistry') ||
+      lower.contains('serialauthority') ||
       lower.contains('picklist')) {
     return _SchemaTableCategory.settings;
   }

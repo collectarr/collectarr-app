@@ -252,7 +252,6 @@ void main() {
     expect(booksLibraryConfig.capabilities.showsCreatorSpotlight, isTrue);
     expect(booksLibraryConfig.supportsReadingQueue, isTrue);
     expect(booksLibraryConfig.supportsMediaReleaseSplit, isTrue);
-    expect(booksLibraryConfig.supportsSeriesIssueJump, isFalse);
     expect(moviesLibraryConfig.capabilities.showsCreatorSpotlight, isFalse);
     expect(moviesLibraryConfig.supportsReadingQueue, isFalse);
   });
@@ -708,7 +707,6 @@ void main() {
       'comic.story_arc',
       'comic.character',
     ]);
-    expect(comicsLibraryConfig.presentation.supportsSeriesIssueJump, isTrue);
     expect(
       comicsLibraryConfig.presentation.sortFavorites
           .map((LibrarySortFavorite favorite) => favorite.id),

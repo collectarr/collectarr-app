@@ -11,8 +11,8 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
@@ -389,12 +389,12 @@ class ComicEditHostAdapter implements ComicEditHost {
     markDirty();
   }
 
-  Future<List<SeriesRegistryEntry>> get _comicSeriesEntries {
+  Future<List<SerialAuthorityEntry>> get _comicSeriesEntries {
     final comicDraft = _comicDraft;
     if (comicDraft == null) {
-      return Future.value(const <SeriesRegistryEntry>[]);
+      return Future.value(const <SerialAuthorityEntry>[]);
     }
-    return comicDraft.seriesEntriesFuture ??= SeriesRegistryRepository(
+    return comicDraft.seriesEntriesFuture ??= SerialAuthorityRepository(
       comicRef.read(localDatabaseProvider),
     ).searchEntries(
       mediaKind: draft.type.workspace.kind.apiValue,
@@ -504,7 +504,7 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   Widget buildComicSeriesField() {
-    return FutureBuilder<List<SeriesRegistryEntry>>(
+    return FutureBuilder<List<SerialAuthorityEntry>>(
       future: _comicSeriesEntries,
       builder: (context, snapshot) {
         return SingleValuePickField(
@@ -512,7 +512,7 @@ class ComicEditHostAdapter implements ComicEditHost {
               TextEditingController(),
           label: 'Series',
           options: [
-            for (final entry in snapshot.data ?? const <SeriesRegistryEntry>[])
+            for (final entry in snapshot.data ?? const <SerialAuthorityEntry>[])
               entry.title,
           ],
           showPickerListAction: true,

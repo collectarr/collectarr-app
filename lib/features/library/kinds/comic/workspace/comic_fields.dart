@@ -318,6 +318,7 @@ final comicLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.collections_bookmark_outlined,
     supportsJump: true,
+    sequenceValue: (context) => context.dto.itemNumber,
   ),
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
     ComicKindSchema.publisher,

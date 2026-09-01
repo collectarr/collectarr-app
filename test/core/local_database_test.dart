@@ -56,10 +56,10 @@ void main() {
   test('reports the reset v4 schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 4);
+    expect(db.schemaVersion, 5);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v4 schema',
+  test('destructively rebuilds a higher-versioned cache to the v5 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -87,7 +87,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 4);
+    expect(version.data.values.first, 5);
   });
 
   test('stores personal collection and wishlist data locally', () async {

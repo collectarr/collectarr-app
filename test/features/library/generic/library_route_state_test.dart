@@ -22,7 +22,7 @@ void main() {
       selectedLetter: 'A',
       linkedMetadataValue: 'Ridley Scott',
       collectionStatusScope: LibraryCollectionStatusScope.inCollection,
-      seriesCompletionScope: LibrarySeriesCompletionScope.completed,
+      bucketCompletionScope: LibraryBucketCompletionScope.completed,
       quickView: LibraryQuickView.missingMetadata,
       filterSelection: LibraryFilterSelection(
         ownershipFilter: LibraryOwnershipFilter.owned,
@@ -45,7 +45,7 @@ void main() {
         'group.movie.director>group.movie.publisher');
     expect(uri.queryParameters['filterValue'], 'Action');
     expect(uri.queryParameters['sort'], 'title:asc,updated:desc');
-    expect(uri.queryParameters['seriesScope'], 'completed');
+    expect(uri.queryParameters['bucketScope'], 'completed');
     expect(parsed.kind, 'movie');
     expect(parsed.searchQuery, 'alien');
     expect(parsed.groupMode, 'movie.director');
@@ -63,8 +63,8 @@ void main() {
       LibraryCollectionStatusScope.inCollection,
     );
     expect(
-      parsed.seriesCompletionScope,
-      LibrarySeriesCompletionScope.completed,
+      parsed.bucketCompletionScope,
+      LibraryBucketCompletionScope.completed,
     );
     expect(parsed.quickView, LibraryQuickView.missingMetadata);
     expect(
@@ -156,21 +156,21 @@ void main() {
     final state = LibraryRouteState(
       kind: 'book',
       groupMode: 'publisher',
-      seriesCompletionScope: LibrarySeriesCompletionScope.completed,
+      bucketCompletionScope: LibraryBucketCompletionScope.completed,
     );
 
     final filtered = state.filteredForType(booksLibraryConfig);
     expect(filtered.groupMode, 'book.publisher');
-    expect(filtered.seriesCompletionScope, LibrarySeriesCompletionScope.all);
+    expect(filtered.bucketCompletionScope, LibraryBucketCompletionScope.all);
 
     final seriesFiltered = LibraryRouteState(
       kind: 'book',
       groupMode: 'series',
-      seriesCompletionScope: LibrarySeriesCompletionScope.completed,
+      bucketCompletionScope: LibraryBucketCompletionScope.completed,
     ).filteredForType(booksLibraryConfig);
     expect(
-      seriesFiltered.seriesCompletionScope,
-      LibrarySeriesCompletionScope.completed,
+      seriesFiltered.bucketCompletionScope,
+      LibraryBucketCompletionScope.completed,
     );
   });
 }

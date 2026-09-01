@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   const LibraryHierarchyCapability({
     this.contentHierarchy = LibraryContentHierarchy.flat,
-    this.supportsSeriesSubgroups = false,
     this.supportsMediaReleaseSplit = false,
     this.supportsIndexReassignment = false,
     this.showsReadingQueue = false,
@@ -23,7 +22,6 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   });
 
   final LibraryContentHierarchy contentHierarchy;
-  final bool supportsSeriesSubgroups;
   final bool supportsMediaReleaseSplit;
   final bool supportsIndexReassignment;
   final bool showsReadingQueue;

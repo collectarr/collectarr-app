@@ -35,7 +35,6 @@ final gamesLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     canScanCover: true,
     supportsMediaReleaseSplit: true,
-    supportsSeriesSubgroups: true,
   ),
   showsDefaultInspectorPersonalSection: false,
 );

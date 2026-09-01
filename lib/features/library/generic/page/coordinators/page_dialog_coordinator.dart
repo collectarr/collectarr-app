@@ -77,7 +77,7 @@ class LibraryPageDialogCoordinator {
       _page.selectedLetter = null;
       _page.linkedMetadataFilter = null;
       _page.collectionStatusScope = LibraryCollectionStatusScope.all;
-      _page.seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      _page.bucketCompletionScope = LibraryBucketCompletionScope.all;
       _page.quickView = null;
       _page.filterSelection = LibraryFilterSelection.none;
       _page.activeSmartListId = null;

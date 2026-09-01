@@ -33,7 +33,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       state._selectedLetter = null;
       state._linkedMetadataFilter = null;
       state._collectionStatusScope = LibraryCollectionStatusScope.all;
-      state._seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      state._bucketCompletionScope = LibraryBucketCompletionScope.all;
       state._quickView = null;
       state._filterSelection = LibraryFilterSelection.none;
       state._activeSmartListId = null;
@@ -53,9 +53,10 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     if (target == null) {
       return null;
     }
-    for (final item in seriesBucketItems(state, projection)) {
-      final adapter =
-          item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
+    for (final item in bucketItemsForSelectedBucket(state, projection)) {
+      final adapter = item.dto is WorkspaceDtoAdapter
+          ? item.dto as WorkspaceDtoAdapter
+          : null;
       if (_selectionSortNumber(adapter?.itemNumber) == target) {
         return item;
       }
@@ -63,12 +64,13 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     return null;
   }
 
-  static List<LibraryProjectionItem> seriesBucketItems(
+  static List<LibraryProjectionItem> bucketItemsForSelectedBucket(
     GenericLibraryPageState state,
     LibraryProjection projection,
   ) {
     return projection.filteredItems.where((item) {
-      if (state._activeGroupMode != 'series') {
+      if (!libraryGroupModeSupportsCompletion(
+          state.widget.type, state._activeGroupMode)) {
         return false;
       }
       if (item.node.scope != LibraryBrowserScope.title) {

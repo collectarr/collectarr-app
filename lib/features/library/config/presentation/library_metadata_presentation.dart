@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
+import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -157,6 +157,7 @@ abstract class LibraryMediaPresentationBuilder {
     required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required Color accent,
+    LibraryRelationCapability? relationCapability,
     ValueChanged<String>? onFilterByValue,
   }) {
     return [
@@ -167,6 +168,7 @@ abstract class LibraryMediaPresentationBuilder {
         releaseFields: releaseFields,
         item: item,
         accent: accent,
+        relationCapability: relationCapability,
         onFilterByValue: onFilterByValue,
       ),
       buildDetailContextSection(
@@ -197,6 +199,7 @@ abstract class LibraryMediaPresentationBuilder {
     required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required Color accent,
+    LibraryRelationCapability? relationCapability,
     ValueChanged<String>? onFilterByValue,
   }) {
     final presentation = buildMetadataPresentation(
@@ -207,22 +210,15 @@ abstract class LibraryMediaPresentationBuilder {
       includeIdentityFacts: true,
       tapFor: _tapResolver(onFilterByValue),
     );
-    final seriesRaw = item.source.catalogItem?.payload['series'];
-    final series = seriesRaw is Map
-        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
-        : null;
+    final relationTarget = relationCapability?.targetFor(item);
     final identityFacts = presentation.identityFacts.map((fact) {
-      if (fact.label == 'Series' &&
-          series?.seriesId != null &&
-          series!.seriesId!.trim().isNotEmpty &&
-          series.seriesTitle != null &&
-          series.seriesTitle!.trim().isNotEmpty) {
+      if (relationTarget != null &&
+          fact.label == relationTarget.label &&
+          fact.value.trim() == relationTarget.title) {
         return LibraryDetailField(
           label: fact.label,
           value: fact.value,
-          onTap: () => context.push(
-            '/series/${Uri.encodeComponent(series.seriesId!)}?title=${Uri.encodeQueryComponent(series.seriesTitle!)}',
-          ),
+          onTap: () => relationCapability!.openTarget(context, relationTarget),
         );
       }
       return fact;

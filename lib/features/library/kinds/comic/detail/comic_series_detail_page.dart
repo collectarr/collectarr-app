@@ -1,30 +1,32 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_relation_strip.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-final _seriesDetailProvider = FutureProvider.autoDispose
-    .family<_SeriesDetailData, String>((ref, seriesId) async {
+final _comicSeriesDetailProvider = FutureProvider.autoDispose
+    .family<_ComicSeriesDetailData, String>((ref, seriesId) async {
   final api = ref.watch(apiClientProvider);
   final series = await api.getSeries(seriesId);
   final items = await api.getSeriesItems(seriesId);
   final relations = await api.getSeriesRelations(seriesId);
-  return _SeriesDetailData(
+  return _ComicSeriesDetailData(
     series: series,
     items: items,
     relations: relations,
   );
 });
 
-class SeriesDetailPage extends ConsumerWidget {
-  const SeriesDetailPage({
+class ComicSeriesDetailPage extends ConsumerWidget {
+  const ComicSeriesDetailPage({
     super.key,
     required this.seriesId,
     required this.seriesTitle,
@@ -35,7 +37,7 @@ class SeriesDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detail = ref.watch(_seriesDetailProvider(seriesId));
+    final detail = ref.watch(_comicSeriesDetailProvider(seriesId));
     return Scaffold(
       appBar: AppBar(
         title: Text(seriesTitle),
@@ -44,16 +46,16 @@ class SeriesDetailPage extends ConsumerWidget {
         loading: () => const AppLoadingIndicator(),
         error: (error, _) => AppErrorCard(
           message: error.toString(),
-          onRetry: () => ref.invalidate(_seriesDetailProvider(seriesId)),
+          onRetry: () => ref.invalidate(_comicSeriesDetailProvider(seriesId)),
         ),
-        data: (data) => _SeriesDetailBody(data: data),
+        data: (data) => _ComicSeriesDetailBody(data: data),
       ),
     );
   }
 }
 
-class _SeriesDetailData {
-  const _SeriesDetailData({
+class _ComicSeriesDetailData {
+  const _ComicSeriesDetailData({
     required this.series,
     required this.items,
     required this.relations,
@@ -61,13 +63,13 @@ class _SeriesDetailData {
 
   final Map<String, dynamic> series;
   final List<Map<String, dynamic>> items;
-  final List<SeriesRelation> relations;
+  final List<LibraryRelationNode> relations;
 }
 
-class _SeriesDetailBody extends ConsumerWidget {
-  const _SeriesDetailBody({required this.data});
+class _ComicSeriesDetailBody extends ConsumerWidget {
+  const _ComicSeriesDetailBody({required this.data});
 
-  final _SeriesDetailData data;
+  final _ComicSeriesDetailData data;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -154,20 +156,17 @@ class _SeriesDetailBody extends ConsumerWidget {
         ],
         if (data.relations.isNotEmpty) ...[
           const SizedBox(height: 20),
-          Text(
-            'Related Series',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 140,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: data.relations.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) =>
-                  _SeriesRelationCard(relation: data.relations[index]),
-            ),
+          LibraryRelationStrip(
+            title: 'Related Series',
+            relations: data.relations,
+            onRelationTap: (relation) {
+              if (relation.targetKind.trim().toLowerCase() != 'comic') {
+                return;
+              }
+              context.push(
+                '/comic/series/${Uri.encodeComponent(relation.targetId)}?title=${Uri.encodeQueryComponent(relation.targetTitle)}',
+              );
+            },
           ),
         ],
         const SizedBox(height: 20),
@@ -178,7 +177,7 @@ class _SeriesDetailBody extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(width: 8),
-            if (data.items.isNotEmpty) ...[
+            if (data.items.isNotEmpty)
               Builder(builder: (context) {
                 final ownedCount = data.items.where((item) {
                   final id = item['id']?.toString();
@@ -195,7 +194,6 @@ class _SeriesDetailBody extends ConsumerWidget {
                   ),
                 );
               }),
-            ],
           ],
         ),
         const SizedBox(height: 8),
@@ -235,40 +233,11 @@ class _SeriesDetailBody extends ConsumerWidget {
                     spacing: 6,
                     runSpacing: 4,
                     children: [
-                      for (final n in missingNumbers.take(20))
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0x22FF9800),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '#$n',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFFF9800),
-                            ),
-                          ),
-                        ),
+                      for (final number in missingNumbers.take(20))
+                        _MissingIssueChip(label: '#$number'),
                       if (missingNumbers.length > 20)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0x22FF9800),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '+${missingNumbers.length - 20} more',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFFF9800),
-                            ),
-                          ),
-                        ),
+                        _MissingIssueChip(
+                            label: '+${missingNumbers.length - 20} more'),
                     ],
                   ),
                 ],
@@ -280,7 +249,7 @@ class _SeriesDetailBody extends ConsumerWidget {
           const Text('No catalog items were returned for this series.')
         else
           for (final item in data.items)
-            _SeriesItemTile(
+            _ComicSeriesItemTile(
               item: item,
               isOwned: ownedItemIds.containsKey(item['id']?.toString()),
             ),
@@ -289,8 +258,33 @@ class _SeriesDetailBody extends ConsumerWidget {
   }
 }
 
-class _SeriesItemTile extends StatelessWidget {
-  const _SeriesItemTile({required this.item, required this.isOwned});
+class _MissingIssueChip extends StatelessWidget {
+  const _MissingIssueChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0x22FF9800),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFFFF9800),
+        ),
+      ),
+    );
+  }
+}
+
+class _ComicSeriesItemTile extends StatelessWidget {
+  const _ComicSeriesItemTile({required this.item, required this.isOwned});
 
   final Map<String, dynamic> item;
   final bool isOwned;
@@ -360,74 +354,8 @@ class _SeriesItemTile extends StatelessWidget {
   }
 }
 
-class _SeriesRelationCard extends StatelessWidget {
-  const _SeriesRelationCard({required this.relation});
-
-  final SeriesRelation relation;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 108,
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: SizedBox(
-              width: 84,
-              height: 84,
-              child: relation.imageUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: relation.imageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => ColoredBox(
-                        color: appPalette(context)
-                            .surfaceSubtle
-                            .withValues(alpha: 0.82),
-                        child: const Icon(Icons.image, size: 30),
-                      ),
-                      errorWidget: (_, __, ___) => ColoredBox(
-                        color: appPalette(context)
-                            .surfaceSubtle
-                            .withValues(alpha: 0.82),
-                        child:
-                            const Icon(Icons.broken_image_outlined, size: 30),
-                      ),
-                    )
-                  : ColoredBox(
-                      color: appPalette(context)
-                          .surfaceSubtle
-                          .withValues(alpha: 0.82),
-                      child: const Icon(Icons.collections_bookmark_outlined,
-                          size: 30),
-                    ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            relation.relationLabel,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            relation.targetSeriesTitle,
-            style: Theme.of(context).textTheme.bodySmall,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 
-/// Computes missing issue numbers between the min and max owned issues.
 List<int> _computeMissingIssues(
   List<dynamic> items,
   Map<String, OwnedItem> ownedItemIds,
@@ -436,9 +364,9 @@ List<int> _computeMissingIssues(
   final allNumbers = <int>{};
   for (final item in items) {
     if (item is! Map) continue;
-    final numberStr = item['item_number']?.toString();
-    if (numberStr == null) continue;
-    final match = _issueNumberRegExp.firstMatch(numberStr);
+    final numberString = item['item_number']?.toString();
+    if (numberString == null) continue;
+    final match = _issueNumberRegExp.firstMatch(numberString);
     final number = match == null ? null : int.tryParse(match.group(1)!);
     if (number == null) continue;
     allNumbers.add(number);
@@ -451,9 +379,9 @@ List<int> _computeMissingIssues(
   final sorted = ownedNumbers.toList()..sort();
   if (sorted.last - sorted.first > 5000) return const [];
   final missing = <int>[];
-  for (var n = sorted.first; n <= sorted.last; n++) {
-    if (!ownedNumbers.contains(n) && allNumbers.contains(n)) {
-      missing.add(n);
+  for (var number = sorted.first; number <= sorted.last; number++) {
+    if (!ownedNumbers.contains(number) && allNumbers.contains(number)) {
+      missing.add(number);
       if (missing.length > 1000) break;
     }
   }

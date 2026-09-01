@@ -1,19 +1,19 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
-Future<SeriesRegistryEntry?> showSeriesPickerDialog({
+Future<SerialAuthorityEntry?> showSeriesPickerDialog({
   required BuildContext context,
   required LocalDatabase db,
   required String mediaKind,
   String? selectedTitle,
   String? selectedSeriesId,
 }) {
-  return showDialog<SeriesRegistryEntry>(
+  return showDialog<SerialAuthorityEntry>(
     context: context,
     builder: (_) => _SeriesPickerDialog(
       db: db,
@@ -56,17 +56,17 @@ class _SeriesPickerDialog extends StatefulWidget {
 }
 
 class _SeriesPickerDialogState extends State<_SeriesPickerDialog> {
-  late final SeriesRegistryRepository _repo;
+  late final SerialAuthorityRepository _repo;
   final _searchController = TextEditingController();
 
-  List<SeriesRegistryEntry> _entries = const [];
+  List<SerialAuthorityEntry> _entries = const [];
   bool _loading = true;
   String? _selectedEntryId;
 
   @override
   void initState() {
     super.initState();
-    _repo = SeriesRegistryRepository(widget.db);
+    _repo = SerialAuthorityRepository(widget.db);
     _selectedEntryId = widget.selectedSeriesId;
     _load();
   }
@@ -235,7 +235,7 @@ class _SeriesPickerDialogState extends State<_SeriesPickerDialog> {
         ),
         FilledButton(
           onPressed: () {
-            final selected = _entries.cast<SeriesRegistryEntry?>().firstWhere(
+            final selected = _entries.cast<SerialAuthorityEntry?>().firstWhere(
                   (entry) => entry?.id == _selectedEntryId,
                   orElse: () => null,
                 );
@@ -262,15 +262,15 @@ class _SeriesManagerDialog extends StatefulWidget {
 }
 
 class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
-  late final SeriesRegistryRepository _repo;
+  late final SerialAuthorityRepository _repo;
   final _searchController = TextEditingController();
-  List<SeriesRegistryEntry> _entries = const [];
+  List<SerialAuthorityEntry> _entries = const [];
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _repo = SeriesRegistryRepository(widget.db);
+    _repo = SerialAuthorityRepository(widget.db);
     _load();
   }
 
@@ -294,7 +294,7 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
     });
   }
 
-  Future<void> _editEntry(SeriesRegistryEntry entry) async {
+  Future<void> _editEntry(SerialAuthorityEntry entry) async {
     final result = await _showSeriesEditDialog(
       context,
       initialTitle: entry.title,
@@ -311,7 +311,7 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
     await _load();
   }
 
-  Future<void> _mergeEntry(SeriesRegistryEntry source) async {
+  Future<void> _mergeEntry(SerialAuthorityEntry source) async {
     final targetId = await showDialog<String>(
       context: context,
       builder: (context) {
@@ -645,7 +645,7 @@ class _SeriesPickerRow extends StatelessWidget {
     required this.onTap,
   });
 
-  final SeriesRegistryEntry entry;
+  final SerialAuthorityEntry entry;
   final bool selected;
   final VoidCallback onTap;
 
@@ -708,7 +708,7 @@ class _SeriesManagerRow extends StatelessWidget {
     required this.onMerge,
   });
 
-  final SeriesRegistryEntry entry;
+  final SerialAuthorityEntry entry;
   final bool canMerge;
   final VoidCallback onEdit;
   final VoidCallback onMerge;

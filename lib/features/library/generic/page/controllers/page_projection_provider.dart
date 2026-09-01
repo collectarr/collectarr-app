@@ -39,7 +39,7 @@ class LibraryProjectionRequest {
   final LibraryCollectionStatusScope collectionStatusScope;
   final String groupMode;
   final List<LibraryBucketScopeFilter> bucketScopeFilters;
-  final List<LibrarySeriesBucket>? overrideBuckets;
+  final List<LibraryBucket>? overrideBuckets;
   final Set<String>? constrainedItemIds;
   final LibraryFilterSelection filterSelection;
   final Map<String, List<String>> customFieldValuesByItem;

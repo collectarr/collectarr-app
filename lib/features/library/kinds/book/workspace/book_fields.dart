@@ -255,6 +255,7 @@ final bookLibraryGroupDefinitions = [
     BookKindSchema.series,
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
+    sequenceValue: (context) => context.dto.itemNumber,
   ),
   groupFromField<BookKind, BookWorkspaceDto, String?>(
     BookKindSchema.format,

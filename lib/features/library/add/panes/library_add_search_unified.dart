@@ -1,5 +1,4 @@
 import 'library_add_pane_dependencies.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add/comic_search_helpers.dart';
 import 'library_add_search_pane.dart';
 
 // ---------------------------------------------------------------------------
@@ -63,10 +62,6 @@ String _providerGroupTitle(ProviderCandidate candidate) {
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }
-  final titleMeta = comicTitleIssueMetadata(candidate.title);
-  if (titleMeta != null) {
-    return titleMeta.seriesTitle;
-  }
   return candidate.title.trim().isEmpty ? 'Untitled' : candidate.title.trim();
 }
 
@@ -83,7 +78,7 @@ bool isSeriesCandidate(ProviderCandidate candidate) {
   if (issueNumber != null && issueNumber.isNotEmpty) {
     return false;
   }
-  return comicTitleIssueMetadata(candidate.title) == null;
+  return true;
 }
 
 /// Builds a unified list of [_UnifiedSearchGroup] from Core and Provider
@@ -176,7 +171,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
 
   // Sort provider items within each group (numeric by issue number).
   for (final key in finalKeys) {
-    providerItemsMap[key]?.sort(compareComicIssueCandidates);
+    providerItemsMap[key]?.sort(_compareProviderCandidates);
   }
 
   return [
@@ -194,6 +189,36 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
           sources: sourceSets[key]!,
         ),
   ];
+}
+
+int _compareProviderCandidates(
+  ProviderCandidate left,
+  ProviderCandidate right,
+) {
+  final leftNumber = left.issueNumber?.trim();
+  final rightNumber = right.issueNumber?.trim();
+  if (leftNumber == null || leftNumber.isEmpty) {
+    if (rightNumber != null && rightNumber.isNotEmpty) {
+      return 1;
+    }
+  } else if (rightNumber == null || rightNumber.isEmpty) {
+    return -1;
+  } else {
+    final numericLeft = int.tryParse(leftNumber);
+    final numericRight = int.tryParse(rightNumber);
+    if (numericLeft != null &&
+        numericRight != null &&
+        numericLeft != numericRight) {
+      return numericLeft.compareTo(numericRight);
+    }
+    final byNumber = leftNumber.toLowerCase().compareTo(
+          rightNumber.toLowerCase(),
+        );
+    if (byNumber != 0) {
+      return byNumber;
+    }
+  }
+  return left.title.toLowerCase().compareTo(right.title.toLowerCase());
 }
 
 // -- Widgets -----------------------------------------------------------------

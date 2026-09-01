@@ -107,9 +107,9 @@ class LibraryWorkspaceSessionController
     );
   }
 
-  void setSeriesCompletionScope(LibrarySeriesCompletionScope scope) {
+  void setBucketCompletionScope(LibraryBucketCompletionScope scope) {
     state = state.copyWith(
-      filters: state.filters.copyWith(seriesCompletionScope: scope),
+      filters: state.filters.copyWith(bucketCompletionScope: scope),
     );
   }
 

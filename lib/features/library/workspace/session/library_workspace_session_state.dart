@@ -20,7 +20,7 @@ final class LibrarySessionFilterState {
     this.visibleColumnIds = const {},
     this.presentationLevelId,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
-    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
+    this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.selectedLetter,
     this.quickView,
     this.linkedMetadataFilter,
@@ -36,7 +36,7 @@ final class LibrarySessionFilterState {
   final Set<String> visibleColumnIds;
   final String? presentationLevelId;
   final LibraryCollectionStatusScope collectionStatusScope;
-  final LibrarySeriesCompletionScope seriesCompletionScope;
+  final LibraryBucketCompletionScope bucketCompletionScope;
   final String? selectedLetter;
   final LibraryQuickView? quickView;
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;
@@ -52,7 +52,7 @@ final class LibrarySessionFilterState {
     Set<String>? visibleColumnIds,
     String? Function()? presentationLevelId,
     LibraryCollectionStatusScope? collectionStatusScope,
-    LibrarySeriesCompletionScope? seriesCompletionScope,
+    LibraryBucketCompletionScope? bucketCompletionScope,
     String? Function()? selectedLetter,
     LibraryQuickView? Function()? quickView,
     LibraryLinkedMetadataFilter? Function()? linkedMetadataFilter,
@@ -71,8 +71,8 @@ final class LibrarySessionFilterState {
           : this.presentationLevelId,
       collectionStatusScope:
           collectionStatusScope ?? this.collectionStatusScope,
-      seriesCompletionScope:
-          seriesCompletionScope ?? this.seriesCompletionScope,
+      bucketCompletionScope:
+          bucketCompletionScope ?? this.bucketCompletionScope,
       selectedLetter:
           selectedLetter != null ? selectedLetter() : this.selectedLetter,
       quickView: quickView != null ? quickView() : this.quickView,
@@ -97,7 +97,7 @@ final class LibrarySessionFilterState {
           setEquals(visibleColumnIds, other.visibleColumnIds) &&
           presentationLevelId == other.presentationLevelId &&
           collectionStatusScope == other.collectionStatusScope &&
-          seriesCompletionScope == other.seriesCompletionScope &&
+          bucketCompletionScope == other.bucketCompletionScope &&
           selectedLetter == other.selectedLetter &&
           quickView == other.quickView &&
           linkedMetadataFilter == other.linkedMetadataFilter &&
@@ -115,7 +115,7 @@ final class LibrarySessionFilterState {
         Object.hashAll(visibleColumnIds),
         presentationLevelId,
         collectionStatusScope,
-        seriesCompletionScope,
+        bucketCompletionScope,
         selectedLetter,
         quickView,
         linkedMetadataFilter,

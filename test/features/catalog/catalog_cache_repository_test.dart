@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/test_data_factories.dart';
@@ -40,7 +40,7 @@ void main() {
     ]);
 
     final pickLists = PickListRepository(db);
-    final seriesRegistry = SeriesRegistryRepository(db);
+    final seriesRegistry = SerialAuthorityRepository(db);
 
     expect(
       await pickLists.getValues(ComicVocabularyIds.publisher.value,

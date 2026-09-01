@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +15,7 @@ class LibraryCompactBucketBar extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final List<LibrarySeriesBucket> buckets;
+  final List<LibraryBucket> buckets;
   final String selectedBucket;
   final ValueChanged<String> onSelected;
 

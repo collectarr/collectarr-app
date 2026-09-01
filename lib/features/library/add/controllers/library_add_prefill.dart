@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/collection/pick_list/pick_list_options.d
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 
 LibraryAddLocalRerankHints buildLibraryAddLocalRerankHints({
   required String query,
@@ -19,22 +18,6 @@ LibraryAddLocalRerankHints buildLibraryAddLocalRerankHints({
     publisher: publisher.trim(),
     year: int.tryParse(year.trim()),
   );
-}
-
-String? matchLibraryAddSeriesId(
-  List<SeriesRegistryEntry> entries,
-  String? value,
-) {
-  final normalized = value?.trim().toLowerCase();
-  if (normalized == null || normalized.isEmpty) {
-    return null;
-  }
-  final match = entries.cast<SeriesRegistryEntry?>().firstWhere(
-        (entry) =>
-            entry != null && entry.title.trim().toLowerCase() == normalized,
-        orElse: () => null,
-      );
-  return match?.coreSeriesId;
 }
 
 List<String> buildManualPhysicalFormatOptions({

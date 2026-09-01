@@ -110,7 +110,6 @@ final mangaLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
-    supportsSeriesSubgroups: true,
   ),
   showsDefaultInspectorPersonalSection: false,
 );

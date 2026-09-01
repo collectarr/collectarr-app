@@ -18,7 +18,7 @@ class LibraryProjectionService {
         LibraryCollectionStatusScope.all,
     required String groupMode,
     List<LibraryBucketScopeFilter> bucketScopeFilters = const [],
-    List<LibrarySeriesBucket>? overrideBuckets,
+    List<LibraryBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
     List<CustomFieldDefinition> customFieldDefinitions = const [],

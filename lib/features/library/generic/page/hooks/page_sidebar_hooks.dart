@@ -98,8 +98,9 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     setState(() {
       _folderPreset = sanitized;
       _groupMode = sanitized.primaryMode;
-      if (_groupMode != 'series') {
-        _seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      if (_groupMode == null ||
+          !libraryGroupModeSupportsCompletion(widget.type, _groupMode!)) {
+        _bucketCompletionScope = LibraryBucketCompletionScope.all;
       }
       _selectedBucket = null;
       _selectedLetter = null;
@@ -158,9 +159,10 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       linkedMetadataValue: _linkedMetadataFilter?.value,
       selectedLetter: _selectedLetter,
       collectionStatusScope: _collectionStatusScope,
-      seriesCompletionScope: _activeGroupMode == 'series'
-          ? _seriesCompletionScope
-          : LibrarySeriesCompletionScope.all,
+      bucketCompletionScope:
+          libraryGroupModeSupportsCompletion(widget.type, _activeGroupMode)
+              ? _bucketCompletionScope
+              : LibraryBucketCompletionScope.all,
       quickView: _quickView,
       filterSelection: _filterSelection,
       sortRules: scopedSortRules,
@@ -226,7 +228,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
         ? null
         : LibraryLinkedMetadataFilter(value: routeState.linkedMetadataValue!);
     _collectionStatusScope = routeState.collectionStatusScope;
-    _seriesCompletionScope = routeState.seriesCompletionScope;
+    _bucketCompletionScope = routeState.bucketCompletionScope;
     _quickView = routeState.quickView;
     _sanitizeScopeDependentState();
     _filterSelection = routeState.filterSelection;

@@ -71,9 +71,9 @@ class LibraryPageCoordinatorContext {
     required LibraryCollectionStatusScope Function() getCollectionStatusScope,
     required void Function(LibraryCollectionStatusScope value)
         setCollectionStatusScope,
-    required LibrarySeriesCompletionScope Function() getSeriesCompletionScope,
-    required void Function(LibrarySeriesCompletionScope value)
-        setSeriesCompletionScope,
+    required LibraryBucketCompletionScope Function() getBucketCompletionScope,
+    required void Function(LibraryBucketCompletionScope value)
+        setBucketCompletionScope,
     required LibraryQuickView? Function() getQuickView,
     required void Function(LibraryQuickView? value) setQuickView,
     required LibraryFilterSelection Function() getFilterSelection,
@@ -141,8 +141,8 @@ class LibraryPageCoordinatorContext {
         _setLinkedMetadataFilter = setLinkedMetadataFilter,
         _getCollectionStatusScope = getCollectionStatusScope,
         _setCollectionStatusScope = setCollectionStatusScope,
-        _getSeriesCompletionScope = getSeriesCompletionScope,
-        _setSeriesCompletionScope = setSeriesCompletionScope,
+        _getBucketCompletionScope = getBucketCompletionScope,
+        _setBucketCompletionScope = setBucketCompletionScope,
         _getQuickView = getQuickView,
         _setQuickView = setQuickView,
         _getFilterSelection = getFilterSelection,
@@ -202,9 +202,9 @@ class LibraryPageCoordinatorContext {
   final LibraryCollectionStatusScope Function() _getCollectionStatusScope;
   final void Function(LibraryCollectionStatusScope value)
       _setCollectionStatusScope;
-  final LibrarySeriesCompletionScope Function() _getSeriesCompletionScope;
-  final void Function(LibrarySeriesCompletionScope value)
-      _setSeriesCompletionScope;
+  final LibraryBucketCompletionScope Function() _getBucketCompletionScope;
+  final void Function(LibraryBucketCompletionScope value)
+      _setBucketCompletionScope;
   final LibraryQuickView? Function() _getQuickView;
   final void Function(LibraryQuickView? value) _setQuickView;
   final LibraryFilterSelection Function() _getFilterSelection;
@@ -289,10 +289,10 @@ class LibraryPageCoordinatorContext {
   set collectionStatusScope(LibraryCollectionStatusScope value) =>
       _setCollectionStatusScope(value);
 
-  LibrarySeriesCompletionScope get seriesCompletionScope =>
-      _getSeriesCompletionScope();
-  set seriesCompletionScope(LibrarySeriesCompletionScope value) =>
-      _setSeriesCompletionScope(value);
+  LibraryBucketCompletionScope get bucketCompletionScope =>
+      _getBucketCompletionScope();
+  set bucketCompletionScope(LibraryBucketCompletionScope value) =>
+      _setBucketCompletionScope(value);
 
   LibraryQuickView? get quickView => _getQuickView();
   set quickView(LibraryQuickView? value) => _setQuickView(value);

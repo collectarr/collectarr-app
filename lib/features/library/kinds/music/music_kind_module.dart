@@ -52,7 +52,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.flat,
     childrenTitleBuilder: _musicChildrenTitle,
-    supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Release',
     mediaReleaseScopeLabel: 'Media',

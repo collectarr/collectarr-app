@@ -404,7 +404,7 @@ class PickListValuesCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-class SeriesRegistryCache extends Table {
+class SerialAuthorityCache extends Table {
   TextColumn get id => text()();
   TextColumn get mediaKind => text()();
   TextColumn get title => text()();
@@ -440,14 +440,14 @@ class SeriesRegistryCache extends Table {
   UserFolderItemsCache,
   ReadingQueueCache,
   PickListValuesCache,
-  SeriesRegistryCache,
+  SerialAuthorityCache,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {

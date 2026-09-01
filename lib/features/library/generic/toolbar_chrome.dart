@@ -45,32 +45,32 @@ extension LibraryCollectionStatusScopeUi on LibraryCollectionStatusScope {
   }
 }
 
-enum LibrarySeriesCompletionScope {
+enum LibraryBucketCompletionScope {
   all,
   completed,
   notCompleted,
 }
 
-extension LibrarySeriesCompletionScopeUi on LibrarySeriesCompletionScope {
+extension LibraryBucketCompletionScopeUi on LibraryBucketCompletionScope {
   String get label {
     return switch (this) {
-      LibrarySeriesCompletionScope.all => 'Show all series',
-      LibrarySeriesCompletionScope.completed => 'Show completed',
-      LibrarySeriesCompletionScope.notCompleted => 'Show not completed',
+      LibraryBucketCompletionScope.all => 'Show all groups',
+      LibraryBucketCompletionScope.completed => 'Show completed',
+      LibraryBucketCompletionScope.notCompleted => 'Show not completed',
     };
   }
 
   IconData get icon {
     return switch (this) {
-      LibrarySeriesCompletionScope.all => Icons.select_all,
-      LibrarySeriesCompletionScope.completed => Icons.check_circle_outline,
-      LibrarySeriesCompletionScope.notCompleted => Icons.radio_button_unchecked,
+      LibraryBucketCompletionScope.all => Icons.select_all,
+      LibraryBucketCompletionScope.completed => Icons.check_circle_outline,
+      LibraryBucketCompletionScope.notCompleted => Icons.radio_button_unchecked,
     };
   }
 }
 
-class LibrarySeriesStatusSummary {
-  const LibrarySeriesStatusSummary({
+class LibraryBucketStatusSummary {
+  const LibraryBucketStatusSummary({
     required this.title,
     required this.totalCount,
     required this.ownedCount,

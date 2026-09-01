@@ -115,7 +115,6 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
     'comic.story_arc': ComicFacetIds.storyArc,
     'comic.character': ComicFacetIds.character,
   },
-  supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   sortFavorites: comicLibrarySortFavorites,
   columnFavorites: comicsTableColumnPresets,

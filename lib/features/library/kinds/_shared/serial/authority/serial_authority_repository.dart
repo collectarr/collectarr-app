@@ -5,8 +5,8 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
-class SeriesRegistryEntry {
-  const SeriesRegistryEntry({
+class SerialAuthorityEntry {
+  const SerialAuthorityEntry({
     required this.id,
     required this.mediaKind,
     required this.title,
@@ -23,12 +23,12 @@ class SeriesRegistryEntry {
   final int itemCount;
 }
 
-class SeriesRegistryRepository {
-  SeriesRegistryRepository(this._db);
+class SerialAuthorityRepository {
+  SerialAuthorityRepository(this._db);
 
   final LocalDatabase _db;
 
-  Future<List<SeriesRegistryEntry>> searchEntries({
+  Future<List<SerialAuthorityEntry>> searchEntries({
     required String mediaKind,
     String? query,
     String? selectedTitle,
@@ -36,7 +36,7 @@ class SeriesRegistryRepository {
   }) async {
     final normalizedKind = mediaKind.trim().toLowerCase();
     final normalizedQuery = _normalize(query);
-    final rows = await (_db.select(_db.seriesRegistryCache)
+    final rows = await (_db.select(_db.serialAuthorityCache)
           ..where((table) => table.mediaKind.equals(normalizedKind))
           ..orderBy([
             (table) => OrderingTerm.asc(table.normalizedSortTitle),
@@ -44,7 +44,7 @@ class SeriesRegistryRepository {
           ]))
         .get();
     final counts = await _countsBySeriesKey(normalizedKind);
-    final entries = <SeriesRegistryEntry>[
+    final entries = <SerialAuthorityEntry>[
       for (final row in rows)
         if (normalizedQuery == null ||
             row.normalizedTitle.contains(normalizedQuery) ||
@@ -69,7 +69,7 @@ class SeriesRegistryRepository {
     if (!hasSelected && selectedNormalizedTitle != null) {
       entries.insert(
         0,
-        SeriesRegistryEntry(
+        SerialAuthorityEntry(
           id: 'selected:$normalizedKind:$selectedNormalizedTitle',
           mediaKind: normalizedKind,
           title: selectedTitle!.trim(),
@@ -87,12 +87,12 @@ class SeriesRegistryRepository {
     return entries;
   }
 
-  Future<SeriesRegistryEntry?> findById(String id) async {
+  Future<SerialAuthorityEntry?> findById(String id) async {
     final normalized = id.trim();
     if (normalized.isEmpty) {
       return null;
     }
-    final row = await (_db.select(_db.seriesRegistryCache)
+    final row = await (_db.select(_db.serialAuthorityCache)
           ..where((table) => table.id.equals(normalized))
           ..limit(1))
         .getSingleOrNull();
@@ -110,7 +110,7 @@ class SeriesRegistryRepository {
     );
   }
 
-  Future<SeriesRegistryEntry> upsertManualEntry({
+  Future<SerialAuthorityEntry> upsertManualEntry({
     required String mediaKind,
     required String title,
     String? sortTitle,
@@ -129,8 +129,8 @@ class SeriesRegistryRepository {
     );
     if (existing == null) {
       final id = const Uuid().v4();
-      await _db.into(_db.seriesRegistryCache).insert(
-            SeriesRegistryCacheCompanion.insert(
+      await _db.into(_db.serialAuthorityCache).insert(
+            SerialAuthorityCacheCompanion.insert(
               id: id,
               mediaKind: normalizedKind,
               title: title.trim(),
@@ -142,7 +142,7 @@ class SeriesRegistryRepository {
               updatedAt: now,
             ),
           );
-      return SeriesRegistryEntry(
+      return SerialAuthorityEntry(
         id: id,
         mediaKind: normalizedKind,
         title: title.trim(),
@@ -151,10 +151,10 @@ class SeriesRegistryRepository {
         itemCount: 0,
       );
     }
-    await (_db.update(_db.seriesRegistryCache)
+    await (_db.update(_db.serialAuthorityCache)
           ..where((table) => table.id.equals(existing.id)))
         .write(
-      SeriesRegistryCacheCompanion(
+      SerialAuthorityCacheCompanion(
         title: Value(title.trim()),
         normalizedTitle: Value(normalizedTitle),
         sortTitle: Value(_emptyToNull(sortTitle)),
@@ -164,7 +164,7 @@ class SeriesRegistryRepository {
     );
     final updated = await findById(existing.id);
     return updated ??
-        SeriesRegistryEntry(
+        SerialAuthorityEntry(
           id: existing.id,
           mediaKind: normalizedKind,
           title: title.trim(),
@@ -239,8 +239,8 @@ class SeriesRegistryRepository {
         normalizedTitle: candidate.normalizedTitle,
       );
       if (existing == null) {
-        await _db.into(_db.seriesRegistryCache).insert(
-              SeriesRegistryCacheCompanion.insert(
+        await _db.into(_db.serialAuthorityCache).insert(
+              SerialAuthorityCacheCompanion.insert(
                 id: const Uuid().v4(),
                 mediaKind: candidate.mediaKind,
                 title: candidate.title,
@@ -254,10 +254,10 @@ class SeriesRegistryRepository {
             );
         continue;
       }
-      await (_db.update(_db.seriesRegistryCache)
+      await (_db.update(_db.serialAuthorityCache)
             ..where((table) => table.id.equals(existing.id)))
           .write(
-        SeriesRegistryCacheCompanion(
+        SerialAuthorityCacheCompanion(
           title: Value(candidate.title),
           normalizedTitle: Value(candidate.normalizedTitle),
           sortTitle: Value(candidate.sortTitle),
@@ -275,7 +275,7 @@ class SeriesRegistryRepository {
     String? sortTitle,
     bool applyToCatalog = true,
   }) async {
-    final row = await (_db.select(_db.seriesRegistryCache)
+    final row = await (_db.select(_db.serialAuthorityCache)
           ..where((table) => table.id.equals(entryId))
           ..limit(1))
         .getSingleOrNull();
@@ -288,10 +288,10 @@ class SeriesRegistryRepository {
     }
     final normalizedSortTitle = _normalize(sortTitle);
     final now = DateTime.now().toUtc();
-    await (_db.update(_db.seriesRegistryCache)
+    await (_db.update(_db.serialAuthorityCache)
           ..where((table) => table.id.equals(entryId)))
         .write(
-      SeriesRegistryCacheCompanion(
+      SerialAuthorityCacheCompanion(
         title: Value(title.trim()),
         normalizedTitle: Value(normalizedTitle),
         sortTitle: Value(_emptyToNull(sortTitle)),
@@ -327,7 +327,7 @@ class SeriesRegistryRepository {
     if (sourceEntryIds.isEmpty) {
       return;
     }
-    final target = await (_db.select(_db.seriesRegistryCache)
+    final target = await (_db.select(_db.serialAuthorityCache)
           ..where((table) => table.id.equals(targetEntryId))
           ..limit(1))
         .getSingleOrNull();
@@ -341,7 +341,7 @@ class SeriesRegistryRepository {
     if (uniqueSourceIds.isEmpty) {
       return;
     }
-    final sources = await (_db.select(_db.seriesRegistryCache)
+    final sources = await (_db.select(_db.serialAuthorityCache)
           ..where((table) => table.id.isIn(uniqueSourceIds)))
         .get();
     if (sources.isEmpty) {
@@ -366,7 +366,7 @@ class SeriesRegistryRepository {
         ),
       );
     }
-    await (_db.delete(_db.seriesRegistryCache)
+    await (_db.delete(_db.serialAuthorityCache)
           ..where((table) => table.id.isIn(uniqueSourceIds)))
         .go();
   }
@@ -390,13 +390,13 @@ class SeriesRegistryRepository {
     return counts;
   }
 
-  Future<SeriesRegistryCacheData?> _findMatchingRow({
+  Future<SerialAuthorityCacheData?> _findMatchingRow({
     required String mediaKind,
     required String? coreSeriesId,
     required String normalizedTitle,
   }) async {
     if (coreSeriesId != null) {
-      final byCoreId = await (_db.select(_db.seriesRegistryCache)
+      final byCoreId = await (_db.select(_db.serialAuthorityCache)
             ..where((table) =>
                 table.mediaKind.equals(mediaKind) &
                 table.coreSeriesId.equals(coreSeriesId))
@@ -406,7 +406,7 @@ class SeriesRegistryRepository {
         return byCoreId;
       }
     }
-    return (_db.select(_db.seriesRegistryCache)
+    return (_db.select(_db.serialAuthorityCache)
           ..where((table) =>
               table.mediaKind.equals(mediaKind) &
               table.normalizedTitle.equals(normalizedTitle))
@@ -414,11 +414,11 @@ class SeriesRegistryRepository {
         .getSingleOrNull();
   }
 
-  SeriesRegistryEntry _entryFromRow(
-    SeriesRegistryCacheData row, {
+  SerialAuthorityEntry _entryFromRow(
+    SerialAuthorityCacheData row, {
     required int itemCount,
   }) {
-    return SeriesRegistryEntry(
+    return SerialAuthorityEntry(
       id: row.id,
       mediaKind: row.mediaKind,
       title: row.title,
@@ -430,7 +430,7 @@ class SeriesRegistryRepository {
 
   bool _catalogMatchesSeries(
     CatalogCacheData catalogRow,
-    SeriesRegistryCacheData registryRow,
+    SerialAuthorityCacheData registryRow,
   ) {
     final registryCoreSeriesId = _emptyToNull(registryRow.coreSeriesId);
     final catalogCoreSeriesId = _emptyToNull(catalogRow.seriesId);

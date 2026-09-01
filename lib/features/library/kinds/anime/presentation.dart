@@ -77,7 +77,6 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: animePreviewLabels,
   statsLabels: animeStatsLabels,
   usesTreeProviderCandidates: true,
-  supportsSeriesIssueJump: true,
   defaultVideoDisplayLevel: VideoDisplayLevel.season,
   defaultVideoGrouping: VideoGroupingDefault.bySeries,
   videoSeriesEntryTypes: const {'anime'},

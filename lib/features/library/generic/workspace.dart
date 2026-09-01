@@ -37,10 +37,6 @@ double libraryWorkspaceGridMainAxisExtent({
       libraryKindRuntimeForType(type).viewProfile.coverGridHeightFactor;
 }
 
-bool libraryShouldUseSeriesSubgroups(LibraryTypeConfig type) {
-  return type.supportsSeriesSubgroups;
-}
-
 class LibraryWorkspace extends ConsumerWidget {
   const LibraryWorkspace({
     super.key,

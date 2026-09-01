@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,7 +27,7 @@ void main() {
                 type: moviesLibraryConfig,
                 accent: Colors.cyan,
                 buckets: const [
-                  LibrarySeriesBucket(title: 'All Movies', count: 12),
+                  LibraryBucket(title: 'All Movies', count: 12),
                 ],
                 groupMode: selectedMode,
                 folderPreset: selectedPreset,
@@ -110,7 +110,7 @@ void main() {
                 type: moviesLibraryConfig,
                 accent: Colors.cyan,
                 buckets: const [
-                  LibrarySeriesBucket(title: 'All Movies', count: 12),
+                  LibraryBucket(title: 'All Movies', count: 12),
                 ],
                 groupMode: 'release_year',
                 folderPreset: LibraryFolderPreset.single('release_year'),
@@ -154,8 +154,8 @@ void main() {
                 type: moviesLibraryConfig,
                 accent: Colors.cyan,
                 buckets: const [
-                  LibrarySeriesBucket(title: '[All Movies]', count: 12),
-                  LibrarySeriesBucket(title: 'Action', count: 8),
+                  LibraryBucket(title: '[All Movies]', count: 12),
+                  LibraryBucket(title: 'Action', count: 8),
                 ],
                 groupMode: 'genre',
                 selectedBucket: '[All Movies]',
@@ -182,7 +182,7 @@ void main() {
   testWidgets('series completion button filters sidebar buckets', (
     tester,
   ) async {
-    var selectedScope = LibrarySeriesCompletionScope.all;
+    var selectedScope = LibraryBucketCompletionScope.all;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -197,25 +197,25 @@ void main() {
                     type: moviesLibraryConfig,
                     accent: Colors.cyan,
                     buckets: const [
-                      LibrarySeriesBucket(
+                      LibraryBucket(
                         title: 'Batman',
                         count: 10,
                         ownedCount: 10,
                       ),
-                      LibrarySeriesBucket(
+                      LibraryBucket(
                         title: 'Spawn',
                         count: 10,
                         ownedCount: 6,
                       ),
-                      LibrarySeriesBucket(title: 'Sandman', count: 5),
+                      LibraryBucket(title: 'Sandman', count: 5),
                     ],
                     groupMode: 'series',
                     selectedBucket: 'Batman',
                     onSelected: (_) {},
                     onGroupModeChanged: (_) {},
                     collectionStatusScope: LibraryCollectionStatusScope.all,
-                    seriesCompletionScope: selectedScope,
-                    onSeriesCompletionScopeChanged: (value) {
+                    bucketCompletionScope: selectedScope,
+                    onBucketCompletionScopeChanged: (value) {
                       setState(() => selectedScope = value);
                     },
                     onClearFilter: () {},
@@ -232,7 +232,7 @@ void main() {
     expect(find.text('Spawn'), findsOneWidget);
     expect(find.text('Sandman'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Show all series'));
+    await tester.tap(find.byTooltip('Show all groups'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Show completed').last);
     await tester.pumpAndSettle();

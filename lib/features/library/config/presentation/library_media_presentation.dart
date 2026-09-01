@@ -25,7 +25,6 @@ class LibraryMediaPresentation {
     this.statsLabels = const LibraryMediaStatsLabels(),
     this.usesTreeProviderCandidates = false,
     this.externalFacetBucketIdsByMode = const {},
-    this.supportsSeriesIssueJump = false,
     this.supportsTrackSearch = false,
     this.usesTrackListCard = false,
     this.showsSeasonGroupProgress = false,
@@ -56,7 +55,6 @@ class LibraryMediaPresentation {
   final LibraryMediaStatsLabels statsLabels;
   final bool usesTreeProviderCandidates;
   final Map<String, LibraryFacetIdRuntime> externalFacetBucketIdsByMode;
-  final bool supportsSeriesIssueJump;
   final bool supportsTrackSearch;
   final bool usesTrackListCard;
   final bool showsSeasonGroupProgress;

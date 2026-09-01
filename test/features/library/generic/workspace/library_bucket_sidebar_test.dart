@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('series sidebar renders buckets and handles selection',
+  testWidgets('bucket sidebar renders buckets and handles selection',
       (tester) async {
     String? selected;
 

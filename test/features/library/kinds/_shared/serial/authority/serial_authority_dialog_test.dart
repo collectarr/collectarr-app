@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,12 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   late LocalDatabase db;
   late CatalogCacheRepository catalog;
-  late SeriesRegistryRepository registry;
+  late SerialAuthorityRepository registry;
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
     catalog = CatalogCacheRepository(db);
-    registry = SeriesRegistryRepository(db);
+    registry = SerialAuthorityRepository(db);
   });
 
   tearDown(() => db.close());
@@ -49,7 +49,7 @@ void main() {
       ),
     ]);
 
-    SeriesRegistryEntry? selection;
+    SerialAuthorityEntry? selection;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -181,7 +181,7 @@ void main() {
       ),
     ]);
 
-    SeriesRegistryEntry? selection;
+    SerialAuthorityEntry? selection;
 
     await tester.pumpWidget(
       MaterialApp(

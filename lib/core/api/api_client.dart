@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/season.dart';
-import 'package:collectarr_app/core/models/series_relation.dart';
+import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.client.dart';
 import 'package:dio/dio.dart';
@@ -780,7 +780,7 @@ class ApiClient {
     );
   }
 
-  Future<List<SeriesRelation>> getSeriesRelations(String seriesId) async {
+  Future<List<LibraryRelationNode>> getSeriesRelations(String seriesId) async {
     return _catalogApi.getSeriesRelations(seriesId);
   }
 

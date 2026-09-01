@@ -8,8 +8,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LibrarySeriesBucket {
-  const LibrarySeriesBucket({
+class LibraryBucket {
+  const LibraryBucket({
     required this.title,
     required this.count,
     this.coverUrl,
@@ -41,13 +41,13 @@ class LibrarySeriesBucket {
   }
 }
 
-class LibrarySeriesSidebar extends ConsumerStatefulWidget {
-  const LibrarySeriesSidebar({
+class LibraryBucketSidebar extends ConsumerStatefulWidget {
+  const LibraryBucketSidebar({
     super.key,
-    required this.series,
-    required this.selectedSeries,
-    required this.onSelectSeries,
-    this.title = 'Series',
+    required this.buckets,
+    required this.selectedBucket,
+    required this.onSelectBucket,
+    this.title = 'Buckets',
     this.icon = Icons.folder,
     this.trailing,
     this.headerOverride,
@@ -62,8 +62,8 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
     this.searchPlaceholder = 'Search folders',
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.onCollectionStatusScopeChanged,
-    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
-    this.onSeriesCompletionScopeChanged,
+    this.bucketCompletionScope = LibraryBucketCompletionScope.all,
+    this.onBucketCompletionScopeChanged,
     this.ancestorScopeLabels = const <String>[],
     this.onNavigateToAncestorScope,
     this.folderDisplayMode = LibraryFolderDisplayMode.drilldown,
@@ -75,9 +75,9 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
     this.onToggleTreeNodeExpanded,
   });
 
-  final List<LibrarySeriesBucket> series;
-  final String? selectedSeries;
-  final ValueChanged<String> onSelectSeries;
+  final List<LibraryBucket> buckets;
+  final String? selectedBucket;
+  final ValueChanged<String> onSelectBucket;
   final String title;
   final IconData icon;
   final Widget? trailing;
@@ -94,9 +94,9 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
   final LibraryCollectionStatusScope collectionStatusScope;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
-  final LibrarySeriesCompletionScope seriesCompletionScope;
-  final ValueChanged<LibrarySeriesCompletionScope>?
-      onSeriesCompletionScopeChanged;
+  final LibraryBucketCompletionScope bucketCompletionScope;
+  final ValueChanged<LibraryBucketCompletionScope>?
+      onBucketCompletionScopeChanged;
   final List<String> ancestorScopeLabels;
   final ValueChanged<int>? onNavigateToAncestorScope;
   final LibraryFolderDisplayMode folderDisplayMode;
@@ -108,13 +108,13 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
   final ValueChanged<String>? onToggleTreeNodeExpanded;
 
   @override
-  ConsumerState<LibrarySeriesSidebar> createState() =>
-      _LibrarySeriesSidebarState();
+  ConsumerState<LibraryBucketSidebar> createState() =>
+      _LibraryBucketSidebarState();
 }
 
 enum _SidebarSortMode { alphabetical, byCount }
 
-class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
+class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
   final _searchController = TextEditingController();
   var _sortMode = _SidebarSortMode.alphabetical;
 
@@ -124,17 +124,17 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
     super.dispose();
   }
 
-  List<LibrarySeriesBucket> get _filteredSorted {
+  List<LibraryBucket> get _filteredSorted {
     final query = _searchController.text.trim().toLowerCase();
-    var items = widget.series.where((b) {
+    var items = widget.buckets.where((b) {
       if (query.isEmpty) return true;
       return b.title.toLowerCase().contains(query);
     }).where((bucket) {
-      return switch (widget.seriesCompletionScope) {
-        LibrarySeriesCompletionScope.all => true,
-        LibrarySeriesCompletionScope.completed =>
+      return switch (widget.bucketCompletionScope) {
+        LibraryBucketCompletionScope.all => true,
+        LibraryBucketCompletionScope.completed =>
           bucket.completionPercent != null && bucket.completionPercent! >= 100,
-        LibrarySeriesCompletionScope.notCompleted =>
+        LibraryBucketCompletionScope.notCompleted =>
           bucket.completionPercent == null || bucket.completionPercent! < 100,
       };
     }).toList();
@@ -275,9 +275,9 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
             accentColor: widget.accentColor,
             dividerColor: resolvedDividerColor,
             mutedTextColor: resolvedMutedTextColor,
-            seriesCompletionScope: widget.seriesCompletionScope,
-            onSeriesCompletionScopeChanged:
-                widget.onSeriesCompletionScopeChanged,
+            bucketCompletionScope: widget.bucketCompletionScope,
+            onBucketCompletionScopeChanged:
+                widget.onBucketCompletionScopeChanged,
             onChanged: () => setState(() {}),
             onToggleSort: () => setState(() {
               _sortMode = _sortMode == _SidebarSortMode.alphabetical
@@ -321,7 +321,7 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                       }
                       final bucket =
                           filtered[index - widget.ancestorScopeLabels.length];
-                      final selected = bucket.title == widget.selectedSeries;
+                      final selected = bucket.title == widget.selectedBucket;
                       final rowPadding = ref.watch(
                         uiPreferencesProvider
                             .select((p) => p.sidebarRowPadding),
@@ -329,7 +329,7 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                       return _LibrarySeriesRow(
                         bucket: bucket,
                         selected: selected,
-                        onTap: () => widget.onSelectSeries(bucket.title),
+                        onTap: () => widget.onSelectBucket(bucket.title),
                         dividerColor: resolvedDividerColor,
                         selectionColor: resolvedSelectionColor,
                         selectedBadgeColor: widget.selectedBadgeColor,
@@ -358,8 +358,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
     required this.accentColor,
     required this.dividerColor,
     required this.mutedTextColor,
-    required this.seriesCompletionScope,
-    required this.onSeriesCompletionScopeChanged,
+    required this.bucketCompletionScope,
+    required this.onBucketCompletionScopeChanged,
     required this.onChanged,
     required this.onToggleSort,
   });
@@ -370,9 +370,9 @@ class _SidebarSearchAndSort extends StatelessWidget {
   final Color accentColor;
   final Color dividerColor;
   final Color mutedTextColor;
-  final LibrarySeriesCompletionScope seriesCompletionScope;
-  final ValueChanged<LibrarySeriesCompletionScope>?
-      onSeriesCompletionScopeChanged;
+  final LibraryBucketCompletionScope bucketCompletionScope;
+  final ValueChanged<LibraryBucketCompletionScope>?
+      onBucketCompletionScopeChanged;
   final VoidCallback onChanged;
   final VoidCallback onToggleSort;
 
@@ -451,14 +451,14 @@ class _SidebarSearchAndSort extends StatelessWidget {
               ),
             ),
           ),
-          if (onSeriesCompletionScopeChanged != null) ...[
+          if (onBucketCompletionScopeChanged != null) ...[
             const SizedBox(width: 6),
             _SidebarStatusScopeButton(
               accentColor: accentColor,
               mutedTextColor: mutedTextColor,
               dividerColor: dividerColor,
-              scope: seriesCompletionScope,
-              onSelected: onSeriesCompletionScopeChanged!,
+              scope: bucketCompletionScope,
+              onSelected: onBucketCompletionScopeChanged!,
             ),
           ],
           const SizedBox(width: 6),
@@ -484,15 +484,15 @@ class _SidebarStatusScopeButton extends StatelessWidget {
     required this.onSelected,
   });
 
-  final LibrarySeriesCompletionScope scope;
+  final LibraryBucketCompletionScope scope;
   final Color accentColor;
   final Color mutedTextColor;
   final Color dividerColor;
-  final ValueChanged<LibrarySeriesCompletionScope> onSelected;
+  final ValueChanged<LibraryBucketCompletionScope> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<LibrarySeriesCompletionScope>(
+    return PopupMenuButton<LibraryBucketCompletionScope>(
       tooltip: scope.label,
       initialValue: scope,
       onSelected: onSelected,
@@ -507,7 +507,7 @@ class _SidebarStatusScopeButton extends StatelessWidget {
           color: Colors.black.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(2),
           border: Border.all(
-            color: scope == LibrarySeriesCompletionScope.all
+            color: scope == LibraryBucketCompletionScope.all
                 ? dividerColor
                 : accentColor.withValues(alpha: 0.6),
           ),
@@ -516,8 +516,8 @@ class _SidebarStatusScopeButton extends StatelessWidget {
         child: Icon(Icons.checklist_rounded, size: 16, color: mutedTextColor),
       ),
       itemBuilder: (context) => [
-        for (final value in LibrarySeriesCompletionScope.values)
-          PopupMenuItem<LibrarySeriesCompletionScope>(
+        for (final value in LibraryBucketCompletionScope.values)
+          PopupMenuItem<LibraryBucketCompletionScope>(
             value: value,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
             child: Row(
@@ -844,7 +844,7 @@ class _LibrarySeriesRow extends StatefulWidget {
     this.extraVerticalPadding = 4.0,
   });
 
-  final LibrarySeriesBucket bucket;
+  final LibraryBucket bucket;
   final bool selected;
   final VoidCallback onTap;
   final Color dividerColor;
@@ -1006,7 +1006,7 @@ class _SidebarAncestorScopeRow extends StatelessWidget {
   }
 }
 
-String libraryBucketLabel(LibrarySeriesBucket bucket) {
+String libraryBucketLabel(LibraryBucket bucket) {
   final completionPercent = bucket.completionPercent;
   if (completionPercent == null) {
     return '${bucket.title} ${bucket.count}';

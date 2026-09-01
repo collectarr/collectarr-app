@@ -250,8 +250,8 @@ void main() {
       expect(tree.first.children.length, 2); // Marvel and DC
     });
 
-    test('LibrarySeriesGapAnalyzer computes gaps accurately', () {
-      const analyzer = LibrarySeriesGapAnalyzer();
+    test('LibrarySequenceGapAnalyzer computes gaps accurately', () {
+      const analyzer = LibrarySequenceGapAnalyzer();
       final gaps1 = analyzer.calculateMissingIssues(
         ownedIssues: [1, 2, 4, 5, 8],
         maxIssue: 8,

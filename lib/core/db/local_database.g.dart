@@ -14085,12 +14085,12 @@ class PickListValuesCacheCompanion
   }
 }
 
-class $SeriesRegistryCacheTable extends SeriesRegistryCache
-    with TableInfo<$SeriesRegistryCacheTable, SeriesRegistryCacheData> {
+class $SerialAuthorityCacheTable extends SerialAuthorityCache
+    with TableInfo<$SerialAuthorityCacheTable, SerialAuthorityCacheData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $SeriesRegistryCacheTable(this.attachedDatabase, [this._alias]);
+  $SerialAuthorityCacheTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -14159,10 +14159,10 @@ class $SeriesRegistryCacheTable extends SeriesRegistryCache
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'series_registry_cache';
+  static const String $name = 'serial_authority_cache';
   @override
   VerificationContext validateIntegrity(
-      Insertable<SeriesRegistryCacheData> instance,
+      Insertable<SerialAuthorityCacheData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -14225,10 +14225,10 @@ class $SeriesRegistryCacheTable extends SeriesRegistryCache
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  SeriesRegistryCacheData map(Map<String, dynamic> data,
+  SerialAuthorityCacheData map(Map<String, dynamic> data,
       {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return SeriesRegistryCacheData(
+    return SerialAuthorityCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       mediaKind: attachedDatabase.typeMapping
@@ -14251,13 +14251,13 @@ class $SeriesRegistryCacheTable extends SeriesRegistryCache
   }
 
   @override
-  $SeriesRegistryCacheTable createAlias(String alias) {
-    return $SeriesRegistryCacheTable(attachedDatabase, alias);
+  $SerialAuthorityCacheTable createAlias(String alias) {
+    return $SerialAuthorityCacheTable(attachedDatabase, alias);
   }
 }
 
-class SeriesRegistryCacheData extends DataClass
-    implements Insertable<SeriesRegistryCacheData> {
+class SerialAuthorityCacheData extends DataClass
+    implements Insertable<SerialAuthorityCacheData> {
   final String id;
   final String mediaKind;
   final String title;
@@ -14267,7 +14267,7 @@ class SeriesRegistryCacheData extends DataClass
   final String? coreSeriesId;
   final DateTime createdAt;
   final DateTime updatedAt;
-  const SeriesRegistryCacheData(
+  const SerialAuthorityCacheData(
       {required this.id,
       required this.mediaKind,
       required this.title,
@@ -14298,8 +14298,8 @@ class SeriesRegistryCacheData extends DataClass
     return map;
   }
 
-  SeriesRegistryCacheCompanion toCompanion(bool nullToAbsent) {
-    return SeriesRegistryCacheCompanion(
+  SerialAuthorityCacheCompanion toCompanion(bool nullToAbsent) {
+    return SerialAuthorityCacheCompanion(
       id: Value(id),
       mediaKind: Value(mediaKind),
       title: Value(title),
@@ -14318,10 +14318,10 @@ class SeriesRegistryCacheData extends DataClass
     );
   }
 
-  factory SeriesRegistryCacheData.fromJson(Map<String, dynamic> json,
+  factory SerialAuthorityCacheData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return SeriesRegistryCacheData(
+    return SerialAuthorityCacheData(
       id: serializer.fromJson<String>(json['id']),
       mediaKind: serializer.fromJson<String>(json['mediaKind']),
       title: serializer.fromJson<String>(json['title']),
@@ -14350,7 +14350,7 @@ class SeriesRegistryCacheData extends DataClass
     };
   }
 
-  SeriesRegistryCacheData copyWith(
+  SerialAuthorityCacheData copyWith(
           {String? id,
           String? mediaKind,
           String? title,
@@ -14360,7 +14360,7 @@ class SeriesRegistryCacheData extends DataClass
           Value<String?> coreSeriesId = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
-      SeriesRegistryCacheData(
+      SerialAuthorityCacheData(
         id: id ?? this.id,
         mediaKind: mediaKind ?? this.mediaKind,
         title: title ?? this.title,
@@ -14374,8 +14374,9 @@ class SeriesRegistryCacheData extends DataClass
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
-  SeriesRegistryCacheData copyWithCompanion(SeriesRegistryCacheCompanion data) {
-    return SeriesRegistryCacheData(
+  SerialAuthorityCacheData copyWithCompanion(
+      SerialAuthorityCacheCompanion data) {
+    return SerialAuthorityCacheData(
       id: data.id.present ? data.id.value : this.id,
       mediaKind: data.mediaKind.present ? data.mediaKind.value : this.mediaKind,
       title: data.title.present ? data.title.value : this.title,
@@ -14396,7 +14397,7 @@ class SeriesRegistryCacheData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('SeriesRegistryCacheData(')
+    return (StringBuffer('SerialAuthorityCacheData(')
           ..write('id: $id, ')
           ..write('mediaKind: $mediaKind, ')
           ..write('title: $title, ')
@@ -14416,7 +14417,7 @@ class SeriesRegistryCacheData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is SeriesRegistryCacheData &&
+      (other is SerialAuthorityCacheData &&
           other.id == this.id &&
           other.mediaKind == this.mediaKind &&
           other.title == this.title &&
@@ -14428,8 +14429,8 @@ class SeriesRegistryCacheData extends DataClass
           other.updatedAt == this.updatedAt);
 }
 
-class SeriesRegistryCacheCompanion
-    extends UpdateCompanion<SeriesRegistryCacheData> {
+class SerialAuthorityCacheCompanion
+    extends UpdateCompanion<SerialAuthorityCacheData> {
   final Value<String> id;
   final Value<String> mediaKind;
   final Value<String> title;
@@ -14440,7 +14441,7 @@ class SeriesRegistryCacheCompanion
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
-  const SeriesRegistryCacheCompanion({
+  const SerialAuthorityCacheCompanion({
     this.id = const Value.absent(),
     this.mediaKind = const Value.absent(),
     this.title = const Value.absent(),
@@ -14452,7 +14453,7 @@ class SeriesRegistryCacheCompanion
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  SeriesRegistryCacheCompanion.insert({
+  SerialAuthorityCacheCompanion.insert({
     required String id,
     required String mediaKind,
     required String title,
@@ -14469,7 +14470,7 @@ class SeriesRegistryCacheCompanion
         normalizedTitle = Value(normalizedTitle),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
-  static Insertable<SeriesRegistryCacheData> custom({
+  static Insertable<SerialAuthorityCacheData> custom({
     Expression<String>? id,
     Expression<String>? mediaKind,
     Expression<String>? title,
@@ -14496,7 +14497,7 @@ class SeriesRegistryCacheCompanion
     });
   }
 
-  SeriesRegistryCacheCompanion copyWith(
+  SerialAuthorityCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? mediaKind,
       Value<String>? title,
@@ -14507,7 +14508,7 @@ class SeriesRegistryCacheCompanion
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
-    return SeriesRegistryCacheCompanion(
+    return SerialAuthorityCacheCompanion(
       id: id ?? this.id,
       mediaKind: mediaKind ?? this.mediaKind,
       title: title ?? this.title,
@@ -14560,7 +14561,7 @@ class SeriesRegistryCacheCompanion
 
   @override
   String toString() {
-    return (StringBuffer('SeriesRegistryCacheCompanion(')
+    return (StringBuffer('SerialAuthorityCacheCompanion(')
           ..write('id: $id, ')
           ..write('mediaKind: $mediaKind, ')
           ..write('title: $title, ')
@@ -14615,8 +14616,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $ReadingQueueCacheTable(this);
   late final $PickListValuesCacheTable pickListValuesCache =
       $PickListValuesCacheTable(this);
-  late final $SeriesRegistryCacheTable seriesRegistryCache =
-      $SeriesRegistryCacheTable(this);
+  late final $SerialAuthorityCacheTable serialAuthorityCache =
+      $SerialAuthorityCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -14642,7 +14643,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         userFolderItemsCache,
         readingQueueCache,
         pickListValuesCache,
-        seriesRegistryCache
+        serialAuthorityCache
       ];
 }
 
@@ -21013,8 +21014,8 @@ typedef $$PickListValuesCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     PickListValuesCacheData,
     PrefetchHooks Function()>;
-typedef $$SeriesRegistryCacheTableCreateCompanionBuilder
-    = SeriesRegistryCacheCompanion Function({
+typedef $$SerialAuthorityCacheTableCreateCompanionBuilder
+    = SerialAuthorityCacheCompanion Function({
   required String id,
   required String mediaKind,
   required String title,
@@ -21026,8 +21027,8 @@ typedef $$SeriesRegistryCacheTableCreateCompanionBuilder
   required DateTime updatedAt,
   Value<int> rowid,
 });
-typedef $$SeriesRegistryCacheTableUpdateCompanionBuilder
-    = SeriesRegistryCacheCompanion Function({
+typedef $$SerialAuthorityCacheTableUpdateCompanionBuilder
+    = SerialAuthorityCacheCompanion Function({
   Value<String> id,
   Value<String> mediaKind,
   Value<String> title,
@@ -21040,9 +21041,9 @@ typedef $$SeriesRegistryCacheTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$SeriesRegistryCacheTableFilterComposer
-    extends Composer<_$LocalDatabase, $SeriesRegistryCacheTable> {
-  $$SeriesRegistryCacheTableFilterComposer({
+class $$SerialAuthorityCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $SerialAuthorityCacheTable> {
+  $$SerialAuthorityCacheTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -21079,9 +21080,9 @@ class $$SeriesRegistryCacheTableFilterComposer
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 }
 
-class $$SeriesRegistryCacheTableOrderingComposer
-    extends Composer<_$LocalDatabase, $SeriesRegistryCacheTable> {
-  $$SeriesRegistryCacheTableOrderingComposer({
+class $$SerialAuthorityCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $SerialAuthorityCacheTable> {
+  $$SerialAuthorityCacheTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -21119,9 +21120,9 @@ class $$SeriesRegistryCacheTableOrderingComposer
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 }
 
-class $$SeriesRegistryCacheTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $SeriesRegistryCacheTable> {
-  $$SeriesRegistryCacheTableAnnotationComposer({
+class $$SerialAuthorityCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $SerialAuthorityCacheTable> {
+  $$SerialAuthorityCacheTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -21156,34 +21157,34 @@ class $$SeriesRegistryCacheTableAnnotationComposer
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
-class $$SeriesRegistryCacheTableTableManager extends RootTableManager<
+class $$SerialAuthorityCacheTableTableManager extends RootTableManager<
     _$LocalDatabase,
-    $SeriesRegistryCacheTable,
-    SeriesRegistryCacheData,
-    $$SeriesRegistryCacheTableFilterComposer,
-    $$SeriesRegistryCacheTableOrderingComposer,
-    $$SeriesRegistryCacheTableAnnotationComposer,
-    $$SeriesRegistryCacheTableCreateCompanionBuilder,
-    $$SeriesRegistryCacheTableUpdateCompanionBuilder,
+    $SerialAuthorityCacheTable,
+    SerialAuthorityCacheData,
+    $$SerialAuthorityCacheTableFilterComposer,
+    $$SerialAuthorityCacheTableOrderingComposer,
+    $$SerialAuthorityCacheTableAnnotationComposer,
+    $$SerialAuthorityCacheTableCreateCompanionBuilder,
+    $$SerialAuthorityCacheTableUpdateCompanionBuilder,
     (
-      SeriesRegistryCacheData,
-      BaseReferences<_$LocalDatabase, $SeriesRegistryCacheTable,
-          SeriesRegistryCacheData>
+      SerialAuthorityCacheData,
+      BaseReferences<_$LocalDatabase, $SerialAuthorityCacheTable,
+          SerialAuthorityCacheData>
     ),
-    SeriesRegistryCacheData,
+    SerialAuthorityCacheData,
     PrefetchHooks Function()> {
-  $$SeriesRegistryCacheTableTableManager(
-      _$LocalDatabase db, $SeriesRegistryCacheTable table)
+  $$SerialAuthorityCacheTableTableManager(
+      _$LocalDatabase db, $SerialAuthorityCacheTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$SeriesRegistryCacheTableFilterComposer($db: db, $table: table),
+              $$SerialAuthorityCacheTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$SeriesRegistryCacheTableOrderingComposer(
+              $$SerialAuthorityCacheTableOrderingComposer(
                   $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$SeriesRegistryCacheTableAnnotationComposer(
+              $$SerialAuthorityCacheTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
@@ -21197,7 +21198,7 @@ class $$SeriesRegistryCacheTableTableManager extends RootTableManager<
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              SeriesRegistryCacheCompanion(
+              SerialAuthorityCacheCompanion(
             id: id,
             mediaKind: mediaKind,
             title: title,
@@ -21221,7 +21222,7 @@ class $$SeriesRegistryCacheTableTableManager extends RootTableManager<
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
-              SeriesRegistryCacheCompanion.insert(
+              SerialAuthorityCacheCompanion.insert(
             id: id,
             mediaKind: mediaKind,
             title: title,
@@ -21240,22 +21241,23 @@ class $$SeriesRegistryCacheTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$SeriesRegistryCacheTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $SeriesRegistryCacheTable,
-    SeriesRegistryCacheData,
-    $$SeriesRegistryCacheTableFilterComposer,
-    $$SeriesRegistryCacheTableOrderingComposer,
-    $$SeriesRegistryCacheTableAnnotationComposer,
-    $$SeriesRegistryCacheTableCreateCompanionBuilder,
-    $$SeriesRegistryCacheTableUpdateCompanionBuilder,
-    (
-      SeriesRegistryCacheData,
-      BaseReferences<_$LocalDatabase, $SeriesRegistryCacheTable,
-          SeriesRegistryCacheData>
-    ),
-    SeriesRegistryCacheData,
-    PrefetchHooks Function()>;
+typedef $$SerialAuthorityCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $SerialAuthorityCacheTable,
+        SerialAuthorityCacheData,
+        $$SerialAuthorityCacheTableFilterComposer,
+        $$SerialAuthorityCacheTableOrderingComposer,
+        $$SerialAuthorityCacheTableAnnotationComposer,
+        $$SerialAuthorityCacheTableCreateCompanionBuilder,
+        $$SerialAuthorityCacheTableUpdateCompanionBuilder,
+        (
+          SerialAuthorityCacheData,
+          BaseReferences<_$LocalDatabase, $SerialAuthorityCacheTable,
+              SerialAuthorityCacheData>
+        ),
+        SerialAuthorityCacheData,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -21306,6 +21308,6 @@ class $LocalDatabaseManager {
       $$ReadingQueueCacheTableTableManager(_db, _db.readingQueueCache);
   $$PickListValuesCacheTableTableManager get pickListValuesCache =>
       $$PickListValuesCacheTableTableManager(_db, _db.pickListValuesCache);
-  $$SeriesRegistryCacheTableTableManager get seriesRegistryCache =>
-      $$SeriesRegistryCacheTableTableManager(_db, _db.seriesRegistryCache);
+  $$SerialAuthorityCacheTableTableManager get serialAuthorityCache =>
+      $$SerialAuthorityCacheTableTableManager(_db, _db.serialAuthorityCache);
 }

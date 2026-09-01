@@ -6,8 +6,8 @@ import 'package:collectarr_app/features/library/add/library_add_manual_intro_car
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
@@ -28,7 +28,7 @@ class MangaAddManualPane extends ConsumerStatefulWidget {
 
 class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
   List<String> _publisherOptions = const [];
-  List<SeriesRegistryEntry> _seriesEntries = const [];
+  List<SerialAuthorityEntry> _seriesEntries = const [];
   String? _selectedSeriesId;
 
   @override
@@ -47,7 +47,7 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
         mediaKind: CatalogMediaKind.manga.apiValue,
         selectedValue: draft.publisherController.text,
       ),
-      SeriesRegistryRepository(db).searchEntries(
+      SerialAuthorityRepository(db).searchEntries(
         mediaKind: CatalogMediaKind.manga.apiValue,
         selectedTitle: widget.request.titleController.text,
         selectedSeriesId: _selectedSeriesId,
@@ -56,8 +56,8 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     if (!mounted) return;
     setState(() {
       _publisherOptions = List<String>.from(results[0] as List<String>);
-      _seriesEntries = List<SeriesRegistryEntry>.from(
-          results[1] as List<SeriesRegistryEntry>);
+      _seriesEntries = List<SerialAuthorityEntry>.from(
+          results[1] as List<SerialAuthorityEntry>);
     });
   }
 
@@ -82,7 +82,7 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
 
   void _setManualSeries(String? value) {
     final normalized = (value ?? '').trim();
-    final match = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+    final match = _seriesEntries.cast<SerialAuthorityEntry?>().firstWhere(
           (entry) =>
               entry != null &&
               entry.title.trim().toLowerCase() == normalized.toLowerCase(),

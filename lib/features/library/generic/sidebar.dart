@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/generic/sidebar/sidebar_header.d
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/generic/sidebar/compact_bucket_bar.dart';
@@ -31,17 +31,17 @@ class LibrarySidebar extends StatelessWidget {
     this.activeSmartListName,
     this.quickView,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
-    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
+    this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.collectionStatusScopeLabel,
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
-    this.seriesStatusSummary,
+    this.bucketStatusSummary,
     this.filterSelection = LibraryFilterSelection.none,
     this.hasActiveFilters = false,
     this.onEditFilters,
     this.onClearFilters,
     this.onCollectionStatusScopeChanged,
-    this.onSeriesCompletionScopeChanged,
+    this.onBucketCompletionScopeChanged,
     required this.onClearFilter,
     this.onHideSidebar,
     this.onSidebarVisibilityChanged,
@@ -60,7 +60,7 @@ class LibrarySidebar extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final List<LibrarySeriesBucket> buckets;
+  final List<LibraryBucket> buckets;
   final String groupMode;
   final LibraryFolderPreset? folderPreset;
   final bool groupLoading;
@@ -77,19 +77,19 @@ class LibrarySidebar extends StatelessWidget {
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;
-  final LibrarySeriesCompletionScope seriesCompletionScope;
+  final LibraryBucketCompletionScope bucketCompletionScope;
   final String? collectionStatusScopeLabel;
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
-  final LibrarySeriesStatusSummary? seriesStatusSummary;
+  final LibraryBucketStatusSummary? bucketStatusSummary;
   final LibraryFilterSelection filterSelection;
   final bool hasActiveFilters;
   final VoidCallback? onEditFilters;
   final VoidCallback? onClearFilters;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
-  final ValueChanged<LibrarySeriesCompletionScope>?
-      onSeriesCompletionScopeChanged;
+  final ValueChanged<LibraryBucketCompletionScope>?
+      onBucketCompletionScopeChanged;
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
@@ -106,12 +106,12 @@ class LibrarySidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibrarySeriesSidebar(
+    return LibraryBucketSidebar(
       title: 'Folders',
       icon: Icons.folder_open_outlined,
-      series: buckets,
-      selectedSeries: selectedBucket,
-      onSelectSeries: onSelected,
+      buckets: buckets,
+      selectedBucket: selectedBucket,
+      onSelectBucket: onSelected,
       accentColor: accent,
       selectionColor: accent.withValues(alpha: 0.42),
       backgroundColor: appPalette(context).panel,
@@ -123,8 +123,8 @@ class LibrarySidebar extends StatelessWidget {
           'Search ${genericGroupModeLabel(groupMode, type).toLowerCase()}...',
       collectionStatusScope: collectionStatusScope,
       onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
-      seriesCompletionScope: seriesCompletionScope,
-      onSeriesCompletionScopeChanged: onSeriesCompletionScopeChanged,
+      bucketCompletionScope: bucketCompletionScope,
+      onBucketCompletionScopeChanged: onBucketCompletionScopeChanged,
       ancestorScopeLabels: ancestorScopeLabels,
       onNavigateToAncestorScope: onNavigateToAncestorScope,
       headerOverride: LibrarySidebarHeader(
@@ -150,7 +150,7 @@ class LibrarySidebar extends StatelessWidget {
         collectionStatusScopeLabel: collectionStatusScopeLabel,
         linkedMetadataFilterLabel: linkedMetadataFilterLabel,
         selectedLetter: selectedLetter,
-        seriesStatusSummary: seriesStatusSummary,
+        bucketStatusSummary: bucketStatusSummary,
         filterSelection: filterSelection,
         hasActiveFilters: hasActiveFilters,
         onEditFilters: onEditFilters,

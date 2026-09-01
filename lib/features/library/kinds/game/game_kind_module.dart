@@ -54,7 +54,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.flat,
-    supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',

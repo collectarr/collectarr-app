@@ -27,7 +27,6 @@ class LibraryTypeCapabilities {
     this.supportsMediaReleaseSplit = false,
     bool supportsMetadataCompareWithServer = false,
     bool? supportsMetadataCompare,
-    this.supportsSeriesSubgroups = false,
     this.wideDialog = false,
     this.contentHierarchy = LibraryContentHierarchy.flat,
     this.groupModeCategoriesBuilder,
@@ -52,7 +51,6 @@ class LibraryTypeCapabilities {
   final bool supportsOwnedItemImages;
   final bool supportsMediaReleaseSplit;
   final bool supportsMetadataCompareWithServer;
-  final bool supportsSeriesSubgroups;
   final bool wideDialog;
   final LibraryContentHierarchy contentHierarchy;
   final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;

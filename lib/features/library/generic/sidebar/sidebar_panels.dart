@@ -304,15 +304,15 @@ class LibrarySidebarFilterChip extends StatelessWidget {
   }
 }
 
-class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
-  const LibrarySidebarSeriesStatusPanel({
+class LibrarySidebarBucketStatusPanel extends StatelessWidget {
+  const LibrarySidebarBucketStatusPanel({
     super.key,
     required this.summary,
     this.selectedScope = LibraryCollectionStatusScope.all,
     this.onScopeSelected,
   });
 
-  final LibrarySeriesStatusSummary summary;
+  final LibraryBucketStatusSummary summary;
   final LibraryCollectionStatusScope selectedScope;
   final ValueChanged<LibraryCollectionStatusScope>? onScopeSelected;
 

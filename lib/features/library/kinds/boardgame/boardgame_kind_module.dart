@@ -49,7 +49,6 @@ final boardGameKindModule =
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.flat,
-    supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: false,
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',

@@ -88,6 +88,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.presentation = LibraryGroupPresentation.inlineHeaders,
     this.supportsBucketManagement = false,
     this.supportsJump = false,
+    this.sequenceValue,
     this.bucketManagerListLabel,
     this.drilldownChildId,
     this.folderSetLabel,
@@ -103,6 +104,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final LibraryGroupPresentation presentation;
   final bool supportsBucketManagement;
   final bool supportsJump;
+  final String? Function(LibraryProjectionContext<TDto> context)? sequenceValue;
   final String? bucketManagerListLabel;
   final String? drilldownChildId;
   final String? folderSetLabel;
@@ -124,6 +126,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     LibraryGroupPresentation? presentation,
     bool? supportsBucketManagement,
     bool? supportsJump,
+    String? Function(LibraryProjectionContext<TDto> context)? sequenceValue,
     String? bucketManagerListLabel,
     String? drilldownChildId,
     String? folderSetLabel,
@@ -140,6 +143,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
       supportsBucketManagement:
           supportsBucketManagement ?? this.supportsBucketManagement,
       supportsJump: supportsJump ?? this.supportsJump,
+      sequenceValue: sequenceValue ?? this.sequenceValue,
       bucketManagerListLabel:
           bucketManagerListLabel ?? this.bucketManagerListLabel,
       drilldownChildId: drilldownChildId ?? this.drilldownChildId,
