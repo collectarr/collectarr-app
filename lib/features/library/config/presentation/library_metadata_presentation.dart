@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import 'library_search_presentation.dart';
 
@@ -40,7 +39,6 @@ class LibraryMetadataSection {
     this.placement = LibraryMetadataSectionPlacement.context,
     this.renderer = LibraryMetadataSectionRenderer.text,
     this.inlineLabelKey,
-    this.routePrefix,
     this.completenessWeight = 4,
   });
 
@@ -48,7 +46,6 @@ class LibraryMetadataSection {
   final LibraryMetadataSectionPlacement placement;
   final LibraryMetadataSectionRenderer renderer;
   final String? inlineLabelKey;
-  final String? routePrefix;
   final int completenessWeight;
 }
 
@@ -360,11 +357,6 @@ Widget _buildMetadataSectionWidget({
   required LibraryMetadataLabels labels,
   ValueChanged<String>? onValueTap,
 }) {
-  final sectionValueTap = section.routePrefix == null
-      ? onValueTap
-      : (String value) => context.push(
-            '/${section.routePrefix}/${Uri.encodeComponent(value)}',
-          );
   final label = labels.labelFor(
     section.inlineLabelKey ?? sectionKey,
   );
@@ -372,12 +364,12 @@ Widget _buildMetadataSectionWidget({
     return LibraryMetadataCreditsList(
       title: label,
       credits: libraryMetadataCreditValues(section),
-      onValueTap: sectionValueTap,
+      onValueTap: onValueTap,
     );
   }
   return LibraryDetailChipGroupWidget(
     label: label,
     values: libraryMetadataTextValues(section),
-    onValueTap: sectionValueTap,
+    onValueTap: onValueTap,
   );
 }

@@ -82,7 +82,6 @@ class VideoLibraryMediaPresentationBuilder
               : const [],
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,
-          routePrefix: 'creator',
           completenessWeight: 12,
         ),
       },

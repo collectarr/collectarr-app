@@ -59,7 +59,6 @@ const defaultLibraryColumnFavorites = [
     columns: {
       'status',
       'title',
-      'publisher',
       'release_date',
       'updated',
     },
@@ -70,7 +69,6 @@ const defaultLibraryColumnFavorites = [
       'status',
       'title',
       'condition',
-      'grade',
       'price',
       'wishlist',
       'updated',
@@ -81,10 +79,7 @@ const defaultLibraryColumnFavorites = [
     columns: {
       'status',
       'title',
-      'variant',
-      'publisher',
       'release_date',
-      'barcode',
       'updated',
     },
   ),

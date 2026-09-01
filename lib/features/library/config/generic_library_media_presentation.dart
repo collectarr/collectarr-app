@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 const genericLibraryMediaBuilder = GenericLibraryMediaPresentationBuilder();
 
@@ -47,15 +46,9 @@ String _simpleLibraryBucketLabel(
   LibraryMediaGroupLabels labels,
   LibraryBucketLabelOverrides overrides,
 ) {
-  final dto = context.item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final seriesTitle = adapter?.seriesTitle?.trim();
   return switch (context.groupMode) {
-    'series' => (seriesTitle != null && seriesTitle.isNotEmpty)
-        ? seriesTitle
-        : labels.labelFor('unknown_series', fallback: 'Unknown series'),
     'location' => _locationBucket(context.source.locationPath),
-    'title' => _titleBucket(dto.title),
+    'title' => _titleBucket(context.item.dto.title),
     'ownership' => context.source.isOwned
         ? overrides.labelFor('owned', fallback: 'Owned')
         : context.source.isWishlisted

@@ -184,7 +184,6 @@ class SerialLibraryMediaPresentationBuilder
               const <Map<String, dynamic>>[],
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,
-          routePrefix: 'creator',
           completenessWeight: 12,
         ),
         'characters': LibraryMetadataSection(
@@ -193,7 +192,6 @@ class SerialLibraryMediaPresentationBuilder
                   .toList() ??
               const <String>[],
           placement: LibraryMetadataSectionPlacement.credits,
-          routePrefix: 'character',
           completenessWeight: 6,
         ),
         'story_arcs': LibraryMetadataSection(
@@ -203,7 +201,6 @@ class SerialLibraryMediaPresentationBuilder
               const <String>[],
           placement: LibraryMetadataSectionPlacement.credits,
           inlineLabelKey: 'story_arcs_inline',
-          routePrefix: 'story-arc',
         ),
         'genres': LibraryMetadataSection(
           values: (catalogItem?.payload['genres'] as List?)

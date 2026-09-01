@@ -121,7 +121,6 @@ class BoardGameLibraryMediaPresentationBuilder
           values: metadata?.creators ?? const <Map<String, dynamic>>[],
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,
-          routePrefix: 'creator',
           completenessWeight: 12,
         ),
         'genres': LibraryMetadataSection(
