@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -111,6 +112,26 @@ void main() {
       expect(items.first.node, isA<LibraryReleaseNodeRef>());
       final releaseNode = items.first.node as LibraryReleaseNodeRef;
       expect(releaseNode.edition.title, '4K Ultra HD');
+    });
+
+    test('kinds without release capability do not open release folder on open',
+        () {
+      expect(
+        bookKindModule.hierarchy.shouldOpenReleaseFolderOnOpen(
+          browserMode: LibraryWorkspaceBrowserMode.media,
+          browseScope: LibraryBrowserScope.title,
+          hasReleaseCapability: bookKindModule.releaseCapability != null,
+        ),
+        isFalse,
+      );
+      expect(
+        movieKindModule.hierarchy.shouldOpenReleaseFolderOnOpen(
+          browserMode: LibraryWorkspaceBrowserMode.media,
+          browseScope: LibraryBrowserScope.title,
+          hasReleaseCapability: movieKindModule.releaseCapability != null,
+        ),
+        isTrue,
+      );
     });
   });
 }

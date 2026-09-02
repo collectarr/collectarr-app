@@ -14,7 +14,8 @@ extension _PageKindHooks on GenericLibraryPageState {
       LibraryViewPreferenceStore(widget.type.kind);
 
   bool get _supportsMediaReleaseSplit {
-    return widget.type.hierarchy.supportsMediaReleaseSplit;
+    return widget.type.hierarchy.supportsMediaReleaseSplit &&
+        widget.type.releaseCapability != null;
   }
 
   bool showsReadingQueue() {
@@ -28,6 +29,9 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
+    if (!_supportsMediaReleaseSplit) {
+      return LibraryWorkspaceBrowserMode.media;
+    }
     return widget.type.hierarchy.browserModeForViewState(
       _viewState ?? _viewProfile.defaults(),
       releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
@@ -35,9 +39,13 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   bool _shouldOpenReleaseFolder(LibraryProjectionItem item) {
+    if (!_supportsMediaReleaseSplit) {
+      return false;
+    }
     return widget.type.hierarchy.shouldOpenReleaseFolderOnOpen(
       browserMode: _activeBrowserMode,
       browseScope: item.node.scope,
+      hasReleaseCapability: widget.type.releaseCapability != null,
     );
   }
 

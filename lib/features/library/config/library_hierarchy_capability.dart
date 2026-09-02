@@ -92,8 +92,10 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   bool shouldOpenReleaseFolderOnOpen({
     required LibraryWorkspaceBrowserMode browserMode,
     required LibraryBrowserScope browseScope,
+    bool hasReleaseCapability = true,
   }) {
     return supportsMediaReleaseSplit &&
+        hasReleaseCapability &&
         browserMode == LibraryWorkspaceBrowserMode.media &&
         browseScope == LibraryBrowserScope.title;
   }
