@@ -18,10 +18,12 @@ final class CatalogCacheDerivedDataService {
     final byKind = <String, List<LibraryKindMetadataRuntime>>{};
     for (final item in list) {
       final kindMetadata = _kindMetadataFor(item);
-      byKind.putIfAbsent(
-        kindMetadata.mediaKind.apiValue,
-        () => <LibraryKindMetadataRuntime>[],
-      ).add(kindMetadata);
+      byKind
+          .putIfAbsent(
+            kindMetadata.mediaKind.apiValue,
+            () => <LibraryKindMetadataRuntime>[],
+          )
+          .add(kindMetadata);
     }
 
     final pickLists = PickListRepository(_db);

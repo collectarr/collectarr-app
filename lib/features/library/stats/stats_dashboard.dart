@@ -51,9 +51,8 @@ class _GenericStatsDashboard extends StatelessWidget {
     final sellValue = state.totalSellCents == null || state.totalSellCents == 0
         ? null
         : formatMoney(state.totalSellCents, state.primaryCurrency);
-    final missingCovers = state.entries
-      .where((e) => e.catalogItem?.coverImageUrl == null)
-        .length;
+    final missingCovers =
+        state.entries.where((e) => e.catalogItem?.coverImageUrl == null).length;
     final module = type;
     final missingMetadata = _missingMetadataCount(state.entries, module);
     final valueCoverage =
@@ -350,7 +349,7 @@ class _GenericStatsDashboard extends StatelessWidget {
           )
           .dto;
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        final hasSynopsis =
+      final hasSynopsis =
           cat.synopsis != null && cat.synopsis!.trim().isNotEmpty;
       final hasPublisher =
           adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty;
@@ -465,11 +464,11 @@ class _GenericStatsDashboard extends StatelessWidget {
           )
           .dto;
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        if (item.displayCoverUrl == null ||
+      if (item.displayCoverUrl == null ||
           item.displayCoverUrl!.trim().isEmpty) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
       }
-        if (item.synopsis == null || item.synopsis!.trim().isEmpty) {
+      if (item.synopsis == null || item.synopsis!.trim().isEmpty) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
       if (adapter?.publisher == null || adapter!.publisher!.trim().isEmpty) {
@@ -510,7 +509,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
 
     add(
-        item.displayCoverUrl != null && item.displayCoverUrl!.trim().isNotEmpty,
+      item.displayCoverUrl != null && item.displayCoverUrl!.trim().isNotEmpty,
       25,
     );
     add(
@@ -519,9 +518,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
     add(adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty,
         15);
-    add(
-        adapter?.releaseDate != null,
-        15);
+    add(adapter?.releaseDate != null, 15);
     add(adapter?.seriesTitle != null && adapter!.seriesTitle!.isNotEmpty, 10);
     add(adapter?.itemNumber != null && adapter!.itemNumber!.trim().isNotEmpty,
         10);

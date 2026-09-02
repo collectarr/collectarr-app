@@ -226,7 +226,7 @@ void main() {
           goldenEnvelope.normalized['audience_rating']);
       expect(normalized['cover_image_url'],
           goldenEnvelope.normalized['cover_image_url']);
-        expect(jsonObject(normalized['provider_ids'])['igdb'],
+      expect(jsonObject(normalized['provider_ids'])['igdb'],
           jsonObject(goldenEnvelope.normalized['provider_ids'])['igdb']);
     });
   });

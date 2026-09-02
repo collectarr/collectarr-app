@@ -148,12 +148,9 @@ KindEditDraft createMovieEditDraft({
         textControllers.create(text: movie?.screenRatio ?? ''),
     audioTracksController:
         textControllers.create(text: movie?.audioTracks ?? ''),
-    subtitlesController:
-        textControllers.create(text: movie?.subtitles ?? ''),
-    layersController:
-        textControllers.create(text: movie?.layers ?? ''),
-    colorController:
-        textControllers.create(text: movie?.color ?? ''),
+    subtitlesController: textControllers.create(text: movie?.subtitles ?? ''),
+    layersController: textControllers.create(text: movie?.layers ?? ''),
+    colorController: textControllers.create(text: movie?.color ?? ''),
     nrDiscsController:
         textControllers.create(text: movie?.nrDiscs?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),

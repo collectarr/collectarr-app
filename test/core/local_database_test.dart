@@ -30,8 +30,7 @@ void main() {
               'kind': 'comic',
               'title': 'Superman, Vol. 4',
               'item_number': '8A',
-              'thumbnail_image_url':
-                  'https://cdn.example/superman-thumb.jpg',
+              'thumbnail_image_url': 'https://cdn.example/superman-thumb.jpg',
               'edition_title': 'Direct market edition',
               'physical_format': 'single-issue',
               'physical_format_label': 'Single Issue',
@@ -47,10 +46,11 @@ void main() {
 
     final catalog = await db.select(db.catalogCache).getSingle();
 
-    final catalogPayload = jsonDecode(catalog.payloadJson) as Map<String, dynamic>;
+    final catalogPayload =
+        jsonDecode(catalog.payloadJson) as Map<String, dynamic>;
     expect(catalogPayload['publisher'], 'DC');
     expect(catalogPayload['thumbnail_image_url'],
-      'https://cdn.example/superman-thumb.jpg');
+        'https://cdn.example/superman-thumb.jpg');
     expect(catalogPayload['edition_title'], 'Direct market edition');
     expect(catalogPayload['physical_format'], 'single-issue');
     expect(catalogPayload['physical_format_label'], 'Single Issue');

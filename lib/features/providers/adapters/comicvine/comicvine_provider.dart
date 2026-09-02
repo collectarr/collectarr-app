@@ -213,8 +213,8 @@ class ComicVineProvider extends ProviderAdapter {
     final rawKind = _optionalText(data['media_type']) ?? 'comic';
     final issueNumber = _optionalText(data['issue_number']);
     final volume = data['volume'] is Map
-      ? Map<String, dynamic>.from(data['volume'] as Map)
-      : null;
+        ? Map<String, dynamic>.from(data['volume'] as Map)
+        : null;
     final volumeName = _optionalText(volume?['name']);
     final issueName = _optionalText(data['name']);
 

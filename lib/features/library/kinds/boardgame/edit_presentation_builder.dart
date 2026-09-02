@@ -100,12 +100,14 @@ Widget? buildBoardGameCustomTabView({
                 ),
                 variantController: TextEditingController(),
                 barcodeController: TextEditingController(),
-                releaseDateController: (draft.kindDetails as BoardGameEditDraft?)
-                        ?.releaseDateController ??
-                    TextEditingController(),
-                releaseYearController: (draft.kindDetails as BoardGameEditDraft?)
-                        ?.releaseYearController ??
-                    TextEditingController(),
+                releaseDateController:
+                    (draft.kindDetails as BoardGameEditDraft?)
+                            ?.releaseDateController ??
+                        TextEditingController(),
+                releaseYearController:
+                    (draft.kindDetails as BoardGameEditDraft?)
+                            ?.releaseYearController ??
+                        TextEditingController(),
                 physicalFormatController: TextEditingController(),
                 physicalFormatOptions: const [],
                 onPhysicalFormatChanged: (_) {},

@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/adapters/anilist/anilist_sync_adapter.dart';
@@ -31,7 +31,9 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('PR 20: Provider Identity Cleanup & AniList Verification', () {
-    test('ProviderAccount separates internal ID from remoteAccountId and remoteHandle', () {
+    test(
+        'ProviderAccount separates internal ID from remoteAccountId and remoteHandle',
+        () {
       const internalId = 'local-uuid-1234';
       final account = ProviderAccount(
         id: internalId,
@@ -146,7 +148,8 @@ void main() {
       expect(entry.progress, 1050);
     });
 
-    test('SaveMediaListEntry sends both id (list entry ID) and mediaId', () async {
+    test('SaveMediaListEntry sends both id (list entry ID) and mediaId',
+        () async {
       Map<String, dynamic>? sentVariables;
       String? sentQuery;
 
@@ -216,7 +219,8 @@ void main() {
       expect(sentVariables?['progress'], 1050);
     });
 
-    test('DeleteMediaListEntry sends list entry ID () and NOT mediaId', () async {
+    test('DeleteMediaListEntry sends list entry ID () and NOT mediaId',
+        () async {
       Map<String, dynamic>? sentVariables;
       String? sentQuery;
 

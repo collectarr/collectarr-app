@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:flutter/foundation.dart';
 

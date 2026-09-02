@@ -44,7 +44,7 @@ class LibraryProviderActionService {
       title: proposalItem.title,
       summary: proposalItem.synopsis ?? candidate.summary,
       imageUrl: proposalItem.displayCoverUrl,
-        metadataPayload:
+      metadataPayload:
           LibraryMetadataTransportCodec.toSyncPayload(proposalItem),
       source: 'Add ${type.identity.pluralLabel} provider result',
     );

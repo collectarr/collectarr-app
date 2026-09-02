@@ -84,20 +84,19 @@ class BookLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
-          label: 'Volume',
+            label: 'Volume',
             value: genericLibraryDash(itemNumber),
             onTap: tapFor(itemNumber)),
         LibraryDetailField(
-          label: 'Edition / Binding',
+            label: 'Edition / Binding',
             value: genericLibraryDash(variant),
             onTap: tapFor(variant)),
         LibraryDetailField(
-          label: 'ISBN / Barcode',
-            value: genericLibraryDash(barcode)),
+            label: 'ISBN / Barcode', value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-          label: 'Publisher',
+            label: 'Publisher',
             value: genericLibraryDash(publisher),
             onTap: tapFor(publisher)),
         LibraryDetailField(

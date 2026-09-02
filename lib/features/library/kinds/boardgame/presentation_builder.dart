@@ -49,20 +49,19 @@ class BoardGameLibraryMediaPresentationBuilder
               value: series!.seriesTitle!,
               onTap: tapFor(series.seriesTitle)),
         LibraryDetailField(
-          label: 'Edition',
+            label: 'Edition',
             value: genericLibraryDash(itemNumber),
             onTap: tapFor(itemNumber)),
         LibraryDetailField(
-          label: 'Expansion / Edition',
+            label: 'Expansion / Edition',
             value: genericLibraryDash(variant),
             onTap: tapFor(variant)),
         LibraryDetailField(
-          label: 'Barcode',
-            value: genericLibraryDash(barcode)),
+            label: 'Barcode', value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-          label: 'Publisher / Designer',
+            label: 'Publisher / Designer',
             value: genericLibraryDash(publisher),
             onTap: tapFor(publisher)),
         LibraryDetailField(

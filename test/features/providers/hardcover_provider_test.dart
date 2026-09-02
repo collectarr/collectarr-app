@@ -171,9 +171,9 @@ void main() {
       expect(envelope.normalized['genres'],
           containsAll(['Science Fiction', 'Space Opera']));
       expect(envelope.normalized['creators'], hasLength(1));
-        expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
           'Frank Herbert');
-        expect(jsonObjectList(envelope.normalized['creators']).first['role'],
+      expect(jsonObjectList(envelope.normalized['creators']).first['role'],
           'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -232,11 +232,11 @@ void main() {
       expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
       expect(normalized['page_count'], goldenEnvelope.normalized['page_count']);
       expect(normalized['genres'], goldenEnvelope.normalized['genres']);
-        expect(jsonObject(normalized['provider_ids'])['hardcover'],
+      expect(jsonObject(normalized['provider_ids'])['hardcover'],
           jsonObject(goldenEnvelope.normalized['provider_ids'])['hardcover']);
-        expect(jsonObjectList(normalized['creators']).first['name'],
+      expect(jsonObjectList(normalized['creators']).first['name'],
           jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
-        expect(jsonObjectList(normalized['creators']).first['role'],
+      expect(jsonObjectList(normalized['creators']).first['role'],
           jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
     });
   });

@@ -147,8 +147,8 @@ class LibraryPageToolbarController {
             onSearchChanged: _s._onSearchChanged,
             onSearchInputChanged: _s._onSearchInputChanged,
             onSearchTargetChanged: _s.widget.type.searchTargetOptions.isEmpty
-              ? null
-              : _s._onSearchTargetChanged,
+                ? null
+                : _s._onSearchTargetChanged,
             onClearSearch: _s._clearSearch,
             onSearchSuggestionSelected: _s._applySearchSuggestion,
           ),

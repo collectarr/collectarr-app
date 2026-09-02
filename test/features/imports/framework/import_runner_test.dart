@@ -46,9 +46,8 @@ void main() {
 
   test('runner imports matched rows and counts them', () async {
     final runner = ImportRunner(
-      matcher: (row) async =>
-            ImportMapping.matched(
-              row, _ref('anime-${(row as ImportRow).sourceId}')),
+      matcher: (row) async => ImportMapping.matched(
+          row, _ref('anime-${(row as ImportRow).sourceId}')),
       applier: (mapping, cfg) async => ImportRowOutcome.imported,
     );
 
@@ -125,9 +124,8 @@ void main() {
 
   test('result maps onto a provider history entry', () async {
     final runner = ImportRunner(
-      matcher: (row) async =>
-            ImportMapping.matched(
-              row, _ref('anime-${(row as ImportRow).sourceId}')),
+      matcher: (row) async => ImportMapping.matched(
+          row, _ref('anime-${(row as ImportRow).sourceId}')),
       applier: (mapping, cfg) async => ImportRowOutcome.imported,
     );
     final result = await runner.run([_row('1', 'Steins;Gate')], config);
@@ -144,7 +142,9 @@ void main() {
     expect(entry.imported, 1);
   });
 
-  test('runner integrates with ProviderPersonalEntry and ExternalStateEngine diff', () async {
+  test(
+      'runner integrates with ProviderPersonalEntry and ExternalStateEngine diff',
+      () async {
     const engine = ExternalStateEngine();
     const entry = ProviderPersonalEntry(
       provider: ProviderId.myAnimeList,

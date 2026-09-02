@@ -314,7 +314,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       deletedAt: row.deletedAt,
     );
   }
-
 }
 
 final libraryWorkspaceRepositoryProvider =

@@ -168,11 +168,13 @@ void main() {
 
   test('kind presentation owns track search and group mode categories', () {
     expect(
-      musicKindModule.searchTargetOptions.contains(LibrarySearchTarget.tracksOnly),
+      musicKindModule.searchTargetOptions
+          .contains(LibrarySearchTarget.tracksOnly),
       isTrue,
     );
     expect(
-      movieKindModule.searchTargetOptions.contains(LibrarySearchTarget.tracksOnly),
+      movieKindModule.searchTargetOptions
+          .contains(LibrarySearchTarget.tracksOnly),
       isFalse,
     );
 

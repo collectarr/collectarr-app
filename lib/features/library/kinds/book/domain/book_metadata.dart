@@ -224,67 +224,73 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? itemNumber;
   final CatalogSeriesDetailsDto? series;
   final String? seriesTitle;
-    final Map<String, dynamic> rawPayload;
+  final Map<String, dynamic> rawPayload;
 
-  Map<String, dynamic> toJson() => {
-      ...rawPayload,
-        'title': title,
-        if (subtitle != null) 'subtitle': subtitle,
-        if (sortTitle != null) 'sort_title': sortTitle,
-        if (synopsis != null) 'synopsis': synopsis,
-        if (authors.isNotEmpty) 'authors': authors,
-        if (genres.isNotEmpty) 'genres': genres,
-        if (subjects.isNotEmpty) 'subjects': subjects,
-        if (editors.isNotEmpty) 'editors': editors,
-        if (translators.isNotEmpty) 'translators': translators,
-        if (illustrators.isNotEmpty) 'illustrators': illustrators,
-        if (photographers.isNotEmpty) 'photographers': photographers,
-        if (coverArtists.isNotEmpty) 'cover_artists': coverArtists,
-        if (forewordAuthors.isNotEmpty) 'foreword_authors': forewordAuthors,
-        if (ghostwriters.isNotEmpty) 'ghostwriters': ghostwriters,
-        if (originalTitle != null) 'original_title': originalTitle,
-        if (originalSubtitle != null) 'original_subtitle': originalSubtitle,
-        if (originalCountry != null) 'original_country': originalCountry,
-        if (originalLanguage != null) 'original_language': originalLanguage,
-        if (originalPublisher != null) 'original_publisher': originalPublisher,
-        if (originalPublicationDate != null)
-          'original_publication_date':
-              originalPublicationDate!.toIso8601String(),
-        if (country != null) 'country': country,
-        if (language != null) 'language': language,
-        if (publisher != null) 'publisher': publisher,
-        if (barcode != null) 'barcode': barcode,
-        if (variant != null) 'variant': variant,
-        if (editionTitle != null) 'edition_title': editionTitle,
-        if (physicalFormat != null) 'physical_format': physicalFormat,
-        if (physicalFormatLabel != null)
-          'physical_format_label': physicalFormatLabel,
-        if (itemNumber != null) 'item_number': itemNumber,
-        if (seriesTitle != null) 'series_title': seriesTitle,
-        if (series != null && series!.hasData) ...{
-          'series': series!.toJson(),
-          ...series!.toJson(),
-        },
-        if (creators.isNotEmpty) 'creators': creators,
-        if (publishing != null && publishing!.hasData) ...{
-          'publishing': publishing!.toJson(),
-          ...publishing!.toJson(),
-        },
-        if (links.isNotEmpty) ...{
-          if (links.any((l) => l.isTrailerLink))
-            'trailer_urls': links
-                .where((l) => l.isTrailerLink)
-                .map((e) => e.toJson())
-                .toList(),
-          if (links.any((l) => l.isExternalLink))
-            'external_links': links
-                .where((l) => l.isExternalLink)
-                .map((e) => e.toJson())
-                .toList(),
-        },
-        if (editions.isNotEmpty)
-          'editions': editions.map((e) => e.toJson()).toList(),
-      };
+  Map<String, dynamic> toJson() {
+    final base = Map<String, dynamic>.from(rawPayload);
+    if (links.isNotEmpty) {
+      base.remove('trailer_urls');
+      base.remove('external_links');
+    }
+    return {
+      ...base,
+      'title': title,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (synopsis != null) 'synopsis': synopsis,
+      if (authors.isNotEmpty) 'authors': authors,
+      if (genres.isNotEmpty) 'genres': genres,
+      if (subjects.isNotEmpty) 'subjects': subjects,
+      if (editors.isNotEmpty) 'editors': editors,
+      if (translators.isNotEmpty) 'translators': translators,
+      if (illustrators.isNotEmpty) 'illustrators': illustrators,
+      if (photographers.isNotEmpty) 'photographers': photographers,
+      if (coverArtists.isNotEmpty) 'cover_artists': coverArtists,
+      if (forewordAuthors.isNotEmpty) 'foreword_authors': forewordAuthors,
+      if (ghostwriters.isNotEmpty) 'ghostwriters': ghostwriters,
+      if (originalTitle != null) 'original_title': originalTitle,
+      if (originalSubtitle != null) 'original_subtitle': originalSubtitle,
+      if (originalCountry != null) 'original_country': originalCountry,
+      if (originalLanguage != null) 'original_language': originalLanguage,
+      if (originalPublisher != null) 'original_publisher': originalPublisher,
+      if (originalPublicationDate != null)
+        'original_publication_date': originalPublicationDate!.toIso8601String(),
+      if (country != null) 'country': country,
+      if (language != null) 'language': language,
+      if (publisher != null) 'publisher': publisher,
+      if (barcode != null) 'barcode': barcode,
+      if (variant != null) 'variant': variant,
+      if (editionTitle != null) 'edition_title': editionTitle,
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
+      if (itemNumber != null) 'item_number': itemNumber,
+      if (seriesTitle != null) 'series_title': seriesTitle,
+      if (series != null && series!.hasData) ...{
+        'series': series!.toJson(),
+        ...series!.toJson(),
+      },
+      if (creators.isNotEmpty) 'creators': creators,
+      if (publishing != null && publishing!.hasData) ...{
+        'publishing': publishing!.toJson(),
+        ...publishing!.toJson(),
+      },
+      if (links.isNotEmpty) ...{
+        if (links.any((l) => l.isTrailerLink))
+          'trailer_urls': links
+              .where((l) => l.isTrailerLink)
+              .map((e) => e.toJson())
+              .toList(),
+        if (links.any((l) => l.isExternalLink))
+          'external_links': links
+              .where((l) => l.isExternalLink)
+              .map((e) => e.toJson())
+              .toList(),
+      },
+      if (editions.isNotEmpty)
+        'editions': editions.map((e) => e.toJson()).toList(),
+    };
+  }
 
   BookCatalogMetadata copyWith({
     String? title,

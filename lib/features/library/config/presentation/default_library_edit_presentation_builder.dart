@@ -180,7 +180,7 @@ class DefaultLibraryEditPresentationBuilder
       trackingSectionTitle: context.isOwned
           ? context.isDigitalFormat
               ? ownedDigitalTrackingSectionTitle
-          : trackingSectionTitle
+              : trackingSectionTitle
           : trackingSectionTitle,
       trackingSectionHint: context.isOwned && context.isDigitalFormat
           ? ownedDigitalTrackingHint

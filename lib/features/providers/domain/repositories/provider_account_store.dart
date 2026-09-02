@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 abstract interface class ProviderAccountStore {
   Future<List<ProviderAccount>> getAllAccounts();
   Future<ProviderAccount?> getAccount(String id);
-  Future<void> saveAccount(ProviderAccount account, {String? accessToken, Map<String, String>? credentials});
+  Future<void> saveAccount(ProviderAccount account,
+      {String? accessToken, Map<String, String>? credentials});
   Future<void> deleteAccount(String id);
   Future<ProviderAccountContext?> getAccountContext(String id);
 }

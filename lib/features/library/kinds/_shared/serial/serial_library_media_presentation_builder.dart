@@ -98,20 +98,19 @@ class SerialLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
-          label: itemNumberLabel,
+            label: itemNumberLabel,
             value: genericLibraryDash(itemNumber),
             onTap: tapFor(itemNumber)),
         LibraryDetailField(
-          label: variantLabel,
+            label: variantLabel,
             value: genericLibraryDash(variant),
             onTap: tapFor(variant)),
         LibraryDetailField(
-          label: barcodeLabel,
-            value: genericLibraryDash(barcode)),
+            label: barcodeLabel, value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-          label: publisherLabel,
+            label: publisherLabel,
             value: genericLibraryDash(publisher),
             onTap: tapFor(publisher)),
         LibraryDetailField(

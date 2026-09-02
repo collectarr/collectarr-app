@@ -406,12 +406,12 @@ class AniListProvider extends ProviderAdapter {
     final providerItemId =
         anilistId != null ? _formatProviderItemId(targetKind, anilistId) : '';
     final startDate = item['startDate'] is Map
-      ? Map<String, dynamic>.from(item['startDate'] as Map)
-      : null;
-    final year = startDate?['year'] as String?;
+        ? Map<String, dynamic>.from(item['startDate'] as Map)
+        : null;
+    final year = startDate?['year']?.toString();
     final titleMap = item['title'] is Map
-      ? Map<String, dynamic>.from(item['title'] as Map)
-      : null;
+        ? Map<String, dynamic>.from(item['title'] as Map)
+        : null;
     final romaji = titleMap?['romaji'] as String?;
     final english = titleMap?['english'] as String?;
     final altTitle = (english != null && romaji != null && romaji != english)

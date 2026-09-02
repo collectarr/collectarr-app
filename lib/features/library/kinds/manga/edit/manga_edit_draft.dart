@@ -132,7 +132,10 @@ KindEditDraft createMangaEditDraft({
       text: metadata?.imprint ?? '',
     ),
     publisherController: textControllers.create(
-      text: metadata?.publisher ?? metadata?.localizedPublisher ?? metadata?.originalPublisher ?? '',
+      text: metadata?.publisher ??
+          metadata?.localizedPublisher ??
+          metadata?.originalPublisher ??
+          '',
     ),
     barcodeController: textControllers.create(
       text: metadata?.barcode ?? metadata?.isbn ?? '',

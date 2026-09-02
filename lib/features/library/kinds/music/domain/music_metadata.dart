@@ -201,10 +201,10 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? variant;
   final String? country;
   final String? language;
-    final Map<String, dynamic> rawPayload;
+  final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
-      ...rawPayload,
+        ...rawPayload,
         'title': title,
         if (artist != null) ...{
           'artist': artist,

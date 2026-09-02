@@ -295,7 +295,7 @@ class LibraryToolbarActionRegistry {
           ? null
           : () => actionContext.grouping.onSmartLists(shelfState),
       onFolders: actionContext.grouping.onShowUserFoldersFlow,
-            onReadingQueue: runtime.toolbarActionAvailability
+      onReadingQueue: runtime.toolbarActionAvailability
               .allows(LibraryToolbarActionId.readingQueue)
           ? actionContext.grouping.onShowReadingQueueFlow
           : null,
@@ -308,9 +308,9 @@ class LibraryToolbarActionRegistry {
           ? null
           : () =>
               actionContext.collectionActions.onTransferFieldData(projection),
-        onReassignIndex: projection == null ||
-            !runtime.toolbarActionAvailability
-              .allows(LibraryToolbarActionId.reassignIndex)
+      onReassignIndex: projection == null ||
+              !runtime.toolbarActionAvailability
+                  .allows(LibraryToolbarActionId.reassignIndex)
           ? null
           : () => actionContext.collectionActions.onReassignIndex(projection),
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty

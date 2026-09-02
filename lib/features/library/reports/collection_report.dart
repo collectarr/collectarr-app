@@ -42,8 +42,10 @@ enum ReportColumn {
       ReportColumn.barcode => adapter?.barcode ?? '',
       ReportColumn.barcodeImage => adapter?.barcode ?? '',
       ReportColumn.year => adapter?.releaseDate?.year.toString() ?? '',
-      ReportColumn.format =>
-        adapter?.referenceFormatLabel ?? adapter?.format ?? adapter?.variant ?? '',
+      ReportColumn.format => adapter?.referenceFormatLabel ??
+          adapter?.format ??
+          adapter?.variant ??
+          '',
       ReportColumn.creator =>
         item.source.catalogItem?.toSyncPayload()['creator']?.toString() ?? '',
       ReportColumn.tags => item.source.tags ?? '',

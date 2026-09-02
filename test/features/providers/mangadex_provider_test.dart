@@ -157,9 +157,9 @@ void main() {
       expect(envelope.normalized['genres'],
           containsAll(['Action', 'Supernatural']));
       expect(envelope.normalized['creators'], hasLength(1));
-        expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
           'Tatsuki Fujimoto');
-        expect(jsonObjectList(envelope.normalized['creators']).first['role'],
+      expect(jsonObjectList(envelope.normalized['creators']).first['role'],
           'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -224,7 +224,7 @@ void main() {
       expect(normalized['genres'], goldenEnvelope.normalized['genres']);
       expect(jsonObject(normalized['provider_ids'])['mangadex'],
           jsonObject(goldenEnvelope.normalized['provider_ids'])['mangadex']);
-        expect(jsonObjectList(normalized['creators']).first['name'],
+      expect(jsonObjectList(normalized['creators']).first['name'],
           jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
     });
   });

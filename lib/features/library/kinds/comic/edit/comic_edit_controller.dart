@@ -51,7 +51,8 @@ class ComicEditController {
             text: item.seriesTitle ?? item.series?.seriesTitle ?? item.title),
         seriesId = item.series?.seriesId,
         releaseDateController = TextEditingController(
-            text: item.releaseDate == null ? '' : formatDate(item.releaseDate!)),
+            text:
+                item.releaseDate == null ? '' : formatDate(item.releaseDate!)),
         releaseDateYearPartController = TextEditingController(
             text: item.releaseDate?.year.toString() ?? ''),
         releaseDateMonthPartController = TextEditingController(

@@ -65,10 +65,10 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   final GameValuationSet? valuations;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
-    final Map<String, dynamic> rawPayload;
+  final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
-      ...rawPayload,
+        ...rawPayload,
         'title': title,
         if (platform != null) 'platform': platform,
         if (platforms.isNotEmpty) 'platforms': platforms,

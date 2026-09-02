@@ -980,8 +980,7 @@ String _catalogSubtitle(LibraryMetadataItem item) {
   return [
     if (variant != null && variant.isNotEmpty) variant,
     if (publisher != null && publisher.isNotEmpty) publisher,
-    if (payload['release_year'] != null)
-      payload['release_year'].toString(),
+    if (payload['release_year'] != null) payload['release_year'].toString(),
     if (barcode != null && barcode.isNotEmpty) barcode,
   ].join(' | ');
 }

@@ -22,16 +22,13 @@ extension _MusicSections on _MusicLibraryEditDialogState {
               const SizedBox(height: 10),
               _denseFields([
                 _field(controller: _subtitleController, label: 'Subtitle'),
-                _field(
-                    controller: _publisherController,
-                    label: 'Label'),
+                _field(controller: _publisherController, label: 'Label'),
                 _field(
                   controller: _editionTitleController,
                   label: 'Edition title',
                 ),
                 _field(
-                    controller: _variantController,
-                    label: 'Format / Edition'),
+                    controller: _variantController, label: 'Format / Edition'),
               ]),
             ],
           ),
@@ -45,7 +42,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
               _denseFields([
                 _field(
                     controller: _barcodeController,
-                  label: 'Barcode / Catalog no.'),
+                    label: 'Barcode / Catalog no.'),
                 _field(
                     controller: _catalogNumberController,
                     label: 'Catalog number'),
@@ -71,7 +68,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                 ),
                 _field(controller: _studioController, label: 'Studio'),
               ]),
-                if (widget.request.physicalFormats.isNotEmpty) ...[
+              if (widget.request.physicalFormats.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   initialValue: _physicalFormatId,
@@ -792,8 +789,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
           accent: _accent,
           child: _denseFields([
             _field(
-                controller: _barcodeController,
-              label: 'Barcode / Catalog no.'),
+                controller: _barcodeController, label: 'Barcode / Catalog no.'),
             _field(
                 controller: _catalogNumberController, label: 'Catalog number'),
             _field(controller: _coverController, label: 'Front cover URL'),

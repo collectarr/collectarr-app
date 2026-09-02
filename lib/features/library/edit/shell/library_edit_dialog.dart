@@ -252,7 +252,19 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.item.displayTitle ?? widget.item.title;
+    final payload = widget.item.payload;
+    final creators = (payload['creators'] as List?)
+        ?.whereType<Map<Object?, Object?>>()
+        .toList();
+    final firstCreator = (creators != null && creators.isNotEmpty)
+        ? creators.first['name']?.toString()
+        : ((payload['authors'] as List?)?.firstOrNull?.toString());
+    final yearSuffix =
+        widget.item.releaseYear != null ? ' (${widget.item.releaseYear})' : '';
+    final title = widget.item.displayTitle ??
+        (firstCreator != null && firstCreator.trim().isNotEmpty
+            ? '${widget.item.title} / $firstCreator'
+            : '${widget.item.title}$yearSuffix');
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,

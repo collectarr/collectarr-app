@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
@@ -91,7 +90,8 @@ void main() {
 
       final rows = await db.select(db.catalogCache).get();
       expect(rows, hasLength(1));
-      final payload = jsonDecode(rows.first.payloadJson) as Map<String, dynamic>;
+      final payload =
+          jsonDecode(rows.first.payloadJson) as Map<String, dynamic>;
       expect(payload['title'], 'Smoke Test Issue');
     });
 

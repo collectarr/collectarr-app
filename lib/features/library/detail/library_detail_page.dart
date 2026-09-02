@@ -343,7 +343,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                             ? 'Viewing ${buildOwnedCopyLabel(ownedCopies[index], _releaseEditions(type, item), index)}'
                             : buildOwnedCopyLabel(
                                 ownedCopies[index],
-                              _releaseEditions(type, item),
+                                _releaseEditions(type, item),
                                 index,
                               ),
                         icon: ownedCopies[index].id == selectedOwnedItemId
@@ -428,7 +428,5 @@ List<CatalogEditionDto> _releaseEditions(
   if (catalogItem == null) {
     return const [];
   }
-  return type.presentation
-      .builder
-      .buildReleaseEditions(item: catalogItem);
+  return type.presentation.builder.buildReleaseEditions(item: catalogItem);
 }

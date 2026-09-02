@@ -13,13 +13,13 @@ void main() {
 
   test('books and games use media-specific barcode and edition labels', () {
     expect(libraryMediaPreviewLabels(bookKindModule).labelFor('barcode'),
-      'ISBN / Barcode');
+        'ISBN / Barcode');
     expect(libraryMediaPreviewLabels(bookKindModule).labelFor('variant'),
-      'Edition / Binding');
+        'Edition / Binding');
     expect(libraryMediaPreviewLabels(gameKindModule).labelFor('variant'),
-      'Platform / Edition');
+        'Platform / Edition');
     expect(libraryMediaPreviewLabels(gameKindModule).labelFor('publisher'),
-      'Publisher / Studio');
+        'Publisher / Studio');
   });
 
   test('music search labels use artist terminology', () {

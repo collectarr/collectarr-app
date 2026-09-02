@@ -1136,9 +1136,8 @@ CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
 }
 
 Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
-  final editions = item == null
-      ? const <CatalogEdition>[]
-      : libraryKindEditions(item);
+  final editions =
+      item == null ? const <CatalogEdition>[] : libraryKindEditions(item);
   if (editions.isEmpty) return const SizedBox.shrink();
   final seen = <String>{};
   final badges = <Widget>[];
@@ -1171,16 +1170,22 @@ List<(String, String?)> _metadataRowsForCandidate(
         candidate.series!.seriesTitle
       ),
     if (candidate.issueNumber != null)
-      (previewLabels.labelFor('item_number', fallback: 'Number'),
-          candidate.issueNumber),
+      (
+        previewLabels.labelFor('item_number', fallback: 'Number'),
+        candidate.issueNumber
+      ),
     if (candidate.publisher != null)
-      (previewLabels.labelFor('publisher', fallback: 'Publisher'),
-          candidate.publisher),
+      (
+        previewLabels.labelFor('publisher', fallback: 'Publisher'),
+        candidate.publisher
+      ),
     if (candidate.series?.volumeStartYear != null)
       ('Year', candidate.series!.volumeStartYear.toString()),
     if (candidate.variantName != null)
-      (previewLabels.labelFor('variant', fallback: 'Variant'),
-          candidate.variantName),
+      (
+        previewLabels.labelFor('variant', fallback: 'Variant'),
+        candidate.variantName
+      ),
     if (candidate.issueCount != null)
       (
         previewLabels.labelFor('item_count', fallback: 'Items'),
@@ -1225,7 +1230,7 @@ List<(String, String?)> _metadataRowsForItem(
     (previewLabels.labelFor('publisher', fallback: 'Publisher'), publisher),
     (
       'Released',
-        libraryKindReleaseDate(item) != null
+      libraryKindReleaseDate(item) != null
           ? '${libraryKindReleaseDate(item)!.year}-${libraryKindReleaseDate(item)!.month.toString().padLeft(2, '0')}-${libraryKindReleaseDate(item)!.day.toString().padLeft(2, '0')}'
           : libraryKindReleaseYear(item)?.toString()
     ),
@@ -1233,8 +1238,10 @@ List<(String, String?)> _metadataRowsForItem(
     if (itemNumber != null)
       (previewLabels.labelFor('item_number', fallback: 'Number'), itemNumber),
     if (displayEditionLabel != null)
-      (previewLabels.labelFor('variant', fallback: 'Variant'),
-          displayEditionLabel),
+      (
+        previewLabels.labelFor('variant', fallback: 'Variant'),
+        displayEditionLabel
+      ),
     (previewLabels.labelFor('barcode', fallback: 'Barcode'), barcode),
     if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
       ('Catalog No.', musicCatalogNo),
@@ -1317,27 +1324,32 @@ List<(String, String?)> _metadataRowsForFullPreview(
         series!.seriesTitle
       ),
     if (preview.publisher != null)
-      (previewLabels.labelFor('publisher', fallback: 'Publisher'),
-          preview.publisher),
+      (
+        previewLabels.labelFor('publisher', fallback: 'Publisher'),
+        preview.publisher
+      ),
     if (publishingImprint != null && publishingImprint.isNotEmpty)
       ('Imprint', publishingImprint),
     if (releaseDateStr != null) ('Released', releaseDateStr),
     if (series?.volumeStartYear != null)
       ('Year', series!.volumeStartYear.toString()),
     if (preview.itemNumber != null)
-      (previewLabels.labelFor('item_number', fallback: 'Number'),
-          preview.itemNumber),
+      (
+        previewLabels.labelFor('item_number', fallback: 'Number'),
+        preview.itemNumber
+      ),
     if (preview.barcode != null)
-      (previewLabels.labelFor('barcode', fallback: 'Barcode'),
-          preview.barcode),
+      (previewLabels.labelFor('barcode', fallback: 'Barcode'), preview.barcode),
     if (preview.isbn != null) ('ISBN', preview.isbn),
     if (preview.country != null) ('Country', preview.country),
     if (preview.language != null) ('Language', preview.language),
     if (preview.physicalFormatLabel != null)
       ('Format', preview.physicalFormatLabel),
     if (preview.variantName != null)
-      (previewLabels.labelFor('variant', fallback: 'Variant'),
-          preview.variantName),
+      (
+        previewLabels.labelFor('variant', fallback: 'Variant'),
+        preview.variantName
+      ),
     if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
       ('Catalog No.', musicCatalogNo),
     if (gamePlatforms != null && gamePlatforms.isNotEmpty)

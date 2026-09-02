@@ -80,20 +80,20 @@ class ComicLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
-          label: 'No. / Vol.',
+            label: 'No. / Vol.',
             value: genericLibraryDash(metadata.issueNumber),
             onTap: tapFor(metadata.issueNumber)),
         LibraryDetailField(
-          label: 'Edition / Variant / Format',
+            label: 'Edition / Variant / Format',
             value: genericLibraryDash(metadata.variant),
             onTap: tapFor(metadata.variant)),
         LibraryDetailField(
-          label: 'Barcode / UPC / ISBN',
+            label: 'Barcode / UPC / ISBN',
             value: genericLibraryDash(metadata.barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-          label: 'Publisher / Studio / Creator',
+            label: 'Publisher / Studio / Creator',
             value: genericLibraryDash(metadata.publisher),
             onTap: tapFor(metadata.publisher)),
         LibraryDetailField(

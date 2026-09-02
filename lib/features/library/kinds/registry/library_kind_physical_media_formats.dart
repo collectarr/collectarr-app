@@ -20,8 +20,11 @@ List<PhysicalMediaFormat> kindFallbackPhysicalMediaFormats(
   return switch (kind) {
     CatalogMediaKind.anime ||
     CatalogMediaKind.movie ||
-    CatalogMediaKind.tv => videoPhysicalMediaFormats,
-    CatalogMediaKind.boardgame || CatalogMediaKind.game => gamePhysicalMediaFormats,
+    CatalogMediaKind.tv =>
+      videoPhysicalMediaFormats,
+    CatalogMediaKind.boardgame ||
+    CatalogMediaKind.game =>
+      gamePhysicalMediaFormats,
     CatalogMediaKind.book || CatalogMediaKind.manga => bookPhysicalMediaFormats,
     CatalogMediaKind.comic => comicPhysicalMediaFormats,
     CatalogMediaKind.music => musicPhysicalMediaFormats,

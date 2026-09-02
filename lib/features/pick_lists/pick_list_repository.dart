@@ -426,7 +426,8 @@ class PickListRepository {
     for (final column in ownedColumns) {
       total += await _countTextColumn(column.$1, column.$2, normalized);
     }
-    for (final field in catalogPayloadFields[semanticName] ?? const <String>[]) {
+    for (final field
+        in catalogPayloadFields[semanticName] ?? const <String>[]) {
       total += await _countCatalogPayloadField(field, normalized);
     }
     if (semanticName == 'tags') {
@@ -457,7 +458,8 @@ class PickListRepository {
     for (final row in rows) {
       final payload = jsonDecode(row.payloadJson);
       if (payload is Map<String, dynamic> && payload[fieldName] is String) {
-        if (normalizePickListValue(payload[fieldName] as String) == normalized) {
+        if (normalizePickListValue(payload[fieldName] as String) ==
+            normalized) {
           count++;
         }
       }

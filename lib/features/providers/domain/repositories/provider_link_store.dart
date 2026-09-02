@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract interface class ProviderLinkStore {
   Future<List<ProviderItemLink>> getAllLinks();
-  Future<ProviderItemLink?> getLinkByRemoteId(String accountId, String remoteItemId);
-  Future<ProviderItemLink?> getLinkByLocalRef(CatalogEntityRef localRef, {ProviderId? provider});
+  Future<ProviderItemLink?> getLinkByRemoteId(
+      String accountId, String remoteItemId);
+  Future<ProviderItemLink?> getLinkByLocalRef(CatalogEntityRef localRef,
+      {ProviderId? provider});
   Future<void> saveLink(ProviderItemLink link);
   Future<void> deleteLink(String accountId, String remoteItemId);
   Future<void> updateBaseSnapshot({
@@ -26,7 +28,8 @@ class InMemoryProviderLinkStore implements ProviderLinkStore {
 
   final Map<String, ProviderItemLink> _links;
 
-  String _key(String accountId, String remoteItemId) => '$accountId:$remoteItemId';
+  String _key(String accountId, String remoteItemId) =>
+      '$accountId:$remoteItemId';
 
   @override
   Future<List<ProviderItemLink>> getAllLinks() async {
@@ -34,14 +37,17 @@ class InMemoryProviderLinkStore implements ProviderLinkStore {
   }
 
   @override
-  Future<ProviderItemLink?> getLinkByRemoteId(String accountId, String remoteItemId) async {
+  Future<ProviderItemLink?> getLinkByRemoteId(
+      String accountId, String remoteItemId) async {
     return _links[_key(accountId, remoteItemId)];
   }
 
   @override
-  Future<ProviderItemLink?> getLinkByLocalRef(CatalogEntityRef localRef, {ProviderId? provider}) async {
+  Future<ProviderItemLink?> getLinkByLocalRef(CatalogEntityRef localRef,
+      {ProviderId? provider}) async {
     for (final link in _links.values) {
-      if (link.localEntityRef.id == localRef.id && link.localEntityRef.kind == localRef.kind) {
+      if (link.localEntityRef.id == localRef.id &&
+          link.localEntityRef.kind == localRef.kind) {
         if (provider == null || link.provider == provider) {
           return link;
         }

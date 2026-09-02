@@ -92,8 +92,7 @@ KindEditDraft createBoardGameEditDraft({
     storageNotes: bg?.storageNotes,
     releaseDateController: textControllers.create(),
     releaseYearController: textControllers.create(
-      text: meta?.yearPublished?.toString() ??
-          '',
+      text: meta?.yearPublished?.toString() ?? '',
     ),
   );
 }

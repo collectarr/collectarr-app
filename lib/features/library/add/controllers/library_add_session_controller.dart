@@ -928,7 +928,7 @@ class LibraryAddSessionController
 
       if (searchGen != state.search.coreSearchGeneration) return;
 
-        final hydratedItem =
+      final hydratedItem =
           LibraryMetadataTransportCodec.fromCatalogItem(hydrated);
       final mergedCoverImageUrl = hydratedItem.displayCoverUrl != null
           ? hydratedItem.coverImageUrl

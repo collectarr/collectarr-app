@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 const comicsMetadataLabels = LibraryMetadataLabels(
   values: {
+    'creators': 'Creators',
     'characters': 'Characters',
     'story_arcs_inline': 'Story arcs',
     'genres': 'Genres',

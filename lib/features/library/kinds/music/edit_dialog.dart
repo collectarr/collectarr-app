@@ -251,7 +251,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _catalogNumberController = TextEditingController(
         text: (musicMap?['catalog_number'] as String?) ?? '');
     final initialRelDate = metadata.originalReleaseDate ??
-      metadata.releases.firstOrNull?.releaseDate;
+        metadata.releases.firstOrNull?.releaseDate;
     _releaseDateController = TextEditingController(
       text: initialRelDate == null ? '' : formatDate(initialRelDate),
     );

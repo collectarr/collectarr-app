@@ -63,7 +63,8 @@ class ProviderSyncCoordinator {
     final connector = registry.get(account.provider);
     final personalRead = connector?.personalRead;
     if (personalRead == null) {
-      throw StateError('Provider ${account.provider} does not support reading personal lists');
+      throw StateError(
+          'Provider ${account.provider} does not support reading personal lists');
     }
 
     final context = await accountStore.getAccountContext(accountId);
@@ -77,7 +78,8 @@ class ProviderSyncCoordinator {
     final conflicts = <EntrySyncDiff>[];
 
     for (final remoteEntry in remoteEntries) {
-      final link = await linkStore.getLinkByRemoteId(accountId, remoteEntry.remoteItemId);
+      final link = await linkStore.getLinkByRemoteId(
+          accountId, remoteEntry.remoteItemId);
       final localRef = link?.localEntityRef;
 
       ProviderPersonalEntry? localEntry;

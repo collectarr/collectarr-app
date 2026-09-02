@@ -34,7 +34,8 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
     final accountsAsync = ref.watch(externalAccountsProvider);
     final palette = appPalette(context);
 
-    final registry = registryAsync.asData?.value ?? defaultProviderConnectorRegistry;
+    final registry =
+        registryAsync.asData?.value ?? defaultProviderConnectorRegistry;
     final connectors = registry.getAll();
 
     return Scaffold(
@@ -174,7 +175,8 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
                       const SizedBox(height: 4),
                       Text(
                         'Supports: ${connector.descriptor.allSupportedKinds.join(', ')}',
-                        style: TextStyle(color: palette.textMuted, fontSize: 12),
+                        style:
+                            TextStyle(color: palette.textMuted, fontSize: 12),
                       ),
                     ],
                   ),
@@ -213,8 +215,8 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
                 if (connector.canPush)
                   _capabilityChip('Push Sync', Icons.upload, palette),
                 if (connector.supportsBidirectionalSync)
-                  _capabilityChip(
-                      '2-Way Sync', Icons.swap_horiz, palette, isHighlight: true),
+                  _capabilityChip('2-Way Sync', Icons.swap_horiz, palette,
+                      isHighlight: true),
               ],
             ),
             if (isConnected) ...[

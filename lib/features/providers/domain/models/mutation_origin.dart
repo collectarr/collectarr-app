@@ -30,7 +30,8 @@ final class MutationOrigin {
   static const fileImport =
       MutationOrigin(source: MutationSourceType.fileImport);
 
-  static MutationOrigin externalProvider(ProviderId provider, [String? accountId]) =>
+  static MutationOrigin externalProvider(ProviderId provider,
+          [String? accountId]) =>
       MutationOrigin(
         source: MutationSourceType.externalProvider,
         provider: provider,
@@ -42,7 +43,8 @@ final class MutationOrigin {
       source == MutationSourceType.collectarrSync;
 
   bool shouldPushTo(ProviderId targetProvider) {
-    if (source == MutationSourceType.externalProvider && provider == targetProvider) {
+    if (source == MutationSourceType.externalProvider &&
+        provider == targetProvider) {
       return false;
     }
     if (source == MutationSourceType.collectarrSync) {

@@ -41,11 +41,12 @@ void main() {
     expect(trackingRow.status, 'Completed');
     expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
-    final catalogItem = await CatalogCacheRepository(db).findById(catalogRow.id);
+    final catalogItem =
+        await CatalogCacheRepository(db).findById(catalogRow.id);
     expect(catalogItem?.title, 'Absolute Batman');
     expect(catalogItem?.coverImageUrl, 'https://cdn.example/absolute.jpg');
-    expect(
-      catalogItem?.thumbnailImageUrl, 'https://cdn.example/absolute-thumb.jpg');
+    expect(catalogItem?.thumbnailImageUrl,
+        'https://cdn.example/absolute-thumb.jpg');
     expect(locations.map((location) => location.id), ['room']);
     expect(locations.single.name, 'Office');
   });

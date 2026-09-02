@@ -729,15 +729,15 @@ class TmdbImportService {
       for (final match in preview.matches) match.entry.providerItemId: match,
     };
     final runner = ImportRunner(
-      matcher: (row) async {
-        final entry = row as TmdbImportEntry;
-        final match = matchesBySourceId[entry.providerItemId];
+      matcher: (rawRow) async {
+        final row = rawRow as ImportRow;
+        final match = matchesBySourceId[row.sourceId];
         final item = match?.catalogItem;
         if (item == null) {
-          return ImportMapping.unmatched(entry);
+          return ImportMapping.unmatched(row);
         }
         return ImportMapping.matched(
-          entry,
+          row,
           CatalogEntityRef(
             kind: item.kind,
             entityType: CatalogEntityType.work,
@@ -746,8 +746,8 @@ class TmdbImportService {
         );
       },
       applier: (mapping, config) async {
-        final entry = mapping.row as TmdbImportEntry;
-        final match = matchesBySourceId[entry.providerItemId];
+        final row = mapping.row as ImportRow;
+        final match = matchesBySourceId[row.sourceId];
         final item = match?.catalogItem;
         if (match == null || item == null) {
           return ImportRowOutcome.skipped;
@@ -755,9 +755,9 @@ class TmdbImportService {
         await importMatch(item, match.entry);
         return ImportRowOutcome.imported;
       },
-      unmatchedHandler: (row, config) async {
-        final entry = row as TmdbImportEntry;
-        final match = matchesBySourceId[entry.providerItemId];
+      unmatchedHandler: (rawRow, config) async {
+        final row = rawRow as ImportRow;
+        final match = matchesBySourceId[row.sourceId];
         if (match != null) {
           await proposeUnmatched(match.entry);
         }

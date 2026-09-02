@@ -135,10 +135,10 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   final List<TrailerLink> links;
   final List<MovieReleaseMetadata> releases;
   final List<CatalogEditionDto> editions;
-    final Map<String, dynamic> rawPayload;
+  final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
-      ...rawPayload,
+        ...rawPayload,
         'title': title,
         if (originalTitle != null) 'original_title': originalTitle,
         if (sortTitle != null) 'sort_title': sortTitle,

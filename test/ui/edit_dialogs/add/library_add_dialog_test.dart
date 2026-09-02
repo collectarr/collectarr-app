@@ -2487,8 +2487,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
           id: 'book-item-1',
           kind: 'book',
           title: 'The Hobbit',
-          series:
-              CatalogSeriesDetailsDto(seriesTitle: 'Middle-earth Tales'),
+          series: CatalogSeriesDetailsDto(seriesTitle: 'Middle-earth Tales'),
           publisher: 'Allen & Unwin',
           publishing: CatalogPublishingDetailsDto(pageCount: 310),
           providerLinks: [

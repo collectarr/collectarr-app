@@ -78,8 +78,8 @@ Future<void> applyProviderIngestCorrections({
         : null,
     publisher: corrections['publisher'] as String?,
     releaseDate: corrections.containsKey('release_date')
-      ? _dateFromPayload(payload['release_date'])
-      : null,
+        ? _dateFromPayload(payload['release_date'])
+        : null,
     runtimeMinutes: corrections.containsKey('runtime_minutes')
         ? payload['runtime_minutes'] as int?
         : null,

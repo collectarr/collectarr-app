@@ -254,7 +254,8 @@ final class CatalogItemDto {
         id: id,
         mediaKind: mediaKind,
       ),
-      kindMetadata: LibraryKindMetadataDecoders.decode(mediaKind, toSyncPayload()),
+      kindMetadata:
+          LibraryKindMetadataDecoders.decode(mediaKind, toSyncPayload()),
     );
   }
 }

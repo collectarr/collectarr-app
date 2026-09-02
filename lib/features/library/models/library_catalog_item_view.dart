@@ -45,8 +45,7 @@ final class LibraryCatalogItemView {
   List<CatalogEditionDto> get editions => common.editions;
   List<TrailerLinkDto> get trailerUrls => common.trailerUrls;
   String? get physicalFormat => _valueFromPayload('physical_format');
-  String? get physicalFormatLabel =>
-      _valueFromPayload('physical_format_label');
+  String? get physicalFormatLabel => _valueFromPayload('physical_format_label');
   String get resolvedDisplayTitle => common.resolvedDisplayTitle;
   String? get displayCoverUrl => common.displayCoverUrl;
   Map<String, dynamic> get payload => kindMetadata.toSyncPayload();
@@ -157,6 +156,7 @@ final class LibraryCatalogItemView {
     LibraryKindMetadataRuntime? kindMetadata,
   }) {
     final json = <String, dynamic>{
+      ...payload,
       ...common.toJson(),
       'title': title ?? this.title,
       if (!identical(displayTitle, _unset)) 'display_title': displayTitle,
@@ -169,7 +169,8 @@ final class LibraryCatalogItemView {
       if (!identical(coverImageUrl, _unset)) 'cover_image_url': coverImageUrl,
       if (!identical(thumbnailImageUrl, _unset))
         'thumbnail_image_url': thumbnailImageUrl,
-      if (!identical(coverImageData, _unset)) 'cover_image_data': coverImageData,
+      if (!identical(coverImageData, _unset))
+        'cover_image_data': coverImageData,
       if (!identical(releaseDate, _unset))
         'release_date': (releaseDate as DateTime?)?.toIso8601String(),
       if (!identical(releaseYear, _unset)) 'release_year': releaseYear,

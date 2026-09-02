@@ -15,7 +15,8 @@ import 'package:collectarr_app/features/providers/domain/repositories/provider_a
 import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _MockPersonalReadWrite implements PersonalListReadCapability, PersonalListWriteCapability {
+class _MockPersonalReadWrite
+    implements PersonalListReadCapability, PersonalListWriteCapability {
   _MockPersonalReadWrite() : remoteEntries = const [];
 
   List<ProviderPersonalEntry> remoteEntries;
@@ -82,7 +83,9 @@ void main() {
       linkStore = InMemoryProviderLinkStore();
     });
 
-    test('pullAccount performs 3-way diff (BASE, LOCAL, REMOTE) and applies remote changes', () async {
+    test(
+        'pullAccount performs 3-way diff (BASE, LOCAL, REMOTE) and applies remote changes',
+        () async {
       const account = ProviderAccount(
         id: 'acc-1',
         provider: ProviderId.aniList,
@@ -164,7 +167,9 @@ void main() {
       expect(updatedLink?.lastPulledAt, isNotNull);
     });
 
-    test('Echo Prevention: handleLocalMutation suppresses push if mutation came from externalProvider', () async {
+    test(
+        'Echo Prevention: handleLocalMutation suppresses push if mutation came from externalProvider',
+        () async {
       const account = ProviderAccount(
         id: 'acc-1',
         provider: ProviderId.aniList,
@@ -219,7 +224,8 @@ void main() {
       );
       expect(pushedUser, isTrue);
       expect(mockCapability.writtenEntries, hasLength(1));
-      expect(mockCapability.writtenEntries.first.status, ProviderEntryStatus.completed);
+      expect(mockCapability.writtenEntries.first.status,
+          ProviderEntryStatus.completed);
 
       // Verify link baseSnapshot was updated upon push
       final updatedLink = await linkStore.getLinkByRemoteId('acc-1', '21');
@@ -227,7 +233,8 @@ void main() {
       expect(updatedLink?.lastPushedAt, isNotNull);
     });
 
-    test('linkImportedItem establishes ProviderItemLink with baseSnapshot', () async {
+    test('linkImportedItem establishes ProviderItemLink with baseSnapshot',
+        () async {
       final coordinator = ProviderSyncCoordinator(
         engine: engine,
         registry: registry,

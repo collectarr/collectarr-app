@@ -97,15 +97,14 @@ class CollectionXml {
                   seriesMap?['series_title'] as String?);
               _textElement(
                   builder, 'VolumeName', seriesMap?['volume_name'] as String?);
-                final releaseDate = _parseDate(payload['release_date']);
-                if (releaseDate != null) {
+              final releaseDate = _parseDate(payload['release_date']);
+              if (releaseDate != null) {
                 _textElement(builder, 'ReleaseDate',
-                  releaseDate.toIso8601String().split('T').first);
+                    releaseDate.toIso8601String().split('T').first);
               }
-                final releaseYear = payload['release_year'];
-                if (releaseYear != null) {
-                _textElement(
-                  builder, 'ReleaseYear', releaseYear.toString());
+              final releaseYear = payload['release_year'];
+              if (releaseYear != null) {
+                _textElement(builder, 'ReleaseYear', releaseYear.toString());
               }
               if (pubMap?['page_count'] != null) {
                 _textElement(

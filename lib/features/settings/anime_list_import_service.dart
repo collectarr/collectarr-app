@@ -36,9 +36,8 @@ class AnimeListImportService {
     final rows = <ProviderPersonalEntry>[];
     for (final entry in entries) {
       final kindStr = _mediaKindForEntry(entry);
-      final kind = kindStr == 'manga'
-          ? CatalogMediaKind.manga
-          : CatalogMediaKind.anime;
+      final kind =
+          kindStr == 'manga' ? CatalogMediaKind.manga : CatalogMediaKind.anime;
       final title = _text(
             entry,
             const [
@@ -166,7 +165,9 @@ class AnimeListImportService {
       'want to watch' ||
       'want to read' =>
         ProviderEntryStatus.planning,
-      'repeating' || 'rewatching' || 'rereading' =>
+      'repeating' ||
+      'rewatching' ||
+      'rereading' =>
         ProviderEntryStatus.repeating,
       _ => null,
     };

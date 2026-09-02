@@ -175,12 +175,13 @@ void main() {
       expect(envelope.normalized['publisher'], 'Harvest');
       expect(envelope.normalized['track_count'], 3);
       expect(envelope.normalized['tracks'], hasLength(3));
-        expect(jsonObjectList(envelope.normalized['tracks'])[0]['title'],
+      expect(jsonObjectList(envelope.normalized['tracks'])[0]['title'],
           'Speak to Me');
-        expect(jsonObjectList(envelope.normalized['tracks'])[0]['duration_seconds'],
+      expect(
+          jsonObjectList(envelope.normalized['tracks'])[0]['duration_seconds'],
           67);
       expect(envelope.normalized['creators'], hasLength(1));
-        expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
           'Pink Floyd');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -243,9 +244,9 @@ void main() {
       expect(normalized['tracks'], goldenEnvelope.normalized['tracks']);
       expect(jsonObject(normalized['provider_ids'])['musicbrainz'],
           jsonObject(goldenEnvelope.normalized['provider_ids'])['musicbrainz']);
-        expect(jsonObjectList(normalized['creators']).first['name'],
+      expect(jsonObjectList(normalized['creators']).first['name'],
           jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
-        expect(jsonObjectList(normalized['creators']).first['role'],
+      expect(jsonObjectList(normalized['creators']).first['role'],
           jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
     });
   });

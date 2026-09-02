@@ -175,8 +175,8 @@ class IGDBProvider extends ProviderAdapter {
     final genres = _extractNames(data['genres']);
 
     final companies = data['involved_companies'] is List
-      ? (data['involved_companies'] as List<dynamic>)
-      : const <dynamic>[];
+        ? (data['involved_companies'] as List<dynamic>)
+        : const <dynamic>[];
     final publishers = _extractCompanies(companies, 'publisher');
     final developers = _extractCompanies(companies, 'developer');
 

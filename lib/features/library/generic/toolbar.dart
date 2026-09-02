@@ -313,13 +313,13 @@ class LibraryToolbar extends StatelessWidget {
     final effectiveScanCover =
         type.add.chrome.canScanCover ? onScanCover : null;
     final effectiveReadingQueue = type.toolbarActionAvailability
-        .allows(LibraryToolbarActionId.readingQueue)
-      ? onReadingQueue
-      : null;
+            .allows(LibraryToolbarActionId.readingQueue)
+        ? onReadingQueue
+        : null;
     final effectiveReassignIndex = type.toolbarActionAvailability
-        .allows(LibraryToolbarActionId.reassignIndex)
-      ? onReassignIndex
-      : null;
+            .allows(LibraryToolbarActionId.reassignIndex)
+        ? onReassignIndex
+        : null;
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: targetAccent),
       duration: kAppAnimNormal,

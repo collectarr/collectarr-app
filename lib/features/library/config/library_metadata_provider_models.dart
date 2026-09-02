@@ -34,17 +34,19 @@ class LibraryMetadataProviderOption {
       description: cachePolicy ?? licenseName,
       supportedKinds: supportedKinds,
       requiresApiKey: requiresUserKey,
-      usagePolicy: requiresAttribution || nonCommercialOnly || summary.isNotEmpty
-          ? LibraryMetadataProviderUsagePolicy(
-              summary: summary,
-              requiresAttribution: requiresAttribution,
-              nonCommercialOnly: nonCommercialOnly,
-            )
-          : null,
+      usagePolicy:
+          requiresAttribution || nonCommercialOnly || summary.isNotEmpty
+              ? LibraryMetadataProviderUsagePolicy(
+                  summary: summary,
+                  requiresAttribution: requiresAttribution,
+                  nonCommercialOnly: nonCommercialOnly,
+                )
+              : null,
     );
   }
 
-  factory LibraryMetadataProviderOption.fromConnector(ProviderConnector connector) {
+  factory LibraryMetadataProviderOption.fromConnector(
+      ProviderConnector connector) {
     return LibraryMetadataProviderOption.fromDescriptor(connector.descriptor);
   }
 

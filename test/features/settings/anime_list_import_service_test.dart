@@ -8,7 +8,9 @@ import 'package:collectarr_app/features/settings/anime_list_import_service.dart'
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('parses MAL-style anime and manga XML exports into ProviderPersonalEntry', () {
+  test(
+      'parses MAL-style anime and manga XML exports into ProviderPersonalEntry',
+      () {
     const xml = '''
 <myanimelist>
   <anime>
@@ -45,7 +47,8 @@ void main() {
     expect(entries[0].rating, 90.0);
     expect(entries[0].progress, 26);
     expect(entries[0].startedAt?.toIso8601String(), '2020-01-01T00:00:00.000');
-    expect(entries[0].completedAt?.toIso8601String(), '2020-01-10T00:00:00.000');
+    expect(
+        entries[0].completedAt?.toIso8601String(), '2020-01-10T00:00:00.000');
     expect(entries[0].externalIds['myanimelist'], '1');
 
     expect(entries[1].remoteItemId, '2');

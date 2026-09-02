@@ -59,8 +59,7 @@ final class CatalogCacheRepository {
       final end = (index + _lookupBatchSize).clamp(0, values.length);
       final batch = values.sublist(index, end);
       rows.addAll(
-        await (_db.select(_db.catalogCache)
-              ..where((row) => row.id.isIn(batch)))
+        await (_db.select(_db.catalogCache)..where((row) => row.id.isIn(batch)))
             .get(),
       );
     }

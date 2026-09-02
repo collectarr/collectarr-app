@@ -90,7 +90,8 @@ class LibraryDialogScaffold extends StatelessWidget {
     final resolvedAccent = accent ?? LibraryAccentScope.accentOf(context);
     final windowClass = AppWindowClass.of(context);
     final effectiveBody = body ?? child ?? const SizedBox.shrink();
-    final effectivePadding = padding ?? (body != null ? EdgeInsets.zero : const EdgeInsets.all(12));
+    final effectivePadding =
+        padding ?? (body != null ? EdgeInsets.zero : const EdgeInsets.all(12));
 
     final effectiveHeader = header ??
         (title != null
@@ -110,7 +111,8 @@ class LibraryDialogScaffold extends StatelessWidget {
         : effectiveBody;
 
     if (sidePanel != null) {
-      final isSideStart = sidePanelPosition == LibraryDialogSidePanelPosition.start;
+      final isSideStart =
+          sidePanelPosition == LibraryDialogSidePanelPosition.start;
       contentBody = Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -122,7 +124,9 @@ class LibraryDialogScaffold extends StatelessWidget {
     }
 
     final scaffoldColumn = Column(
-      mainAxisSize: expandBody || windowClass.isCompact ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisSize: expandBody || windowClass.isCompact
+          ? MainAxisSize.max
+          : MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (effectiveHeader != null) effectiveHeader,
@@ -143,12 +147,17 @@ class LibraryDialogScaffold extends StatelessWidget {
         child: scaffoldColumn,
       );
     } else {
-      final effectiveMinWidth = width != null ? width!.clamp(minWidth, maxWidth) : minWidth;
-      final effectiveMaxWidth = width != null ? width!.clamp(minWidth, maxWidth) : maxWidth;
-      final effectiveMinHeight = height != null ? height!.clamp(minHeight, maxHeight) : minHeight;
-      final effectiveMaxHeight = height != null ? height!.clamp(minHeight, maxHeight) : maxHeight;
+      final effectiveMinWidth =
+          width != null ? width!.clamp(minWidth, maxWidth) : minWidth;
+      final effectiveMaxWidth =
+          width != null ? width!.clamp(minWidth, maxWidth) : maxWidth;
+      final effectiveMinHeight =
+          height != null ? height!.clamp(minHeight, maxHeight) : minHeight;
+      final effectiveMaxHeight =
+          height != null ? height!.clamp(minHeight, maxHeight) : maxHeight;
 
-      final resizable = isResizable || onResizeWidth != null || onResizeHeight != null;
+      final resizable =
+          isResizable || onResizeWidth != null || onResizeHeight != null;
 
       Widget dialogBody = resizable
           ? LibraryResizableSurface(

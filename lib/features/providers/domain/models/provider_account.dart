@@ -30,8 +30,10 @@ final class ProviderAccount {
   final ProviderId provider;
   final String displayName;
   final ProviderAuthType authType;
+
   /// External provider account/user ID
   final String? remoteAccountId;
+
   /// External username/handle
   final String? remoteHandle;
   final String? _username;
@@ -65,7 +67,8 @@ final class ProviderAccount {
       authType: ProviderAuthType.values.asNameMap()[json['authType']] ??
           ProviderAuthType.accessToken,
       remoteAccountId: json['remoteAccountId']?.toString(),
-      remoteHandle: json['remoteHandle']?.toString() ?? json['username']?.toString(),
+      remoteHandle:
+          json['remoteHandle']?.toString() ?? json['username']?.toString(),
       username: json['username']?.toString(),
       avatarUrl: json['avatarUrl']?.toString(),
       connectedAt: json['connectedAt'] != null

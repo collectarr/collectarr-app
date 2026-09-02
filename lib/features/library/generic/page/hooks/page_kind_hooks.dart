@@ -5,10 +5,10 @@ part of '../generic_library_page.dart';
 extension _PageKindHooks on GenericLibraryPageState {
   LibraryWorkspaceViewProfile get _viewProfile => widget.type.viewProfile;
 
-    LibrarySearchTarget get _effectiveSearchTarget =>
+  LibrarySearchTarget get _effectiveSearchTarget =>
       widget.type.searchTargetOptions.isEmpty
-        ? LibrarySearchTarget.all
-        : _searchControllerOps.state.target;
+          ? LibrarySearchTarget.all
+          : _searchControllerOps.state.target;
 
   LibraryViewPreferenceStore get _viewPrefs =>
       LibraryViewPreferenceStore(widget.type.kind);

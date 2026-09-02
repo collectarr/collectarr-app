@@ -163,10 +163,10 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? physicalFormatLabel;
   final List<ComicLink> links;
   final List<ComicRelease> releases;
-    final Map<String, dynamic> rawPayload;
+  final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
-      ...rawPayload,
+        ...rawPayload,
         'title': title,
         if (seriesTitle != null) 'series_title': seriesTitle,
         if (issueNumber != null) ...{
@@ -381,9 +381,9 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-        searchAliases: (json['search_aliases'] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .toList() ??
+      searchAliases: (json['search_aliases'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
       synopsis: (json['synopsis'] ?? json['description']) as String?,
       writers: (json['writers'] as List<dynamic>?)

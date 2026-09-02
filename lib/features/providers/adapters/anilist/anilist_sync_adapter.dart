@@ -58,21 +58,19 @@ query {
             ? jsonDecode(response.data as String) as Map<String, dynamic>?
             : null);
     final dataPayload = data?['data'];
-    final dataMap = dataPayload is Map
-      ? Map<String, dynamic>.from(dataPayload)
-      : null;
+    final dataMap =
+        dataPayload is Map ? Map<String, dynamic>.from(dataPayload) : null;
     final viewerPayload = dataMap?['Viewer'];
-    final viewer = viewerPayload is Map
-      ? Map<String, dynamic>.from(viewerPayload)
-      : null;
+    final viewer =
+        viewerPayload is Map ? Map<String, dynamic>.from(viewerPayload) : null;
     if (viewer == null) return null;
 
     final id = _textValue(viewer['id']) ?? '';
     final name = _textValue(viewer['name']) ?? 'AniList User';
     final avatarPayload = viewer['avatar'];
     final avatar = avatarPayload is Map
-      ? _textValue(Map<String, dynamic>.from(avatarPayload)['large'])
-      : null;
+        ? _textValue(Map<String, dynamic>.from(avatarPayload)['large'])
+        : null;
 
     return ProviderAccount(
       id: 'anilist-$id',
@@ -174,16 +172,15 @@ query ($userName: String, $type: MediaType) {
                 ? Map<String, dynamic>.from(response.data as Map)
                 : null));
     final dataPayload = data?['data'];
-    final dataMap = dataPayload is Map
-      ? Map<String, dynamic>.from(dataPayload)
-      : null;
+    final dataMap =
+        dataPayload is Map ? Map<String, dynamic>.from(dataPayload) : null;
     final collectionPayload = dataMap?['MediaListCollection'];
     final collection = collectionPayload is Map
-      ? Map<String, dynamic>.from(collectionPayload)
-      : null;
+        ? Map<String, dynamic>.from(collectionPayload)
+        : null;
     final lists = collection?['lists'] is List
-      ? collection!['lists'] as List<dynamic>
-      : const <dynamic>[];
+        ? collection!['lists'] as List<dynamic>
+        : const <dynamic>[];
 
     final result = <ProviderPersonalEntry>[];
     for (final list in lists) {
@@ -199,8 +196,7 @@ query ($userName: String, $type: MediaType) {
         final media = mediaPayload is Map
             ? Map<String, dynamic>.from(mediaPayload)
             : const <String, dynamic>{};
-        final mediaId =
-            _textValue(rawMap['mediaId'] ?? media['id']) ?? '';
+        final mediaId = _textValue(rawMap['mediaId'] ?? media['id']) ?? '';
         final mediaType = _textValue(media['type']);
         final entryKind = mediaType == 'MANGA'
             ? CatalogMediaKind.manga
@@ -208,8 +204,8 @@ query ($userName: String, $type: MediaType) {
 
         final titlePayload = media['title'];
         final titleMap = titlePayload is Map
-          ? Map<String, dynamic>.from(titlePayload)
-          : const <String, dynamic>{};
+            ? Map<String, dynamic>.from(titlePayload)
+            : const <String, dynamic>{};
         final title =
             (titleMap['romaji'] ?? titleMap['english'] ?? titleMap['native'])
                 ?.toString();
@@ -308,9 +304,8 @@ mutation ($id: Int, $mediaId: Int, $status: MediaListStatus, $score: Float, $pro
 ''';
 
     final mediaIdInt = int.tryParse(entry.remoteItemId);
-    final listEntryIdInt = entry.remoteEntryId != null
-        ? int.tryParse(entry.remoteEntryId!)
-        : null;
+    final listEntryIdInt =
+        entry.remoteEntryId != null ? int.tryParse(entry.remoteEntryId!) : null;
     if (mediaIdInt == null && listEntryIdInt == null) return;
 
     final aniListStatus = switch (entry.status) {

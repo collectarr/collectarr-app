@@ -86,10 +86,10 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
   final String? variant;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
-    final Map<String, dynamic> rawPayload;
+  final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
-      ...rawPayload,
+        ...rawPayload,
         'title': title,
         if (originalTitle != null) 'original_title': originalTitle,
         if (synopsis != null) 'synopsis': synopsis,

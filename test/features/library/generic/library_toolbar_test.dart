@@ -649,7 +649,7 @@ void main() {
       expect(
         secondary.onReadingQueue,
         type.toolbarActionAvailability
-              .allows(LibraryToolbarActionId.readingQueue)
+                .allows(LibraryToolbarActionId.readingQueue)
             ? isNotNull
             : isNull,
         reason: 'reading-queue gate mismatch for ${type.kind.apiValue}',
@@ -657,7 +657,7 @@ void main() {
       expect(
         secondary.onReassignIndex,
         type.toolbarActionAvailability
-              .allows(LibraryToolbarActionId.reassignIndex)
+                .allows(LibraryToolbarActionId.reassignIndex)
             ? isNotNull
             : isNull,
         reason: 'reassign-index gate mismatch for ${type.kind.apiValue}',

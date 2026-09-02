@@ -192,7 +192,7 @@ class SerialAuthorityRepository {
     for (final item in list) {
       final kind =
           item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
-        final payload = item is LibraryMetadataItem
+      final payload = item is LibraryMetadataItem
           ? item.kindMetadata.toSyncPayload()
           : (item as CatalogItem).toSyncPayload();
       final seriesPayload = payload['series'] as Map? ?? payload;
@@ -369,16 +369,16 @@ class SerialAuthorityRepository {
             ..where((table) => table.id.equals(catalogRow.id)))
           .write(
         CatalogCacheCompanion(
-            payloadJson: Value(
-              jsonEncode(
-                _catalogPayloadWithSeries(
-                  catalogItem,
-                  seriesId: target.coreSeriesId,
-                  seriesTitle: target.title,
-                ),
+          payloadJson: Value(
+            jsonEncode(
+              _catalogPayloadWithSeries(
+                catalogItem,
+                seriesId: target.coreSeriesId,
+                seriesTitle: target.title,
               ),
             ),
-            cachedAt: Value(DateTime.now().toUtc()),
+          ),
+          cachedAt: Value(DateTime.now().toUtc()),
         ),
       );
     }

@@ -75,7 +75,9 @@ void main() {
               }
             }),
             200,
-            headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType]
+            },
           );
         }
 
@@ -108,7 +110,9 @@ void main() {
               }
             }),
             200,
-            headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType]
+            },
           );
         }
 
@@ -126,7 +130,9 @@ void main() {
               }
             }),
             200,
-            headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType]
+            },
           );
         }
 
@@ -138,7 +144,9 @@ void main() {
               }
             }),
             200,
-            headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType]
+            },
           );
         }
 
@@ -182,7 +190,8 @@ void main() {
       );
     });
 
-    test('Step 1: Auth & fetchViewer resolves remote account profile', () async {
+    test('Step 1: Auth & fetchViewer resolves remote account profile',
+        () async {
       final account = await syncAdapter.fetchViewer(token: 'oauth-test-token');
 
       expect(account, isNotNull);
@@ -198,7 +207,8 @@ void main() {
       expect(stored?.remoteHandle, 'otaku_hero');
     });
 
-    test('Step 2 & 3: Pull account sync, 3-way diff, and link persistence', () async {
+    test('Step 2 & 3: Pull account sync, 3-way diff, and link persistence',
+        () async {
       final account = await syncAdapter.fetchViewer(token: 'oauth-test-token');
       await accountStore.saveAccount(account!, accessToken: 'oauth-test-token');
 
@@ -310,14 +320,14 @@ void main() {
       );
       expect(userPush, isTrue);
 
-        final saveCall = recordedRequests.firstWhere(
+      final saveCall = recordedRequests.firstWhere(
           (r) => (r['query'] as String? ?? '').contains('SaveMediaListEntry'));
-        final saveVariables = jsonObject(saveCall['variables']);
-        expect(saveVariables['id'], 888999);
-        expect(saveVariables['mediaId'], 21);
-        expect(saveVariables['status'], 'COMPLETED');
-        expect(saveVariables['score'], 95.0);
-        expect(saveVariables['progress'], 1100);
+      final saveVariables = jsonObject(saveCall['variables']);
+      expect(saveVariables['id'], 888999);
+      expect(saveVariables['mediaId'], 21);
+      expect(saveVariables['status'], 'COMPLETED');
+      expect(saveVariables['score'], 95.0);
+      expect(saveVariables['progress'], 1100);
 
       // Base snapshot was updated after push
       final link = await linkStore.getLinkByRemoteId(account.id, '21');
@@ -337,11 +347,11 @@ void main() {
         ),
       );
 
-        final deleteCall = recordedRequests.firstWhere(
-          (r) => (r['query'] as String? ?? '').contains('DeleteMediaListEntry'));
-        final deleteVariables = jsonObject(deleteCall['variables']);
-        expect(deleteVariables['id'], 888999);
-        expect(deleteVariables['id'], isNot(equals(21)));
+      final deleteCall = recordedRequests.firstWhere((r) =>
+          (r['query'] as String? ?? '').contains('DeleteMediaListEntry'));
+      final deleteVariables = jsonObject(deleteCall['variables']);
+      expect(deleteVariables['id'], 888999);
+      expect(deleteVariables['id'], isNot(equals(21)));
     });
   });
 }

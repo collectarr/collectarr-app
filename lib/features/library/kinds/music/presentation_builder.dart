@@ -177,8 +177,7 @@ class MusicLibraryMediaPresentationBuilder
               value: variant,
               onTap: tapFor(variant)),
         if (barcode != null)
-          LibraryDetailField(
-              label: 'Barcode / Catalog no.', value: barcode),
+          LibraryDetailField(label: 'Barcode / Catalog no.', value: barcode),
       ],
       contextFacts: [
         if (series?.seriesTitle != null)

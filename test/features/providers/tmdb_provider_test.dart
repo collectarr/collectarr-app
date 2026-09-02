@@ -155,7 +155,8 @@ void main() {
       expect(envelope.normalized['audience_rating'], '8.4');
       expect(envelope.normalized['genres'], containsAll(['Drama', 'Thriller']));
       expect(jsonObject(envelope.normalized['provider_ids'])['tmdb'], '550');
-      expect(jsonObject(envelope.normalized['provider_ids'])['imdb'], 'tt0137523');
+      expect(
+          jsonObject(envelope.normalized['provider_ids'])['imdb'], 'tt0137523');
       expect(envelope.normalized['creators'], hasLength(3));
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -220,9 +221,9 @@ void main() {
           jsonObject(goldenEnvelope.normalized['provider_ids'])['tmdb']);
       expect(jsonObject(normalized['provider_ids'])['imdb'],
           jsonObject(goldenEnvelope.normalized['provider_ids'])['imdb']);
-        expect(jsonObjectList(normalized['creators'])[0]['name'],
+      expect(jsonObjectList(normalized['creators'])[0]['name'],
           jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
-        expect(jsonObjectList(normalized['creators'])[0]['role'],
+      expect(jsonObjectList(normalized['creators'])[0]['role'],
           jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
     });
   });

@@ -384,7 +384,7 @@ abstract final class LibraryPageShellPresenter {
             state._dialogCoordinator.showSmartListsFlow(shelfState),
         onFolders: state._dialogCoordinator.showUserFoldersFlow,
         onReadingQueue: state.widget.type.toolbarActionAvailability
-          .allows(LibraryToolbarActionId.readingQueue)
+                .allows(LibraryToolbarActionId.readingQueue)
             ? state._dialogCoordinator.showReadingQueueFlow
             : null,
         onEditConditionPickList: state.widget.type.edit.hasConditionPickList
@@ -398,12 +398,11 @@ abstract final class LibraryPageShellPresenter {
             ? () =>
                 state._dialogCoordinator.showTransferFieldDataFlow(projection)
             : null,
-        onReassignIndex:
-            state.widget.type.toolbarActionAvailability
-              .allows(LibraryToolbarActionId.reassignIndex) &&
-                    state._hasOwnedItemsInProjection(projection)
-                ? () => state._dialogCoordinator.reassignIndexFlow(projection)
-                : null,
+        onReassignIndex: state.widget.type.toolbarActionAvailability
+                    .allows(LibraryToolbarActionId.reassignIndex) &&
+                state._hasOwnedItemsInProjection(projection)
+            ? () => state._dialogCoordinator.reassignIndexFlow(projection)
+            : null,
         onPrintReport: projection.filteredItems.isNotEmpty
             ? () => state._reportCoordinator.printReportFlow(projection)
             : null,

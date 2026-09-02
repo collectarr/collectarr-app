@@ -122,9 +122,13 @@ final class CatalogCommonDto {
             }))
         .toList(growable: false);
 
+    final seenUrls = <String>{};
     final allTrailers = [
-      if (rawTrailerUrls != null) ...rawTrailerUrls,
-      if (rawExternalLinks != null) ...rawExternalLinks,
+      for (final link in [
+        if (rawTrailerUrls != null) ...rawTrailerUrls,
+        if (rawExternalLinks != null) ...rawExternalLinks,
+      ])
+        if (link.url.trim().isNotEmpty && seenUrls.add(link.url.trim())) link,
     ];
 
     final rawEditions = (json['editions'] as List<dynamic>?)

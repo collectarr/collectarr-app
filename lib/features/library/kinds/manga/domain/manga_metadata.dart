@@ -174,10 +174,10 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
   final List<CatalogEditionDto> editions;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
-    final Map<String, dynamic> rawPayload;
+  final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
-      ...rawPayload,
+        ...rawPayload,
         'title': title,
         if (nativeTitle != null) 'native_title': nativeTitle,
         if (romajiTitle != null) 'romaji_title': romajiTitle,

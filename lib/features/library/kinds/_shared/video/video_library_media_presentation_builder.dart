@@ -66,9 +66,7 @@ class VideoLibraryMediaPresentationBuilder
               label: 'Series', value: seriesTitle, onTap: tapFor(seriesTitle)),
         if (item.node.scope != LibraryBrowserScope.title && variant != null)
           LibraryDetailField(
-              label: variantLabel,
-              value: variant,
-              onTap: tapFor(variant)),
+              label: variantLabel, value: variant, onTap: tapFor(variant)),
         if (item.node.scope != LibraryBrowserScope.title && barcode != null)
           LibraryDetailField(label: barcodeLabel, value: barcode),
       ],

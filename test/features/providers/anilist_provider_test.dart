@@ -171,13 +171,13 @@ void main() {
       expect(envelope.normalized['genres'],
           containsAll(['Action', 'Adventure', 'Dark Fantasy']));
       expect(envelope.normalized['creators'], hasLength(1));
-        expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
           'Kentarou Miura');
-        expect(jsonObjectList(envelope.normalized['creators']).first['role'],
+      expect(jsonObjectList(envelope.normalized['creators']).first['role'],
           'Story & Art');
-          expect(
-            jsonObject(envelope.normalized['provider_ids'])['anilist'], '30002');
-          expect(jsonObject(envelope.normalized['provider_ids'])['mal'], '2');
+      expect(
+          jsonObject(envelope.normalized['provider_ids'])['anilist'], '30002');
+      expect(jsonObject(envelope.normalized['provider_ids'])['mal'], '2');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -229,13 +229,13 @@ void main() {
       expect(normalized['genres'], goldenEnvelope.normalized['genres']);
       expect(normalized['cover_image_url'],
           goldenEnvelope.normalized['cover_image_url']);
-        expect(jsonObject(normalized['provider_ids'])['anilist'],
+      expect(jsonObject(normalized['provider_ids'])['anilist'],
           jsonObject(goldenEnvelope.normalized['provider_ids'])['anilist']);
-        expect(jsonObject(normalized['provider_ids'])['mal'],
+      expect(jsonObject(normalized['provider_ids'])['mal'],
           jsonObject(goldenEnvelope.normalized['provider_ids'])['mal']);
-        expect(jsonObjectList(normalized['creators']).first['name'],
+      expect(jsonObjectList(normalized['creators']).first['name'],
           jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
-        expect(jsonObjectList(normalized['creators']).first['role'],
+      expect(jsonObjectList(normalized['creators']).first['role'],
           jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
     });
   });

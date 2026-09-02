@@ -223,8 +223,8 @@ class BGGProvider extends ProviderAdapter {
     final bggId = _optionalText(data['id']);
     final title = _primaryName(data) ?? 'Unknown board game';
     final links = data['links'] is List
-      ? (data['links'] as List<dynamic>)
-      : const <dynamic>[];
+        ? (data['links'] as List<dynamic>)
+        : const <dynamic>[];
 
     final publishers = _linkValues(links, 'boardgamepublisher');
     final designers = _linkValues(links, 'boardgamedesigner');

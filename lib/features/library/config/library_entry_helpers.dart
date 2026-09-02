@@ -235,9 +235,7 @@ String? preferredVideoEditionVariantId(CatalogEdition edition) {
     variantId: releaseNode != null
         ? preferredVideoEditionVariantId(releaseNode.edition)
         : null,
-    editions: catalogItem == null
-      ? const []
-      : libraryKindEditions(catalogItem),
+    editions: catalogItem == null ? const [] : libraryKindEditions(catalogItem),
   );
 }
 

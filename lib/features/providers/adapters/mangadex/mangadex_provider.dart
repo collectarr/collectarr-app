@@ -172,8 +172,8 @@ class MangaDexProvider extends ProviderAdapter {
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
     final attrs = data['attributes'] is Map
-      ? Map<String, dynamic>.from(data['attributes'] as Map)
-      : const <String, dynamic>{};
+        ? Map<String, dynamic>.from(data['attributes'] as Map)
+        : const <String, dynamic>{};
     final mangaId = _optionalText(data['id']);
     final title = _extractTitle(attrs) ?? 'Unknown';
     final relationships = data['relationships'];
@@ -212,8 +212,8 @@ class MangaDexProvider extends ProviderAdapter {
 
   ProviderSearchResult _searchResultFromItem(Map<String, dynamic> item) {
     final attrs = item['attributes'] is Map
-      ? Map<String, dynamic>.from(item['attributes'] as Map)
-      : const <String, dynamic>{};
+        ? Map<String, dynamic>.from(item['attributes'] as Map)
+        : const <String, dynamic>{};
     final title = _extractTitle(attrs) ?? 'Unknown';
     final mangaId = _optionalText(item['id']) ?? '';
     final statusText = _optionalText(attrs['status']);
@@ -319,9 +319,8 @@ class MangaDexProvider extends ProviderAdapter {
       if (attrsPayload is Map) {
         final attrs = Map<String, dynamic>.from(attrsPayload);
         final namePayload = attrs['name'];
-        final nameMap = namePayload is Map
-            ? Map<String, dynamic>.from(namePayload)
-            : null;
+        final nameMap =
+            namePayload is Map ? Map<String, dynamic>.from(namePayload) : null;
         final name = _optionalText(nameMap?['en']);
         if (name != null && name.isNotEmpty) {
           tagList.add(name);

@@ -141,13 +141,13 @@ void main() {
       expect(envelope.normalized['synopsis'],
           contains('Venom makes his first full appearance.'));
       expect(envelope.normalized['creators'], hasLength(2));
-        expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
+      expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
           'David Michelinie');
-        expect(jsonObjectList(envelope.normalized['creators'])[0]['role'],
-          'writer');
-        expect(jsonObjectList(envelope.normalized['creators'])[1]['name'],
+      expect(
+          jsonObjectList(envelope.normalized['creators'])[0]['role'], 'writer');
+      expect(jsonObjectList(envelope.normalized['creators'])[1]['name'],
           'Todd McFarlane');
-        expect(jsonObjectList(envelope.normalized['creators'])[1]['role'],
+      expect(jsonObjectList(envelope.normalized['creators'])[1]['role'],
           'penciller');
       expect(envelope.normalized['characters'], hasLength(2));
       expect(envelope.images, hasLength(1));
@@ -198,19 +198,19 @@ void main() {
       expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
       expect(normalized['cover_image_url'],
           goldenEnvelope.normalized['cover_image_url']);
-        expect(jsonObject(normalized['provider_ids'])['gcd'],
+      expect(jsonObject(normalized['provider_ids'])['gcd'],
           jsonObject(goldenEnvelope.normalized['provider_ids'])['gcd']);
-        expect(jsonObjectList(normalized['creators'])[0]['name'],
+      expect(jsonObjectList(normalized['creators'])[0]['name'],
           jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
-        expect(jsonObjectList(normalized['creators'])[0]['role'],
+      expect(jsonObjectList(normalized['creators'])[0]['role'],
           jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
-        expect(jsonObjectList(normalized['creators'])[1]['name'],
+      expect(jsonObjectList(normalized['creators'])[1]['name'],
           jsonObjectList(goldenEnvelope.normalized['creators'])[1]['name']);
-        expect(jsonObjectList(normalized['creators'])[1]['role'],
+      expect(jsonObjectList(normalized['creators'])[1]['role'],
           jsonObjectList(goldenEnvelope.normalized['creators'])[1]['role']);
-        expect(jsonObjectList(normalized['characters'])[0]['name'],
+      expect(jsonObjectList(normalized['characters'])[0]['name'],
           jsonObjectList(goldenEnvelope.normalized['characters'])[0]['name']);
-        expect(jsonObjectList(normalized['characters'])[1]['name'],
+      expect(jsonObjectList(normalized['characters'])[1]['name'],
           jsonObjectList(goldenEnvelope.normalized['characters'])[1]['name']);
     });
   });

@@ -516,7 +516,7 @@ final class OwnedItemMutations {
     final itemId =
         item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
     final payload = item is LibraryMetadataItem
-      ? LibraryMetadataTransportCodec.toSyncPayload(item)
+        ? LibraryMetadataTransportCodec.toSyncPayload(item)
         : (item as CatalogItem).toSyncPayload();
     return SyncChange(
       id: 'catalog:$itemId:upsert:${now.millisecondsSinceEpoch}',

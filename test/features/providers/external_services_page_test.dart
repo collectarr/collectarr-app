@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
+import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
@@ -11,13 +11,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _MockPersonalReadWrite implements PersonalListReadCapability, PersonalListWriteCapability {
+class _MockPersonalReadWrite
+    implements PersonalListReadCapability, PersonalListWriteCapability {
   @override
   Future<List<ProviderPersonalEntry>> readPersonalList({
     required String accountId,
     dynamic kind,
     dynamic context,
-  }) async => [];
+  }) async =>
+      [];
 
   @override
   Future<void> writePersonalEntry({
@@ -38,12 +40,15 @@ class _MockPersonalReadWrite implements PersonalListReadCapability, PersonalList
 
 class _MockFileImport implements FileImportCapability {
   @override
-  Future<List<ProviderPersonalEntry>> parseFile(String content, {String? filename}) async => [];
+  Future<List<ProviderPersonalEntry>> parseFile(String content,
+          {String? filename}) async =>
+      [];
 }
 
 void main() {
   group('PR 23: External Services UI', () {
-    testWidgets('renders connectors and derives dynamic capability chips', (tester) async {
+    testWidgets('renders connectors and derives dynamic capability chips',
+        (tester) async {
       final mockReadWrite = _MockPersonalReadWrite();
       final mockImport = _MockFileImport();
 

@@ -130,7 +130,8 @@ KindEditDraft createBookEditDraft({
       text: metadata?.publishing?.imprint ?? '',
     ),
     publisherController: textControllers.create(
-      text: metadata?.publisher ?? metadata?.publishing?.originalPublisher ?? '',
+      text:
+          metadata?.publisher ?? metadata?.publishing?.originalPublisher ?? '',
     ),
     barcodeController: textControllers.create(
       text: metadata?.barcode ?? '',
@@ -141,8 +142,7 @@ KindEditDraft createBookEditDraft({
           : '',
     ),
     releaseYearController: textControllers.create(
-      text: metadata?.originalPublicationDate?.year.toString() ??
-          '',
+      text: metadata?.originalPublicationDate?.year.toString() ?? '',
     ),
   );
 }

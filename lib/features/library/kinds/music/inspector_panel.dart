@@ -198,9 +198,8 @@ class _MusicInspectorMain extends StatelessWidget {
                 height: 164,
                 child: LibraryInteractiveCover(
                   title: dto.title,
-                  itemNumber: (dto is WorkspaceDtoAdapter
-                      ? (dto).itemNumber
-                      : null),
+                  itemNumber:
+                      (dto is WorkspaceDtoAdapter ? (dto).itemNumber : null),
                   imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
                 ),
@@ -219,11 +218,7 @@ class _MusicInspectorMain extends StatelessWidget {
                         ),
                   ),
                   if (dto is WorkspaceDtoAdapter &&
-                      (dto)
-                              .seriesTitle
-                              ?.trim()
-                              .isNotEmpty ==
-                          true) ...[
+                      (dto).seriesTitle?.trim().isNotEmpty == true) ...[
                     const SizedBox(height: 2),
                     Text(
                       (dto).seriesTitle!,

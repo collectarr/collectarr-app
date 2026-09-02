@@ -92,20 +92,19 @@ class VideoLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
-          label: 'Edition no.',
+            label: 'Edition no.',
             value: genericLibraryDash(itemNumber),
             onTap: tapFor(itemNumber)),
         LibraryDetailField(
-          label: 'Format / Edition',
+            label: 'Format / Edition',
             value: genericLibraryDash(variant),
             onTap: tapFor(variant)),
         LibraryDetailField(
-          label: 'UPC / Barcode',
-            value: genericLibraryDash(barcode)),
+            label: 'UPC / Barcode', value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-          label: 'Studio',
+            label: 'Studio',
             value: genericLibraryDash(publisher),
             onTap: tapFor(publisher)),
         LibraryDetailField(

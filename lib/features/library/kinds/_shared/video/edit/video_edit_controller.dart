@@ -204,8 +204,8 @@ class VideoEditController {
         : (meta is TvSeriesMetadata
             ? meta.firstAirDate
             : (meta is AnimeMetadata
-              ? meta.startDate
-              : libraryKindReleaseDate(item)));
+                ? meta.startDate
+                : libraryKindReleaseDate(item)));
     return date == null ? '' : formatDate(date);
   }
 

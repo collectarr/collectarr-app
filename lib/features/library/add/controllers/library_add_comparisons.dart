@@ -169,9 +169,9 @@ LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {
         'item_number': item.itemNumber,
         'synopsis': item.synopsis,
         'cover_image_url':
-          primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
+            primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
         'thumbnail_image_url':
-          primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
+            primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
         'publisher': primaryEdition?.publisher ?? item.publisher,
         'edition_title': primaryEdition?.title,
         'physical_format': primaryEdition?.physicalFormat,

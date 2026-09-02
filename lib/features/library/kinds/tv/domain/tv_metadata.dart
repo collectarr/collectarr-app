@@ -279,10 +279,10 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
   final List<CatalogEditionDto> editions;
-    final Map<String, dynamic> rawPayload;
+  final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
-      ...rawPayload,
+        ...rawPayload,
         'title': title,
         if (originalTitle != null) 'original_title': originalTitle,
         if (synopsis != null) 'synopsis': synopsis,
