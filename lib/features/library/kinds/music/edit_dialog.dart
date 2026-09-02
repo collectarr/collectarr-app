@@ -353,7 +353,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           _collectionStatusToLabel(widget.request.ownedItem?.collectionStatus),
     );
 
-    _physicalFormatId = metadata.physicalFormat;
+    final resolvedFormat = physicalMediaFormatByLabelOrId(
+      metadata.physicalFormat ?? metadata.physicalFormatLabel,
+      formats: widget.request.physicalFormats,
+    );
+    _physicalFormatId =
+        resolvedFormat?.id ?? emptyToNull(metadata.physicalFormat ?? '');
     final dialogState = _draft.cloneDialogState();
     _selectedLocationId = dialogState.selectedLocationId;
     _startedAt = dialogState.startedAt;

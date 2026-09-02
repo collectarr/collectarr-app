@@ -71,7 +71,14 @@ extension _MusicSections on _MusicLibraryEditDialogState {
               if (widget.request.physicalFormats.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  initialValue: _physicalFormatId,
+                  initialValue: widget.request.physicalFormats
+                          .any((format) => format.id == _physicalFormatId)
+                      ? _physicalFormatId
+                      : (physicalMediaFormatByLabelOrId(
+                            _physicalFormatId,
+                            formats: widget.request.physicalFormats,
+                          )?.id ??
+                          ''),
                   isExpanded: true,
                   dropdownColor: kEditPanelRaised,
                   borderRadius: kEditMenuBorderRadius,
@@ -681,6 +688,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
             currency: _currencyController.text,
           ),
         );
+      case 'custom_fields':
       case 'music_custom_fields':
         return EditSection(
           title: 'Custom fields',
@@ -830,7 +838,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
           ),
         );
       default:
-        throw StateError('Unsupported music section: $id');
+        return const SizedBox.shrink();
     }
   }
 }

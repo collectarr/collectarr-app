@@ -212,6 +212,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         precacheImage(
           CachedNetworkImageProvider(url),
           context,
+          onError: (_, __) {},
         ),
       );
     }

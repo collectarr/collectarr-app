@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -74,5 +76,70 @@ void main() {
         findsOneWidget);
     expect(find.byKey(const ValueKey('musicExternalLinkDescriptionField_0')),
         findsOneWidget);
+  });
+
+  testWidgets(
+      'music edit dialog handles Vinyl format and custom fields cleanly',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final type = musicKindModule;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      testCatalogItem(
+        id: 'music-vinyl',
+        kind: 'music',
+        title: 'Dark Side of the Moon',
+        physicalFormat: 'Vinyl',
+      ),
+    );
+    final request = LibraryEditDialogRequest(
+      type: type,
+      item: item,
+      ownedItem: null,
+      accent: Colors.deepPurple,
+      physicalFormats: musicPhysicalMediaFormats,
+      customFieldDefinitions: [
+        CustomFieldDefinition(
+          id: 'custom-1',
+          name: 'Pressing',
+          fieldType: 'text',
+          createdAt: DateTime(2026),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  await showDialog<void>(
+                    context: context,
+                    builder: (context) =>
+                        buildMusicLibraryEditDialog(context, request),
+                  );
+                },
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Vinyl'), findsWidgets);
   });
 }
