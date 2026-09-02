@@ -148,14 +148,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ? null
               : AppRoutes.libraries;
         },
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final request = state.extra as LibraryDetailPageRequest?;
+          final Widget child;
           if (request == null) {
-            return LibraryHomePage(routeUri: state.uri);
+            child = LibraryHomePage(routeUri: state.uri);
+          } else {
+            final builder = request.type.inspector.detailPageBuilder ??
+                _buildDefaultDetailPage;
+            child = builder(context, request);
           }
-          final builder = request.type.inspector.detailPageBuilder ??
-              _buildDefaultDetailPage;
-          return builder(context, request);
+          return CustomTransitionPage<void>(
+            key: state.pageKey,
+            child: child,
+            transitionDuration: const Duration(milliseconds: 150),
+            reverseTransitionDuration: const Duration(milliseconds: 120),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                  reverseCurve: Curves.easeInCubic,
+                ),
+                child: child,
+              );
+            },
+          );
         },
       ),
       GoRoute(

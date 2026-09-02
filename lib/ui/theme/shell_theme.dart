@@ -115,5 +115,14 @@ ThemeData buildAppShellTheme({
       backgroundColor: palette.panelRaised,
       contentTextStyle: TextStyle(color: textColor),
     ),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.macOS: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.android: ZoomPageTransitionsBuilder(),
+        TargetPlatform.iOS: FadeForwardsPageTransitionsBuilder(),
+      },
+    ),
   );
 }
