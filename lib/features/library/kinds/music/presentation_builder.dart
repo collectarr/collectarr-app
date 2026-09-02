@@ -505,7 +505,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, paneConstraints) {
-          final compactHeight = paneConstraints.maxHeight < 320;
+          final compactHeight = !paneConstraints.hasBoundedHeight ||
+              paneConstraints.maxHeight < 320;
           if (compactHeight) {
             return SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 18, 18, 18),

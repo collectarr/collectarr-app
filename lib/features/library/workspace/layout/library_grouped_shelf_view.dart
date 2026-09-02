@@ -351,122 +351,147 @@ class LibraryGroupFolderTile extends StatelessWidget {
             border: Border.all(color: palette.cardBorder),
           ),
           clipBehavior: Clip.antiAlias,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.22,
-                  child: LibraryCoverImage(
-                    title: representative.dto.title,
-                    imageUrl: representative.dto.coverImageUrl,
-                    borderRadius: 10,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.08),
-                        Colors.black.withValues(alpha: 0.36),
-                        Colors.black.withValues(alpha: 0.72),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 92,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: palette.surface,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: palette.divider),
-                                ),
-                                child: LibraryCoverImage(
-                                  title: representative.dto.title,
-                                  imageUrl: representative.dto.coverImageUrl,
-                                  borderRadius: 8,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            group.label,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                ),
-                          ),
-                        ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isVeryNarrow = constraints.maxWidth < 180;
+              final coverWidth = isVeryNarrow
+                  ? math.max(48.0, constraints.maxWidth * 0.35)
+                  : (constraints.maxWidth * 0.42).clamp(70.0, 92.0);
+              final gap = isVeryNarrow ? 6.0 : 12.0;
+              final paddingVal = isVeryNarrow ? 6.0 : 12.0;
+              final showAction = !isVeryNarrow && constraints.maxWidth > 180;
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 0.22,
+                      child: LibraryCoverImage(
+                        title: representative.dto.title,
+                        imageUrl: representative.dto.coverImageUrl,
+                        borderRadius: 10,
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                  ),
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.08),
+                            Colors.black.withValues(alpha: 0.36),
+                            Colors.black.withValues(alpha: 0.72),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(paddingVal),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          width: coverWidth,
+                          child: Column(
                             children: [
                               Expanded(
-                                child: Text(
-                                  representative.dto.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w900,
-                                      ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: palette.surface,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border:
+                                          Border.all(color: palette.divider),
+                                    ),
+                                    child: LibraryCoverImage(
+                                      title: representative.dto.title,
+                                      imageUrl:
+                                          representative.dto.coverImageUrl,
+                                      borderRadius: 8,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              IconButton(
-                                tooltip: 'Open details',
-                                onPressed: onOpenDetails,
-                                icon: const Icon(
-                                  Icons.open_in_new,
-                                  color: Colors.white,
-                                ),
+                              const SizedBox(height: 6),
+                              Text(
+                                group.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      fontSize: isVeryNarrow ? 11 : null,
+                                    ),
                               ),
                             ],
                           ),
-                          const Spacer(),
-                          _GroupStats(
-                            ownedCount: ownedCount,
-                            totalCount: group.count,
+                        ),
+                        SizedBox(width: gap),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      representative.dto.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: isVeryNarrow ? 12 : null,
+                                          ),
+                                    ),
+                                  ),
+                                  if (showAction) ...[
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      visualDensity: VisualDensity.compact,
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(
+                                        minWidth: 28,
+                                        minHeight: 28,
+                                      ),
+                                      tooltip: 'Open details',
+                                      onPressed: onOpenDetails,
+                                      icon: const Icon(
+                                        Icons.open_in_new,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              const Spacer(),
+                              _GroupStats(
+                                ownedCount: ownedCount,
+                                totalCount: group.count,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

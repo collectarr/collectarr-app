@@ -327,32 +327,38 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                 request.showSuggestions &&
                 request.suggestions.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Material(
-                color: palette.panel,
-                shape: RoundedRectangleBorder(
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: palette.panel,
                   borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(color: palette.divider),
+                  border: Border.all(color: palette.divider),
                 ),
-                clipBehavior: Clip.antiAlias,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 180),
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      for (final suggestion in request.suggestions)
-                        () {
-                          final itemNumber = suggestion.kindMetadata
-                              .toSyncPayload()['item_number'] as String?;
-                          return ListTile(
-                            dense: true,
-                            title: Text(suggestion.title),
-                            subtitle: itemNumber?.trim().isNotEmpty == true
-                                ? Text('Issue $itemNumber')
-                                : null,
-                            onTap: () => request.onSelectSuggestion(suggestion),
-                          );
-                        }(),
-                    ],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 180),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          for (final suggestion in request.suggestions)
+                            () {
+                              final itemNumber = suggestion.kindMetadata
+                                  .toSyncPayload()['item_number'] as String?;
+                              return ListTile(
+                                dense: true,
+                                title: Text(suggestion.title),
+                                subtitle: itemNumber?.trim().isNotEmpty == true
+                                    ? Text('Issue $itemNumber')
+                                    : null,
+                                onTap: () =>
+                                    request.onSelectSuggestion(suggestion),
+                              );
+                            }(),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

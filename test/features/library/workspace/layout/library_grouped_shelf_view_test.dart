@@ -167,4 +167,54 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Batman'), findsOneWidget);
   });
+
+  testWidgets('renders folderGrid under narrow constraints without overflow',
+      (tester) async {
+    tester.view.physicalSize = const Size(300, 500);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cat = testCatalogItem(
+      id: 'c1',
+      kind: 'comic',
+      title: 'Batman #1 Very Long Title That Might Wrap Or Overflow',
+      series: const CatalogSeriesDetailsDto(seriesTitle: 'Batman'),
+      itemNumber: '1',
+    );
+    final source = ShelfEntry(itemId: 'c1', catalogItem: cat);
+    final node = const LibraryTitleNodeRef(titleItemId: 'c1');
+    final item = comicKindModule.project(source: source, node: node);
+
+    final group = GroupShelfEntry(
+      groupMode: 'series',
+      bucket: 'Batman',
+      presentation: LibraryGroupPresentation.folderGrid,
+      items: [item as LibraryProjectionItem],
+      representativeItem: item,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 140,
+              height: 180,
+              child: LibraryGroupFolderTile(
+                group: group,
+                accent: Colors.blue,
+                showSeasonGroupProgress: false,
+                onTap: () {},
+                onOpenDetails: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Batman'), findsOneWidget);
+  });
 }
