@@ -37,6 +37,6 @@ Widget? buildLibraryKindDrilldown({
     wishlistItems: wishlistItems,
     selectedReleaseId: selectedReleaseId,
     onSelectRelease: onSelectRelease,
-    projector: type.presentation.projector,
+    projector: type.projector,
   );
 }

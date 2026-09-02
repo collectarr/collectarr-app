@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -101,9 +100,6 @@ void main() {
           identity: LibraryItemIdentity(
             id: 'book_1',
             mediaKind: CatalogMediaKind.book,
-          ),
-          common: LibraryCommonMetadata(
-            title: 'Dune',
           ),
           kindMetadata: bookMeta,
         ),
@@ -261,7 +257,6 @@ void main() {
             id: 'book_lotr',
             mediaKind: CatalogMediaKind.book,
           ),
-          common: const LibraryCommonMetadata(title: 'The Lord of the Rings'),
           kindMetadata: BookCatalogMetadata.fromJson(json),
         ),
       );

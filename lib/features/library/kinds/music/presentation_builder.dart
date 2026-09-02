@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -71,8 +70,6 @@ class MusicLibraryMediaPresentationBuilder
     required BuildContext context,
     required Color accent,
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryMediaPreviewLabels previewLabels,
     required LibraryMetadataItem? item,
     required ProviderCandidate? candidate,
@@ -141,8 +138,6 @@ class MusicLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -178,11 +173,12 @@ class MusicLibraryMediaPresentationBuilder
               value: series?.volumeName ?? 'Disc ${series?.volumeNumber}'),
         if (variant != null)
           LibraryDetailField(
-              label: releaseFields.variantLabel,
+              label: 'Format / Edition',
               value: variant,
               onTap: tapFor(variant)),
         if (barcode != null)
-          LibraryDetailField(label: releaseFields.barcodeLabel, value: barcode),
+          LibraryDetailField(
+              label: 'Barcode / Catalog no.', value: barcode),
       ],
       contextFacts: [
         if (series?.seriesTitle != null)

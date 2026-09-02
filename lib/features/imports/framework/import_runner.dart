@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 
 /// Reads normalized entries from a specific third-party provider (a MAL
 /// XML export, an AniList GraphQL response, a Trakt CSV, ...). Implementations

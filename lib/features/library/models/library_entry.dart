@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
@@ -25,7 +26,9 @@ class LibraryEntry {
     final raw = _catalogItem;
     if (raw == null) return null;
     if (raw is LibraryMetadataItem) return raw;
-    if (raw is CatalogItemDto) return LibraryMetadataItem.fromCatalogItem(raw);
+    if (raw is CatalogItemDto) {
+      return LibraryMetadataTransportCodec.fromCatalogItem(raw);
+    }
     return null;
   }
 

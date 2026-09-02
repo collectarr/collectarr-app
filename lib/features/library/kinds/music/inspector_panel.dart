@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -70,21 +69,21 @@ class MusicInspectorPanel extends StatelessWidget {
           ],
         ),
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.imagesMedia,
+          slot: LibraryDetailSectionSlot.media,
           title: 'Track List',
           children: [
             _MusicInspectorTracks(inspector: inspector),
           ],
         ),
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.formatEditionRelease,
+          slot: LibraryDetailSectionSlot.metadata,
           title: 'Disc Details',
           children: [
             _MusicDiscDetails(inspector: inspector),
           ],
         ),
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.notesCustomFields,
+          slot: LibraryDetailSectionSlot.notes,
           title: 'Product',
           children: [
             _MusicProductDetails(inspector: inspector),
@@ -92,13 +91,13 @@ class MusicInspectorPanel extends StatelessWidget {
         ),
         LibraryDetailSectionSpec(
           title: 'Personal',
-          slot: LibraryDetailSectionSlot.personalStatus,
+          slot: LibraryDetailSectionSlot.personal,
           children: [
             _MusicInspectorDetailsPersonal(inspector: inspector),
           ],
         ),
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.people,
+          slot: LibraryDetailSectionSlot.relations,
           title: 'Credits',
           headerActions: [
             if (request.onEdit != null)
@@ -113,7 +112,7 @@ class MusicInspectorPanel extends StatelessWidget {
         ),
         if (request.trailingSections.isNotEmpty)
           LibraryDetailSectionSpec(
-            slot: LibraryDetailSectionSlot.activityHistory,
+            slot: LibraryDetailSectionSlot.activity,
             title: 'More',
             children: [...request.trailingSections],
             initiallyExpanded: false,
@@ -176,9 +175,6 @@ class _MusicInspectorMain extends StatelessWidget {
     final discCount = discGroups.length;
     final totalTracks = metadata?.trackCount ?? tracks.length;
     final totalDuration = _formatTotalDuration(tracks);
-    final releaseYear = metadata?.originalReleaseDate?.year.toString();
-    final genreText =
-        metadata?.genres.isEmpty != false ? null : metadata!.genres.join(' | ');
     final dto = inspector.item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final formatLabel =
@@ -203,7 +199,7 @@ class _MusicInspectorMain extends StatelessWidget {
                 child: LibraryInteractiveCover(
                   title: dto.title,
                   itemNumber: (dto is WorkspaceDtoAdapter
-                      ? (dto as WorkspaceDtoAdapter).itemNumber
+                      ? (dto).itemNumber
                       : null),
                   imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
@@ -223,14 +219,14 @@ class _MusicInspectorMain extends StatelessWidget {
                         ),
                   ),
                   if (dto is WorkspaceDtoAdapter &&
-                      (dto as WorkspaceDtoAdapter)
+                      (dto)
                               .seriesTitle
                               ?.trim()
                               .isNotEmpty ==
                           true) ...[
                     const SizedBox(height: 2),
                     Text(
-                      (dto as WorkspaceDtoAdapter).seriesTitle!,
+                      (dto).seriesTitle!,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: palette.textMuted,
                             fontWeight: FontWeight.w600,
@@ -879,70 +875,6 @@ class _MusicDiscCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _MusicDiscCardSection extends StatelessWidget {
-  const _MusicDiscCardSection({
-    required this.disc,
-    required this.accent,
-  });
-
-  final CatalogDisc disc;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final rows = <(String, String)>[
-      if (disc.discName?.trim().isNotEmpty == true) ('Name', disc.discName!),
-      if (disc.discFormat?.trim().isNotEmpty == true)
-        ('Format', disc.discFormat!),
-      if (disc.trackCount != null) ('Track count', disc.trackCount.toString()),
-      if (disc.expectedTrackCount != null)
-        ('Expected tracks', disc.expectedTrackCount.toString()),
-      if (disc.ownedTrackCount != null)
-        ('Owned tracks', disc.ownedTrackCount.toString()),
-      if (disc.missingTrackCount != null)
-        ('Missing tracks', disc.missingTrackCount.toString()),
-      if (disc.missingTrackPositions.isNotEmpty)
-        ('Missing positions', disc.missingTrackPositions.join(', ')),
-      if (disc.toc?.trim().isNotEmpty == true) ('TOC', disc.toc!),
-      if (disc.cddbId?.trim().isNotEmpty == true) ('CDDB ID', disc.cddbId!),
-      if (disc.leadoutOffset != null)
-        ('Leadout', disc.leadoutOffset.toString()),
-      if (disc.bpDiscId?.trim().isNotEmpty == true)
-        ('BP Disc ID', disc.bpDiscId!),
-      if (disc.packaging?.trim().isNotEmpty == true)
-        ('Packaging', disc.packaging!),
-      if (disc.mediaCondition?.trim().isNotEmpty == true)
-        ('Media condition', disc.mediaCondition!),
-      if (disc.soundType?.trim().isNotEmpty == true) ('Sound', disc.soundType!),
-      if (disc.rpm != null) ('RPM', disc.rpm.toString()),
-      if (disc.vinylColor?.trim().isNotEmpty == true)
-        ('Vinyl color', disc.vinylColor!),
-      if (disc.vinylWeight?.trim().isNotEmpty == true)
-        ('Vinyl weight', disc.vinylWeight!),
-    ];
-    return LibraryDetailSection(
-      title: 'Disc #${disc.discNumber}',
-      accentColor: accent,
-      children: [
-        LibraryDetailFieldTable(
-          fields: [
-            for (final row in rows)
-              LibraryDetailField(label: row.$1, value: row.$2),
-          ],
-        ),
-        const SizedBox(height: 10),
-        _MusicDiscCard(
-          discNumber: disc.discNumber ?? 0,
-          trackCount: disc.trackCount ?? disc.tracks.length,
-          duration: _formatTotalDuration(
-            disc.tracks,
-          ),
-        ),
-      ],
     );
   }
 }

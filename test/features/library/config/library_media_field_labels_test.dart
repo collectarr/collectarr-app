@@ -4,19 +4,22 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('video libraries use physical edition terminology', () {
-    expect(movieKindModule.edit.mediaFields.publisherLabel, 'Studio');
-    expect(movieKindModule.edit.releaseFields.variantLabel, 'Format / Edition');
-    expect(movieKindModule.edit.releaseFields.barcodeLabel, 'UPC / Barcode');
-    expect(movieKindModule.edit.mediaFields.numberLabel, 'Edition no.');
+    final labels = libraryMediaPreviewLabels(movieKindModule);
+    expect(labels.labelFor('publisher'), 'Studio');
+    expect(labels.labelFor('variant'), 'Format / Edition');
+    expect(labels.labelFor('barcode'), 'UPC / Barcode');
+    expect(labels.labelFor('item_number'), 'Edition no.');
   });
 
   test('books and games use media-specific barcode and edition labels', () {
-    expect(bookKindModule.edit.releaseFields.barcodeLabel, 'ISBN / Barcode');
-    expect(bookKindModule.edit.releaseFields.variantLabel, 'Edition / Binding');
-    expect(
-        gameKindModule.edit.releaseFields.variantLabel, 'Platform / Edition');
-    expect(
-        gameKindModule.edit.mediaFields.publisherLabel, 'Publisher / Studio');
+    expect(libraryMediaPreviewLabels(bookKindModule).labelFor('barcode'),
+      'ISBN / Barcode');
+    expect(libraryMediaPreviewLabels(bookKindModule).labelFor('variant'),
+      'Edition / Binding');
+    expect(libraryMediaPreviewLabels(gameKindModule).labelFor('variant'),
+      'Platform / Edition');
+    expect(libraryMediaPreviewLabels(gameKindModule).labelFor('publisher'),
+      'Publisher / Studio');
   });
 
   test('music search labels use artist terminology', () {

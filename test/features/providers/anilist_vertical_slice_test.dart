@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/providers/domain/contracts/provider_regi
 import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
 import 'package:collectarr_app/features/providers/domain/engine/provider_sync_coordinator.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
@@ -18,6 +17,7 @@ import 'package:collectarr_app/features/providers/runtime/provider_http_client.d
 import 'package:collectarr_app/features/providers/runtime/provider_rate_limiter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -310,12 +310,14 @@ void main() {
       );
       expect(userPush, isTrue);
 
-      final saveCall = recordedRequests.firstWhere((r) => r['query'].toString().contains('SaveMediaListEntry'));
-      expect(saveCall['variables']['id'], 888999);
-      expect(saveCall['variables']['mediaId'], 21);
-      expect(saveCall['variables']['status'], 'COMPLETED');
-      expect(saveCall['variables']['score'], 95.0);
-      expect(saveCall['variables']['progress'], 1100);
+        final saveCall = recordedRequests.firstWhere(
+          (r) => (r['query'] as String? ?? '').contains('SaveMediaListEntry'));
+        final saveVariables = jsonObject(saveCall['variables']);
+        expect(saveVariables['id'], 888999);
+        expect(saveVariables['mediaId'], 21);
+        expect(saveVariables['status'], 'COMPLETED');
+        expect(saveVariables['score'], 95.0);
+        expect(saveVariables['progress'], 1100);
 
       // Base snapshot was updated after push
       final link = await linkStore.getLinkByRemoteId(account.id, '21');
@@ -335,9 +337,11 @@ void main() {
         ),
       );
 
-      final deleteCall = recordedRequests.firstWhere((r) => r['query'].toString().contains('DeleteMediaListEntry'));
-      expect(deleteCall['variables']['id'], 888999);
-      expect(deleteCall['variables']['id'], isNot(equals(21)));
+        final deleteCall = recordedRequests.firstWhere(
+          (r) => (r['query'] as String? ?? '').contains('DeleteMediaListEntry'));
+        final deleteVariables = jsonObject(deleteCall['variables']);
+        expect(deleteVariables['id'], 888999);
+        expect(deleteVariables['id'], isNot(equals(21)));
     });
   });
 }

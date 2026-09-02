@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
@@ -79,14 +80,19 @@ void main() {
             CatalogCacheCompanion.insert(
               id: 'smoke-1',
               kind: 'comic',
-              title: 'Smoke Test Issue',
+              payloadJson: jsonEncode({
+                'id': 'smoke-1',
+                'kind': 'comic',
+                'title': 'Smoke Test Issue',
+              }),
               cachedAt: DateTime.now(),
             ),
           );
 
       final rows = await db.select(db.catalogCache).get();
       expect(rows, hasLength(1));
-      expect(rows.first.title, 'Smoke Test Issue');
+      final payload = jsonDecode(rows.first.payloadJson) as Map<String, dynamic>;
+      expect(payload['title'], 'Smoke Test Issue');
     });
 
     test('barcode camera NOT supported on Windows desktop', () {

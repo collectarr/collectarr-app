@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -89,9 +88,6 @@ void main() {
           identity: LibraryItemIdentity(
             id: 'bg_1',
             mediaKind: CatalogMediaKind.boardgame,
-          ),
-          common: LibraryCommonMetadata(
-            title: 'Brass: Birmingham',
           ),
           kindMetadata: bgMeta,
         ),
@@ -235,7 +231,6 @@ void main() {
             id: 'bg_brass_birmingham',
             mediaKind: CatalogMediaKind.boardgame,
           ),
-          common: const LibraryCommonMetadata(title: 'Brass: Birmingham'),
           kindMetadata: BoardGameMetadata.fromJson(json),
         ),
       );

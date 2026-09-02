@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -43,7 +44,8 @@ class LibraryProviderActionService {
       title: proposalItem.title,
       summary: proposalItem.synopsis ?? candidate.summary,
       imageUrl: proposalItem.displayCoverUrl,
-      metadataPayload: proposalItem.toSyncPayload(),
+        metadataPayload:
+          LibraryMetadataTransportCodec.toSyncPayload(proposalItem),
       source: 'Add ${type.identity.pluralLabel} provider result',
     );
   }

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -15,16 +14,22 @@ class SerialLibraryMediaPresentationBuilder
   const SerialLibraryMediaPresentationBuilder({
     this.showSummary = false,
     this.metadataLabels = const LibraryMetadataLabels(),
+    this.itemNumberLabel = 'Number',
+    this.publisherLabel = 'Publisher',
+    this.variantLabel = 'Variant',
+    this.barcodeLabel = 'Barcode',
   });
 
   final bool showSummary;
   final LibraryMetadataLabels metadataLabels;
+  final String itemNumberLabel;
+  final String publisherLabel;
+  final String variantLabel;
+  final String barcodeLabel;
 
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -93,20 +98,20 @@ class SerialLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
-            label: mediaFields.numberLabel,
+          label: itemNumberLabel,
             value: genericLibraryDash(itemNumber),
             onTap: tapFor(itemNumber)),
         LibraryDetailField(
-            label: releaseFields.variantLabel,
+          label: variantLabel,
             value: genericLibraryDash(variant),
             onTap: tapFor(variant)),
         LibraryDetailField(
-            label: releaseFields.barcodeLabel,
+          label: barcodeLabel,
             value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-            label: mediaFields.publisherLabel,
+          label: publisherLabel,
             value: genericLibraryDash(publisher),
             onTap: tapFor(publisher)),
         LibraryDetailField(

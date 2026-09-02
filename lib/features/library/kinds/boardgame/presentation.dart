@@ -1,7 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
@@ -14,7 +12,14 @@ const boardGamesLibraryMediaBuilder = BoardGameLibraryMediaPresentationBuilder(
 );
 
 const boardGamesPreviewLabels = LibraryMediaPreviewLabels(
-  values: {'series': 'Series', 'item_count': 'Items'},
+  values: {
+    'series': 'Series',
+    'item_count': 'Items',
+    'item_number': 'Edition',
+    'publisher': 'Publisher / Designer',
+    'variant': 'Expansion / Edition',
+    'barcode': 'Barcode',
+  },
 );
 
 const boardGamesStatsLabels = LibraryMediaStatsLabels(
@@ -121,10 +126,8 @@ final boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: boardGamesLibraryGroupLabels,
   builder: boardGamesLibraryMediaBuilder,
-  projector: const BoardGameWorkspaceProjector(),
   bucketLabelBuilder: boardGamesLibraryBucketLabelBuilder,
   previewLabels: boardGamesPreviewLabels,
   statsLabels: boardGamesStatsLabels,
   filterDefinitions: boardGamesLibraryFilterDefinitions,
-  fieldDefinitions: boardgameLibraryFieldDefinitions,
 );

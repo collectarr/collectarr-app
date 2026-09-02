@@ -7,12 +7,10 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -114,9 +112,6 @@ void main() {
           identity: LibraryItemIdentity(
             id: 'manga_1',
             mediaKind: CatalogMediaKind.manga,
-          ),
-          common: LibraryCommonMetadata(
-            title: 'Frieren: Beyond Journey\'s End',
           ),
           kindMetadata: mangaMeta,
         ),
@@ -296,8 +291,6 @@ void main() {
             id: 'manga_frieren',
             mediaKind: CatalogMediaKind.manga,
           ),
-          common: const LibraryCommonMetadata(
-              title: 'Frieren: Beyond Journey\'s End'),
           kindMetadata: MangaMetadata.fromJson(json),
         ),
       );

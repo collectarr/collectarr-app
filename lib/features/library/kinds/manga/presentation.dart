@@ -1,8 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/serial_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 const mangaMetadataLabels = LibraryMetadataLabels(
@@ -24,13 +22,24 @@ class MangaLibraryMediaPresentationBuilder
       : super(
           showSummary: true,
           metadataLabels: mangaMetadataLabels,
+          itemNumberLabel: 'Chapter / Vol.',
+          publisherLabel: 'Publisher / Studio / Creator',
+          variantLabel: 'Edition / Variant / Format',
+          barcodeLabel: 'Barcode / UPC / ISBN',
         );
 }
 
 const mangaLibraryMediaBuilder = MangaLibraryMediaPresentationBuilder();
 
 const mangaPreviewLabels = LibraryMediaPreviewLabels(
-  values: {'series': 'Series', 'item_count': 'Chapters'},
+  values: {
+    'series': 'Series',
+    'item_count': 'Chapters',
+    'item_number': 'Chapter / Vol.',
+    'publisher': 'Publisher / Studio / Creator',
+    'variant': 'Edition / Variant / Format',
+    'barcode': 'Barcode / UPC / ISBN',
+  },
 );
 
 const mangaStatsLabels = LibraryMediaStatsLabels(
@@ -48,6 +57,8 @@ const mangaLibraryGroupLabels = LibraryMediaGroupLabels(
     'publisher_mode': 'Publishers',
     'genre': 'Genre',
     'genre_plural': 'Genres',
+    'media_scope': 'Series',
+    'export_title': 'Series',
   },
 );
 
@@ -139,11 +150,9 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: mangaLibraryGroupLabels,
   builder: mangaLibraryMediaBuilder,
-  projector: const MangaWorkspaceProjector(),
   bucketLabelBuilder: mangaLibraryBucketLabelBuilder,
   usesCompactTableLayout: true,
   previewLabels: mangaPreviewLabels,
   statsLabels: mangaStatsLabels,
   filterDefinitions: mangaLibraryFilterDefinitions,
-  fieldDefinitions: mangaLibraryFieldDefinitions,
 );

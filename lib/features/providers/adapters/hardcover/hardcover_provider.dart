@@ -151,9 +151,12 @@ class HardcoverProvider extends ProviderAdapter {
       },
     );
 
-    final searchData = payload['data'] is Map ? payload['data'] as Map : {};
-    final searchResult =
-        searchData['search'] is Map ? searchData['search'] as Map : {};
+    final searchData = payload['data'] is Map
+      ? Map<String, dynamic>.from(payload['data'] as Map)
+      : const <String, dynamic>{};
+    final searchResult = searchData['search'] is Map
+      ? Map<String, dynamic>.from(searchData['search'] as Map)
+      : const <String, dynamic>{};
     final rawResults = searchResult['results'];
     if (rawResults == null) return [];
 
@@ -173,15 +176,19 @@ class HardcoverProvider extends ProviderAdapter {
     final hits = <ProviderSearchResult>[];
     for (final hit in resultsList) {
       if (hit is! Map) continue;
-      final doc = hit['document'] is Map ? hit['document'] as Map : hit;
+        final doc = hit['document'] is Map
+          ? Map<String, dynamic>.from(hit['document'] as Map)
+          : Map<String, dynamic>.from(hit);
       final bookId = doc['id'];
       if (bookId == null) continue;
 
       final title = _optionalText(doc['title']) ?? 'Unknown';
-      final authorNames =
-          doc['author_names'] is List ? (doc['author_names'] as List) : [];
-      final series =
-          doc['featured_series'] is Map ? doc['featured_series'] as Map : null;
+        final authorNames = doc['author_names'] is List
+          ? (doc['author_names'] as List<dynamic>)
+          : const <dynamic>[];
+        final series = doc['featured_series'] is Map
+          ? Map<String, dynamic>.from(doc['featured_series'] as Map)
+          : null;
       final seriesName = _optionalText(series?['name']);
       final releaseYear = _optionalText(doc['release_year']);
 
@@ -228,9 +235,13 @@ class HardcoverProvider extends ProviderAdapter {
     }
 
     final payload = await _graphql(_hardcoverBookDetailQuery, {'id': intId});
-    final books = (payload['data'] is Map && payload['data']['books'] is List)
-        ? payload['data']['books'] as List
-        : [];
+    final dataPayload = payload['data'];
+    final data = dataPayload is Map
+      ? Map<String, dynamic>.from(dataPayload)
+      : const <String, dynamic>{};
+    final books = data['books'] is List
+      ? data['books'] as List<dynamic>
+      : const <dynamic>[];
 
     if (books.isEmpty || books.first is! Map) {
       throw ProviderNotFoundException(
@@ -289,28 +300,30 @@ class HardcoverProvider extends ProviderAdapter {
     final creators = _extractCreators(data['contributions']);
     final genres = _extractTags(data['taggings']);
 
-    final image = data['image'] is Map ? data['image'] as Map : null;
+    final image = data['image'] is Map
+      ? Map<String, dynamic>.from(data['image'] as Map)
+      : null;
     var coverUrl = _optionalText(image?['url']);
 
-    final editions = data['editions'] is List ? data['editions'] as List : [];
+    final editions = data['editions'] is List
+      ? data['editions'] as List<dynamic>
+      : const <dynamic>[];
     final defaultEdition = editions.isNotEmpty && editions.first is Map
-        ? editions.first as Map
+      ? Map<String, dynamic>.from(editions.first as Map)
         : null;
 
     String? publisher;
     int? pageCount = _parseInt(data['pages']);
     if (defaultEdition != null) {
-      final pub = defaultEdition['publisher'] is Map
-          ? defaultEdition['publisher'] as Map
+        final pub = defaultEdition['publisher'] is Map
+          ? Map<String, dynamic>.from(defaultEdition['publisher'] as Map)
           : null;
       publisher = _optionalText(pub?['name']);
       pageCount = pageCount ?? _parseInt(defaultEdition['pages']);
-      final edImage = defaultEdition['image'] is Map
-          ? defaultEdition['image'] as Map
+        final edImage = defaultEdition['image'] is Map
+          ? Map<String, dynamic>.from(defaultEdition['image'] as Map)
           : null;
-      if (coverUrl == null) {
-        coverUrl = _optionalText(edImage?['url']);
-      }
+      coverUrl ??= _optionalText(edImage?['url']);
     }
 
     final targetKind = _optionalText(data['_collectarr_kind']) ?? 'book';
@@ -328,17 +341,17 @@ class HardcoverProvider extends ProviderAdapter {
       if (coverUrl != null) 'cover_image_url': coverUrl,
       'creators': creators,
       'genres': genres,
-      'characters': [],
-      'story_arcs': [],
-      'platforms': [],
-      'tracks': [],
-      'variant_covers': [],
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'characters': <dynamic>[],
+      'story_arcs': <dynamic>[],
+      'platforms': <dynamic>[],
+      'tracks': <dynamic>[],
+      'variant_covers': <dynamic>[],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
-      'volume_provider_ids': {},
+      'volume_provider_ids': <String, dynamic>{},
     };
   }
 
@@ -425,10 +438,10 @@ class HardcoverProvider extends ProviderAdapter {
       final name = author is Map ? _optionalText(author['name']) : null;
       if (name != null && name.isNotEmpty) {
         final role = _optionalText(contrib['contribution_type']) ?? 'Author';
-        creators.add({
+        creators.add(<String, dynamic>{
           'name': name,
           'role': role,
-          'external_ids': {},
+          'external_ids': <String, dynamic>{},
         });
       }
     }

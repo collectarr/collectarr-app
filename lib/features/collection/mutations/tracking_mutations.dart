@@ -17,9 +17,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:uuid/uuid.dart';
 
@@ -137,7 +135,7 @@ final class TrackingMutations {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
           await catalogCache.upsertMetadataItems([
-            LibraryMetadataItem.fromMetadataMap({
+            LibraryMetadataTransportCodec.fromMetadataMap({
               'id': catalogRef.id,
               'kind': catalogRef.kind,
               'title': catalogRef.id,

@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 
 class LibraryMetadataProviderOption {
   const LibraryMetadataProviderOption({
@@ -11,20 +13,16 @@ class LibraryMetadataProviderOption {
   });
 
   factory LibraryMetadataProviderOption.fromDescriptor(
-    dynamic descriptor,
+    ProviderDescriptor descriptor,
   ) {
-    // Supports ProviderDescriptor or any object with equivalent properties
-    final name = descriptor.name?.toString() ?? '';
-    final displayName = descriptor.displayName?.toString() ?? name;
-    final supportedKinds = (descriptor.allSupportedKinds as List?)
-            ?.map((e) => e.toString())
-            .toSet() ??
-        <String>{};
-    final requiresUserKey = descriptor.requiresUserKey == true;
-    final requiresAttribution = descriptor.requiresAttribution == true;
-    final nonCommercialOnly = descriptor.nonCommercialOnly == true;
-    final cachePolicy = descriptor.cachePolicy?.toString();
-    final licenseName = descriptor.licenseName?.toString();
+    final name = descriptor.name;
+    final displayName = descriptor.displayName;
+    final supportedKinds = descriptor.allSupportedKinds.toSet();
+    final requiresUserKey = descriptor.requiresUserKey;
+    final requiresAttribution = descriptor.requiresAttribution;
+    final nonCommercialOnly = descriptor.nonCommercialOnly;
+    final cachePolicy = descriptor.cachePolicy;
+    final licenseName = descriptor.licenseName;
     final summary = cachePolicy ??
         (licenseName != null
             ? '$licenseName metadata with attribution requirements'
@@ -46,7 +44,7 @@ class LibraryMetadataProviderOption {
     );
   }
 
-  factory LibraryMetadataProviderOption.fromConnector(dynamic connector) {
+  factory LibraryMetadataProviderOption.fromConnector(ProviderConnector connector) {
     return LibraryMetadataProviderOption.fromDescriptor(connector.descriptor);
   }
 

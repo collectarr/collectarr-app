@@ -45,7 +45,6 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 
 const _comicSeriesFilterId = LibraryAddFilterId('comic.series');
 const _comicIssueFilterId = LibraryAddFilterId('comic.issue');
@@ -182,6 +181,11 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     icon: Icons.collections_bookmark_outlined,
     accent: Color(0xFF44BFE7),
     preferencePrefix: 'comics',
+    toolbarActions: [
+      ...kDefaultLibraryToolbarActions,
+      LibraryToolbarActionId.readingQueue,
+      LibraryToolbarActionId.reassignIndex,
+    ],
   ),
   metadata: LibraryMetadataCapability(
     defaultProviderId: 'gcd',
@@ -199,10 +203,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     fetchChildrenCallback: _fetchComicVolumes,
     childrenTitleBuilder: _comicChildrenTitle,
     supportsMediaReleaseSplit: false,
-    supportsIndexReassignment: true,
-    showsReadingQueue: true,
-    collectionExportTitleLabel: 'Series',
-    mediaReleaseScopeLabel: 'Series',
   ),
   inspector: const LibraryInspectorCapability(
     heroBuilder: buildComicInspectorHero,
@@ -280,12 +280,11 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
               final metadata = item.kindMetadata;
               return metadata is ComicCatalogMetadata
                   ? [
-                      item.releaseYear,
                       metadata.releaseDate?.year,
                       metadata.coverDate?.year,
                       metadata.series?.volumeStartYear,
                     ]
-                  : [item.releaseYear];
+                  : const <Object?>[];
             },
             providerValues: (candidate) => [candidate.series?.volumeStartYear],
           ),
@@ -310,18 +309,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
       showsIssueBadge: true,
       showsPhysicalFormatBadge: true,
     ),
-    mediaFields: const MediaEditFields.print(
-      numberLabel: 'No. / Vol.',
-      publisherLabel: 'Publisher / Studio / Creator',
-      releaseDateLabel: 'Cover date',
-    ),
-    releaseFields: const ReleaseEditFields(
-      variantLabel: 'Edition / Variant / Format',
-      barcodeLabel: 'Barcode / UPC / ISBN',
-      variantSeedsPhysicalFormatLabel: true,
-    ),
-    manualAddUsesTitleAsSeries: true,
-    editUsesTitleAsSeries: true,
     createDraft: createComicEditDraft,
   ),
   toolbar: LibraryKindToolbarModule(

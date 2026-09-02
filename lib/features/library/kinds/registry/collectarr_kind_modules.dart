@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.da
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 
 export 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
@@ -44,7 +43,7 @@ bool _initDecoders() {
         return module.catalogCodec!.decode(json);
       }
     }
-    return EmptyKindMetadata(mediaKind);
+    return DefaultMapKindMetadata(mediaKind, json);
   });
   return true;
 }

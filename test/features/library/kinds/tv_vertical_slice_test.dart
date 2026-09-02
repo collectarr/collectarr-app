@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dar
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -93,9 +92,6 @@ void main() {
           identity: const LibraryItemIdentity(
             id: 'tv_1',
             mediaKind: CatalogMediaKind.tv,
-          ),
-          common: const LibraryCommonMetadata(
-            title: 'Breaking Bad',
           ),
           kindMetadata: tvMeta,
         ),
@@ -243,7 +239,6 @@ void main() {
             id: 'tv_breaking_bad',
             mediaKind: CatalogMediaKind.tv,
           ),
-          common: const LibraryCommonMetadata(title: 'Breaking Bad'),
           kindMetadata: TvSeriesMetadata.fromJson(json),
         ),
       );

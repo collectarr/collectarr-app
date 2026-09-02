@@ -27,7 +27,7 @@ class GameCatalogMapper {
         item.kindMetadata.toSyncPayload()['editions'] as List?;
     final editions = editionsPayload != null
         ? editionsPayload
-            .whereType<Map>()
+            .whereType<Map<String, dynamic>>()
             .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
             .toList()
         : const <CatalogEdition>[];

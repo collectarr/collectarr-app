@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
@@ -13,7 +12,6 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-export 'package:collectarr_app/features/library/config/edit_field_config.dart';
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
@@ -37,14 +35,10 @@ class LibraryEditCapability {
     ),
     this.editChrome = const LibraryEditChromeConfig(),
     this.vocabularies,
-    this.mediaFields = const MediaEditFields(),
-    this.releaseFields = const ReleaseEditFields(),
     this.conditions = kGeneralConditions,
     this.grades = const [],
     this.defaultCondition,
     this.defaultGrade,
-    this.manualAddUsesTitleAsSeries = false,
-    this.editUsesTitleAsSeries = false,
     this.createDraft = createGenericEditDraft,
   });
 
@@ -54,20 +48,14 @@ class LibraryEditCapability {
   final LibraryEditPresentation presentation;
   final LibraryEditChromeConfig editChrome;
   final LibraryKindVocabularyCapability? vocabularies;
-  final MediaEditFields mediaFields;
-  final ReleaseEditFields releaseFields;
   final List<String> conditions;
   final List<String> grades;
   final String? defaultCondition;
   final String? defaultGrade;
-  final bool manualAddUsesTitleAsSeries;
-  final bool editUsesTitleAsSeries;
   final KindEditDraftFactory createDraft;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
-  bool get usesTitleAsSeriesFallback =>
-      manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
   OwnedDetailsDraft buildDetailsDraft(KindEditDraft kindDraft) =>
       kindDraft.toDetailsDraft();

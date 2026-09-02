@@ -142,12 +142,11 @@ KindEditDraft createMangaEditDraft({
           ? formatDate(metadata!.localizedReleaseDate!)
           : (metadata?.originalPublicationDate != null
               ? formatDate(metadata!.originalPublicationDate!)
-              : (item.releaseDate != null ? formatDate(item.releaseDate!) : '')),
+              : ''),
     ),
     releaseYearController: textControllers.create(
       text: metadata?.localizedReleaseDate?.year.toString() ??
           metadata?.originalPublicationDate?.year.toString() ??
-          item.releaseYear?.toString() ??
           '',
     ),
   );

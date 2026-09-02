@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/editable_user_external_link.dart';
 

@@ -7,7 +7,7 @@ void main() {
   test('detail sections are ordered canonically', () {
     final ordered = orderLibraryDetailSections([
       LibraryDetailSectionSpec(
-        slot: LibraryDetailSectionSlot.activityHistory,
+        slot: LibraryDetailSectionSlot.activity,
         title: 'Activity',
         children: const [SizedBox.shrink()],
       ),
@@ -17,7 +17,7 @@ void main() {
         children: const [SizedBox.shrink()],
       ),
       LibraryDetailSectionSpec(
-        slot: LibraryDetailSectionSlot.imagesMedia,
+        slot: LibraryDetailSectionSlot.media,
         title: 'Images',
         children: const [SizedBox.shrink()],
       ),
@@ -27,8 +27,8 @@ void main() {
       ordered.map((LibraryDetailSectionSpec section) => section.slot),
       equals([
         LibraryDetailSectionSlot.identity,
-        LibraryDetailSectionSlot.imagesMedia,
-        LibraryDetailSectionSlot.activityHistory,
+        LibraryDetailSectionSlot.media,
+        LibraryDetailSectionSlot.activity,
       ]),
     );
   });

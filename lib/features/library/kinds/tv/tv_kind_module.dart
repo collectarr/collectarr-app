@@ -139,15 +139,9 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     wideDialog: true,
   ),
   hierarchy: const LibraryHierarchyCapability(
-    defaultVideoDisplayLevel: tvDefaultVideoDisplayLevel,
-    defaultVideoGrouping: tvDefaultVideoGrouping,
-    videoSeriesEntryTypes: {'tv'},
-    videoShelfDrilldownEntryTypes: {'tv'},
     fetchChildrenCallback: _fetchTvSeasons,
     childrenTitleBuilder: _tvChildrenTitle,
     supportsMediaReleaseSplit: true,
-    collectionExportTitleLabel: 'Title',
-    mediaReleaseScopeLabel: 'Media',
   ),
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildTvInspectorSections,
@@ -215,11 +209,10 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
               final metadata = item.kindMetadata;
               return metadata is TvSeriesMetadata
                   ? [
-                      item.releaseYear,
                       metadata.firstAirDate?.year,
                       metadata.lastAirDate?.year,
                     ]
-                  : [item.releaseYear];
+                  : const <Object?>[];
             },
             providerValues: (candidate) => [candidate.series?.volumeStartYear],
           ),
@@ -241,15 +234,6 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     editDialogBuilder: buildTvLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
     presentation: tvLibraryEditPresentation,
-    mediaFields: const MediaEditFields(
-      numberLabel: 'Edition no.',
-      publisherLabel: 'Studio',
-      releaseDateLabel: 'First aired',
-    ),
-    releaseFields: const ReleaseEditFields(
-      variantLabel: 'Format / Edition',
-      barcodeLabel: 'UPC / Barcode',
-    ),
     createDraft: createTvEditDraft,
   ),
   providerMapper: const TvLibraryKindProviderMapper(),

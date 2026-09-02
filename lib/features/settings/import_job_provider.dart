@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
@@ -491,7 +492,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           query: entry.title,
           year: entry.releaseYear,
           limit: 10,
-        ).then((items) => [for (final item in items) item.toCatalogItem()]);
+        ).then((items) => [
+              for (final item in items)
+                LibraryMetadataTransportCodec.toCatalogItem(item),
+            ]);
       },
     );
 
@@ -913,7 +917,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final sourceKey = entry.remoteItemId.trim().isEmpty
         ? title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
         : entry.remoteItemId.trim();
-    return LibraryMetadataItem.fromMetadataMap({
+    return LibraryMetadataTransportCodec.fromMetadataMap({
       'id': '${provider.storageValue}-local:$sourceKey',
       'kind': entry.kind.apiValue,
       'title': title,

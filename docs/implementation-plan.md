@@ -15,45 +15,79 @@ Kind code must own publisher, series, issue/volume/season numbering, editions,
 variants, barcode/ISBN, physical format, country/language, ratings, creators,
 links, publishing metadata, and hierarchy semantics.
 
+The target also applies to local storage and workspace projections. A cache table
+may store an opaque catalog envelope, and a generic workspace may carry universal
+layout identity, but neither may become a denormalized semantic registry. Typed
+kind codecs and capabilities are the only place where a known kind's payload is
+decoded or interpreted.
+
 The migration is incremental and must stay green per vertical slice. Do not add
 new fields or forwarding getters to `LibraryMetadataItem`; do not make
 `toCatalogItem()` a runtime dependency. It is temporary transport
 interoperability only and is scheduled for removal.
 
-### Current Rebaseline (2026-08-24)
+### Current Rebaseline (2026-09-02)
 
-- Commit `73aad4e2` records the validated metadata-ownership migration batch.
-- Provider preview mapping now crosses the generic workflow through
-  `NormalizedProviderEnvelopeV1` and the registered kind provider mapper.
-- All nine provider mappers preserve the envelope item identity; the generic
-  add workflow no longer assembles concrete publishing/music/video/game maps.
-- The comic catalog/workspace/presentation/inspector projection slice now reads
-	`ComicCatalogMetadata` directly and has no `toCatalogItem()` usage under
-	`kinds/comic/`.
-- The migrated kind surfaces for game, boardgame, movie, manga, book, and
-	music no longer use `toCatalogItem()`; TV now owns its metadata-to-video
-	conversion and anime/TV/movie video edit drafts provide typed semantic inputs.
-- Shared video no longer contains active `toCatalogItem()` calls or the two
-	unused metadata factories; remaining generic bridges are outside the kind
-	verticals.
-- The architecture checker reports no AST boundary violations.
-- The current transition work is not the final de-generalized architecture.
-- `LibraryMetadataItem`, `LibraryCommonMetadata`, `LibraryTypeConfig`, and the
-	dynamic field registry remain widely used by runtime code.
-- `interopCatalogItem` and `toCatalogItem()` still exist and must be removed,
-	not expanded with more fallback logic.
-- `seasons_provider.dart` and `volumes_provider.dart` still exist.
-- `ProviderConnector` and `ExternalStateEngine` exist, but the legacy metadata
-	provider registry is still active in several paths.
-- The importer framework exists, but still uses `ImportRow` and
-	`ProviderImportId` in runtime paths.
-- Focused kind/provider tests and analysis are green. The full Flutter suite
-	currently has four contract-hash failures requiring a Core snapshot sync via
-	`tool/update_core_contracts.ps1`; these are separate from the migration batch.
-- Global Activity, manual ICS, CSV/CLZ import-export, and TMDb import exist.
-	Live subscribable ICS and local notifications remain pending.
+The current checkout contains a large uncommitted architecture migration. It is
+not commit-ready: the architecture boundary check passes, but the library does
+not yet compile cleanly and the full Flutter test/format gates have not been run
+successfully after the latest changes.
 
-> Current shipped app library kinds: `comic`, `manga`, `anime`, `book`, `game`, `boardgame`, `movie`, `tv`, `music`.
+Completed in the current working tree:
+
+- Edit presentation is neutral: generic grading, Comic, Game, cover-price, and
+	key-specific labels/visibility flags were removed; kind presentation builders
+	own their labels and tab ordering uses neutral priorities.
+- `MediaEditFields`, `ReleaseEditFields`, and `edit_field_config.dart` were
+	removed. Projectors, field definitions, and kind capabilities are now the
+	intended source of field behavior.
+- Generic hierarchy presentation no longer owns video display/grouping types,
+	reading-queue visibility, index reassignment, or concrete collection labels.
+	Reading queue and index reassignment are explicit kind toolbar actions.
+- Detail slots were renamed to neutral roles (`identity`, `personal`,
+	`progress`, `metadata`, `relations`, `links`, `media`, `notes`, `source`,
+	`activity`).
+- The boundary checker now rejects imports from all of `kinds/**` in generic
+	library code, including `_shared`, except for explicit registry composition.
+	`dart run tool/check_library_kind_boundaries.dart` reports no AST boundary
+	violations; its complexity warnings remain informational debt.
+- `LibraryCommonMetadata` was deleted. `LibraryMetadataItem` is flattened to
+	universal identity/display fields plus typed `kindMetadata`.
+- `LibraryMetadataTransportCodec` now owns catalog-envelope conversion at the
+	transport boundary. Provider mappers and several metadata flows construct the
+	flattened item directly.
+- `CatalogCache` is now an opaque `id`/`kind`/`payloadJson`/`cachedAt` table,
+	schema version 6. `CatalogCacheRepository`, workspace cache reads, and serial
+	authority updates no longer reconstruct denormalized kind columns.
+- Drift bindings were regenerated successfully. The generator still reported
+	the malformed Book presentation declaration described in the immediate gate
+	below.
+
+Known incomplete or regressed surfaces:
+
+- `dart analyze lib --format machine` still reports compile errors from old
+	`LibraryMetadataItem` facade calls, workspace adapter references, the malformed
+	Book presentation file, music mapping, fallback video formats, and test
+	factories. There is also a misplaced link-builder call that must be routed to
+	the edit contract or removed.
+- `library_kind_metadata_values.dart` is only a temporary compatibility helper.
+	It must not become a generic release/edition registry.
+- `WorkspaceCommonProjection` and `WorkspaceDtoAdapter` still centralize
+	semantic fields and are used by many generic cards, grouping, search, detail,
+	export, and refresh paths.
+- `CatalogCommonDto` and convenience getters on `CatalogItemDto` still expose a
+	broad transport superset. They are compatibility bridges, not the target API.
+- Shared video still contains the common semantic implementation. Anime, Movie,
+	and TV presentation/release/edit ownership has not yet been fully split.
+- `OwnedItemsCache` still contains Comic, video, and Game semantic columns.
+	`CatalogCacheDerivedDataService` also needs to move out of repository-level
+	orchestration into an explicit sync/composition boundary.
+- The dynamic field registry, dynamic facet definitions, generic edit semantic
+	fields, condition/grade fallback vocabulary, planned-media transition APIs,
+	and several `LibraryKindRuntime` forwarding members remain.
+
+The shipped kinds remain: `comic`, `manga`, `anime`, `book`, `game`, `boardgame`,
+`movie`, `tv`, and `music`.
 
 ## ✅ Done
 
@@ -115,7 +149,7 @@ interoperability only and is scheduled for removal.
 
 ### 🌳 Hierarchical Shelf Display
 - Hierarchy fields added to data model: `seriesId`, `seriesTitle`, `volumeName`, `volumeNumber`, `volumeStartYear`, `seasonNumber`, `episodeNumber`
-- CatalogCache DB schema v4 migration with hierarchy columns
+- CatalogCache is now schema v6 with an opaque catalog envelope; hierarchy values are decoded through kind-owned projections
 - Series grouping uses `seriesTitle` with `title` fallback across generic and comics shelf views
 - Two-level grouped grid: series → volume/season sub-groups (auto-detected from data)
 - Sub-group headers with collapsible sections, numeric sorting for seasons/volumes
@@ -146,120 +180,263 @@ interoperability only and is scheduled for removal.
 - Introduced strongly typed Domain Value Objects (`Money`, `OwnedItemId`) and backoff integration with `SyncRetryPolicy`
 - Refactored kind workspace preference codecs, field registry definitions, and workspace presentation adapters across all 9 supported library kinds
 
-## 🎯 Active Roadmap
+## 🎯 Remaining Implementation Plan
 
-### 🧩 Shared Metadata Editing Contract (Admin + App)
-- [ ] Keep runtime drift diagnostics as a hard regression gate
-	- Preserve the contract drift dashboard/tests as the client↔core key/type parity gate.
-- [ ] Replace the semantic shared edit contract with kind-owned edit drafts
-	- Shared code may provide the dialog shell and field primitives; field ownership and draft state move to each kind.
+The order below is dependency-driven. A phase is complete only when its focused
+tests pass, its callers no longer depend on the retired bridge, and the relevant
+architecture-negative check prevents the old design from returning.
 
-### 🧱 Library De-Generalization (active)
-- [ ] Complete PR1: remove `LibraryMetadataItem` semantic runtime ownership
-	- Continue migrating generic detail, stats, edit, workspace, and export callers
-	  without adding more compatibility behavior.
-	- Remove `common`, `interopCatalogItem`, `toCatalogItem()`, and semantic forwarding paths after callers move.
+### Phase 0 — Restore a green migration baseline (P0, current)
 
-- [x] Complete the first typed kind migration batch
-	- Provider preview envelope and all nine mapper identities are kind-owned.
-	- Game, boardgame, movie, manga, book, and music caller surfaces migrated;
-	  TV video conversion moved into the TV kind and shared video edit inputs are
-	  supplied by movie/TV/anime drafts.
-	- Focused vertical tests, focused analysis, formatting, and architecture
-	  checks pass.
+- [ ] Repair `kinds/book/presentation.dart`, including the missing
+	`booksMetadataLabels` declaration, and rerun the Book analyzer slice.
+- [ ] Resolve the remaining `dart analyze lib --format machine` errors without
+	restoring semantic getters or payload factories to `LibraryMetadataItem`.
+	The current error list includes detail/hero/wiring, editor, export, grouping,
+	inspector, reports, workspace, serial/video, and test-factory callers.
+- [ ] Replace every remaining `.payload`, `.editions`, `.releaseDate`,
+	`.releaseYear`, `.trailerUrls`, `.toSyncPayload()`, and `fromCatalogItem`
+	access on `LibraryMetadataItem` with either the explicit transport codec or a
+	typed kind capability. Audit both `lib/` and tests, not only the current
+	compiler-reported files.
+- [ ] Make the release/link descriptor API consistent. Link loading belongs to
+	the kind-owned edit/presentation contract that consumes it; generic code must
+	not call a method that exists only on a different builder interface.
+- [ ] Replace the temporary `library_kind_metadata_values.dart` helper with
+	typed per-kind readers/codecs for release date/year, editions, title extension,
+	trailers, and other release data. Delete the helper once all callers move.
+- [ ] Keep `CatalogCacheRepository` compatible with current import callers through
+	a typed transport-boundary API. Do not leave `Iterable<dynamic>` as a permanent
+	runtime contract; migrate callers to `CatalogItem` or the opaque envelope.
+- [ ] Resolve fallback physical formats through registry/composition data. Do not
+	import `_shared/video` into generic catalog code merely to restore a constant.
+- [ ] Run the focused analyzer after each repair, then require zero compile errors
+	from `dart analyze lib --format machine` before starting the next phase.
 
-- [ ] Complete the comic vertical slice
-	- Comic catalog, workspace, presentation, inspector, and focused tests now use comic-owned types.
-	- Provider mapper, add, edit, detail, export, hierarchy, and entry ownership still need migration.
-- [ ] Finish remaining kind caller surfaces
-	- Anime and TV still need their non-video generic caller surfaces reviewed.
-	- Book, manga, movie, and music still have generic detail/export/entry callers
-	  to migrate where they depend on the facade.
-- [ ] Simplify `LibraryTypeConfig`
-	- Retain labels, icon, identity, and presentation aliases only; move behavior to registered kind capabilities.
-- [ ] Replace the public dynamic field registry
-	- Keep typed IDs through sort/group/column operations and hide registry implementation details.
-- [x] Delete generic semantic hierarchy providers
-			 - `volumes_provider.dart` is removed. Core hierarchy hydration for TV,
-				 comic, book, and manga now runs through kind-owned
-				 `LibraryHierarchyCapability` callbacks.
-			 - `seasons_provider.dart` is removed; video season loading now belongs
-				 to the shared video kind module.
-- [ ] Remove generic edit semantic fields
-	- Reduce `CommonMetadataDraft` and the generic edit shell to technical layout/personal-state hosts.
+### Phase 1 — Finish typed metadata and catalog transport ownership (P0)
 
-### Execution Order For Remaining Work
+- [ ] Define the final typed kind catalog/entry contracts for all nine kinds.
+	They must cover release/edition and variant selection, creators, links,
+	publisher/series/number display, title extension, and kind-specific metadata
+	without introducing a cross-kind superset.
+- [ ] Route generic add, edit, inspector, detail, export, comparison, report,
+	series, and stats code through those capabilities/descriptors. Generic code may
+	render a descriptor or invoke a callback; it may not parse a kind payload.
+- [ ] Finish the comic vertical slice across provider mapper, add, edit,
+	workspace, inspector, detail, export, hierarchy, entry helpers, and tests.
+	Then use the same checklist for Book, Manga, Anime, Movie, TV, Music, Game,
+	and Board Game, recording any intentional kind differences in their modules.
+- [ ] Remove `LibraryMetadataItem` from runtime APIs after all consumers migrate.
+	Keep catalog envelope conversion in `LibraryMetadataTransportCodec` only while
+	transport interoperability requires it; do not add new domain behavior there.
+- [ ] Reduce `CatalogItemDto`/`CatalogCommonDto` to an identity/envelope boundary.
+	Remove semantic convenience getters such as publisher, barcode, physical
+	format, release date/year, trailers, and editions from generic consumers.
+- [ ] Make known-kind decoding go through the registered `CatalogKindCodec`.
+	Retain a deliberately isolated fallback only for unknown or legacy payloads;
+	do not grow a central known-kind switch.
+- [ ] Verify provider preview and add workflows accept normalized envelopes and
+	delegate semantic decoding to the selected kind mapper. Remove any remaining
+	generic construction of publishing, music, video, game, series, or creator
+	maps.
 
-1. Stabilize the current transition diff and keep the focused gates green.
-2. Complete the comic typed catalog/entry vertical slice across provider, add,
-	edit, workspace, inspector, detail, export, hierarchy, and tests.
-3. Delete the comic dependency on `LibraryMetadataItem`; use it as the reference
-	implementation for the remaining kinds.
-4. Migrate book, manga, anime, movie, tv, music, game, and boardgame one full
-	vertical slice at a time.
-5. Remove `LibraryMetadataItem`, `LibraryCommonMetadata`, `interopCatalogItem`,
-	and `toCatalogItem()` from runtime code.
-6. Reduce `LibraryTypeConfig` to identity and presentation data.
-7. Replace the public dynamic field registry with typed runtime operations.
-8. Delete generic hierarchy providers and route hierarchy through
-	`LibraryHierarchyCapability`.
-9. Make `ProviderConnector` the active registry and wire accounts, links, BASE
-	snapshots, local state, conflicts, mutation origin, and sync runs.
-10. Integrate the existing importer with `ProviderPersonalEntry` and
-	 `ExternalStateEngine`, then remove `ProviderImportId`.
-11. Add architecture-checker negative cases after each boundary is enforced.
-12. Run the full validation gate and update all architecture documentation.
+### Phase 2 — Remove workspace semantic authority (P0)
 
-### 🧩 Shared UI Shell Convergence
-- [ ] Make add/edit/inspector/detail/admin dialogs share a common shell
-	- Extract `LibrarySurface`, `LibraryPanelChrome`, `LibraryDialogScaffold`, and shared section/footer/empty/error states.
-- [ ] Normalize panel layout across dialogs and side panels
-	- Keep header, context bar, main content, optional side panel, and footer actions consistent across kinds.
-- [ ] Create one panel grammar
-	- Standardize title, subtitle/count, primary action, secondary menu, scrollable content, and pinned footer rules across panels.
-- [ ] Add a density system
-	- Support comfortable, compact, and dense modes consistently across cards, rows, inspectors, add results, comparison rows, and sidebars.
-- [ ] Standardize inspector/detail/edit section ordering
-	- Keep the same section order everywhere: identity, personal status, progress/ownership, format/edition/release, people, series links, images/media, notes/custom fields, source/corrections, activity/history.
-- [x] Split `LibraryAddDialog` into controller, layout, and kind adapter
-	- Shell, request types, controller facades, manual draft, and kind adapter are now normal imported classes (not parts). Extensions over the private state (`_LibraryAddDialogComparisons`, `_LibraryAddDialogPrefill`) and the seven pane widgets remain as `part of` the dialog compilation unit for now.
+- [ ] Delete `WorkspaceCommonProjection` and `WorkspaceDtoAdapter`.
+- [ ] Give each kind workspace DTO direct, typed fields or typed kind metadata.
+	Keep `LibraryWorkspaceDto` limited to universal structural identity needed for
+	layout, selection, title, and cover rendering.
+- [ ] Migrate generic adapter consumers in cards, flow tiles/carousels, grouping,
+	search, page/detail actions, page-number navigation, collection actions,
+	entry helpers, hero/export/sharing/value/stats/refresh, and kind filters.
+- [ ] Add a kind-owned search/filter projection contract so publisher,
+	item/issue/volume number, series, release year, and equivalent fields remain
+	searchable without restoring common workspace fields. Preserve the behavior
+	currently lost when SQL cache filtering was removed; title-only fallback is
+	not the finished behavior.
+- [ ] Keep grouping, sorting, and column orchestration generic, but make value
+	extraction call typed kind field descriptors rather than casting a common DTO.
+- [ ] Add workspace projection tests for title, cover, scope, release selection,
+	search, grouping, and missing/malformed kind payloads for every kind.
 
-### 🧭 Admin UX Consistency
-- [ ] Align app-side admin proposal/editor UX with shared-field architecture
-	- Keep proposal/edit flows visually distinct while sharing the same field contract.
-- [ ] Keep Admin stats/dashboard wiring in parity with Core summary/image-cache contracts.
-	- Keep stats/dashboard surfaces aligned with Core summary and image-cache contracts.
+### Phase 3 — Split Anime, Movie, and TV video ownership (P0/P1)
 
-### 📜 Global Activity / History
-- [x] Add a global activity page
-	- `global_activity_page.dart` already exists; remaining work is validation and filter parity.
-- [ ] Keep per-item activity sections intact
-	- Item detail activity is already implemented; the missing piece is the collection-wide view.
+- [ ] Move Anime presentation and release fields into Anime-owned builders and
+	contracts, including anime format, broadcast, studios, episodes, and physical
+	release details.
+- [ ] Move Movie video/release fields into Movie-owned builders and contracts,
+	including runtime, technical format, HDR/audio, distributor, region, and
+	trailer presentation.
+- [ ] Move TV season/episode/broadcast and box-set release behavior into TV-owned
+	builders and contracts.
+- [ ] Split shared video edit support, edit tabs, release-source readers, and
+	inspector/detail sections where they decide semantic behavior. Duplication is
+	acceptable; retain only technical primitives, transport models, and reusable
+	widgets under `_shared/video`.
+- [ ] Remove shared configurable semantic label bags and video entry-type lists
+	once each kind declares its own behavior. Add focused Anime/Movie/TV tests for
+	release decoding, edit initialization, trailers, drilldown, and hierarchy.
 
-### 📅 Calendar + iCalendar
-- [x] Calendar page and manual ICS export
-	- Local calendar aggregation and RFC 5545 export are already implemented.
-- [ ] Add a live subscribable ICS feed
-	- Provide a feed URL instead of only manual export, with optional kind filtering and per-kind settings.
+### Phase 4 — Type the runtime, fields, facets, and edit contracts (P1)
 
-### 🔔 Notifications
-- [ ] Add local notifications
-	- Start with loan due reminders, release reminders, and sync-conflict/import/proposal attention alerts.
-- [ ] Define notification rules and scheduling
-	- Support kind, event type, offsets, channels, and quiet hours.
+- [ ] Reduce `LibraryKindRuntime` forwarding members to typed capability access.
+	Keep registry/composition concerns at the registry boundary, not in generic
+	semantic helpers.
+- [ ] Reduce `LibraryTypeConfig` to immutable identity/presentation/composition
+	data. Remove title-as-series flags and other behavior duplicated by kind
+	capabilities.
+- [ ] Replace the public `LibraryFieldRegistry<dynamic, LibraryWorkspaceDto>`
+	contract with erased runtime descriptors and typed IDs for field, group, sort,
+	and column operations. Decode legacy persisted strings only at the boundary.
+- [ ] Type facet module definitions and mode identities. Remove generic dynamic
+	definition collections and semantic string-mode branching.
+- [ ] Move condition and grade vocabulary ownership into each kind. Remove the
+	`kGeneralConditions` fallback from capability defaults and AddDialog/inspector
+	paths; unsupported kinds must expose no vocabulary rather than inherit a
+	misleading one.
+- [ ] Finish generic edit-shell cleanup: `CommonMetadataDraft` and the shell own
+	lifecycle, layout, personal state, custom fields, images, validation, and save;
+	kind drafts own number, publisher, series, release, format, grading, episode,
+	volume, and other semantic state.
+- [ ] Move concrete owned-detail transfer reads/writes behind typed kind transfer
+	definitions. Unsupported fields must be unavailable or fail explicitly and
+	must never replace an owned-details subtype.
+- [ ] Remove planned-media transition APIs and numeric subgroup assumptions after
+	their callers use typed capability IDs and explicit hierarchy state.
 
-### 📥 Personal List Imports
-- [x] CSV/CLZ import-export
-	- Existing CSV/CLZ import-export flow is already implemented.
-- [x] TMDb import
-	- Existing TMDb import path is already implemented.
-- [x] Add a generic importer framework for personal lists
-	- The framework exists under `features/imports/framework/`; remaining work is integration with ProviderPersonalEntry and ExternalStateEngine.
-- [ ] Merge importer framework into external-state/provider-connector architecture
-	- Replace remaining `ImportRow`/`ProviderImportId` runtime paths with typed provider entries and `MutationOrigin.import`.
-- [ ] Import MAL / AniList / Trakt / Simkl / Kitsu personal lists
-	- Start with MAL and AniList, then cover Trakt, Simkl, and Kitsu watched/read/rated/watchlist/progress data.
+### Phase 5 — Finish opaque persistence and cache behavior (P1)
 
-### 🚫 Lower Priority Unless Product Direction Changes
-- Social/OIDC auth, collaborative lists, and media-server webhooks remain below collector-parity and metadata-contract work.
-- Media-server watched sync (Plex/Jellyfin/Emby) stays low priority until the local watch-session flow and mapping layer are needed.
+- [ ] Keep `CatalogCache` opaque and add round-trip tests for every kind,
+	malformed/legacy payloads, unknown kinds, title lookup, barcode lookup, and
+	title-plus-issue lookup through kind-owned search capabilities.
+- [ ] Move `CatalogCacheDerivedDataService` out of repository-level behavior into
+	sync/orchestration or an explicit registry composition boundary. The cache
+	repository should only persist and retrieve opaque envelopes.
+- [ ] Remove semantic columns from `OwnedItemsCache`, either by making kind-owned
+	details opaque JSON or by introducing per-kind persistence codecs/tables. The
+	migration must preserve Comic grading/key/cover-price data, video technical
+	data, and Game completeness/value data.
+- [ ] Update Drift schema/migrations and generated bindings only after the final
+	storage shape is agreed. Add migration tests for existing local databases and
+	sync payload round trips.
+- [ ] Ensure local workspace filtering/search uses kind-owned extraction rather
+	than reintroducing SQL columns for publisher, series, item number, or format.
+
+### Phase 6 — Converge UI shells after ownership is stable (P1/P2)
+
+- [ ] Finish the shared shell grammar for add, edit, inspector, detail, and admin:
+	header/context bar, main content, optional side panel, pinned footer, loading,
+	empty, and error states.
+- [x] Keep the `LibraryAddDialog` split into controller, layout, and kind adapter;
+	the remaining `part of` pane/extensions can be removed later if they obstruct
+	testing or ownership, but they are not a migration blocker.
+- [ ] Add centralized comfortable/compact/dense metrics and apply them to cards,
+	rows, inspectors, add results, comparison rows, and sidebars.
+- [ ] Keep neutral detail section roles and make kind-owned sections populate them.
+	Validate the ordering and responsive behavior on desktop and narrow layouts.
+- [ ] Complete the admin proposal/editor alignment without reintroducing a
+	semantic shared-field contract. Preserve proposal-specific provenance and
+	correction controls.
+
+### Phase 7 — Provider, sync, and importer convergence (P1/P2)
+
+- [ ] Make `ProviderConnector` the active provider registry composition root;
+	retain legacy metadata adapters only behind connector capabilities during the
+	transition.
+- [ ] Wire `ExternalStateEngine` to provider accounts, links, local tracking,
+	sync policy persistence, mutation origin, sync runs, three-way conflicts, and
+	echo protection. Use AniList as the first complete vertical slice.
+- [ ] Integrate the importer framework with `ProviderPersonalEntry` and
+	`ExternalStateEngine`; replace remaining `ImportRow`/`ProviderImportId` runtime
+	paths with typed entries and `MutationOrigin.import`.
+- [ ] Add personal-list imports in this order: MAL and AniList, then Trakt, Simkl,
+	and Kitsu, covering watched/read/rated/watchlist/progress data.
+- [ ] Keep contract drift diagnostics as a hard client/Core regression gate and
+	synchronize snapshots only when the Core contract actually changes.
+
+### Phase 8 — Product completeness backlog (P2, independent of the migration)
+
+- [ ] Add optional cover-art recognition for comics after measuring barcode and
+	provider-search quality; keep local-first OCR/reranking as the default.
+- [ ] Add optional pricing integrations for comics (CovrPrice) and games
+	(PriceCharting), with cached values, source timestamps, and clear provenance.
+- [ ] Complete comic collector features: key issue markers, grading-company
+	fields/slab presentation, and missing-issue/run completeness views where not
+	already covered by the current migration.
+- [ ] Add book reader/person tracking, richer personal ratings, and audiobook
+	details where the domain contract supports them.
+- [ ] Add movie random picker and custom episode data where still absent.
+- [ ] Surface Music track/disc listings and add vinyl pressing/condition details.
+- [ ] Add Game platform/region/edition depth and console/hardware cataloging only
+	if it remains within product scope.
+- [ ] Add collection value totals and valuation history as local/personal data,
+	independent of Core catalog semantics.
+- [ ] Add a live subscribable ICS feed with optional kind filtering and settings.
+- [ ] Add local notifications for loans, releases, sync conflicts, imports, and
+	proposals, with event rules, offsets, channels, and quiet hours.
+- [ ] Keep social/OIDC, collaborative lists, media-server integrations, and
+	webhooks below collector parity unless product direction changes.
+
+### Execution checkpoints
+
+1. Phase 0 must end with a clean library analyzer and a focused test pass.
+2. Phases 1–3 must end with no generic metadata/workspace/video semantic
+	 authority and no `LibraryMetadataItem` runtime facade dependency.
+3. Phases 4–5 must end with typed runtime operations and no semantic god-schema
+	 in catalog or owned-item persistence.
+4. Phase 6 must end with consistent responsive shells and density behavior.
+5. Phase 7 is complete only when one provider has a full pull/push/conflict
+	 vertical slice and importer entries use the same state engine.
+6. Phase 8 can ship independently, but every feature must classify fields as
+	 media/work, release/edition, copy/personal, derived/session, or provenance.
+
+### Operational follow-ups
+
+- [ ] Validate global Activity and bring collection-wide filters to parity with
+  per-item activity/history sections.
+- [x] Keep calendar aggregation and manual RFC 5545 export.
+- [ ] Add a live subscribable ICS feed with optional kind filters and per-kind
+  settings.
+- [ ] Add local notifications for loan due dates, releases, sync conflicts,
+  imports, and proposals; define offsets, channels, and quiet hours.
+- [x] Keep the existing CSV/CLZ, TMDb, and generic personal-list importer
+  foundations.
+- [ ] Finish importer integration with `ProviderPersonalEntry` and
+  `ExternalStateEngine`, then implement MAL/AniList followed by Trakt, Simkl,
+  and Kitsu watched/read/rated/watchlist/progress imports.
+- [ ] Keep admin proposal/editor UX visually distinct while aligning its typed
+  field contract and Core summary/image-cache dashboard contracts.
+- [ ] Keep social/OIDC, collaborative lists, media-server integrations, and
+  webhooks below collector parity unless product direction changes.
+
+### Validation gate
+
+Run the focused check for the touched phase first. The migration is not ready to
+land while any compile error remains, even if the architecture checker passes.
+
+```powershell
+# Required after the current repair phase
+dart format --output=none --set-exit-if-changed .
+dart analyze lib --format machine
+
+# Required before declaring the migration complete
+dart run build_runner build --delete-conflicting-outputs
+flutter analyze --fatal-warnings --fatal-infos
+flutter test
+dart run tool/check_library_kind_boundaries.dart
+```
+
+Additional gates:
+
+- Run Drift migration and round-trip tests after any schema change.
+- Run provider contract, metadata transport, workspace projection, and
+	kind-specific vertical tests for every changed kind.
+- Run Core `pytest` and repository checks whenever app changes depend on Core
+	DTOs, provider transport, or sync persistence contracts.
+- Add architecture-negative coverage for concrete kind imports, semantic kind
+	switches, broad metadata getters, dynamic field/facet registries, common
+	workspace adapters, semantic persistence columns, and central known-kind codec
+	dispatch before removing the corresponding migration phase.
+- Update `docs/outside-kinds-generic-audit.md`, `docs/kind-field-ownership.md`,
+	and this plan after each ownership boundary is completed so the documentation
+	describes the checked-out architecture rather than the intended one.

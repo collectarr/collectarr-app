@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
@@ -660,7 +659,6 @@ extension ComicEditTabBuilders on ComicEditHost {
   }
 
   Widget buildComicValueTab() {
-    final editPresentation = comicEditPresentation;
     return EditTabShell(
       children: [
         EditSection(
@@ -715,7 +713,7 @@ extension ComicEditTabBuilders on ComicEditHost {
                   value: comicKeyComic,
                   onChanged: (value) =>
                       comicMutateState(() => comicKeyComic = value),
-                  title: Text(editPresentation.keyToggleLabel),
+                  title: const Text('Key comic'),
                   contentPadding: EdgeInsets.zero,
                   dense: true,
                 ),
@@ -725,7 +723,7 @@ extension ComicEditTabBuilders on ComicEditHost {
                 LibraryEditResponsiveRow(children: [
                   LibraryEditTextField(
                     controller: comicKeyReasonController,
-                    label: editPresentation.keyReasonLabel,
+                    label: 'Key reason (first appearance, etc.)',
                   ),
                   buildComicKeyCategoryPickField(label: 'Key category'),
                 ]),
@@ -999,7 +997,6 @@ extension ComicEditTabBuilders on ComicEditHost {
   }
 
   Widget _ownedComicMainOverviewCard() {
-    final mediaFields = comicKindModule.edit.mediaFields;
     final palette = appPalette(comicContext);
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -1030,10 +1027,8 @@ extension ComicEditTabBuilders on ComicEditHost {
                     flexes: const [1, 1],
                     breakpoint: 520,
                   ),
-                  if (mediaFields.showSeriesGroup) ...[
-                    const SizedBox(height: 10),
-                    buildComicSeriesGroupField(label: 'Series Group'),
-                  ],
+                  const SizedBox(height: 10),
+                  buildComicSeriesGroupField(label: 'Series Group'),
                 ],
               );
               final rightColumn = Column(
@@ -1067,9 +1062,9 @@ extension ComicEditTabBuilders on ComicEditHost {
                   buildComicFlexRow(
                     [
                       buildComicPublisherField(),
-                      if (mediaFields.showImprint) buildComicImprintField(),
+                      buildComicImprintField(),
                     ],
-                    flexes: [1, if (mediaFields.showImprint) 1],
+                    flexes: const [1, 1],
                     breakpoint: 720,
                   ),
                 ],

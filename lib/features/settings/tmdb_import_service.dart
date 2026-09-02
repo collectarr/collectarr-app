@@ -10,9 +10,7 @@ import 'package:csv/csv.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_runner.dart';
-import 'package:collectarr_app/features/providers/domain/mappers/provider_preview_mapper.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
 
 /// The TMDB media type for import entries.
 enum TmdbMediaType {
@@ -732,13 +730,14 @@ class TmdbImportService {
     };
     final runner = ImportRunner(
       matcher: (row) async {
-        final match = matchesBySourceId[row.sourceId];
+        final entry = row as TmdbImportEntry;
+        final match = matchesBySourceId[entry.providerItemId];
         final item = match?.catalogItem;
         if (item == null) {
-          return ImportMapping.unmatched(row);
+          return ImportMapping.unmatched(entry);
         }
         return ImportMapping.matched(
-          row,
+          entry,
           CatalogEntityRef(
             kind: item.kind,
             entityType: CatalogEntityType.work,
@@ -747,7 +746,8 @@ class TmdbImportService {
         );
       },
       applier: (mapping, config) async {
-        final match = matchesBySourceId[mapping.row.sourceId];
+        final entry = mapping.row as TmdbImportEntry;
+        final match = matchesBySourceId[entry.providerItemId];
         final item = match?.catalogItem;
         if (match == null || item == null) {
           return ImportRowOutcome.skipped;
@@ -756,7 +756,8 @@ class TmdbImportService {
         return ImportRowOutcome.imported;
       },
       unmatchedHandler: (row, config) async {
-        final match = matchesBySourceId[row.sourceId];
+        final entry = row as TmdbImportEntry;
+        final match = matchesBySourceId[entry.providerItemId];
         if (match != null) {
           await proposeUnmatched(match.entry);
         }

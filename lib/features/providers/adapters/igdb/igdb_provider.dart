@@ -175,16 +175,16 @@ class IGDBProvider extends ProviderAdapter {
     final genres = _extractNames(data['genres']);
 
     final companies = data['involved_companies'] is List
-        ? (data['involved_companies'] as List)
-        : [];
+      ? (data['involved_companies'] as List<dynamic>)
+      : const <dynamic>[];
     final publishers = _extractCompanies(companies, 'publisher');
     final developers = _extractCompanies(companies, 'developer');
 
     final creators = developers
-        .map((d) => {
+        .map((d) => <String, dynamic>{
               'name': d,
               'role': 'Developer',
-              'external_ids': {},
+              'external_ids': <String, dynamic>{},
             })
         .toList();
 
@@ -210,16 +210,16 @@ class IGDBProvider extends ProviderAdapter {
       'creators': creators,
       'genres': genres,
       'platforms': platforms,
-      'characters': [],
-      'story_arcs': [],
-      'tracks': [],
-      'variant_covers': [],
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'characters': <dynamic>[],
+      'story_arcs': <dynamic>[],
+      'tracks': <dynamic>[],
+      'variant_covers': <dynamic>[],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
-      'volume_provider_ids': {},
+      'volume_provider_ids': <String, dynamic>{},
     };
   }
 

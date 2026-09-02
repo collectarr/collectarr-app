@@ -48,9 +48,8 @@ void main() {
         LibraryWorkspaceBrowserMode.media);
   });
 
-  test('comic edit semantics stay in the edit capability', () {
-    expect(comicKindModule.edit.manualAddUsesTitleAsSeries, isTrue);
-    expect(comicKindModule.edit.editUsesTitleAsSeries, isTrue);
+  test('comic edit capability exposes its dialog builder', () {
+    expect(comicKindModule.edit.editDialogBuilder, isNotNull);
   });
 
   test('release browser mode is owned by video hierarchy', () {

@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -88,18 +87,18 @@ final class GameCatalog {
             : const <String>[]);
 
     final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList() ??
         const <Map<String, dynamic>>[];
 
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
       ...((json['external_links'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
     ];

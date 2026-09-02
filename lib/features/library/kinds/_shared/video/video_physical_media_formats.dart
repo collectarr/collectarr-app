@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 
 const videoPhysicalMediaFormats = [
@@ -35,47 +34,6 @@ const videoPhysicalMediaFormats = [
     variantType: 'physical',
   ),
   PhysicalMediaFormat(
-    id: 'digital',
-    label: 'Digital',
-    mediaFamily: 'video',
-    variantType: 'digital',
-  ),
-];
-
-const fallbackVideoCatalogPhysicalFormats = <CatalogPhysicalFormat>[
-  CatalogPhysicalFormat(
-    id: 'dvd',
-    label: 'DVD',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  CatalogPhysicalFormat(
-    id: 'blu-ray',
-    label: 'Blu-ray',
-    mediaFamily: 'video',
-    variantType: 'physical',
-    aliases: ['bluray', 'blu ray'],
-  ),
-  CatalogPhysicalFormat(
-    id: '4k-uhd',
-    label: '4K UHD',
-    mediaFamily: 'video',
-    variantType: 'physical',
-    aliases: ['4k', 'uhd', '4k blu-ray', '4k bluray', 'ultra hd'],
-  ),
-  CatalogPhysicalFormat(
-    id: 'vhs',
-    label: 'VHS',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  CatalogPhysicalFormat(
-    id: 'laserdisc',
-    label: 'LaserDisc',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  CatalogPhysicalFormat(
     id: 'digital',
     label: 'Digital',
     mediaFamily: 'video',

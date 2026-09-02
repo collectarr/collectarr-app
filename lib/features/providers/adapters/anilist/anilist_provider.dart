@@ -302,10 +302,7 @@ class AniListProvider extends ProviderAdapter {
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
     final kind = _kindFromRaw(data);
     final anilistId = _parseInt(data['id']);
-    final providerItemId =
-        anilistId != null ? _formatProviderItemId(kind, anilistId) : '';
     final title = _extractTitle(data) ?? 'Unknown $kind';
-    final startDate = _parseStartDate(data['startDate']);
     final genres = _extractListText(data['genres']);
     final coverUrl = _extractCoverUrl(data);
     final synopsis = _cleanHtmlDescription(data['description']);
@@ -324,10 +321,10 @@ class AniListProvider extends ProviderAdapter {
             final fullName =
                 nameObj is Map ? nameObj['full']?.toString() : null;
             if (fullName != null && fullName.trim().isNotEmpty) {
-              creators.add({
+              creators.add(<String, dynamic>{
                 'name': fullName.trim(),
                 'role': role,
-                'external_ids': {},
+                'external_ids': <String, dynamic>{},
               });
             }
           }
@@ -351,17 +348,17 @@ class AniListProvider extends ProviderAdapter {
       if (coverUrl != null) 'cover_image_url': coverUrl,
       'creators': creators,
       'genres': genres,
-      'characters': [],
-      'story_arcs': [],
-      'platforms': [],
-      'tracks': [],
-      'variant_covers': [],
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'characters': <dynamic>[],
+      'story_arcs': <dynamic>[],
+      'platforms': <dynamic>[],
+      'tracks': <dynamic>[],
+      'variant_covers': <dynamic>[],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
-      'volume_provider_ids': {},
+      'volume_provider_ids': <String, dynamic>{},
     };
   }
 
@@ -408,12 +405,15 @@ class AniListProvider extends ProviderAdapter {
     final anilistId = _parseInt(item['id']);
     final providerItemId =
         anilistId != null ? _formatProviderItemId(targetKind, anilistId) : '';
-    final startDate =
-        item['startDate'] is Map ? item['startDate'] as Map : null;
-    final year = startDate?['year']?.toString();
-    final titleMap = item['title'] is Map ? item['title'] as Map : null;
-    final romaji = titleMap?['romaji']?.toString();
-    final english = titleMap?['english']?.toString();
+    final startDate = item['startDate'] is Map
+      ? Map<String, dynamic>.from(item['startDate'] as Map)
+      : null;
+    final year = startDate?['year'] as String?;
+    final titleMap = item['title'] is Map
+      ? Map<String, dynamic>.from(item['title'] as Map)
+      : null;
+    final romaji = titleMap?['romaji'] as String?;
+    final english = titleMap?['english'] as String?;
     final altTitle = (english != null && romaji != null && romaji != english)
         ? romaji
         : null;
@@ -432,9 +432,11 @@ class AniListProvider extends ProviderAdapter {
       if (edges is List) {
         for (final edge in edges) {
           if (edge is Map && edge['node'] is Map) {
-            final name = edge['node']['name'];
-            if (name is Map && name['full'] != null) {
-              characterPreview.add(name['full'].toString());
+            final edgeMap = Map<String, dynamic>.from(edge);
+            final node = Map<String, dynamic>.from(edgeMap['node'] as Map);
+            final name = node['name'];
+            if (name is Map && name['full'] is String) {
+              characterPreview.add(name['full'] as String);
             }
           }
         }
@@ -520,18 +522,6 @@ class AniListProvider extends ProviderAdapter {
     if (text.isEmpty) return null;
     text = text.replaceAll(_htmlTagRegex, '').trim();
     return text.isNotEmpty ? text : null;
-  }
-
-  DateTime? _parseStartDate(dynamic value) {
-    if (value is Map) {
-      final year = _parseInt(value['year']);
-      final month = _parseInt(value['month']) ?? 1;
-      final day = _parseInt(value['day']) ?? 1;
-      if (year != null && year > 0) {
-        return DateTime.utc(year, month, day);
-      }
-    }
-    return null;
   }
 
   List<String> _extractListText(dynamic value) {

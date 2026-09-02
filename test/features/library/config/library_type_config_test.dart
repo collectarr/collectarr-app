@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/video_physic
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
@@ -90,7 +91,6 @@ void main() {
         same(buildComicLibraryEditDialog));
     expect(comicKindModule.inspector.sectionsBuilder,
         same(buildComicInspectorSections));
-    expect(comicKindModule.edit.editUsesTitleAsSeries, isTrue);
     expect(comicKindModule.identity.countLabel(1), 'Comic');
     expect(comicKindModule.identity.countLabel(2), 'Comics');
   });
@@ -127,19 +127,27 @@ void main() {
 
   test('movies library config uses the dedicated add dialog launcher', () {
     expect(movieKindModule.add.dialogLauncher, same(showMovieLibraryAddDialog));
-    expect(movieKindModule.edit.editUsesTitleAsSeries, isFalse);
-    expect(movieKindModule.hierarchy.mediaReleaseScopeLabel, 'Media');
     expect(movieKindModule.identity.accent, const Color(0xFF42AA55));
     expect(
         libraryAccentForKind(CatalogMediaKind.anime), const Color(0xFFC94DFF));
     expect(libraryIconForKind(CatalogMediaKind.tv), Icons.tv_outlined);
-    expect(movieKindModule.hierarchy.collectionExportTitleLabel, 'Title');
   });
 
-  test('media/release scope labels are kind-owned', () {
-    expect(comicKindModule.hierarchy.mediaReleaseScopeLabel, 'Series');
-    expect(musicKindModule.hierarchy.mediaReleaseScopeLabel, 'Media');
-    expect(bookKindModule.hierarchy.mediaReleaseScopeLabel, 'Media');
+  test('media and export labels are kind-owned', () {
+    expect(
+      comicKindModule.presentation.previewLabels.labelFor(
+        'media_scope',
+        fallback: 'Media',
+      ),
+      'Series',
+    );
+    expect(
+      musicKindModule.presentation.previewLabels.labelFor(
+        'export_title',
+        fallback: 'Title',
+      ),
+      'Release',
+    );
   });
 
   test('books do not create series subgroups for volume metadata', () {
@@ -179,16 +187,6 @@ void main() {
       ),
       isTrue,
     );
-    expect(animeKindModule.hierarchy.videoSeriesEntryTypes, {'anime'});
-
-    expect(
-      animeKindModule.hierarchy.defaultVideoDisplayLevel,
-      VideoDisplayLevel.season,
-    );
-    expect(
-      animeKindModule.hierarchy.defaultVideoGrouping,
-      VideoGroupingDefault.bySeries,
-    );
     expect(animeKindModule.edit.editDialogBuilder, isNotNull);
 
     expect(tvKindModule.kind, CatalogMediaKind.tv);
@@ -197,29 +195,9 @@ void main() {
       tvKindModule.metadata.supportsProvider('tmdb', tvKindModule.kind),
       isTrue,
     );
-    expect(tvKindModule.hierarchy.videoSeriesEntryTypes, {'tv'});
-    expect(
-      tvKindModule.hierarchy.defaultVideoDisplayLevel,
-      VideoDisplayLevel.season,
-    );
-    expect(
-      tvKindModule.hierarchy.defaultVideoGrouping,
-      VideoGroupingDefault.none,
-    );
     expect(tvKindModule.edit.editDialogBuilder, isNotNull);
     expect(tvKindModule.inspector.detailPageBuilder,
         same(buildVideoLibraryDetailPage));
-  });
-
-  test('movie runtime keeps flat title/work defaults', () {
-    expect(
-      movieKindModule.hierarchy.defaultVideoDisplayLevel,
-      VideoDisplayLevel.titleWork,
-    );
-    expect(
-      movieKindModule.hierarchy.defaultVideoGrouping,
-      VideoGroupingDefault.none,
-    );
   });
 
   test('tv edit presentation splits media and release tabs', () {
@@ -251,24 +229,66 @@ void main() {
   });
 
   test('index reassignment capability is kind-owned', () {
-    expect(comicKindModule.hierarchy.supportsIndexReassignment, isTrue);
-    expect(mangaKindModule.hierarchy.supportsIndexReassignment, isTrue);
-    expect(movieKindModule.hierarchy.supportsIndexReassignment, isFalse);
-    expect(bookKindModule.hierarchy.supportsIndexReassignment, isFalse);
+    expect(
+      comicKindModule.toolbarActionAvailability
+          .allows(LibraryToolbarActionId.reassignIndex),
+      isTrue,
+    );
+    expect(
+      mangaKindModule.toolbarActionAvailability
+          .allows(LibraryToolbarActionId.reassignIndex),
+      isTrue,
+    );
+    expect(
+      movieKindModule.toolbarActionAvailability
+          .allows(LibraryToolbarActionId.reassignIndex),
+      isFalse,
+    );
+    expect(
+      bookKindModule.toolbarActionAvailability
+          .allows(LibraryToolbarActionId.reassignIndex),
+      isFalse,
+    );
   });
 
   test('collection export title labels are kind-owned', () {
-    expect(comicKindModule.hierarchy.collectionExportTitleLabel, 'Series');
-    expect(musicKindModule.hierarchy.collectionExportTitleLabel, 'Release');
-    expect(bookKindModule.hierarchy.collectionExportTitleLabel, 'Title');
+    expect(
+      comicKindModule.presentation.previewLabels.labelFor(
+        'export_title',
+        fallback: 'Title',
+      ),
+      'Series',
+    );
+    expect(
+      musicKindModule.presentation.previewLabels.labelFor(
+        'export_title',
+        fallback: 'Title',
+      ),
+      'Release',
+    );
+    expect(
+      bookKindModule.presentation.previewLabels.labelFor(
+        'export_title',
+        fallback: 'Title',
+      ),
+      'Title',
+    );
   });
 
   test('book runtime enables creator spotlight in shared hero chrome', () {
     expect(bookKindModule.inspector.showsCreatorSpotlight, isTrue);
-    expect(bookKindModule.hierarchy.showsReadingQueue, isTrue);
     expect(bookKindModule.hierarchy.supportsMediaReleaseSplit, isTrue);
     expect(movieKindModule.inspector.showsCreatorSpotlight, isFalse);
-    expect(movieKindModule.hierarchy.showsReadingQueue, isFalse);
+    expect(
+      bookKindModule.toolbarActionAvailability
+          .allows(LibraryToolbarActionId.readingQueue),
+      isTrue,
+    );
+    expect(
+      movieKindModule.toolbarActionAvailability
+          .allows(LibraryToolbarActionId.readingQueue),
+      isFalse,
+    );
   });
 
   test('book and boardgame runtimes own their scoped browser options', () {
@@ -570,14 +590,6 @@ void main() {
     expect(
       LibraryAddReferenceType.edition.helperLabelForType(musicKindModule),
       'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
-    );
-    expect(
-      movieKindModule.hierarchy.videoSeriesEntryTypes,
-      {'tv'},
-    );
-    expect(
-      movieKindModule.hierarchy.videoShelfDrilldownEntryTypes,
-      {'movie', 'tv', 'anime'},
     );
     expect(
       movieKindModule.add.chrome.videoKindFilterOptions

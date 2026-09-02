@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/edit/fields/library_edit_field_g
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:flutter/material.dart';
 
 const _boardGameTabs0 = LibraryEditTabSpec(
@@ -95,7 +96,7 @@ Widget? buildBoardGameCustomTabView({
             children: [
               LibraryReleaseIdentityFields(
                 editionTitleController: TextEditingController(
-                  text: item.titleExtension ?? '',
+                  text: libraryKindTitleExtension(item) ?? '',
                 ),
                 variantController: TextEditingController(),
                 barcodeController: TextEditingController(),

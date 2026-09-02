@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -406,20 +408,16 @@ class PickListRepository {
       'distributor': [('owned_items_cache', 'distributor')],
       'collection_status': [('owned_items_cache', 'collectionStatus')],
       'features': [('owned_items_cache', 'features')],
-      'publisher': [('catalog_cache', 'publisher')],
-      'imprint': [('catalog_cache', 'imprint')],
-      'language': [('catalog_cache', 'language')],
-      'country': [('catalog_cache', 'country')],
-      'age_rating': [('catalog_cache', 'ageRating')],
-      'series_group': [('catalog_cache', 'seriesGroup')],
-      'physical_format': [
-        ('catalog_cache', 'physicalFormat'),
-        ('catalog_cache', 'physicalFormatLabel'),
-      ],
-      'format': [
-        ('catalog_cache', 'physicalFormat'),
-        ('catalog_cache', 'physicalFormatLabel'),
-      ],
+    };
+    final catalogPayloadFields = <String, List<String>>{
+      'publisher': ['publisher'],
+      'imprint': ['imprint'],
+      'language': ['language'],
+      'country': ['country'],
+      'age_rating': ['age_rating'],
+      'series_group': ['series_group'],
+      'physical_format': ['physical_format', 'physical_format_label'],
+      'format': ['physical_format', 'physical_format_label'],
     };
     final semanticName = pickListSemanticName(listName);
     final ownedColumns =
@@ -427,6 +425,9 @@ class PickListRepository {
     var total = 0;
     for (final column in ownedColumns) {
       total += await _countTextColumn(column.$1, column.$2, normalized);
+    }
+    for (final field in catalogPayloadFields[semanticName] ?? const <String>[]) {
+      total += await _countCatalogPayloadField(field, normalized);
     }
     if (semanticName == 'tags') {
       total += await _countTagField(normalized);
@@ -445,6 +446,23 @@ class PickListRepository {
       variables: [Variable.withString(normalized)],
     ).getSingle();
     return result.read<int>('count');
+  }
+
+  Future<int> _countCatalogPayloadField(
+    String fieldName,
+    String normalized,
+  ) async {
+    final rows = await _db.select(_db.catalogCache).get();
+    var count = 0;
+    for (final row in rows) {
+      final payload = jsonDecode(row.payloadJson);
+      if (payload is Map<String, dynamic> && payload[fieldName] is String) {
+        if (normalizePickListValue(payload[fieldName] as String) == normalized) {
+          count++;
+        }
+      }
+    }
+    return count;
   }
 
   Future<int> _countTagField(String normalized) async {

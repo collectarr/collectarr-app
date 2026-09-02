@@ -197,10 +197,10 @@ class MusicBrainzProvider extends ProviderAdapter {
     final genres = _extractGenres(data);
 
     final creators = artistNames
-        .map((name) => {
+        .map((name) => <String, dynamic>{
               'name': name,
               'role': 'Artist',
-              'external_ids': {},
+              'external_ids': <String, dynamic>{},
             })
         .toList(growable: false);
 
@@ -226,16 +226,16 @@ class MusicBrainzProvider extends ProviderAdapter {
       if (coverUrl != null) 'cover_image_url': coverUrl,
       'creators': creators,
       'genres': genres,
-      'characters': [],
-      'story_arcs': [],
-      'platforms': [],
+      'characters': <dynamic>[],
+      'story_arcs': <dynamic>[],
+      'platforms': <dynamic>[],
       if (trackCount != null) 'track_count': trackCount,
       'tracks': tracks,
-      'variant_covers': [],
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'variant_covers': <dynamic>[],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
       'volume_provider_ids': volumeProviderIds,
     };

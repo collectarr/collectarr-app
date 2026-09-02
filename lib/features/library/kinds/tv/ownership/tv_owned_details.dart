@@ -34,12 +34,19 @@ class TvOwnedDetails extends OwnedItemDetails with VideoLikeOwnedDetails {
   final String? _packaging;
   final String? _distributor;
 
+  @override
   String? get features => _features ?? physical.features;
+  @override
   List<String> get hdrFormats => _hdrFormats ?? physical.hdrFormats;
+  @override
   String? get boxSetId => _boxSetId ?? physical.boxSetId;
+  @override
   String? get boxSetName => _boxSetName ?? physical.boxSetName;
+  @override
   String? get region => _region ?? physical.region;
+  @override
   String? get packaging => _packaging ?? physical.packaging;
+  @override
   String? get distributor => _distributor ?? physical.distributor;
 
   @override

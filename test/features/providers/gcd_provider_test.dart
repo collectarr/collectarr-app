@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -140,10 +141,14 @@ void main() {
       expect(envelope.normalized['synopsis'],
           contains('Venom makes his first full appearance.'));
       expect(envelope.normalized['creators'], hasLength(2));
-      expect(envelope.normalized['creators'][0]['name'], 'David Michelinie');
-      expect(envelope.normalized['creators'][0]['role'], 'writer');
-      expect(envelope.normalized['creators'][1]['name'], 'Todd McFarlane');
-      expect(envelope.normalized['creators'][1]['role'], 'penciller');
+        expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
+          'David Michelinie');
+        expect(jsonObjectList(envelope.normalized['creators'])[0]['role'],
+          'writer');
+        expect(jsonObjectList(envelope.normalized['creators'])[1]['name'],
+          'Todd McFarlane');
+        expect(jsonObjectList(envelope.normalized['creators'])[1]['role'],
+          'penciller');
       expect(envelope.normalized['characters'], hasLength(2));
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -193,20 +198,20 @@ void main() {
       expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
       expect(normalized['cover_image_url'],
           goldenEnvelope.normalized['cover_image_url']);
-      expect(normalized['provider_ids']['gcd'],
-          goldenEnvelope.normalized['provider_ids']['gcd']);
-      expect(normalized['creators'][0]['name'],
-          goldenEnvelope.normalized['creators'][0]['name']);
-      expect(normalized['creators'][0]['role'],
-          goldenEnvelope.normalized['creators'][0]['role']);
-      expect(normalized['creators'][1]['name'],
-          goldenEnvelope.normalized['creators'][1]['name']);
-      expect(normalized['creators'][1]['role'],
-          goldenEnvelope.normalized['creators'][1]['role']);
-      expect(normalized['characters'][0]['name'],
-          goldenEnvelope.normalized['characters'][0]['name']);
-      expect(normalized['characters'][1]['name'],
-          goldenEnvelope.normalized['characters'][1]['name']);
+        expect(jsonObject(normalized['provider_ids'])['gcd'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['gcd']);
+        expect(jsonObjectList(normalized['creators'])[0]['name'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+        expect(jsonObjectList(normalized['creators'])[0]['role'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
+        expect(jsonObjectList(normalized['creators'])[1]['name'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[1]['name']);
+        expect(jsonObjectList(normalized['creators'])[1]['role'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[1]['role']);
+        expect(jsonObjectList(normalized['characters'])[0]['name'],
+          jsonObjectList(goldenEnvelope.normalized['characters'])[0]['name']);
+        expect(jsonObjectList(normalized['characters'])[1]['name'],
+          jsonObjectList(goldenEnvelope.normalized['characters'])[1]['name']);
     });
   });
 }

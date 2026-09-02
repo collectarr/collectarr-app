@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/contracts/anime_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -32,29 +31,20 @@ class AnimeLibraryKindProviderMapper
       NormalizedProviderEnvelopeV1 envelope) {
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
-    final synopsis = norm['synopsis']?.toString();
     final coverImageUrl = norm['cover_image_url']?.toString() ??
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
 
-    DateTime? releaseDate;
-    if (norm['release_date'] != null) {
-      releaseDate = DateTime.tryParse(norm['release_date'].toString());
-    }
-
-    final animeMetadata = AnimeMetadata.fromJson(norm);
+    final animeMetadata = AnimeMetadata.fromJson({
+      ...norm,
+      'title': title,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (coverImageUrl != null) 'thumbnail_image_url': coverImageUrl,
+    });
 
     return LibraryMetadataItem(
       identity: LibraryItemIdentity(
         id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.anime,
-      ),
-      common: LibraryCommonMetadata(
-        title: title,
-        synopsis: synopsis,
-        coverImageUrl: coverImageUrl,
-        thumbnailImageUrl: coverImageUrl,
-        releaseDate: releaseDate,
-        releaseYear: releaseDate?.year ?? animeMetadata.seasonYear,
       ),
       kindMetadata: animeMetadata,
     );

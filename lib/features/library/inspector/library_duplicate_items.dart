@@ -1,6 +1,6 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -28,7 +28,7 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
 ) {
   final barcodeBuckets = <String, _DuplicateBucket>{};
   for (final entry in entries) {
-    final payload = entry.catalogItem?.toSyncPayload() ?? const {};
+    final payload = entry.catalogItem?.kindMetadata.toSyncPayload() ?? const {};
     final rawBarcode = payload['barcode']?.toString();
     final barcode = _normalizedBarcode(rawBarcode);
     if (barcode == null) {
@@ -58,17 +58,15 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
     if (item == null) {
       continue;
     }
-    final payload = item.toSyncPayload();
-    final title = _normalizedText(item.common.title);
+    final payload = item.kindMetadata.toSyncPayload();
+    final title = _normalizedText(item.title);
     final issue = _normalizedText(
         (payload['item_number'] ?? payload['itemNumber'])?.toString());
     if (title == null || issue == null) {
       continue;
     }
     final publisher = _normalizedText(payload['publisher']?.toString()) ?? '';
-    final year = item.common.releaseYear?.toString() ??
-        item.common.releaseDate?.year.toString() ??
-        '';
+    final year = libraryKindReleaseYear(item)?.toString() ?? '';
     final variant = _normalizedText(payload['variant']?.toString()) ?? '';
     _addToBucket(
       issueBuckets,
@@ -435,7 +433,7 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   }
   if (_allShareValue(
     catalogItems.map((item) {
-      final payload = item.toSyncPayload();
+      final payload = item.kindMetadata.toSyncPayload();
       return _normalizedText(
           (payload['item_number'] ?? payload['itemNumber'])?.toString());
     }),
@@ -444,7 +442,7 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   }
   if (_allShareValue(
     catalogItems.map((item) {
-      final payload = item.toSyncPayload();
+      final payload = item.kindMetadata.toSyncPayload();
       return _normalizedText(payload['publisher']?.toString());
     }),
   )) {
@@ -455,7 +453,7 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   }
   if (_allShareValue(
     catalogItems.map((item) {
-      final payload = item.toSyncPayload();
+      final payload = item.kindMetadata.toSyncPayload();
       return _normalizedText(payload['variant']?.toString());
     }),
   )) {
@@ -477,7 +475,7 @@ bool _allShareValue(Iterable<String?> values) {
 }
 
 String? _releaseYearToken(LibraryMetadataItem item) {
-  return item.releaseYear?.toString() ?? item.releaseDate?.year.toString();
+  return libraryKindReleaseYear(item)?.toString();
 }
 
 List<ShelfEntry> _sortedEntries(List<ShelfEntry> entries) {
@@ -496,19 +494,17 @@ String _issueDuplicateLabel(ShelfEntry entry) {
   if (catalogItem == null) {
     return entry.title;
   }
-  final payload = catalogItem.toSyncPayload();
+  final payload = catalogItem.kindMetadata.toSyncPayload();
   final itemNumber =
       (payload['item_number'] ?? payload['itemNumber'])?.toString();
   final publisher = payload['publisher']?.toString();
   final variant = payload['variant']?.toString();
 
   final pieces = [
-    _itemTitle(catalogItem.common.title, itemNumber),
+    _itemTitle(catalogItem.title, itemNumber),
     if (_hasText(publisher)) publisher!.trim(),
-    if (catalogItem.common.releaseYear != null)
-      catalogItem.common.releaseYear.toString()
-    else if (catalogItem.common.releaseDate != null)
-      catalogItem.common.releaseDate!.year.toString(),
+    if (libraryKindReleaseYear(catalogItem) != null)
+      libraryKindReleaseYear(catalogItem).toString(),
     if (_hasText(variant)) variant!.trim(),
   ];
   return pieces.join(' - ');
@@ -516,7 +512,7 @@ String _issueDuplicateLabel(ShelfEntry entry) {
 
 String _entrySubtitle(ShelfEntry entry) {
   final catalogItem = entry.catalogItem;
-  final payload = catalogItem?.toSyncPayload() ?? const {};
+  final payload = catalogItem?.kindMetadata.toSyncPayload() ?? const {};
   final publisher = payload['publisher']?.toString();
   final barcode = payload['barcode']?.toString();
 
@@ -524,10 +520,8 @@ String _entrySubtitle(ShelfEntry entry) {
     if (entry.isOwned) 'Owned',
     if (entry.isWishlisted) 'Wishlist',
     if (_hasText(publisher)) publisher!.trim(),
-    if (catalogItem?.common.releaseYear != null)
-      catalogItem!.common.releaseYear.toString()
-    else if (catalogItem?.common.releaseDate != null)
-      catalogItem!.common.releaseDate!.year.toString(),
+    if (catalogItem != null && libraryKindReleaseYear(catalogItem) != null)
+      libraryKindReleaseYear(catalogItem).toString(),
     if (_hasText(barcode)) 'Barcode ${barcode!.trim()}',
     'ID ${entry.itemId}',
   ];

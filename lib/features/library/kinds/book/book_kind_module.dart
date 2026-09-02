@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -162,6 +163,10 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     icon: Icons.book_outlined,
     accent: Color(0xFFC78446),
     preferencePrefix: 'books',
+    toolbarActions: [
+      ...kDefaultLibraryToolbarActions,
+      LibraryToolbarActionId.readingQueue,
+    ],
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
@@ -174,13 +179,10 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     fetchChildrenCallback: _fetchBookVolumes,
     supportsMediaReleaseSplit: true,
-    showsReadingQueue: true,
     mediaScopeGroupIds: _bookMediaGroupModes,
     releaseScopeGroupIds: _bookReleaseGroupModes,
     mediaScopeSortIds: _bookMediaSortColumns,
     releaseScopeSortIds: _bookReleaseSortColumns,
-    collectionExportTitleLabel: 'Title',
-    mediaReleaseScopeLabel: 'Media',
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: true,
@@ -247,11 +249,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
             metadataValues: (item) {
               final metadata = item.kindMetadata;
               return metadata is BookCatalogMetadata
-                  ? [
-                      item.releaseYear,
-                      metadata.originalPublicationDate?.year,
-                    ]
-                  : [item.releaseYear];
+                  ? [metadata.originalPublicationDate?.year]
+                  : const <Object?>[];
             },
             providerValues: (candidate) => [candidate.series?.volumeStartYear],
           ),
@@ -267,15 +266,6 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
       builder: BookLibraryMediaEditPresentationBuilder(),
       mediaBuilder: BookLibraryMediaEditPresentationBuilder(),
       releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
-    ),
-    mediaFields: const MediaEditFields.print(
-      numberLabel: 'Volume',
-      publisherLabel: 'Publisher',
-      releaseDateLabel: 'First published',
-    ),
-    releaseFields: const ReleaseEditFields(
-      variantLabel: 'Edition / Binding',
-      barcodeLabel: 'ISBN / Barcode',
     ),
     conditions: BookVocabularies.condition.builtIns,
     createDraft: createBookEditDraft,

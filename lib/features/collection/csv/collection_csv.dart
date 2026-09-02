@@ -304,7 +304,8 @@ class CollectionCsv {
 
   List<String> _catalogFields(ShelfEntry entry) {
     final catalog = entry.catalogItem;
-    final payload = catalog?.payload ?? const <String, dynamic>{};
+    final payload = catalog?.kindMetadata.toSyncPayload() ??
+        const <String, dynamic>{};
     final pub = payload['publishing'] as Map?;
     final itemNumber =
         (payload['item_number'] ?? pub?['issue_number'])?.toString() ?? '';
@@ -332,7 +333,7 @@ class CollectionCsv {
       physicalFormat,
       physicalFormatLabel,
       publisher,
-      _formatDate(catalog?.releaseDate),
+      _formatDate(_parseDate(payload['release_date']?.toString() ?? '')),
       barcode,
     ];
   }
@@ -513,16 +514,15 @@ class CollectionCsv {
     if (module == null) {
       return clzFriendlyHeader;
     }
-    final media = module.edit.mediaFields;
-    final release = module.edit.releaseFields;
+    final labels = module.presentation.previewLabels;
     return _clzFriendlyHeader(
-      title: module.hierarchy.collectionExportTitleLabel,
-      number: media.numberLabel,
-      variant: release.variantLabel,
+      title: labels.labelFor('export_title', fallback: 'Title'),
+      number: labels.labelFor('item_number', fallback: 'Number'),
+      variant: labels.labelFor('variant', fallback: 'Variant'),
       editionTitle: 'Edition Title',
       physicalFormat: 'Physical Format',
-      publisher: media.publisherLabel,
-      barcode: release.barcodeLabel,
+      publisher: labels.labelFor('publisher', fallback: 'Publisher'),
+      barcode: labels.labelFor('barcode', fallback: 'Barcode'),
     );
   }
 

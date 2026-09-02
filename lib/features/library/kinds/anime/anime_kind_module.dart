@@ -31,7 +31,6 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadat
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -133,12 +132,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   hierarchy: const LibraryHierarchyCapability(
     childrenTitleBuilder: _animeChildrenTitle,
     supportsMediaReleaseSplit: true,
-    defaultVideoDisplayLevel: VideoDisplayLevel.season,
-    defaultVideoGrouping: VideoGroupingDefault.bySeries,
-    videoSeriesEntryTypes: {'anime'},
-    videoShelfDrilldownEntryTypes: {'anime'},
-    collectionExportTitleLabel: 'Title',
-    mediaReleaseScopeLabel: 'Media',
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
@@ -201,8 +194,8 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
             metadataValues: (item) {
               final metadata = item.kindMetadata;
               return metadata is AnimeMetadata
-                  ? [item.releaseYear, metadata.seasonYear]
-                  : [item.releaseYear];
+                  ? [metadata.seasonYear, metadata.startDate?.year]
+                  : const <Object?>[];
             },
             providerValues: (candidate) => [candidate.series?.volumeStartYear],
           ),
@@ -223,15 +216,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   edit: LibraryEditCapability(
     editDialogBuilder: buildAnimeLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
-    mediaFields: const MediaEditFields(
-      numberLabel: 'Edition no.',
-      publisherLabel: 'Studio',
-      releaseDateLabel: 'First aired',
-    ),
-    releaseFields: const ReleaseEditFields(
-      variantLabel: 'Format / Edition',
-      barcodeLabel: 'UPC / Barcode',
-    ),
     createDraft: createAnimeEditDraft,
   ),
   providerMapper: const AnimeLibraryKindProviderMapper(),

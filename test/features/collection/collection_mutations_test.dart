@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -149,11 +148,11 @@ void main() {
 
     final owned = await db.select(db.ownedItemsCache).getSingle();
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
-    final catalog = await db.select(db.catalogCache).getSingle();
+    final catalog = await CatalogCacheRepository(db).findById('comic-1');
 
     expect(owned.condition, 'Near Mint');
     expect(tracking.rating, 8);
-    expect(catalog.title, 'Updated');
+    expect(catalog?.title, 'Updated');
   });
 
   test('collection mutations mirror tracking into tracking entries', () async {
@@ -737,13 +736,13 @@ void main() {
       ],
     );
 
-    final catalog = await db.select(db.catalogCache).getSingle();
+    final catalog = await CatalogCacheRepository(db).findById('movie-1');
     final queued = await db.select(db.syncQueue).get();
     expect(imported, 1);
-    expect(catalog.kind, 'movie');
-    expect(catalog.editionTitle, 'Final Cut 4K release');
-    expect(catalog.physicalFormat, '4k-uhd');
-    expect(catalog.physicalFormatLabel, '4K UHD');
+    expect(catalog?.kind, 'movie');
+    expect(catalog?.editionTitle, 'Final Cut 4K release');
+    expect(catalog?.physicalFormat, '4k-uhd');
+    expect(catalog?.physicalFormatLabel, '4K UHD');
     expect(
       queued.where((row) => row.entityType == 'catalog_item'),
       hasLength(1),

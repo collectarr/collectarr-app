@@ -47,7 +47,8 @@ void main() {
   test('runner imports matched rows and counts them', () async {
     final runner = ImportRunner(
       matcher: (row) async =>
-          ImportMapping.matched(row, _ref('anime-${row.sourceId}')),
+            ImportMapping.matched(
+              row, _ref('anime-${(row as ImportRow).sourceId}')),
       applier: (mapping, cfg) async => ImportRowOutcome.imported,
     );
 
@@ -108,7 +109,7 @@ void main() {
       matcher: (row) async => ImportMapping.unmatched(row),
       applier: (mapping, cfg) async => ImportRowOutcome.imported,
       unmatchedHandler: (row, cfg) async {
-        handled.add(row.sourceId);
+        handled.add((row as ImportRow).sourceId);
       },
     );
 
@@ -125,7 +126,8 @@ void main() {
   test('result maps onto a provider history entry', () async {
     final runner = ImportRunner(
       matcher: (row) async =>
-          ImportMapping.matched(row, _ref('anime-${row.sourceId}')),
+            ImportMapping.matched(
+              row, _ref('anime-${(row as ImportRow).sourceId}')),
       applier: (mapping, cfg) async => ImportRowOutcome.imported,
     );
     final result = await runner.run([_row('1', 'Steins;Gate')], config);

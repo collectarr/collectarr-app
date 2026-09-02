@@ -27,6 +27,7 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fiel
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
@@ -137,6 +138,10 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     icon: Icons.import_contacts_outlined,
     accent: Color(0xFFFF6F91),
     preferencePrefix: 'manga',
+    toolbarActions: [
+      ...kDefaultLibraryToolbarActions,
+      LibraryToolbarActionId.reassignIndex,
+    ],
   ),
   metadata: LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
@@ -152,9 +157,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     fetchChildrenCallback: _fetchMangaVolumes,
     childrenTitleBuilder: _mangaChildrenTitle,
     supportsMediaReleaseSplit: true,
-    supportsIndexReassignment: true,
-    collectionExportTitleLabel: 'Series',
-    mediaReleaseScopeLabel: 'Series',
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
@@ -224,11 +226,10 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
               final metadata = item.kindMetadata;
               return metadata is MangaMetadata
                   ? [
-                      item.releaseYear,
                       metadata.originalPublicationDate?.year,
                       metadata.localizedReleaseDate?.year,
                     ]
-                  : [item.releaseYear];
+                  : const <Object?>[];
             },
             providerValues: (candidate) => [candidate.series?.volumeStartYear],
           ),
@@ -245,18 +246,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
       synopsisLabel: 'Plot',
       showsIssueBadge: true,
       showsPhysicalFormatBadge: true,
-    ),
-    mediaFields: const MediaEditFields.print(
-      numberLabel: 'Chapter / Vol.',
-      publisherLabel: 'Publisher / Studio / Creator',
-      releaseDateLabel: 'First published',
-    ),
-    manualAddUsesTitleAsSeries: true,
-    editUsesTitleAsSeries: true,
-    releaseFields: const ReleaseEditFields(
-      variantLabel: 'Edition / Variant / Format',
-      barcodeLabel: 'Barcode / UPC / ISBN',
-      variantSeedsPhysicalFormatLabel: true,
     ),
     createDraft: createMangaEditDraft,
   ),

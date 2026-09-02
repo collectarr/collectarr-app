@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/providers/domain/repositories/provider_l
 import 'package:flutter_test/flutter_test.dart';
 
 class _MockPersonalReadWrite implements PersonalListReadCapability, PersonalListWriteCapability {
-  _MockPersonalReadWrite({this.remoteEntries = const []});
+  _MockPersonalReadWrite() : remoteEntries = const [];
 
   List<ProviderPersonalEntry> remoteEntries;
   final List<ProviderPersonalEntry> writtenEntries = [];

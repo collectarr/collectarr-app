@@ -104,8 +104,6 @@ final boardGameKindModule =
   hierarchy: const LibraryHierarchyCapability(
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     supportsMediaReleaseSplit: false,
-    collectionExportTitleLabel: 'Title',
-    mediaReleaseScopeLabel: 'Media',
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
@@ -157,8 +155,8 @@ final boardGameKindModule =
             metadataValues: (item) {
               final metadata = item.kindMetadata;
               return metadata is BoardGameMetadata
-                  ? [item.releaseYear, metadata.yearPublished]
-                  : [item.releaseYear];
+                  ? [metadata.yearPublished]
+                  : const <Object?>[];
             },
             providerValues: (candidate) => [candidate.series?.volumeStartYear],
           ),
@@ -171,15 +169,6 @@ final boardGameKindModule =
     editDialogBuilder: buildBoardGameLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
     presentation: boardGamesLibraryEditPresentation,
-    mediaFields: const MediaEditFields(
-      numberLabel: 'Edition',
-      publisherLabel: 'Publisher / Designer',
-      releaseDateLabel: 'Release date',
-    ),
-    releaseFields: const ReleaseEditFields(
-      variantLabel: 'Expansion / Edition',
-      barcodeLabel: 'Barcode',
-    ),
     createDraft: createBoardGameEditDraft,
   ),
   providerMapper: const BoardGameLibraryKindProviderMapper(),

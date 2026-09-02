@@ -18,8 +18,6 @@ List<Widget> buildLibraryDetailCatalogSections({
   return type.presentation.builder.buildDetailCatalogSections(
     context: context,
     singularLabel: type.identity.singularLabel,
-    mediaFields: type.edit.mediaFields,
-    releaseFields: type.edit.releaseFields,
     item: item,
     accent: accent,
     relationCapability: type.relations,
@@ -46,8 +44,6 @@ class LibraryDetailMetadataSection extends StatelessWidget {
     return type.presentation.builder.buildDetailIdentitySection(
       context: context,
       singularLabel: type.identity.singularLabel,
-      mediaFields: type.edit.mediaFields,
-      releaseFields: type.edit.releaseFields,
       item: item,
       accent: accent,
       relationCapability: type.relations,
@@ -75,8 +71,6 @@ class LibraryDetailContextSection extends StatelessWidget {
     return type.presentation.builder.buildDetailContextSection(
       context: context,
       singularLabel: type.identity.singularLabel,
-      mediaFields: type.edit.mediaFields,
-      releaseFields: type.edit.releaseFields,
       item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -103,8 +97,6 @@ class LibraryDetailCreditsSection extends StatelessWidget {
     return type.presentation.builder.buildDetailCreditsSection(
       context: context,
       singularLabel: type.identity.singularLabel,
-      mediaFields: type.edit.mediaFields,
-      releaseFields: type.edit.releaseFields,
       item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -370,8 +362,6 @@ _MetadataHealth _buildMetadataHealth(
   final missingSignals = <String>[];
   final metadata = type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.identity.singularLabel,
-    mediaFields: type.edit.mediaFields,
-    releaseFields: type.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -170,8 +171,10 @@ void main() {
       expect(envelope.normalized['genres'],
           containsAll(['Science Fiction', 'Space Opera']));
       expect(envelope.normalized['creators'], hasLength(1));
-      expect(envelope.normalized['creators'].first['name'], 'Frank Herbert');
-      expect(envelope.normalized['creators'].first['role'], 'Author');
+        expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+          'Frank Herbert');
+        expect(jsonObjectList(envelope.normalized['creators']).first['role'],
+          'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -229,12 +232,12 @@ void main() {
       expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
       expect(normalized['page_count'], goldenEnvelope.normalized['page_count']);
       expect(normalized['genres'], goldenEnvelope.normalized['genres']);
-      expect(normalized['provider_ids']['hardcover'],
-          goldenEnvelope.normalized['provider_ids']['hardcover']);
-      expect(normalized['creators'].first['name'],
-          goldenEnvelope.normalized['creators'].first['name']);
-      expect(normalized['creators'].first['role'],
-          goldenEnvelope.normalized['creators'].first['role']);
+        expect(jsonObject(normalized['provider_ids'])['hardcover'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['hardcover']);
+        expect(jsonObjectList(normalized['creators']).first['name'],
+          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+        expect(jsonObjectList(normalized['creators']).first['role'],
+          jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
     });
   });
 }

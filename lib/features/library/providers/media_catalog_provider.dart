@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -59,7 +58,9 @@ final videoPhysicalMediaFormatsProvider = Provider<List<PhysicalMediaFormat>>(
   (ref) {
     final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
     final formats = physicalMediaFormatsFromCatalog(catalog);
-    return formats.isEmpty ? videoPhysicalMediaFormats : formats;
+    return formats.isEmpty
+      ? fallbackPhysicalMediaFormatsForKind(CatalogMediaKind.movie)
+      : formats;
   },
 );
 

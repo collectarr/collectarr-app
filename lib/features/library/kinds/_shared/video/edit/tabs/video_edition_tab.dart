@@ -1,30 +1,24 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_kind_edit_draft.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 class VideoEditEditionTab extends StatelessWidget {
   const VideoEditEditionTab({
     super.key,
-    required this.type,
     required this.draft,
     required this.accent,
     required this.physicalFormats,
   });
 
-  final LibraryKindRuntime type;
   final LibraryEditDraft draft;
   final Color accent;
   final List<PhysicalMediaFormat> physicalFormats;
 
   @override
   Widget build(BuildContext context) {
-    final releaseFields = type.edit.releaseFields;
-    final mediaFields = type.edit.mediaFields;
     final videoEdit = (draft.kindDetails is VideoKindEditDraft)
         ? (draft.kindDetails as VideoKindEditDraft).videoEdit
         : null;
@@ -70,10 +64,10 @@ class VideoEditEditionTab extends StatelessWidget {
                 variantController.text = selected.label;
               }
             },
-            editionTitleLabel: releaseFields.editionTitleLabel,
-            variantLabel: releaseFields.variantLabel,
-            barcodeLabel: releaseFields.barcodeLabel,
-            releaseDateLabel: mediaFields.releaseDateLabel,
+            editionTitleLabel: 'Edition title',
+            variantLabel: 'Variant',
+            barcodeLabel: 'Barcode',
+            releaseDateLabel: 'Release date',
           ),
         ),
       ],

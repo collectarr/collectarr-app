@@ -6,68 +6,7 @@ part 'local_database.g.dart';
 class CatalogCache extends Table {
   TextColumn get id => text()();
   TextColumn get kind => text()();
-  TextColumn get title => text()();
-  TextColumn get displayTitle => text().nullable()();
-  TextColumn get localizedTitle => text().nullable()();
-  TextColumn get originalTitle => text().nullable()();
-  TextColumn get titleExtension => text().nullable()();
-  TextColumn get searchAliasesJson => text().nullable()();
-  TextColumn get sortKey => text().nullable()();
-  TextColumn get itemNumber => text().nullable()();
-  TextColumn get synopsis => text().nullable()();
-  TextColumn get coverImageUrl => text().nullable()();
-  TextColumn get thumbnailImageUrl => text().nullable()();
-  TextColumn get coverImageData => text().nullable()();
-  TextColumn get editionTitle => text().nullable()();
-  TextColumn get physicalFormat => text().nullable()();
-  TextColumn get physicalFormatLabel => text().nullable()();
-  TextColumn get publisher => text().nullable()();
-  DateTimeColumn get coverDate => dateTime().nullable()();
-  DateTimeColumn get releaseDate => dateTime().nullable()();
-  IntColumn get releaseYear => integer().nullable()();
-  TextColumn get barcode => text().nullable()();
-  TextColumn get variant => text().nullable()();
-  TextColumn get crossover => text().nullable()();
-  TextColumn get plotSummary => text().nullable()();
-  TextColumn get plotDescription => text().nullable()();
-  TextColumn get seriesId => text().nullable()();
-  TextColumn get seriesTitle => text().nullable()();
-  TextColumn get volumeName => text().nullable()();
-  RealColumn get volumeNumber => real().nullable()();
-  IntColumn get volumeStartYear => integer().nullable()();
-  IntColumn get seasonNumber => integer().nullable()();
-  IntColumn get episodeNumber => integer().nullable()();
-  IntColumn get runtimeMinutes => integer().nullable()();
-  IntColumn get trackCount => integer().nullable()();
-  TextColumn get tracksJson => text().nullable()();
-  TextColumn get discsJson => text().nullable()();
-  TextColumn get editionsJson => text().nullable()();
-  TextColumn get creatorsJson => text().nullable()();
-  TextColumn get charactersJson => text().nullable()();
-  TextColumn get characterDetailsJson => text().nullable()();
-  TextColumn get storyArcsJson => text().nullable()();
-  TextColumn get seriesTagsJson => text().nullable()();
-  TextColumn get platformsJson => text().nullable()();
-  TextColumn get genresJson => text().nullable()();
-  IntColumn get pageCount => integer().nullable()();
-  IntColumn get coverPriceCents => integer().nullable()();
-  TextColumn get catalogCurrency => text().nullable()();
-  TextColumn get catalogNumber => text().nullable()();
-  TextColumn get country => text().nullable()();
-  TextColumn get releaseStatus => text().nullable()();
-  TextColumn get language => text().nullable()();
-  TextColumn get ageRating => text().nullable()();
-  TextColumn get audienceRating => text().nullable()();
-  TextColumn get imprint => text().nullable()();
-  TextColumn get subtitle => text().nullable()();
-  TextColumn get seriesGroup => text().nullable()();
-  TextColumn get trailerUrlsJson => text().nullable()();
-  TextColumn get color => text().nullable()();
-  IntColumn get nrDiscs => integer().nullable()();
-  TextColumn get screenRatio => text().nullable()();
-  TextColumn get audioTracksJson => text().nullable()();
-  TextColumn get subtitlesJson => text().nullable()();
-  TextColumn get layers => text().nullable()();
+  TextColumn get payloadJson => text()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -447,7 +386,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {

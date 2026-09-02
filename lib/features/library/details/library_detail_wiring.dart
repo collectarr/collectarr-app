@@ -25,7 +25,11 @@ List<Widget> buildLibraryDetailEditorSections({
         mediaType: catalogItem?.kind ?? '',
         trackingEntry: trackingEntry,
         profile: type.trackingProfile,
-        editions: catalogItem?.editions ?? const [],
+        editions: catalogItem == null
+            ? const []
+            : type.presentation.builder.buildReleaseEditions(
+                item: catalogItem,
+              ),
         accent: accent,
       ),
   ];

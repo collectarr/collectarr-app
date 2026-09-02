@@ -9,27 +9,16 @@ class DefaultLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilder {
   const DefaultLibraryEditPresentationBuilder({
     this.showOwnershipReferenceSection = true,
-    this.showOwnedGradingSection = false,
-    this.showsComicCollectorFields = false,
-    this.showsGameCompletenessFields = false,
     this.useOwnedMainArtworkLayout = false,
     this.useDetailsTab = false,
     this.useArtworkCoverTab = false,
     this.useArtworkPhotosTab = false,
-    this.showOwnedCoverPriceField = true,
     this.trackingSectionTitle = 'Tracking edition',
-    this.ownedPhysicalTrackingSectionTitle = 'Condition & Grade',
     this.ownedDigitalTrackingSectionTitle = 'Ownership details',
     this.ownedDigitalTrackingHint =
         'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
     this.ownershipReferenceTitle = 'Ownership reference',
     this.ownedBundleLabel = 'Owned bundle',
-    this.ownedPhysicalGradingSectionTitle = 'Grading details',
-    this.ownedDigitalGradingSectionTitle = 'Collection flags',
-    this.ownedDigitalGradingHint =
-        'Grading and copy-condition fields are hidden for digital copies.',
-    this.keyToggleLabel = 'Key comic',
-    this.keyReasonLabel = 'Key reason (first appearance, etc.)',
     this.ownedTabs = const [
       LibraryEditTabSpec(id: 'main', icon: Icons.article, label: 'Main'),
       LibraryEditTabSpec(id: 'value', icon: Icons.attach_money, label: 'Value'),
@@ -56,25 +45,15 @@ class DefaultLibraryEditPresentationBuilder
   });
 
   final bool showOwnershipReferenceSection;
-  final bool showOwnedGradingSection;
-  final bool showsComicCollectorFields;
-  final bool showsGameCompletenessFields;
   final bool useOwnedMainArtworkLayout;
   final bool useDetailsTab;
   final bool useArtworkCoverTab;
   final bool useArtworkPhotosTab;
-  final bool showOwnedCoverPriceField;
   final String trackingSectionTitle;
-  final String ownedPhysicalTrackingSectionTitle;
   final String ownedDigitalTrackingSectionTitle;
   final String ownedDigitalTrackingHint;
   final String ownershipReferenceTitle;
   final String ownedBundleLabel;
-  final String ownedPhysicalGradingSectionTitle;
-  final String ownedDigitalGradingSectionTitle;
-  final String ownedDigitalGradingHint;
-  final String keyToggleLabel;
-  final String keyReasonLabel;
   final List<LibraryEditTabSpec> ownedTabs;
   final List<LibraryEditTabSpec> trackedTabs;
   final List<LibraryEditTabSpec> catalogTabs;
@@ -128,10 +107,7 @@ class DefaultLibraryEditPresentationBuilder
             : context.isTrackingOnly || context.hasWishlistContext
                 ? trackedTabs
                 : catalogTabs;
-    return LibraryEditSectionRegistry.instance.orderTabs(
-      tabs,
-      context,
-    );
+    return LibraryEditSectionRegistry.instance.orderTabs(tabs);
   }
 
   @override
@@ -197,31 +173,20 @@ class DefaultLibraryEditPresentationBuilder
       showsOwnershipReferenceSection: showOwnershipReferenceSection &&
           context.isOwned &&
           (context.hasEditionAnchors || context.hasBundleReleaseAnchors),
-      showsOwnedGradingSection: showOwnedGradingSection && context.isOwned,
-      showsComicCollectorFields: showsComicCollectorFields,
-      showsGameCompletenessFields: showsGameCompletenessFields,
       usesOwnedMainArtworkLayout: useOwnedMainArtworkLayout && context.isOwned,
       usesDetailsTab: useDetailsTab,
       usesArtworkCoverTab: useArtworkCoverTab,
       usesArtworkPhotosTab: useArtworkPhotosTab && context.isOwned,
-      showsOwnedCoverPriceField: showOwnedCoverPriceField,
       trackingSectionTitle: context.isOwned
           ? context.isDigitalFormat
               ? ownedDigitalTrackingSectionTitle
-              : ownedPhysicalTrackingSectionTitle
+          : trackingSectionTitle
           : trackingSectionTitle,
       trackingSectionHint: context.isOwned && context.isDigitalFormat
           ? ownedDigitalTrackingHint
           : null,
       ownershipReferenceTitle: ownershipReferenceTitle,
       ownedBundleLabel: ownedBundleLabel,
-      ownedGradingSectionTitle: context.isDigitalFormat
-          ? ownedDigitalGradingSectionTitle
-          : ownedPhysicalGradingSectionTitle,
-      ownedGradingSectionHint:
-          context.isDigitalFormat ? ownedDigitalGradingHint : null,
-      keyToggleLabel: keyToggleLabel,
-      keyReasonLabel: keyReasonLabel,
     );
   }
 }

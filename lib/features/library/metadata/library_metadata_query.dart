@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
   LibraryKindRuntime type, {
@@ -49,7 +49,9 @@ Future<List<LibraryMetadataItem>> searchLibraryMetadata(
       limit: limit,
     ),
   );
-  return rows.map(LibraryMetadataItem.fromMetadataMap).toList(growable: false);
+  return rows
+      .map(LibraryMetadataTransportCodec.fromMetadataMap)
+      .toList(growable: false);
 }
 
 Future<LibraryMetadataItem> lookupLibraryBarcode(
@@ -57,7 +59,7 @@ Future<LibraryMetadataItem> lookupLibraryBarcode(
   LibraryKindRuntime type,
   String barcode,
 ) async {
-  return LibraryMetadataItem.fromMetadataMap(
+  return LibraryMetadataTransportCodec.fromMetadataMap(
     await api.lookupBarcode(
       barcode,
       kind: type.kind.apiValue,

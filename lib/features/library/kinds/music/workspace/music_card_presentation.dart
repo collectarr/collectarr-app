@@ -540,8 +540,6 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   if (runtime == null) return null;
   return runtime.presentation.builder.buildMetadataPresentation(
     singularLabel: runtime.identity.singularLabel,
-    mediaFields: runtime.edit.mediaFields,
-    releaseFields: runtime.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

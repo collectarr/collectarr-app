@@ -1,8 +1,5 @@
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 import 'library_filter_presentation.dart';
 import 'library_metadata_presentation.dart';
@@ -16,14 +13,10 @@ class LibraryMediaPresentation {
     required this.filterLabels,
     required this.groupLabels,
     required this.builder,
-    required this.projector,
     required this.bucketLabelBuilder,
-    this.supportsTrackSearch = false,
     this.usesCompactTableLayout = false,
     this.compactBucketIcon = Icons.folder,
     this.emptyStateProviderSummarySuffix = '',
-    this.showsGroupProgress = false,
-    this.groupModeCategoriesBuilder,
     this.previewLabels = const LibraryMediaPreviewLabels(),
     this.statsLabels = const LibraryMediaStatsLabels(),
     this.sortFavorites = defaultLibrarySortFavorites,
@@ -33,21 +26,16 @@ class LibraryMediaPresentation {
     this.referenceLabels = const LibraryReferenceLabels(),
     this.statusLabels = const LibraryStatusLabels(),
     this.bucketLabelOverrides = const LibraryBucketLabelOverrides(),
-    this.fieldDefinitions = const [],
   });
 
   final LibraryMediaSearchFieldLabels searchFieldLabels;
   final LibraryMediaFilterLabels filterLabels;
   final LibraryMediaGroupLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;
-  final LibraryWorkspaceProjector<LibraryWorkspaceDto> projector;
   final LibraryBucketLabelBuilder bucketLabelBuilder;
-  final bool supportsTrackSearch;
   final bool usesCompactTableLayout;
   final IconData compactBucketIcon;
   final String emptyStateProviderSummarySuffix;
-  final bool showsGroupProgress;
-  final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final List<LibrarySortFavorite> sortFavorites;
@@ -57,18 +45,4 @@ class LibraryMediaPresentation {
   final LibraryReferenceLabels referenceLabels;
   final LibraryStatusLabels statusLabels;
   final LibraryBucketLabelOverrides bucketLabelOverrides;
-  final List<LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>>
-      fieldDefinitions;
-
-  LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>?
-      fieldDefinitionFor(
-    String id,
-  ) {
-    for (final definition in fieldDefinitions) {
-      if (definition.id.value == id) {
-        return definition;
-      }
-    }
-    return null;
-  }
 }

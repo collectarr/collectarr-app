@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/drift.dart';
@@ -121,8 +123,12 @@ void main() {
           CatalogCacheCompanion.insert(
             id: 'catalog-1',
             kind: 'comic',
-            title: 'Saga',
-            publisher: const Value('Image Comics'),
+            payloadJson: jsonEncode({
+              'id': 'catalog-1',
+              'kind': 'comic',
+              'title': 'Saga',
+              'publisher': 'Image Comics',
+            }),
             cachedAt: DateTime.utc(2026, 1, 1),
           ),
         );

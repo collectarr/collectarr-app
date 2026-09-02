@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -72,7 +73,7 @@ final class OwnedItemMutations {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
           await catalogCache.upsertMetadataItems([
-            LibraryMetadataItem.fromMetadataMap({
+            LibraryMetadataTransportCodec.fromMetadataMap({
               'id': catalogRef.id,
               'kind': catalogRef.kind,
               'title': catalogRef.id,
@@ -515,7 +516,7 @@ final class OwnedItemMutations {
     final itemId =
         item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
     final payload = item is LibraryMetadataItem
-        ? item.payload
+      ? LibraryMetadataTransportCodec.toSyncPayload(item)
         : (item as CatalogItem).toSyncPayload();
     return SyncChange(
       id: 'catalog:$itemId:upsert:${now.millisecondsSinceEpoch}',

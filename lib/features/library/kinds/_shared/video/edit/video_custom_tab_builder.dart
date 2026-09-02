@@ -40,7 +40,6 @@ Widget? buildVideoCustomTabView({
         videoEdit: videoEdit,
       ),
     'edition' => VideoEditEditionTab(
-        type: draft.type,
         draft: draft,
         accent: accent,
         physicalFormats: const [],

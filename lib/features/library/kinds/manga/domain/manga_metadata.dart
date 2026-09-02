@@ -125,6 +125,7 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
     this.editions = const [],
     this.creators = const [],
     this.links = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   @override
@@ -173,8 +174,10 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
   final List<CatalogEditionDto> editions;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
+    final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
+      ...rawPayload,
         'title': title,
         if (nativeTitle != null) 'native_title': nativeTitle,
         if (romajiTitle != null) 'romaji_title': romajiTitle,
@@ -281,6 +284,7 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
   }) {
     return MangaMetadata(
       title: title ?? this.title,
+      rawPayload: rawPayload,
       nativeTitle: nativeTitle ?? this.nativeTitle,
       romajiTitle: romajiTitle ?? this.romajiTitle,
       englishTitle: englishTitle ?? this.englishTitle,
@@ -326,6 +330,7 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
   }
 
   factory MangaMetadata.fromJson(Map<String, dynamic> json) {
+    final rawPayload = Map<String, dynamic>.from(json);
     final seriesRaw = json['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
@@ -334,7 +339,7 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
         (json['series_title'] ?? series?.seriesTitle) as String?;
 
     final rawEditions = (json['editions'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map(
                 (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
@@ -358,6 +363,7 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
     ];
 
     return MangaMetadata(
+      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       nativeTitle: json['native_title'] as String?,
       romajiTitle: json['romaji_title'] as String?,

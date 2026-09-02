@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -161,15 +160,6 @@ LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {
       id: item.id,
       mediaKind: mediaKind,
     ),
-    common: LibraryCommonMetadata(
-      title: item.title,
-      synopsis: item.synopsis,
-      coverImageUrl: primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
-      thumbnailImageUrl:
-          primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
-      releaseDate: releaseDate,
-      releaseYear: releaseDate?.year ?? item.series?.volumeStartYear,
-    ),
     kindMetadata: LibraryKindMetadataDecoders.decode(
       mediaKind,
       {
@@ -178,6 +168,10 @@ LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {
         'title': item.title,
         'item_number': item.itemNumber,
         'synopsis': item.synopsis,
+        'cover_image_url':
+          primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
+        'thumbnail_image_url':
+          primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
         'publisher': primaryEdition?.publisher ?? item.publisher,
         'edition_title': primaryEdition?.title,
         'physical_format': primaryEdition?.physicalFormat,

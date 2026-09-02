@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -12,6 +11,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class VideoLibraryMediaPresentationBuilder
@@ -27,8 +27,6 @@ class VideoLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -94,20 +92,20 @@ class VideoLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
-            label: mediaFields.numberLabel,
+          label: 'Edition no.',
             value: genericLibraryDash(itemNumber),
             onTap: tapFor(itemNumber)),
         LibraryDetailField(
-            label: releaseFields.variantLabel,
+          label: 'Format / Edition',
             value: genericLibraryDash(variant),
             onTap: tapFor(variant)),
         LibraryDetailField(
-            label: releaseFields.barcodeLabel,
+          label: 'UPC / Barcode',
             value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-            label: mediaFields.publisherLabel,
+          label: 'Studio',
             value: genericLibraryDash(publisher),
             onTap: tapFor(publisher)),
         LibraryDetailField(
@@ -191,7 +189,10 @@ class VideoLibraryMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionRuntime item) {
-    return canOpenVideoShelfDrilldown(null, item);
+    final kind = item.source.catalogItem?.kind.trim().toLowerCase();
+    return item.node.scope == LibraryBrowserScope.title &&
+        kind != null &&
+        const {'movie', 'tv', 'anime'}.contains(kind);
   }
 
   @override

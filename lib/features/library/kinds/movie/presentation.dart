@@ -1,7 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +17,14 @@ const moviesLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
 );
 
 const moviesPreviewLabels = LibraryMediaPreviewLabels(
-  values: {'series': 'Series', 'item_count': 'Items'},
+  values: {
+    'series': 'Series',
+    'item_count': 'Items',
+    'item_number': 'Edition no.',
+    'publisher': 'Studio',
+    'variant': 'Format / Edition',
+    'barcode': 'UPC / Barcode',
+  },
 );
 
 const moviesStatsLabels = LibraryMediaStatsLabels(
@@ -125,12 +130,10 @@ final moviesLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: moviesLibraryGroupLabels,
   builder: moviesLibraryMediaBuilder,
-  projector: const MovieWorkspaceProjector(),
   bucketLabelBuilder: moviesLibraryBucketLabelBuilder,
   compactBucketIcon: Icons.movie_filter_outlined,
   emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
   previewLabels: moviesPreviewLabels,
   statsLabels: moviesStatsLabels,
   filterDefinitions: moviesLibraryFilterDefinitions,
-  fieldDefinitions: movieLibraryFieldDefinitions,
 );

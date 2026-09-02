@@ -9,7 +9,7 @@ class LibraryPageSearchController {
     required this.ref,
     required this.searchStateKey,
     required this.searchController,
-    required this.supportsTrackSearch,
+    required this.searchTargetOptions,
     required this.clearActiveSmartLists,
     required this.syncRouteState,
   });
@@ -17,7 +17,7 @@ class LibraryPageSearchController {
   final WidgetRef ref;
   final String searchStateKey;
   final TextEditingController searchController;
-  final bool supportsTrackSearch;
+  final List<LibrarySearchTarget> searchTargetOptions;
   final VoidCallback clearActiveSmartLists;
   final VoidCallback syncRouteState;
 
@@ -62,7 +62,7 @@ class LibraryPageSearchController {
 
   void onSearchTargetChanged(LibrarySearchTarget target) {
     final searchState = state;
-    if (!supportsTrackSearch || searchState.target == target) {
+    if (!searchTargetOptions.contains(target) || searchState.target == target) {
       return;
     }
     searchState.setTarget(target);

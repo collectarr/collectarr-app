@@ -32,6 +32,7 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
     this.valuations,
     this.creators = const [],
     this.links = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   @override
@@ -64,8 +65,10 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   final GameValuationSet? valuations;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
+    final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
+      ...rawPayload,
         'title': title,
         if (platform != null) 'platform': platform,
         if (platforms.isNotEmpty) 'platforms': platforms,
@@ -135,6 +138,7 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   }) {
     return GameCatalogMetadata(
       title: title ?? this.title,
+      rawPayload: rawPayload,
       platform: platform ?? this.platform,
       platforms: platforms ?? this.platforms,
       toySubtype: toySubtype ?? this.toySubtype,
@@ -162,6 +166,7 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   }
 
   factory GameCatalogMetadata.fromJson(Map<String, dynamic> json) {
+    final rawPayload = Map<String, dynamic>.from(json);
     final gameMap = (json['game'] is Map)
         ? Map<String, dynamic>.from(json['game'] as Map)
         : json;
@@ -193,6 +198,7 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
     ];
 
     return GameCatalogMetadata(
+      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       platform: json['platform'] as String? ?? rawPlatforms.firstOrNull,
       platforms: rawPlatforms,

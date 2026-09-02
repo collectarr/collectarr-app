@@ -1,15 +1,14 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_section_registry.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit_presentation_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('detail sections follow the shared registry order', () {
-    final registry = LibraryDetailSectionRegistry.instance;
-    final sections = registry.orderSections([
+    final sections = orderLibraryDetailSections([
       const LibraryDetailSectionSpec(
-        slot: LibraryDetailSectionSlot.activityHistory,
+        slot: LibraryDetailSectionSlot.activity,
         title: 'History',
       ),
       const LibraryDetailSectionSpec(
@@ -17,11 +16,11 @@ void main() {
         title: 'Identity',
       ),
       const LibraryDetailSectionSpec(
-        slot: LibraryDetailSectionSlot.imagesMedia,
+        slot: LibraryDetailSectionSlot.media,
         title: 'Images',
       ),
       const LibraryDetailSectionSpec(
-        slot: LibraryDetailSectionSlot.people,
+        slot: LibraryDetailSectionSlot.relations,
         title: 'People',
       ),
     ]);
@@ -30,9 +29,9 @@ void main() {
       sections.map((section) => section.slot).toList(),
       [
         LibraryDetailSectionSlot.identity,
-        LibraryDetailSectionSlot.people,
-        LibraryDetailSectionSlot.imagesMedia,
-        LibraryDetailSectionSlot.activityHistory,
+        LibraryDetailSectionSlot.relations,
+        LibraryDetailSectionSlot.media,
+        LibraryDetailSectionSlot.activity,
       ],
     );
   });

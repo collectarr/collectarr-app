@@ -1,13 +1,16 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 const tvPreviewLabels = LibraryMediaPreviewLabels(
-  values: {'series': 'Series', 'item_count': 'Episodes'},
+  values: {
+    'item_count': 'Episodes',
+    'publisher': 'Studio',
+    'variant': 'Format / Edition',
+    'barcode': 'UPC / Barcode',
+  },
 );
 
 const tvStatsLabels = LibraryMediaStatsLabels(
@@ -113,13 +116,10 @@ final tvLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: tvLibraryGroupLabels,
   builder: const TvLibraryMediaPresentationBuilder(),
-  projector: const TvWorkspaceProjector(),
   bucketLabelBuilder: tvLibraryBucketLabelBuilder,
-  showsGroupProgress: true,
   compactBucketIcon: Icons.tv_outlined,
   emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
   previewLabels: tvPreviewLabels,
   statsLabels: tvStatsLabels,
   filterDefinitions: tvLibraryFilterDefinitions,
-  fieldDefinitions: tvLibraryFieldDefinitions,
 );

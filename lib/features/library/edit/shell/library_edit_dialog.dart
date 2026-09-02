@@ -151,7 +151,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           itemImages: widget.itemImages,
         );
 
-    final initialLinks = widget.item.trailerUrls;
+    final initialLinks = widget.type.presentation.builder.buildLinks(
+      item: widget.item,
+    );
     _links = [
       for (final link in initialLinks)
         _LinkEntry(
@@ -250,13 +252,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final firstCreator = widget.item.common.creatorsSummary;
-    final yearSuffix =
-        widget.item.releaseYear != null ? ' (${widget.item.releaseYear})' : '';
-    final title = widget.item.displayTitle ??
-        (firstCreator != null && firstCreator.isNotEmpty
-            ? '${widget.item.title} / $firstCreator'
-            : '${widget.item.title}$yearSuffix');
+    final title = widget.item.displayTitle ?? widget.item.title;
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,
@@ -507,7 +503,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   ),
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Currency'),
-                    value:
+                    initialValue:
                         _draft.personal.wishlistCurrencyController.text.isEmpty
                             ? 'USD'
                             : _draft.personal.wishlistCurrencyController.text,

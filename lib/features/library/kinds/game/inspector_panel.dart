@@ -61,13 +61,13 @@ class GameInspectorPanel extends StatelessWidget {
         ..._buildGameSectionSpecs(context, request.inspector),
         if (request.primarySections.isNotEmpty)
           LibraryDetailSectionSpec(
-            slot: LibraryDetailSectionSlot.formatEditionRelease,
+            slot: LibraryDetailSectionSlot.metadata,
             title: 'Primary',
             children: request.primarySections,
           ),
         if (request.trailingSections.isNotEmpty)
           LibraryDetailSectionSpec(
-            slot: LibraryDetailSectionSlot.activityHistory,
+            slot: LibraryDetailSectionSlot.activity,
             title: 'More',
             children: request.trailingSections,
           ),
@@ -95,7 +95,7 @@ List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
     ),
     if (creditRows.isNotEmpty)
       LibraryDetailSectionSpec(
-        slot: LibraryDetailSectionSlot.people,
+        slot: LibraryDetailSectionSlot.relations,
         title: 'Credits',
         children: [
           _GameInspectorFactRows(rows: creditRows),

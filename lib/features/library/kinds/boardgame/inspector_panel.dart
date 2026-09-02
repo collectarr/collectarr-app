@@ -55,7 +55,7 @@ class BoardGameInspectorPanel extends StatelessWidget {
           ],
         ),
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.people,
+          slot: LibraryDetailSectionSlot.relations,
           title: 'Play stats',
           children: [
             BoardGamePlayStatsSection(request: request.inspector),
@@ -63,7 +63,7 @@ class BoardGameInspectorPanel extends StatelessWidget {
         ),
         if (request.trailingSections.isNotEmpty)
           LibraryDetailSectionSpec(
-            slot: LibraryDetailSectionSlot.activityHistory,
+            slot: LibraryDetailSectionSlot.activity,
             title: 'More',
             children: request.trailingSections,
           ),

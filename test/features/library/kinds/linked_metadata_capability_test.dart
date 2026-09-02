@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.da
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,7 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('kind runtime projects linked metadata from typed catalog values', () {
     const metadata = ComicCatalogMetadata(
-      title: 'Typed Comic',
+      title: 'Common Title',
+      searchAliases: ['Alias'],
       seriesTitle: 'Typed Series',
       issueNumber: '7',
       publisher: 'Typed Publisher',
@@ -62,7 +62,7 @@ void main() {
         )
         .toList();
 
-    expect(candidates, containsAll(['Common Title', 'Alias']));
+    expect(candidates, isEmpty);
     expect(candidates, isNot(contains('Typed Publisher')));
   });
 
@@ -134,10 +134,6 @@ ShelfEntry _shelfEntry(
     itemId: 'item-1',
     catalogItem: LibraryMetadataItem(
       identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
-      common: const LibraryCommonMetadata(
-        title: 'Common Title',
-        searchAliases: ['Alias'],
-      ),
       kindMetadata: metadata,
     ),
   );

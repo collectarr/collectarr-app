@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
@@ -232,6 +231,7 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
     this.creators = const [],
     this.links = const [],
     this.editions = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   @override
@@ -279,8 +279,10 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
   final List<CatalogEditionDto> editions;
+    final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
+      ...rawPayload,
         'title': title,
         if (originalTitle != null) 'original_title': originalTitle,
         if (synopsis != null) 'synopsis': synopsis,
@@ -384,6 +386,7 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
   }) {
     return TvSeriesMetadata(
       title: title ?? this.title,
+      rawPayload: rawPayload,
       originalTitle: originalTitle ?? this.originalTitle,
       synopsis: synopsis ?? this.synopsis,
       firstAirDate: firstAirDate ?? this.firstAirDate,
@@ -427,6 +430,7 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
   }
 
   factory TvSeriesMetadata.fromJson(Map<String, dynamic> json) {
+    final rawPayload = Map<String, dynamic>.from(json);
     final videoRaw = json['video'] is Map
         ? Map<String, dynamic>.from(json['video'] as Map)
         : const <String, dynamic>{};
@@ -436,18 +440,18 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
         : null;
 
     final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList() ??
         const <Map<String, dynamic>>[];
 
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
       ...((json['external_links'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
     ];
@@ -460,6 +464,7 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
         (json['series_title'] ?? series?.seriesTitle) as String?;
 
     return TvSeriesMetadata(
+      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       originalTitle: json['original_title'] as String?,
       synopsis: (json['synopsis'] ?? json['overview']) as String?,
@@ -532,7 +537,7 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
       creators: rawCreators,
       links: rawLinks,
       editions: (json['editions'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) =>
                   CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??

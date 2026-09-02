@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -174,10 +175,13 @@ void main() {
       expect(envelope.normalized['publisher'], 'Harvest');
       expect(envelope.normalized['track_count'], 3);
       expect(envelope.normalized['tracks'], hasLength(3));
-      expect(envelope.normalized['tracks'][0]['title'], 'Speak to Me');
-      expect(envelope.normalized['tracks'][0]['duration_seconds'], 67);
+        expect(jsonObjectList(envelope.normalized['tracks'])[0]['title'],
+          'Speak to Me');
+        expect(jsonObjectList(envelope.normalized['tracks'])[0]['duration_seconds'],
+          67);
       expect(envelope.normalized['creators'], hasLength(1));
-      expect(envelope.normalized['creators'].first['name'], 'Pink Floyd');
+        expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+          'Pink Floyd');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -237,12 +241,12 @@ void main() {
       expect(
           normalized['track_count'], goldenEnvelope.normalized['track_count']);
       expect(normalized['tracks'], goldenEnvelope.normalized['tracks']);
-      expect(normalized['provider_ids']['musicbrainz'],
-          goldenEnvelope.normalized['provider_ids']['musicbrainz']);
-      expect(normalized['creators'].first['name'],
-          goldenEnvelope.normalized['creators'].first['name']);
-      expect(normalized['creators'].first['role'],
-          goldenEnvelope.normalized['creators'].first['role']);
+      expect(jsonObject(normalized['provider_ids'])['musicbrainz'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['musicbrainz']);
+        expect(jsonObjectList(normalized['creators']).first['name'],
+          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+        expect(jsonObjectList(normalized['creators']).first['role'],
+          jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
     });
   });
 }

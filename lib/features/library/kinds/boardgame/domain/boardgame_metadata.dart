@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
@@ -43,6 +42,7 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
     this.variant,
     this.creators = const [],
     this.links = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   @override
@@ -86,8 +86,10 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
   final String? variant;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
+    final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
+      ...rawPayload,
         'title': title,
         if (originalTitle != null) 'original_title': originalTitle,
         if (synopsis != null) 'synopsis': synopsis,
@@ -182,6 +184,7 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
   }) {
     return BoardGameCatalogMetadata(
       title: title ?? this.title,
+      rawPayload: rawPayload,
       originalTitle: originalTitle ?? this.originalTitle,
       synopsis: synopsis ?? this.synopsis,
       yearPublished: yearPublished ?? this.yearPublished,
@@ -228,23 +231,24 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
         (json['series_title'] ?? series?.seriesTitle) as String?;
 
     final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList() ??
         const <Map<String, dynamic>>[];
 
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
       ...((json['external_links'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
     ];
 
     return BoardGameMetadata(
+      rawPayload: Map<String, dynamic>.from(json),
       title: (json['title'] as String?) ?? '',
       originalTitle: json['original_title'] as String?,
       synopsis: (json['synopsis'] ?? json['description']) as String?,

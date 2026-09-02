@@ -98,6 +98,21 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'rawOrSlabbed',
     'gradingCompany',
     'graderNotes',
+    'showsOwnedGradingSection',
+    'showsComicCollectorFields',
+    'showsGameCompletenessFields',
+    'showsOwnedCoverPriceField',
+    'keyToggleLabel',
+    'keyReasonLabel',
+    'seriesHierarchy',
+    'episodesVolumesTracks',
+    'supportsTrackSearch',
+    'defaultVideoDisplayLevel',
+    'defaultVideoGrouping',
+    'videoSeriesEntryTypes',
+    'videoShelfDrilldownEntryTypes',
+    'creatorsSummary',
+    'physicalFormatLabel',
   };
 
   @override
@@ -165,11 +180,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         .startsWith('lib/features/library/kinds/registry/')) {
       return;
     }
-    if (importedRelativePath
-        .startsWith('lib/features/library/kinds/_shared/')) {
-      return;
-    }
-
     if (isBoundaryFile) {
       violations.add(
         '$relativePath:$lineNumber: Forbidden import of kind-specific module ($uriString) from generic boundary code',

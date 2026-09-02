@@ -6,12 +6,14 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 
 import '../../../helpers/test_constants.dart';
+import '../../../helpers/json_test_helpers.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
@@ -166,10 +168,10 @@ void main() {
       edited: edited,
     );
 
-    final creators = merged.payload['creators'] as List?;
+    final creators = jsonObjectList(merged.payload['creators']);
     expect(creators, isNotNull);
     expect(creators, isNotEmpty);
-    expect(creators!.first['name'], 'J.R.R. Tolkien');
+    expect(creators.first['name'], 'J.R.R. Tolkien');
     expect(creators.first['role'], 'Author');
     expect(creators.first['image_url'], 'https://cdn.example/tolkien.jpg');
     expect(merged.payload['genres'], contains('Fantasy'));
@@ -752,7 +754,7 @@ void main() {
           kind: 'comic',
           publisher: 'DC',
           issueNumber: '423',
-          series: const CatalogSeriesDetailsDto(
+          series: CatalogSeriesDetailsDto(
             seriesTitle: 'Detective Comics',
             volumeStartYear: 1988,
           ),
@@ -764,7 +766,7 @@ void main() {
           kind: 'comic',
           publisher: 'DC',
           issueNumber: '423',
-          series: const CatalogSeriesDetailsDto(
+          series: CatalogSeriesDetailsDto(
             seriesTitle: 'Batman',
             volumeStartYear: 1988,
           ),
@@ -2062,8 +2064,13 @@ void main() {
 
     final rows = await db.select(db.catalogCache).get();
     expect(rows, isNotEmpty);
-    expect(rows.single.trackCount, 2);
-    expect(rows.single.tracksJson, contains('One More Time'));
+    final cached = await CatalogCacheRepository(db).findById(rows.single.id);
+    final music = MusicCatalogDetailsDto.fromJson(
+      Map<String, dynamic>.from(cached!.payload['music'] as Map),
+    );
+    expect(music.trackCount, 2);
+    expect(music.tracks, hasLength(2));
+    expect(music.tracks.map((track) => track.title), contains('One More Time'));
   });
 
   testWidgets('add dialog can toggle Core and Provider result visibility',
@@ -2481,9 +2488,9 @@ class _FakeLibraryAddApiClient extends ApiClient {
           kind: 'book',
           title: 'The Hobbit',
           series:
-              const CatalogSeriesDetailsDto(seriesTitle: 'Middle-earth Tales'),
+              CatalogSeriesDetailsDto(seriesTitle: 'Middle-earth Tales'),
           publisher: 'Allen & Unwin',
-          publishing: const CatalogPublishingDetailsDto(pageCount: 310),
+          publishing: CatalogPublishingDetailsDto(pageCount: 310),
           providerLinks: [
             AdminProviderLink(
               provider: 'openlibrary',

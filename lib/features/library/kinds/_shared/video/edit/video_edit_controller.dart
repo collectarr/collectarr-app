@@ -10,8 +10,8 @@ import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/domain/video_episode.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -86,12 +86,15 @@ class VideoEditController {
         );
 
   static String _resolveInitialRuntime(dynamic meta) {
-    if (meta is MovieCatalogMetadata)
+    if (meta is MovieCatalogMetadata) {
       return meta.runtimeMinutes?.toString() ?? '';
-    if (meta is TvSeriesMetadata)
+    }
+    if (meta is TvSeriesMetadata) {
       return meta.episodeRuntimeMinutes?.toString() ?? '';
-    if (meta is AnimeMetadata)
+    }
+    if (meta is AnimeMetadata) {
       return meta.episodeRuntimeMinutes?.toString() ?? '';
+    }
     return '';
   }
 
@@ -126,11 +129,13 @@ class VideoEditController {
 
   static String _resolveInitialEditionTitle(LibraryMetadataItem item) {
     final meta = item.kindMetadata;
-    if (meta is MovieCatalogMetadata)
-      return meta.editionTitle ?? item.titleExtension ?? '';
-    if (meta is AnimeMetadata)
-      return meta.editionTitle ?? item.titleExtension ?? '';
-    return item.titleExtension ?? '';
+    if (meta is MovieCatalogMetadata) {
+      return meta.editionTitle ?? libraryKindTitleExtension(item) ?? '';
+    }
+    if (meta is AnimeMetadata) {
+      return meta.editionTitle ?? libraryKindTitleExtension(item) ?? '';
+    }
+    return libraryKindTitleExtension(item) ?? '';
   }
 
   static String _resolveInitialVariant(dynamic meta) {
@@ -148,12 +153,15 @@ class VideoEditController {
   }
 
   static String _resolveInitialPhysicalFormatLabel(dynamic meta) {
-    if (meta is MovieCatalogMetadata)
+    if (meta is MovieCatalogMetadata) {
       return meta.physicalFormatLabel ?? meta.variant ?? '';
-    if (meta is TvSeriesMetadata)
+    }
+    if (meta is TvSeriesMetadata) {
       return meta.physicalFormatLabel ?? meta.variant ?? '';
-    if (meta is AnimeMetadata)
+    }
+    if (meta is AnimeMetadata) {
       return meta.physicalFormatLabel ?? meta.variant ?? '';
+    }
     return '';
   }
 
@@ -165,8 +173,9 @@ class VideoEditController {
   }
 
   static String _resolveInitialPublisher(dynamic meta) {
-    if (meta is MovieCatalogMetadata)
+    if (meta is MovieCatalogMetadata) {
       return meta.publisher ?? meta.studio ?? '';
+    }
     if (meta is TvSeriesMetadata) return meta.publisher ?? meta.network ?? '';
     if (meta is AnimeMetadata) return meta.publisher ?? '';
     return '';
@@ -180,8 +189,9 @@ class VideoEditController {
   }
 
   static String _resolveInitialLanguage(dynamic meta) {
-    if (meta is MovieCatalogMetadata)
+    if (meta is MovieCatalogMetadata) {
       return meta.language ?? meta.originalLanguage ?? '';
+    }
     if (meta is TvSeriesMetadata) return meta.originalLanguage;
     if (meta is AnimeMetadata) return meta.language;
     return '';
@@ -193,21 +203,27 @@ class VideoEditController {
         ? meta.releaseDate
         : (meta is TvSeriesMetadata
             ? meta.firstAirDate
-            : (meta is AnimeMetadata ? meta.startDate : item.releaseDate));
+            : (meta is AnimeMetadata
+              ? meta.startDate
+              : libraryKindReleaseDate(item)));
     return date == null ? '' : formatDate(date);
   }
 
   static String _resolveInitialReleaseYear(LibraryMetadataItem item) {
     final meta = item.kindMetadata;
-    if (meta is MovieCatalogMetadata && meta.releaseDate != null)
+    if (meta is MovieCatalogMetadata && meta.releaseDate != null) {
       return meta.releaseDate!.year.toString();
-    if (meta is TvSeriesMetadata && meta.firstAirDate != null)
+    }
+    if (meta is TvSeriesMetadata && meta.firstAirDate != null) {
       return meta.firstAirDate!.year.toString();
-    if (meta is AnimeMetadata && meta.seasonYear != null)
+    }
+    if (meta is AnimeMetadata && meta.seasonYear != null) {
       return meta.seasonYear!.toString();
-    if (meta is AnimeMetadata && meta.startDate != null)
+    }
+    if (meta is AnimeMetadata && meta.startDate != null) {
       return meta.startDate!.year.toString();
-    return item.releaseYear?.toString() ?? '';
+    }
+    return libraryKindReleaseYear(item)?.toString() ?? '';
   }
 
   final WidgetRef? ref;
@@ -286,7 +302,12 @@ class VideoEditController {
     }
     final db = ref!.read(localDatabaseProvider);
     final repo = UserExternalLinksCacheRepository(db);
-    final trailerPayload = item.trailerUrls;
+    final trailerPayload = switch (item.kindMetadata) {
+      MovieCatalogMetadata metadata => metadata.links,
+      TvSeriesMetadata metadata => metadata.links,
+      AnimeMetadata metadata => metadata.links,
+      _ => const <TrailerLink>[],
+    };
     final links = [
       ...await repo.listByItemId(item.id),
       for (final link in trailerPayload.where((link) => !link.isAutomatic))

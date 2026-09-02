@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
@@ -18,9 +17,6 @@ void main() {
       identity: const LibraryItemIdentity(
         id: 'comic-draft-1',
         mediaKind: CatalogMediaKind.comic,
-      ),
-      common: const LibraryCommonMetadata(
-        title: 'Spider-Man #1',
       ),
       kindMetadata: const ComicCatalogMetadata(
         title: 'Spider-Man #1',
@@ -67,9 +63,6 @@ void main() {
       identity: const LibraryItemIdentity(
         id: 'comic-draft-2',
         mediaKind: CatalogMediaKind.comic,
-      ),
-      common: const LibraryCommonMetadata(
-        title: 'X-Men #1',
       ),
       kindMetadata: const ComicCatalogMetadata(
         title: 'X-Men #1',

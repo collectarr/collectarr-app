@@ -103,7 +103,6 @@ class GameLibraryCombinedEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const GameLibraryCombinedEditPresentationBuilder()
       : super(
-          showsGameCompletenessFields: true,
           ownedTabs: _gameCombinedTabs,
           trackedTabs: _gameCombinedTabs,
           catalogTabs: _gameCombinedTabs,
@@ -115,7 +114,6 @@ class GameLibraryMediaEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const GameLibraryMediaEditPresentationBuilder()
       : super(
-          showsGameCompletenessFields: true,
           ownedTabs: _gameMediaTabs,
           trackedTabs: _gameMediaTabs,
           catalogTabs: _gameMediaTabs,
@@ -127,7 +125,6 @@ class GameLibraryReleaseEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const GameLibraryReleaseEditPresentationBuilder()
       : super(
-          showsGameCompletenessFields: true,
           ownedTabs: _gameReleaseTabs,
           trackedTabs: _gameReleaseTabs,
           catalogTabs: _gameReleaseTabs,

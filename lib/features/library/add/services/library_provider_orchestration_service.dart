@@ -2,9 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -33,12 +31,6 @@ class LibraryProviderOrchestrationService {
       identity: LibraryItemIdentity(
         id: id,
         mediaKind: mediaKind,
-      ),
-      common: LibraryCommonMetadata(
-        title: candidate.title,
-        synopsis: candidate.summary,
-        coverImageUrl: candidate.imageUrl,
-        thumbnailImageUrl: candidate.imageUrl,
       ),
       kindMetadata: LibraryKindMetadataDecoders.decode(mediaKind, {
         'id': id,

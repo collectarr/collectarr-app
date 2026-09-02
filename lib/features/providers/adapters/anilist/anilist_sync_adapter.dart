@@ -35,6 +35,7 @@ query {
     }
   }
 }
+
 ''';
 
     final headers = <String, String>{
@@ -56,12 +57,22 @@ query {
         : (response.data is String
             ? jsonDecode(response.data as String) as Map<String, dynamic>?
             : null);
-    final viewer = data?['data']?['Viewer'] as Map?;
+    final dataPayload = data?['data'];
+    final dataMap = dataPayload is Map
+      ? Map<String, dynamic>.from(dataPayload)
+      : null;
+    final viewerPayload = dataMap?['Viewer'];
+    final viewer = viewerPayload is Map
+      ? Map<String, dynamic>.from(viewerPayload)
+      : null;
     if (viewer == null) return null;
 
-    final id = viewer['id']?.toString() ?? '';
-    final name = viewer['name']?.toString() ?? 'AniList User';
-    final avatar = (viewer['avatar'] as Map?)?['large']?.toString();
+    final id = _textValue(viewer['id']) ?? '';
+    final name = _textValue(viewer['name']) ?? 'AniList User';
+    final avatarPayload = viewer['avatar'];
+    final avatar = avatarPayload is Map
+      ? _textValue(Map<String, dynamic>.from(avatarPayload)['large'])
+      : null;
 
     return ProviderAccount(
       id: 'anilist-$id',
@@ -126,6 +137,7 @@ query ($userName: String, $type: MediaType) {
     }
   }
 }
+
 ''';
 
     final effectiveUsername =
@@ -161,24 +173,43 @@ query ($userName: String, $type: MediaType) {
             : (response.data is Map
                 ? Map<String, dynamic>.from(response.data as Map)
                 : null));
-    final collection = data?['data']?['MediaListCollection'] as Map?;
-    final lists = collection?['lists'] as List? ?? const [];
+    final dataPayload = data?['data'];
+    final dataMap = dataPayload is Map
+      ? Map<String, dynamic>.from(dataPayload)
+      : null;
+    final collectionPayload = dataMap?['MediaListCollection'];
+    final collection = collectionPayload is Map
+      ? Map<String, dynamic>.from(collectionPayload)
+      : null;
+    final lists = collection?['lists'] is List
+      ? collection!['lists'] as List<dynamic>
+      : const <dynamic>[];
 
     final result = <ProviderPersonalEntry>[];
     for (final list in lists) {
       if (list is! Map) continue;
-      final entries = list['entries'] as List? ?? const [];
+      final entries = list['entries'] is List
+          ? list['entries'] as List<dynamic>
+          : const <dynamic>[];
       for (final raw in entries) {
         if (raw is! Map) continue;
-        final listEntryId = raw['id']?.toString();
-        final media = raw['media'] as Map? ?? const {};
-        final mediaId = (raw['mediaId'] ?? media['id'])?.toString() ?? '';
-        final mediaType = media['type']?.toString();
+        final rawMap = Map<String, dynamic>.from(raw);
+        final listEntryId = _textValue(rawMap['id']);
+        final mediaPayload = rawMap['media'];
+        final media = mediaPayload is Map
+            ? Map<String, dynamic>.from(mediaPayload)
+            : const <String, dynamic>{};
+        final mediaId =
+            _textValue(rawMap['mediaId'] ?? media['id']) ?? '';
+        final mediaType = _textValue(media['type']);
         final entryKind = mediaType == 'MANGA'
             ? CatalogMediaKind.manga
             : CatalogMediaKind.anime;
 
-        final titleMap = media['title'] as Map? ?? const {};
+        final titlePayload = media['title'];
+        final titleMap = titlePayload is Map
+          ? Map<String, dynamic>.from(titlePayload)
+          : const <String, dynamic>{};
         final title =
             (titleMap['romaji'] ?? titleMap['english'] ?? titleMap['native'])
                 ?.toString();
@@ -356,4 +387,13 @@ mutation ($id: Int) {
       },
     );
   }
+}
+
+String? _textValue(Object? value) {
+  return switch (value) {
+    String text => text,
+    num number => number.toString(),
+    bool flag => flag.toString(),
+    _ => null,
+  };
 }

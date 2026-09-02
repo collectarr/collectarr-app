@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -163,8 +164,10 @@ void main() {
       expect(envelope.normalized['synopsis'],
           contains('In this new DC Absolute universe'));
       expect(envelope.normalized['creators'], hasLength(2));
-      expect(envelope.normalized['creators'][0]['name'], 'Scott Snyder');
-      expect(envelope.normalized['creators'][0]['role'], 'Writer');
+        expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
+          'Scott Snyder');
+        expect(jsonObjectList(envelope.normalized['creators'])[0]['role'],
+          'Writer');
       expect(envelope.normalized['variant_covers'], hasLength(1));
       expect(envelope.images, hasLength(2));
       expect(envelope.attribution.required, isTrue);
@@ -228,16 +231,16 @@ void main() {
           goldenEnvelope.normalized['volume_start_year']);
       expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
       expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['provider_ids']['comicvine'],
-          goldenEnvelope.normalized['provider_ids']['comicvine']);
-      expect(normalized['creators'][0]['name'],
-          goldenEnvelope.normalized['creators'][0]['name']);
-      expect(normalized['creators'][0]['role'],
-          goldenEnvelope.normalized['creators'][0]['role']);
-      expect(normalized['variant_covers'][0]['name'],
-          goldenEnvelope.normalized['variant_covers'][0]['name']);
-      expect(normalized['variant_covers'][0]['cover_image_url'],
-          goldenEnvelope.normalized['variant_covers'][0]['cover_image_url']);
+        expect(jsonObject(normalized['provider_ids'])['comicvine'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['comicvine']);
+        expect(jsonObjectList(normalized['creators'])[0]['name'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+        expect(jsonObjectList(normalized['creators'])[0]['role'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
+        expect(jsonObjectList(normalized['variant_covers'])[0]['name'],
+          jsonObjectList(goldenEnvelope.normalized['variant_covers'])[0]['name']);
+        expect(jsonObjectList(normalized['variant_covers'])[0]['cover_image_url'],
+          jsonObjectList(goldenEnvelope.normalized['variant_covers'])[0]['cover_image_url']);
     });
   });
 }

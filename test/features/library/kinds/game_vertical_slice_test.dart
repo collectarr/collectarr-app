@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -130,9 +129,6 @@ void main() {
           identity: const LibraryItemIdentity(
             id: 'game_1',
             mediaKind: CatalogMediaKind.game,
-          ),
-          common: const LibraryCommonMetadata(
-            title: 'Super Mario 64',
           ),
           kindMetadata: gameMeta,
         ),
@@ -300,8 +296,6 @@ void main() {
             id: 'game_zelda_oot',
             mediaKind: CatalogMediaKind.game,
           ),
-          common: const LibraryCommonMetadata(
-              title: 'The Legend of Zelda: Ocarina of Time'),
           kindMetadata: GameCatalogMetadata.fromJson(json),
         ),
       );

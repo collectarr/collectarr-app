@@ -80,7 +80,6 @@ class _ComicInspectorTab {
 
 List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
   final item = request.item;
-  final dto = item.dto;
   final rawCatalog = item.source.catalogItem;
   final ComicCatalogItem? catalogItem = rawCatalog is ComicCatalogItem
       ? rawCatalog as ComicCatalogItem

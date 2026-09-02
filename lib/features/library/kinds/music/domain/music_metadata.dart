@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
@@ -166,6 +165,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.variant,
     this.country,
     this.language,
+    this.rawPayload = const <String, dynamic>{},
   });
 
   @override
@@ -201,8 +201,10 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? variant;
   final String? country;
   final String? language;
+    final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
+      ...rawPayload,
         'title': title,
         if (artist != null) ...{
           'artist': artist,
@@ -288,6 +290,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
   }) {
     return MusicCatalogMetadata(
       title: title ?? this.title,
+      rawPayload: rawPayload,
       artist: artist ?? this.artist,
       originalReleaseDate: originalReleaseDate ?? this.originalReleaseDate,
       recordingDate: recordingDate ?? this.recordingDate,
@@ -318,19 +321,20 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
   }
 
   factory MusicCatalogMetadata.fromJson(Map<String, dynamic> json) {
+    final rawPayload = Map<String, dynamic>.from(json);
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
       ...((json['external_links'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
     ];
 
     final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList(growable: false) ??
         const <Map<String, dynamic>>[];
@@ -389,7 +393,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
                     : CatalogPublishingDetailsDto.fromJson(json)));
 
     final rawTracks = ((json['tracks'] ?? musicMap['tracks']) as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
             .toList(growable: false) ??
         const <CatalogTrackDto>[];
@@ -399,6 +403,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
         series?.seriesTitle) as String?;
 
     return MusicCatalogMetadata(
+      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       artist: resolvedArtist,
       originalReleaseDate: json['original_release_date'] != null

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
@@ -29,7 +31,11 @@ void main() {
           CatalogCacheCompanion.insert(
             id: 'comic-1',
             kind: 'comic',
-            title: 'Action Comics #1',
+            payloadJson: jsonEncode({
+              'id': 'comic-1',
+              'kind': 'comic',
+              'title': 'Action Comics #1',
+            }),
             cachedAt: DateTime.utc(2026, 5, 1),
           ),
         );
@@ -85,7 +91,11 @@ void main() {
           CatalogCacheCompanion.insert(
             id: 'comic-2',
             kind: 'comic',
-            title: 'Detective Comics #27',
+            payloadJson: jsonEncode({
+              'id': 'comic-2',
+              'kind': 'comic',
+              'title': 'Detective Comics #27',
+            }),
             cachedAt: DateTime.utc(2026, 5, 1),
           ),
         );

@@ -5,11 +5,10 @@ part of '../generic_library_page.dart';
 extension _PageKindHooks on GenericLibraryPageState {
   LibraryWorkspaceViewProfile get _viewProfile => widget.type.viewProfile;
 
-  bool get _supportsTrackSearch => widget.type.presentation.supportsTrackSearch;
-
-  LibrarySearchTarget get _effectiveSearchTarget => _supportsTrackSearch
-      ? _searchControllerOps.state.target
-      : LibrarySearchTarget.all;
+    LibrarySearchTarget get _effectiveSearchTarget =>
+      widget.type.searchTargetOptions.isEmpty
+        ? LibrarySearchTarget.all
+        : _searchControllerOps.state.target;
 
   LibraryViewPreferenceStore get _viewPrefs =>
       LibraryViewPreferenceStore(widget.type.kind);
@@ -19,7 +18,8 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   bool showsReadingQueue() {
-    return widget.type.hierarchy.showsReadingQueue;
+    return widget.type.toolbarActionAvailability
+        .allows(LibraryToolbarActionId.readingQueue);
   }
 
   bool get _isScopedMediaReleaseSplit {

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -339,10 +340,10 @@ class _LibraryDetailToolbar extends StatelessWidget {
                       LibraryDenseMenuEntry<String>(
                         value: ownedCopies[index].id,
                         label: ownedCopies[index].id == selectedOwnedItemId
-                            ? 'Viewing ${buildOwnedCopyLabel(ownedCopies[index], item.source.catalogItem?.editions ?? const [], index)}'
+                            ? 'Viewing ${buildOwnedCopyLabel(ownedCopies[index], _releaseEditions(type, item), index)}'
                             : buildOwnedCopyLabel(
                                 ownedCopies[index],
-                                item.source.catalogItem?.editions ?? const [],
+                              _releaseEditions(type, item),
                                 index,
                               ),
                         icon: ownedCopies[index].id == selectedOwnedItemId
@@ -417,4 +418,17 @@ class _LibraryDetailToolbar extends StatelessWidget {
       ),
     );
   }
+}
+
+List<CatalogEditionDto> _releaseEditions(
+  LibraryKindRuntime type,
+  LibraryProjectionRuntime item,
+) {
+  final catalogItem = item.source.catalogItem;
+  if (catalogItem == null) {
+    return const [];
+  }
+  return type.presentation
+      .builder
+      .buildReleaseEditions(item: catalogItem);
 }

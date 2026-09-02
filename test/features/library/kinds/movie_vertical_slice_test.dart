@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fiel
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -86,9 +85,6 @@ void main() {
           identity: const LibraryItemIdentity(
             id: 'movie_1',
             mediaKind: CatalogMediaKind.movie,
-          ),
-          common: const LibraryCommonMetadata(
-            title: 'Oppenheimer',
           ),
           kindMetadata: movieMeta,
         ),
@@ -226,7 +222,6 @@ void main() {
             id: 'movie_inception',
             mediaKind: CatalogMediaKind.movie,
           ),
-          common: const LibraryCommonMetadata(title: 'Inception'),
           kindMetadata: MovieCatalogMetadata.fromJson(json),
         ),
       );

@@ -40,7 +40,7 @@ bool canOpenVideoShelfDrilldown(
   if (kind == null) return false;
   final runtime =
       type ?? libraryKindRuntimeForKind(catalogMediaKindFromApiValue(kind));
-  return runtime.hierarchy.videoShelfDrilldownEntryTypes.contains(kind);
+  return runtime.presentation.builder.canOpenKindDrilldown(item);
 }
 
 List<VideoShelfReleaseDrilldownItem> buildVideoShelfReleaseItems({

@@ -1,4 +1,5 @@
 import 'library_add_pane_dependencies.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 
 class LibraryAddPaneResizeDivider extends StatelessWidget {
   const LibraryAddPaneResizeDivider({super.key, this.onDragDelta});
@@ -169,8 +170,6 @@ class LibraryAddPreviewPane extends ConsumerWidget {
       context: context,
       accent: accent,
       singularLabel: type.identity.singularLabel,
-      mediaFields: type.edit.mediaFields,
-      releaseFields: type.edit.releaseFields,
       previewLabels: type.presentation.previewLabels,
       item: selectedItem,
       candidate: selectedCandidate,
@@ -753,7 +752,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final editions = item.editions;
+    final editions = libraryKindEditions(item);
     final editionAvailable = editions.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
@@ -1082,7 +1081,7 @@ CatalogEdition? previewEditionForItem(
   LibraryMetadataItem item,
   String? editionId,
 ) {
-  final editions = item.editions;
+  final editions = libraryKindEditions(item);
   final normalizedEditionId = editionId?.trim();
   if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
     for (final edition in editions) {
@@ -1112,7 +1111,7 @@ CatalogVariant? selectedVariantForEdition(
 }
 
 CatalogEdition? _previewPrimaryEditionForItem(LibraryMetadataItem item) {
-  final editions = item.editions;
+  final editions = libraryKindEditions(item);
   if (editions.isEmpty) {
     return null;
   }
@@ -1137,7 +1136,9 @@ CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
 }
 
 Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
-  final editions = item?.editions ?? const <CatalogEdition>[];
+  final editions = item == null
+      ? const <CatalogEdition>[]
+      : libraryKindEditions(item);
   if (editions.isEmpty) return const SizedBox.shrink();
   final seen = <String>{};
   final badges = <Widget>[];
@@ -1162,8 +1163,6 @@ List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
   LibraryKindRuntime type,
 ) {
-  final media = type.edit.mediaFields;
-  final release = type.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   return [
     if (candidate.series?.seriesTitle != null)
@@ -1172,13 +1171,16 @@ List<(String, String?)> _metadataRowsForCandidate(
         candidate.series!.seriesTitle
       ),
     if (candidate.issueNumber != null)
-      (media.numberLabel, candidate.issueNumber),
+      (previewLabels.labelFor('item_number', fallback: 'Number'),
+          candidate.issueNumber),
     if (candidate.publisher != null)
-      (media.publisherLabel, candidate.publisher),
+      (previewLabels.labelFor('publisher', fallback: 'Publisher'),
+          candidate.publisher),
     if (candidate.series?.volumeStartYear != null)
       ('Year', candidate.series!.volumeStartYear.toString()),
     if (candidate.variantName != null)
-      (release.variantLabel, candidate.variantName),
+      (previewLabels.labelFor('variant', fallback: 'Variant'),
+          candidate.variantName),
     if (candidate.issueCount != null)
       (
         previewLabels.labelFor('item_count', fallback: 'Items'),
@@ -1187,64 +1189,10 @@ List<(String, String?)> _metadataRowsForCandidate(
   ];
 }
 
-List<(String, String)> _editionDropdownEntries(LibraryMetadataItem item) {
-  final editions = item.editions;
-  if (editions.isEmpty) {
-    return const [];
-  }
-  return [
-    for (final edition in editions)
-      if (edition.id.isNotEmpty && edition.title.isNotEmpty)
-        (edition.id, edition.title),
-  ];
-}
-
-List<(String, String)> _variantDropdownEntries(
-  LibraryMetadataItem item,
-  String? editionId,
-) {
-  final editions = item.editions;
-  if (editions.isEmpty) {
-    return const [];
-  }
-  final selectedEdition = editionId == null || editionId.isEmpty
-      ? editions.first
-      : editions.firstWhere(
-          (e) => e.id == editionId,
-          orElse: () => editions.first,
-        );
-  return [
-    for (final variant in selectedEdition.variants)
-      if (variant.id.isNotEmpty)
-        (
-          variant.id,
-          variant.name.isNotEmpty ? variant.name : variant.id,
-        ),
-  ];
-}
-
-CatalogEditionDto? _findMatchingEdition(
-  LibraryMetadataItem? item,
-  String? editionId,
-) {
-  if (item == null || editionId == null || editionId.isEmpty) {
-    return null;
-  }
-  final editions = item.editions;
-  for (final edition in editions) {
-    if (edition.id == editionId) {
-      return edition;
-    }
-  }
-  return null;
-}
-
 List<(String, String?)> _metadataRowsForItem(
   LibraryMetadataItem item,
   LibraryKindRuntime type,
 ) {
-  final media = type.edit.mediaFields;
-  final release = type.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final payload = item.kindMetadata.toSyncPayload();
   final seriesMap = payload['series'] as Map?;
@@ -1274,18 +1222,20 @@ List<(String, String?)> _metadataRowsForItem(
   return [
     if (seriesTitle != null)
       (previewLabels.labelFor('series', fallback: 'Series'), seriesTitle),
-    (media.publisherLabel, publisher),
+    (previewLabels.labelFor('publisher', fallback: 'Publisher'), publisher),
     (
       'Released',
-      item.releaseDate != null
-          ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
-          : item.releaseYear?.toString()
+        libraryKindReleaseDate(item) != null
+          ? '${libraryKindReleaseDate(item)!.year}-${libraryKindReleaseDate(item)!.month.toString().padLeft(2, '0')}-${libraryKindReleaseDate(item)!.day.toString().padLeft(2, '0')}'
+          : libraryKindReleaseYear(item)?.toString()
     ),
     if (runtimeMinutes != null) ('Runtime', '$runtimeMinutes min'),
-    if (itemNumber != null) (media.numberLabel, itemNumber),
+    if (itemNumber != null)
+      (previewLabels.labelFor('item_number', fallback: 'Number'), itemNumber),
     if (displayEditionLabel != null)
-      (release.variantLabel, displayEditionLabel),
-    (release.barcodeLabel, barcode),
+      (previewLabels.labelFor('variant', fallback: 'Variant'),
+          displayEditionLabel),
+    (previewLabels.labelFor('barcode', fallback: 'Barcode'), barcode),
     if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
       ('Catalog No.', musicCatalogNo),
     if (gamePlatforms != null && gamePlatforms.isNotEmpty)
@@ -1341,8 +1291,6 @@ List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
   LibraryKindRuntime type,
 ) {
-  final media = type.edit.mediaFields;
-  final release = type.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final series = preview.series;
   final publishing = preview.publishing;
@@ -1368,21 +1316,28 @@ List<(String, String?)> _metadataRowsForFullPreview(
         previewLabels.labelFor('series', fallback: 'Series'),
         series!.seriesTitle
       ),
-    if (preview.publisher != null) (media.publisherLabel, preview.publisher),
+    if (preview.publisher != null)
+      (previewLabels.labelFor('publisher', fallback: 'Publisher'),
+          preview.publisher),
     if (publishingImprint != null && publishingImprint.isNotEmpty)
       ('Imprint', publishingImprint),
     if (releaseDateStr != null) ('Released', releaseDateStr),
     if (series?.volumeStartYear != null)
       ('Year', series!.volumeStartYear.toString()),
-    if (preview.itemNumber != null) (media.numberLabel, preview.itemNumber),
-    if (preview.barcode != null) (release.barcodeLabel, preview.barcode),
+    if (preview.itemNumber != null)
+      (previewLabels.labelFor('item_number', fallback: 'Number'),
+          preview.itemNumber),
+    if (preview.barcode != null)
+      (previewLabels.labelFor('barcode', fallback: 'Barcode'),
+          preview.barcode),
     if (preview.isbn != null) ('ISBN', preview.isbn),
     if (preview.country != null) ('Country', preview.country),
     if (preview.language != null) ('Language', preview.language),
     if (preview.physicalFormatLabel != null)
       ('Format', preview.physicalFormatLabel),
     if (preview.variantName != null)
-      (release.variantLabel, preview.variantName),
+      (previewLabels.labelFor('variant', fallback: 'Variant'),
+          preview.variantName),
     if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
       ('Catalog No.', musicCatalogNo),
     if (gamePlatforms != null && gamePlatforms.isNotEmpty)

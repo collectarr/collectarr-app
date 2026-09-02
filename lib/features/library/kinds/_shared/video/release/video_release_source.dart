@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 
 const _videoReleaseSourceKey = 'release_source';
 const _videoReleaseAnchorKindKey = 'release_anchor_kind';
@@ -35,7 +36,7 @@ List<CatalogEdition> resolveVideoCatalogEditionsForCatalogItem(
   final editionsPayload = payload['editions'] as List?;
   final rawEditions = editionsPayload != null
       ? editionsPayload
-          .whereType<Map>()
+          .whereType<Map<String, dynamic>>()
           .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
           .toList()
       : const <CatalogEdition>[];
@@ -50,8 +51,8 @@ List<CatalogEdition> resolveVideoCatalogEditionsForCatalogItem(
       editionTitle: payload['edition_title'] as String?,
       publisher: (payload['publisher'] as String?) ??
           ((payload['publishing'] as Map?)?['original_publisher'] as String?),
-      releaseDate: item.releaseDate,
-      releaseYear: item.releaseYear,
+      releaseDate: libraryKindReleaseDate(item),
+      releaseYear: libraryKindReleaseYear(item),
       physicalFormat: payload['physical_format'] as String?,
       physicalFormatLabel: payload['physical_format_label'] as String?,
       variant: payload['variant'] as String?,

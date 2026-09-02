@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
@@ -311,10 +312,14 @@ class LibraryToolbar extends StatelessWidget {
     final targetAccent = type.identity.accent;
     final effectiveScanCover =
         type.add.chrome.canScanCover ? onScanCover : null;
-    final effectiveReadingQueue =
-        type.hierarchy.showsReadingQueue ? onReadingQueue : null;
-    final effectiveReassignIndex =
-        type.hierarchy.supportsIndexReassignment ? onReassignIndex : null;
+    final effectiveReadingQueue = type.toolbarActionAvailability
+        .allows(LibraryToolbarActionId.readingQueue)
+      ? onReadingQueue
+      : null;
+    final effectiveReassignIndex = type.toolbarActionAvailability
+        .allows(LibraryToolbarActionId.reassignIndex)
+      ? onReassignIndex
+      : null;
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: targetAccent),
       duration: kAppAnimNormal,

@@ -64,7 +64,7 @@ class CollectionXml {
             });
           } else if (item != null) {
             builder.element('Catalog', nest: () {
-              final payload = item.payload;
+              final payload = item.kindMetadata.toSyncPayload();
               final pubMap = payload['publishing'] as Map?;
               final seriesMap = payload['series'] as Map?;
               _textElement(builder, 'Kind', item.kind);
@@ -97,13 +97,15 @@ class CollectionXml {
                   seriesMap?['series_title'] as String?);
               _textElement(
                   builder, 'VolumeName', seriesMap?['volume_name'] as String?);
-              if (item.releaseDate != null) {
+                final releaseDate = _parseDate(payload['release_date']);
+                if (releaseDate != null) {
                 _textElement(builder, 'ReleaseDate',
-                    item.releaseDate!.toIso8601String().split('T').first);
+                  releaseDate.toIso8601String().split('T').first);
               }
-              if (item.releaseYear != null) {
+                final releaseYear = payload['release_year'];
+                if (releaseYear != null) {
                 _textElement(
-                    builder, 'ReleaseYear', item.releaseYear.toString());
+                  builder, 'ReleaseYear', releaseYear.toString());
               }
               if (pubMap?['page_count'] != null) {
                 _textElement(
@@ -196,4 +198,12 @@ class CollectionXml {
     if (value == null || value.isEmpty) return;
     builder.element(name, nest: value);
   }
+}
+
+DateTime? _parseDate(Object? value) {
+  if (value is DateTime) {
+    return value;
+  }
+  final raw = value?.toString().trim();
+  return raw == null || raw.isEmpty ? null : DateTime.tryParse(raw);
 }

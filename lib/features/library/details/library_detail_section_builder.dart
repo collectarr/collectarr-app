@@ -38,7 +38,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
     ),
     if (ownedItem != null || trackingEntry != null)
       LibraryDetailSectionSpec(
-        slot: LibraryDetailSectionSlot.personalStatus,
+        slot: LibraryDetailSectionSlot.personal,
         title: 'Personal status',
         children: [
           LibraryDetailPersonalSection(
@@ -59,7 +59,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
         ],
       ),
     LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.progressOwnership,
+      slot: LibraryDetailSectionSlot.progress,
       title: 'Ownership / release',
       children: [
         if (activeBundleReleaseId != null)
@@ -75,7 +75,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       ],
     ),
     LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.formatEditionRelease,
+      slot: LibraryDetailSectionSlot.metadata,
       title: 'Release details',
       children: [
         LibraryDetailContextSection(
@@ -87,7 +87,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       ],
     ),
     LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.people,
+      slot: LibraryDetailSectionSlot.relations,
       title: 'People',
       children: [
         LibraryDetailCreditsSection(
@@ -99,11 +99,15 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       ],
     ),
     LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.seriesLinks,
+      slot: LibraryDetailSectionSlot.links,
       title: 'Series links',
       children: [
         LibraryDetailTrailersSection(
-          trailerUrls: item.source.catalogItem?.trailerUrls ?? const [],
+          trailerUrls: item.source.catalogItem == null
+              ? const []
+              : type.presentation.builder.buildLinks(
+                  item: item.source.catalogItem!,
+                ),
           accent: accent,
         ),
       ],

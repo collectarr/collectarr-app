@@ -2,28 +2,28 @@ import 'package:flutter/material.dart';
 
 enum LibraryDetailSectionSlot {
   identity,
-  personalStatus,
-  progressOwnership,
-  formatEditionRelease,
-  people,
-  seriesLinks,
-  imagesMedia,
-  notesCustomFields,
-  sourceCorrections,
-  activityHistory,
+  personal,
+  progress,
+  metadata,
+  relations,
+  links,
+  media,
+  notes,
+  source,
+  activity,
 }
 
 const List<LibraryDetailSectionSlot> libraryDetailSectionOrder = [
   LibraryDetailSectionSlot.identity,
-  LibraryDetailSectionSlot.personalStatus,
-  LibraryDetailSectionSlot.progressOwnership,
-  LibraryDetailSectionSlot.formatEditionRelease,
-  LibraryDetailSectionSlot.people,
-  LibraryDetailSectionSlot.seriesLinks,
-  LibraryDetailSectionSlot.imagesMedia,
-  LibraryDetailSectionSlot.notesCustomFields,
-  LibraryDetailSectionSlot.sourceCorrections,
-  LibraryDetailSectionSlot.activityHistory,
+  LibraryDetailSectionSlot.personal,
+  LibraryDetailSectionSlot.progress,
+  LibraryDetailSectionSlot.metadata,
+  LibraryDetailSectionSlot.relations,
+  LibraryDetailSectionSlot.links,
+  LibraryDetailSectionSlot.media,
+  LibraryDetailSectionSlot.notes,
+  LibraryDetailSectionSlot.source,
+  LibraryDetailSectionSlot.activity,
 ];
 
 class LibraryDetailField {

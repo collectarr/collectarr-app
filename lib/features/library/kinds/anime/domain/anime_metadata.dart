@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
@@ -172,6 +171,7 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
     this.editions = const [],
     this.creators = const [],
     this.links = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   @override
@@ -214,8 +214,10 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
   final List<CatalogEditionDto> editions;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
+    final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
+      ...rawPayload,
         'title': title,
         if (nativeTitle != null) 'native_title': nativeTitle,
         if (romajiTitle != null) 'romaji_title': romajiTitle,
@@ -307,6 +309,7 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
   }) {
     return AnimeMetadata(
       title: title ?? this.title,
+      rawPayload: rawPayload,
       nativeTitle: nativeTitle ?? this.nativeTitle,
       romajiTitle: romajiTitle ?? this.romajiTitle,
       englishTitle: englishTitle ?? this.englishTitle,
@@ -345,6 +348,7 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
   }
 
   factory AnimeMetadata.fromJson(Map<String, dynamic> json) {
+    final rawPayload = Map<String, dynamic>.from(json);
     final seriesRaw = json['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
@@ -353,30 +357,31 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
         (json['series_title'] ?? series?.seriesTitle) as String?;
 
     final rawEditions = (json['editions'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map(
                 (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         const <CatalogEditionDto>[];
 
     final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList() ??
         const <Map<String, dynamic>>[];
 
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
       ...((json['external_links'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
     ];
 
     return AnimeMetadata(
+      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       nativeTitle: json['native_title'] as String?,
       romajiTitle: json['romaji_title'] as String?,

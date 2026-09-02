@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -26,8 +28,12 @@ void main() {
           CatalogCacheCompanion.insert(
             id: 'comic-1',
             kind: 'comic',
-            title: 'Superman, Vol. 4',
-            itemNumber: const Value('8A'),
+            payloadJson: jsonEncode({
+              'id': 'comic-1',
+              'kind': 'comic',
+              'title': 'Superman, Vol. 4',
+              'item_number': '8A',
+            }),
             cachedAt: DateTime.utc(2026, 5, 11),
           ),
         );
@@ -123,8 +129,12 @@ void main() {
           CatalogCacheCompanion.insert(
             id: 'comic-1',
             kind: 'comic',
-            title: 'Superman, Vol. 4',
-            itemNumber: const Value('8A'),
+            payloadJson: jsonEncode({
+              'id': 'comic-1',
+              'kind': 'comic',
+              'title': 'Superman, Vol. 4',
+              'item_number': '8A',
+            }),
             cachedAt: DateTime.utc(2026, 5, 11),
           ),
         );

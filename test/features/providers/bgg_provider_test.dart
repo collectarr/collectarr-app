@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -145,8 +146,10 @@ void main() {
       expect(envelope.normalized['genres'],
           containsAll(['Adventure', 'Fantasy', 'Miniatures']));
       expect(envelope.normalized['creators'], hasLength(1));
-      expect(envelope.normalized['creators'][0]['name'], 'Isaac Childres');
-      expect(envelope.normalized['creators'][0]['role'], 'Designer');
+        expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
+          'Isaac Childres');
+        expect(jsonObjectList(envelope.normalized['creators'])[0]['role'],
+          'Designer');
       expect(envelope.images, hasLength(1));
       expect(envelope.images[0].url,
           'https://cf.geekdo-images.com/gloomhaven.jpg');
@@ -214,12 +217,12 @@ void main() {
       expect(normalized['playing_time_minutes'],
           goldenEnvelope.normalized['playing_time_minutes']);
       expect(normalized['genres'], goldenEnvelope.normalized['genres']);
-      expect(normalized['provider_ids']['bgg'],
-          goldenEnvelope.normalized['provider_ids']['bgg']);
-      expect(normalized['creators'][0]['name'],
-          goldenEnvelope.normalized['creators'][0]['name']);
-      expect(normalized['creators'][0]['role'],
-          goldenEnvelope.normalized['creators'][0]['role']);
+        expect(jsonObject(normalized['provider_ids'])['bgg'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['bgg']);
+        expect(jsonObjectList(normalized['creators'])[0]['name'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+        expect(jsonObjectList(normalized['creators'])[0]['role'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
     });
   });
 }

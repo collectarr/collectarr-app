@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class LibraryAddDefaults {
@@ -205,7 +205,7 @@ _ResolvedAddReference _resolveReferenceForItem(
               : editionSelection?.variantId?.trim(),
         );
       }
-      final editions = item.editions;
+      final editions = libraryKindEditions(item);
       if (editions.isEmpty) {
         return const _ResolvedAddReference();
       }

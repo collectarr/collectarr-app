@@ -1,7 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
@@ -22,7 +20,15 @@ const musicLibraryMediaBuilder = MusicLibraryMediaPresentationBuilder(
 );
 
 const musicPreviewLabels = LibraryMediaPreviewLabels(
-  values: {'series': 'Artist', 'item_count': 'Releases'},
+  values: {
+    'series': 'Artist',
+    'item_count': 'Releases',
+    'item_number': 'Disc / Volume',
+    'publisher': 'Label',
+    'variant': 'Format / Edition',
+    'barcode': 'Barcode / Catalog no.',
+    'export_title': 'Release',
+  },
 );
 
 const musicStatsLabels = LibraryMediaStatsLabels(
@@ -37,6 +43,7 @@ const musicLibraryGroupLabels = LibraryMediaGroupLabels(
     'publisher': 'Label',
     'publisher_plural': 'Labels',
     'unknown_publisher': 'Unknown label',
+    'export_title': 'Release',
   },
 );
 
@@ -126,13 +133,10 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: musicLibraryGroupLabels,
   builder: musicLibraryMediaBuilder,
-  projector: const MusicWorkspaceProjector(),
   bucketLabelBuilder: musicLibraryBucketLabelBuilder,
-  supportsTrackSearch: true,
   compactBucketIcon: Icons.person_2_outlined,
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,
   filterDefinitions: musicLibraryFilterDefinitions,
   referenceLabels: const LibraryReferenceLabels(values: {'item': 'Album'}),
-  fieldDefinitions: musicLibraryFieldDefinitions,
 );

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
 import 'library_add_pane_dependencies.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'library_add_search_unified.dart';
 
 class LibraryAddSearchPane extends StatelessWidget {
@@ -572,7 +573,8 @@ class _SearchResultsGrid extends StatelessWidget {
             : null;
         final subtitle = isCore
             ? [
-                if (item.releaseYear != null) item.releaseYear.toString(),
+                if (libraryKindReleaseYear(item) != null)
+                  libraryKindReleaseYear(item).toString(),
                 if (corePublisher != null) corePublisher,
               ].whereType<String>().join(' · ')
             : [
@@ -954,7 +956,8 @@ class SearchResultTile extends StatelessWidget {
     final subtitle = resultDisplay?.secondaryLine ??
         [
           if (publisher != null) publisher,
-          if (item.releaseYear != null) item.releaseYear.toString(),
+          if (libraryKindReleaseYear(item) != null)
+            libraryKindReleaseYear(item).toString(),
           if (physicalFormatLabel != null) physicalFormatLabel,
           if (barcode != null) barcode,
         ].whereType<String>().join(' | ');

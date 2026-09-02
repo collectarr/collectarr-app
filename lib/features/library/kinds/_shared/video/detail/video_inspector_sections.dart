@@ -120,8 +120,6 @@ LibraryMetadataPresentation _metadataPresentationForEntry(
 ) {
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.identity.singularLabel,
-    mediaFields: type.edit.mediaFields,
-    releaseFields: type.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

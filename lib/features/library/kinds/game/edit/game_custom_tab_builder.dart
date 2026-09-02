@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
 import 'game_edit_draft.dart';
 
 Widget? buildGameCustomTabView({
@@ -29,7 +29,7 @@ Widget? buildGameCustomTabView({
             children: [
               LibraryReleaseIdentityFields(
                 editionTitleController: TextEditingController(
-                  text: item.titleExtension ?? '',
+                  text: libraryKindTitleExtension(item) ?? '',
                 ),
                 variantController: TextEditingController(),
                 barcodeController: TextEditingController(),
@@ -98,12 +98,12 @@ Widget? buildGameCustomTabView({
               LibraryEditTextField(
                 controller: gameDraft?.gameEdit.publisherController ??
                     TextEditingController(),
-                label: gameKindModule.edit.mediaFields.publisherLabel,
+                label: 'Publisher / Studio',
               ),
               LibraryEditTextField(
                 controller: gameDraft?.gameEdit.releaseDateController ??
                     TextEditingController(),
-                label: gameKindModule.edit.mediaFields.releaseDateLabel,
+                label: 'Release date',
               ),
             ]),
             if (gameDraft != null) ...[

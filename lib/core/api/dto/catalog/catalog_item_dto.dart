@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -100,17 +99,33 @@ class MusicCatalogDetails {
 
 @immutable
 final class CatalogItemDto {
-  const CatalogItemDto.raw({
+  factory CatalogItemDto.raw({
+    required String id,
+    required CatalogMediaKind mediaKind,
+    required CatalogCommonDto common,
+    Map<String, dynamic> payload = const <String, dynamic>{},
+  }) {
+    return CatalogItemDto._raw(
+      id: id,
+      mediaKind: mediaKind,
+      payload: {
+        ...common.toJson(),
+        ...payload,
+      },
+    );
+  }
+
+  const CatalogItemDto._raw({
     required this.id,
     required this.mediaKind,
-    required this.common,
-    this.payload = const <String, dynamic>{},
+    required this.payload,
   });
 
   final String id;
   final CatalogMediaKind mediaKind;
-  final CatalogCommonDto common;
   final Map<String, dynamic> payload;
+
+  CatalogCommonDto get common => CatalogCommonDto.fromJson(payload);
 
   String get kind => mediaKind.apiValue;
 
@@ -239,24 +254,7 @@ final class CatalogItemDto {
         id: id,
         mediaKind: mediaKind,
       ),
-      common: LibraryCommonMetadata(
-        title: title,
-        displayTitle: displayTitle,
-        localizedTitle: localizedTitle,
-        originalTitle: originalTitle,
-        titleExtension: titleExtension,
-        searchAliases: searchAliases,
-        sortKey: sortKey,
-        synopsis: synopsis,
-        coverImageUrl: coverImageUrl,
-        thumbnailImageUrl: thumbnailImageUrl,
-        coverImageData: coverImageData,
-        releaseDate: releaseDate,
-        releaseYear: releaseYear,
-        editions: editions,
-        trailerUrls: trailerUrls,
-      ),
-      kindMetadata: LibraryKindMetadataDecoders.decode(mediaKind, payload),
+      kindMetadata: LibraryKindMetadataDecoders.decode(mediaKind, toSyncPayload()),
     );
   }
 }

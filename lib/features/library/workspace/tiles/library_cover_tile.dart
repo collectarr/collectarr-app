@@ -197,7 +197,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                       child: LibraryInteractiveCover(
                         title: dto.title,
                         itemNumber: (dto is WorkspaceDtoAdapter
-                            ? (dto as WorkspaceDtoAdapter).itemNumber
+                            ? (dto).itemNumber
                             : null),
                         imageUrl: dto.coverImageUrl,
                         ownedItemId: item.source.ownedItem?.id,

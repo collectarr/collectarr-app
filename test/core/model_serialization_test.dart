@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/vide
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../helpers/json_test_helpers.dart';
 
 void main() {
   test('media catalog parses provider defaults and physical formats', () {
@@ -147,7 +148,7 @@ void main() {
     expect(MusicCatalogMapper.mapDtoToMusic(item), isA<MusicCatalogItem>());
     expect(item.payload['catalog_number'], 'DISC-2001');
     expect(item.payload['track_count'], 2);
-    final tracks = item.payload['tracks'] as List;
+    final tracks = jsonObjectList(item.payload['tracks']);
     expect(tracks, hasLength(2));
     expect(tracks.first['title'], 'One More Time');
     expect(item.payload['platforms'], ['CD', 'Digital']);

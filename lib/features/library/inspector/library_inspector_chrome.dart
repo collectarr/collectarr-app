@@ -35,7 +35,7 @@ class InspectorBackdrop extends StatelessWidget {
           child: LibraryCoverImage(
             title: dto.title,
             itemNumber: (dto is WorkspaceDtoAdapter
-                ? (dto as WorkspaceDtoAdapter).itemNumber
+                ? (dto).itemNumber
                 : null),
             imageUrl: dto.coverImageUrl,
             ownedItemId: ownedItemId,

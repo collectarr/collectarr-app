@@ -25,14 +25,14 @@ void main() {
       'ref': {'kind': 'music', 'entity_type': 'work', 'id': 'music-1'},
       'kind': 'music',
       'common': {'title': 'Album'},
-      'payload': {'tracks': []},
+      'payload': {'tracks': <dynamic>[]},
     });
 
     expect(envelope.toJson(), {
       'ref': {'kind': 'music', 'entity_type': 'work', 'id': 'music-1'},
       'kind': 'music',
       'common': {'title': 'Album'},
-      'payload': {'tracks': []},
+      'payload': {'tracks': <dynamic>[]},
     });
   });
 

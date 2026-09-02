@@ -1,12 +1,17 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const booksPreviewLabels = LibraryMediaPreviewLabels(
-  values: {'series': 'Series', 'item_count': 'Volumes'},
+  values: {
+    'series': 'Series',
+    'item_count': 'Volumes',
+    'item_number': 'Volume',
+    'publisher': 'Publisher',
+    'variant': 'Edition / Binding',
+    'barcode': 'ISBN / Barcode',
+  },
 );
 
 const booksMetadataLabels = LibraryMetadataLabels(
@@ -114,9 +119,7 @@ final bookLibraryMediaPresentation = LibraryMediaPresentation(
     showVolumeHierarchy: true,
     metadataLabels: booksMetadataLabels,
   ),
-  projector: const BookWorkspaceProjector(),
   bucketLabelBuilder: bookLibraryBucketLabelBuilder,
   previewLabels: booksPreviewLabels,
   filterDefinitions: bookLibraryFilterDefinitions,
-  fieldDefinitions: bookLibraryFieldDefinitions,
 );

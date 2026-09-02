@@ -1,7 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
@@ -14,7 +12,14 @@ const gamesLibraryMediaBuilder = GameLibraryMediaPresentationBuilder(
 );
 
 const gamesPreviewLabels = LibraryMediaPreviewLabels(
-  values: {'series': 'Series', 'item_count': 'Items'},
+  values: {
+    'series': 'Series',
+    'item_count': 'Items',
+    'item_number': 'Version',
+    'publisher': 'Publisher / Studio',
+    'variant': 'Platform / Edition',
+    'barcode': 'UPC / Barcode',
+  },
 );
 
 const gamesStatsLabels = LibraryMediaStatsLabels(
@@ -121,10 +126,8 @@ final gamesLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: gamesLibraryGroupLabels,
   builder: gamesLibraryMediaBuilder,
-  projector: const GameWorkspaceProjector(),
   bucketLabelBuilder: gamesLibraryBucketLabelBuilder,
   previewLabels: gamesPreviewLabels,
   statsLabels: gamesStatsLabels,
   filterDefinitions: gamesLibraryFilterDefinitions,
-  fieldDefinitions: gameLibraryFieldDefinitions,
 );

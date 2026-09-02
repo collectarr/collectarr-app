@@ -1,30 +1,23 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 LibraryMetadataItem mergeProviderAddResult({
   required LibraryMetadataItem ingested,
   required LibraryMetadataItem edited,
 }) {
-  return LibraryMetadataItem(
-    identity: ingested.identity,
-    common: LibraryCommonMetadata(
-      title: edited.title,
-      displayTitle: edited.displayTitle ?? ingested.displayTitle,
-      localizedTitle: edited.localizedTitle ?? ingested.localizedTitle,
-      originalTitle: edited.originalTitle ?? ingested.originalTitle,
-      titleExtension: edited.titleExtension ?? ingested.titleExtension,
-      searchAliases: edited.searchAliases ?? ingested.searchAliases,
-      sortKey: edited.sortKey ?? ingested.sortKey,
-      synopsis: edited.synopsis ?? ingested.synopsis,
-      coverImageUrl: edited.coverImageUrl ?? ingested.coverImageUrl,
-      thumbnailImageUrl: edited.thumbnailImageUrl ?? ingested.thumbnailImageUrl,
-      coverImageData: edited.coverImageData ?? ingested.coverImageData,
-      releaseDate: edited.releaseDate ?? ingested.releaseDate,
-      releaseYear: edited.releaseYear ?? ingested.releaseYear,
-    ),
+  return ingested.copyWith(
+    title: edited.title,
+    displayTitle: edited.displayTitle ?? ingested.displayTitle,
+    localizedTitle: edited.localizedTitle ?? ingested.localizedTitle,
+    originalTitle: edited.originalTitle ?? ingested.originalTitle,
+    searchAliases: edited.searchAliases ?? ingested.searchAliases,
+    sortKey: edited.sortKey ?? ingested.sortKey,
+    synopsis: edited.synopsis ?? ingested.synopsis,
+    coverImageUrl: edited.coverImageUrl ?? ingested.coverImageUrl,
+    thumbnailImageUrl: edited.thumbnailImageUrl ?? ingested.thumbnailImageUrl,
+    coverImageData: edited.coverImageData ?? ingested.coverImageData,
     kindMetadata: edited.kindMetadata,
   );
 }
@@ -36,11 +29,9 @@ LibraryMetadataItem mergeResolvedProviderAddItem({
   return fullItem.displayCoverUrl != null
       ? fullItem
       : fullItem.copyWith(
-          common: fullItem.common.copyWith(
-            coverImageUrl: fallback.coverImageUrl,
-            thumbnailImageUrl:
-                fallback.thumbnailImageUrl ?? fallback.coverImageUrl,
-          ),
+          coverImageUrl: fallback.coverImageUrl,
+          thumbnailImageUrl:
+              fallback.thumbnailImageUrl ?? fallback.coverImageUrl,
         );
 }
 
@@ -86,8 +77,9 @@ Future<void> applyProviderIngestCorrections({
         ? payload['page_count'] as int?
         : null,
     publisher: corrections['publisher'] as String?,
-    releaseDate:
-        corrections.containsKey('release_date') ? edited.releaseDate : null,
+    releaseDate: corrections.containsKey('release_date')
+      ? _dateFromPayload(payload['release_date'])
+      : null,
     runtimeMinutes: corrections.containsKey('runtime_minutes')
         ? payload['runtime_minutes'] as int?
         : null,
@@ -147,4 +139,12 @@ Future<void> applyProviderIngestCorrections({
     thumbnailImageUrl: corrections['thumbnail_image_url'] as String?,
     explicitFields: corrections.keys.toSet(),
   );
+}
+
+DateTime? _dateFromPayload(Object? value) {
+  if (value is DateTime) {
+    return value;
+  }
+  final raw = value?.toString().trim();
+  return raw == null || raw.isEmpty ? null : DateTime.tryParse(raw);
 }

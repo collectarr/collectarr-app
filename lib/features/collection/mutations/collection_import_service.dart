@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_cach
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:uuid/uuid.dart';
 
@@ -300,9 +300,9 @@ final class CollectionImportService {
   }) {
     if (existing is LibraryMetadataItem) return existing;
     if (existing is CatalogItem) {
-      return LibraryMetadataItem.fromCatalogItem(existing);
+      return LibraryMetadataTransportCodec.fromCatalogItem(existing);
     }
-    return LibraryMetadataItem.fromMetadataMap({
+    return LibraryMetadataTransportCodec.fromMetadataMap({
       'id': row.itemId,
       'kind': row.kind ?? CatalogMediaKind.unknown.apiValue,
       'title': row.title ?? row.itemId,

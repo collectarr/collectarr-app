@@ -29,7 +29,7 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   }
 
   final windowClass = AppWindowClass.of(context);
-  final widgetBuilder = (BuildContext ctx) => requestLoader == null
+  Widget widgetBuilder(BuildContext ctx) => requestLoader == null
       ? builder(ctx, request)
       : _DeferredLibraryEditDialog(
           initialRequest: request,

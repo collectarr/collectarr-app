@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -170,10 +171,13 @@ void main() {
       expect(envelope.normalized['genres'],
           containsAll(['Action', 'Adventure', 'Dark Fantasy']));
       expect(envelope.normalized['creators'], hasLength(1));
-      expect(envelope.normalized['creators'].first['name'], 'Kentarou Miura');
-      expect(envelope.normalized['creators'].first['role'], 'Story & Art');
-      expect(envelope.normalized['provider_ids']['anilist'], '30002');
-      expect(envelope.normalized['provider_ids']['mal'], '2');
+        expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+          'Kentarou Miura');
+        expect(jsonObjectList(envelope.normalized['creators']).first['role'],
+          'Story & Art');
+          expect(
+            jsonObject(envelope.normalized['provider_ids'])['anilist'], '30002');
+          expect(jsonObject(envelope.normalized['provider_ids'])['mal'], '2');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -225,14 +229,14 @@ void main() {
       expect(normalized['genres'], goldenEnvelope.normalized['genres']);
       expect(normalized['cover_image_url'],
           goldenEnvelope.normalized['cover_image_url']);
-      expect(normalized['provider_ids']['anilist'],
-          goldenEnvelope.normalized['provider_ids']['anilist']);
-      expect(normalized['provider_ids']['mal'],
-          goldenEnvelope.normalized['provider_ids']['mal']);
-      expect(normalized['creators'].first['name'],
-          goldenEnvelope.normalized['creators'].first['name']);
-      expect(normalized['creators'].first['role'],
-          goldenEnvelope.normalized['creators'].first['role']);
+        expect(jsonObject(normalized['provider_ids'])['anilist'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['anilist']);
+        expect(jsonObject(normalized['provider_ids'])['mal'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['mal']);
+        expect(jsonObjectList(normalized['creators']).first['name'],
+          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+        expect(jsonObjectList(normalized['creators']).first['role'],
+          jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
     });
   });
 }

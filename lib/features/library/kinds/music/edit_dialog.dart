@@ -23,7 +23,7 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
@@ -251,8 +251,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _catalogNumberController = TextEditingController(
         text: (musicMap?['catalog_number'] as String?) ?? '');
     final initialRelDate = metadata.originalReleaseDate ??
-        metadata.releases.firstOrNull?.releaseDate ??
-        widget.request.item.releaseDate;
+      metadata.releases.firstOrNull?.releaseDate;
     _releaseDateController = TextEditingController(
       text: initialRelDate == null ? '' : formatDate(initialRelDate),
     );
@@ -267,9 +266,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           : formatDate(metadata.recordingDate!),
     );
     _releaseYearController = TextEditingController(
-      text: initialRelDate?.year.toString() ??
-          widget.request.item.releaseYear?.toString() ??
-          '',
+      text: initialRelDate?.year.toString() ?? '',
     );
     _releaseStatusController = TextEditingController(
         text: (musicMap?['release_status'] as String?) ?? '');
@@ -681,7 +678,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         ),
     ];
     final rawDiscs = (metadata.music?['discs'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList() ??
         const <Map<String, dynamic>>[];
@@ -1872,17 +1869,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         'composition': emptyToNull(_compositionController.text),
     };
 
-    final updatedCommon = _item.common.copyWith(
-      title: _titleController.text.trim(),
-      sortKey: emptyToNull(_sortKeyController.text),
-      synopsis: emptyToNull(_synopsisController.text),
-      coverImageUrl: emptyToNull(_coverController.text),
-      thumbnailImageUrl: emptyToNull(_thumbnailController.text),
-      releaseDate: parseDate(_releaseDateController.text),
-      releaseYear: parseInt(_releaseYearController.text),
-    );
+    final updatedTitle = _titleController.text.trim();
     final fullCatalogItem = MusicCatalogMetadata(
-      title: updatedCommon.title,
+      title: updatedTitle,
       artist: emptyToNull(_artistController.text),
       originalReleaseDate: parseDate(_originalReleaseDateController.text),
       recordingDate: parseDate(_recordingDateController.text),
@@ -1902,11 +1891,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       music: updatedMusic.isNotEmpty ? updatedMusic : null,
       publishing: updatedPublishing.hasData ? updatedPublishing : null,
       creators: _buildCreatorsForSubmit() ?? const [],
-      links: _buildUpdatedLinks() ?? const [],
+      links: _buildUpdatedLinks(),
     );
     final updatedItem = LibraryMetadataItem(
       identity: _item.identity,
-      common: updatedCommon,
       kindMetadata: fullCatalogItem,
     );
 
@@ -1993,7 +1981,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  List<CatalogEdition> get _itemEditions => widget.request.item.editions;
+  List<CatalogEdition> get _itemEditions => libraryKindEditions(_item);
 
   List<TrailerLink> get _itemLinks => _musicMetadata.links;
 

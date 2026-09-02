@@ -49,7 +49,7 @@ class VideoInspectorPanel extends StatelessWidget {
             request.conditionGradeSection != null ||
             request.bundleSection != null)
           LibraryDetailSectionSpec(
-            slot: LibraryDetailSectionSlot.personalStatus,
+            slot: LibraryDetailSectionSlot.personal,
             title: 'Personal',
             children: [
               if (request.ownedCopiesSection != null)
@@ -67,7 +67,7 @@ class VideoInspectorPanel extends StatelessWidget {
           ),
         if (request.trailingSections.isNotEmpty)
           LibraryDetailSectionSpec(
-            slot: LibraryDetailSectionSlot.activityHistory,
+            slot: LibraryDetailSectionSlot.activity,
             title: 'More',
             children: request.trailingSections,
           ),

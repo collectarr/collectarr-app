@@ -34,6 +34,7 @@ class LibraryEditTabSpec {
     required this.id,
     required this.icon,
     required this.label,
+    this.priority = 0,
     this.sectionIds = const [],
     this.sectionIdsForContext,
   });
@@ -41,6 +42,7 @@ class LibraryEditTabSpec {
   final String id;
   final IconData icon;
   final String label;
+  final int priority;
   final List<String> sectionIds;
   final List<String> Function(LibraryEditPresentationContext context)?
       sectionIdsForContext;
@@ -59,41 +61,25 @@ class LibraryEditFooterSpec {
 class LibraryEditPresentationState {
   const LibraryEditPresentationState({
     required this.showsOwnershipReferenceSection,
-    required this.showsOwnedGradingSection,
-    required this.showsComicCollectorFields,
-    required this.showsGameCompletenessFields,
     required this.usesOwnedMainArtworkLayout,
     required this.usesDetailsTab,
     required this.usesArtworkCoverTab,
     required this.usesArtworkPhotosTab,
-    required this.showsOwnedCoverPriceField,
     required this.trackingSectionTitle,
     this.trackingSectionHint,
     required this.ownershipReferenceTitle,
     required this.ownedBundleLabel,
-    required this.ownedGradingSectionTitle,
-    this.ownedGradingSectionHint,
-    required this.keyToggleLabel,
-    required this.keyReasonLabel,
   });
 
   final bool showsOwnershipReferenceSection;
-  final bool showsOwnedGradingSection;
-  final bool showsComicCollectorFields;
-  final bool showsGameCompletenessFields;
   final bool usesOwnedMainArtworkLayout;
   final bool usesDetailsTab;
   final bool usesArtworkCoverTab;
   final bool usesArtworkPhotosTab;
-  final bool showsOwnedCoverPriceField;
   final String trackingSectionTitle;
   final String? trackingSectionHint;
   final String ownershipReferenceTitle;
   final String ownedBundleLabel;
-  final String ownedGradingSectionTitle;
-  final String? ownedGradingSectionHint;
-  final String keyToggleLabel;
-  final String keyReasonLabel;
 }
 
 abstract class LibraryEditPresentationBuilder {

@@ -1,8 +1,6 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -11,12 +9,10 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
@@ -26,9 +22,7 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
@@ -152,7 +146,7 @@ class LibraryEditDraft {
     TextEditingController create([String text = '']) =>
         textControllers.create(text: text);
 
-    final editionTitle = item.titleExtension;
+    final editionTitle = libraryKindTitleExtension(item);
 
     final titleController = create(item.title);
     final coverController = create(item.coverImageUrl ?? '');
@@ -220,7 +214,7 @@ class LibraryEditDraft {
           : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
     );
 
-    final editions = item.editions;
+    final editions = libraryKindEditions(item);
 
     final editionSelection = resolveLibraryEditionSelection(
       editions,
@@ -369,13 +363,16 @@ class LibraryEditDraft {
   }
 
   bool get isDigitalFormat {
-    final format = item.common.physicalFormatLabel ??
-        item.common.physicalFormat ??
-        item.titleExtension ??
+    final payload = libraryKindMetadataPayload(item);
+    final physicalFormatLabel = payload['physical_format_label']?.toString();
+    final physicalFormat = payload['physical_format']?.toString();
+    final format = physicalFormatLabel ??
+        physicalFormat ??
+        libraryKindTitleExtension(item) ??
         '';
     return format.toLowerCase() == 'digital' ||
         isDigitalPhysicalMediaFormat(
-          item.common.physicalFormat,
+          physicalFormat,
           label: format,
           formats: physicalFormats.isEmpty
               ? allKnownPhysicalMediaFormats
@@ -395,11 +392,11 @@ class LibraryEditDraft {
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
-    final editions = item.editions;
+    final editions = libraryKindEditions(item);
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: ownedItem?.editionId ?? trackingEntry?.editionId,
-      editionTitle: item.titleExtension,
+      editionTitle: libraryKindTitleExtension(item),
       variantId: ownedItem?.variantId ?? trackingEntry?.variantId,
     );
     return (
@@ -434,10 +431,7 @@ class LibraryEditDraft {
   bool get showsEpisodeTrackingFields =>
       type.trackingProfile.name == videoTrackingProfile.name;
 
-  List<TrailerLinkDto>? _externalLinks;
-
   void setExternalLinks(List<TrailerLinkDto> links) {
-    _externalLinks = links;
     kindDetails.setExternalLinks(links);
   }
 
@@ -449,7 +443,7 @@ class LibraryEditDraft {
   LibraryEditSelection buildSelection({
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
-    final updatedCommon = item.common.copyWith(
+    final baseItem = item.copyWith(
       title: metadata.titleController.text.trim(),
       sortKey: emptyToNull(metadata.sortKeyController.text),
       originalTitle: emptyToNull(metadata.originalTitleController.text),
@@ -459,12 +453,6 @@ class LibraryEditDraft {
       synopsis: emptyToNull(metadata.synopsisController.text),
       coverImageUrl: emptyToNull(metadata.coverController.text),
       thumbnailImageUrl: emptyToNull(metadata.thumbnailController.text),
-      trailerUrls: _externalLinks ?? item.common.trailerUrls,
-    );
-    final baseItem = LibraryMetadataItem(
-      identity: item.identity,
-      common: updatedCommon,
-      kindMetadata: item.kindMetadata,
     );
     final baseSelection = LibraryEditSelection(
       item: baseItem,

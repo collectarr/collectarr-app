@@ -72,7 +72,7 @@ class LibraryPageEditCoordinator {
     final cached = (await CatalogCacheRepository(db)
         .findByIds({catalogItem.id}))[catalogItem.id];
     final freshMetadataItem = cached != null
-        ? LibraryMetadataItem.fromCatalogItem(cached)
+        ? LibraryMetadataTransportCodec.fromCatalogItem(cached)
         : catalogItem;
     final ownedItems = _s.ref.read(collectionProvider).maybeWhen(
           data: (value) => value,

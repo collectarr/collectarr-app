@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
@@ -57,8 +56,9 @@ class MangaStatsCapability implements LibraryStatsCapability {
               (payload?['series'] as Map?)?['series_title']) as String?)
           ?.trim();
       final number = numberFor(entry);
-      if (seriesTitle == null || seriesTitle.isEmpty || number == null)
+      if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;
+      }
       seriesNumbers.putIfAbsent(seriesTitle, () => <int>{}).add(number);
     }
     for (final series in seriesNumbers.entries) {

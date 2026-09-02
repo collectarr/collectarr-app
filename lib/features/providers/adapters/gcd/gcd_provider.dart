@@ -13,7 +13,6 @@ import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
 
 final RegExp _issueIdRegex = RegExp(r'/issue/(\d+)/?');
-final RegExp _seriesIdRegex = RegExp(r'/series/(\d+)/?');
 final RegExp _seriesYearRegex =
     RegExp(r'\s+\((\d{4})\s+series\)$', caseSensitive: false);
 final RegExp _issueQueryRegex = RegExp(
@@ -198,15 +197,15 @@ class GCDProvider extends ProviderAdapter {
       'characters': characters,
       'genres': <String>[],
       'story_arcs': storyArcs,
-      'platforms': [],
-      'tracks': [],
-      'variant_covers': [],
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'platforms': <dynamic>[],
+      'tracks': <dynamic>[],
+      'variant_covers': <dynamic>[],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
-      'volume_provider_ids': {},
+      'volume_provider_ids': <String, dynamic>{},
     };
   }
 
@@ -334,10 +333,10 @@ class GCDProvider extends ProviderAdapter {
       final cleanName = name.trim();
       if (cleanName.isNotEmpty &&
           !credits.any((c) => c['name'] == cleanName && c['role'] == role)) {
-        credits.add({
+        credits.add(<String, dynamic>{
           'name': cleanName,
           'role': role,
-          'external_ids': {},
+          'external_ids': <String, dynamic>{},
         });
       }
     }
@@ -356,9 +355,9 @@ class GCDProvider extends ProviderAdapter {
       for (final rawName in charText.split(RegExp(r'[;\n]\s*'))) {
         final name = rawName.split('(').first.trim();
         if (name.isNotEmpty && seen.add(name.toLowerCase())) {
-          characters.add({
+          characters.add(<String, dynamic>{
             'name': name,
-            'external_ids': {},
+            'external_ids': <String, dynamic>{},
           });
         }
       }

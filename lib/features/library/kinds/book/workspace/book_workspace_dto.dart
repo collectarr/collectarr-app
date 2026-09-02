@@ -27,6 +27,7 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
   String? get isbn =>
       metadata?.editions.firstOrNull?.isbn ?? book.releases.firstOrNull?.isbn;
   String? get subtitle => metadata?.subtitle;
+  @override
   String? get format => metadata?.editions.firstOrNull?.format;
   String? get translator => metadata?.translators.firstOrNull;
   String? get editor => metadata?.editors.firstOrNull;

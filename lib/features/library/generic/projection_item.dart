@@ -29,7 +29,7 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
   }) {
     final item = source.catalogItem!;
     final node = LibraryTitleNodeRef(titleItemId: item.id);
-    final dto = type.presentation.projector.projectTitle(
+    final dto = type.projector.projectTitle(
       source: source,
       node: node,
     );
@@ -96,7 +96,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
           ...releaseCap.projectReleases(
             source: source,
             type: type,
-            projector: type.presentation.projector,
+            projector: type.projector,
             customFieldDefinitions: customFieldDefinitions,
             customFieldValuesByDefinitionByItem:
                 customFieldValuesByDefinitionByItem,
@@ -112,7 +112,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
         type.titleCapability.projectTitle(
           source: source,
           node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),
-          projector: type.presentation.projector,
+          projector: type.projector,
           customFieldBadges: customFieldBadgesForNode(
             source: source,
             node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),

@@ -36,7 +36,6 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
@@ -176,18 +175,12 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     wideDialog: true,
   ),
   hierarchy: LibraryHierarchyCapability(
-    defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
-    defaultVideoGrouping: VideoGroupingDefault.none,
-    videoSeriesEntryTypes: {'tv'},
-    videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
     browserDelegateBuilder: buildMovieBrowserDelegate,
     supportsMediaReleaseSplit: true,
     mediaScopeGroupIds: _movieMediaGroupModes,
     releaseScopeGroupIds: _movieEditionGroupModes,
     mediaScopeSortIds: _movieMediaSortColumns,
     releaseScopeSortIds: _movieEditionSortColumns,
-    collectionExportTitleLabel: 'Title',
-    mediaReleaseScopeLabel: 'Media',
   ),
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildMovieInspectorSections,
@@ -244,8 +237,8 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
             metadataValues: (item) {
               final metadata = item.kindMetadata;
               return metadata is MovieCatalogMetadata
-                  ? [item.releaseYear, metadata.releaseDate?.year]
-                  : [item.releaseYear];
+                  ? [metadata.releaseDate?.year]
+                  : const <Object?>[];
             },
             providerValues: (candidate) => [candidate.series?.volumeStartYear],
           ),
@@ -265,15 +258,6 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     editDialogBuilder: buildMovieLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
     presentation: movieLibraryEditPresentation,
-    mediaFields: const MediaEditFields(
-      numberLabel: 'Edition no.',
-      publisherLabel: 'Studio',
-      releaseDateLabel: 'Release Date',
-    ),
-    releaseFields: const ReleaseEditFields(
-      variantLabel: 'Format / Edition',
-      barcodeLabel: 'UPC / Barcode',
-    ),
     createDraft: createMovieEditDraft,
   ),
   providerMapper: const MovieLibraryKindProviderMapper(),

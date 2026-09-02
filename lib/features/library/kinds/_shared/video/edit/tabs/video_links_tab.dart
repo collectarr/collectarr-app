@@ -24,7 +24,7 @@ class VideoEditLinksTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final payload = item.kindMetadata.toSyncPayload();
     final providerLinks = (payload['trailer_urls'] as List?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         const <TrailerLink>[];

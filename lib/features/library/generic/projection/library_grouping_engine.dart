@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 

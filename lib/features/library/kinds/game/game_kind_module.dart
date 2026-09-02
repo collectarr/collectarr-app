@@ -72,8 +72,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   hierarchy: const LibraryHierarchyCapability(
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     supportsMediaReleaseSplit: true,
-    collectionExportTitleLabel: 'Title',
-    mediaReleaseScopeLabel: 'Media',
   ),
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildGameInspectorSections,
@@ -127,15 +125,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     editDialogBuilder: buildGameLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
     presentation: gameLibraryEditPresentation,
-    mediaFields: const MediaEditFields(
-      numberLabel: 'Version',
-      publisherLabel: 'Publisher / Studio',
-      releaseDateLabel: 'Release date',
-    ),
-    releaseFields: const ReleaseEditFields(
-      variantLabel: 'Platform / Edition',
-      barcodeLabel: 'UPC / Barcode',
-    ),
     createDraft: createGameEditDraft,
   ),
   providerMapper: const GameLibraryKindProviderMapper(),

@@ -72,7 +72,10 @@ class LibraryGroupedShelfView extends StatelessWidget {
       return emptyBuilder(context);
     }
     final presentation = groups.first.presentation;
-    final showGroupProgress = type.presentation.showsGroupProgress;
+    final groupDefinition = type.fields.findGroupDefinition(
+      type.fields.decodeGroupId(groups.first.groupMode),
+    );
+    final showGroupProgress = groupDefinition?.sequenceValue != null;
     return switch (presentation) {
       LibraryGroupPresentation.folderGrid =>
         _buildFolderGrid(context, showGroupProgress),

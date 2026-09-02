@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -33,8 +32,6 @@ class BookLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -87,20 +84,20 @@ class BookLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
-            label: mediaFields.numberLabel,
+          label: 'Volume',
             value: genericLibraryDash(itemNumber),
             onTap: tapFor(itemNumber)),
         LibraryDetailField(
-            label: releaseFields.variantLabel,
+          label: 'Edition / Binding',
             value: genericLibraryDash(variant),
             onTap: tapFor(variant)),
         LibraryDetailField(
-            label: releaseFields.barcodeLabel,
+          label: 'ISBN / Barcode',
             value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-            label: mediaFields.publisherLabel,
+          label: 'Publisher',
             value: genericLibraryDash(publisher),
             onTap: tapFor(publisher)),
         LibraryDetailField(
@@ -233,7 +230,7 @@ class BookLibraryMediaPresentationBuilder
     if (productFacts.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.formatEditionRelease,
+          slot: LibraryDetailSectionSlot.metadata,
           title: 'Product Details',
           children: [LibraryDetailFieldTable(fields: productFacts)],
         ),
@@ -249,7 +246,7 @@ class BookLibraryMediaPresentationBuilder
     if (creatorNames.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.people,
+          slot: LibraryDetailSectionSlot.relations,
           title: 'Contributors',
           chips: [
             LibraryDetailChipGroup(
@@ -268,7 +265,7 @@ class BookLibraryMediaPresentationBuilder
     if (imageFacts.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.imagesMedia,
+          slot: LibraryDetailSectionSlot.media,
           title: 'Images',
           children: [LibraryDetailFieldTable(fields: imageFacts)],
         ),
@@ -281,7 +278,7 @@ class BookLibraryMediaPresentationBuilder
     if (identifierValues.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.sourceCorrections,
+          slot: LibraryDetailSectionSlot.source,
           title: 'Identifiers',
           chips: [
             LibraryDetailChipGroup(
@@ -320,7 +317,7 @@ class BookLibraryMediaPresentationBuilder
     if (personalFacts.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.personalStatus,
+          slot: LibraryDetailSectionSlot.personal,
           title: 'Personal Details',
           children: [LibraryDetailFieldTable(fields: personalFacts)],
         ),
@@ -344,8 +341,6 @@ class BookLibraryMediaPresentationBuilder
     required BuildContext context,
     required Color accent,
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryMediaPreviewLabels previewLabels,
     required LibraryMetadataItem? item,
     required ProviderCandidate? candidate,

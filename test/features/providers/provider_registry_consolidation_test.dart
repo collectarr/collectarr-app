@@ -1,11 +1,6 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
-import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:flutter_test/flutter_test.dart';

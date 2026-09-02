@@ -90,6 +90,11 @@ class CatalogEditionDto {
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (physicalFormatLabel != null)
         'physical_format_label': physicalFormatLabel,
+      if (metadata != null)
+        ...<String, dynamic>{
+          for (final entry in metadata!.entries)
+            if (entry.value != null) entry.key: entry.value,
+        },
       'variants':
           variants.map((variant) => variant.toJson()).toList(growable: false),
       if (discs.isNotEmpty)

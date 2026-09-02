@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:dio/dio.dart';
 
 import '../../credentials/models/comicvine_credentials.dart';
 import '../../domain/models/normalized_provider_envelope_v1.dart';
@@ -213,7 +212,9 @@ class ComicVineProvider extends ProviderAdapter {
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
     final rawKind = _optionalText(data['media_type']) ?? 'comic';
     final issueNumber = _optionalText(data['issue_number']);
-    final volume = data['volume'] is Map ? data['volume'] as Map : null;
+    final volume = data['volume'] is Map
+      ? Map<String, dynamic>.from(data['volume'] as Map)
+      : null;
     final volumeName = _optionalText(volume?['name']);
     final issueName = _optionalText(data['name']);
 
@@ -244,17 +245,17 @@ class ComicVineProvider extends ProviderAdapter {
       if (coverUrl != null) 'cover_image_url': coverUrl,
       'creators': creators,
       'genres': <String>[],
-      'characters': [],
-      'story_arcs': [],
-      'platforms': [],
-      'tracks': [],
+      'characters': <dynamic>[],
+      'story_arcs': <dynamic>[],
+      'platforms': <dynamic>[],
+      'tracks': <dynamic>[],
       'variant_covers': variantCovers,
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
-      'volume_provider_ids': {},
+      'volume_provider_ids': <String, dynamic>{},
     };
   }
 
@@ -348,7 +349,7 @@ class ComicVineProvider extends ProviderAdapter {
         _optionalText(imageObj['original_url']);
   }
 
-  String? _extractPublisher(Map? volume) {
+  String? _extractPublisher(Map<String, dynamic>? volume) {
     if (volume == null) return null;
     final publisher = volume['publisher'];
     if (publisher is Map) {
@@ -366,10 +367,10 @@ class ComicVineProvider extends ProviderAdapter {
       final name = _optionalText(person['name']);
       final role = _optionalText(person['role']);
       if (name != null && name.isNotEmpty) {
-        creators.add({
+        creators.add(<String, dynamic>{
           'name': name,
           'role': role ?? 'Creator',
-          'external_ids': {},
+          'external_ids': <String, dynamic>{},
         });
       }
     }

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -14,16 +13,32 @@ class VideoLibraryMediaPresentationBuilder
   const VideoLibraryMediaPresentationBuilder({
     this.showSummary = false,
     this.metadataLabels = const LibraryMetadataLabels(),
+    this.itemNumberLabel = 'Number',
+    this.publisherLabel = 'Publisher',
+    this.variantLabel = 'Variant',
+    this.barcodeLabel = 'Barcode',
+    this.shelfDrilldownEntryTypes = const {},
   });
 
   final bool showSummary;
   final LibraryMetadataLabels metadataLabels;
+  final String itemNumberLabel;
+  final String publisherLabel;
+  final String variantLabel;
+  final String barcodeLabel;
+  final Set<String> shelfDrilldownEntryTypes;
+
+  @override
+  bool canOpenKindDrilldown(LibraryProjectionRuntime item) {
+    final kind = item.source.catalogItem?.kind.trim().toLowerCase();
+    return item.node.scope == LibraryBrowserScope.title &&
+        kind != null &&
+        shelfDrilldownEntryTypes.contains(kind);
+  }
 
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -51,16 +66,16 @@ class VideoLibraryMediaPresentationBuilder
               label: 'Series', value: seriesTitle, onTap: tapFor(seriesTitle)),
         if (item.node.scope != LibraryBrowserScope.title && variant != null)
           LibraryDetailField(
-              label: releaseFields.variantLabel,
+              label: variantLabel,
               value: variant,
               onTap: tapFor(variant)),
         if (item.node.scope != LibraryBrowserScope.title && barcode != null)
-          LibraryDetailField(label: releaseFields.barcodeLabel, value: barcode),
+          LibraryDetailField(label: barcodeLabel, value: barcode),
       ],
       contextFacts: [
         if (publisher != null)
           LibraryDetailField(
-              label: mediaFields.publisherLabel,
+              label: publisherLabel,
               value: publisher,
               onTap: tapFor(publisher)),
         LibraryDetailField(

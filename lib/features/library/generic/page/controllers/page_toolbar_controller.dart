@@ -92,13 +92,7 @@ class LibraryPageToolbarController {
         viewState: viewState,
         counts: projection?.counts ?? const LibraryToolbarCounts(),
         searchTarget: _s._effectiveSearchTarget,
-        searchTargetOptions: _s._supportsTrackSearch
-            ? const <LibrarySearchTarget>[
-                LibrarySearchTarget.all,
-                LibrarySearchTarget.mediaOnly,
-                LibrarySearchTarget.tracksOnly,
-              ]
-            : const <LibrarySearchTarget>[],
+        searchTargetOptions: _s.widget.type.searchTargetOptions,
         searchActive:
             searchState.query.isNotEmpty || searchState.pinnedItemId != null,
         searchSuggestions: searchSuggestions,
@@ -149,11 +143,12 @@ class LibraryPageToolbarController {
         buildContext: context,
         actionContext: LibraryPageToolbarActionContext(
           search: LibraryToolbarSearchContext(
-            supportsTrackSearch: _s._supportsTrackSearch,
+            searchTargetOptions: _s.widget.type.searchTargetOptions,
             onSearchChanged: _s._onSearchChanged,
             onSearchInputChanged: _s._onSearchInputChanged,
-            onSearchTargetChanged:
-                _s._supportsTrackSearch ? _s._onSearchTargetChanged : null,
+            onSearchTargetChanged: _s.widget.type.searchTargetOptions.isEmpty
+              ? null
+              : _s._onSearchTargetChanged,
             onClearSearch: _s._clearSearch,
             onSearchSuggestionSelected: _s._applySearchSuggestion,
           ),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -24,42 +25,48 @@ void main() {
           CatalogCacheCompanion.insert(
             id: 'comic-1',
             kind: 'comic',
-            title: 'Superman, Vol. 4',
-            itemNumber: const Value('8A'),
-            thumbnailImageUrl:
-                const Value('https://cdn.example/superman-thumb.jpg'),
-            editionTitle: const Value('Direct market edition'),
-            physicalFormat: const Value('single-issue'),
-            physicalFormatLabel: const Value('Single Issue'),
-            publisher: const Value('DC'),
-            releaseDate: Value(DateTime.utc(2016, 10, 5)),
-            releaseYear: const Value(2016),
-            barcode: const Value('76194134192700811'),
-            variant: const Value('Regular Cover'),
+            payloadJson: jsonEncode({
+              'id': 'comic-1',
+              'kind': 'comic',
+              'title': 'Superman, Vol. 4',
+              'item_number': '8A',
+              'thumbnail_image_url':
+                  'https://cdn.example/superman-thumb.jpg',
+              'edition_title': 'Direct market edition',
+              'physical_format': 'single-issue',
+              'physical_format_label': 'Single Issue',
+              'publisher': 'DC',
+              'release_date': '2016-10-05T00:00:00.000Z',
+              'release_year': 2016,
+              'barcode': '76194134192700811',
+              'variant': 'Regular Cover',
+            }),
             cachedAt: DateTime.utc(2026, 5, 11),
           ),
         );
 
     final catalog = await db.select(db.catalogCache).getSingle();
 
-    expect(catalog.publisher, 'DC');
-    expect(catalog.thumbnailImageUrl, 'https://cdn.example/superman-thumb.jpg');
-    expect(catalog.editionTitle, 'Direct market edition');
-    expect(catalog.physicalFormat, 'single-issue');
-    expect(catalog.physicalFormatLabel, 'Single Issue');
-    expect(catalog.releaseDate?.toUtc(), DateTime.utc(2016, 10, 5));
-    expect(catalog.releaseYear, 2016);
-    expect(catalog.barcode, '76194134192700811');
-    expect(catalog.variant, 'Regular Cover');
+    final catalogPayload = jsonDecode(catalog.payloadJson) as Map<String, dynamic>;
+    expect(catalogPayload['publisher'], 'DC');
+    expect(catalogPayload['thumbnail_image_url'],
+      'https://cdn.example/superman-thumb.jpg');
+    expect(catalogPayload['edition_title'], 'Direct market edition');
+    expect(catalogPayload['physical_format'], 'single-issue');
+    expect(catalogPayload['physical_format_label'], 'Single Issue');
+    expect(catalogPayload['release_date'], '2016-10-05T00:00:00.000Z');
+    expect(catalogPayload['release_year'], 2016);
+    expect(catalogPayload['barcode'], '76194134192700811');
+    expect(catalogPayload['variant'], 'Regular Cover');
   });
 
-  test('reports the reset v4 schema version', () async {
+  test('reports the reset v6 schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 5);
+    expect(db.schemaVersion, 6);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v5 schema',
+  test('destructively rebuilds a higher-versioned cache to the v6 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -72,7 +79,11 @@ void main() {
           CatalogCacheCompanion.insert(
             id: 'comic-1',
             kind: 'comic',
-            title: 'Stale Cached Title',
+            payloadJson: jsonEncode({
+              'id': 'comic-1',
+              'kind': 'comic',
+              'title': 'Stale Cached Title',
+            }),
             cachedAt: DateTime.utc(2026, 5, 11),
           ),
         );
@@ -87,7 +98,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 5);
+    expect(version.data.values.first, 6);
   });
 
   test('stores personal collection and wishlist data locally', () async {

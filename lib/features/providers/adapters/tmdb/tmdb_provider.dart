@@ -242,17 +242,17 @@ class TMDbProvider extends ProviderAdapter {
       if (audienceRating != null) 'audience_rating': audienceRating,
       'creators': creators,
       'genres': genres,
-      'characters': [],
-      'story_arcs': [],
-      'platforms': [],
-      'tracks': [],
-      'variant_covers': [],
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'characters': <dynamic>[],
+      'story_arcs': <dynamic>[],
+      'platforms': <dynamic>[],
+      'tracks': <dynamic>[],
+      'variant_covers': <dynamic>[],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
-      'volume_provider_ids': {},
+      'volume_provider_ids': <String, dynamic>{},
     };
   }
 
@@ -387,10 +387,10 @@ class TMDbProvider extends ProviderAdapter {
         if (name != null &&
             (job == 'Director' || job == 'Writer' || job == 'Creator')) {
           if (!creators.any((c) => c['name'] == name && c['role'] == job)) {
-            creators.add({
+            creators.add(<String, dynamic>{
               'name': name,
               'role': job!,
-              'external_ids': {},
+              'external_ids': <String, dynamic>{},
             });
           }
         }
@@ -404,10 +404,10 @@ class TMDbProvider extends ProviderAdapter {
         final name = _optionalText(person['name']);
         if (name != null) {
           if (!creators.any((c) => c['name'] == name && c['role'] == 'Actor')) {
-            creators.add({
+            creators.add(<String, dynamic>{
               'name': name,
               'role': 'Actor',
-              'external_ids': {},
+              'external_ids': <String, dynamic>{},
             });
           }
         }

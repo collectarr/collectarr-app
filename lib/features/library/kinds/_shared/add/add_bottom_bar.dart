@@ -103,8 +103,7 @@ Widget buildKindAddBottomBar(
                     ),
                     items: [
                       for (final value in {
-                        if (request.defaultCondition != null)
-                          request.defaultCondition!,
+                        request.defaultCondition,
                         ...request.conditions,
                       })
                         DropdownMenuItem<String>(
@@ -132,8 +131,7 @@ Widget buildKindAddBottomBar(
                     ),
                     items: [
                       for (final value in {
-                        if (request.defaultGrade != null)
-                          request.defaultGrade!,
+                        request.defaultGrade,
                         ...request.grades,
                       })
                         DropdownMenuItem<String>(

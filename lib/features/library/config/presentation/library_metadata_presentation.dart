@@ -1,8 +1,7 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -14,6 +13,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
+import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:flutter/material.dart';
 
 import 'library_search_presentation.dart';
@@ -107,6 +107,21 @@ List<Map<String, dynamic>> libraryMetadataCreditValues(
 abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
 
+  List<CatalogEditionDto> buildReleaseEditions({
+    required LibraryMetadataItem item,
+  }) =>
+      const [];
+
+  List<TrailerLinkDto> buildLinks({
+    required LibraryMetadataItem item,
+  }) =>
+      const [];
+
+  List<LibraryGroupModeCategory>? buildGroupModeCategories(
+    List<String> modes,
+  ) =>
+      null;
+
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
     required LibraryMetadataItem item,
   }) {
@@ -117,8 +132,6 @@ abstract class LibraryMediaPresentationBuilder {
     required BuildContext context,
     required Color accent,
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryMediaPreviewLabels previewLabels,
     required LibraryMetadataItem? item,
     required ProviderCandidate? candidate,
@@ -140,8 +153,6 @@ abstract class LibraryMediaPresentationBuilder {
 
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -184,8 +195,6 @@ abstract class LibraryMediaPresentationBuilder {
   List<Widget> buildDetailCatalogSections({
     required BuildContext context,
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required Color accent,
     LibraryRelationCapability? relationCapability,
@@ -195,8 +204,6 @@ abstract class LibraryMediaPresentationBuilder {
       buildDetailIdentitySection(
         context: context,
         singularLabel: singularLabel,
-        mediaFields: mediaFields,
-        releaseFields: releaseFields,
         item: item,
         accent: accent,
         relationCapability: relationCapability,
@@ -205,8 +212,6 @@ abstract class LibraryMediaPresentationBuilder {
       buildDetailContextSection(
         context: context,
         singularLabel: singularLabel,
-        mediaFields: mediaFields,
-        releaseFields: releaseFields,
         item: item,
         accent: accent,
         onFilterByValue: onFilterByValue,
@@ -214,8 +219,6 @@ abstract class LibraryMediaPresentationBuilder {
       buildDetailCreditsSection(
         context: context,
         singularLabel: singularLabel,
-        mediaFields: mediaFields,
-        releaseFields: releaseFields,
         item: item,
         accent: accent,
         onFilterByValue: onFilterByValue,
@@ -226,8 +229,6 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailIdentitySection({
     required BuildContext context,
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required Color accent,
     LibraryRelationCapability? relationCapability,
@@ -235,8 +236,6 @@ abstract class LibraryMediaPresentationBuilder {
   }) {
     final presentation = buildMetadataPresentation(
       singularLabel: singularLabel,
-      mediaFields: mediaFields,
-      releaseFields: releaseFields,
       item: item,
       includeIdentityFacts: true,
       tapFor: _tapResolver(onFilterByValue),
@@ -266,16 +265,12 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailContextSection({
     required BuildContext context,
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     final presentation = buildMetadataPresentation(
       singularLabel: singularLabel,
-      mediaFields: mediaFields,
-      releaseFields: releaseFields,
       item: item,
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),
@@ -305,16 +300,12 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailCreditsSection({
     required BuildContext context,
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     final presentation = buildMetadataPresentation(
       singularLabel: singularLabel,
-      mediaFields: mediaFields,
-      releaseFields: releaseFields,
       item: item,
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),

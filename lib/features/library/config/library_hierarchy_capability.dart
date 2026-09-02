@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_data_capability.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
@@ -14,36 +13,20 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   const LibraryHierarchyCapability({
     this.supportsMediaReleaseSplit = false,
-    this.supportsIndexReassignment = false,
-    this.showsReadingQueue = false,
     this.mediaScopeGroupIds,
     this.releaseScopeGroupIds,
     this.mediaScopeSortIds,
     this.releaseScopeSortIds,
-    this.collectionExportTitleLabel = 'Title',
-    this.mediaReleaseScopeLabel = 'Media',
-    this.defaultVideoDisplayLevel,
-    this.defaultVideoGrouping = VideoGroupingDefault.none,
-    this.videoSeriesEntryTypes = const {},
-    this.videoShelfDrilldownEntryTypes = const {},
     this.childrenTitleBuilder,
     this.fetchChildrenCallback,
     this.browserDelegateBuilder,
   });
 
   final bool supportsMediaReleaseSplit;
-  final bool supportsIndexReassignment;
-  final bool showsReadingQueue;
   final Set<LibraryGroupIdRuntime>? mediaScopeGroupIds;
   final Set<LibraryGroupIdRuntime>? releaseScopeGroupIds;
   final Set<LibrarySortIdRuntime>? mediaScopeSortIds;
   final Set<LibrarySortIdRuntime>? releaseScopeSortIds;
-  final String collectionExportTitleLabel;
-  final String mediaReleaseScopeLabel;
-  final VideoDisplayLevel? defaultVideoDisplayLevel;
-  final VideoGroupingDefault defaultVideoGrouping;
-  final Set<String> videoSeriesEntryTypes;
-  final Set<String> videoShelfDrilldownEntryTypes;
   final String Function(int count)? childrenTitleBuilder;
   final Future<List<LibraryHierarchyNode>> Function({
     required ApiClient api,

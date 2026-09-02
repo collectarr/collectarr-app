@@ -160,7 +160,7 @@ class ProviderHttpClient {
           final delay = retryPolicy.calculateDelay(dioError, attempt);
           attempt++;
           if (delay > Duration.zero) {
-            await Future.delayed(delay);
+            await Future<void>.delayed(delay);
           }
           continue;
         }

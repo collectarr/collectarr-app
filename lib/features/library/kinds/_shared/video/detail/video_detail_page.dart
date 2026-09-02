@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
@@ -339,7 +338,7 @@ class _VideoLibraryDetailPageState
                 title: 'External links',
                 links: ((request.item.source.catalogItem?.kindMetadata
                             .toSyncPayload()['trailer_urls'] as List?)
-                        ?.whereType<Map>()
+                        ?.whereType<Map<String, dynamic>>()
                         .map((e) =>
                             TrailerLink.fromJson(Map<String, dynamic>.from(e)))
                         .toList()) ??

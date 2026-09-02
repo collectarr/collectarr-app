@@ -107,7 +107,7 @@ class BGGProvider extends ProviderAdapter {
             (e) => e.getAttribute('type') == 'primary',
             orElse: () => item.findElements('name').isNotEmpty
                 ? item.findElements('name').first
-                : XmlElement(XmlName('name')),
+                : XmlElement(const XmlName.parts('name')),
           );
       final title = nameElement.getAttribute('value') ?? 'Unknown Board Game';
 
@@ -222,8 +222,9 @@ class BGGProvider extends ProviderAdapter {
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
     final bggId = _optionalText(data['id']);
     final title = _primaryName(data) ?? 'Unknown board game';
-    final year = _parseInt(data['yearpublished']);
-    final links = data['links'] is List ? (data['links'] as List) : [];
+    final links = data['links'] is List
+      ? (data['links'] as List<dynamic>)
+      : const <dynamic>[];
 
     final publishers = _linkValues(links, 'boardgamepublisher');
     final designers = _linkValues(links, 'boardgamedesigner');
@@ -240,10 +241,10 @@ class BGGProvider extends ProviderAdapter {
     final synopsis = _optionalText(data['description']);
 
     final creators = designers
-        .map((d) => {
+        .map((d) => <String, dynamic>{
               'name': d,
               'role': 'Designer',
-              'external_ids': {},
+              'external_ids': <String, dynamic>{},
             })
         .toList();
 
@@ -269,17 +270,17 @@ class BGGProvider extends ProviderAdapter {
       if (playingTime != null) 'playing_time_minutes': playingTime,
       'creators': creators,
       'genres': genres,
-      'characters': [],
-      'story_arcs': [],
-      'platforms': [],
-      'tracks': [],
-      'variant_covers': [],
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'characters': <dynamic>[],
+      'story_arcs': <dynamic>[],
+      'platforms': <dynamic>[],
+      'tracks': <dynamic>[],
+      'variant_covers': <dynamic>[],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
-      'volume_provider_ids': {},
+      'volume_provider_ids': <String, dynamic>{},
     };
   }
 
@@ -329,13 +330,16 @@ class BGGProvider extends ProviderAdapter {
     if (names is! List) return null;
 
     for (final name in names) {
-      if (name is Map && name['type'] == 'primary') {
-        final val = _optionalText(name['value']);
+      if (name is Map) {
+        final nameMap = Map<String, dynamic>.from(name);
+        if (nameMap['type'] != 'primary') continue;
+        final val = _optionalText(nameMap['value']);
         if (val != null) return val;
       }
     }
     if (names.isNotEmpty && names.first is Map) {
-      return _optionalText(names.first['value']);
+      final firstName = Map<String, dynamic>.from(names.first as Map);
+      return _optionalText(firstName['value']);
     }
     return null;
   }
@@ -343,8 +347,10 @@ class BGGProvider extends ProviderAdapter {
   List<String> _linkValues(List<dynamic> links, String linkType) {
     final values = <String>[];
     for (final link in links) {
-      if (link is Map && link['type'] == linkType) {
-        final val = _optionalText(link['value']);
+      if (link is Map) {
+        final linkMap = Map<String, dynamic>.from(link);
+        if (linkMap['type'] != linkType) continue;
+        final val = _optionalText(linkMap['value']);
         if (val != null && val.isNotEmpty) {
           values.add(val);
         }

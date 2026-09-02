@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -91,12 +90,9 @@ KindEditDraft createBoardGameEditDraft({
     hasCustomInsert: bg?.hasCustomInsert ?? false,
     hasPaintedMiniatures: bg?.hasPaintedMiniatures ?? false,
     storageNotes: bg?.storageNotes,
-    releaseDateController: textControllers.create(
-      text: item.releaseDate != null ? formatDate(item.releaseDate!) : '',
-    ),
+    releaseDateController: textControllers.create(),
     releaseYearController: textControllers.create(
       text: meta?.yearPublished?.toString() ??
-          item.releaseYear?.toString() ??
           '',
     ),
   );

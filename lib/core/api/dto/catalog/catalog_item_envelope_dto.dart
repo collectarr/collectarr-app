@@ -4,7 +4,21 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 final class CatalogItemEnvelopeDto {
-  const CatalogItemEnvelopeDto({
+  factory CatalogItemEnvelopeDto({
+    required CatalogEntityRef ref,
+    required CatalogMediaKind kind,
+    required CatalogCommonDto common,
+    required Map<String, dynamic> payload,
+  }) {
+    return CatalogItemEnvelopeDto._raw(
+      ref: ref,
+      kind: kind,
+      common: common,
+      payload: Map<String, dynamic>.unmodifiable(payload),
+    );
+  }
+
+  const CatalogItemEnvelopeDto._raw({
     required this.ref,
     required this.kind,
     required this.common,
@@ -35,7 +49,7 @@ final class CatalogItemEnvelopeDto {
     final common = CatalogCommonDto.fromJson(commonJson);
     final rawPayload = payloadJson ?? Map<String, dynamic>.from(json)
       ..removeWhere((key, _) => _commonKeys.contains(key));
-    return CatalogItemEnvelopeDto(
+    return CatalogItemEnvelopeDto._raw(
       ref: ref,
       kind: resolvedKind,
       common: common,

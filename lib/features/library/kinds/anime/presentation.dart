@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_add_preview_sections.dart';
@@ -21,6 +19,11 @@ class AnimeLibraryMediaPresentationBuilder
       : super(
           showSummary: true,
           metadataLabels: animeMetadataLabels,
+          itemNumberLabel: 'Edition no.',
+          publisherLabel: 'Studio',
+          variantLabel: 'Format / Edition',
+          barcodeLabel: 'UPC / Barcode',
+          shelfDrilldownEntryTypes: const {'anime'},
         );
 
   @override
@@ -44,7 +47,14 @@ class AnimeLibraryMediaPresentationBuilder
 const animeLibraryMediaBuilder = AnimeLibraryMediaPresentationBuilder();
 
 const animePreviewLabels = LibraryMediaPreviewLabels(
-  values: {'series': 'Series', 'item_count': 'Episodes'},
+  values: {
+    'series': 'Series',
+    'item_count': 'Episodes',
+    'item_number': 'Edition no.',
+    'publisher': 'Studio',
+    'variant': 'Format / Edition',
+    'barcode': 'UPC / Barcode',
+  },
 );
 
 const animeStatsLabels = LibraryMediaStatsLabels(
@@ -151,12 +161,10 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: animeLibraryGroupLabels,
   builder: animeLibraryMediaBuilder,
-  projector: const AnimeWorkspaceProjector(),
   bucketLabelBuilder: animeLibraryBucketLabelBuilder,
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.tv_outlined,
   previewLabels: animePreviewLabels,
   statsLabels: animeStatsLabels,
   filterDefinitions: animeLibraryFilterDefinitions,
-  fieldDefinitions: animeLibraryFieldDefinitions,
 );

@@ -22,7 +22,9 @@ LibraryGroupBucketValueMutator libraryStringBucketValueMutator(
   String? nestedValueKey,
 }) {
   return (item, currentLabel, {String? replacement}) {
-    final payload = Map<String, dynamic>.from(item.payload);
+    final payload = Map<String, dynamic>.from(
+      item.kindMetadata.toSyncPayload(),
+    );
     final keys = <String>{payloadKey, ...mirrorKeys};
     if (nestedValueKey != null) {
       keys.add(nestedValueKey);
@@ -66,7 +68,9 @@ LibraryGroupBucketValueMutator libraryStringListBucketValueMutator(
   Iterable<String> scalarMirrorKeys = const [],
 }) {
   return (item, currentLabel, {String? replacement}) {
-    final payload = Map<String, dynamic>.from(item.payload);
+    final payload = Map<String, dynamic>.from(
+      item.kindMetadata.toSyncPayload(),
+    );
     final rawValues = payload[payloadKey];
     final current = currentLabel.trim();
     final next = replacement?.trim();
@@ -140,7 +144,6 @@ LibraryMetadataItem _libraryMetadataItemWithPayload(
 ) {
   return LibraryMetadataItem(
     identity: item.identity,
-    common: item.common,
     kindMetadata: LibraryKindMetadataDecoders.decode(item.mediaKind, payload),
   );
 }

@@ -1,10 +1,11 @@
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_group_mode_categories.dart';
+import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -20,10 +21,15 @@ class ComicLibraryMediaPresentationBuilder
   final LibraryMetadataLabels metadataLabels;
 
   @override
+  List<LibraryGroupModeCategory> buildGroupModeCategories(
+    List<String> modes,
+  ) {
+    return buildComicGroupModeCategories(modes);
+  }
+
+  @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -74,20 +80,20 @@ class ComicLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
-            label: mediaFields.numberLabel,
+          label: 'No. / Vol.',
             value: genericLibraryDash(metadata.issueNumber),
             onTap: tapFor(metadata.issueNumber)),
         LibraryDetailField(
-            label: releaseFields.variantLabel,
+          label: 'Edition / Variant / Format',
             value: genericLibraryDash(metadata.variant),
             onTap: tapFor(metadata.variant)),
         LibraryDetailField(
-            label: releaseFields.barcodeLabel,
+          label: 'Barcode / UPC / ISBN',
             value: genericLibraryDash(metadata.barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-            label: mediaFields.publisherLabel,
+          label: 'Publisher / Studio / Creator',
             value: genericLibraryDash(metadata.publisher),
             onTap: tapFor(metadata.publisher)),
         LibraryDetailField(

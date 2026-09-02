@@ -1,8 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_group_mode_categories.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
@@ -11,9 +8,7 @@ import 'package:flutter/material.dart';
 
 const comicsMetadataLabels = LibraryMetadataLabels(
   values: {
-    'creators': 'Creators',
     'characters': 'Characters',
-    'story_arcs': 'Story Arcs',
     'story_arcs_inline': 'Story arcs',
     'genres': 'Genres',
   },
@@ -25,7 +20,16 @@ const comicLibraryMediaBuilder = ComicLibraryMediaPresentationBuilder(
 );
 
 const comicsPreviewLabels = LibraryMediaPreviewLabels(
-  values: {'series': 'Series', 'item_count': 'Issues'},
+  values: {
+    'series': 'Series',
+    'item_count': 'Issues',
+    'item_number': 'No. / Vol.',
+    'publisher': 'Publisher / Studio / Creator',
+    'variant': 'Edition / Variant / Format',
+    'barcode': 'Barcode / UPC / ISBN',
+    'media_scope': 'Series',
+    'export_title': 'Series',
+  },
 );
 
 const comicsIssueVisibleColumns = {
@@ -51,6 +55,8 @@ const comicLibraryGroupLabels = LibraryMediaGroupLabels(
     'publisher': 'Publisher',
     'publisher_plural': 'Publishers',
     'unknown_publisher': 'Unknown publisher',
+    'media_scope': 'Series',
+    'export_title': 'Series',
   },
 );
 
@@ -192,13 +198,10 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: comicLibraryGroupLabels,
   builder: comicLibraryMediaBuilder,
-  projector: const ComicWorkspaceProjector(),
   bucketLabelBuilder: comicLibraryBucketLabelBuilder,
   usesCompactTableLayout: true,
-  groupModeCategoriesBuilder: buildComicGroupModeCategories,
   previewLabels: comicsPreviewLabels,
   filterDefinitions: comicLibraryFilterDefinitions,
   sortFavorites: comicLibrarySortFavorites,
   columnFavorites: comicsTableColumnPresets,
-  fieldDefinitions: comicLibraryFieldDefinitions,
 );

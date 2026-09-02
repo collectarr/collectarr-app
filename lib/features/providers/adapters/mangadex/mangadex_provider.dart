@@ -171,7 +171,9 @@ class MangaDexProvider extends ProviderAdapter {
   }
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
-    final attrs = data['attributes'] is Map ? data['attributes'] as Map : {};
+    final attrs = data['attributes'] is Map
+      ? Map<String, dynamic>.from(data['attributes'] as Map)
+      : const <String, dynamic>{};
     final mangaId = _optionalText(data['id']);
     final title = _extractTitle(attrs) ?? 'Unknown';
     final relationships = data['relationships'];
@@ -194,22 +196,24 @@ class MangaDexProvider extends ProviderAdapter {
       if (coverUrl != null) 'cover_image_url': coverUrl,
       'creators': creators,
       'genres': genres,
-      'characters': [],
-      'story_arcs': [],
-      'platforms': [],
-      'tracks': [],
-      'variant_covers': [],
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'characters': <dynamic>[],
+      'story_arcs': <dynamic>[],
+      'platforms': <dynamic>[],
+      'tracks': <dynamic>[],
+      'variant_covers': <dynamic>[],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
-      'volume_provider_ids': {},
+      'volume_provider_ids': <String, dynamic>{},
     };
   }
 
   ProviderSearchResult _searchResultFromItem(Map<String, dynamic> item) {
-    final attrs = item['attributes'] is Map ? item['attributes'] as Map : {};
+    final attrs = item['attributes'] is Map
+      ? Map<String, dynamic>.from(item['attributes'] as Map)
+      : const <String, dynamic>{};
     final title = _extractTitle(attrs) ?? 'Unknown';
     final mangaId = _optionalText(item['id']) ?? '';
     final statusText = _optionalText(attrs['status']);
@@ -232,7 +236,7 @@ class MangaDexProvider extends ProviderAdapter {
     );
   }
 
-  String? _extractTitle(Map attrs) {
+  String? _extractTitle(Map<String, dynamic> attrs) {
     final titleMap = attrs['title'];
     if (titleMap is Map) {
       final en = _optionalText(titleMap['en']);
@@ -296,10 +300,10 @@ class MangaDexProvider extends ProviderAdapter {
       final name = attrs is Map ? _optionalText(attrs['name']) : null;
       if (name != null && name.isNotEmpty) {
         final role = relType == 'author' ? 'Author' : 'Artist';
-        creators.add({
+        creators.add(<String, dynamic>{
           'name': name,
           'role': role,
-          'external_ids': {},
+          'external_ids': <String, dynamic>{},
         });
       }
     }
@@ -311,9 +315,14 @@ class MangaDexProvider extends ProviderAdapter {
     final tagList = <String>[];
     for (final tag in tags) {
       if (tag is! Map) continue;
-      final attrs = tag['attributes'];
-      if (attrs is Map && attrs['name'] is Map) {
-        final name = _optionalText(attrs['name']['en']);
+      final attrsPayload = tag['attributes'];
+      if (attrsPayload is Map) {
+        final attrs = Map<String, dynamic>.from(attrsPayload);
+        final namePayload = attrs['name'];
+        final nameMap = namePayload is Map
+            ? Map<String, dynamic>.from(namePayload)
+            : null;
+        final name = _optionalText(nameMap?['en']);
         if (name != null && name.isNotEmpty) {
           tagList.add(name);
         }

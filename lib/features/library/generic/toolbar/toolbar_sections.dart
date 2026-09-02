@@ -153,7 +153,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final mediaScopeLabel = type.hierarchy.mediaReleaseScopeLabel;
+    final mediaScopeLabel = type.presentation.groupLabels.labelFor(
+      'media_scope',
+      fallback: 'Media',
+    );
     final pinnedColumnPresets = [
       for (final preset in columnFavoritePresets)
         if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset)))

@@ -20,7 +20,9 @@ final class MusicWorkspaceDto extends WorkspaceDtoAdapter {
   // Domain convenience getters
   String? get artist => metadata?.artist ?? music.work.artist;
   String? get catalogNumber => metadata?.releases.firstOrNull?.catalogNumber;
+  @override
   String? get format => metadata?.releases.firstOrNull?.format;
+  @override
   String? get country => metadata?.releases.firstOrNull?.country;
   int? get discCount => metadata?.releases.firstOrNull?.mediaOrDiscCount;
   int? get trackCount =>

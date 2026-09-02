@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/config/library_inspector_capabil
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
-import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
@@ -83,6 +83,7 @@ abstract interface class LibraryKindRuntime {
   LibraryKindProviderMapper? get providerMapper;
   LibraryFacetModule? get facets;
   CatalogKindCodec<LibraryKindMetadataRuntime>? get catalogCodec;
+  List<LibrarySearchTarget> get searchTargetOptions;
 
   LibraryWorkspaceViewProfile get viewProfile;
 
@@ -222,6 +223,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     this.providerMapper,
     this.facets,
     this.catalogCodec,
+    this.searchTargetOptions = const [],
     LibraryWorkspaceViewProfile? viewProfile,
     LibraryCardPresentation Function(
       LibraryProjectionRuntime item, {
@@ -297,6 +299,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
       providerMapper: providerMapper,
       facets: facets,
       catalogCodec: catalogCodec,
+      searchTargetOptions: searchTargetOptions,
       viewProfile: _viewProfile,
       buildCardPresentation: _buildCardPresentation,
     );
@@ -517,6 +520,8 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   final LibraryKindProviderMapper? providerMapper;
   @override
   final LibraryFacetModule? facets;
+  @override
+  final List<LibrarySearchTarget> searchTargetOptions;
 
   final LibraryCardPresentation Function(
     LibraryProjectionRuntime item, {

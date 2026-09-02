@@ -16,7 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Future<void> showMetadataCorrectionDialog({
   required BuildContext context,
   required WidgetRef ref,
-  required dynamic item,
+  required Object item,
   required LibraryKindRuntime type,
 }) async {
   final draft = await showDialog<_MetadataCorrectionDraft>(
@@ -27,8 +27,7 @@ Future<void> showMetadataCorrectionDialog({
 
   try {
     final query = draft.queryFor(item);
-    final itemTitle =
-        item is LibraryMetadataItem ? item.title : (item as CatalogItem).title;
+    final itemTitle = _itemTitle(item);
     final String title =
         draft.title.trim().isEmpty ? itemTitle : draft.title.trim();
     final response = await createLibraryMetadataProposal(
@@ -227,6 +226,24 @@ class _CorrectionField extends StatelessWidget {
   }
 }
 
+Map<String, dynamic> _itemPayload(Object item) {
+  if (item is LibraryMetadataItem) return item.toSyncPayload();
+  if (item is CatalogItem) return item.toSyncPayload();
+  throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
+}
+
+String _itemTitle(Object item) {
+  if (item is LibraryMetadataItem) return item.title;
+  if (item is CatalogItem) return item.title;
+  throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
+}
+
+int? _itemReleaseYear(Object item) {
+  if (item is LibraryMetadataItem) return item.releaseYear;
+  if (item is CatalogItem) return item.releaseYear;
+  throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
+}
+
 class _MetadataCorrectionDraft {
   const _MetadataCorrectionDraft({
     required this.title,
@@ -248,20 +265,20 @@ class _MetadataCorrectionDraft {
   final String sourceUrl;
   final String notes;
 
-  String queryFor(dynamic item) {
-    final payload = item.toSyncPayload();
+  String queryFor(Object item) {
+    final payload = _itemPayload(item);
     final itemNumber =
         (payload['item_number'] ?? payload['itemNumber'])?.toString();
     final pub = payload['publisher']?.toString();
     return [
-      title.trim().isEmpty ? item.title : title.trim(),
+      title.trim().isEmpty ? _itemTitle(item) : title.trim(),
       issueNumber.trim().isEmpty ? itemNumber : '#${issueNumber.trim()}',
       publisher.trim().isEmpty ? pub : publisher.trim(),
     ].whereType<String>().where((value) => value.isNotEmpty).join(' ');
   }
 
-  String summaryFor(dynamic item) {
-    final payload = item.toSyncPayload();
+  String summaryFor(Object item) {
+    final payload = _itemPayload(item);
     final itemNumber =
         (payload['item_number'] ?? payload['itemNumber'])?.toString();
     final pub = payload['publisher']?.toString();
@@ -272,10 +289,10 @@ class _MetadataCorrectionDraft {
       'Metadata correction proposal',
       '',
       'Original:',
-      'title: ${item.title}',
+      'title: ${_itemTitle(item)}',
       if (itemNumber != null) 'issue: $itemNumber',
       if (pub != null) 'publisher: $pub',
-      if (item.releaseYear != null) 'year: ${item.releaseYear}',
+      if (_itemReleaseYear(item) != null) 'year: ${_itemReleaseYear(item)}',
       if (barcodeVal != null) 'barcode: $barcodeVal',
       if (variantVal != null) 'variant: $variantVal',
       '',

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -78,13 +77,6 @@ class ProviderCandidate {
       identity: LibraryItemIdentity(
         id: localCatalogId,
         mediaKind: mediaKind,
-      ),
-      common: LibraryCommonMetadata(
-        title: title,
-        synopsis: summary,
-        coverImageUrl: imageUrl,
-        thumbnailImageUrl: imageUrl,
-        releaseYear: series?.volumeStartYear,
       ),
       kindMetadata: LibraryKindMetadataDecoders.decode(
         mediaKind,

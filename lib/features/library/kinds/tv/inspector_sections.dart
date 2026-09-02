@@ -44,7 +44,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   );
   final rawEditions =
       ((catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const <CatalogEdition>[]);
@@ -68,7 +68,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final tvLinks = (catalogItem?.kindMetadata is TvSeriesMetadata
           ? (catalogItem!.kindMetadata as TvSeriesMetadata).links
           : (catalogItem?.kindMetadata.toSyncPayload()['trailer_urls'] as List?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
               .toList()) ??
       const <TrailerLink>[];
@@ -104,7 +104,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ],
     ),
     LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.formatEditionRelease,
+      slot: LibraryDetailSectionSlot.metadata,
       title: 'Episodes',
       headerActions: [
         if (request.onEdit != null)
@@ -123,7 +123,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ],
     ),
     LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.progressOwnership,
+      slot: LibraryDetailSectionSlot.progress,
       title: 'TV progress',
       children: [
         VideoProgressSection(
@@ -135,7 +135,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ],
     ),
     LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.people,
+      slot: LibraryDetailSectionSlot.relations,
       title: 'Contributors',
       headerActions: [
         if (request.onEdit != null)
@@ -147,7 +147,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       children: [InspectorContributorsSection(request: request)],
     ),
     LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.seriesLinks,
+      slot: LibraryDetailSectionSlot.links,
       title: 'Links / trailers',
       children: [
         VideoExternalLinksSection(
@@ -168,7 +168,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ],
     ),
     LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.activityHistory,
+      slot: LibraryDetailSectionSlot.activity,
       title: 'History',
       children: [
         InspectorSessionHistorySection(

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -649,12 +648,18 @@ void main() {
       );
       expect(
         secondary.onReadingQueue,
-        type.hierarchy.showsReadingQueue ? isNotNull : isNull,
+        type.toolbarActionAvailability
+              .allows(LibraryToolbarActionId.readingQueue)
+            ? isNotNull
+            : isNull,
         reason: 'reading-queue gate mismatch for ${type.kind.apiValue}',
       );
       expect(
         secondary.onReassignIndex,
-        type.hierarchy.supportsIndexReassignment ? isNotNull : isNull,
+        type.toolbarActionAvailability
+              .allows(LibraryToolbarActionId.reassignIndex)
+            ? isNotNull
+            : isNull,
         reason: 'reassign-index gate mismatch for ${type.kind.apiValue}',
       );
     }

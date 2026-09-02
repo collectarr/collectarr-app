@@ -87,6 +87,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.ageRating,
     this.crossover,
     this.genres = const [],
+    this.searchAliases = const [],
     this.synopsis,
     this.writers = const [],
     this.artists = const [],
@@ -113,6 +114,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.physicalFormatLabel,
     this.links = const [],
     this.releases = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   @override
@@ -134,6 +136,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? ageRating;
   final String? crossover;
   final List<String> genres;
+  final List<String> searchAliases;
   final String? synopsis;
   final List<String> writers;
   final List<String> artists;
@@ -160,8 +163,10 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? physicalFormatLabel;
   final List<ComicLink> links;
   final List<ComicRelease> releases;
+    final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
+      ...rawPayload,
         'title': title,
         if (seriesTitle != null) 'series_title': seriesTitle,
         if (issueNumber != null) ...{
@@ -178,6 +183,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
         if (ageRating != null) 'age_rating': ageRating,
         if (crossover != null) 'crossover': crossover,
         if (genres.isNotEmpty) 'genres': genres,
+        if (searchAliases.isNotEmpty) 'search_aliases': searchAliases,
         if (synopsis != null) 'synopsis': synopsis,
         if (writers.isNotEmpty) 'writers': writers,
         if (artists.isNotEmpty) 'artists': artists,
@@ -241,6 +247,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     String? ageRating,
     String? crossover,
     List<String>? genres,
+    List<String>? searchAliases,
     String? synopsis,
     List<String>? writers,
     List<String>? artists,
@@ -282,6 +289,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
       ageRating: ageRating ?? this.ageRating,
       crossover: crossover ?? this.crossover,
       genres: genres ?? this.genres,
+      searchAliases: searchAliases ?? this.searchAliases,
       synopsis: synopsis ?? this.synopsis,
       writers: writers ?? this.writers,
       artists: artists ?? this.artists,
@@ -308,6 +316,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
       physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       links: links ?? this.links,
       releases: releases ?? this.releases,
+      rawPayload: rawPayload,
     );
   }
 
@@ -352,6 +361,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
 
     return ComicCatalogMetadata(
       title: (json['title'] as String?) ?? '',
+      rawPayload: Map<String, dynamic>.from(json),
       seriesTitle: (json['series_title'] ?? series.seriesTitle) as String?,
       issueNumber: (json['issue_number'] ?? json['item_number']) as String?,
       publisher: (json['publisher'] ?? publishing.originalPublisher) as String?,
@@ -370,6 +380,10 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
       genres: (json['genres'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
+          const [],
+        searchAliases: (json['search_aliases'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
           const [],
       synopsis: (json['synopsis'] ?? json['description']) as String?,
       writers: (json['writers'] as List<dynamic>?)

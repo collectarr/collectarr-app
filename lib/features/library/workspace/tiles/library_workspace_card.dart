@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -146,7 +145,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         .toSyncPayload()['editions'] as List?;
     final rawEditions = editionsPayload != null
         ? editionsPayload
-            .whereType<Map>()
+            .whereType<Map<String, dynamic>>()
             .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
             .toList()
         : const <CatalogEdition>[];
@@ -840,8 +839,6 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   if (runtime == null) return null;
   return runtime.presentation.builder.buildMetadataPresentation(
     singularLabel: runtime.identity.singularLabel,
-    mediaFields: runtime.edit.mediaFields,
-    releaseFields: runtime.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

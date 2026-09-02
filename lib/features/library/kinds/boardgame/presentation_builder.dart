@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -18,8 +17,6 @@ class BoardGameLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
     required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
@@ -52,20 +49,20 @@ class BoardGameLibraryMediaPresentationBuilder
               value: series!.seriesTitle!,
               onTap: tapFor(series.seriesTitle)),
         LibraryDetailField(
-            label: mediaFields.numberLabel,
+          label: 'Edition',
             value: genericLibraryDash(itemNumber),
             onTap: tapFor(itemNumber)),
         LibraryDetailField(
-            label: releaseFields.variantLabel,
+          label: 'Expansion / Edition',
             value: genericLibraryDash(variant),
             onTap: tapFor(variant)),
         LibraryDetailField(
-            label: releaseFields.barcodeLabel,
+          label: 'Barcode',
             value: genericLibraryDash(barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
-            label: mediaFields.publisherLabel,
+          label: 'Publisher / Designer',
             value: genericLibraryDash(publisher),
             onTap: tapFor(publisher)),
         LibraryDetailField(

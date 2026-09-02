@@ -88,10 +88,8 @@ KindEditDraft createGameEditDraft({
     initialPublisher: meta?.publishers.join(', ') ?? '',
     initialReleaseDate: meta?.releaseDate != null
         ? formatDate(meta!.releaseDate!)
-        : (item.releaseDate != null ? formatDate(item.releaseDate!) : ''),
-    initialReleaseYear: meta?.releaseDate?.year.toString() ??
-        item.releaseYear?.toString() ??
-        '',
+      : '',
+    initialReleaseYear: meta?.releaseDate?.year.toString() ?? '',
   );
 
   return GameEditDraft(

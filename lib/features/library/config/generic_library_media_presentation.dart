@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
-import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 const genericLibraryMediaBuilder = GenericLibraryMediaPresentationBuilder();
@@ -83,7 +82,6 @@ const genericLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: genericLibraryGroupLabels,
   builder: genericLibraryMediaBuilder,
-  projector: GenericWorkspaceProjector(),
   bucketLabelBuilder: genericLibraryBucketLabelBuilder,
   previewLabels: genericPreviewLabels,
   filterDefinitions: genericLibraryFilterDefinitions,

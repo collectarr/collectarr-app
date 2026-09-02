@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
 
-import 'library_workspace_view_enums.dart';
 
 export 'library_workspace_view_enums.dart';
 

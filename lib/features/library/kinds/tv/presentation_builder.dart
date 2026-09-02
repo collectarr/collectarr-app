@@ -22,6 +22,11 @@ class TvLibraryMediaPresentationBuilder
       : super(
           showSummary: true,
           metadataLabels: tvMetadataLabels,
+          itemNumberLabel: 'Edition no.',
+          publisherLabel: 'Studio',
+          variantLabel: 'Format / Edition',
+          barcodeLabel: 'UPC / Barcode',
+          shelfDrilldownEntryTypes: const {'tv'},
         );
 
   @override

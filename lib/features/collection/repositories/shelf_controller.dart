@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -30,7 +31,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
   final libraryCatalogItems = {
     for (final entry in catalogItems.entries)
-      entry.key: LibraryMetadataItem.fromCatalogItem(entry.value),
+      entry.key: LibraryMetadataTransportCodec.fromCatalogItem(entry.value),
   };
   final locations = await LocationRepository(db).getAll();
   final watchSessions =
@@ -135,7 +136,7 @@ class ShelfState {
             final item = catalogItems[id];
             if (item is LibraryMetadataItem) return item;
             if (item is CatalogItemDto) {
-              return LibraryMetadataItem.fromCatalogItem(item);
+              return LibraryMetadataTransportCodec.fromCatalogItem(item);
             }
             return null;
           }(),

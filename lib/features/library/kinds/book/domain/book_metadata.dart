@@ -1,6 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
@@ -182,6 +180,7 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
     this.itemNumber,
     this.series,
     this.seriesTitle,
+    this.rawPayload = const <String, dynamic>{},
   });
 
   @override
@@ -225,8 +224,10 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? itemNumber;
   final CatalogSeriesDetailsDto? series;
   final String? seriesTitle;
+    final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
+      ...rawPayload,
         'title': title,
         if (subtitle != null) 'subtitle': subtitle,
         if (sortTitle != null) 'sort_title': sortTitle,
@@ -324,6 +325,7 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
   }) {
     return BookCatalogMetadata(
       title: title ?? this.title,
+      rawPayload: rawPayload,
       subtitle: subtitle ?? this.subtitle,
       sortTitle: sortTitle ?? this.sortTitle,
       synopsis: synopsis ?? this.synopsis,
@@ -363,6 +365,7 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
   }
 
   factory BookCatalogMetadata.fromJson(Map<String, dynamic> json) {
+    final rawPayload = Map<String, dynamic>.from(json);
     final pubRaw = json['publishing'];
     final pubMap = (pubRaw is Map) ? Map<String, dynamic>.from(pubRaw) : null;
     final publishing = pubMap != null
@@ -393,6 +396,7 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
         const <Map<String, dynamic>>[];
 
     return BookCatalogMetadata(
+      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       subtitle: json['subtitle'] as String?,
       sortTitle: json['sort_title'] as String?,

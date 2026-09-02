@@ -470,7 +470,7 @@ class AdminProviderPreview {
   int? get trackCount => (music?['track_count'] as num?)?.toInt();
   List<CatalogTrack> get tracks =>
       (music?['tracks'] as List?)
-          ?.whereType<Map>()
+          ?.whereType<Map<String, dynamic>>()
           .map((e) => CatalogTrack.fromJson(Map<String, dynamic>.from(e)))
           .toList() ??
       const <CatalogTrack>[];

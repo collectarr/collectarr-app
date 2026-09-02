@@ -472,7 +472,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
 
-    final kind = widget.type.kind;
     final addCapability = widget.type.add;
     final searchContext = LibraryAddSearchContext(
       query: state.search.query,

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -225,8 +226,8 @@ void main() {
           goldenEnvelope.normalized['audience_rating']);
       expect(normalized['cover_image_url'],
           goldenEnvelope.normalized['cover_image_url']);
-      expect(normalized['provider_ids']['igdb'],
-          goldenEnvelope.normalized['provider_ids']['igdb']);
+        expect(jsonObject(normalized['provider_ids'])['igdb'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['igdb']);
     });
   });
 }

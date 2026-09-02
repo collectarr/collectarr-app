@@ -26,6 +26,6 @@ List<LibraryGroupModeCategory> libraryGroupModeCategories(
   LibraryKindRuntime type,
   List<String> modes,
 ) {
-  return type.presentation.groupModeCategoriesBuilder?.call(modes) ??
+  return type.presentation.builder.buildGroupModeCategories(modes) ??
       defaultLibraryGroupModeCategories(type, modes);
 }

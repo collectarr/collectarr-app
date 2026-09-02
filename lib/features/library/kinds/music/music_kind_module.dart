@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
@@ -57,6 +58,11 @@ Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
 
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   presentation: musicLibraryMediaPresentation,
+  searchTargetOptions: const [
+    LibrarySearchTarget.all,
+    LibrarySearchTarget.mediaOnly,
+    LibrarySearchTarget.tracksOnly,
+  ],
   trackingProfile: listeningTrackingProfile,
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
@@ -82,8 +88,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   hierarchy: const LibraryHierarchyCapability(
     childrenTitleBuilder: _musicChildrenTitle,
     supportsMediaReleaseSplit: true,
-    collectionExportTitleLabel: 'Release',
-    mediaReleaseScopeLabel: 'Media',
   ),
   uiPolicy: const LibraryUiPolicy(
     coverAspectRatio: 1.0,
@@ -137,11 +141,10 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
               final metadata = item.kindMetadata;
               return metadata is MusicCatalogMetadata
                   ? [
-                      item.releaseYear,
                       metadata.originalReleaseDate?.year,
                       metadata.recordingDate?.year,
                     ]
-                  : [item.releaseYear];
+                  : const <Object?>[];
             },
             providerValues: (candidate) => [candidate.series?.volumeStartYear],
           ),
@@ -155,15 +158,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     editDialogBuilder: buildMusicLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
     presentation: musicLibraryEditPresentation,
-    mediaFields: const MediaEditFields(
-      numberLabel: 'Disc / Volume',
-      publisherLabel: 'Label',
-      releaseDateLabel: 'Original release date',
-    ),
-    releaseFields: const ReleaseEditFields(
-      variantLabel: 'Format / Edition',
-      barcodeLabel: 'Barcode / Catalog no.',
-    ),
     createDraft: createMusicEditDraft,
   ),
   providerMapper: const MusicLibraryKindProviderMapper(),

@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -47,7 +48,7 @@ bool itemHasMissingDetails(LibraryMetadataItem item) {
   final publisher = (payload['publisher'] ??
       (payload['publishing'] as Map?)?['original_publisher']) as String?;
   return (publisher == null || publisher.trim().isEmpty) ||
-      item.releaseDate == null ||
+      libraryKindReleaseDate(item) == null ||
       (item.synopsis == null || item.synopsis!.trim().isEmpty);
 }
 
@@ -228,12 +229,15 @@ String? preferredVideoEditionVariantId(CatalogEdition edition) {
   final releaseNode = item.node is LibraryReleaseNodeRef
       ? (item.node as LibraryReleaseNodeRef)
       : null;
+  final catalogItem = item.source.catalogItem;
   return resolveLibraryReferenceRelease(
     editionId: releaseNode?.releaseId,
     variantId: releaseNode != null
         ? preferredVideoEditionVariantId(releaseNode.edition)
         : null,
-    editions: item.source.catalogItem?.editions ?? const [],
+    editions: catalogItem == null
+      ? const []
+      : libraryKindEditions(catalogItem),
   );
 }
 
@@ -245,7 +249,7 @@ List<String> libraryReferencePlatforms(LibraryProjectionRuntime item) {
     values.add(variantPlatform);
   }
   final catalogItem = item.source.catalogItem;
-  final payload = catalogItem?.payload;
+  final payload = catalogItem?.kindMetadata.toSyncPayload();
   final gameMap = payload?['game'];
   final rawPlatforms = (gameMap is Map
       ? gameMap['platforms']

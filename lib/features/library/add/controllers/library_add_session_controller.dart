@@ -30,12 +30,11 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
-import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
@@ -929,21 +928,23 @@ class LibraryAddSessionController
 
       if (searchGen != state.search.coreSearchGeneration) return;
 
-      final hydratedItem = LibraryMetadataItem.fromCatalogItem(hydrated);
-      final mergedCommon = hydratedItem.common.copyWith(
-        coverImageUrl: hydratedItem.displayCoverUrl != null
-            ? hydratedItem.coverImageUrl
-            : selected.coverImageUrl,
-        thumbnailImageUrl: hydratedItem.displayCoverUrl != null
-            ? hydratedItem.thumbnailImageUrl
-            : selected.thumbnailImageUrl ?? selected.coverImageUrl,
-      );
+        final hydratedItem =
+          LibraryMetadataTransportCodec.fromCatalogItem(hydrated);
+      final mergedCoverImageUrl = hydratedItem.displayCoverUrl != null
+          ? hydratedItem.coverImageUrl
+          : selected.coverImageUrl;
+      final mergedThumbnailImageUrl = hydratedItem.displayCoverUrl != null
+          ? hydratedItem.thumbnailImageUrl
+          : selected.thumbnailImageUrl ?? selected.coverImageUrl;
       final hydratedPayload = hydratedItem.kindMetadata.toSyncPayload();
       final hydratedEditionsPayload = hydratedPayload['editions'] as List?;
       final selectedEditionsPayload =
           selected.kindMetadata.toSyncPayload()['editions'] as List?;
       final mergedPayload = {
         ...hydratedPayload,
+        if (mergedCoverImageUrl != null) 'cover_image_url': mergedCoverImageUrl,
+        if (mergedThumbnailImageUrl != null)
+          'thumbnail_image_url': mergedThumbnailImageUrl,
         if ((hydratedEditionsPayload == null ||
                 hydratedEditionsPayload.isEmpty) &&
             selectedEditionsPayload != null &&
@@ -952,7 +953,6 @@ class LibraryAddSessionController
       };
       final mergedItem = LibraryMetadataItem(
         identity: hydratedItem.identity,
-        common: mergedCommon,
         kindMetadata: LibraryKindMetadataDecoders.decode(
           hydratedItem.mediaKind,
           mergedPayload,

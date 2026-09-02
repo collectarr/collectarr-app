@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -153,8 +154,8 @@ void main() {
       expect(envelope.normalized['publisher'], '20th Century Fox');
       expect(envelope.normalized['audience_rating'], '8.4');
       expect(envelope.normalized['genres'], containsAll(['Drama', 'Thriller']));
-      expect(envelope.normalized['provider_ids']['tmdb'], '550');
-      expect(envelope.normalized['provider_ids']['imdb'], 'tt0137523');
+      expect(jsonObject(envelope.normalized['provider_ids'])['tmdb'], '550');
+      expect(jsonObject(envelope.normalized['provider_ids'])['imdb'], 'tt0137523');
       expect(envelope.normalized['creators'], hasLength(3));
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -215,14 +216,14 @@ void main() {
       expect(normalized['genres'], goldenEnvelope.normalized['genres']);
       expect(normalized['audience_rating'],
           goldenEnvelope.normalized['audience_rating']);
-      expect(normalized['provider_ids']['tmdb'],
-          goldenEnvelope.normalized['provider_ids']['tmdb']);
-      expect(normalized['provider_ids']['imdb'],
-          goldenEnvelope.normalized['provider_ids']['imdb']);
-      expect(normalized['creators'][0]['name'],
-          goldenEnvelope.normalized['creators'][0]['name']);
-      expect(normalized['creators'][0]['role'],
-          goldenEnvelope.normalized['creators'][0]['role']);
+      expect(jsonObject(normalized['provider_ids'])['tmdb'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['tmdb']);
+      expect(jsonObject(normalized['provider_ids'])['imdb'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['imdb']);
+        expect(jsonObjectList(normalized['creators'])[0]['name'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+        expect(jsonObjectList(normalized['creators'])[0]['role'],
+          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
     });
   });
 }

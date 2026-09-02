@@ -1,4 +1,3 @@
-export 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 export 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart'
     show LibraryGroupPresentation, LibraryGroupPresentationLabels;
 export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart'

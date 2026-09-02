@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import '../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
@@ -151,24 +153,26 @@ void main() {
         isA<VideoDrilldownLibraryPageState>());
   });
 
-  test('reading queue visibility is now kind-owned in page state', () {
+  test('reading queue visibility is now kind-owned in toolbar actions', () {
     expect(
-      bookKindModule.hierarchy.showsReadingQueue,
+      bookKindModule.toolbarActionAvailability
+          .allows(LibraryToolbarActionId.readingQueue),
       isTrue,
     );
     expect(
-      gameKindModule.hierarchy.showsReadingQueue,
+      gameKindModule.toolbarActionAvailability
+          .allows(LibraryToolbarActionId.readingQueue),
       isFalse,
     );
   });
 
   test('kind presentation owns track search and group mode categories', () {
     expect(
-      musicKindModule.presentation.supportsTrackSearch,
+      musicKindModule.searchTargetOptions.contains(LibrarySearchTarget.tracksOnly),
       isTrue,
     );
     expect(
-      movieKindModule.presentation.supportsTrackSearch,
+      movieKindModule.searchTargetOptions.contains(LibrarySearchTarget.tracksOnly),
       isFalse,
     );
 

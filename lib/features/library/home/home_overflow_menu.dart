@@ -135,7 +135,7 @@ class _OverflowMenuRow extends StatelessWidget {
           const SizedBox(width: 9),
           Expanded(
             child: Text(
-              type.identity.pluralLabel,
+              type.pluralLabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

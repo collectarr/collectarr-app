@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 
 class LibraryToolbarSearchContext {
   const LibraryToolbarSearchContext({
-    required this.supportsTrackSearch,
+    required this.searchTargetOptions,
     required this.onSearchChanged,
     required this.onSearchInputChanged,
     required this.onSearchTargetChanged,
@@ -22,7 +22,7 @@ class LibraryToolbarSearchContext {
     required this.onSearchSuggestionSelected,
   });
 
-  final bool supportsTrackSearch;
+  final List<LibrarySearchTarget> searchTargetOptions;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<String> onSearchInputChanged;
   final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
@@ -220,7 +220,7 @@ class LibraryToolbarActionRegistry {
           : () {},
       onSearchChanged: actionContext.search.onSearchChanged,
       onSearchInputChanged: actionContext.search.onSearchInputChanged,
-      onSearchTargetChanged: actionContext.search.supportsTrackSearch
+      onSearchTargetChanged: actionContext.search.searchTargetOptions.isNotEmpty
           ? actionContext.search.onSearchTargetChanged
           : null,
       onClearSearch: actionContext.search.onClearSearch,
@@ -295,7 +295,8 @@ class LibraryToolbarActionRegistry {
           ? null
           : () => actionContext.grouping.onSmartLists(shelfState),
       onFolders: actionContext.grouping.onShowUserFoldersFlow,
-      onReadingQueue: runtime.hierarchy.showsReadingQueue
+            onReadingQueue: runtime.toolbarActionAvailability
+              .allows(LibraryToolbarActionId.readingQueue)
           ? actionContext.grouping.onShowReadingQueueFlow
           : null,
       onEditConditionPickList:
@@ -307,8 +308,9 @@ class LibraryToolbarActionRegistry {
           ? null
           : () =>
               actionContext.collectionActions.onTransferFieldData(projection),
-      onReassignIndex: projection == null ||
-              !runtime.hierarchy.supportsIndexReassignment
+        onReassignIndex: projection == null ||
+            !runtime.toolbarActionAvailability
+              .allows(LibraryToolbarActionId.reassignIndex)
           ? null
           : () => actionContext.collectionActions.onReassignIndex(projection),
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty

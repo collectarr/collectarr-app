@@ -84,20 +84,90 @@ const _comicReleaseTabs = [
 ];
 
 const _comicCombinedTabs = [
-  ..._comicMediaTabs,
-  ..._comicReleaseTabs,
+  LibraryEditTabSpec(
+    id: 'main',
+    icon: Icons.article,
+    label: 'Main',
+    sectionIds: ['catalog_snapshot'],
+  ),
+  LibraryEditTabSpec(
+    id: 'synopsis',
+    icon: Icons.notes,
+    label: 'Plot',
+    sectionIds: ['synopsis'],
+  ),
+  LibraryEditTabSpec(
+    id: 'details',
+    icon: Icons.search,
+    label: 'Details',
+    sectionIds: ['catalog_details'],
+  ),
+  LibraryEditTabSpec(
+    id: 'creators',
+    icon: Icons.group,
+    label: 'Creators',
+    sectionIds: ['comic_creators'],
+  ),
+  LibraryEditTabSpec(
+    id: 'characters',
+    icon: Icons.face,
+    label: 'Characters',
+    sectionIds: ['comic_characters'],
+  ),
+  LibraryEditTabSpec(
+    id: 'links',
+    icon: Icons.link,
+    label: 'Links',
+    sectionIds: ['external_links'],
+  ),
+  LibraryEditTabSpec(
+    id: 'cover',
+    icon: Icons.image,
+    label: 'Covers',
+    sectionIds: ['cover_images'],
+  ),
+  LibraryEditTabSpec(
+    id: 'photos',
+    icon: Icons.photo_library,
+    label: 'My Images',
+    sectionIds: ['photos'],
+  ),
+  LibraryEditTabSpec(
+    id: 'custom',
+    icon: Icons.tune,
+    label: 'Custom Fields',
+    sectionIds: ['custom_fields'],
+  ),
+  LibraryEditTabSpec(
+    id: 'value',
+    icon: Icons.attach_money,
+    label: 'Value',
+    sectionIds: ['purchase', 'value_summary'],
+  ),
+  LibraryEditTabSpec(
+    id: 'personal',
+    icon: Icons.person,
+    label: 'Personal',
+    sectionIds: [
+      'tracking_personal',
+      'ownership_fields',
+      'purchase_fields',
+      'sold_fields',
+      'wishlist_reference',
+      'owned_notes',
+      'collection_fields_info',
+    ],
+  ),
 ];
 
 class ComicLibraryCombinedEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const ComicLibraryCombinedEditPresentationBuilder()
       : super(
-          showOwnedGradingSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
-          showOwnedCoverPriceField: false,
           ownedTabs: _comicCombinedTabs,
           trackedTabs: _comicCombinedTabs,
           catalogTabs: _comicCombinedTabs,
@@ -109,12 +179,10 @@ class ComicLibraryMediaEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const ComicLibraryMediaEditPresentationBuilder()
       : super(
-          showOwnedGradingSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
-          showOwnedCoverPriceField: false,
           ownedTabs: _comicMediaTabs,
           trackedTabs: _comicMediaTabs,
           catalogTabs: _comicMediaTabs,
@@ -126,12 +194,10 @@ class ComicLibraryReleaseEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const ComicLibraryReleaseEditPresentationBuilder()
       : super(
-          showOwnedGradingSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
-          showOwnedCoverPriceField: false,
           ownedTabs: _comicReleaseTabs,
           trackedTabs: _comicReleaseTabs,
           catalogTabs: _comicReleaseTabs,

@@ -263,10 +263,10 @@ class OpenLibraryProvider extends ProviderAdapter {
     final creators = <Map<String, dynamic>>[];
     final authors = _textList(searchDoc?['author_name']);
     for (final author in authors) {
-      creators.add({
+      creators.add(<String, dynamic>{
         'name': author,
         'role': 'author',
-        'external_ids': {},
+        'external_ids': <String, dynamic>{},
       });
     }
 
@@ -298,15 +298,15 @@ class OpenLibraryProvider extends ProviderAdapter {
       if (coverUrl != null) 'cover_image_url': coverUrl,
       'creators': creators,
       'genres': genres,
-      'characters': [],
-      'story_arcs': [],
-      'platforms': [],
-      'tracks': [],
-      'variant_covers': [],
-      'trailer_urls': [],
-      'external_ids': {},
-      'external_links': [],
-      'relations': [],
+      'characters': <dynamic>[],
+      'story_arcs': <dynamic>[],
+      'platforms': <dynamic>[],
+      'tracks': <dynamic>[],
+      'variant_covers': <dynamic>[],
+      'trailer_urls': <dynamic>[],
+      'external_ids': <String, dynamic>{},
+      'external_links': <dynamic>[],
+      'relations': <dynamic>[],
       'provider_ids': providerIds,
       'volume_provider_ids': volumeProviderIds,
     };

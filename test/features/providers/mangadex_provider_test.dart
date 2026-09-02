@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
   _MockHttpAdapter(this.handler);
@@ -156,8 +157,10 @@ void main() {
       expect(envelope.normalized['genres'],
           containsAll(['Action', 'Supernatural']));
       expect(envelope.normalized['creators'], hasLength(1));
-      expect(envelope.normalized['creators'].first['name'], 'Tatsuki Fujimoto');
-      expect(envelope.normalized['creators'].first['role'], 'Author');
+        expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+          'Tatsuki Fujimoto');
+        expect(jsonObjectList(envelope.normalized['creators']).first['role'],
+          'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -219,10 +222,10 @@ void main() {
       expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
       expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
       expect(normalized['genres'], goldenEnvelope.normalized['genres']);
-      expect(normalized['provider_ids']['mangadex'],
-          goldenEnvelope.normalized['provider_ids']['mangadex']);
-      expect(normalized['creators'].first['name'],
-          goldenEnvelope.normalized['creators'].first['name']);
+      expect(jsonObject(normalized['provider_ids'])['mangadex'],
+          jsonObject(goldenEnvelope.normalized['provider_ids'])['mangadex']);
+        expect(jsonObjectList(normalized['creators']).first['name'],
+          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
     });
   });
 }

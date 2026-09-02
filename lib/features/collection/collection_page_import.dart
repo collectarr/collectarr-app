@@ -961,7 +961,7 @@ class _CatalogThumb extends StatelessWidget {
 }
 
 String _catalogTitle(LibraryMetadataItem item) {
-  final payload = item.payload;
+  final payload = item.kindMetadata.toSyncPayload();
   final pub = payload['publishing'] as Map?;
   final issue = (payload['item_number'] ?? pub?['issue_number'])?.toString();
   if (issue == null || issue.isEmpty) {
@@ -971,7 +971,7 @@ String _catalogTitle(LibraryMetadataItem item) {
 }
 
 String _catalogSubtitle(LibraryMetadataItem item) {
-  final payload = item.payload;
+  final payload = item.kindMetadata.toSyncPayload();
   final pub = payload['publishing'] as Map?;
   final variant = (payload['variant'] ?? pub?['variant'])?.toString();
   final publisher =
@@ -980,7 +980,8 @@ String _catalogSubtitle(LibraryMetadataItem item) {
   return [
     if (variant != null && variant.isNotEmpty) variant,
     if (publisher != null && publisher.isNotEmpty) publisher,
-    if (item.releaseYear != null) item.releaseYear.toString(),
+    if (payload['release_year'] != null)
+      payload['release_year'].toString(),
     if (barcode != null && barcode.isNotEmpty) barcode,
   ].join(' | ');
 }

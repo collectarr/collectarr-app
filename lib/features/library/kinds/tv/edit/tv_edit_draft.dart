@@ -29,19 +29,32 @@ class TvEditDraft extends KindEditDraft implements VideoKindEditDraft {
     required this.videoEdit,
   });
 
+  @override
   final TextEditingController featuresController;
+  @override
   final TextEditingController boxSetNameController;
+  @override
   final TextEditingController regionController;
+  @override
   final TextEditingController packagingController;
+  @override
   final TextEditingController distributorController;
+  @override
   final TextEditingController screenRatioController;
+  @override
   final TextEditingController audioTracksController;
+  @override
   final TextEditingController subtitlesController;
+  @override
   final TextEditingController layersController;
+  @override
   final TextEditingController colorController;
+  @override
   final TextEditingController nrDiscsController;
 
+  @override
   List<String> hdrFormats;
+  @override
   final VideoEditController videoEdit;
 
   @override

@@ -51,6 +51,8 @@ import 'package:collectarr_app/features/library/generic/facet_controller_provide
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -237,7 +239,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       ref: ref,
       searchStateKey: _searchStateKey,
       searchController: _searchController,
-      supportsTrackSearch: _supportsTrackSearch,
+      searchTargetOptions: widget.type.searchTargetOptions,
       clearActiveSmartLists: () => _mutateState(() {
         _activeSmartListId = null;
         _activeSmartListName = null;

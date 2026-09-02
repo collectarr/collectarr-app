@@ -79,13 +79,13 @@ class MusicCatalogDetailsDto {
     }
 
     final rawTracks = (json['tracks'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
             .toList(growable: false) ??
         const <CatalogTrackDto>[];
 
     final rawDiscs = (json['discs'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => CatalogDiscDto.fromJson(Map<String, dynamic>.from(e)))
             .toList(growable: false) ??
         const <CatalogDiscDto>[];

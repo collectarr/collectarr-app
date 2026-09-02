@@ -383,7 +383,8 @@ abstract final class LibraryPageShellPresenter {
         onSmartLists: () =>
             state._dialogCoordinator.showSmartListsFlow(shelfState),
         onFolders: state._dialogCoordinator.showUserFoldersFlow,
-        onReadingQueue: state.widget.type.hierarchy.showsReadingQueue
+        onReadingQueue: state.widget.type.toolbarActionAvailability
+          .allows(LibraryToolbarActionId.readingQueue)
             ? state._dialogCoordinator.showReadingQueueFlow
             : null,
         onEditConditionPickList: state.widget.type.edit.hasConditionPickList
@@ -398,7 +399,8 @@ abstract final class LibraryPageShellPresenter {
                 state._dialogCoordinator.showTransferFieldDataFlow(projection)
             : null,
         onReassignIndex:
-            state.widget.type.hierarchy.supportsIndexReassignment &&
+            state.widget.type.toolbarActionAvailability
+              .allows(LibraryToolbarActionId.reassignIndex) &&
                     state._hasOwnedItemsInProjection(projection)
                 ? () => state._dialogCoordinator.reassignIndexFlow(projection)
                 : null,

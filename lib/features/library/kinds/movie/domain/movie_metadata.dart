@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
@@ -83,6 +82,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     this.links = const [],
     this.releases = const [],
     this.editions = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   @override
@@ -135,8 +135,10 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   final List<TrailerLink> links;
   final List<MovieReleaseMetadata> releases;
   final List<CatalogEditionDto> editions;
+    final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
+      ...rawPayload,
         'title': title,
         if (originalTitle != null) 'original_title': originalTitle,
         if (sortTitle != null) 'sort_title': sortTitle,
@@ -255,6 +257,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   }) {
     return MovieCatalogMetadata(
       title: title ?? this.title,
+      rawPayload: rawPayload,
       originalTitle: originalTitle ?? this.originalTitle,
       sortTitle: sortTitle ?? this.sortTitle,
       synopsis: synopsis ?? this.synopsis,
@@ -302,25 +305,26 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   }
 
   factory MovieCatalogMetadata.fromJson(Map<String, dynamic> json) {
+    final rawPayload = Map<String, dynamic>.from(json);
     final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList() ??
         const <Map<String, dynamic>>[];
 
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
       ...((json['external_links'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
     ];
 
     final rawReleases = (json['releases'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map((e) =>
                 MovieReleaseMetadata.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
@@ -357,13 +361,14 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     final resolvedLayers = (json['layers'] ?? videoRaw['layers']) as String?;
 
     final rawEditions = (json['editions'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<String, dynamic>>()
             .map(
                 (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         const <CatalogEditionDto>[];
 
     return MovieCatalogMetadata(
+      rawPayload: rawPayload,
       title: (json['title'] as String?) ?? '',
       originalTitle: json['original_title'] as String?,
       sortTitle: json['sort_title'] as String?,
@@ -388,31 +393,31 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
           ? DateTime.tryParse(json['release_date'] as String)
           : null,
       directors: (json['directors'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) =>
                   MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const [],
       writers: (json['writers'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) =>
                   MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const [],
       producers: (json['producers'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) =>
                   MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const [],
       cast: (json['cast'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) =>
                   MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const [],
       crew: (json['crew'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<String, dynamic>>()
               .map((e) =>
                   MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
