@@ -75,11 +75,7 @@ String? plannedMediaSubgroupKeyForEntry(
   LibraryProjectionRuntime item,
   LibraryGroupIdRuntime groupId,
 ) {
-  final definition = type.fields.findGroupDefinition(groupId);
-  return definition?.subgroupKey?.call(
-    LibraryProjectionContext(
-        source: item.source, node: item.node, dto: item.dto),
-  );
+  return type.subgroupKeyForEntry(item, groupId);
 }
 
 int plannedMediaCompareSubgroupKeys(

@@ -155,14 +155,22 @@ Widget plannedMediaTableCell(
   LibraryProjectionRuntime item,
   LibraryFieldIdRuntime columnId,
 ) {
-  final definition = _tableColumnDefinition(type, columnId);
+  return type.buildTableCell(item, columnId);
+}
+
+Widget plannedMediaTableCellTyped<TDto extends LibraryWorkspaceDto>(
+  LibraryFieldRegistry<TDto> fields,
+  LibraryProjectionRuntime item,
+  LibraryFieldIdRuntime columnId,
+) {
+  final definition = fields.findColumnDefinition(columnId);
   if (definition == null) {
     return const LibraryTableCellText('');
   }
-  final context = LibraryProjectionContext(
+  final context = LibraryProjectionContext<TDto>(
     source: item.source,
     node: item.node,
-    dto: item.dto,
+    dto: item.dto as TDto,
   );
   final builder = definition.cellValue;
   if (builder != null) {

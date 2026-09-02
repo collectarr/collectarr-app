@@ -1,7 +1,9 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
@@ -111,5 +113,58 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Alpha'), findsNothing);
+  });
+
+  testWidgets(
+      'renders comic series groups with sequence progress without contravariance type errors',
+      (tester) async {
+    final cat = testCatalogItem(
+      id: 'c1',
+      kind: 'comic',
+      title: 'Batman #1',
+      series: const CatalogSeriesDetailsDto(seriesTitle: 'Batman'),
+      itemNumber: '1',
+    );
+    final source = ShelfEntry(itemId: 'c1', catalogItem: cat);
+    final node = const LibraryTitleNodeRef(titleItemId: 'c1');
+    final item = comicKindModule.project(source: source, node: node);
+
+    final group = GroupShelfEntry(
+      groupMode: 'series',
+      bucket: 'Batman',
+      presentation: LibraryGroupPresentation.folderGrid,
+      items: [item as LibraryProjectionItem],
+      representativeItem: item,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryGroupedShelfView(
+              type: comicKindModule,
+              groups: [group],
+              viewState: comicKindModule.viewProfile.defaults(),
+              selectedId: null,
+              selectionEnabled: false,
+              selectedIds: const {},
+              accent: Colors.blue,
+              onSelectGroupBucket: (_) {},
+              onOpenGroupDetails: (_) {},
+              collapsedGroupBuckets: const {},
+              onGroupBucketCollapsedToggled: (_) {},
+              onActivateItem: (_) {},
+              onToggleSelectionItem: (_) {},
+              onOpenItem: (_) {},
+              onEditItem: (_) {},
+              emptyBuilder: (_) => const SizedBox.shrink(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Batman'), findsOneWidget);
   });
 }

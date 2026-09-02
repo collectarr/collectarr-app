@@ -458,8 +458,10 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   Widget buildTableCell(
     LibraryProjectionRuntime item,
     LibraryFieldIdRuntime column,
-  ) =>
-      plannedMediaTableCell(this, item, column);
+  ) {
+    validateProjection(item);
+    return plannedMediaTableCellTyped(fields, item, column);
+  }
 
   @override
   int compareEntriesByRules(
@@ -490,8 +492,20 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   String? subgroupKeyForEntry(
     LibraryProjectionRuntime item,
     LibraryGroupIdRuntime groupId,
-  ) =>
-      plannedMediaSubgroupKeyForEntry(this, item, groupId);
+  ) {
+    validateProjection(item);
+    final groupDef = fields.findGroupDefinition(groupId);
+    final subgroupKey = groupDef?.subgroupKey;
+    if (subgroupKey == null) {
+      return null;
+    }
+    final context = LibraryProjectionContext<TDto>(
+      source: item.source,
+      node: item.node,
+      dto: item.dto as TDto,
+    );
+    return subgroupKey(context);
+  }
 
   @override
   int compareSubgroupKeys(

@@ -97,7 +97,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.category,
     this.bucketValueMutator,
     this.ownedBucketValueMutator,
-  });
+  })  : hasSequenceValue = sequenceValue != null,
+        hasSubgroupKey = subgroupKey != null;
 
   final LibraryGroupId<TKind, TValue> id;
   final String label;
@@ -107,6 +108,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final LibraryGroupPresentation presentation;
   final bool supportsBucketManagement;
   final bool supportsJump;
+  final bool hasSequenceValue;
+  final bool hasSubgroupKey;
   final String? Function(LibraryProjectionContext<TDto> context)? sequenceValue;
   final String? bucketManagerListLabel;
   final String? drilldownChildId;
