@@ -15154,6 +15154,1658 @@ class ComicOwnedDetailsRowsCompanion
   }
 }
 
+class $MangaMediaRowsTable extends MangaMediaRows
+    with TableInfo<$MangaMediaRowsTable, MangaMediaRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MangaMediaRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortTitleMeta =
+      const VerificationMeta('sortTitle');
+  @override
+  late final GeneratedColumn<String> sortTitle = GeneratedColumn<String>(
+      'sort_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _firstPublicationDateMeta =
+      const VerificationMeta('firstPublicationDate');
+  @override
+  late final GeneratedColumn<DateTime> firstPublicationDate =
+      GeneratedColumn<DateTime>('first_publication_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _originalLanguageMeta =
+      const VerificationMeta('originalLanguage');
+  @override
+  late final GeneratedColumn<String> originalLanguage = GeneratedColumn<String>(
+      'original_language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _originalPublicationDateMeta =
+      const VerificationMeta('originalPublicationDate');
+  @override
+  late final GeneratedColumn<DateTime> originalPublicationDate =
+      GeneratedColumn<DateTime>('original_publication_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _subtitleMeta =
+      const VerificationMeta('subtitle');
+  @override
+  late final GeneratedColumn<String> subtitle = GeneratedColumn<String>(
+      'subtitle', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _chaptersJsonMeta =
+      const VerificationMeta('chaptersJson');
+  @override
+  late final GeneratedColumn<String> chaptersJson = GeneratedColumn<String>(
+      'chapters_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _characterAppearancesJsonMeta =
+      const VerificationMeta('characterAppearancesJson');
+  @override
+  late final GeneratedColumn<String> characterAppearancesJson =
+      GeneratedColumn<String>('character_appearances_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _contributionsJsonMeta =
+      const VerificationMeta('contributionsJson');
+  @override
+  late final GeneratedColumn<String> contributionsJson =
+      GeneratedColumn<String>('contributions_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _identifiersJsonMeta =
+      const VerificationMeta('identifiersJson');
+  @override
+  late final GeneratedColumn<String> identifiersJson = GeneratedColumn<String>(
+      'identifiers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _seriesJsonMeta =
+      const VerificationMeta('seriesJson');
+  @override
+  late final GeneratedColumn<String> seriesJson = GeneratedColumn<String>(
+      'series_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        sortTitle,
+        description,
+        firstPublicationDate,
+        originalLanguage,
+        originalPublicationDate,
+        status,
+        subtitle,
+        chaptersJson,
+        characterAppearancesJson,
+        contributionsJson,
+        identifiersJson,
+        seriesJson,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'manga_media_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MangaMediaRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('sort_title')) {
+      context.handle(_sortTitleMeta,
+          sortTitle.isAcceptableOrUnknown(data['sort_title']!, _sortTitleMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('first_publication_date')) {
+      context.handle(
+          _firstPublicationDateMeta,
+          firstPublicationDate.isAcceptableOrUnknown(
+              data['first_publication_date']!, _firstPublicationDateMeta));
+    }
+    if (data.containsKey('original_language')) {
+      context.handle(
+          _originalLanguageMeta,
+          originalLanguage.isAcceptableOrUnknown(
+              data['original_language']!, _originalLanguageMeta));
+    }
+    if (data.containsKey('original_publication_date')) {
+      context.handle(
+          _originalPublicationDateMeta,
+          originalPublicationDate.isAcceptableOrUnknown(
+              data['original_publication_date']!,
+              _originalPublicationDateMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('subtitle')) {
+      context.handle(_subtitleMeta,
+          subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta));
+    }
+    if (data.containsKey('chapters_json')) {
+      context.handle(
+          _chaptersJsonMeta,
+          chaptersJson.isAcceptableOrUnknown(
+              data['chapters_json']!, _chaptersJsonMeta));
+    }
+    if (data.containsKey('character_appearances_json')) {
+      context.handle(
+          _characterAppearancesJsonMeta,
+          characterAppearancesJson.isAcceptableOrUnknown(
+              data['character_appearances_json']!,
+              _characterAppearancesJsonMeta));
+    }
+    if (data.containsKey('contributions_json')) {
+      context.handle(
+          _contributionsJsonMeta,
+          contributionsJson.isAcceptableOrUnknown(
+              data['contributions_json']!, _contributionsJsonMeta));
+    }
+    if (data.containsKey('identifiers_json')) {
+      context.handle(
+          _identifiersJsonMeta,
+          identifiersJson.isAcceptableOrUnknown(
+              data['identifiers_json']!, _identifiersJsonMeta));
+    }
+    if (data.containsKey('series_json')) {
+      context.handle(
+          _seriesJsonMeta,
+          seriesJson.isAcceptableOrUnknown(
+              data['series_json']!, _seriesJsonMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MangaMediaRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MangaMediaRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      sortTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_title']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      firstPublicationDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}first_publication_date']),
+      originalLanguage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}original_language']),
+      originalPublicationDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}original_publication_date']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      subtitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subtitle']),
+      chaptersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chapters_json'])!,
+      characterAppearancesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}character_appearances_json'])!,
+      contributionsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}contributions_json'])!,
+      identifiersJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}identifiers_json'])!,
+      seriesJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_json'])!,
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $MangaMediaRowsTable createAlias(String alias) {
+    return $MangaMediaRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MangaMediaRow extends DataClass implements Insertable<MangaMediaRow> {
+  final String id;
+  final String title;
+  final String? sortTitle;
+  final String? description;
+  final DateTime? firstPublicationDate;
+  final String? originalLanguage;
+  final DateTime? originalPublicationDate;
+  final String? status;
+  final String? subtitle;
+  final String chaptersJson;
+  final String characterAppearancesJson;
+  final String contributionsJson;
+  final String identifiersJson;
+  final String seriesJson;
+  final String rawPayloadJson;
+  const MangaMediaRow(
+      {required this.id,
+      required this.title,
+      this.sortTitle,
+      this.description,
+      this.firstPublicationDate,
+      this.originalLanguage,
+      this.originalPublicationDate,
+      this.status,
+      this.subtitle,
+      required this.chaptersJson,
+      required this.characterAppearancesJson,
+      required this.contributionsJson,
+      required this.identifiersJson,
+      required this.seriesJson,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || sortTitle != null) {
+      map['sort_title'] = Variable<String>(sortTitle);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || firstPublicationDate != null) {
+      map['first_publication_date'] = Variable<DateTime>(firstPublicationDate);
+    }
+    if (!nullToAbsent || originalLanguage != null) {
+      map['original_language'] = Variable<String>(originalLanguage);
+    }
+    if (!nullToAbsent || originalPublicationDate != null) {
+      map['original_publication_date'] =
+          Variable<DateTime>(originalPublicationDate);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || subtitle != null) {
+      map['subtitle'] = Variable<String>(subtitle);
+    }
+    map['chapters_json'] = Variable<String>(chaptersJson);
+    map['character_appearances_json'] =
+        Variable<String>(characterAppearancesJson);
+    map['contributions_json'] = Variable<String>(contributionsJson);
+    map['identifiers_json'] = Variable<String>(identifiersJson);
+    map['series_json'] = Variable<String>(seriesJson);
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  MangaMediaRowsCompanion toCompanion(bool nullToAbsent) {
+    return MangaMediaRowsCompanion(
+      id: Value(id),
+      title: Value(title),
+      sortTitle: sortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortTitle),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      firstPublicationDate: firstPublicationDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firstPublicationDate),
+      originalLanguage: originalLanguage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalLanguage),
+      originalPublicationDate: originalPublicationDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalPublicationDate),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      subtitle: subtitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitle),
+      chaptersJson: Value(chaptersJson),
+      characterAppearancesJson: Value(characterAppearancesJson),
+      contributionsJson: Value(contributionsJson),
+      identifiersJson: Value(identifiersJson),
+      seriesJson: Value(seriesJson),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory MangaMediaRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MangaMediaRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      sortTitle: serializer.fromJson<String?>(json['sortTitle']),
+      description: serializer.fromJson<String?>(json['description']),
+      firstPublicationDate:
+          serializer.fromJson<DateTime?>(json['firstPublicationDate']),
+      originalLanguage: serializer.fromJson<String?>(json['originalLanguage']),
+      originalPublicationDate:
+          serializer.fromJson<DateTime?>(json['originalPublicationDate']),
+      status: serializer.fromJson<String?>(json['status']),
+      subtitle: serializer.fromJson<String?>(json['subtitle']),
+      chaptersJson: serializer.fromJson<String>(json['chaptersJson']),
+      characterAppearancesJson:
+          serializer.fromJson<String>(json['characterAppearancesJson']),
+      contributionsJson: serializer.fromJson<String>(json['contributionsJson']),
+      identifiersJson: serializer.fromJson<String>(json['identifiersJson']),
+      seriesJson: serializer.fromJson<String>(json['seriesJson']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'sortTitle': serializer.toJson<String?>(sortTitle),
+      'description': serializer.toJson<String?>(description),
+      'firstPublicationDate':
+          serializer.toJson<DateTime?>(firstPublicationDate),
+      'originalLanguage': serializer.toJson<String?>(originalLanguage),
+      'originalPublicationDate':
+          serializer.toJson<DateTime?>(originalPublicationDate),
+      'status': serializer.toJson<String?>(status),
+      'subtitle': serializer.toJson<String?>(subtitle),
+      'chaptersJson': serializer.toJson<String>(chaptersJson),
+      'characterAppearancesJson':
+          serializer.toJson<String>(characterAppearancesJson),
+      'contributionsJson': serializer.toJson<String>(contributionsJson),
+      'identifiersJson': serializer.toJson<String>(identifiersJson),
+      'seriesJson': serializer.toJson<String>(seriesJson),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  MangaMediaRow copyWith(
+          {String? id,
+          String? title,
+          Value<String?> sortTitle = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<DateTime?> firstPublicationDate = const Value.absent(),
+          Value<String?> originalLanguage = const Value.absent(),
+          Value<DateTime?> originalPublicationDate = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<String?> subtitle = const Value.absent(),
+          String? chaptersJson,
+          String? characterAppearancesJson,
+          String? contributionsJson,
+          String? identifiersJson,
+          String? seriesJson,
+          String? rawPayloadJson}) =>
+      MangaMediaRow(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        sortTitle: sortTitle.present ? sortTitle.value : this.sortTitle,
+        description: description.present ? description.value : this.description,
+        firstPublicationDate: firstPublicationDate.present
+            ? firstPublicationDate.value
+            : this.firstPublicationDate,
+        originalLanguage: originalLanguage.present
+            ? originalLanguage.value
+            : this.originalLanguage,
+        originalPublicationDate: originalPublicationDate.present
+            ? originalPublicationDate.value
+            : this.originalPublicationDate,
+        status: status.present ? status.value : this.status,
+        subtitle: subtitle.present ? subtitle.value : this.subtitle,
+        chaptersJson: chaptersJson ?? this.chaptersJson,
+        characterAppearancesJson:
+            characterAppearancesJson ?? this.characterAppearancesJson,
+        contributionsJson: contributionsJson ?? this.contributionsJson,
+        identifiersJson: identifiersJson ?? this.identifiersJson,
+        seriesJson: seriesJson ?? this.seriesJson,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  MangaMediaRow copyWithCompanion(MangaMediaRowsCompanion data) {
+    return MangaMediaRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      sortTitle: data.sortTitle.present ? data.sortTitle.value : this.sortTitle,
+      description:
+          data.description.present ? data.description.value : this.description,
+      firstPublicationDate: data.firstPublicationDate.present
+          ? data.firstPublicationDate.value
+          : this.firstPublicationDate,
+      originalLanguage: data.originalLanguage.present
+          ? data.originalLanguage.value
+          : this.originalLanguage,
+      originalPublicationDate: data.originalPublicationDate.present
+          ? data.originalPublicationDate.value
+          : this.originalPublicationDate,
+      status: data.status.present ? data.status.value : this.status,
+      subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
+      chaptersJson: data.chaptersJson.present
+          ? data.chaptersJson.value
+          : this.chaptersJson,
+      characterAppearancesJson: data.characterAppearancesJson.present
+          ? data.characterAppearancesJson.value
+          : this.characterAppearancesJson,
+      contributionsJson: data.contributionsJson.present
+          ? data.contributionsJson.value
+          : this.contributionsJson,
+      identifiersJson: data.identifiersJson.present
+          ? data.identifiersJson.value
+          : this.identifiersJson,
+      seriesJson:
+          data.seriesJson.present ? data.seriesJson.value : this.seriesJson,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MangaMediaRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('firstPublicationDate: $firstPublicationDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('originalPublicationDate: $originalPublicationDate, ')
+          ..write('status: $status, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('chaptersJson: $chaptersJson, ')
+          ..write('characterAppearancesJson: $characterAppearancesJson, ')
+          ..write('contributionsJson: $contributionsJson, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('seriesJson: $seriesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      title,
+      sortTitle,
+      description,
+      firstPublicationDate,
+      originalLanguage,
+      originalPublicationDate,
+      status,
+      subtitle,
+      chaptersJson,
+      characterAppearancesJson,
+      contributionsJson,
+      identifiersJson,
+      seriesJson,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MangaMediaRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.sortTitle == this.sortTitle &&
+          other.description == this.description &&
+          other.firstPublicationDate == this.firstPublicationDate &&
+          other.originalLanguage == this.originalLanguage &&
+          other.originalPublicationDate == this.originalPublicationDate &&
+          other.status == this.status &&
+          other.subtitle == this.subtitle &&
+          other.chaptersJson == this.chaptersJson &&
+          other.characterAppearancesJson == this.characterAppearancesJson &&
+          other.contributionsJson == this.contributionsJson &&
+          other.identifiersJson == this.identifiersJson &&
+          other.seriesJson == this.seriesJson &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class MangaMediaRowsCompanion extends UpdateCompanion<MangaMediaRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> sortTitle;
+  final Value<String?> description;
+  final Value<DateTime?> firstPublicationDate;
+  final Value<String?> originalLanguage;
+  final Value<DateTime?> originalPublicationDate;
+  final Value<String?> status;
+  final Value<String?> subtitle;
+  final Value<String> chaptersJson;
+  final Value<String> characterAppearancesJson;
+  final Value<String> contributionsJson;
+  final Value<String> identifiersJson;
+  final Value<String> seriesJson;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const MangaMediaRowsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.firstPublicationDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.originalPublicationDate = const Value.absent(),
+    this.status = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.chaptersJson = const Value.absent(),
+    this.characterAppearancesJson = const Value.absent(),
+    this.contributionsJson = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.seriesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MangaMediaRowsCompanion.insert({
+    required String id,
+    required String title,
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.firstPublicationDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.originalPublicationDate = const Value.absent(),
+    this.status = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.chaptersJson = const Value.absent(),
+    this.characterAppearancesJson = const Value.absent(),
+    this.contributionsJson = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.seriesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title);
+  static Insertable<MangaMediaRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? sortTitle,
+    Expression<String>? description,
+    Expression<DateTime>? firstPublicationDate,
+    Expression<String>? originalLanguage,
+    Expression<DateTime>? originalPublicationDate,
+    Expression<String>? status,
+    Expression<String>? subtitle,
+    Expression<String>? chaptersJson,
+    Expression<String>? characterAppearancesJson,
+    Expression<String>? contributionsJson,
+    Expression<String>? identifiersJson,
+    Expression<String>? seriesJson,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (description != null) 'description': description,
+      if (firstPublicationDate != null)
+        'first_publication_date': firstPublicationDate,
+      if (originalLanguage != null) 'original_language': originalLanguage,
+      if (originalPublicationDate != null)
+        'original_publication_date': originalPublicationDate,
+      if (status != null) 'status': status,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (chaptersJson != null) 'chapters_json': chaptersJson,
+      if (characterAppearancesJson != null)
+        'character_appearances_json': characterAppearancesJson,
+      if (contributionsJson != null) 'contributions_json': contributionsJson,
+      if (identifiersJson != null) 'identifiers_json': identifiersJson,
+      if (seriesJson != null) 'series_json': seriesJson,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MangaMediaRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<String?>? sortTitle,
+      Value<String?>? description,
+      Value<DateTime?>? firstPublicationDate,
+      Value<String?>? originalLanguage,
+      Value<DateTime?>? originalPublicationDate,
+      Value<String?>? status,
+      Value<String?>? subtitle,
+      Value<String>? chaptersJson,
+      Value<String>? characterAppearancesJson,
+      Value<String>? contributionsJson,
+      Value<String>? identifiersJson,
+      Value<String>? seriesJson,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return MangaMediaRowsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      sortTitle: sortTitle ?? this.sortTitle,
+      description: description ?? this.description,
+      firstPublicationDate: firstPublicationDate ?? this.firstPublicationDate,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
+      originalPublicationDate:
+          originalPublicationDate ?? this.originalPublicationDate,
+      status: status ?? this.status,
+      subtitle: subtitle ?? this.subtitle,
+      chaptersJson: chaptersJson ?? this.chaptersJson,
+      characterAppearancesJson:
+          characterAppearancesJson ?? this.characterAppearancesJson,
+      contributionsJson: contributionsJson ?? this.contributionsJson,
+      identifiersJson: identifiersJson ?? this.identifiersJson,
+      seriesJson: seriesJson ?? this.seriesJson,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (sortTitle.present) {
+      map['sort_title'] = Variable<String>(sortTitle.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (firstPublicationDate.present) {
+      map['first_publication_date'] =
+          Variable<DateTime>(firstPublicationDate.value);
+    }
+    if (originalLanguage.present) {
+      map['original_language'] = Variable<String>(originalLanguage.value);
+    }
+    if (originalPublicationDate.present) {
+      map['original_publication_date'] =
+          Variable<DateTime>(originalPublicationDate.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (subtitle.present) {
+      map['subtitle'] = Variable<String>(subtitle.value);
+    }
+    if (chaptersJson.present) {
+      map['chapters_json'] = Variable<String>(chaptersJson.value);
+    }
+    if (characterAppearancesJson.present) {
+      map['character_appearances_json'] =
+          Variable<String>(characterAppearancesJson.value);
+    }
+    if (contributionsJson.present) {
+      map['contributions_json'] = Variable<String>(contributionsJson.value);
+    }
+    if (identifiersJson.present) {
+      map['identifiers_json'] = Variable<String>(identifiersJson.value);
+    }
+    if (seriesJson.present) {
+      map['series_json'] = Variable<String>(seriesJson.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MangaMediaRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('firstPublicationDate: $firstPublicationDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('originalPublicationDate: $originalPublicationDate, ')
+          ..write('status: $status, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('chaptersJson: $chaptersJson, ')
+          ..write('characterAppearancesJson: $characterAppearancesJson, ')
+          ..write('contributionsJson: $contributionsJson, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('seriesJson: $seriesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MangaOwnedDetailsRowsTable extends MangaOwnedDetailsRows
+    with TableInfo<$MangaOwnedDetailsRowsTable, MangaOwnedDetailsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MangaOwnedDetailsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _rawOrSlabbedMeta =
+      const VerificationMeta('rawOrSlabbed');
+  @override
+  late final GeneratedColumn<String> rawOrSlabbed = GeneratedColumn<String>(
+      'raw_or_slabbed', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gradingCompanyMeta =
+      const VerificationMeta('gradingCompany');
+  @override
+  late final GeneratedColumn<String> gradingCompany = GeneratedColumn<String>(
+      'grading_company', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _graderNotesMeta =
+      const VerificationMeta('graderNotes');
+  @override
+  late final GeneratedColumn<String> graderNotes = GeneratedColumn<String>(
+      'grader_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelTypeMeta =
+      const VerificationMeta('labelType');
+  @override
+  late final GeneratedColumn<String> labelType = GeneratedColumn<String>(
+      'label_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _customLabelMeta =
+      const VerificationMeta('customLabel');
+  @override
+  late final GeneratedColumn<String> customLabel = GeneratedColumn<String>(
+      'custom_label', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pageQualityMeta =
+      const VerificationMeta('pageQuality');
+  @override
+  late final GeneratedColumn<String> pageQuality = GeneratedColumn<String>(
+      'page_quality', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _certificationNumberMeta =
+      const VerificationMeta('certificationNumber');
+  @override
+  late final GeneratedColumn<String> certificationNumber =
+      GeneratedColumn<String>('certification_number', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _signedByMeta =
+      const VerificationMeta('signedBy');
+  @override
+  late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
+      'signed_by', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _obiStripPresentMeta =
+      const VerificationMeta('obiStripPresent');
+  @override
+  late final GeneratedColumn<bool> obiStripPresent = GeneratedColumn<bool>(
+      'obi_strip_present', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("obi_strip_present" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _slipcoverPresentMeta =
+      const VerificationMeta('slipcoverPresent');
+  @override
+  late final GeneratedColumn<bool> slipcoverPresent = GeneratedColumn<bool>(
+      'slipcover_present', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("slipcover_present" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _dustJacketPresentMeta =
+      const VerificationMeta('dustJacketPresent');
+  @override
+  late final GeneratedColumn<bool> dustJacketPresent = GeneratedColumn<bool>(
+      'dust_jacket_present', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("dust_jacket_present" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _dustJacketConditionMeta =
+      const VerificationMeta('dustJacketCondition');
+  @override
+  late final GeneratedColumn<String> dustJacketCondition =
+      GeneratedColumn<String>('dust_jacket_condition', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _boxSetOuterConditionMeta =
+      const VerificationMeta('boxSetOuterCondition');
+  @override
+  late final GeneratedColumn<String> boxSetOuterCondition =
+      GeneratedColumn<String>('box_set_outer_condition', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _insertsPresentMeta =
+      const VerificationMeta('insertsPresent');
+  @override
+  late final GeneratedColumn<bool> insertsPresent = GeneratedColumn<bool>(
+      'inserts_present', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("inserts_present" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _printingMeta =
+      const VerificationMeta('printing');
+  @override
+  late final GeneratedColumn<String> printing = GeneratedColumn<String>(
+      'printing', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _localizedEditionMeta =
+      const VerificationMeta('localizedEdition');
+  @override
+  late final GeneratedColumn<String> localizedEdition = GeneratedColumn<String>(
+      'localized_edition', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        ownedItemId,
+        rawOrSlabbed,
+        gradingCompany,
+        graderNotes,
+        labelType,
+        customLabel,
+        pageQuality,
+        certificationNumber,
+        signedBy,
+        obiStripPresent,
+        slipcoverPresent,
+        dustJacketPresent,
+        dustJacketCondition,
+        boxSetOuterCondition,
+        insertsPresent,
+        printing,
+        localizedEdition
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'manga_owned_details_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MangaOwnedDetailsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('raw_or_slabbed')) {
+      context.handle(
+          _rawOrSlabbedMeta,
+          rawOrSlabbed.isAcceptableOrUnknown(
+              data['raw_or_slabbed']!, _rawOrSlabbedMeta));
+    }
+    if (data.containsKey('grading_company')) {
+      context.handle(
+          _gradingCompanyMeta,
+          gradingCompany.isAcceptableOrUnknown(
+              data['grading_company']!, _gradingCompanyMeta));
+    }
+    if (data.containsKey('grader_notes')) {
+      context.handle(
+          _graderNotesMeta,
+          graderNotes.isAcceptableOrUnknown(
+              data['grader_notes']!, _graderNotesMeta));
+    }
+    if (data.containsKey('label_type')) {
+      context.handle(_labelTypeMeta,
+          labelType.isAcceptableOrUnknown(data['label_type']!, _labelTypeMeta));
+    }
+    if (data.containsKey('custom_label')) {
+      context.handle(
+          _customLabelMeta,
+          customLabel.isAcceptableOrUnknown(
+              data['custom_label']!, _customLabelMeta));
+    }
+    if (data.containsKey('page_quality')) {
+      context.handle(
+          _pageQualityMeta,
+          pageQuality.isAcceptableOrUnknown(
+              data['page_quality']!, _pageQualityMeta));
+    }
+    if (data.containsKey('certification_number')) {
+      context.handle(
+          _certificationNumberMeta,
+          certificationNumber.isAcceptableOrUnknown(
+              data['certification_number']!, _certificationNumberMeta));
+    }
+    if (data.containsKey('signed_by')) {
+      context.handle(_signedByMeta,
+          signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
+    }
+    if (data.containsKey('obi_strip_present')) {
+      context.handle(
+          _obiStripPresentMeta,
+          obiStripPresent.isAcceptableOrUnknown(
+              data['obi_strip_present']!, _obiStripPresentMeta));
+    }
+    if (data.containsKey('slipcover_present')) {
+      context.handle(
+          _slipcoverPresentMeta,
+          slipcoverPresent.isAcceptableOrUnknown(
+              data['slipcover_present']!, _slipcoverPresentMeta));
+    }
+    if (data.containsKey('dust_jacket_present')) {
+      context.handle(
+          _dustJacketPresentMeta,
+          dustJacketPresent.isAcceptableOrUnknown(
+              data['dust_jacket_present']!, _dustJacketPresentMeta));
+    }
+    if (data.containsKey('dust_jacket_condition')) {
+      context.handle(
+          _dustJacketConditionMeta,
+          dustJacketCondition.isAcceptableOrUnknown(
+              data['dust_jacket_condition']!, _dustJacketConditionMeta));
+    }
+    if (data.containsKey('box_set_outer_condition')) {
+      context.handle(
+          _boxSetOuterConditionMeta,
+          boxSetOuterCondition.isAcceptableOrUnknown(
+              data['box_set_outer_condition']!, _boxSetOuterConditionMeta));
+    }
+    if (data.containsKey('inserts_present')) {
+      context.handle(
+          _insertsPresentMeta,
+          insertsPresent.isAcceptableOrUnknown(
+              data['inserts_present']!, _insertsPresentMeta));
+    }
+    if (data.containsKey('printing')) {
+      context.handle(_printingMeta,
+          printing.isAcceptableOrUnknown(data['printing']!, _printingMeta));
+    }
+    if (data.containsKey('localized_edition')) {
+      context.handle(
+          _localizedEditionMeta,
+          localizedEdition.isAcceptableOrUnknown(
+              data['localized_edition']!, _localizedEditionMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  @override
+  MangaOwnedDetailsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MangaOwnedDetailsRow(
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      rawOrSlabbed: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}raw_or_slabbed']),
+      gradingCompany: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grading_company']),
+      graderNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grader_notes']),
+      labelType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_type']),
+      customLabel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}custom_label']),
+      pageQuality: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}page_quality']),
+      certificationNumber: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}certification_number']),
+      signedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
+      obiStripPresent: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}obi_strip_present'])!,
+      slipcoverPresent: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}slipcover_present'])!,
+      dustJacketPresent: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}dust_jacket_present'])!,
+      dustJacketCondition: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}dust_jacket_condition']),
+      boxSetOuterCondition: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}box_set_outer_condition']),
+      insertsPresent: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}inserts_present'])!,
+      printing: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}printing']),
+      localizedEdition: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}localized_edition']),
+    );
+  }
+
+  @override
+  $MangaOwnedDetailsRowsTable createAlias(String alias) {
+    return $MangaOwnedDetailsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MangaOwnedDetailsRow extends DataClass
+    implements Insertable<MangaOwnedDetailsRow> {
+  final String ownedItemId;
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final String? graderNotes;
+  final String? labelType;
+  final String? customLabel;
+  final String? pageQuality;
+  final String? certificationNumber;
+  final String? signedBy;
+  final bool obiStripPresent;
+  final bool slipcoverPresent;
+  final bool dustJacketPresent;
+  final String? dustJacketCondition;
+  final String? boxSetOuterCondition;
+  final bool insertsPresent;
+  final String? printing;
+  final String? localizedEdition;
+  const MangaOwnedDetailsRow(
+      {required this.ownedItemId,
+      this.rawOrSlabbed,
+      this.gradingCompany,
+      this.graderNotes,
+      this.labelType,
+      this.customLabel,
+      this.pageQuality,
+      this.certificationNumber,
+      this.signedBy,
+      required this.obiStripPresent,
+      required this.slipcoverPresent,
+      required this.dustJacketPresent,
+      this.dustJacketCondition,
+      this.boxSetOuterCondition,
+      required this.insertsPresent,
+      this.printing,
+      this.localizedEdition});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || rawOrSlabbed != null) {
+      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed);
+    }
+    if (!nullToAbsent || gradingCompany != null) {
+      map['grading_company'] = Variable<String>(gradingCompany);
+    }
+    if (!nullToAbsent || graderNotes != null) {
+      map['grader_notes'] = Variable<String>(graderNotes);
+    }
+    if (!nullToAbsent || labelType != null) {
+      map['label_type'] = Variable<String>(labelType);
+    }
+    if (!nullToAbsent || customLabel != null) {
+      map['custom_label'] = Variable<String>(customLabel);
+    }
+    if (!nullToAbsent || pageQuality != null) {
+      map['page_quality'] = Variable<String>(pageQuality);
+    }
+    if (!nullToAbsent || certificationNumber != null) {
+      map['certification_number'] = Variable<String>(certificationNumber);
+    }
+    if (!nullToAbsent || signedBy != null) {
+      map['signed_by'] = Variable<String>(signedBy);
+    }
+    map['obi_strip_present'] = Variable<bool>(obiStripPresent);
+    map['slipcover_present'] = Variable<bool>(slipcoverPresent);
+    map['dust_jacket_present'] = Variable<bool>(dustJacketPresent);
+    if (!nullToAbsent || dustJacketCondition != null) {
+      map['dust_jacket_condition'] = Variable<String>(dustJacketCondition);
+    }
+    if (!nullToAbsent || boxSetOuterCondition != null) {
+      map['box_set_outer_condition'] = Variable<String>(boxSetOuterCondition);
+    }
+    map['inserts_present'] = Variable<bool>(insertsPresent);
+    if (!nullToAbsent || printing != null) {
+      map['printing'] = Variable<String>(printing);
+    }
+    if (!nullToAbsent || localizedEdition != null) {
+      map['localized_edition'] = Variable<String>(localizedEdition);
+    }
+    return map;
+  }
+
+  MangaOwnedDetailsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MangaOwnedDetailsRowsCompanion(
+      ownedItemId: Value(ownedItemId),
+      rawOrSlabbed: rawOrSlabbed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawOrSlabbed),
+      gradingCompany: gradingCompany == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gradingCompany),
+      graderNotes: graderNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(graderNotes),
+      labelType: labelType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelType),
+      customLabel: customLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customLabel),
+      pageQuality: pageQuality == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pageQuality),
+      certificationNumber: certificationNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(certificationNumber),
+      signedBy: signedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(signedBy),
+      obiStripPresent: Value(obiStripPresent),
+      slipcoverPresent: Value(slipcoverPresent),
+      dustJacketPresent: Value(dustJacketPresent),
+      dustJacketCondition: dustJacketCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dustJacketCondition),
+      boxSetOuterCondition: boxSetOuterCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetOuterCondition),
+      insertsPresent: Value(insertsPresent),
+      printing: printing == null && nullToAbsent
+          ? const Value.absent()
+          : Value(printing),
+      localizedEdition: localizedEdition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localizedEdition),
+    );
+  }
+
+  factory MangaOwnedDetailsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MangaOwnedDetailsRow(
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      rawOrSlabbed: serializer.fromJson<String?>(json['rawOrSlabbed']),
+      gradingCompany: serializer.fromJson<String?>(json['gradingCompany']),
+      graderNotes: serializer.fromJson<String?>(json['graderNotes']),
+      labelType: serializer.fromJson<String?>(json['labelType']),
+      customLabel: serializer.fromJson<String?>(json['customLabel']),
+      pageQuality: serializer.fromJson<String?>(json['pageQuality']),
+      certificationNumber:
+          serializer.fromJson<String?>(json['certificationNumber']),
+      signedBy: serializer.fromJson<String?>(json['signedBy']),
+      obiStripPresent: serializer.fromJson<bool>(json['obiStripPresent']),
+      slipcoverPresent: serializer.fromJson<bool>(json['slipcoverPresent']),
+      dustJacketPresent: serializer.fromJson<bool>(json['dustJacketPresent']),
+      dustJacketCondition:
+          serializer.fromJson<String?>(json['dustJacketCondition']),
+      boxSetOuterCondition:
+          serializer.fromJson<String?>(json['boxSetOuterCondition']),
+      insertsPresent: serializer.fromJson<bool>(json['insertsPresent']),
+      printing: serializer.fromJson<String?>(json['printing']),
+      localizedEdition: serializer.fromJson<String?>(json['localizedEdition']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'rawOrSlabbed': serializer.toJson<String?>(rawOrSlabbed),
+      'gradingCompany': serializer.toJson<String?>(gradingCompany),
+      'graderNotes': serializer.toJson<String?>(graderNotes),
+      'labelType': serializer.toJson<String?>(labelType),
+      'customLabel': serializer.toJson<String?>(customLabel),
+      'pageQuality': serializer.toJson<String?>(pageQuality),
+      'certificationNumber': serializer.toJson<String?>(certificationNumber),
+      'signedBy': serializer.toJson<String?>(signedBy),
+      'obiStripPresent': serializer.toJson<bool>(obiStripPresent),
+      'slipcoverPresent': serializer.toJson<bool>(slipcoverPresent),
+      'dustJacketPresent': serializer.toJson<bool>(dustJacketPresent),
+      'dustJacketCondition': serializer.toJson<String?>(dustJacketCondition),
+      'boxSetOuterCondition': serializer.toJson<String?>(boxSetOuterCondition),
+      'insertsPresent': serializer.toJson<bool>(insertsPresent),
+      'printing': serializer.toJson<String?>(printing),
+      'localizedEdition': serializer.toJson<String?>(localizedEdition),
+    };
+  }
+
+  MangaOwnedDetailsRow copyWith(
+          {String? ownedItemId,
+          Value<String?> rawOrSlabbed = const Value.absent(),
+          Value<String?> gradingCompany = const Value.absent(),
+          Value<String?> graderNotes = const Value.absent(),
+          Value<String?> labelType = const Value.absent(),
+          Value<String?> customLabel = const Value.absent(),
+          Value<String?> pageQuality = const Value.absent(),
+          Value<String?> certificationNumber = const Value.absent(),
+          Value<String?> signedBy = const Value.absent(),
+          bool? obiStripPresent,
+          bool? slipcoverPresent,
+          bool? dustJacketPresent,
+          Value<String?> dustJacketCondition = const Value.absent(),
+          Value<String?> boxSetOuterCondition = const Value.absent(),
+          bool? insertsPresent,
+          Value<String?> printing = const Value.absent(),
+          Value<String?> localizedEdition = const Value.absent()}) =>
+      MangaOwnedDetailsRow(
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        rawOrSlabbed:
+            rawOrSlabbed.present ? rawOrSlabbed.value : this.rawOrSlabbed,
+        gradingCompany:
+            gradingCompany.present ? gradingCompany.value : this.gradingCompany,
+        graderNotes: graderNotes.present ? graderNotes.value : this.graderNotes,
+        labelType: labelType.present ? labelType.value : this.labelType,
+        customLabel: customLabel.present ? customLabel.value : this.customLabel,
+        pageQuality: pageQuality.present ? pageQuality.value : this.pageQuality,
+        certificationNumber: certificationNumber.present
+            ? certificationNumber.value
+            : this.certificationNumber,
+        signedBy: signedBy.present ? signedBy.value : this.signedBy,
+        obiStripPresent: obiStripPresent ?? this.obiStripPresent,
+        slipcoverPresent: slipcoverPresent ?? this.slipcoverPresent,
+        dustJacketPresent: dustJacketPresent ?? this.dustJacketPresent,
+        dustJacketCondition: dustJacketCondition.present
+            ? dustJacketCondition.value
+            : this.dustJacketCondition,
+        boxSetOuterCondition: boxSetOuterCondition.present
+            ? boxSetOuterCondition.value
+            : this.boxSetOuterCondition,
+        insertsPresent: insertsPresent ?? this.insertsPresent,
+        printing: printing.present ? printing.value : this.printing,
+        localizedEdition: localizedEdition.present
+            ? localizedEdition.value
+            : this.localizedEdition,
+      );
+  MangaOwnedDetailsRow copyWithCompanion(MangaOwnedDetailsRowsCompanion data) {
+    return MangaOwnedDetailsRow(
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      rawOrSlabbed: data.rawOrSlabbed.present
+          ? data.rawOrSlabbed.value
+          : this.rawOrSlabbed,
+      gradingCompany: data.gradingCompany.present
+          ? data.gradingCompany.value
+          : this.gradingCompany,
+      graderNotes:
+          data.graderNotes.present ? data.graderNotes.value : this.graderNotes,
+      labelType: data.labelType.present ? data.labelType.value : this.labelType,
+      customLabel:
+          data.customLabel.present ? data.customLabel.value : this.customLabel,
+      pageQuality:
+          data.pageQuality.present ? data.pageQuality.value : this.pageQuality,
+      certificationNumber: data.certificationNumber.present
+          ? data.certificationNumber.value
+          : this.certificationNumber,
+      signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
+      obiStripPresent: data.obiStripPresent.present
+          ? data.obiStripPresent.value
+          : this.obiStripPresent,
+      slipcoverPresent: data.slipcoverPresent.present
+          ? data.slipcoverPresent.value
+          : this.slipcoverPresent,
+      dustJacketPresent: data.dustJacketPresent.present
+          ? data.dustJacketPresent.value
+          : this.dustJacketPresent,
+      dustJacketCondition: data.dustJacketCondition.present
+          ? data.dustJacketCondition.value
+          : this.dustJacketCondition,
+      boxSetOuterCondition: data.boxSetOuterCondition.present
+          ? data.boxSetOuterCondition.value
+          : this.boxSetOuterCondition,
+      insertsPresent: data.insertsPresent.present
+          ? data.insertsPresent.value
+          : this.insertsPresent,
+      printing: data.printing.present ? data.printing.value : this.printing,
+      localizedEdition: data.localizedEdition.present
+          ? data.localizedEdition.value
+          : this.localizedEdition,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MangaOwnedDetailsRow(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('rawOrSlabbed: $rawOrSlabbed, ')
+          ..write('gradingCompany: $gradingCompany, ')
+          ..write('graderNotes: $graderNotes, ')
+          ..write('labelType: $labelType, ')
+          ..write('customLabel: $customLabel, ')
+          ..write('pageQuality: $pageQuality, ')
+          ..write('certificationNumber: $certificationNumber, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('obiStripPresent: $obiStripPresent, ')
+          ..write('slipcoverPresent: $slipcoverPresent, ')
+          ..write('dustJacketPresent: $dustJacketPresent, ')
+          ..write('dustJacketCondition: $dustJacketCondition, ')
+          ..write('boxSetOuterCondition: $boxSetOuterCondition, ')
+          ..write('insertsPresent: $insertsPresent, ')
+          ..write('printing: $printing, ')
+          ..write('localizedEdition: $localizedEdition')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      ownedItemId,
+      rawOrSlabbed,
+      gradingCompany,
+      graderNotes,
+      labelType,
+      customLabel,
+      pageQuality,
+      certificationNumber,
+      signedBy,
+      obiStripPresent,
+      slipcoverPresent,
+      dustJacketPresent,
+      dustJacketCondition,
+      boxSetOuterCondition,
+      insertsPresent,
+      printing,
+      localizedEdition);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MangaOwnedDetailsRow &&
+          other.ownedItemId == this.ownedItemId &&
+          other.rawOrSlabbed == this.rawOrSlabbed &&
+          other.gradingCompany == this.gradingCompany &&
+          other.graderNotes == this.graderNotes &&
+          other.labelType == this.labelType &&
+          other.customLabel == this.customLabel &&
+          other.pageQuality == this.pageQuality &&
+          other.certificationNumber == this.certificationNumber &&
+          other.signedBy == this.signedBy &&
+          other.obiStripPresent == this.obiStripPresent &&
+          other.slipcoverPresent == this.slipcoverPresent &&
+          other.dustJacketPresent == this.dustJacketPresent &&
+          other.dustJacketCondition == this.dustJacketCondition &&
+          other.boxSetOuterCondition == this.boxSetOuterCondition &&
+          other.insertsPresent == this.insertsPresent &&
+          other.printing == this.printing &&
+          other.localizedEdition == this.localizedEdition);
+}
+
+class MangaOwnedDetailsRowsCompanion
+    extends UpdateCompanion<MangaOwnedDetailsRow> {
+  final Value<String> ownedItemId;
+  final Value<String?> rawOrSlabbed;
+  final Value<String?> gradingCompany;
+  final Value<String?> graderNotes;
+  final Value<String?> labelType;
+  final Value<String?> customLabel;
+  final Value<String?> pageQuality;
+  final Value<String?> certificationNumber;
+  final Value<String?> signedBy;
+  final Value<bool> obiStripPresent;
+  final Value<bool> slipcoverPresent;
+  final Value<bool> dustJacketPresent;
+  final Value<String?> dustJacketCondition;
+  final Value<String?> boxSetOuterCondition;
+  final Value<bool> insertsPresent;
+  final Value<String?> printing;
+  final Value<String?> localizedEdition;
+  final Value<int> rowid;
+  const MangaOwnedDetailsRowsCompanion({
+    this.ownedItemId = const Value.absent(),
+    this.rawOrSlabbed = const Value.absent(),
+    this.gradingCompany = const Value.absent(),
+    this.graderNotes = const Value.absent(),
+    this.labelType = const Value.absent(),
+    this.customLabel = const Value.absent(),
+    this.pageQuality = const Value.absent(),
+    this.certificationNumber = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.obiStripPresent = const Value.absent(),
+    this.slipcoverPresent = const Value.absent(),
+    this.dustJacketPresent = const Value.absent(),
+    this.dustJacketCondition = const Value.absent(),
+    this.boxSetOuterCondition = const Value.absent(),
+    this.insertsPresent = const Value.absent(),
+    this.printing = const Value.absent(),
+    this.localizedEdition = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MangaOwnedDetailsRowsCompanion.insert({
+    required String ownedItemId,
+    this.rawOrSlabbed = const Value.absent(),
+    this.gradingCompany = const Value.absent(),
+    this.graderNotes = const Value.absent(),
+    this.labelType = const Value.absent(),
+    this.customLabel = const Value.absent(),
+    this.pageQuality = const Value.absent(),
+    this.certificationNumber = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.obiStripPresent = const Value.absent(),
+    this.slipcoverPresent = const Value.absent(),
+    this.dustJacketPresent = const Value.absent(),
+    this.dustJacketCondition = const Value.absent(),
+    this.boxSetOuterCondition = const Value.absent(),
+    this.insertsPresent = const Value.absent(),
+    this.printing = const Value.absent(),
+    this.localizedEdition = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : ownedItemId = Value(ownedItemId);
+  static Insertable<MangaOwnedDetailsRow> custom({
+    Expression<String>? ownedItemId,
+    Expression<String>? rawOrSlabbed,
+    Expression<String>? gradingCompany,
+    Expression<String>? graderNotes,
+    Expression<String>? labelType,
+    Expression<String>? customLabel,
+    Expression<String>? pageQuality,
+    Expression<String>? certificationNumber,
+    Expression<String>? signedBy,
+    Expression<bool>? obiStripPresent,
+    Expression<bool>? slipcoverPresent,
+    Expression<bool>? dustJacketPresent,
+    Expression<String>? dustJacketCondition,
+    Expression<String>? boxSetOuterCondition,
+    Expression<bool>? insertsPresent,
+    Expression<String>? printing,
+    Expression<String>? localizedEdition,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (rawOrSlabbed != null) 'raw_or_slabbed': rawOrSlabbed,
+      if (gradingCompany != null) 'grading_company': gradingCompany,
+      if (graderNotes != null) 'grader_notes': graderNotes,
+      if (labelType != null) 'label_type': labelType,
+      if (customLabel != null) 'custom_label': customLabel,
+      if (pageQuality != null) 'page_quality': pageQuality,
+      if (certificationNumber != null)
+        'certification_number': certificationNumber,
+      if (signedBy != null) 'signed_by': signedBy,
+      if (obiStripPresent != null) 'obi_strip_present': obiStripPresent,
+      if (slipcoverPresent != null) 'slipcover_present': slipcoverPresent,
+      if (dustJacketPresent != null) 'dust_jacket_present': dustJacketPresent,
+      if (dustJacketCondition != null)
+        'dust_jacket_condition': dustJacketCondition,
+      if (boxSetOuterCondition != null)
+        'box_set_outer_condition': boxSetOuterCondition,
+      if (insertsPresent != null) 'inserts_present': insertsPresent,
+      if (printing != null) 'printing': printing,
+      if (localizedEdition != null) 'localized_edition': localizedEdition,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MangaOwnedDetailsRowsCompanion copyWith(
+      {Value<String>? ownedItemId,
+      Value<String?>? rawOrSlabbed,
+      Value<String?>? gradingCompany,
+      Value<String?>? graderNotes,
+      Value<String?>? labelType,
+      Value<String?>? customLabel,
+      Value<String?>? pageQuality,
+      Value<String?>? certificationNumber,
+      Value<String?>? signedBy,
+      Value<bool>? obiStripPresent,
+      Value<bool>? slipcoverPresent,
+      Value<bool>? dustJacketPresent,
+      Value<String?>? dustJacketCondition,
+      Value<String?>? boxSetOuterCondition,
+      Value<bool>? insertsPresent,
+      Value<String?>? printing,
+      Value<String?>? localizedEdition,
+      Value<int>? rowid}) {
+    return MangaOwnedDetailsRowsCompanion(
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
+      gradingCompany: gradingCompany ?? this.gradingCompany,
+      graderNotes: graderNotes ?? this.graderNotes,
+      labelType: labelType ?? this.labelType,
+      customLabel: customLabel ?? this.customLabel,
+      pageQuality: pageQuality ?? this.pageQuality,
+      certificationNumber: certificationNumber ?? this.certificationNumber,
+      signedBy: signedBy ?? this.signedBy,
+      obiStripPresent: obiStripPresent ?? this.obiStripPresent,
+      slipcoverPresent: slipcoverPresent ?? this.slipcoverPresent,
+      dustJacketPresent: dustJacketPresent ?? this.dustJacketPresent,
+      dustJacketCondition: dustJacketCondition ?? this.dustJacketCondition,
+      boxSetOuterCondition: boxSetOuterCondition ?? this.boxSetOuterCondition,
+      insertsPresent: insertsPresent ?? this.insertsPresent,
+      printing: printing ?? this.printing,
+      localizedEdition: localizedEdition ?? this.localizedEdition,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (rawOrSlabbed.present) {
+      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed.value);
+    }
+    if (gradingCompany.present) {
+      map['grading_company'] = Variable<String>(gradingCompany.value);
+    }
+    if (graderNotes.present) {
+      map['grader_notes'] = Variable<String>(graderNotes.value);
+    }
+    if (labelType.present) {
+      map['label_type'] = Variable<String>(labelType.value);
+    }
+    if (customLabel.present) {
+      map['custom_label'] = Variable<String>(customLabel.value);
+    }
+    if (pageQuality.present) {
+      map['page_quality'] = Variable<String>(pageQuality.value);
+    }
+    if (certificationNumber.present) {
+      map['certification_number'] = Variable<String>(certificationNumber.value);
+    }
+    if (signedBy.present) {
+      map['signed_by'] = Variable<String>(signedBy.value);
+    }
+    if (obiStripPresent.present) {
+      map['obi_strip_present'] = Variable<bool>(obiStripPresent.value);
+    }
+    if (slipcoverPresent.present) {
+      map['slipcover_present'] = Variable<bool>(slipcoverPresent.value);
+    }
+    if (dustJacketPresent.present) {
+      map['dust_jacket_present'] = Variable<bool>(dustJacketPresent.value);
+    }
+    if (dustJacketCondition.present) {
+      map['dust_jacket_condition'] =
+          Variable<String>(dustJacketCondition.value);
+    }
+    if (boxSetOuterCondition.present) {
+      map['box_set_outer_condition'] =
+          Variable<String>(boxSetOuterCondition.value);
+    }
+    if (insertsPresent.present) {
+      map['inserts_present'] = Variable<bool>(insertsPresent.value);
+    }
+    if (printing.present) {
+      map['printing'] = Variable<String>(printing.value);
+    }
+    if (localizedEdition.present) {
+      map['localized_edition'] = Variable<String>(localizedEdition.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MangaOwnedDetailsRowsCompanion(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('rawOrSlabbed: $rawOrSlabbed, ')
+          ..write('gradingCompany: $gradingCompany, ')
+          ..write('graderNotes: $graderNotes, ')
+          ..write('labelType: $labelType, ')
+          ..write('customLabel: $customLabel, ')
+          ..write('pageQuality: $pageQuality, ')
+          ..write('certificationNumber: $certificationNumber, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('obiStripPresent: $obiStripPresent, ')
+          ..write('slipcoverPresent: $slipcoverPresent, ')
+          ..write('dustJacketPresent: $dustJacketPresent, ')
+          ..write('dustJacketCondition: $dustJacketCondition, ')
+          ..write('boxSetOuterCondition: $boxSetOuterCondition, ')
+          ..write('insertsPresent: $insertsPresent, ')
+          ..write('printing: $printing, ')
+          ..write('localizedEdition: $localizedEdition, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -15204,6 +16856,9 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $ComicReleaseRowsTable(this);
   late final $ComicOwnedDetailsRowsTable comicOwnedDetailsRows =
       $ComicOwnedDetailsRowsTable(this);
+  late final $MangaMediaRowsTable mangaMediaRows = $MangaMediaRowsTable(this);
+  late final $MangaOwnedDetailsRowsTable mangaOwnedDetailsRows =
+      $MangaOwnedDetailsRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -15234,7 +16889,9 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         providerItemLinksCache,
         comicMediaRows,
         comicReleaseRows,
-        comicOwnedDetailsRows
+        comicOwnedDetailsRows,
+        mangaMediaRows,
+        mangaOwnedDetailsRows
       ];
 }
 
@@ -22378,6 +24035,724 @@ typedef $$ComicOwnedDetailsRowsTableProcessedTableManager
         ),
         ComicOwnedDetailsRow,
         PrefetchHooks Function()>;
+typedef $$MangaMediaRowsTableCreateCompanionBuilder = MangaMediaRowsCompanion
+    Function({
+  required String id,
+  required String title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> firstPublicationDate,
+  Value<String?> originalLanguage,
+  Value<DateTime?> originalPublicationDate,
+  Value<String?> status,
+  Value<String?> subtitle,
+  Value<String> chaptersJson,
+  Value<String> characterAppearancesJson,
+  Value<String> contributionsJson,
+  Value<String> identifiersJson,
+  Value<String> seriesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$MangaMediaRowsTableUpdateCompanionBuilder = MangaMediaRowsCompanion
+    Function({
+  Value<String> id,
+  Value<String> title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> firstPublicationDate,
+  Value<String?> originalLanguage,
+  Value<DateTime?> originalPublicationDate,
+  Value<String?> status,
+  Value<String?> subtitle,
+  Value<String> chaptersJson,
+  Value<String> characterAppearancesJson,
+  Value<String> contributionsJson,
+  Value<String> identifiersJson,
+  Value<String> seriesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$MangaMediaRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MangaMediaRowsTable> {
+  $$MangaMediaRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get firstPublicationDate => $composableBuilder(
+      column: $table.firstPublicationDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get originalPublicationDate => $composableBuilder(
+      column: $table.originalPublicationDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get chaptersJson => $composableBuilder(
+      column: $table.chaptersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get characterAppearancesJson => $composableBuilder(
+      column: $table.characterAppearancesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesJson => $composableBuilder(
+      column: $table.seriesJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MangaMediaRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MangaMediaRowsTable> {
+  $$MangaMediaRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get firstPublicationDate => $composableBuilder(
+      column: $table.firstPublicationDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get originalPublicationDate => $composableBuilder(
+      column: $table.originalPublicationDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chaptersJson => $composableBuilder(
+      column: $table.chaptersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get characterAppearancesJson => $composableBuilder(
+      column: $table.characterAppearancesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seriesJson => $composableBuilder(
+      column: $table.seriesJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MangaMediaRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MangaMediaRowsTable> {
+  $$MangaMediaRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get sortTitle =>
+      $composableBuilder(column: $table.sortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get firstPublicationDate => $composableBuilder(
+      column: $table.firstPublicationDate, builder: (column) => column);
+
+  GeneratedColumn<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get originalPublicationDate => $composableBuilder(
+      column: $table.originalPublicationDate, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitle =>
+      $composableBuilder(column: $table.subtitle, builder: (column) => column);
+
+  GeneratedColumn<String> get chaptersJson => $composableBuilder(
+      column: $table.chaptersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get characterAppearancesJson => $composableBuilder(
+      column: $table.characterAppearancesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get seriesJson => $composableBuilder(
+      column: $table.seriesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$MangaMediaRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MangaMediaRowsTable,
+    MangaMediaRow,
+    $$MangaMediaRowsTableFilterComposer,
+    $$MangaMediaRowsTableOrderingComposer,
+    $$MangaMediaRowsTableAnnotationComposer,
+    $$MangaMediaRowsTableCreateCompanionBuilder,
+    $$MangaMediaRowsTableUpdateCompanionBuilder,
+    (
+      MangaMediaRow,
+      BaseReferences<_$LocalDatabase, $MangaMediaRowsTable, MangaMediaRow>
+    ),
+    MangaMediaRow,
+    PrefetchHooks Function()> {
+  $$MangaMediaRowsTableTableManager(
+      _$LocalDatabase db, $MangaMediaRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MangaMediaRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MangaMediaRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MangaMediaRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> firstPublicationDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<DateTime?> originalPublicationDate = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String> chaptersJson = const Value.absent(),
+            Value<String> characterAppearancesJson = const Value.absent(),
+            Value<String> contributionsJson = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String> seriesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MangaMediaRowsCompanion(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            firstPublicationDate: firstPublicationDate,
+            originalLanguage: originalLanguage,
+            originalPublicationDate: originalPublicationDate,
+            status: status,
+            subtitle: subtitle,
+            chaptersJson: chaptersJson,
+            characterAppearancesJson: characterAppearancesJson,
+            contributionsJson: contributionsJson,
+            identifiersJson: identifiersJson,
+            seriesJson: seriesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> firstPublicationDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<DateTime?> originalPublicationDate = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String> chaptersJson = const Value.absent(),
+            Value<String> characterAppearancesJson = const Value.absent(),
+            Value<String> contributionsJson = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String> seriesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MangaMediaRowsCompanion.insert(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            firstPublicationDate: firstPublicationDate,
+            originalLanguage: originalLanguage,
+            originalPublicationDate: originalPublicationDate,
+            status: status,
+            subtitle: subtitle,
+            chaptersJson: chaptersJson,
+            characterAppearancesJson: characterAppearancesJson,
+            contributionsJson: contributionsJson,
+            identifiersJson: identifiersJson,
+            seriesJson: seriesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MangaMediaRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MangaMediaRowsTable,
+    MangaMediaRow,
+    $$MangaMediaRowsTableFilterComposer,
+    $$MangaMediaRowsTableOrderingComposer,
+    $$MangaMediaRowsTableAnnotationComposer,
+    $$MangaMediaRowsTableCreateCompanionBuilder,
+    $$MangaMediaRowsTableUpdateCompanionBuilder,
+    (
+      MangaMediaRow,
+      BaseReferences<_$LocalDatabase, $MangaMediaRowsTable, MangaMediaRow>
+    ),
+    MangaMediaRow,
+    PrefetchHooks Function()>;
+typedef $$MangaOwnedDetailsRowsTableCreateCompanionBuilder
+    = MangaOwnedDetailsRowsCompanion Function({
+  required String ownedItemId,
+  Value<String?> rawOrSlabbed,
+  Value<String?> gradingCompany,
+  Value<String?> graderNotes,
+  Value<String?> labelType,
+  Value<String?> customLabel,
+  Value<String?> pageQuality,
+  Value<String?> certificationNumber,
+  Value<String?> signedBy,
+  Value<bool> obiStripPresent,
+  Value<bool> slipcoverPresent,
+  Value<bool> dustJacketPresent,
+  Value<String?> dustJacketCondition,
+  Value<String?> boxSetOuterCondition,
+  Value<bool> insertsPresent,
+  Value<String?> printing,
+  Value<String?> localizedEdition,
+  Value<int> rowid,
+});
+typedef $$MangaOwnedDetailsRowsTableUpdateCompanionBuilder
+    = MangaOwnedDetailsRowsCompanion Function({
+  Value<String> ownedItemId,
+  Value<String?> rawOrSlabbed,
+  Value<String?> gradingCompany,
+  Value<String?> graderNotes,
+  Value<String?> labelType,
+  Value<String?> customLabel,
+  Value<String?> pageQuality,
+  Value<String?> certificationNumber,
+  Value<String?> signedBy,
+  Value<bool> obiStripPresent,
+  Value<bool> slipcoverPresent,
+  Value<bool> dustJacketPresent,
+  Value<String?> dustJacketCondition,
+  Value<String?> boxSetOuterCondition,
+  Value<bool> insertsPresent,
+  Value<String?> printing,
+  Value<String?> localizedEdition,
+  Value<int> rowid,
+});
+
+class $$MangaOwnedDetailsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MangaOwnedDetailsRowsTable> {
+  $$MangaOwnedDetailsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get labelType => $composableBuilder(
+      column: $table.labelType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get customLabel => $composableBuilder(
+      column: $table.customLabel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get pageQuality => $composableBuilder(
+      column: $table.pageQuality, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get obiStripPresent => $composableBuilder(
+      column: $table.obiStripPresent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get slipcoverPresent => $composableBuilder(
+      column: $table.slipcoverPresent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get dustJacketPresent => $composableBuilder(
+      column: $table.dustJacketPresent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dustJacketCondition => $composableBuilder(
+      column: $table.dustJacketCondition,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetOuterCondition => $composableBuilder(
+      column: $table.boxSetOuterCondition,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get insertsPresent => $composableBuilder(
+      column: $table.insertsPresent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get printing => $composableBuilder(
+      column: $table.printing, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localizedEdition => $composableBuilder(
+      column: $table.localizedEdition,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MangaOwnedDetailsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MangaOwnedDetailsRowsTable> {
+  $$MangaOwnedDetailsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get labelType => $composableBuilder(
+      column: $table.labelType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get customLabel => $composableBuilder(
+      column: $table.customLabel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get pageQuality => $composableBuilder(
+      column: $table.pageQuality, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get obiStripPresent => $composableBuilder(
+      column: $table.obiStripPresent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get slipcoverPresent => $composableBuilder(
+      column: $table.slipcoverPresent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get dustJacketPresent => $composableBuilder(
+      column: $table.dustJacketPresent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dustJacketCondition => $composableBuilder(
+      column: $table.dustJacketCondition,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetOuterCondition => $composableBuilder(
+      column: $table.boxSetOuterCondition,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get insertsPresent => $composableBuilder(
+      column: $table.insertsPresent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get printing => $composableBuilder(
+      column: $table.printing, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localizedEdition => $composableBuilder(
+      column: $table.localizedEdition,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MangaOwnedDetailsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MangaOwnedDetailsRowsTable> {
+  $$MangaOwnedDetailsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed, builder: (column) => column);
+
+  GeneratedColumn<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany, builder: (column) => column);
+
+  GeneratedColumn<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get labelType =>
+      $composableBuilder(column: $table.labelType, builder: (column) => column);
+
+  GeneratedColumn<String> get customLabel => $composableBuilder(
+      column: $table.customLabel, builder: (column) => column);
+
+  GeneratedColumn<String> get pageQuality => $composableBuilder(
+      column: $table.pageQuality, builder: (column) => column);
+
+  GeneratedColumn<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get signedBy =>
+      $composableBuilder(column: $table.signedBy, builder: (column) => column);
+
+  GeneratedColumn<bool> get obiStripPresent => $composableBuilder(
+      column: $table.obiStripPresent, builder: (column) => column);
+
+  GeneratedColumn<bool> get slipcoverPresent => $composableBuilder(
+      column: $table.slipcoverPresent, builder: (column) => column);
+
+  GeneratedColumn<bool> get dustJacketPresent => $composableBuilder(
+      column: $table.dustJacketPresent, builder: (column) => column);
+
+  GeneratedColumn<String> get dustJacketCondition => $composableBuilder(
+      column: $table.dustJacketCondition, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetOuterCondition => $composableBuilder(
+      column: $table.boxSetOuterCondition, builder: (column) => column);
+
+  GeneratedColumn<bool> get insertsPresent => $composableBuilder(
+      column: $table.insertsPresent, builder: (column) => column);
+
+  GeneratedColumn<String> get printing =>
+      $composableBuilder(column: $table.printing, builder: (column) => column);
+
+  GeneratedColumn<String> get localizedEdition => $composableBuilder(
+      column: $table.localizedEdition, builder: (column) => column);
+}
+
+class $$MangaOwnedDetailsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MangaOwnedDetailsRowsTable,
+    MangaOwnedDetailsRow,
+    $$MangaOwnedDetailsRowsTableFilterComposer,
+    $$MangaOwnedDetailsRowsTableOrderingComposer,
+    $$MangaOwnedDetailsRowsTableAnnotationComposer,
+    $$MangaOwnedDetailsRowsTableCreateCompanionBuilder,
+    $$MangaOwnedDetailsRowsTableUpdateCompanionBuilder,
+    (
+      MangaOwnedDetailsRow,
+      BaseReferences<_$LocalDatabase, $MangaOwnedDetailsRowsTable,
+          MangaOwnedDetailsRow>
+    ),
+    MangaOwnedDetailsRow,
+    PrefetchHooks Function()> {
+  $$MangaOwnedDetailsRowsTableTableManager(
+      _$LocalDatabase db, $MangaOwnedDetailsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MangaOwnedDetailsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MangaOwnedDetailsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MangaOwnedDetailsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String?> rawOrSlabbed = const Value.absent(),
+            Value<String?> gradingCompany = const Value.absent(),
+            Value<String?> graderNotes = const Value.absent(),
+            Value<String?> labelType = const Value.absent(),
+            Value<String?> customLabel = const Value.absent(),
+            Value<String?> pageQuality = const Value.absent(),
+            Value<String?> certificationNumber = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> obiStripPresent = const Value.absent(),
+            Value<bool> slipcoverPresent = const Value.absent(),
+            Value<bool> dustJacketPresent = const Value.absent(),
+            Value<String?> dustJacketCondition = const Value.absent(),
+            Value<String?> boxSetOuterCondition = const Value.absent(),
+            Value<bool> insertsPresent = const Value.absent(),
+            Value<String?> printing = const Value.absent(),
+            Value<String?> localizedEdition = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MangaOwnedDetailsRowsCompanion(
+            ownedItemId: ownedItemId,
+            rawOrSlabbed: rawOrSlabbed,
+            gradingCompany: gradingCompany,
+            graderNotes: graderNotes,
+            labelType: labelType,
+            customLabel: customLabel,
+            pageQuality: pageQuality,
+            certificationNumber: certificationNumber,
+            signedBy: signedBy,
+            obiStripPresent: obiStripPresent,
+            slipcoverPresent: slipcoverPresent,
+            dustJacketPresent: dustJacketPresent,
+            dustJacketCondition: dustJacketCondition,
+            boxSetOuterCondition: boxSetOuterCondition,
+            insertsPresent: insertsPresent,
+            printing: printing,
+            localizedEdition: localizedEdition,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String ownedItemId,
+            Value<String?> rawOrSlabbed = const Value.absent(),
+            Value<String?> gradingCompany = const Value.absent(),
+            Value<String?> graderNotes = const Value.absent(),
+            Value<String?> labelType = const Value.absent(),
+            Value<String?> customLabel = const Value.absent(),
+            Value<String?> pageQuality = const Value.absent(),
+            Value<String?> certificationNumber = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> obiStripPresent = const Value.absent(),
+            Value<bool> slipcoverPresent = const Value.absent(),
+            Value<bool> dustJacketPresent = const Value.absent(),
+            Value<String?> dustJacketCondition = const Value.absent(),
+            Value<String?> boxSetOuterCondition = const Value.absent(),
+            Value<bool> insertsPresent = const Value.absent(),
+            Value<String?> printing = const Value.absent(),
+            Value<String?> localizedEdition = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MangaOwnedDetailsRowsCompanion.insert(
+            ownedItemId: ownedItemId,
+            rawOrSlabbed: rawOrSlabbed,
+            gradingCompany: gradingCompany,
+            graderNotes: graderNotes,
+            labelType: labelType,
+            customLabel: customLabel,
+            pageQuality: pageQuality,
+            certificationNumber: certificationNumber,
+            signedBy: signedBy,
+            obiStripPresent: obiStripPresent,
+            slipcoverPresent: slipcoverPresent,
+            dustJacketPresent: dustJacketPresent,
+            dustJacketCondition: dustJacketCondition,
+            boxSetOuterCondition: boxSetOuterCondition,
+            insertsPresent: insertsPresent,
+            printing: printing,
+            localizedEdition: localizedEdition,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MangaOwnedDetailsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MangaOwnedDetailsRowsTable,
+        MangaOwnedDetailsRow,
+        $$MangaOwnedDetailsRowsTableFilterComposer,
+        $$MangaOwnedDetailsRowsTableOrderingComposer,
+        $$MangaOwnedDetailsRowsTableAnnotationComposer,
+        $$MangaOwnedDetailsRowsTableCreateCompanionBuilder,
+        $$MangaOwnedDetailsRowsTableUpdateCompanionBuilder,
+        (
+          MangaOwnedDetailsRow,
+          BaseReferences<_$LocalDatabase, $MangaOwnedDetailsRowsTable,
+              MangaOwnedDetailsRow>
+        ),
+        MangaOwnedDetailsRow,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -22441,4 +24816,8 @@ class $LocalDatabaseManager {
       $$ComicReleaseRowsTableTableManager(_db, _db.comicReleaseRows);
   $$ComicOwnedDetailsRowsTableTableManager get comicOwnedDetailsRows =>
       $$ComicOwnedDetailsRowsTableTableManager(_db, _db.comicOwnedDetailsRows);
+  $$MangaMediaRowsTableTableManager get mangaMediaRows =>
+      $$MangaMediaRowsTableTableManager(_db, _db.mangaMediaRows);
+  $$MangaOwnedDetailsRowsTableTableManager get mangaOwnedDetailsRows =>
+      $$MangaOwnedDetailsRowsTableTableManager(_db, _db.mangaOwnedDetailsRows);
 }

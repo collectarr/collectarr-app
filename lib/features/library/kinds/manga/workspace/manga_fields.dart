@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -276,7 +277,40 @@ abstract final class MangaKindSchema {
   );
 }
 
+final mangaLibraryFacetDefinitions =
+    <LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>>[
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.publisher,
+    label: 'Publisher',
+    extractValues: (dto) => [
+      if (dto.publisher case final publisher?) publisher,
+    ],
+  ),
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.genre,
+    label: 'Genre',
+    extractValues: (dto) => dto.metadata?.genres ?? const <String>[],
+  ),
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.character,
+    label: 'Character',
+    extractValues: (_) => const <String>[],
+  ),
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.theme,
+    label: 'Theme',
+    extractValues: (dto) => dto.metadata?.themes ?? const <String>[],
+  ),
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.demographic,
+    label: 'Demographic',
+    extractValues: (dto) => [dto.metadata?.demographic.label ?? 'Other'],
+  ),
+];
+
 final mangaLibraryFieldDefinitions = [
+  MangaKindSchema.status,
+  MangaKindSchema.cover,
   MangaKindSchema.title,
   MangaKindSchema.series,
   MangaKindSchema.volumeNumber,
@@ -286,6 +320,10 @@ final mangaLibraryFieldDefinitions = [
   MangaKindSchema.location,
   MangaKindSchema.pricePaid,
   MangaKindSchema.barcode,
+  MangaKindSchema.rating,
+  MangaKindSchema.wishlist,
+  MangaKindSchema.updatedAt,
+  MangaKindSchema.addedAt,
   MangaKindSchema.nativeTitle,
   MangaKindSchema.romajiTitle,
   MangaKindSchema.englishTitle,

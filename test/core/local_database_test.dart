@@ -64,7 +64,7 @@ void main() {
   test('reports the current schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 11);
+    expect(db.schemaVersion, 12);
   });
 
   test('migrates a v7 cache to v11 without losing existing cache rows',
@@ -91,6 +91,12 @@ void main() {
     await old.customStatement(
       'DROP TABLE ${old.comicOwnedDetailsRows.actualTableName}',
     );
+    await old.customStatement(
+      'DROP TABLE ${old.mangaMediaRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.mangaOwnedDetailsRows.actualTableName}',
+    );
     await old.customStatement('PRAGMA user_version = 7');
     await old.close();
 
@@ -105,7 +111,7 @@ void main() {
     expect(await db.select(db.providerItemLinksCache).get(), isEmpty);
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 11);
+    expect(version.data.values.first, 12);
   });
 
   test('migrates a v8 provider account table by adding username', () async {
@@ -158,6 +164,12 @@ void main() {
     await old.customStatement(
       'DROP TABLE ${old.comicOwnedDetailsRows.actualTableName}',
     );
+    await old.customStatement(
+      'DROP TABLE ${old.mangaMediaRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.mangaOwnedDetailsRows.actualTableName}',
+    );
     await old.customStatement('PRAGMA user_version = 8');
     await old.close();
 
@@ -175,7 +187,7 @@ void main() {
     final migrated = await db.select(db.providerAccountsCache).getSingle();
     expect(migrated.username, 'new-user');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 11);
+    expect(version.data.values.first, 12);
   });
 
   test('migrates v9 owned semantic columns into typed details JSON', () async {
@@ -310,8 +322,8 @@ void main() {
     expect((game.details as GameOwnedDetails).priceChartingId, 'pc-123');
   });
 
-  test('creates Comic owned details table when migrating from v10', () async {
-    final dir = await Directory.systemTemp.createTemp('collectarr_db_v11');
+  test('creates kind-owned details tables when migrating from v10', () async {
+    final dir = await Directory.systemTemp.createTemp('collectarr_db_v12');
     addTearDown(() => dir.delete(recursive: true));
     final file = File('${dir.path}/cache.sqlite');
 
@@ -328,6 +340,12 @@ void main() {
     await old.customStatement(
       'DROP TABLE ${old.comicOwnedDetailsRows.actualTableName}',
     );
+    await old.customStatement(
+      'DROP TABLE ${old.mangaMediaRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.mangaOwnedDetailsRows.actualTableName}',
+    );
     await old.customStatement('PRAGMA user_version = 10');
     await old.close();
 
@@ -336,11 +354,16 @@ void main() {
 
     final owned = await db.select(db.ownedItemsCache).getSingle();
     final detailsRows = await db.select(db.comicOwnedDetailsRows).get();
+    final mangaMediaRows = await db.select(db.mangaMediaRows).get();
+    final mangaOwnedDetailsRows =
+        await db.select(db.mangaOwnedDetailsRows).get();
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(owned.id, 'owned-legacy');
     expect(owned.detailsJson, jsonEncode({'key_comic': true}));
     expect(detailsRows, isEmpty);
-    expect(version.data.values.first, 11);
+    expect(mangaMediaRows, isEmpty);
+    expect(mangaOwnedDetailsRows, isEmpty);
+    expect(version.data.values.first, 12);
   });
 
   test('owned item repository round-trips opaque kind details', () async {
@@ -397,7 +420,7 @@ void main() {
     expect((malformed!.details as ComicOwnedDetails).keyComic, isFalse);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v11 schema',
+  test('destructively rebuilds a higher-versioned cache to the v12 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -429,7 +452,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 11);
+    expect(version.data.values.first, 12);
   });
 
   test('stores personal collection and wishlist data locally', () async {

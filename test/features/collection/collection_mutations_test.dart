@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -626,6 +627,36 @@ void main() {
     expect(wishlist, hasLength(1));
     expect(queued, hasLength(4));
     expect(container.read(syncControllerProvider).pendingCount, 4);
+  });
+
+  test('collection import propagates file import origin', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    MutationOrigin? observedOrigin;
+    final runner = CollectionMutationRunner(
+      database: db,
+      events: CollectionEventBus(),
+      mutationOriginHandler: (origin) => observedOrigin = origin,
+    );
+    final container = ProviderContainer(
+      overrides: [
+        localDatabaseProvider.overrideWithValue(db),
+        collectionMutationRunnerProvider.overrideWithValue(runner),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(collectionImportServiceProvider).importRows(
+      const [
+        CollectionCsvRow(
+          itemId: 'comic-import-1',
+          kind: 'comic',
+          status: 'owned',
+        ),
+      ],
+    );
+
+    expect(observedOrigin, MutationOrigin.fileImport);
   });
 
   test('collection import moves existing wishlist rows to owned in one batch',

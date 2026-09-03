@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
 
 part 'local_database.g.dart';
 
@@ -395,13 +396,15 @@ class ProviderItemLinksCache extends Table {
   ComicMediaRows,
   ComicReleaseRows,
   ComicOwnedDetailsRows,
+  MangaMediaRows,
+  MangaOwnedDetailsRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration {
@@ -431,9 +434,13 @@ class LocalDatabase extends _$LocalDatabase {
         }
         if (from < 11) {
           await m.createTable(comicOwnedDetailsRows);
-          return;
         }
-        await _destructiveRebuild(m);
+        if (from < 12) {
+          await m.createTable(mangaMediaRows);
+          await m.createTable(mangaOwnedDetailsRows);
+        } else {
+          await _destructiveRebuild(m);
+        }
       },
       beforeOpen: (details) async {
         // A newer on-disk version cannot be migrated safely by this client.

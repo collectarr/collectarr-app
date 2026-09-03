@@ -1153,6 +1153,16 @@ Do not import Comic.
 
 Core adoption tests.
 
+### Status (2026-09-03)
+
+Complete. `MangaMedia` now owns the direct Core work projection, and
+`MangaCoreMapper` maps every `MangaWorkDto` field without passing through
+`CatalogItemDto`, Book semantics, or another kind module. `ApiMangaRemoteSource`
+provides the injectable Core fetch boundary. The compatibility Manga mapper
+now returns `MangaCatalog` instead of delegating to Book. Focused tests cover
+field mapping, kind validation, remote fetching, round-trip preservation, and
+explicit Core field adoption. Continue with PR33.
+
 ---
 
 ## PR 33 — Manga local DB + repository
@@ -1168,6 +1178,17 @@ repository
 ```
 
 Persistence contracts.
+
+### Status (2026-09-03)
+
+Complete. `MangaMediaRows` and `MangaOwnedDetailsRows` are registered as
+Manga-owned Drift tables in schema v12. `MangaLocalMapper` provides validated
+media and owned-details row conversions, preserving Manga lists as explicitly
+named JSON columns and owned fields as typed scalar columns. `MangaRepository`
+supports cache-first media reads, deterministic search, upserts, owned-details
+round-trips, and typed remote fallback. Focused schema, mapper, repository,
+and v10-to-v12 migration tests cover the persistence contract. Continue with
+PR34.
 
 ---
 
@@ -1186,6 +1207,18 @@ MangaVocabularies
 ```
 
 Duplication with Comic is intentional.
+
+### Status (2026-09-03)
+
+Complete. Manga now has an explicit contract for its typed workspace registry:
+base and kind-specific fields are registered, columns/sorts/groups resolve to
+Manga IDs, defaults resolve to declared definitions, and the preference codec
+remains Manga-owned. Typed facet definitions cover publisher, genre, character,
+theme, and demographic; character intentionally returns no values until the
+workspace projection carries Manga media character appearances. Manga's five
+vocabularies are registered through the kind edit capability. Contract tests
+cover IDs, definitions, extracted values, facets, and vocabulary ownership.
+Continue with PR35.
 
 ---
 

@@ -276,9 +276,10 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     createDraft: createMangaEditDraft,
   ),
   providerMapper: const MangaLibraryKindProviderMapper(),
-  facets: const LibraryFacetModule(
+  facets: LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
     getFacetValues: _getFacetValues,
+    definitions: mangaLibraryFacetDefinitions,
     externalFacetBucketIdsByMode: {
       'manga.genre': MangaFacetIds.genre,
       'manga.demographic': MangaFacetIds.demographic,
@@ -289,17 +290,14 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
 
 Iterable<String> _getFacetValues(
     LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId) {
-  final kindMetadata = item.source.catalogItem?.kindMetadata;
-  final metadata = kindMetadata is MangaMetadata ? kindMetadata : null;
-  if (facetId == MangaFacetIds.character) {
+  final dto = item.dto;
+  if (dto is! MangaWorkspaceDto) {
     return const [];
   }
-  if (facetId == MangaFacetIds.genre) {
-    return metadata?.genres ?? const [];
-  }
-  if (facetId == MangaFacetIds.publisher) {
-    final pub = metadata?.publisher;
-    return pub != null ? [pub] : const [];
+  for (final definition in mangaLibraryFacetDefinitions) {
+    if (definition.id.sameIdentityAs(facetId)) {
+      return definition.extractValues(dto);
+    }
   }
   return const [];
 }
