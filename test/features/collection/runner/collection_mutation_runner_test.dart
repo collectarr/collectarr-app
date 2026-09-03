@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -107,5 +108,22 @@ void main() {
     expect(items, isEmpty);
 
     await sub.cancel();
+  });
+
+  test('passes mutation origin to the origin handler after commit', () async {
+    MutationOrigin? observedOrigin;
+    final runner = CollectionMutationRunner(
+      database: db,
+      events: eventBus,
+      mutationOriginHandler: (origin) => observedOrigin = origin,
+    );
+
+    await runner.run(
+      action: () async {},
+      triggerSync: false,
+      origin: MutationOrigin.fileImport,
+    );
+
+    expect(observedOrigin, MutationOrigin.fileImport);
   });
 }

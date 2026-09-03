@@ -47,7 +47,8 @@ final class MutationOrigin {
         provider == targetProvider) {
       return false;
     }
-    if (source == MutationSourceType.collectarrSync) {
+    if (source == MutationSourceType.collectarrSync ||
+        source == MutationSourceType.fileImport) {
       return false;
     }
     return true;

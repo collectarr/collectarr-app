@@ -221,9 +221,10 @@ architecture-negative check prevents the old design from returning.
 	echo protection. Use AniList as the first complete vertical slice.
 - [ ] Finish importer convergence with `ProviderPersonalEntry` and
 	`ExternalStateEngine`. The framework and TMDB preview path are now typed and
-	pass Dart's `MutationOrigin.fileImport` into the apply callback; production
-	import-job mutation origin propagation and any remaining provider-specific
-	paths are still open.
+	pass Dart's `MutationOrigin.fileImport` into the apply callback. Production
+	import jobs now propagate their origin through collection mutations, and file
+	imports cannot write back to external providers; remaining provider-specific
+	paths and link creation are still open.
 - [ ] Add personal-list imports in this order: MAL and AniList, then Trakt, Simkl,
 	and Kitsu, covering watched/read/rated/watchlist/progress data.
 - [ ] Keep contract drift diagnostics as a hard client/Core regression gate and

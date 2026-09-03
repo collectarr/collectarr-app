@@ -217,7 +217,14 @@ void main() {
       expect(pushedExternal, isFalse);
       expect(mockCapability.writtenEntries, isEmpty);
 
-      // Case 2: Mutation originated from user -> PUSH TO EXTERNAL PROVIDER
+      final pushedFileImport = await coordinator.handleLocalMutation(
+        localRef: localRef,
+        localEntry: modifiedLocal,
+        origin: MutationOrigin.fileImport,
+      );
+      expect(pushedFileImport, isFalse);
+      expect(mockCapability.writtenEntries, isEmpty);
+
       final pushedUser = await coordinator.handleLocalMutation(
         localRef: localRef,
         localEntry: modifiedLocal,

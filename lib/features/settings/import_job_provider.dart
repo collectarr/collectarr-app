@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/settings/anime_list_import_service.dart';
 import 'package:collectarr_app/features/settings/provider_csv_import_service.dart';
@@ -186,6 +187,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         sourceLabel: 'TMDB account sync',
         keepUnmatchedLocally: keepUnmatchedLocally,
         apiKey: credentials.apiKey,
+        origin: MutationOrigin.externalProvider(ProviderId.tmdb),
       );
     } catch (error) {
       _updateJob(
@@ -238,6 +240,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         sourceLabel: fileName,
         keepUnmatchedLocally: keepUnmatchedLocally,
         apiKey: apiKey,
+        origin: MutationOrigin.fileImport,
       );
     } catch (error) {
       _updateJob(
@@ -286,6 +289,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         entries: rows,
         sourceLabel: fileName,
         keepUnmatchedLocally: keepUnmatchedLocally,
+        origin: MutationOrigin.fileImport,
       );
     } catch (error) {
       _updateJob(
@@ -335,6 +339,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         entries: rows,
         sourceLabel: fileName,
         keepUnmatchedLocally: keepUnmatchedLocally,
+        origin: MutationOrigin.fileImport,
       );
     } catch (error) {
       _updateJob(
@@ -354,6 +359,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required List<ProviderPersonalEntry> entries,
     required String sourceLabel,
     required bool keepUnmatchedLocally,
+    MutationOrigin origin = MutationOrigin.fileImport,
   }) async {
     final api = ref.read(apiClientProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
@@ -408,6 +414,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           trackingMutations: trackingMutations,
           item: item,
           entry: match.entry,
+          origin: origin,
         );
         importedCount += 1;
       } else if (keepUnmatchedLocally) {
@@ -417,6 +424,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           trackingMutations: trackingMutations,
           item: localItem,
           entry: match.entry,
+          origin: origin,
         );
         keptLocalCount += 1;
       } else {
@@ -477,6 +485,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required String sourceLabel,
     required bool keepUnmatchedLocally,
     String? apiKey,
+    required MutationOrigin origin,
   }) async {
     final api = ref.read(apiClientProvider);
 
@@ -550,7 +559,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         final enriched = await enrichedEntry;
         final mergedItem = _service.mergeMatchedCatalogItem(item, enriched);
         if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
-          await ownedMutations.updateCatalogSnapshot(mergedItem);
+          await ownedMutations.updateCatalogSnapshot(
+            mergedItem,
+            origin: origin,
+          );
         }
         if (match.entry.collection.isRated) {
           await trackingMutations.upsertTrackingEntry(
@@ -559,11 +571,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             status: MediaTrackingStatus.completed,
             rating: _normalizedRating(match.entry.rating),
             timesCompleted: 1,
+            origin: origin,
           );
         } else {
           await wishlistMutations.addToWishlist(
             item.id,
             fallbackKind: item.kind,
+            origin: origin,
           );
         }
         await _importTvSeasons(
@@ -571,6 +585,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           trackingMutations: trackingMutations,
           seriesEntry: enriched,
           apiKey: apiKey,
+          origin: origin,
         );
         importedCount += 1;
       } else if (keepUnmatchedLocally) {
@@ -631,15 +646,20 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
                 status: MediaTrackingStatus.completed,
                 rating: _normalizedRating(enriched.rating),
                 timesCompleted: 1,
+                origin: origin,
               );
             } else {
-              await wishlistMutations.addLocalOnlyWishlistItem(localItem);
+              await wishlistMutations.addLocalOnlyWishlistItem(
+                localItem,
+                origin: origin,
+              );
             }
             await _importTvSeasons(
               wishlistMutations: wishlistMutations,
               trackingMutations: trackingMutations,
               seriesEntry: enriched,
               apiKey: apiKey,
+              origin: origin,
             );
             await _pendingStore.upsert(
               TmdbPendingImportRecord(
@@ -754,6 +774,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required TrackingMutations trackingMutations,
     required TmdbImportEntry seriesEntry,
     required String? apiKey,
+    required MutationOrigin origin,
   }) async {
     if (seriesEntry.mediaType != TmdbMediaType.tv) {
       return;
@@ -778,11 +799,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           rating: _normalizedRating(seriesEntry.rating),
           timesCompleted: 1,
           seasonNumber: seasonNumber,
+          origin: origin,
         );
       } else {
         await wishlistMutations.addLocalOnlyWishlistItem(
           seasonItem,
           anchorType: 'season',
+          origin: origin,
         );
       }
     }
@@ -853,12 +876,14 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required TrackingMutations trackingMutations,
     required LibraryMetadataItem item,
     required ProviderPersonalEntry entry,
+    required MutationOrigin origin,
   }) async {
     final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
       await wishlistMutations.addToWishlist(
         item.id,
         fallbackKind: item.kind,
+        origin: origin,
       );
       return;
     }
@@ -879,6 +904,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       progressCurrent: entry.progress,
       timesCompleted:
           trackingStatus == MediaTrackingStatus.completed ? 1 : null,
+      origin: origin,
     );
   }
 
@@ -887,10 +913,14 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required TrackingMutations trackingMutations,
     required dynamic item,
     required ProviderPersonalEntry entry,
+    required MutationOrigin origin,
   }) async {
     final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
-      await wishlistMutations.addLocalOnlyWishlistItem(item);
+      await wishlistMutations.addLocalOnlyWishlistItem(
+        item,
+        origin: origin,
+      );
       return;
     }
     await trackingMutations.addLocalOnlyTrackingEntry(
@@ -906,6 +936,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       timesCompleted:
           trackingStatus == MediaTrackingStatus.completed ? 1 : null,
       allowEmpty: true,
+      origin: origin,
     );
   }
 

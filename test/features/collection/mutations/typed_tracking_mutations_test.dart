@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,8 +23,10 @@ void main() {
   late CatalogCacheRepository catalogCache;
   late OwnedItemsCacheRepository ownedItems;
   late TrackingEntriesCacheRepository trackingEntries;
+  late MutationOrigin? observedOrigin;
 
   setUp(() {
+    observedOrigin = null;
     db = LocalDatabase(NativeDatabase.memory());
     catalogCache = CatalogCacheRepository(db);
     ownedItems = OwnedItemsCacheRepository(db);
@@ -31,6 +34,7 @@ void main() {
     final runner = CollectionMutationRunner(
       database: db,
       events: CollectionEventBus(),
+      mutationOriginHandler: (origin) => observedOrigin = origin,
     );
 
     trackingMutations = TrackingMutations(
@@ -171,6 +175,22 @@ void main() {
               .single;
       expect(entry.catalogRef.kind, 'music');
       expect(entry.catalogRef.kind, isNot('comic'));
+    });
+
+    test('forwards file import origin through tracking mutation', () async {
+      const ref = CatalogEntityRef(
+        kind: 'anime',
+        entityType: CatalogEntityType.work,
+        id: 'anime-import-1',
+      );
+
+      await trackingMutations.upsertTrackingEntry(
+        TrackingTarget.catalog(ref),
+        status: MediaTrackingStatus.completed,
+        origin: MutationOrigin.fileImport,
+      );
+
+      expect(observedOrigin, MutationOrigin.fileImport);
     });
   });
 }

@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/collection/repositories/watch_sessions_c
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
 export 'package:collectarr_app/core/models/tracking_target.dart';
@@ -81,6 +82,7 @@ final class TrackingMutations {
     Map<String, int>? episodeRatings,
     bool allowEmpty = false,
     bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     late final CatalogEntityRef catalogRef;
@@ -131,6 +133,7 @@ final class TrackingMutations {
     final entryId = existing?.id ?? idGenerator();
 
     await mutationRunner.run(
+      origin: origin,
       action: () async {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
@@ -276,6 +279,7 @@ final class TrackingMutations {
     int? episodeNumber,
     Map<String, int>? episodeRatings,
     bool allowEmpty = false,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     final itemId =
@@ -285,6 +289,7 @@ final class TrackingMutations {
     final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();
     await mutationRunner.run(
+      origin: origin,
       action: () async {
         await catalogCache.upsertAll([item]);
         final normalizedAnchorType = resolvePersonalItemAnchorType(

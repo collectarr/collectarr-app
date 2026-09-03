@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_units_c
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IdGenerator = String Function();
@@ -44,9 +45,11 @@ final class WishlistMutations {
     String? variantId,
     String? bundleReleaseId,
     bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
+      origin: origin,
       action: () async {
         final catalogItem = await catalogCache.findById(itemId);
         final existing = await wishlist.findActiveByItemAnchor(
@@ -100,12 +103,14 @@ final class WishlistMutations {
     String? variantId,
     String? bundleReleaseId,
     bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     final itemId =
         item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
     await mutationRunner.run(
+      origin: origin,
       action: () async {
         await catalogCache.upsertAll([item]);
         final existing = await wishlist.findActiveByItemAnchor(

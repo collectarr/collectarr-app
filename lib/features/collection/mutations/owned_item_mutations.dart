@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_cach
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IdGenerator = String Function();
@@ -324,12 +325,14 @@ final class OwnedItemMutations {
   }
 
   Future<void> updateCatalogSnapshot(
-    dynamic item,
-  ) async {
+    dynamic item, {
+    MutationOrigin origin = MutationOrigin.user,
+  }) async {
     final now = DateTime.now().toUtc();
     final itemId =
         item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
     await mutationRunner.run(
+      origin: origin,
       action: () async {
         await catalogCache.upsertAll([item]);
         await syncQueue.enqueue(_syncChangeForCatalogItem(item, now));
