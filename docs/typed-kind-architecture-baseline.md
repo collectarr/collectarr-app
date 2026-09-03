@@ -160,6 +160,17 @@ Each field owns only structural data, typed draft accessors, visibility, and
 validation callbacks. The schema contains no media semantics, default tabs,
 global sections, or kind-specific vocabulary.
 
+## PR 8 Generic EditSchema Renderer
+
+`edit_schema_renderer.dart` renders any `EditSchema<TModel, TDraft>` using the
+same tab, section, field, validation, dirty-state, save, cancel, and responsive
+layout grammar. It dispatches only on structural field specification types;
+labels, options, validation, and draft mutation remain supplied by the schema
+owner.
+
+The renderer has focused widget coverage for dirty save flow and validation
+blocking. Existing kind edit dialogs are not migrated yet.
+
 ## Reproduction Commands
 
 Run from the repository root:
@@ -175,7 +186,7 @@ The first command is intentionally textual and over-inclusive. Results must be
 classified using the ownership rules above; names used only for labels or widget
 types are not architecture violations.
 
-## PR 0, PR 1, PR 2, PR 3, PR 4, PR 5, PR 6, and PR 7 Exit Criteria
+## PR 0, PR 1, PR 2, PR 3, PR 4, PR 5, PR 6, PR 7, and PR 8 Exit Criteria
 
 - [x] Baseline document created.
 - [x] Every suspect named by the migration plan is classified.
@@ -204,5 +215,8 @@ types are not architecture violations.
 - [x] Structural `EditSchema<TModel, TDraft>` models added.
 - [x] Shared typed edit field specifications added.
 - [x] Schema visibility and validation callbacks covered by focused tests.
+- [x] Generic `EditSchema<TModel, TDraft>` renderer added.
+- [x] Renderer owns visual grammar, dirty state, validation display, and save/cancel.
+- [x] Renderer widget coverage added without migrating existing kind dialogs.
 
-Next work is PR 8: add a generic renderer for `EditSchema<TModel, TDraft>`.
+Next work is PR 9: introduce structural typed `AddSchema` models.
