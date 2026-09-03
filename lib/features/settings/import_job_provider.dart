@@ -216,6 +216,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required TmdbImportCollection collection,
     required bool keepUnmatchedLocally,
     String? apiKey,
+    String? accountId,
   }) async {
     final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
     state = [
@@ -250,6 +251,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         sourceLabel: fileName,
         keepUnmatchedLocally: keepUnmatchedLocally,
         apiKey: apiKey,
+        accountId: accountId,
         origin: MutationOrigin.fileImport,
       );
     } catch (error) {
@@ -268,6 +270,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required String fileName,
     required ProviderId provider,
     required bool keepUnmatchedLocally,
+    String? accountId,
   }) async {
     final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
     state = [
@@ -299,6 +302,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         entries: rows,
         sourceLabel: fileName,
         keepUnmatchedLocally: keepUnmatchedLocally,
+        accountId: accountId,
         origin: MutationOrigin.fileImport,
       );
     } catch (error) {
@@ -318,6 +322,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required String fileName,
     required ProviderId provider,
     required bool keepUnmatchedLocally,
+    String? accountId,
   }) async {
     final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
     state = [
@@ -349,6 +354,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         entries: rows,
         sourceLabel: fileName,
         keepUnmatchedLocally: keepUnmatchedLocally,
+        accountId: accountId,
         origin: MutationOrigin.fileImport,
       );
     } catch (error) {
@@ -369,8 +375,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required List<ProviderPersonalEntry> entries,
     required String sourceLabel,
     required bool keepUnmatchedLocally,
+    String? accountId,
     MutationOrigin origin = MutationOrigin.fileImport,
   }) async {
+    accountId = await _validatedAccountId(provider, accountId);
     final api = ref.read(apiClientProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
     final trackingMutations = ref.read(trackingMutationsProvider);
@@ -426,6 +434,11 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           entry: match.entry,
           origin: origin,
         );
+        await _linkImportedEntry(
+          accountId: accountId,
+          localEntityRef: item.catalogRef,
+          entry: match.entry,
+        );
         importedCount += 1;
       } else if (keepUnmatchedLocally) {
         final localItem = _syntheticImportCatalogItem(provider, match.entry);
@@ -435,6 +448,11 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           item: localItem,
           entry: match.entry,
           origin: origin,
+        );
+        await _linkImportedEntry(
+          accountId: accountId,
+          localEntityRef: localItem.catalogRef,
+          entry: match.entry,
         );
         keptLocalCount += 1;
       } else {
@@ -498,6 +516,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     String? accountId,
     required MutationOrigin origin,
   }) async {
+    accountId = await _validatedAccountId(ProviderId.tmdb, accountId);
     final api = ref.read(apiClientProvider);
 
     // Phase 2: Match against catalog
@@ -598,10 +617,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           apiKey: apiKey,
           origin: origin,
         );
-        await _linkImportedItem(
+        await _linkImportedEntry(
           accountId: accountId,
           localEntityRef: item.catalogRef,
-          entry: enriched,
+          entry: enriched.toProviderPersonalEntry(),
         );
         importedCount += 1;
       } else if (keepUnmatchedLocally) {
@@ -677,10 +696,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
               apiKey: apiKey,
               origin: origin,
             );
-            await _linkImportedItem(
+            await _linkImportedEntry(
               accountId: accountId,
               localEntityRef: localItem.catalogRef,
-              entry: enriched,
+              entry: enriched.toProviderPersonalEntry(),
             );
             await _pendingStore.upsert(
               TmdbPendingImportRecord(
@@ -787,10 +806,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     );
   }
 
-  Future<void> _linkImportedItem({
+  Future<void> _linkImportedEntry({
     required String? accountId,
     required CatalogEntityRef localEntityRef,
-    required TmdbImportEntry entry,
+    required ProviderPersonalEntry entry,
   }) async {
     if (accountId == null) return;
     final linkStore = ref.read(providerLinkStoreProvider);
@@ -798,9 +817,24 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       ProviderItemLink.fromImportedEntry(
         accountId: accountId,
         localEntityRef: localEntityRef,
-        entry: entry.toProviderPersonalEntry(),
+        entry: entry,
       ),
     );
+  }
+
+  Future<String?> _validatedAccountId(
+    ProviderId provider,
+    String? accountId,
+  ) async {
+    if (accountId == null) return null;
+    final account =
+        await ref.read(providerAccountStoreProvider).getAccount(accountId);
+    if (account == null || account.provider != provider) {
+      throw StateError(
+        'Provider account $accountId is not available for ${provider.value}',
+      );
+    }
+    return accountId;
   }
 
   Future<TmdbImportEntry> _enrichFromCache(
