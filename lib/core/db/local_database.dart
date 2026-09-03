@@ -394,13 +394,14 @@ class ProviderItemLinksCache extends Table {
   ProviderItemLinksCache,
   ComicMediaRows,
   ComicReleaseRows,
+  ComicOwnedDetailsRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {
@@ -427,6 +428,9 @@ class LocalDatabase extends _$LocalDatabase {
         }
         if (from < 10) {
           await _migrateOwnedItemsCache(m);
+        }
+        if (from < 11) {
+          await m.createTable(comicOwnedDetailsRows);
           return;
         }
         await _destructiveRebuild(m);

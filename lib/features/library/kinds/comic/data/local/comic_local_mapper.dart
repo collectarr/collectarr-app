@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalo
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:drift/drift.dart';
 
 final class ComicLocalMapper {
@@ -145,6 +146,52 @@ final class ComicLocalMapper {
       variantsJson: Value(_encodeMapList(
         release.variants.map((variant) => variant.toJson()),
       )),
+    );
+  }
+
+  static ComicOwnedDetailsRowsCompanion toOwnedDetailsRow(
+    String ownedItemId,
+    ComicOwnedDetails details,
+  ) {
+    if (ownedItemId.isEmpty) {
+      throw StateError('Cannot persist ComicOwnedDetails without an id');
+    }
+
+    return ComicOwnedDetailsRowsCompanion.insert(
+      ownedItemId: ownedItemId,
+      rawOrSlabbed: Value(details.rawOrSlabbed),
+      gradingCompany: Value(details.gradingCompany),
+      graderNotes: Value(details.graderNotes),
+      labelType: Value(details.labelType),
+      customLabel: Value(details.customLabel),
+      pageQuality: Value(details.pageQuality),
+      certificationNumber: Value(details.certificationNumber),
+      signedBy: Value(details.signedBy),
+      keyComic: Value(details.keyComic),
+      keyReason: Value(details.keyReason),
+      keyCategory: Value(details.keyCategory),
+      keySeverity: Value(details.keySeverity),
+      coverPriceCents: Value(details.coverPriceCents),
+      lastBagBoardDate: Value(details.lastBagBoardDate),
+    );
+  }
+
+  static ComicOwnedDetails fromOwnedDetailsRow(ComicOwnedDetailsRow row) {
+    return ComicOwnedDetails(
+      rawOrSlabbed: row.rawOrSlabbed,
+      gradingCompany: row.gradingCompany,
+      graderNotes: row.graderNotes,
+      labelType: row.labelType,
+      customLabel: row.customLabel,
+      pageQuality: row.pageQuality,
+      certificationNumber: row.certificationNumber,
+      signedBy: row.signedBy,
+      keyComic: row.keyComic,
+      keyReason: row.keyReason,
+      keyCategory: row.keyCategory,
+      keySeverity: row.keySeverity,
+      coverPriceCents: row.coverPriceCents,
+      lastBagBoardDate: row.lastBagBoardDate,
     );
   }
 

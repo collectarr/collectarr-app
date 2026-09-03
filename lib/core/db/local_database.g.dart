@@ -14377,6 +14377,783 @@ class ComicReleaseRowsCompanion extends UpdateCompanion<ComicReleaseRow> {
   }
 }
 
+class $ComicOwnedDetailsRowsTable extends ComicOwnedDetailsRows
+    with TableInfo<$ComicOwnedDetailsRowsTable, ComicOwnedDetailsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ComicOwnedDetailsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _rawOrSlabbedMeta =
+      const VerificationMeta('rawOrSlabbed');
+  @override
+  late final GeneratedColumn<String> rawOrSlabbed = GeneratedColumn<String>(
+      'raw_or_slabbed', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gradingCompanyMeta =
+      const VerificationMeta('gradingCompany');
+  @override
+  late final GeneratedColumn<String> gradingCompany = GeneratedColumn<String>(
+      'grading_company', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _graderNotesMeta =
+      const VerificationMeta('graderNotes');
+  @override
+  late final GeneratedColumn<String> graderNotes = GeneratedColumn<String>(
+      'grader_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelTypeMeta =
+      const VerificationMeta('labelType');
+  @override
+  late final GeneratedColumn<String> labelType = GeneratedColumn<String>(
+      'label_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _customLabelMeta =
+      const VerificationMeta('customLabel');
+  @override
+  late final GeneratedColumn<String> customLabel = GeneratedColumn<String>(
+      'custom_label', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pageQualityMeta =
+      const VerificationMeta('pageQuality');
+  @override
+  late final GeneratedColumn<String> pageQuality = GeneratedColumn<String>(
+      'page_quality', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _certificationNumberMeta =
+      const VerificationMeta('certificationNumber');
+  @override
+  late final GeneratedColumn<String> certificationNumber =
+      GeneratedColumn<String>('certification_number', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _signedByMeta =
+      const VerificationMeta('signedBy');
+  @override
+  late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
+      'signed_by', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _keyComicMeta =
+      const VerificationMeta('keyComic');
+  @override
+  late final GeneratedColumn<bool> keyComic = GeneratedColumn<bool>(
+      'key_comic', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("key_comic" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _keyReasonMeta =
+      const VerificationMeta('keyReason');
+  @override
+  late final GeneratedColumn<String> keyReason = GeneratedColumn<String>(
+      'key_reason', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _keyCategoryMeta =
+      const VerificationMeta('keyCategory');
+  @override
+  late final GeneratedColumn<String> keyCategory = GeneratedColumn<String>(
+      'key_category', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _keySeverityMeta =
+      const VerificationMeta('keySeverity');
+  @override
+  late final GeneratedColumn<String> keySeverity = GeneratedColumn<String>(
+      'key_severity', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverPriceCentsMeta =
+      const VerificationMeta('coverPriceCents');
+  @override
+  late final GeneratedColumn<int> coverPriceCents = GeneratedColumn<int>(
+      'cover_price_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _lastBagBoardDateMeta =
+      const VerificationMeta('lastBagBoardDate');
+  @override
+  late final GeneratedColumn<DateTime> lastBagBoardDate =
+      GeneratedColumn<DateTime>('last_bag_board_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        ownedItemId,
+        rawOrSlabbed,
+        gradingCompany,
+        graderNotes,
+        labelType,
+        customLabel,
+        pageQuality,
+        certificationNumber,
+        signedBy,
+        keyComic,
+        keyReason,
+        keyCategory,
+        keySeverity,
+        coverPriceCents,
+        lastBagBoardDate
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'comic_owned_details_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ComicOwnedDetailsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('raw_or_slabbed')) {
+      context.handle(
+          _rawOrSlabbedMeta,
+          rawOrSlabbed.isAcceptableOrUnknown(
+              data['raw_or_slabbed']!, _rawOrSlabbedMeta));
+    }
+    if (data.containsKey('grading_company')) {
+      context.handle(
+          _gradingCompanyMeta,
+          gradingCompany.isAcceptableOrUnknown(
+              data['grading_company']!, _gradingCompanyMeta));
+    }
+    if (data.containsKey('grader_notes')) {
+      context.handle(
+          _graderNotesMeta,
+          graderNotes.isAcceptableOrUnknown(
+              data['grader_notes']!, _graderNotesMeta));
+    }
+    if (data.containsKey('label_type')) {
+      context.handle(_labelTypeMeta,
+          labelType.isAcceptableOrUnknown(data['label_type']!, _labelTypeMeta));
+    }
+    if (data.containsKey('custom_label')) {
+      context.handle(
+          _customLabelMeta,
+          customLabel.isAcceptableOrUnknown(
+              data['custom_label']!, _customLabelMeta));
+    }
+    if (data.containsKey('page_quality')) {
+      context.handle(
+          _pageQualityMeta,
+          pageQuality.isAcceptableOrUnknown(
+              data['page_quality']!, _pageQualityMeta));
+    }
+    if (data.containsKey('certification_number')) {
+      context.handle(
+          _certificationNumberMeta,
+          certificationNumber.isAcceptableOrUnknown(
+              data['certification_number']!, _certificationNumberMeta));
+    }
+    if (data.containsKey('signed_by')) {
+      context.handle(_signedByMeta,
+          signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
+    }
+    if (data.containsKey('key_comic')) {
+      context.handle(_keyComicMeta,
+          keyComic.isAcceptableOrUnknown(data['key_comic']!, _keyComicMeta));
+    }
+    if (data.containsKey('key_reason')) {
+      context.handle(_keyReasonMeta,
+          keyReason.isAcceptableOrUnknown(data['key_reason']!, _keyReasonMeta));
+    }
+    if (data.containsKey('key_category')) {
+      context.handle(
+          _keyCategoryMeta,
+          keyCategory.isAcceptableOrUnknown(
+              data['key_category']!, _keyCategoryMeta));
+    }
+    if (data.containsKey('key_severity')) {
+      context.handle(
+          _keySeverityMeta,
+          keySeverity.isAcceptableOrUnknown(
+              data['key_severity']!, _keySeverityMeta));
+    }
+    if (data.containsKey('cover_price_cents')) {
+      context.handle(
+          _coverPriceCentsMeta,
+          coverPriceCents.isAcceptableOrUnknown(
+              data['cover_price_cents']!, _coverPriceCentsMeta));
+    }
+    if (data.containsKey('last_bag_board_date')) {
+      context.handle(
+          _lastBagBoardDateMeta,
+          lastBagBoardDate.isAcceptableOrUnknown(
+              data['last_bag_board_date']!, _lastBagBoardDateMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  @override
+  ComicOwnedDetailsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ComicOwnedDetailsRow(
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      rawOrSlabbed: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}raw_or_slabbed']),
+      gradingCompany: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grading_company']),
+      graderNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grader_notes']),
+      labelType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_type']),
+      customLabel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}custom_label']),
+      pageQuality: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}page_quality']),
+      certificationNumber: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}certification_number']),
+      signedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
+      keyComic: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}key_comic'])!,
+      keyReason: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_reason']),
+      keyCategory: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_category']),
+      keySeverity: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_severity']),
+      coverPriceCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}cover_price_cents']),
+      lastBagBoardDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_bag_board_date']),
+    );
+  }
+
+  @override
+  $ComicOwnedDetailsRowsTable createAlias(String alias) {
+    return $ComicOwnedDetailsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class ComicOwnedDetailsRow extends DataClass
+    implements Insertable<ComicOwnedDetailsRow> {
+  final String ownedItemId;
+  final String? rawOrSlabbed;
+  final String? gradingCompany;
+  final String? graderNotes;
+  final String? labelType;
+  final String? customLabel;
+  final String? pageQuality;
+  final String? certificationNumber;
+  final String? signedBy;
+  final bool keyComic;
+  final String? keyReason;
+  final String? keyCategory;
+  final String? keySeverity;
+  final int? coverPriceCents;
+  final DateTime? lastBagBoardDate;
+  const ComicOwnedDetailsRow(
+      {required this.ownedItemId,
+      this.rawOrSlabbed,
+      this.gradingCompany,
+      this.graderNotes,
+      this.labelType,
+      this.customLabel,
+      this.pageQuality,
+      this.certificationNumber,
+      this.signedBy,
+      required this.keyComic,
+      this.keyReason,
+      this.keyCategory,
+      this.keySeverity,
+      this.coverPriceCents,
+      this.lastBagBoardDate});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || rawOrSlabbed != null) {
+      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed);
+    }
+    if (!nullToAbsent || gradingCompany != null) {
+      map['grading_company'] = Variable<String>(gradingCompany);
+    }
+    if (!nullToAbsent || graderNotes != null) {
+      map['grader_notes'] = Variable<String>(graderNotes);
+    }
+    if (!nullToAbsent || labelType != null) {
+      map['label_type'] = Variable<String>(labelType);
+    }
+    if (!nullToAbsent || customLabel != null) {
+      map['custom_label'] = Variable<String>(customLabel);
+    }
+    if (!nullToAbsent || pageQuality != null) {
+      map['page_quality'] = Variable<String>(pageQuality);
+    }
+    if (!nullToAbsent || certificationNumber != null) {
+      map['certification_number'] = Variable<String>(certificationNumber);
+    }
+    if (!nullToAbsent || signedBy != null) {
+      map['signed_by'] = Variable<String>(signedBy);
+    }
+    map['key_comic'] = Variable<bool>(keyComic);
+    if (!nullToAbsent || keyReason != null) {
+      map['key_reason'] = Variable<String>(keyReason);
+    }
+    if (!nullToAbsent || keyCategory != null) {
+      map['key_category'] = Variable<String>(keyCategory);
+    }
+    if (!nullToAbsent || keySeverity != null) {
+      map['key_severity'] = Variable<String>(keySeverity);
+    }
+    if (!nullToAbsent || coverPriceCents != null) {
+      map['cover_price_cents'] = Variable<int>(coverPriceCents);
+    }
+    if (!nullToAbsent || lastBagBoardDate != null) {
+      map['last_bag_board_date'] = Variable<DateTime>(lastBagBoardDate);
+    }
+    return map;
+  }
+
+  ComicOwnedDetailsRowsCompanion toCompanion(bool nullToAbsent) {
+    return ComicOwnedDetailsRowsCompanion(
+      ownedItemId: Value(ownedItemId),
+      rawOrSlabbed: rawOrSlabbed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawOrSlabbed),
+      gradingCompany: gradingCompany == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gradingCompany),
+      graderNotes: graderNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(graderNotes),
+      labelType: labelType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(labelType),
+      customLabel: customLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customLabel),
+      pageQuality: pageQuality == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pageQuality),
+      certificationNumber: certificationNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(certificationNumber),
+      signedBy: signedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(signedBy),
+      keyComic: Value(keyComic),
+      keyReason: keyReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keyReason),
+      keyCategory: keyCategory == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keyCategory),
+      keySeverity: keySeverity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keySeverity),
+      coverPriceCents: coverPriceCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverPriceCents),
+      lastBagBoardDate: lastBagBoardDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastBagBoardDate),
+    );
+  }
+
+  factory ComicOwnedDetailsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ComicOwnedDetailsRow(
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      rawOrSlabbed: serializer.fromJson<String?>(json['rawOrSlabbed']),
+      gradingCompany: serializer.fromJson<String?>(json['gradingCompany']),
+      graderNotes: serializer.fromJson<String?>(json['graderNotes']),
+      labelType: serializer.fromJson<String?>(json['labelType']),
+      customLabel: serializer.fromJson<String?>(json['customLabel']),
+      pageQuality: serializer.fromJson<String?>(json['pageQuality']),
+      certificationNumber:
+          serializer.fromJson<String?>(json['certificationNumber']),
+      signedBy: serializer.fromJson<String?>(json['signedBy']),
+      keyComic: serializer.fromJson<bool>(json['keyComic']),
+      keyReason: serializer.fromJson<String?>(json['keyReason']),
+      keyCategory: serializer.fromJson<String?>(json['keyCategory']),
+      keySeverity: serializer.fromJson<String?>(json['keySeverity']),
+      coverPriceCents: serializer.fromJson<int?>(json['coverPriceCents']),
+      lastBagBoardDate:
+          serializer.fromJson<DateTime?>(json['lastBagBoardDate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'rawOrSlabbed': serializer.toJson<String?>(rawOrSlabbed),
+      'gradingCompany': serializer.toJson<String?>(gradingCompany),
+      'graderNotes': serializer.toJson<String?>(graderNotes),
+      'labelType': serializer.toJson<String?>(labelType),
+      'customLabel': serializer.toJson<String?>(customLabel),
+      'pageQuality': serializer.toJson<String?>(pageQuality),
+      'certificationNumber': serializer.toJson<String?>(certificationNumber),
+      'signedBy': serializer.toJson<String?>(signedBy),
+      'keyComic': serializer.toJson<bool>(keyComic),
+      'keyReason': serializer.toJson<String?>(keyReason),
+      'keyCategory': serializer.toJson<String?>(keyCategory),
+      'keySeverity': serializer.toJson<String?>(keySeverity),
+      'coverPriceCents': serializer.toJson<int?>(coverPriceCents),
+      'lastBagBoardDate': serializer.toJson<DateTime?>(lastBagBoardDate),
+    };
+  }
+
+  ComicOwnedDetailsRow copyWith(
+          {String? ownedItemId,
+          Value<String?> rawOrSlabbed = const Value.absent(),
+          Value<String?> gradingCompany = const Value.absent(),
+          Value<String?> graderNotes = const Value.absent(),
+          Value<String?> labelType = const Value.absent(),
+          Value<String?> customLabel = const Value.absent(),
+          Value<String?> pageQuality = const Value.absent(),
+          Value<String?> certificationNumber = const Value.absent(),
+          Value<String?> signedBy = const Value.absent(),
+          bool? keyComic,
+          Value<String?> keyReason = const Value.absent(),
+          Value<String?> keyCategory = const Value.absent(),
+          Value<String?> keySeverity = const Value.absent(),
+          Value<int?> coverPriceCents = const Value.absent(),
+          Value<DateTime?> lastBagBoardDate = const Value.absent()}) =>
+      ComicOwnedDetailsRow(
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        rawOrSlabbed:
+            rawOrSlabbed.present ? rawOrSlabbed.value : this.rawOrSlabbed,
+        gradingCompany:
+            gradingCompany.present ? gradingCompany.value : this.gradingCompany,
+        graderNotes: graderNotes.present ? graderNotes.value : this.graderNotes,
+        labelType: labelType.present ? labelType.value : this.labelType,
+        customLabel: customLabel.present ? customLabel.value : this.customLabel,
+        pageQuality: pageQuality.present ? pageQuality.value : this.pageQuality,
+        certificationNumber: certificationNumber.present
+            ? certificationNumber.value
+            : this.certificationNumber,
+        signedBy: signedBy.present ? signedBy.value : this.signedBy,
+        keyComic: keyComic ?? this.keyComic,
+        keyReason: keyReason.present ? keyReason.value : this.keyReason,
+        keyCategory: keyCategory.present ? keyCategory.value : this.keyCategory,
+        keySeverity: keySeverity.present ? keySeverity.value : this.keySeverity,
+        coverPriceCents: coverPriceCents.present
+            ? coverPriceCents.value
+            : this.coverPriceCents,
+        lastBagBoardDate: lastBagBoardDate.present
+            ? lastBagBoardDate.value
+            : this.lastBagBoardDate,
+      );
+  ComicOwnedDetailsRow copyWithCompanion(ComicOwnedDetailsRowsCompanion data) {
+    return ComicOwnedDetailsRow(
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      rawOrSlabbed: data.rawOrSlabbed.present
+          ? data.rawOrSlabbed.value
+          : this.rawOrSlabbed,
+      gradingCompany: data.gradingCompany.present
+          ? data.gradingCompany.value
+          : this.gradingCompany,
+      graderNotes:
+          data.graderNotes.present ? data.graderNotes.value : this.graderNotes,
+      labelType: data.labelType.present ? data.labelType.value : this.labelType,
+      customLabel:
+          data.customLabel.present ? data.customLabel.value : this.customLabel,
+      pageQuality:
+          data.pageQuality.present ? data.pageQuality.value : this.pageQuality,
+      certificationNumber: data.certificationNumber.present
+          ? data.certificationNumber.value
+          : this.certificationNumber,
+      signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
+      keyComic: data.keyComic.present ? data.keyComic.value : this.keyComic,
+      keyReason: data.keyReason.present ? data.keyReason.value : this.keyReason,
+      keyCategory:
+          data.keyCategory.present ? data.keyCategory.value : this.keyCategory,
+      keySeverity:
+          data.keySeverity.present ? data.keySeverity.value : this.keySeverity,
+      coverPriceCents: data.coverPriceCents.present
+          ? data.coverPriceCents.value
+          : this.coverPriceCents,
+      lastBagBoardDate: data.lastBagBoardDate.present
+          ? data.lastBagBoardDate.value
+          : this.lastBagBoardDate,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicOwnedDetailsRow(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('rawOrSlabbed: $rawOrSlabbed, ')
+          ..write('gradingCompany: $gradingCompany, ')
+          ..write('graderNotes: $graderNotes, ')
+          ..write('labelType: $labelType, ')
+          ..write('customLabel: $customLabel, ')
+          ..write('pageQuality: $pageQuality, ')
+          ..write('certificationNumber: $certificationNumber, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('keyComic: $keyComic, ')
+          ..write('keyReason: $keyReason, ')
+          ..write('keyCategory: $keyCategory, ')
+          ..write('keySeverity: $keySeverity, ')
+          ..write('coverPriceCents: $coverPriceCents, ')
+          ..write('lastBagBoardDate: $lastBagBoardDate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      ownedItemId,
+      rawOrSlabbed,
+      gradingCompany,
+      graderNotes,
+      labelType,
+      customLabel,
+      pageQuality,
+      certificationNumber,
+      signedBy,
+      keyComic,
+      keyReason,
+      keyCategory,
+      keySeverity,
+      coverPriceCents,
+      lastBagBoardDate);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ComicOwnedDetailsRow &&
+          other.ownedItemId == this.ownedItemId &&
+          other.rawOrSlabbed == this.rawOrSlabbed &&
+          other.gradingCompany == this.gradingCompany &&
+          other.graderNotes == this.graderNotes &&
+          other.labelType == this.labelType &&
+          other.customLabel == this.customLabel &&
+          other.pageQuality == this.pageQuality &&
+          other.certificationNumber == this.certificationNumber &&
+          other.signedBy == this.signedBy &&
+          other.keyComic == this.keyComic &&
+          other.keyReason == this.keyReason &&
+          other.keyCategory == this.keyCategory &&
+          other.keySeverity == this.keySeverity &&
+          other.coverPriceCents == this.coverPriceCents &&
+          other.lastBagBoardDate == this.lastBagBoardDate);
+}
+
+class ComicOwnedDetailsRowsCompanion
+    extends UpdateCompanion<ComicOwnedDetailsRow> {
+  final Value<String> ownedItemId;
+  final Value<String?> rawOrSlabbed;
+  final Value<String?> gradingCompany;
+  final Value<String?> graderNotes;
+  final Value<String?> labelType;
+  final Value<String?> customLabel;
+  final Value<String?> pageQuality;
+  final Value<String?> certificationNumber;
+  final Value<String?> signedBy;
+  final Value<bool> keyComic;
+  final Value<String?> keyReason;
+  final Value<String?> keyCategory;
+  final Value<String?> keySeverity;
+  final Value<int?> coverPriceCents;
+  final Value<DateTime?> lastBagBoardDate;
+  final Value<int> rowid;
+  const ComicOwnedDetailsRowsCompanion({
+    this.ownedItemId = const Value.absent(),
+    this.rawOrSlabbed = const Value.absent(),
+    this.gradingCompany = const Value.absent(),
+    this.graderNotes = const Value.absent(),
+    this.labelType = const Value.absent(),
+    this.customLabel = const Value.absent(),
+    this.pageQuality = const Value.absent(),
+    this.certificationNumber = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.keyComic = const Value.absent(),
+    this.keyReason = const Value.absent(),
+    this.keyCategory = const Value.absent(),
+    this.keySeverity = const Value.absent(),
+    this.coverPriceCents = const Value.absent(),
+    this.lastBagBoardDate = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ComicOwnedDetailsRowsCompanion.insert({
+    required String ownedItemId,
+    this.rawOrSlabbed = const Value.absent(),
+    this.gradingCompany = const Value.absent(),
+    this.graderNotes = const Value.absent(),
+    this.labelType = const Value.absent(),
+    this.customLabel = const Value.absent(),
+    this.pageQuality = const Value.absent(),
+    this.certificationNumber = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.keyComic = const Value.absent(),
+    this.keyReason = const Value.absent(),
+    this.keyCategory = const Value.absent(),
+    this.keySeverity = const Value.absent(),
+    this.coverPriceCents = const Value.absent(),
+    this.lastBagBoardDate = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : ownedItemId = Value(ownedItemId);
+  static Insertable<ComicOwnedDetailsRow> custom({
+    Expression<String>? ownedItemId,
+    Expression<String>? rawOrSlabbed,
+    Expression<String>? gradingCompany,
+    Expression<String>? graderNotes,
+    Expression<String>? labelType,
+    Expression<String>? customLabel,
+    Expression<String>? pageQuality,
+    Expression<String>? certificationNumber,
+    Expression<String>? signedBy,
+    Expression<bool>? keyComic,
+    Expression<String>? keyReason,
+    Expression<String>? keyCategory,
+    Expression<String>? keySeverity,
+    Expression<int>? coverPriceCents,
+    Expression<DateTime>? lastBagBoardDate,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (rawOrSlabbed != null) 'raw_or_slabbed': rawOrSlabbed,
+      if (gradingCompany != null) 'grading_company': gradingCompany,
+      if (graderNotes != null) 'grader_notes': graderNotes,
+      if (labelType != null) 'label_type': labelType,
+      if (customLabel != null) 'custom_label': customLabel,
+      if (pageQuality != null) 'page_quality': pageQuality,
+      if (certificationNumber != null)
+        'certification_number': certificationNumber,
+      if (signedBy != null) 'signed_by': signedBy,
+      if (keyComic != null) 'key_comic': keyComic,
+      if (keyReason != null) 'key_reason': keyReason,
+      if (keyCategory != null) 'key_category': keyCategory,
+      if (keySeverity != null) 'key_severity': keySeverity,
+      if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
+      if (lastBagBoardDate != null) 'last_bag_board_date': lastBagBoardDate,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ComicOwnedDetailsRowsCompanion copyWith(
+      {Value<String>? ownedItemId,
+      Value<String?>? rawOrSlabbed,
+      Value<String?>? gradingCompany,
+      Value<String?>? graderNotes,
+      Value<String?>? labelType,
+      Value<String?>? customLabel,
+      Value<String?>? pageQuality,
+      Value<String?>? certificationNumber,
+      Value<String?>? signedBy,
+      Value<bool>? keyComic,
+      Value<String?>? keyReason,
+      Value<String?>? keyCategory,
+      Value<String?>? keySeverity,
+      Value<int?>? coverPriceCents,
+      Value<DateTime?>? lastBagBoardDate,
+      Value<int>? rowid}) {
+    return ComicOwnedDetailsRowsCompanion(
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
+      gradingCompany: gradingCompany ?? this.gradingCompany,
+      graderNotes: graderNotes ?? this.graderNotes,
+      labelType: labelType ?? this.labelType,
+      customLabel: customLabel ?? this.customLabel,
+      pageQuality: pageQuality ?? this.pageQuality,
+      certificationNumber: certificationNumber ?? this.certificationNumber,
+      signedBy: signedBy ?? this.signedBy,
+      keyComic: keyComic ?? this.keyComic,
+      keyReason: keyReason ?? this.keyReason,
+      keyCategory: keyCategory ?? this.keyCategory,
+      keySeverity: keySeverity ?? this.keySeverity,
+      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
+      lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (rawOrSlabbed.present) {
+      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed.value);
+    }
+    if (gradingCompany.present) {
+      map['grading_company'] = Variable<String>(gradingCompany.value);
+    }
+    if (graderNotes.present) {
+      map['grader_notes'] = Variable<String>(graderNotes.value);
+    }
+    if (labelType.present) {
+      map['label_type'] = Variable<String>(labelType.value);
+    }
+    if (customLabel.present) {
+      map['custom_label'] = Variable<String>(customLabel.value);
+    }
+    if (pageQuality.present) {
+      map['page_quality'] = Variable<String>(pageQuality.value);
+    }
+    if (certificationNumber.present) {
+      map['certification_number'] = Variable<String>(certificationNumber.value);
+    }
+    if (signedBy.present) {
+      map['signed_by'] = Variable<String>(signedBy.value);
+    }
+    if (keyComic.present) {
+      map['key_comic'] = Variable<bool>(keyComic.value);
+    }
+    if (keyReason.present) {
+      map['key_reason'] = Variable<String>(keyReason.value);
+    }
+    if (keyCategory.present) {
+      map['key_category'] = Variable<String>(keyCategory.value);
+    }
+    if (keySeverity.present) {
+      map['key_severity'] = Variable<String>(keySeverity.value);
+    }
+    if (coverPriceCents.present) {
+      map['cover_price_cents'] = Variable<int>(coverPriceCents.value);
+    }
+    if (lastBagBoardDate.present) {
+      map['last_bag_board_date'] = Variable<DateTime>(lastBagBoardDate.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicOwnedDetailsRowsCompanion(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('rawOrSlabbed: $rawOrSlabbed, ')
+          ..write('gradingCompany: $gradingCompany, ')
+          ..write('graderNotes: $graderNotes, ')
+          ..write('labelType: $labelType, ')
+          ..write('customLabel: $customLabel, ')
+          ..write('pageQuality: $pageQuality, ')
+          ..write('certificationNumber: $certificationNumber, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('keyComic: $keyComic, ')
+          ..write('keyReason: $keyReason, ')
+          ..write('keyCategory: $keyCategory, ')
+          ..write('keySeverity: $keySeverity, ')
+          ..write('coverPriceCents: $coverPriceCents, ')
+          ..write('lastBagBoardDate: $lastBagBoardDate, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -14425,6 +15202,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $ComicMediaRowsTable comicMediaRows = $ComicMediaRowsTable(this);
   late final $ComicReleaseRowsTable comicReleaseRows =
       $ComicReleaseRowsTable(this);
+  late final $ComicOwnedDetailsRowsTable comicOwnedDetailsRows =
+      $ComicOwnedDetailsRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -14454,7 +15233,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         providerAccountsCache,
         providerItemLinksCache,
         comicMediaRows,
-        comicReleaseRows
+        comicReleaseRows,
+        comicOwnedDetailsRows
       ];
 }
 
@@ -21259,6 +22039,345 @@ typedef $$ComicReleaseRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     ComicReleaseRow,
     PrefetchHooks Function()>;
+typedef $$ComicOwnedDetailsRowsTableCreateCompanionBuilder
+    = ComicOwnedDetailsRowsCompanion Function({
+  required String ownedItemId,
+  Value<String?> rawOrSlabbed,
+  Value<String?> gradingCompany,
+  Value<String?> graderNotes,
+  Value<String?> labelType,
+  Value<String?> customLabel,
+  Value<String?> pageQuality,
+  Value<String?> certificationNumber,
+  Value<String?> signedBy,
+  Value<bool> keyComic,
+  Value<String?> keyReason,
+  Value<String?> keyCategory,
+  Value<String?> keySeverity,
+  Value<int?> coverPriceCents,
+  Value<DateTime?> lastBagBoardDate,
+  Value<int> rowid,
+});
+typedef $$ComicOwnedDetailsRowsTableUpdateCompanionBuilder
+    = ComicOwnedDetailsRowsCompanion Function({
+  Value<String> ownedItemId,
+  Value<String?> rawOrSlabbed,
+  Value<String?> gradingCompany,
+  Value<String?> graderNotes,
+  Value<String?> labelType,
+  Value<String?> customLabel,
+  Value<String?> pageQuality,
+  Value<String?> certificationNumber,
+  Value<String?> signedBy,
+  Value<bool> keyComic,
+  Value<String?> keyReason,
+  Value<String?> keyCategory,
+  Value<String?> keySeverity,
+  Value<int?> coverPriceCents,
+  Value<DateTime?> lastBagBoardDate,
+  Value<int> rowid,
+});
+
+class $$ComicOwnedDetailsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $ComicOwnedDetailsRowsTable> {
+  $$ComicOwnedDetailsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get labelType => $composableBuilder(
+      column: $table.labelType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get customLabel => $composableBuilder(
+      column: $table.customLabel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get pageQuality => $composableBuilder(
+      column: $table.pageQuality, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get keyComic => $composableBuilder(
+      column: $table.keyComic, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keyReason => $composableBuilder(
+      column: $table.keyReason, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keyCategory => $composableBuilder(
+      column: $table.keyCategory, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keySeverity => $composableBuilder(
+      column: $table.keySeverity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastBagBoardDate => $composableBuilder(
+      column: $table.lastBagBoardDate,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$ComicOwnedDetailsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ComicOwnedDetailsRowsTable> {
+  $$ComicOwnedDetailsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get labelType => $composableBuilder(
+      column: $table.labelType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get customLabel => $composableBuilder(
+      column: $table.customLabel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get pageQuality => $composableBuilder(
+      column: $table.pageQuality, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get keyComic => $composableBuilder(
+      column: $table.keyComic, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keyReason => $composableBuilder(
+      column: $table.keyReason, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keyCategory => $composableBuilder(
+      column: $table.keyCategory, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keySeverity => $composableBuilder(
+      column: $table.keySeverity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastBagBoardDate => $composableBuilder(
+      column: $table.lastBagBoardDate,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$ComicOwnedDetailsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ComicOwnedDetailsRowsTable> {
+  $$ComicOwnedDetailsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get rawOrSlabbed => $composableBuilder(
+      column: $table.rawOrSlabbed, builder: (column) => column);
+
+  GeneratedColumn<String> get gradingCompany => $composableBuilder(
+      column: $table.gradingCompany, builder: (column) => column);
+
+  GeneratedColumn<String> get graderNotes => $composableBuilder(
+      column: $table.graderNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get labelType =>
+      $composableBuilder(column: $table.labelType, builder: (column) => column);
+
+  GeneratedColumn<String> get customLabel => $composableBuilder(
+      column: $table.customLabel, builder: (column) => column);
+
+  GeneratedColumn<String> get pageQuality => $composableBuilder(
+      column: $table.pageQuality, builder: (column) => column);
+
+  GeneratedColumn<String> get certificationNumber => $composableBuilder(
+      column: $table.certificationNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get signedBy =>
+      $composableBuilder(column: $table.signedBy, builder: (column) => column);
+
+  GeneratedColumn<bool> get keyComic =>
+      $composableBuilder(column: $table.keyComic, builder: (column) => column);
+
+  GeneratedColumn<String> get keyReason =>
+      $composableBuilder(column: $table.keyReason, builder: (column) => column);
+
+  GeneratedColumn<String> get keyCategory => $composableBuilder(
+      column: $table.keyCategory, builder: (column) => column);
+
+  GeneratedColumn<String> get keySeverity => $composableBuilder(
+      column: $table.keySeverity, builder: (column) => column);
+
+  GeneratedColumn<int> get coverPriceCents => $composableBuilder(
+      column: $table.coverPriceCents, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastBagBoardDate => $composableBuilder(
+      column: $table.lastBagBoardDate, builder: (column) => column);
+}
+
+class $$ComicOwnedDetailsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ComicOwnedDetailsRowsTable,
+    ComicOwnedDetailsRow,
+    $$ComicOwnedDetailsRowsTableFilterComposer,
+    $$ComicOwnedDetailsRowsTableOrderingComposer,
+    $$ComicOwnedDetailsRowsTableAnnotationComposer,
+    $$ComicOwnedDetailsRowsTableCreateCompanionBuilder,
+    $$ComicOwnedDetailsRowsTableUpdateCompanionBuilder,
+    (
+      ComicOwnedDetailsRow,
+      BaseReferences<_$LocalDatabase, $ComicOwnedDetailsRowsTable,
+          ComicOwnedDetailsRow>
+    ),
+    ComicOwnedDetailsRow,
+    PrefetchHooks Function()> {
+  $$ComicOwnedDetailsRowsTableTableManager(
+      _$LocalDatabase db, $ComicOwnedDetailsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ComicOwnedDetailsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ComicOwnedDetailsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ComicOwnedDetailsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String?> rawOrSlabbed = const Value.absent(),
+            Value<String?> gradingCompany = const Value.absent(),
+            Value<String?> graderNotes = const Value.absent(),
+            Value<String?> labelType = const Value.absent(),
+            Value<String?> customLabel = const Value.absent(),
+            Value<String?> pageQuality = const Value.absent(),
+            Value<String?> certificationNumber = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> keyComic = const Value.absent(),
+            Value<String?> keyReason = const Value.absent(),
+            Value<String?> keyCategory = const Value.absent(),
+            Value<String?> keySeverity = const Value.absent(),
+            Value<int?> coverPriceCents = const Value.absent(),
+            Value<DateTime?> lastBagBoardDate = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicOwnedDetailsRowsCompanion(
+            ownedItemId: ownedItemId,
+            rawOrSlabbed: rawOrSlabbed,
+            gradingCompany: gradingCompany,
+            graderNotes: graderNotes,
+            labelType: labelType,
+            customLabel: customLabel,
+            pageQuality: pageQuality,
+            certificationNumber: certificationNumber,
+            signedBy: signedBy,
+            keyComic: keyComic,
+            keyReason: keyReason,
+            keyCategory: keyCategory,
+            keySeverity: keySeverity,
+            coverPriceCents: coverPriceCents,
+            lastBagBoardDate: lastBagBoardDate,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String ownedItemId,
+            Value<String?> rawOrSlabbed = const Value.absent(),
+            Value<String?> gradingCompany = const Value.absent(),
+            Value<String?> graderNotes = const Value.absent(),
+            Value<String?> labelType = const Value.absent(),
+            Value<String?> customLabel = const Value.absent(),
+            Value<String?> pageQuality = const Value.absent(),
+            Value<String?> certificationNumber = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> keyComic = const Value.absent(),
+            Value<String?> keyReason = const Value.absent(),
+            Value<String?> keyCategory = const Value.absent(),
+            Value<String?> keySeverity = const Value.absent(),
+            Value<int?> coverPriceCents = const Value.absent(),
+            Value<DateTime?> lastBagBoardDate = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicOwnedDetailsRowsCompanion.insert(
+            ownedItemId: ownedItemId,
+            rawOrSlabbed: rawOrSlabbed,
+            gradingCompany: gradingCompany,
+            graderNotes: graderNotes,
+            labelType: labelType,
+            customLabel: customLabel,
+            pageQuality: pageQuality,
+            certificationNumber: certificationNumber,
+            signedBy: signedBy,
+            keyComic: keyComic,
+            keyReason: keyReason,
+            keyCategory: keyCategory,
+            keySeverity: keySeverity,
+            coverPriceCents: coverPriceCents,
+            lastBagBoardDate: lastBagBoardDate,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ComicOwnedDetailsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $ComicOwnedDetailsRowsTable,
+        ComicOwnedDetailsRow,
+        $$ComicOwnedDetailsRowsTableFilterComposer,
+        $$ComicOwnedDetailsRowsTableOrderingComposer,
+        $$ComicOwnedDetailsRowsTableAnnotationComposer,
+        $$ComicOwnedDetailsRowsTableCreateCompanionBuilder,
+        $$ComicOwnedDetailsRowsTableUpdateCompanionBuilder,
+        (
+          ComicOwnedDetailsRow,
+          BaseReferences<_$LocalDatabase, $ComicOwnedDetailsRowsTable,
+              ComicOwnedDetailsRow>
+        ),
+        ComicOwnedDetailsRow,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -21320,4 +22439,6 @@ class $LocalDatabaseManager {
       $$ComicMediaRowsTableTableManager(_db, _db.comicMediaRows);
   $$ComicReleaseRowsTableTableManager get comicReleaseRows =>
       $$ComicReleaseRowsTableTableManager(_db, _db.comicReleaseRows);
+  $$ComicOwnedDetailsRowsTableTableManager get comicOwnedDetailsRows =>
+      $$ComicOwnedDetailsRowsTableTableManager(_db, _db.comicOwnedDetailsRows);
 }

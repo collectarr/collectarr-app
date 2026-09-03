@@ -1116,6 +1116,18 @@ Create:
 ComicOwnedDetailsRows
 ```
 
+### Status (2026-09-03)
+
+Complete for the typed persistence slice. `ComicOwnedDetailsRows` is registered
+in the local Drift database with typed scalar columns for all Comic-owned
+details, and `ComicLocalMapper` provides validated row conversions. Schema 11
+creates the table on v10 upgrades and preserves the v9-to-v11 migration path.
+Mapper, schema-registration, and migration tests cover populated/default rows,
+nullable values, UTC dates, identity validation, and existing cache
+preservation. `OwnedItemsCache.detailsJson` remains the canonical generic
+cache/sync representation; this PR does not dual-write or change generic
+repository authority. Continue with PR32.
+
 under Comic.
 
 Round-trip contract.

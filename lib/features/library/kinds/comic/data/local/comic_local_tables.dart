@@ -67,3 +67,24 @@ class ComicReleaseRows extends Table {
   @override
   Set<Column> get primaryKey => {mediaId, id};
 }
+
+class ComicOwnedDetailsRows extends Table {
+  TextColumn get ownedItemId => text()();
+  TextColumn get rawOrSlabbed => text().nullable()();
+  TextColumn get gradingCompany => text().nullable()();
+  TextColumn get graderNotes => text().nullable()();
+  TextColumn get labelType => text().nullable()();
+  TextColumn get customLabel => text().nullable()();
+  TextColumn get pageQuality => text().nullable()();
+  TextColumn get certificationNumber => text().nullable()();
+  TextColumn get signedBy => text().nullable()();
+  BoolColumn get keyComic => boolean().withDefault(const Constant(false))();
+  TextColumn get keyReason => text().nullable()();
+  TextColumn get keyCategory => text().nullable()();
+  TextColumn get keySeverity => text().nullable()();
+  IntColumn get coverPriceCents => integer().nullable()();
+  DateTimeColumn get lastBagBoardDate => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {ownedItemId};
+}
