@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
@@ -17,6 +19,8 @@ class CatalogCache extends Table {
 class OwnedItemsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  TextColumn get kind => text().withDefault(const Constant('unknown'))();
+  TextColumn get detailsJson => text().nullable()();
   DateTimeColumn get createdAt => dateTime().nullable()();
   BoolColumn get isDigital => boolean().nullable()();
   TextColumn get anchorType => text().nullable()();
@@ -31,19 +35,6 @@ class OwnedItemsCache extends Table {
   TextColumn get personalNotes => text().nullable()();
   IntColumn get quantity => integer().withDefault(const Constant(1))();
   IntColumn get indexNumber => integer().nullable()();
-  IntColumn get coverPriceCents => integer().nullable()();
-  TextColumn get rawOrSlabbed => text().nullable()();
-  TextColumn get gradingCompany => text().nullable()();
-  TextColumn get graderNotes => text().nullable()();
-  TextColumn get signedBy => text().nullable()();
-  TextColumn get labelType => text().nullable()();
-  TextColumn get customLabel => text().nullable()();
-  TextColumn get pageQuality => text().nullable()();
-  TextColumn get certificationNumber => text().nullable()();
-  BoolColumn get keyComic => boolean().withDefault(const Constant(false))();
-  TextColumn get keyReason => text().nullable()();
-  TextColumn get keyCategory => text().nullable()();
-  TextColumn get keySeverity => text().nullable()();
   IntColumn get rating => integer().nullable()();
   TextColumn get readStatus => text().nullable()();
   DateTimeColumn get startedAt => dateTime().nullable()();
@@ -57,25 +48,9 @@ class OwnedItemsCache extends Table {
   TextColumn get ownerUserId => text().nullable()();
   TextColumn get ownerLabel => text().nullable()();
   TextColumn get locationId => text().nullable()();
-  TextColumn get features => text().nullable()();
-  TextColumn get hdrFormatsJson => text().nullable()();
   TextColumn get purchaseStore => text().nullable()();
-  TextColumn get boxSetId => text().nullable()();
-  TextColumn get boxSetName => text().nullable()();
-  TextColumn get storageDevice => text().nullable()();
-  TextColumn get storageSlot => text().nullable()();
-  TextColumn get region => text().nullable()();
-  TextColumn get packaging => text().nullable()();
-  TextColumn get distributor => text().nullable()();
   TextColumn get collectionStatus => text().nullable()();
-  DateTimeColumn get lastBagBoardDate => dateTime().nullable()();
   IntColumn get marketValueCents => integer().nullable()();
-  TextColumn get gameCompleteness => text().nullable()();
-  BoolColumn get gameHasBox => boolean().nullable()();
-  BoolColumn get gameHasManual => boolean().nullable()();
-  TextColumn get gamePriceChartingId => text().nullable()();
-  TextColumn get gameCoreRegion => text().nullable()();
-  BoolColumn get gameValueIsLocked => boolean().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -425,7 +400,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration {
@@ -435,7 +410,8 @@ class LocalDatabase extends _$LocalDatabase {
         if (from < 8) {
           await m.createTable(providerAccountsCache);
           await m.createTable(providerItemLinksCache);
-        } else if (from < 9) {
+        }
+        if (from < 9) {
           final columns = await customSelect(
             'PRAGMA table_info(${providerAccountsCache.actualTableName})',
           ).get();
@@ -449,7 +425,8 @@ class LocalDatabase extends _$LocalDatabase {
             );
           }
         }
-        if (from < 9) {
+        if (from < 10) {
+          await _migrateOwnedItemsCache(m);
           return;
         }
         await _destructiveRebuild(m);
@@ -463,6 +440,211 @@ class LocalDatabase extends _$LocalDatabase {
         }
       },
     );
+  }
+
+  Future<void> _migrateOwnedItemsCache(Migrator m) async {
+    final tableName = ownedItemsCache.actualTableName;
+    final columns = await customSelect('PRAGMA table_info($tableName)').get();
+    final columnNames = columns
+        .map((column) => column.data['name']?.toString())
+        .whereType<String>()
+        .toSet();
+    if (columnNames.contains('kind') && columnNames.contains('details_json')) {
+      return;
+    }
+
+    final legacyRows = await customSelect('SELECT * FROM $tableName').get();
+    final catalogKinds = <String, String>{};
+    final catalogRows = await customSelect(
+      'SELECT id, kind FROM ${catalogCache.actualTableName}',
+    ).get();
+    for (final row in catalogRows) {
+      final id = row.data['id']?.toString();
+      final kind = row.data['kind']?.toString();
+      if (id != null && kind != null && kind.isNotEmpty) {
+        catalogKinds[id] = kind;
+      }
+    }
+    final migratedRows = <String, ({String kind, String detailsJson})>{};
+    for (final row in legacyRows) {
+      final id = row.data['id']?.toString();
+      if (id == null) {
+        continue;
+      }
+      final data = row.data;
+      final catalogKind = catalogKinds[data['item_id']?.toString()];
+      migratedRows[id] = (
+        kind: _legacyOwnedKind(data, catalogKind: catalogKind),
+        detailsJson: jsonEncode(_legacyOwnedDetails(data)),
+      );
+    }
+
+    await m.alterTable(
+      TableMigration(
+        ownedItemsCache,
+        newColumns: [ownedItemsCache.kind, ownedItemsCache.detailsJson],
+      ),
+    );
+
+    for (final entry in migratedRows.entries) {
+      await customStatement(
+        'UPDATE $tableName SET kind = ?, details_json = ? WHERE id = ?',
+        [entry.value.kind, entry.value.detailsJson, entry.key],
+      );
+    }
+  }
+
+  String _legacyOwnedKind(
+    Map<String, Object?> row, {
+    String? catalogKind,
+  }) {
+    if (catalogKind != null && catalogKind.isNotEmpty) {
+      return catalogKind;
+    }
+    if (_hasLegacyValue(row, [
+          'raw_or_slabbed',
+          'grading_company',
+          'grader_notes',
+          'signed_by',
+          'label_type',
+          'custom_label',
+          'page_quality',
+          'certification_number',
+          'key_reason',
+          'key_category',
+          'key_severity',
+          'cover_price_cents',
+          'last_bag_board_date',
+        ]) ||
+        _legacyBool(row['key_comic']) == true) {
+      return 'comic';
+    }
+    if (_hasLegacyValue(row, [
+      'features',
+      'hdr_formats_json',
+      'box_set_id',
+      'box_set_name',
+      'region',
+      'packaging',
+      'distributor',
+    ])) {
+      return 'movie';
+    }
+    if (_hasLegacyValue(row, [
+      'game_completeness',
+      'game_has_box',
+      'game_has_manual',
+      'game_price_charting_id',
+      'game_core_region',
+      'game_value_is_locked',
+    ])) {
+      return 'game';
+    }
+    if (_hasLegacyValue(row, ['storage_device', 'storage_slot'])) {
+      return 'music';
+    }
+    return 'unknown';
+  }
+
+  Map<String, Object?> _legacyOwnedDetails(Map<String, Object?> row) {
+    final details = <String, Object?>{};
+
+    void copy(String oldName, String newName) {
+      final value = row[oldName];
+      if (value != null) {
+        details[newName] = value;
+      }
+    }
+
+    for (final field in const [
+      'raw_or_slabbed',
+      'grading_company',
+      'grader_notes',
+      'signed_by',
+      'label_type',
+      'custom_label',
+      'page_quality',
+      'certification_number',
+      'key_reason',
+      'key_category',
+      'key_severity',
+      'cover_price_cents',
+      'features',
+      'box_set_id',
+      'box_set_name',
+      'storage_device',
+      'storage_slot',
+      'region',
+      'packaging',
+      'distributor',
+    ]) {
+      copy(field, field);
+    }
+
+    final keyComic = _legacyBool(row['key_comic']);
+    if (keyComic != null) {
+      details['key_comic'] = keyComic;
+    }
+    for (final field in const [
+      'game_completeness',
+      'game_price_charting_id',
+      'game_core_region',
+    ]) {
+      copy(
+        field,
+        field == 'game_price_charting_id' ? 'game_pricecharting_id' : field,
+      );
+    }
+    for (final field in const [
+      'game_has_box',
+      'game_has_manual',
+      'game_value_is_locked',
+    ]) {
+      final value = _legacyBool(row[field]);
+      if (value != null) {
+        details[field] = value;
+      }
+    }
+
+    final hdrFormats = row['hdr_formats_json'];
+    if (hdrFormats is String && hdrFormats.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(hdrFormats);
+        if (decoded is List) {
+          details['hdr_formats'] = decoded;
+        }
+      } on Object {
+        // Ignore malformed legacy JSON and preserve the remaining fields.
+      }
+    }
+
+    final lastBagBoardDate = row['last_bag_board_date'];
+    final lastBagBoardDateValue = switch (lastBagBoardDate) {
+      DateTime value => value.toUtc().toIso8601String(),
+      int value => DateTime.fromMillisecondsSinceEpoch(value, isUtc: true)
+          .toIso8601String(),
+      num value =>
+        DateTime.fromMillisecondsSinceEpoch(value.toInt(), isUtc: true)
+            .toIso8601String(),
+      String value => DateTime.tryParse(value)?.toUtc().toIso8601String(),
+      _ => null,
+    };
+    if (lastBagBoardDateValue != null) {
+      details['last_bag_board_date'] = lastBagBoardDateValue;
+    }
+    return details;
+  }
+
+  bool? _legacyBool(Object? value) {
+    return switch (value) {
+      bool value => value,
+      num value => value != 0,
+      _ => null,
+    };
+  }
+
+  bool _hasLegacyValue(Map<String, Object?> row, List<String> names) {
+    return names.any((name) => row[name] != null);
   }
 
   Future<void> _destructiveRebuild(Migrator m) async {

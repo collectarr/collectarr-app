@@ -225,6 +225,7 @@ void main() {
           OwnedItemsCacheCompanion.insert(
             id: 'owned-comic-1',
             itemId: 'comic-multi-1',
+            kind: const Value('comic'),
             condition: const Value('Near Mint'),
             updatedAt: DateTime.utc(2026, 5, 23, 10),
           ),
@@ -233,6 +234,7 @@ void main() {
           OwnedItemsCacheCompanion.insert(
             id: 'owned-comic-2',
             itemId: 'comic-multi-1',
+            kind: const Value('comic'),
             condition: const Value('Very Fine'),
             updatedAt: DateTime.utc(2026, 5, 23, 11),
           ),

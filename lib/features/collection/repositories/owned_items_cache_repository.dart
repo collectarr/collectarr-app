@@ -111,84 +111,9 @@ class OwnedItemsCacheRepository {
 
   OwnedItem _fromCache(OwnedItemsCacheData row, {String? catalogKind}) {
     final catalogRef = _catalogRefFromRow(row, catalogKind: catalogKind);
-    OwnedItemDetails details;
-    switch (catalogRef.kind) {
-      case 'comic':
-        details = ComicOwnedDetails(
-          rawOrSlabbed: row.rawOrSlabbed,
-          gradingCompany: row.gradingCompany,
-          graderNotes: row.graderNotes,
-          signedBy: row.signedBy,
-          labelType: row.labelType,
-          customLabel: row.customLabel,
-          pageQuality: row.pageQuality,
-          certificationNumber: row.certificationNumber,
-          keyComic: row.keyComic,
-          keyReason: row.keyReason,
-          keyCategory: row.keyCategory,
-          keySeverity: row.keySeverity,
-          coverPriceCents: row.coverPriceCents,
-          lastBagBoardDate: row.lastBagBoardDate,
-        );
-      case 'manga':
-        details = MangaOwnedDetails(
-          gradingCompany: row.gradingCompany,
-          graderNotes: row.graderNotes,
-          signedBy: row.signedBy,
-        );
-      case 'movie':
-        details = MovieOwnedDetails(
-          features: row.features,
-          hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
-          boxSetId: row.boxSetId,
-          boxSetName: row.boxSetName,
-          region: row.region,
-          packaging: row.packaging,
-          distributor: row.distributor,
-        );
-      case 'tv':
-        details = TvOwnedDetails(
-          features: row.features,
-          hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
-          boxSetId: row.boxSetId,
-          boxSetName: row.boxSetName,
-          region: row.region,
-          packaging: row.packaging,
-          distributor: row.distributor,
-        );
-      case 'anime':
-        details = AnimeOwnedDetails(
-          features: row.features,
-          hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
-          boxSetId: row.boxSetId,
-          boxSetName: row.boxSetName,
-          region: row.region,
-          packaging: row.packaging,
-          distributor: row.distributor,
-        );
-      case 'game':
-        details = GameOwnedDetails(
-          completeness: row.gameCompleteness,
-          hasBox: row.gameHasBox,
-          hasManual: row.gameHasManual,
-          priceChartingId: row.gamePriceChartingId,
-          coreRegion: row.gameCoreRegion,
-          valueIsLocked: row.gameValueIsLocked,
-        );
-      case 'music':
-        details = MusicOwnedDetails(
-          storageDevice: row.storageDevice,
-          storageSlot: row.storageSlot,
-        );
-      case 'book':
-        details = const BookOwnedDetails();
-      case 'boardgame':
-        details = const BoardgameOwnedDetails();
-      default:
-        details = OwnedItemDetails.defaultForKind(
-          catalogMediaKindFromApiValue(catalogRef.kind),
-        );
-    }
+    final decodedDetails = _decodeDetails(row.detailsJson);
+    final kind = catalogMediaKindFromApiValue(catalogRef.kind);
+    final details = _parseDetails(kind, decodedDetails);
 
     return OwnedItem(
       id: row.id,
@@ -228,29 +153,11 @@ class OwnedItemsCacheRepository {
   }
 
   OwnedItemsCacheCompanion _toCompanion(OwnedItem item) {
-    final details = item.details;
-    final comic = details is ComicOwnedDetails ? details : null;
-    final movie = details is MovieOwnedDetails ? details : null;
-    final tv = details is TvOwnedDetails ? details : null;
-    final anime = details is AnimeOwnedDetails ? details : null;
-    final game = details is GameOwnedDetails ? details : null;
-    final music = details is MusicOwnedDetails ? details : null;
-
-    final features = movie?.features ?? tv?.features ?? anime?.features;
-    final hdrFormats = movie?.hdrFormats ??
-        tv?.hdrFormats ??
-        anime?.hdrFormats ??
-        const <String>[];
-    final boxSetId = movie?.boxSetId ?? tv?.boxSetId ?? anime?.boxSetId;
-    final boxSetName = movie?.boxSetName ?? tv?.boxSetName ?? anime?.boxSetName;
-    final region = movie?.region ?? tv?.region ?? anime?.region;
-    final packaging = movie?.packaging ?? tv?.packaging ?? anime?.packaging;
-    final distributor =
-        movie?.distributor ?? tv?.distributor ?? anime?.distributor;
-
     return OwnedItemsCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
+      kind: Value(item.catalogRef.kind),
+      detailsJson: Value(jsonEncode(item.details.toJson())),
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
       anchorType: Value(item.anchorType),
@@ -265,19 +172,6 @@ class OwnedItemsCacheRepository {
       personalNotes: Value(item.personalNotes),
       quantity: Value(item.quantity),
       indexNumber: Value(item.indexNumber),
-      coverPriceCents: Value(comic?.coverPriceCents),
-      rawOrSlabbed: Value(comic?.rawOrSlabbed),
-      gradingCompany: Value(comic?.gradingCompany),
-      graderNotes: Value(comic?.graderNotes),
-      signedBy: Value(comic?.signedBy),
-      labelType: Value(comic?.labelType),
-      customLabel: Value(comic?.customLabel),
-      pageQuality: Value(comic?.pageQuality),
-      certificationNumber: Value(comic?.certificationNumber),
-      keyComic: Value(comic?.keyComic ?? false),
-      keyReason: Value(comic?.keyReason),
-      keyCategory: Value(comic?.keyCategory),
-      keySeverity: Value(comic?.keySeverity),
       rating: Value(item.rating),
       readStatus: Value(item.readStatus),
       startedAt: Value(item.startedAt),
@@ -291,27 +185,9 @@ class OwnedItemsCacheRepository {
       ownerUserId: Value(item.ownerUserId),
       ownerLabel: Value(item.ownerLabel),
       locationId: Value(item.locationId),
-      features: Value(features),
-      hdrFormatsJson: Value(
-        hdrFormats.isNotEmpty ? jsonEncode(hdrFormats) : null,
-      ),
       purchaseStore: Value(item.purchaseStore),
-      boxSetId: Value(boxSetId),
-      boxSetName: Value(boxSetName),
-      storageDevice: Value(music?.storageDevice),
-      storageSlot: Value(music?.storageSlot),
-      region: Value(region),
-      packaging: Value(packaging),
-      distributor: Value(distributor),
       collectionStatus: Value(item.collectionStatus),
-      lastBagBoardDate: Value(comic?.lastBagBoardDate),
       marketValueCents: Value(item.marketValueCents),
-      gameCompleteness: Value(game?.completeness),
-      gameHasBox: Value(game?.hasBox),
-      gameHasManual: Value(game?.hasManual),
-      gamePriceChartingId: Value(game?.priceChartingId),
-      gameCoreRegion: Value(game?.coreRegion),
-      gameValueIsLocked: Value(game?.valueIsLocked),
     );
   }
 
@@ -326,47 +202,36 @@ class OwnedItemsCacheRepository {
         id: row.itemId,
       );
     }
-    String kind = 'unknown';
-    if (row.gradingCompany != null ||
-        row.rawOrSlabbed != null ||
-        row.keyComic ||
-        row.signedBy != null ||
-        row.graderNotes != null ||
-        row.labelType != null ||
-        row.customLabel != null ||
-        row.certificationNumber != null) {
-      kind = 'comic';
-    } else if (row.features != null ||
-        row.hdrFormatsJson != null ||
-        row.boxSetId != null ||
-        row.region != null ||
-        row.packaging != null ||
-        row.distributor != null) {
-      kind = 'movie';
-    } else if (row.gameCompleteness != null ||
-        row.gameHasBox != null ||
-        row.gameHasManual != null ||
-        row.gamePriceChartingId != null ||
-        row.gameCoreRegion != null) {
-      kind = 'game';
-    } else if (row.storageDevice != null || row.storageSlot != null) {
-      kind = 'music';
-    }
     return CatalogEntityRef(
-      kind: kind,
+      kind: row.kind,
       entityType: CatalogEntityType.unknown,
       id: row.itemId,
     );
   }
 
-  static List<String>? _decodeStringList(String? json) {
+  static Map<String, dynamic> _decodeDetails(String? json) {
     if (json == null || json.isEmpty) {
-      return null;
+      return const {};
     }
-    final decoded = jsonDecode(json);
-    if (decoded is! List) {
-      return null;
+    try {
+      final decoded = jsonDecode(json);
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    } on Object {
+      return const {};
     }
-    return decoded.cast<String>().toList(growable: false);
+    return const {};
+  }
+
+  static OwnedItemDetails _parseDetails(
+    CatalogMediaKind kind,
+    Map<String, dynamic> json,
+  ) {
+    try {
+      return OwnedItemDetails.parseForKind(kind, json);
+    } on Object {
+      return OwnedItemDetails.defaultForKind(kind);
+    }
   }
 }

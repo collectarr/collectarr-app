@@ -188,6 +188,7 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-1',
       itemId: 'movie-1',
+      kind: 'movie',
       editionId: 'edition-standard',
       variantId: 'variant-dvd',
       condition: 'Good',
@@ -1383,6 +1384,7 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-digital-1',
       itemId: 'movie-digital-1',
+      kind: 'movie',
       condition: 'Mint',
       grade: '10',
       locationId: 'loc-digital',
@@ -1605,6 +1607,7 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-music-1',
       itemId: 'music-1',
+      kind: 'music',
       quantity: 1,
       updatedAt: DateTime.utc(2026, 5, 23),
       locationId: 'loc-music',

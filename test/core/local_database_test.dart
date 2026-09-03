@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -63,7 +64,7 @@ void main() {
   test('reports the reset v9 schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 9);
+    expect(db.schemaVersion, 10);
   });
 
   test('migrates a v7 cache to v9 without losing existing cache rows',
@@ -101,7 +102,7 @@ void main() {
     expect(await db.select(db.providerItemLinksCache).get(), isEmpty);
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 9);
+    expect(version.data.values.first, 10);
   });
 
   test('migrates a v8 provider account table by adding username', () async {
@@ -168,10 +169,196 @@ void main() {
     final migrated = await db.select(db.providerAccountsCache).getSingle();
     expect(migrated.username, 'new-user');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 9);
+    expect(version.data.values.first, 10);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v9 schema',
+  test('migrates v9 owned semantic columns into typed details JSON', () async {
+    final dir = await Directory.systemTemp.createTemp('collectarr_db_owned');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/cache.sqlite');
+
+    final old = LocalDatabase(NativeDatabase(file));
+    await old.batch((batch) {
+      batch.insertAll(old.catalogCache, [
+        CatalogCacheCompanion.insert(
+          id: 'comic-legacy',
+          kind: 'comic',
+          payloadJson: jsonEncode({'id': 'comic-legacy', 'kind': 'comic'}),
+          cachedAt: DateTime.utc(2026, 5, 11),
+        ),
+        CatalogCacheCompanion.insert(
+          id: 'tv-legacy',
+          kind: 'tv',
+          payloadJson: jsonEncode({'id': 'tv-legacy', 'kind': 'tv'}),
+          cachedAt: DateTime.utc(2026, 5, 11),
+        ),
+        CatalogCacheCompanion.insert(
+          id: 'game-legacy',
+          kind: 'game',
+          payloadJson: jsonEncode({'id': 'game-legacy', 'kind': 'game'}),
+          cachedAt: DateTime.utc(2026, 5, 11),
+        ),
+      ]);
+    });
+    await _replaceOwnedItemsWithV9Schema(old);
+    final tableName = old.ownedItemsCache.actualTableName;
+    final updatedAt = DateTime.utc(2026, 5, 11).millisecondsSinceEpoch;
+    final bagBoardDate = DateTime.utc(2026, 5, 10).millisecondsSinceEpoch;
+    await old.customStatement('''
+      INSERT INTO $tableName (
+        id, item_id, quantity, updated_at, raw_or_slabbed, grading_company,
+        grader_notes, signed_by, label_type, custom_label, page_quality,
+        certification_number, key_comic, key_reason, key_category,
+        key_severity, cover_price_cents, last_bag_board_date
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', [
+      'owned-comic',
+      'comic-legacy',
+      1,
+      updatedAt,
+      'slabbed',
+      'CGC',
+      '9.8 label',
+      'Stan Lee',
+      'Universal',
+      'Newsstand',
+      'White pages',
+      '1234567',
+      1,
+      'First appearance',
+      'Origin',
+      'High',
+      125,
+      bagBoardDate,
+    ]);
+    await old.customStatement('''
+      INSERT INTO $tableName (
+        id, item_id, quantity, updated_at, features, hdr_formats_json,
+        box_set_id, box_set_name, region, packaging, distributor
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', [
+      'owned-movie',
+      'tv-legacy',
+      1,
+      updatedAt,
+      'Director commentary',
+      jsonEncode(['HDR10', 'Dolby Vision']),
+      'box-1',
+      'The Trilogy',
+      'Region A',
+      'Steelbook',
+      'Criterion',
+    ]);
+    await old.customStatement('''
+      INSERT INTO $tableName (
+        id, item_id, quantity, updated_at, game_completeness, game_has_box,
+        game_has_manual, game_price_charting_id, game_core_region,
+        game_value_is_locked
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', [
+      'owned-game',
+      'game-legacy',
+      1,
+      updatedAt,
+      'Complete in box',
+      1,
+      1,
+      'pc-123',
+      'NTSC-U',
+      1,
+    ]);
+    await old.customStatement('PRAGMA user_version = 9');
+    await old.close();
+
+    final db = LocalDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+    final repository = OwnedItemsCacheRepository(db);
+
+    final columns = await db
+        .customSelect(
+          'PRAGMA table_info(${db.ownedItemsCache.actualTableName})',
+        )
+        .get();
+    final columnNames = columns
+        .map((column) => column.data['name']?.toString())
+        .whereType<String>()
+        .toSet();
+    expect(columnNames, containsAll(['kind', 'details_json']));
+    expect(columnNames, isNot(contains('grading_company')));
+    expect(columnNames, isNot(contains('features')));
+    expect(columnNames, isNot(contains('game_completeness')));
+
+    final comic = await repository.findById('owned-comic');
+    final movie = await repository.findById('owned-movie');
+    final game = await repository.findById('owned-game');
+    expect(comic?.details, isA<ComicOwnedDetails>());
+    expect((comic!.details as ComicOwnedDetails).gradingCompany, 'CGC');
+    expect((comic.details as ComicOwnedDetails).keyComic, isTrue);
+    expect((comic.details as ComicOwnedDetails).coverPriceCents, 125);
+    expect(movie?.details, isA<TvOwnedDetails>());
+    expect((movie!.details as TvOwnedDetails).hdrFormats,
+        ['HDR10', 'Dolby Vision']);
+    expect((movie.details as TvOwnedDetails).packaging, 'Steelbook');
+    expect(game?.details, isA<GameOwnedDetails>());
+    expect((game!.details as GameOwnedDetails).completeness, 'Complete in box');
+    expect((game.details as GameOwnedDetails).priceChartingId, 'pc-123');
+  });
+
+  test('owned item repository round-trips opaque kind details', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = OwnedItemsCacheRepository(db);
+
+    await repository.upsertAll([
+      testOwnedItem(
+        id: 'comic-round-trip',
+        itemId: 'comic-round-trip-item',
+        kind: 'comic',
+        gradingCompany: 'CBCS',
+        coverPriceCents: 399,
+        keyComic: true,
+      ),
+      testOwnedItem(
+        id: 'video-round-trip',
+        itemId: 'video-round-trip-item',
+        kind: 'tv',
+        features: 'Commentary',
+        hdrFormats: ['HDR10'],
+        region: 'Region B',
+      ),
+      testOwnedItem(
+        id: 'game-round-trip',
+        itemId: 'game-round-trip-item',
+        kind: 'game',
+        gameCompleteness: 'CIB',
+        gameHasBox: true,
+        gamePriceChartingId: 'pc-456',
+      ),
+    ]);
+
+    final rawRows = await db.select(db.ownedItemsCache).get();
+    expect(rawRows.every((row) => row.detailsJson != null), isTrue);
+    final restored = await repository.listActive();
+    final byId = {for (final item in restored) item.id: item};
+    expect((byId['comic-round-trip']!.details as ComicOwnedDetails).keyComic,
+        isTrue);
+    expect((byId['video-round-trip']!.details as TvOwnedDetails).region,
+        'Region B');
+    expect(
+        (byId['game-round-trip']!.details as GameOwnedDetails).priceChartingId,
+        'pc-456');
+
+    await db.customStatement('''
+      UPDATE ${db.ownedItemsCache.actualTableName}
+      SET details_json = ?
+      WHERE id = ?
+    ''', ['not-json', 'comic-round-trip']);
+    final malformed = await repository.findById('comic-round-trip');
+    expect(malformed?.details, isA<ComicOwnedDetails>());
+    expect((malformed!.details as ComicOwnedDetails).keyComic, isFalse);
+  });
+
+  test('destructively rebuilds a higher-versioned cache to the v10 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -203,7 +390,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 9);
+    expect(version.data.values.first, 10);
   });
 
   test('stores personal collection and wishlist data locally', () async {
@@ -221,7 +408,7 @@ void main() {
             currency: const Value('USD'),
             quantity: const Value(2),
             locationId: const Value('loc-box-6'),
-            keyComic: const Value(true),
+            detailsJson: Value(jsonEncode({'key_comic': true})),
             tags: const Value('signed,key'),
             updatedAt: DateTime.utc(2026, 5, 11),
           ),
@@ -245,7 +432,8 @@ void main() {
     expect(owned.pricePaidCents, 1299);
     expect(owned.quantity, 2);
     expect(owned.locationId, 'loc-box-6');
-    expect(owned.keyComic, isTrue);
+    final ownedDetails = jsonDecode(owned.detailsJson!) as Map<String, dynamic>;
+    expect(ownedDetails['key_comic'], isTrue);
     expect(owned.tags, 'signed,key');
     expect(wishlist.itemId, 'comic-2');
     expect(wishlist.targetPriceCents, 999);
@@ -522,4 +710,140 @@ void main() {
     expect(item?.editions.single.id, 'edition-deluxe');
     expect(item?.editions.single.variants.single.id, 'variant-red');
   });
+}
+
+Future<void> _replaceOwnedItemsWithV9Schema(LocalDatabase db) async {
+  final tableName = db.ownedItemsCache.actualTableName;
+  final currentTableName = '${tableName}_v10';
+  await db.customStatement(
+    'ALTER TABLE $tableName RENAME TO $currentTableName',
+  );
+  const universalColumns = [
+    'id',
+    'item_id',
+    'created_at',
+    'is_digital',
+    'anchor_type',
+    'edition_id',
+    'variant_id',
+    'bundle_release_id',
+    'condition',
+    'grade',
+    'purchase_date',
+    'price_paid_cents',
+    'currency',
+    'personal_notes',
+    'quantity',
+    'index_number',
+    'rating',
+    'read_status',
+    'started_at',
+    'finished_at',
+    'tags',
+    'updated_at',
+    'deleted_at',
+    'sold_at',
+    'sell_price_cents',
+    'sold_to',
+    'owner_user_id',
+    'owner_label',
+    'location_id',
+    'purchase_store',
+    'collection_status',
+    'market_value_cents',
+  ];
+  await db.customStatement('''
+    CREATE TABLE $tableName AS
+    SELECT ${universalColumns.join(', ')}
+    FROM $currentTableName
+    WHERE 0
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN raw_or_slabbed TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN grading_company TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN grader_notes TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN signed_by TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN label_type TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN custom_label TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN page_quality TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN certification_number TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN key_comic INTEGER NOT NULL DEFAULT 0
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN key_reason TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN key_category TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN key_severity TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN cover_price_cents INTEGER
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN features TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN hdr_formats_json TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN box_set_id TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN box_set_name TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN storage_device TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN storage_slot TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN region TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN packaging TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN distributor TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN last_bag_board_date INTEGER
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN game_completeness TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN game_has_box INTEGER
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN game_has_manual INTEGER
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN game_price_charting_id TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN game_core_region TEXT
+  ''');
+  await db.customStatement('''
+    ALTER TABLE $tableName ADD COLUMN game_value_is_locked INTEGER
+  ''');
+  await db.customStatement('DROP TABLE $currentTableName');
 }

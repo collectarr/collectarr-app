@@ -55,7 +55,7 @@ void main() {
             personalNotes: const Value('Signed copy'),
             quantity: const Value(2),
             locationId: const Value('loc-box-6'),
-            keyComic: const Value(true),
+            detailsJson: Value(jsonEncode({'key_comic': true})),
             readStatus: const Value('read'),
             updatedAt: DateTime.utc(2026, 5, 11),
           ),

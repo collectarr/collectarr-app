@@ -1097,6 +1097,15 @@ etc.
 
 out.
 
+### Status (2026-09-03)
+
+Complete. `OwnedItemsCache` now keeps only universal ownership state plus the
+persisted `kind` and opaque `detailsJson` payload. The v9-to-v10 migration
+preserves legacy Comic, video, and Game values, prefers `CatalogCache.kind`
+when it can identify the owned item, and falls back to legacy-column
+inference otherwise. Repository round-trip and malformed-payload fallback
+tests cover the new storage contract. Continue with PR31.
+
 ---
 
 ## PR 31 — Comic owned details DB

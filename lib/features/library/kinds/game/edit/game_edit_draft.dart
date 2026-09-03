@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'game_edit_controller.dart';
 
 class GameEditDraft extends KindEditDraft {

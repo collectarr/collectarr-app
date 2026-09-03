@@ -395,19 +395,9 @@ class PickListRepository {
     final directColumns = <String, List<(String table, String column)>>{
       'condition': [('owned_items_cache', 'condition')],
       'grade': [('owned_items_cache', 'grade')],
-      'raw_or_slabbed': [('owned_items_cache', 'rawOrSlabbed')],
-      'grading_company': [('owned_items_cache', 'gradingCompany')],
-      'label_type': [('owned_items_cache', 'labelType')],
-      'page_quality': [('owned_items_cache', 'pageQuality')],
-      'key_category': [('owned_items_cache', 'keyCategory')],
-      'key_severity': [('owned_items_cache', 'keySeverity')],
-      'purchase_store': [('owned_items_cache', 'purchaseStore')],
-      'sold_to': [('owned_items_cache', 'soldTo')],
-      'region': [('owned_items_cache', 'region')],
-      'packaging': [('owned_items_cache', 'packaging')],
-      'distributor': [('owned_items_cache', 'distributor')],
-      'collection_status': [('owned_items_cache', 'collectionStatus')],
-      'features': [('owned_items_cache', 'features')],
+      'purchase_store': [('owned_items_cache', 'purchase_store')],
+      'sold_to': [('owned_items_cache', 'sold_to')],
+      'collection_status': [('owned_items_cache', 'collection_status')],
     };
     final catalogPayloadFields = <String, List<String>>{
       'publisher': ['publisher'],
@@ -426,6 +416,7 @@ class PickListRepository {
     for (final column in ownedColumns) {
       total += await _countTextColumn(column.$1, column.$2, normalized);
     }
+    total += await _countOwnedDetails(semanticName, normalized);
     for (final field
         in catalogPayloadFields[semanticName] ?? const <String>[]) {
       total += await _countCatalogPayloadField(field, normalized);
@@ -435,6 +426,55 @@ class PickListRepository {
     }
     total += await _countCustomFieldValues(normalized);
     return total;
+  }
+
+  Future<int> _countOwnedDetails(String semanticName, String normalized) async {
+    final key = switch (semanticName) {
+      'raw_or_slabbed' => 'raw_or_slabbed',
+      'grading_company' => 'grading_company',
+      'grader_notes' => 'grader_notes',
+      'signed_by' => 'signed_by',
+      'label_type' => 'label_type',
+      'custom_label' => 'custom_label',
+      'page_quality' => 'page_quality',
+      'certification_number' => 'certification_number',
+      'key_category' => 'key_category',
+      'key_severity' => 'key_severity',
+      'features' => 'features',
+      'region' => 'region',
+      'packaging' => 'packaging',
+      'distributor' => 'distributor',
+      'game_completeness' => 'game_completeness',
+      _ => null,
+    };
+    if (key == null) {
+      return 0;
+    }
+    final rows = await _db.select(_db.ownedItemsCache).get();
+    var count = 0;
+    for (final row in rows) {
+      final details = _decodeDetails(row.detailsJson);
+      final value = details[key];
+      if (value is String && normalizePickListValue(value) == normalized) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  Map<String, dynamic> _decodeDetails(String? detailsJson) {
+    if (detailsJson == null || detailsJson.isEmpty) {
+      return const {};
+    }
+    try {
+      final decoded = jsonDecode(detailsJson);
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    } on Object {
+      return const {};
+    }
+    return const {};
   }
 
   Future<int> _countTextColumn(

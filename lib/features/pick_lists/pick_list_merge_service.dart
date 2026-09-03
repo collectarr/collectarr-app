@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -119,27 +121,6 @@ class PickListMergeService {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(soldTo: Value(target)));
-      } else if (semanticName == 'region' &&
-          sourceSet.contains(normalizePickListValue(row.region ?? ''))) {
-        await (_db.update(_db.ownedItemsCache)
-              ..where((table) => table.id.equals(row.id)))
-            .write(OwnedItemsCacheCompanion(region: Value(target)));
-      } else if (semanticName == 'packaging' &&
-          sourceSet.contains(normalizePickListValue(row.packaging ?? ''))) {
-        await (_db.update(_db.ownedItemsCache)
-              ..where((table) => table.id.equals(row.id)))
-            .write(OwnedItemsCacheCompanion(packaging: Value(target)));
-      } else if (semanticName == 'distributor' &&
-          sourceSet.contains(normalizePickListValue(row.distributor ?? ''))) {
-        await (_db.update(_db.ownedItemsCache)
-              ..where((table) => table.id.equals(row.id)))
-            .write(OwnedItemsCacheCompanion(distributor: Value(target)));
-      } else if (semanticName == 'game_completeness' &&
-          sourceSet
-              .contains(normalizePickListValue(row.gameCompleteness ?? ''))) {
-        await (_db.update(_db.ownedItemsCache)
-              ..where((table) => table.id.equals(row.id)))
-            .write(OwnedItemsCacheCompanion(gameCompleteness: Value(target)));
       } else if (semanticName == 'tags' && (row.tags?.isNotEmpty ?? false)) {
         final tags = row.tags!
             .split(',')
@@ -155,6 +136,23 @@ class PickListMergeService {
                 ..where((table) => table.id.equals(row.id)))
               .write(
                   OwnedItemsCacheCompanion(tags: Value(replaced.join(', '))));
+        }
+      } else {
+        final detailsKey = _ownedDetailsKey(semanticName);
+        if (detailsKey != null) {
+          final details = _decodeDetails(row.detailsJson);
+          final value = details[detailsKey];
+          if (value is String &&
+              sourceSet.contains(normalizePickListValue(value))) {
+            details[detailsKey] = target;
+            await (_db.update(_db.ownedItemsCache)
+                  ..where((table) => table.id.equals(row.id)))
+                .write(
+              OwnedItemsCacheCompanion(
+                detailsJson: Value(jsonEncode(details)),
+              ),
+            );
+          }
         }
       }
     }
@@ -178,15 +176,17 @@ class PickListMergeService {
   }
 
   List<String> _valuesForRow(String listName, OwnedItemsCacheData row) {
-    return switch (pickListSemanticName(listName)) {
+    final semanticName = pickListSemanticName(listName);
+    final detailsKey = _ownedDetailsKey(semanticName);
+    if (detailsKey != null) {
+      final value = _decodeDetails(row.detailsJson)[detailsKey];
+      return value is String ? [value] : const [];
+    }
+    return switch (semanticName) {
       'condition' => [row.condition ?? ''],
       'grade' => [row.grade ?? ''],
       'purchase_store' => [row.purchaseStore ?? ''],
       'sold_to' => [row.soldTo ?? ''],
-      'region' => [row.region ?? ''],
-      'packaging' => [row.packaging ?? ''],
-      'distributor' => [row.distributor ?? ''],
-      'game_completeness' => [row.gameCompleteness ?? ''],
       'tags' => (row.tags ?? '')
           .split(',')
           .map((value) => value.trim())
@@ -194,5 +194,41 @@ class PickListMergeService {
           .toList(growable: false),
       _ => const [],
     };
+  }
+
+  String? _ownedDetailsKey(String semanticName) {
+    return switch (semanticName) {
+      'raw_or_slabbed' => 'raw_or_slabbed',
+      'grading_company' => 'grading_company',
+      'grader_notes' => 'grader_notes',
+      'signed_by' => 'signed_by',
+      'label_type' => 'label_type',
+      'custom_label' => 'custom_label',
+      'page_quality' => 'page_quality',
+      'certification_number' => 'certification_number',
+      'key_category' => 'key_category',
+      'key_severity' => 'key_severity',
+      'features' => 'features',
+      'region' => 'region',
+      'packaging' => 'packaging',
+      'distributor' => 'distributor',
+      'game_completeness' => 'game_completeness',
+      _ => null,
+    };
+  }
+
+  Map<String, dynamic> _decodeDetails(String? detailsJson) {
+    if (detailsJson == null || detailsJson.isEmpty) {
+      return <String, dynamic>{};
+    }
+    try {
+      final decoded = jsonDecode(detailsJson);
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    } on Object {
+      return <String, dynamic>{};
+    }
+    return <String, dynamic>{};
   }
 }

@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/video_like_owned_details.dart';
 
 export 'package:collectarr_app/core/models/money.dart';
 export 'package:collectarr_app/core/models/owned_item_details.dart';

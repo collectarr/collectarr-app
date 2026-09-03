@@ -149,7 +149,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
             catalogItem: LibraryMetadataTransportCodec.fromCatalogItem(
               _catalogFromCache(catalogData),
             ),
-            ownedItem: ownedData == null ? null : _ownedFromCache(ownedData),
+            ownedItem: ownedData == null
+                ? null
+                : _ownedFromCache(ownedData, catalogKind: catalogData.kind),
             wishlistItem:
                 wishlistData == null ? null : _wishlistFromCache(wishlistData),
             trackingEntry:
@@ -248,14 +250,22 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     return CatalogItem.fromJson(payload);
   }
 
-  OwnedItem _ownedFromCache(OwnedItemsCacheData row) {
+  OwnedItem _ownedFromCache(
+    OwnedItemsCacheData row, {
+    required String catalogKind,
+  }) {
+    final kind = catalogMediaKindFromApiValue(
+      catalogKind == 'unknown' ? row.kind : catalogKind,
+    );
+    final details = _decodeOwnedDetails(row.detailsJson, kind);
     return OwnedItem(
       id: row.id,
       catalogRef: CatalogEntityRef(
-        kind: 'unknown',
+        kind: catalogKind == 'unknown' ? row.kind : catalogKind,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),
+      details: details,
       quantity: row.quantity,
       locationId: row.locationId,
       condition: row.condition,
@@ -267,6 +277,27 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
+  }
+
+  OwnedItemDetails _decodeOwnedDetails(
+    String? detailsJson,
+    CatalogMediaKind kind,
+  ) {
+    if (detailsJson == null || detailsJson.isEmpty) {
+      return OwnedItemDetails.defaultForKind(kind);
+    }
+    try {
+      final decoded = jsonDecode(detailsJson);
+      if (decoded is Map) {
+        return OwnedItemDetails.parseForKind(
+          kind,
+          Map<String, dynamic>.from(decoded),
+        );
+      }
+    } on Object {
+      // Fall back to the kind's empty details for malformed cache payloads.
+    }
+    return OwnedItemDetails.defaultForKind(kind);
   }
 
   WishlistItem _wishlistFromCache(WishlistItemsCacheData row) {

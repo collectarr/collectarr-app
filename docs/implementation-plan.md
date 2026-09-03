@@ -61,8 +61,7 @@ Known incomplete or regressed surfaces:
 	broad transport superset. They are compatibility bridges, not the target API.
 - Shared video still contains the common semantic implementation. Anime, Movie,
 	and TV presentation/release/edit ownership has not yet been fully split.
-- `OwnedItemsCache` still contains Comic, video, and Game semantic columns.
-	`CatalogCacheDerivedDataService` also needs to move out of repository-level
+- `CatalogCacheDerivedDataService` still needs to move out of repository-level
 	orchestration into an explicit sync/composition boundary.
 - The dynamic field registry, dynamic facet definitions, generic edit semantic
 	fields, condition/grade fallback vocabulary, planned-media transition APIs,
@@ -195,13 +194,13 @@ architecture-negative check prevents the old design from returning.
 - [ ] Move `CatalogCacheDerivedDataService` out of repository-level behavior into
 	sync/orchestration or an explicit registry composition boundary. The cache
 	repository should only persist and retrieve opaque envelopes.
-- [ ] Remove semantic columns from `OwnedItemsCache`, either by making kind-owned
-	details opaque JSON or by introducing per-kind persistence codecs/tables. The
-	migration must preserve Comic grading/key/cover-price data, video technical
-	data, and Game completeness/value data.
-- [ ] Update Drift schema/migrations and generated bindings only after the final
-	storage shape is agreed. Add migration tests for existing local databases and
-	sync payload round trips.
+- [x] Remove semantic columns from `OwnedItemsCache` by storing kind-owned
+	details as opaque JSON alongside the persisted kind. The v9-to-v10 migration
+	preserves Comic grading/key/cover-price data, video technical data, and Game
+	completeness/value data.
+- [x] Update Drift schema/migrations and generated bindings for the agreed
+	storage shape, with migration tests for existing local databases and sync
+	payload round trips.
 - [ ] Ensure local workspace filtering/search uses kind-owned extraction rather
 	than reintroducing SQL columns for publisher, series, item number, or format.
 

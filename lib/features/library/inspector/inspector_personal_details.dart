@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/edit/edition_selection_helpers.d
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
     hide formatDate;
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/video_like_owned_details.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';

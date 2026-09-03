@@ -20,9 +20,13 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
@@ -314,8 +318,10 @@ void main() {
 
       expect(command.catalogRef.id, 'c1');
       expect(command.common.condition, 'NM');
-      expect(command.details.toDetails().comic?.gradingCompany, 'CBCS');
-      expect(command.details.toDetails().comic?.signedBy, 'Stan Lee');
+      final details = command.details.toDetails();
+      expect(details, isA<ComicOwnedDetails>());
+      expect((details as ComicOwnedDetails).gradingCompany, 'CBCS');
+      expect(details.signedBy, 'Stan Lee');
     });
 
     test('MovieAddDraft produces valid AddOwnedItemCommand', () {
@@ -329,8 +335,10 @@ void main() {
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'v1');
-      expect(command.details.toDetails().movie?.packaging, 'SteelBook');
-      expect(command.details.toDetails().movie?.region, 'Region A');
+      final details = command.details.toDetails();
+      expect(details, isA<MovieOwnedDetails>());
+      expect((details as MovieOwnedDetails).packaging, 'SteelBook');
+      expect(details.region, 'Region A');
     });
 
     test('GameAddDraft produces valid AddOwnedItemCommand', () {
@@ -344,8 +352,10 @@ void main() {
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'g1');
-      expect(command.details.toDetails().game?.completeness, 'CIB');
-      expect(command.details.toDetails().game?.hasBox, true);
+      final details = command.details.toDetails();
+      expect(details, isA<GameOwnedDetails>());
+      expect((details as GameOwnedDetails).completeness, 'CIB');
+      expect(details.hasBox, true);
     });
 
     test('MusicAddDraft produces valid AddOwnedItemCommand', () {
@@ -359,8 +369,10 @@ void main() {
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'm1');
-      expect(command.details.toDetails().music?.storageDevice, 'Shelf A');
-      expect(command.details.toDetails().music?.storageSlot, '12');
+      final details = command.details.toDetails();
+      expect(details, isA<MusicOwnedDetails>());
+      expect((details as MusicOwnedDetails).storageDevice, 'Shelf A');
+      expect(details.storageSlot, '12');
     });
 
     test(

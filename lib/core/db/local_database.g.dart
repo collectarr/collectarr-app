@@ -293,6 +293,19 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
       'item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('unknown'));
+  static const VerificationMeta _detailsJsonMeta =
+      const VerificationMeta('detailsJson');
+  @override
+  late final GeneratedColumn<String> detailsJson = GeneratedColumn<String>(
+      'details_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -381,88 +394,6 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<int> indexNumber = GeneratedColumn<int>(
       'index_number', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _coverPriceCentsMeta =
-      const VerificationMeta('coverPriceCents');
-  @override
-  late final GeneratedColumn<int> coverPriceCents = GeneratedColumn<int>(
-      'cover_price_cents', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _rawOrSlabbedMeta =
-      const VerificationMeta('rawOrSlabbed');
-  @override
-  late final GeneratedColumn<String> rawOrSlabbed = GeneratedColumn<String>(
-      'raw_or_slabbed', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _gradingCompanyMeta =
-      const VerificationMeta('gradingCompany');
-  @override
-  late final GeneratedColumn<String> gradingCompany = GeneratedColumn<String>(
-      'grading_company', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _graderNotesMeta =
-      const VerificationMeta('graderNotes');
-  @override
-  late final GeneratedColumn<String> graderNotes = GeneratedColumn<String>(
-      'grader_notes', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _signedByMeta =
-      const VerificationMeta('signedBy');
-  @override
-  late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
-      'signed_by', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _labelTypeMeta =
-      const VerificationMeta('labelType');
-  @override
-  late final GeneratedColumn<String> labelType = GeneratedColumn<String>(
-      'label_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _customLabelMeta =
-      const VerificationMeta('customLabel');
-  @override
-  late final GeneratedColumn<String> customLabel = GeneratedColumn<String>(
-      'custom_label', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _pageQualityMeta =
-      const VerificationMeta('pageQuality');
-  @override
-  late final GeneratedColumn<String> pageQuality = GeneratedColumn<String>(
-      'page_quality', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _certificationNumberMeta =
-      const VerificationMeta('certificationNumber');
-  @override
-  late final GeneratedColumn<String> certificationNumber =
-      GeneratedColumn<String>('certification_number', aliasedName, true,
-          type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _keyComicMeta =
-      const VerificationMeta('keyComic');
-  @override
-  late final GeneratedColumn<bool> keyComic = GeneratedColumn<bool>(
-      'key_comic', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("key_comic" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _keyReasonMeta =
-      const VerificationMeta('keyReason');
-  @override
-  late final GeneratedColumn<String> keyReason = GeneratedColumn<String>(
-      'key_reason', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _keyCategoryMeta =
-      const VerificationMeta('keyCategory');
-  @override
-  late final GeneratedColumn<String> keyCategory = GeneratedColumn<String>(
-      'key_category', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _keySeverityMeta =
-      const VerificationMeta('keySeverity');
-  @override
-  late final GeneratedColumn<String> keySeverity = GeneratedColumn<String>(
-      'key_severity', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
   @override
   late final GeneratedColumn<int> rating = GeneratedColumn<int>(
@@ -537,64 +468,11 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> locationId = GeneratedColumn<String>(
       'location_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _featuresMeta =
-      const VerificationMeta('features');
-  @override
-  late final GeneratedColumn<String> features = GeneratedColumn<String>(
-      'features', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _hdrFormatsJsonMeta =
-      const VerificationMeta('hdrFormatsJson');
-  @override
-  late final GeneratedColumn<String> hdrFormatsJson = GeneratedColumn<String>(
-      'hdr_formats_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _purchaseStoreMeta =
       const VerificationMeta('purchaseStore');
   @override
   late final GeneratedColumn<String> purchaseStore = GeneratedColumn<String>(
       'purchase_store', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _boxSetIdMeta =
-      const VerificationMeta('boxSetId');
-  @override
-  late final GeneratedColumn<String> boxSetId = GeneratedColumn<String>(
-      'box_set_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _boxSetNameMeta =
-      const VerificationMeta('boxSetName');
-  @override
-  late final GeneratedColumn<String> boxSetName = GeneratedColumn<String>(
-      'box_set_name', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _storageDeviceMeta =
-      const VerificationMeta('storageDevice');
-  @override
-  late final GeneratedColumn<String> storageDevice = GeneratedColumn<String>(
-      'storage_device', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _storageSlotMeta =
-      const VerificationMeta('storageSlot');
-  @override
-  late final GeneratedColumn<String> storageSlot = GeneratedColumn<String>(
-      'storage_slot', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _regionMeta = const VerificationMeta('region');
-  @override
-  late final GeneratedColumn<String> region = GeneratedColumn<String>(
-      'region', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _packagingMeta =
-      const VerificationMeta('packaging');
-  @override
-  late final GeneratedColumn<String> packaging = GeneratedColumn<String>(
-      'packaging', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _distributorMeta =
-      const VerificationMeta('distributor');
-  @override
-  late final GeneratedColumn<String> distributor = GeneratedColumn<String>(
-      'distributor', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _collectionStatusMeta =
       const VerificationMeta('collectionStatus');
@@ -602,67 +480,18 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
   late final GeneratedColumn<String> collectionStatus = GeneratedColumn<String>(
       'collection_status', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _lastBagBoardDateMeta =
-      const VerificationMeta('lastBagBoardDate');
-  @override
-  late final GeneratedColumn<DateTime> lastBagBoardDate =
-      GeneratedColumn<DateTime>('last_bag_board_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _marketValueCentsMeta =
       const VerificationMeta('marketValueCents');
   @override
   late final GeneratedColumn<int> marketValueCents = GeneratedColumn<int>(
       'market_value_cents', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _gameCompletenessMeta =
-      const VerificationMeta('gameCompleteness');
-  @override
-  late final GeneratedColumn<String> gameCompleteness = GeneratedColumn<String>(
-      'game_completeness', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _gameHasBoxMeta =
-      const VerificationMeta('gameHasBox');
-  @override
-  late final GeneratedColumn<bool> gameHasBox = GeneratedColumn<bool>(
-      'game_has_box', aliasedName, true,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("game_has_box" IN (0, 1))'));
-  static const VerificationMeta _gameHasManualMeta =
-      const VerificationMeta('gameHasManual');
-  @override
-  late final GeneratedColumn<bool> gameHasManual = GeneratedColumn<bool>(
-      'game_has_manual', aliasedName, true,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("game_has_manual" IN (0, 1))'));
-  static const VerificationMeta _gamePriceChartingIdMeta =
-      const VerificationMeta('gamePriceChartingId');
-  @override
-  late final GeneratedColumn<String> gamePriceChartingId =
-      GeneratedColumn<String>('game_price_charting_id', aliasedName, true,
-          type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _gameCoreRegionMeta =
-      const VerificationMeta('gameCoreRegion');
-  @override
-  late final GeneratedColumn<String> gameCoreRegion = GeneratedColumn<String>(
-      'game_core_region', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _gameValueIsLockedMeta =
-      const VerificationMeta('gameValueIsLocked');
-  @override
-  late final GeneratedColumn<bool> gameValueIsLocked = GeneratedColumn<bool>(
-      'game_value_is_locked', aliasedName, true,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("game_value_is_locked" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
         itemId,
+        kind,
+        detailsJson,
         createdAt,
         isDigital,
         anchorType,
@@ -677,19 +506,6 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         personalNotes,
         quantity,
         indexNumber,
-        coverPriceCents,
-        rawOrSlabbed,
-        gradingCompany,
-        graderNotes,
-        signedBy,
-        labelType,
-        customLabel,
-        pageQuality,
-        certificationNumber,
-        keyComic,
-        keyReason,
-        keyCategory,
-        keySeverity,
         rating,
         readStatus,
         startedAt,
@@ -703,25 +519,9 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
         ownerUserId,
         ownerLabel,
         locationId,
-        features,
-        hdrFormatsJson,
         purchaseStore,
-        boxSetId,
-        boxSetName,
-        storageDevice,
-        storageSlot,
-        region,
-        packaging,
-        distributor,
         collectionStatus,
-        lastBagBoardDate,
-        marketValueCents,
-        gameCompleteness,
-        gameHasBox,
-        gameHasManual,
-        gamePriceChartingId,
-        gameCoreRegion,
-        gameValueIsLocked
+        marketValueCents
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -744,6 +544,16 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
     } else if (isInserting) {
       context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    }
+    if (data.containsKey('details_json')) {
+      context.handle(
+          _detailsJsonMeta,
+          detailsJson.isAcceptableOrUnknown(
+              data['details_json']!, _detailsJsonMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -813,76 +623,6 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           indexNumber.isAcceptableOrUnknown(
               data['index_number']!, _indexNumberMeta));
     }
-    if (data.containsKey('cover_price_cents')) {
-      context.handle(
-          _coverPriceCentsMeta,
-          coverPriceCents.isAcceptableOrUnknown(
-              data['cover_price_cents']!, _coverPriceCentsMeta));
-    }
-    if (data.containsKey('raw_or_slabbed')) {
-      context.handle(
-          _rawOrSlabbedMeta,
-          rawOrSlabbed.isAcceptableOrUnknown(
-              data['raw_or_slabbed']!, _rawOrSlabbedMeta));
-    }
-    if (data.containsKey('grading_company')) {
-      context.handle(
-          _gradingCompanyMeta,
-          gradingCompany.isAcceptableOrUnknown(
-              data['grading_company']!, _gradingCompanyMeta));
-    }
-    if (data.containsKey('grader_notes')) {
-      context.handle(
-          _graderNotesMeta,
-          graderNotes.isAcceptableOrUnknown(
-              data['grader_notes']!, _graderNotesMeta));
-    }
-    if (data.containsKey('signed_by')) {
-      context.handle(_signedByMeta,
-          signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
-    }
-    if (data.containsKey('label_type')) {
-      context.handle(_labelTypeMeta,
-          labelType.isAcceptableOrUnknown(data['label_type']!, _labelTypeMeta));
-    }
-    if (data.containsKey('custom_label')) {
-      context.handle(
-          _customLabelMeta,
-          customLabel.isAcceptableOrUnknown(
-              data['custom_label']!, _customLabelMeta));
-    }
-    if (data.containsKey('page_quality')) {
-      context.handle(
-          _pageQualityMeta,
-          pageQuality.isAcceptableOrUnknown(
-              data['page_quality']!, _pageQualityMeta));
-    }
-    if (data.containsKey('certification_number')) {
-      context.handle(
-          _certificationNumberMeta,
-          certificationNumber.isAcceptableOrUnknown(
-              data['certification_number']!, _certificationNumberMeta));
-    }
-    if (data.containsKey('key_comic')) {
-      context.handle(_keyComicMeta,
-          keyComic.isAcceptableOrUnknown(data['key_comic']!, _keyComicMeta));
-    }
-    if (data.containsKey('key_reason')) {
-      context.handle(_keyReasonMeta,
-          keyReason.isAcceptableOrUnknown(data['key_reason']!, _keyReasonMeta));
-    }
-    if (data.containsKey('key_category')) {
-      context.handle(
-          _keyCategoryMeta,
-          keyCategory.isAcceptableOrUnknown(
-              data['key_category']!, _keyCategoryMeta));
-    }
-    if (data.containsKey('key_severity')) {
-      context.handle(
-          _keySeverityMeta,
-          keySeverity.isAcceptableOrUnknown(
-              data['key_severity']!, _keySeverityMeta));
-    }
     if (data.containsKey('rating')) {
       context.handle(_ratingMeta,
           rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
@@ -949,57 +689,11 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           locationId.isAcceptableOrUnknown(
               data['location_id']!, _locationIdMeta));
     }
-    if (data.containsKey('features')) {
-      context.handle(_featuresMeta,
-          features.isAcceptableOrUnknown(data['features']!, _featuresMeta));
-    }
-    if (data.containsKey('hdr_formats_json')) {
-      context.handle(
-          _hdrFormatsJsonMeta,
-          hdrFormatsJson.isAcceptableOrUnknown(
-              data['hdr_formats_json']!, _hdrFormatsJsonMeta));
-    }
     if (data.containsKey('purchase_store')) {
       context.handle(
           _purchaseStoreMeta,
           purchaseStore.isAcceptableOrUnknown(
               data['purchase_store']!, _purchaseStoreMeta));
-    }
-    if (data.containsKey('box_set_id')) {
-      context.handle(_boxSetIdMeta,
-          boxSetId.isAcceptableOrUnknown(data['box_set_id']!, _boxSetIdMeta));
-    }
-    if (data.containsKey('box_set_name')) {
-      context.handle(
-          _boxSetNameMeta,
-          boxSetName.isAcceptableOrUnknown(
-              data['box_set_name']!, _boxSetNameMeta));
-    }
-    if (data.containsKey('storage_device')) {
-      context.handle(
-          _storageDeviceMeta,
-          storageDevice.isAcceptableOrUnknown(
-              data['storage_device']!, _storageDeviceMeta));
-    }
-    if (data.containsKey('storage_slot')) {
-      context.handle(
-          _storageSlotMeta,
-          storageSlot.isAcceptableOrUnknown(
-              data['storage_slot']!, _storageSlotMeta));
-    }
-    if (data.containsKey('region')) {
-      context.handle(_regionMeta,
-          region.isAcceptableOrUnknown(data['region']!, _regionMeta));
-    }
-    if (data.containsKey('packaging')) {
-      context.handle(_packagingMeta,
-          packaging.isAcceptableOrUnknown(data['packaging']!, _packagingMeta));
-    }
-    if (data.containsKey('distributor')) {
-      context.handle(
-          _distributorMeta,
-          distributor.isAcceptableOrUnknown(
-              data['distributor']!, _distributorMeta));
     }
     if (data.containsKey('collection_status')) {
       context.handle(
@@ -1007,53 +701,11 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           collectionStatus.isAcceptableOrUnknown(
               data['collection_status']!, _collectionStatusMeta));
     }
-    if (data.containsKey('last_bag_board_date')) {
-      context.handle(
-          _lastBagBoardDateMeta,
-          lastBagBoardDate.isAcceptableOrUnknown(
-              data['last_bag_board_date']!, _lastBagBoardDateMeta));
-    }
     if (data.containsKey('market_value_cents')) {
       context.handle(
           _marketValueCentsMeta,
           marketValueCents.isAcceptableOrUnknown(
               data['market_value_cents']!, _marketValueCentsMeta));
-    }
-    if (data.containsKey('game_completeness')) {
-      context.handle(
-          _gameCompletenessMeta,
-          gameCompleteness.isAcceptableOrUnknown(
-              data['game_completeness']!, _gameCompletenessMeta));
-    }
-    if (data.containsKey('game_has_box')) {
-      context.handle(
-          _gameHasBoxMeta,
-          gameHasBox.isAcceptableOrUnknown(
-              data['game_has_box']!, _gameHasBoxMeta));
-    }
-    if (data.containsKey('game_has_manual')) {
-      context.handle(
-          _gameHasManualMeta,
-          gameHasManual.isAcceptableOrUnknown(
-              data['game_has_manual']!, _gameHasManualMeta));
-    }
-    if (data.containsKey('game_price_charting_id')) {
-      context.handle(
-          _gamePriceChartingIdMeta,
-          gamePriceChartingId.isAcceptableOrUnknown(
-              data['game_price_charting_id']!, _gamePriceChartingIdMeta));
-    }
-    if (data.containsKey('game_core_region')) {
-      context.handle(
-          _gameCoreRegionMeta,
-          gameCoreRegion.isAcceptableOrUnknown(
-              data['game_core_region']!, _gameCoreRegionMeta));
-    }
-    if (data.containsKey('game_value_is_locked')) {
-      context.handle(
-          _gameValueIsLockedMeta,
-          gameValueIsLocked.isAcceptableOrUnknown(
-              data['game_value_is_locked']!, _gameValueIsLockedMeta));
     }
     return context;
   }
@@ -1068,6 +720,10 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      detailsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}details_json']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
@@ -1096,32 +752,6 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
       indexNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
-      coverPriceCents: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}cover_price_cents']),
-      rawOrSlabbed: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}raw_or_slabbed']),
-      gradingCompany: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}grading_company']),
-      graderNotes: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}grader_notes']),
-      signedBy: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
-      labelType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}label_type']),
-      customLabel: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}custom_label']),
-      pageQuality: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}page_quality']),
-      certificationNumber: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}certification_number']),
-      keyComic: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}key_comic'])!,
-      keyReason: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}key_reason']),
-      keyCategory: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}key_category']),
-      keySeverity: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}key_severity']),
       rating: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}rating']),
       readStatus: attachedDatabase.typeMapping
@@ -1148,45 +778,12 @@ class $OwnedItemsCacheTable extends OwnedItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}owner_label']),
       locationId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}location_id']),
-      features: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}features']),
-      hdrFormatsJson: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}hdr_formats_json']),
       purchaseStore: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}purchase_store']),
-      boxSetId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}box_set_id']),
-      boxSetName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}box_set_name']),
-      storageDevice: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}storage_device']),
-      storageSlot: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}storage_slot']),
-      region: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}region']),
-      packaging: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}packaging']),
-      distributor: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}distributor']),
       collectionStatus: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}collection_status']),
-      lastBagBoardDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}last_bag_board_date']),
       marketValueCents: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}market_value_cents']),
-      gameCompleteness: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}game_completeness']),
-      gameHasBox: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}game_has_box']),
-      gameHasManual: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}game_has_manual']),
-      gamePriceChartingId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}game_price_charting_id']),
-      gameCoreRegion: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}game_core_region']),
-      gameValueIsLocked: attachedDatabase.typeMapping.read(
-          DriftSqlType.bool, data['${effectivePrefix}game_value_is_locked']),
     );
   }
 
@@ -1200,6 +797,8 @@ class OwnedItemsCacheData extends DataClass
     implements Insertable<OwnedItemsCacheData> {
   final String id;
   final String itemId;
+  final String kind;
+  final String? detailsJson;
   final DateTime? createdAt;
   final bool? isDigital;
   final String? anchorType;
@@ -1214,19 +813,6 @@ class OwnedItemsCacheData extends DataClass
   final String? personalNotes;
   final int quantity;
   final int? indexNumber;
-  final int? coverPriceCents;
-  final String? rawOrSlabbed;
-  final String? gradingCompany;
-  final String? graderNotes;
-  final String? signedBy;
-  final String? labelType;
-  final String? customLabel;
-  final String? pageQuality;
-  final String? certificationNumber;
-  final bool keyComic;
-  final String? keyReason;
-  final String? keyCategory;
-  final String? keySeverity;
   final int? rating;
   final String? readStatus;
   final DateTime? startedAt;
@@ -1240,28 +826,14 @@ class OwnedItemsCacheData extends DataClass
   final String? ownerUserId;
   final String? ownerLabel;
   final String? locationId;
-  final String? features;
-  final String? hdrFormatsJson;
   final String? purchaseStore;
-  final String? boxSetId;
-  final String? boxSetName;
-  final String? storageDevice;
-  final String? storageSlot;
-  final String? region;
-  final String? packaging;
-  final String? distributor;
   final String? collectionStatus;
-  final DateTime? lastBagBoardDate;
   final int? marketValueCents;
-  final String? gameCompleteness;
-  final bool? gameHasBox;
-  final bool? gameHasManual;
-  final String? gamePriceChartingId;
-  final String? gameCoreRegion;
-  final bool? gameValueIsLocked;
   const OwnedItemsCacheData(
       {required this.id,
       required this.itemId,
+      required this.kind,
+      this.detailsJson,
       this.createdAt,
       this.isDigital,
       this.anchorType,
@@ -1276,19 +848,6 @@ class OwnedItemsCacheData extends DataClass
       this.personalNotes,
       required this.quantity,
       this.indexNumber,
-      this.coverPriceCents,
-      this.rawOrSlabbed,
-      this.gradingCompany,
-      this.graderNotes,
-      this.signedBy,
-      this.labelType,
-      this.customLabel,
-      this.pageQuality,
-      this.certificationNumber,
-      required this.keyComic,
-      this.keyReason,
-      this.keyCategory,
-      this.keySeverity,
       this.rating,
       this.readStatus,
       this.startedAt,
@@ -1302,30 +861,18 @@ class OwnedItemsCacheData extends DataClass
       this.ownerUserId,
       this.ownerLabel,
       this.locationId,
-      this.features,
-      this.hdrFormatsJson,
       this.purchaseStore,
-      this.boxSetId,
-      this.boxSetName,
-      this.storageDevice,
-      this.storageSlot,
-      this.region,
-      this.packaging,
-      this.distributor,
       this.collectionStatus,
-      this.lastBagBoardDate,
-      this.marketValueCents,
-      this.gameCompleteness,
-      this.gameHasBox,
-      this.gameHasManual,
-      this.gamePriceChartingId,
-      this.gameCoreRegion,
-      this.gameValueIsLocked});
+      this.marketValueCents});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
+    map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || detailsJson != null) {
+      map['details_json'] = Variable<String>(detailsJson);
+    }
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<DateTime>(createdAt);
     }
@@ -1366,43 +913,6 @@ class OwnedItemsCacheData extends DataClass
     if (!nullToAbsent || indexNumber != null) {
       map['index_number'] = Variable<int>(indexNumber);
     }
-    if (!nullToAbsent || coverPriceCents != null) {
-      map['cover_price_cents'] = Variable<int>(coverPriceCents);
-    }
-    if (!nullToAbsent || rawOrSlabbed != null) {
-      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed);
-    }
-    if (!nullToAbsent || gradingCompany != null) {
-      map['grading_company'] = Variable<String>(gradingCompany);
-    }
-    if (!nullToAbsent || graderNotes != null) {
-      map['grader_notes'] = Variable<String>(graderNotes);
-    }
-    if (!nullToAbsent || signedBy != null) {
-      map['signed_by'] = Variable<String>(signedBy);
-    }
-    if (!nullToAbsent || labelType != null) {
-      map['label_type'] = Variable<String>(labelType);
-    }
-    if (!nullToAbsent || customLabel != null) {
-      map['custom_label'] = Variable<String>(customLabel);
-    }
-    if (!nullToAbsent || pageQuality != null) {
-      map['page_quality'] = Variable<String>(pageQuality);
-    }
-    if (!nullToAbsent || certificationNumber != null) {
-      map['certification_number'] = Variable<String>(certificationNumber);
-    }
-    map['key_comic'] = Variable<bool>(keyComic);
-    if (!nullToAbsent || keyReason != null) {
-      map['key_reason'] = Variable<String>(keyReason);
-    }
-    if (!nullToAbsent || keyCategory != null) {
-      map['key_category'] = Variable<String>(keyCategory);
-    }
-    if (!nullToAbsent || keySeverity != null) {
-      map['key_severity'] = Variable<String>(keySeverity);
-    }
     if (!nullToAbsent || rating != null) {
       map['rating'] = Variable<int>(rating);
     }
@@ -1440,62 +950,14 @@ class OwnedItemsCacheData extends DataClass
     if (!nullToAbsent || locationId != null) {
       map['location_id'] = Variable<String>(locationId);
     }
-    if (!nullToAbsent || features != null) {
-      map['features'] = Variable<String>(features);
-    }
-    if (!nullToAbsent || hdrFormatsJson != null) {
-      map['hdr_formats_json'] = Variable<String>(hdrFormatsJson);
-    }
     if (!nullToAbsent || purchaseStore != null) {
       map['purchase_store'] = Variable<String>(purchaseStore);
-    }
-    if (!nullToAbsent || boxSetId != null) {
-      map['box_set_id'] = Variable<String>(boxSetId);
-    }
-    if (!nullToAbsent || boxSetName != null) {
-      map['box_set_name'] = Variable<String>(boxSetName);
-    }
-    if (!nullToAbsent || storageDevice != null) {
-      map['storage_device'] = Variable<String>(storageDevice);
-    }
-    if (!nullToAbsent || storageSlot != null) {
-      map['storage_slot'] = Variable<String>(storageSlot);
-    }
-    if (!nullToAbsent || region != null) {
-      map['region'] = Variable<String>(region);
-    }
-    if (!nullToAbsent || packaging != null) {
-      map['packaging'] = Variable<String>(packaging);
-    }
-    if (!nullToAbsent || distributor != null) {
-      map['distributor'] = Variable<String>(distributor);
     }
     if (!nullToAbsent || collectionStatus != null) {
       map['collection_status'] = Variable<String>(collectionStatus);
     }
-    if (!nullToAbsent || lastBagBoardDate != null) {
-      map['last_bag_board_date'] = Variable<DateTime>(lastBagBoardDate);
-    }
     if (!nullToAbsent || marketValueCents != null) {
       map['market_value_cents'] = Variable<int>(marketValueCents);
-    }
-    if (!nullToAbsent || gameCompleteness != null) {
-      map['game_completeness'] = Variable<String>(gameCompleteness);
-    }
-    if (!nullToAbsent || gameHasBox != null) {
-      map['game_has_box'] = Variable<bool>(gameHasBox);
-    }
-    if (!nullToAbsent || gameHasManual != null) {
-      map['game_has_manual'] = Variable<bool>(gameHasManual);
-    }
-    if (!nullToAbsent || gamePriceChartingId != null) {
-      map['game_price_charting_id'] = Variable<String>(gamePriceChartingId);
-    }
-    if (!nullToAbsent || gameCoreRegion != null) {
-      map['game_core_region'] = Variable<String>(gameCoreRegion);
-    }
-    if (!nullToAbsent || gameValueIsLocked != null) {
-      map['game_value_is_locked'] = Variable<bool>(gameValueIsLocked);
     }
     return map;
   }
@@ -1504,6 +966,10 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheCompanion(
       id: Value(id),
       itemId: Value(itemId),
+      kind: Value(kind),
+      detailsJson: detailsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(detailsJson),
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
@@ -1543,43 +1009,6 @@ class OwnedItemsCacheData extends DataClass
       indexNumber: indexNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(indexNumber),
-      coverPriceCents: coverPriceCents == null && nullToAbsent
-          ? const Value.absent()
-          : Value(coverPriceCents),
-      rawOrSlabbed: rawOrSlabbed == null && nullToAbsent
-          ? const Value.absent()
-          : Value(rawOrSlabbed),
-      gradingCompany: gradingCompany == null && nullToAbsent
-          ? const Value.absent()
-          : Value(gradingCompany),
-      graderNotes: graderNotes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(graderNotes),
-      signedBy: signedBy == null && nullToAbsent
-          ? const Value.absent()
-          : Value(signedBy),
-      labelType: labelType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(labelType),
-      customLabel: customLabel == null && nullToAbsent
-          ? const Value.absent()
-          : Value(customLabel),
-      pageQuality: pageQuality == null && nullToAbsent
-          ? const Value.absent()
-          : Value(pageQuality),
-      certificationNumber: certificationNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(certificationNumber),
-      keyComic: Value(keyComic),
-      keyReason: keyReason == null && nullToAbsent
-          ? const Value.absent()
-          : Value(keyReason),
-      keyCategory: keyCategory == null && nullToAbsent
-          ? const Value.absent()
-          : Value(keyCategory),
-      keySeverity: keySeverity == null && nullToAbsent
-          ? const Value.absent()
-          : Value(keySeverity),
       rating:
           rating == null && nullToAbsent ? const Value.absent() : Value(rating),
       readStatus: readStatus == null && nullToAbsent
@@ -1612,62 +1041,15 @@ class OwnedItemsCacheData extends DataClass
       locationId: locationId == null && nullToAbsent
           ? const Value.absent()
           : Value(locationId),
-      features: features == null && nullToAbsent
-          ? const Value.absent()
-          : Value(features),
-      hdrFormatsJson: hdrFormatsJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(hdrFormatsJson),
       purchaseStore: purchaseStore == null && nullToAbsent
           ? const Value.absent()
           : Value(purchaseStore),
-      boxSetId: boxSetId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(boxSetId),
-      boxSetName: boxSetName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(boxSetName),
-      storageDevice: storageDevice == null && nullToAbsent
-          ? const Value.absent()
-          : Value(storageDevice),
-      storageSlot: storageSlot == null && nullToAbsent
-          ? const Value.absent()
-          : Value(storageSlot),
-      region:
-          region == null && nullToAbsent ? const Value.absent() : Value(region),
-      packaging: packaging == null && nullToAbsent
-          ? const Value.absent()
-          : Value(packaging),
-      distributor: distributor == null && nullToAbsent
-          ? const Value.absent()
-          : Value(distributor),
       collectionStatus: collectionStatus == null && nullToAbsent
           ? const Value.absent()
           : Value(collectionStatus),
-      lastBagBoardDate: lastBagBoardDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastBagBoardDate),
       marketValueCents: marketValueCents == null && nullToAbsent
           ? const Value.absent()
           : Value(marketValueCents),
-      gameCompleteness: gameCompleteness == null && nullToAbsent
-          ? const Value.absent()
-          : Value(gameCompleteness),
-      gameHasBox: gameHasBox == null && nullToAbsent
-          ? const Value.absent()
-          : Value(gameHasBox),
-      gameHasManual: gameHasManual == null && nullToAbsent
-          ? const Value.absent()
-          : Value(gameHasManual),
-      gamePriceChartingId: gamePriceChartingId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(gamePriceChartingId),
-      gameCoreRegion: gameCoreRegion == null && nullToAbsent
-          ? const Value.absent()
-          : Value(gameCoreRegion),
-      gameValueIsLocked: gameValueIsLocked == null && nullToAbsent
-          ? const Value.absent()
-          : Value(gameValueIsLocked),
     );
   }
 
@@ -1677,6 +1059,8 @@ class OwnedItemsCacheData extends DataClass
     return OwnedItemsCacheData(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
+      kind: serializer.fromJson<String>(json['kind']),
+      detailsJson: serializer.fromJson<String?>(json['detailsJson']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
       anchorType: serializer.fromJson<String?>(json['anchorType']),
@@ -1691,20 +1075,6 @@ class OwnedItemsCacheData extends DataClass
       personalNotes: serializer.fromJson<String?>(json['personalNotes']),
       quantity: serializer.fromJson<int>(json['quantity']),
       indexNumber: serializer.fromJson<int?>(json['indexNumber']),
-      coverPriceCents: serializer.fromJson<int?>(json['coverPriceCents']),
-      rawOrSlabbed: serializer.fromJson<String?>(json['rawOrSlabbed']),
-      gradingCompany: serializer.fromJson<String?>(json['gradingCompany']),
-      graderNotes: serializer.fromJson<String?>(json['graderNotes']),
-      signedBy: serializer.fromJson<String?>(json['signedBy']),
-      labelType: serializer.fromJson<String?>(json['labelType']),
-      customLabel: serializer.fromJson<String?>(json['customLabel']),
-      pageQuality: serializer.fromJson<String?>(json['pageQuality']),
-      certificationNumber:
-          serializer.fromJson<String?>(json['certificationNumber']),
-      keyComic: serializer.fromJson<bool>(json['keyComic']),
-      keyReason: serializer.fromJson<String?>(json['keyReason']),
-      keyCategory: serializer.fromJson<String?>(json['keyCategory']),
-      keySeverity: serializer.fromJson<String?>(json['keySeverity']),
       rating: serializer.fromJson<int?>(json['rating']),
       readStatus: serializer.fromJson<String?>(json['readStatus']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
@@ -1718,27 +1088,9 @@ class OwnedItemsCacheData extends DataClass
       ownerUserId: serializer.fromJson<String?>(json['ownerUserId']),
       ownerLabel: serializer.fromJson<String?>(json['ownerLabel']),
       locationId: serializer.fromJson<String?>(json['locationId']),
-      features: serializer.fromJson<String?>(json['features']),
-      hdrFormatsJson: serializer.fromJson<String?>(json['hdrFormatsJson']),
       purchaseStore: serializer.fromJson<String?>(json['purchaseStore']),
-      boxSetId: serializer.fromJson<String?>(json['boxSetId']),
-      boxSetName: serializer.fromJson<String?>(json['boxSetName']),
-      storageDevice: serializer.fromJson<String?>(json['storageDevice']),
-      storageSlot: serializer.fromJson<String?>(json['storageSlot']),
-      region: serializer.fromJson<String?>(json['region']),
-      packaging: serializer.fromJson<String?>(json['packaging']),
-      distributor: serializer.fromJson<String?>(json['distributor']),
       collectionStatus: serializer.fromJson<String?>(json['collectionStatus']),
-      lastBagBoardDate:
-          serializer.fromJson<DateTime?>(json['lastBagBoardDate']),
       marketValueCents: serializer.fromJson<int?>(json['marketValueCents']),
-      gameCompleteness: serializer.fromJson<String?>(json['gameCompleteness']),
-      gameHasBox: serializer.fromJson<bool?>(json['gameHasBox']),
-      gameHasManual: serializer.fromJson<bool?>(json['gameHasManual']),
-      gamePriceChartingId:
-          serializer.fromJson<String?>(json['gamePriceChartingId']),
-      gameCoreRegion: serializer.fromJson<String?>(json['gameCoreRegion']),
-      gameValueIsLocked: serializer.fromJson<bool?>(json['gameValueIsLocked']),
     );
   }
   @override
@@ -1747,6 +1099,8 @@ class OwnedItemsCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
+      'kind': serializer.toJson<String>(kind),
+      'detailsJson': serializer.toJson<String?>(detailsJson),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
       'anchorType': serializer.toJson<String?>(anchorType),
@@ -1761,19 +1115,6 @@ class OwnedItemsCacheData extends DataClass
       'personalNotes': serializer.toJson<String?>(personalNotes),
       'quantity': serializer.toJson<int>(quantity),
       'indexNumber': serializer.toJson<int?>(indexNumber),
-      'coverPriceCents': serializer.toJson<int?>(coverPriceCents),
-      'rawOrSlabbed': serializer.toJson<String?>(rawOrSlabbed),
-      'gradingCompany': serializer.toJson<String?>(gradingCompany),
-      'graderNotes': serializer.toJson<String?>(graderNotes),
-      'signedBy': serializer.toJson<String?>(signedBy),
-      'labelType': serializer.toJson<String?>(labelType),
-      'customLabel': serializer.toJson<String?>(customLabel),
-      'pageQuality': serializer.toJson<String?>(pageQuality),
-      'certificationNumber': serializer.toJson<String?>(certificationNumber),
-      'keyComic': serializer.toJson<bool>(keyComic),
-      'keyReason': serializer.toJson<String?>(keyReason),
-      'keyCategory': serializer.toJson<String?>(keyCategory),
-      'keySeverity': serializer.toJson<String?>(keySeverity),
       'rating': serializer.toJson<int?>(rating),
       'readStatus': serializer.toJson<String?>(readStatus),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
@@ -1787,31 +1128,17 @@ class OwnedItemsCacheData extends DataClass
       'ownerUserId': serializer.toJson<String?>(ownerUserId),
       'ownerLabel': serializer.toJson<String?>(ownerLabel),
       'locationId': serializer.toJson<String?>(locationId),
-      'features': serializer.toJson<String?>(features),
-      'hdrFormatsJson': serializer.toJson<String?>(hdrFormatsJson),
       'purchaseStore': serializer.toJson<String?>(purchaseStore),
-      'boxSetId': serializer.toJson<String?>(boxSetId),
-      'boxSetName': serializer.toJson<String?>(boxSetName),
-      'storageDevice': serializer.toJson<String?>(storageDevice),
-      'storageSlot': serializer.toJson<String?>(storageSlot),
-      'region': serializer.toJson<String?>(region),
-      'packaging': serializer.toJson<String?>(packaging),
-      'distributor': serializer.toJson<String?>(distributor),
       'collectionStatus': serializer.toJson<String?>(collectionStatus),
-      'lastBagBoardDate': serializer.toJson<DateTime?>(lastBagBoardDate),
       'marketValueCents': serializer.toJson<int?>(marketValueCents),
-      'gameCompleteness': serializer.toJson<String?>(gameCompleteness),
-      'gameHasBox': serializer.toJson<bool?>(gameHasBox),
-      'gameHasManual': serializer.toJson<bool?>(gameHasManual),
-      'gamePriceChartingId': serializer.toJson<String?>(gamePriceChartingId),
-      'gameCoreRegion': serializer.toJson<String?>(gameCoreRegion),
-      'gameValueIsLocked': serializer.toJson<bool?>(gameValueIsLocked),
     };
   }
 
   OwnedItemsCacheData copyWith(
           {String? id,
           String? itemId,
+          String? kind,
+          Value<String?> detailsJson = const Value.absent(),
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
           Value<String?> anchorType = const Value.absent(),
@@ -1826,19 +1153,6 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> personalNotes = const Value.absent(),
           int? quantity,
           Value<int?> indexNumber = const Value.absent(),
-          Value<int?> coverPriceCents = const Value.absent(),
-          Value<String?> rawOrSlabbed = const Value.absent(),
-          Value<String?> gradingCompany = const Value.absent(),
-          Value<String?> graderNotes = const Value.absent(),
-          Value<String?> signedBy = const Value.absent(),
-          Value<String?> labelType = const Value.absent(),
-          Value<String?> customLabel = const Value.absent(),
-          Value<String?> pageQuality = const Value.absent(),
-          Value<String?> certificationNumber = const Value.absent(),
-          bool? keyComic,
-          Value<String?> keyReason = const Value.absent(),
-          Value<String?> keyCategory = const Value.absent(),
-          Value<String?> keySeverity = const Value.absent(),
           Value<int?> rating = const Value.absent(),
           Value<String?> readStatus = const Value.absent(),
           Value<DateTime?> startedAt = const Value.absent(),
@@ -1852,28 +1166,14 @@ class OwnedItemsCacheData extends DataClass
           Value<String?> ownerUserId = const Value.absent(),
           Value<String?> ownerLabel = const Value.absent(),
           Value<String?> locationId = const Value.absent(),
-          Value<String?> features = const Value.absent(),
-          Value<String?> hdrFormatsJson = const Value.absent(),
           Value<String?> purchaseStore = const Value.absent(),
-          Value<String?> boxSetId = const Value.absent(),
-          Value<String?> boxSetName = const Value.absent(),
-          Value<String?> storageDevice = const Value.absent(),
-          Value<String?> storageSlot = const Value.absent(),
-          Value<String?> region = const Value.absent(),
-          Value<String?> packaging = const Value.absent(),
-          Value<String?> distributor = const Value.absent(),
           Value<String?> collectionStatus = const Value.absent(),
-          Value<DateTime?> lastBagBoardDate = const Value.absent(),
-          Value<int?> marketValueCents = const Value.absent(),
-          Value<String?> gameCompleteness = const Value.absent(),
-          Value<bool?> gameHasBox = const Value.absent(),
-          Value<bool?> gameHasManual = const Value.absent(),
-          Value<String?> gamePriceChartingId = const Value.absent(),
-          Value<String?> gameCoreRegion = const Value.absent(),
-          Value<bool?> gameValueIsLocked = const Value.absent()}) =>
+          Value<int?> marketValueCents = const Value.absent()}) =>
       OwnedItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
+        kind: kind ?? this.kind,
+        detailsJson: detailsJson.present ? detailsJson.value : this.detailsJson,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
         anchorType: anchorType.present ? anchorType.value : this.anchorType,
@@ -1893,25 +1193,6 @@ class OwnedItemsCacheData extends DataClass
             personalNotes.present ? personalNotes.value : this.personalNotes,
         quantity: quantity ?? this.quantity,
         indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
-        coverPriceCents: coverPriceCents.present
-            ? coverPriceCents.value
-            : this.coverPriceCents,
-        rawOrSlabbed:
-            rawOrSlabbed.present ? rawOrSlabbed.value : this.rawOrSlabbed,
-        gradingCompany:
-            gradingCompany.present ? gradingCompany.value : this.gradingCompany,
-        graderNotes: graderNotes.present ? graderNotes.value : this.graderNotes,
-        signedBy: signedBy.present ? signedBy.value : this.signedBy,
-        labelType: labelType.present ? labelType.value : this.labelType,
-        customLabel: customLabel.present ? customLabel.value : this.customLabel,
-        pageQuality: pageQuality.present ? pageQuality.value : this.pageQuality,
-        certificationNumber: certificationNumber.present
-            ? certificationNumber.value
-            : this.certificationNumber,
-        keyComic: keyComic ?? this.keyComic,
-        keyReason: keyReason.present ? keyReason.value : this.keyReason,
-        keyCategory: keyCategory.present ? keyCategory.value : this.keyCategory,
-        keySeverity: keySeverity.present ? keySeverity.value : this.keySeverity,
         rating: rating.present ? rating.value : this.rating,
         readStatus: readStatus.present ? readStatus.value : this.readStatus,
         startedAt: startedAt.present ? startedAt.value : this.startedAt,
@@ -1926,47 +1207,22 @@ class OwnedItemsCacheData extends DataClass
         ownerUserId: ownerUserId.present ? ownerUserId.value : this.ownerUserId,
         ownerLabel: ownerLabel.present ? ownerLabel.value : this.ownerLabel,
         locationId: locationId.present ? locationId.value : this.locationId,
-        features: features.present ? features.value : this.features,
-        hdrFormatsJson:
-            hdrFormatsJson.present ? hdrFormatsJson.value : this.hdrFormatsJson,
         purchaseStore:
             purchaseStore.present ? purchaseStore.value : this.purchaseStore,
-        boxSetId: boxSetId.present ? boxSetId.value : this.boxSetId,
-        boxSetName: boxSetName.present ? boxSetName.value : this.boxSetName,
-        storageDevice:
-            storageDevice.present ? storageDevice.value : this.storageDevice,
-        storageSlot: storageSlot.present ? storageSlot.value : this.storageSlot,
-        region: region.present ? region.value : this.region,
-        packaging: packaging.present ? packaging.value : this.packaging,
-        distributor: distributor.present ? distributor.value : this.distributor,
         collectionStatus: collectionStatus.present
             ? collectionStatus.value
             : this.collectionStatus,
-        lastBagBoardDate: lastBagBoardDate.present
-            ? lastBagBoardDate.value
-            : this.lastBagBoardDate,
         marketValueCents: marketValueCents.present
             ? marketValueCents.value
             : this.marketValueCents,
-        gameCompleteness: gameCompleteness.present
-            ? gameCompleteness.value
-            : this.gameCompleteness,
-        gameHasBox: gameHasBox.present ? gameHasBox.value : this.gameHasBox,
-        gameHasManual:
-            gameHasManual.present ? gameHasManual.value : this.gameHasManual,
-        gamePriceChartingId: gamePriceChartingId.present
-            ? gamePriceChartingId.value
-            : this.gamePriceChartingId,
-        gameCoreRegion:
-            gameCoreRegion.present ? gameCoreRegion.value : this.gameCoreRegion,
-        gameValueIsLocked: gameValueIsLocked.present
-            ? gameValueIsLocked.value
-            : this.gameValueIsLocked,
       );
   OwnedItemsCacheData copyWithCompanion(OwnedItemsCacheCompanion data) {
     return OwnedItemsCacheData(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      detailsJson:
+          data.detailsJson.present ? data.detailsJson.value : this.detailsJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
       anchorType:
@@ -1991,32 +1247,6 @@ class OwnedItemsCacheData extends DataClass
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
       indexNumber:
           data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
-      coverPriceCents: data.coverPriceCents.present
-          ? data.coverPriceCents.value
-          : this.coverPriceCents,
-      rawOrSlabbed: data.rawOrSlabbed.present
-          ? data.rawOrSlabbed.value
-          : this.rawOrSlabbed,
-      gradingCompany: data.gradingCompany.present
-          ? data.gradingCompany.value
-          : this.gradingCompany,
-      graderNotes:
-          data.graderNotes.present ? data.graderNotes.value : this.graderNotes,
-      signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
-      labelType: data.labelType.present ? data.labelType.value : this.labelType,
-      customLabel:
-          data.customLabel.present ? data.customLabel.value : this.customLabel,
-      pageQuality:
-          data.pageQuality.present ? data.pageQuality.value : this.pageQuality,
-      certificationNumber: data.certificationNumber.present
-          ? data.certificationNumber.value
-          : this.certificationNumber,
-      keyComic: data.keyComic.present ? data.keyComic.value : this.keyComic,
-      keyReason: data.keyReason.present ? data.keyReason.value : this.keyReason,
-      keyCategory:
-          data.keyCategory.present ? data.keyCategory.value : this.keyCategory,
-      keySeverity:
-          data.keySeverity.present ? data.keySeverity.value : this.keySeverity,
       rating: data.rating.present ? data.rating.value : this.rating,
       readStatus:
           data.readStatus.present ? data.readStatus.value : this.readStatus,
@@ -2037,51 +1267,15 @@ class OwnedItemsCacheData extends DataClass
           data.ownerLabel.present ? data.ownerLabel.value : this.ownerLabel,
       locationId:
           data.locationId.present ? data.locationId.value : this.locationId,
-      features: data.features.present ? data.features.value : this.features,
-      hdrFormatsJson: data.hdrFormatsJson.present
-          ? data.hdrFormatsJson.value
-          : this.hdrFormatsJson,
       purchaseStore: data.purchaseStore.present
           ? data.purchaseStore.value
           : this.purchaseStore,
-      boxSetId: data.boxSetId.present ? data.boxSetId.value : this.boxSetId,
-      boxSetName:
-          data.boxSetName.present ? data.boxSetName.value : this.boxSetName,
-      storageDevice: data.storageDevice.present
-          ? data.storageDevice.value
-          : this.storageDevice,
-      storageSlot:
-          data.storageSlot.present ? data.storageSlot.value : this.storageSlot,
-      region: data.region.present ? data.region.value : this.region,
-      packaging: data.packaging.present ? data.packaging.value : this.packaging,
-      distributor:
-          data.distributor.present ? data.distributor.value : this.distributor,
       collectionStatus: data.collectionStatus.present
           ? data.collectionStatus.value
           : this.collectionStatus,
-      lastBagBoardDate: data.lastBagBoardDate.present
-          ? data.lastBagBoardDate.value
-          : this.lastBagBoardDate,
       marketValueCents: data.marketValueCents.present
           ? data.marketValueCents.value
           : this.marketValueCents,
-      gameCompleteness: data.gameCompleteness.present
-          ? data.gameCompleteness.value
-          : this.gameCompleteness,
-      gameHasBox:
-          data.gameHasBox.present ? data.gameHasBox.value : this.gameHasBox,
-      gameHasManual: data.gameHasManual.present
-          ? data.gameHasManual.value
-          : this.gameHasManual,
-      gamePriceChartingId: data.gamePriceChartingId.present
-          ? data.gamePriceChartingId.value
-          : this.gamePriceChartingId,
-      gameCoreRegion: data.gameCoreRegion.present
-          ? data.gameCoreRegion.value
-          : this.gameCoreRegion,
-      gameValueIsLocked: data.gameValueIsLocked.present
-          ? data.gameValueIsLocked.value
-          : this.gameValueIsLocked,
     );
   }
 
@@ -2090,6 +1284,8 @@ class OwnedItemsCacheData extends DataClass
     return (StringBuffer('OwnedItemsCacheData(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('kind: $kind, ')
+          ..write('detailsJson: $detailsJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
           ..write('anchorType: $anchorType, ')
@@ -2104,19 +1300,6 @@ class OwnedItemsCacheData extends DataClass
           ..write('personalNotes: $personalNotes, ')
           ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
-          ..write('coverPriceCents: $coverPriceCents, ')
-          ..write('rawOrSlabbed: $rawOrSlabbed, ')
-          ..write('gradingCompany: $gradingCompany, ')
-          ..write('graderNotes: $graderNotes, ')
-          ..write('signedBy: $signedBy, ')
-          ..write('labelType: $labelType, ')
-          ..write('customLabel: $customLabel, ')
-          ..write('pageQuality: $pageQuality, ')
-          ..write('certificationNumber: $certificationNumber, ')
-          ..write('keyComic: $keyComic, ')
-          ..write('keyReason: $keyReason, ')
-          ..write('keyCategory: $keyCategory, ')
-          ..write('keySeverity: $keySeverity, ')
           ..write('rating: $rating, ')
           ..write('readStatus: $readStatus, ')
           ..write('startedAt: $startedAt, ')
@@ -2130,25 +1313,9 @@ class OwnedItemsCacheData extends DataClass
           ..write('ownerUserId: $ownerUserId, ')
           ..write('ownerLabel: $ownerLabel, ')
           ..write('locationId: $locationId, ')
-          ..write('features: $features, ')
-          ..write('hdrFormatsJson: $hdrFormatsJson, ')
           ..write('purchaseStore: $purchaseStore, ')
-          ..write('boxSetId: $boxSetId, ')
-          ..write('boxSetName: $boxSetName, ')
-          ..write('storageDevice: $storageDevice, ')
-          ..write('storageSlot: $storageSlot, ')
-          ..write('region: $region, ')
-          ..write('packaging: $packaging, ')
-          ..write('distributor: $distributor, ')
           ..write('collectionStatus: $collectionStatus, ')
-          ..write('lastBagBoardDate: $lastBagBoardDate, ')
-          ..write('marketValueCents: $marketValueCents, ')
-          ..write('gameCompleteness: $gameCompleteness, ')
-          ..write('gameHasBox: $gameHasBox, ')
-          ..write('gameHasManual: $gameHasManual, ')
-          ..write('gamePriceChartingId: $gamePriceChartingId, ')
-          ..write('gameCoreRegion: $gameCoreRegion, ')
-          ..write('gameValueIsLocked: $gameValueIsLocked')
+          ..write('marketValueCents: $marketValueCents')
           ..write(')'))
         .toString();
   }
@@ -2157,6 +1324,8 @@ class OwnedItemsCacheData extends DataClass
   int get hashCode => Object.hashAll([
         id,
         itemId,
+        kind,
+        detailsJson,
         createdAt,
         isDigital,
         anchorType,
@@ -2171,19 +1340,6 @@ class OwnedItemsCacheData extends DataClass
         personalNotes,
         quantity,
         indexNumber,
-        coverPriceCents,
-        rawOrSlabbed,
-        gradingCompany,
-        graderNotes,
-        signedBy,
-        labelType,
-        customLabel,
-        pageQuality,
-        certificationNumber,
-        keyComic,
-        keyReason,
-        keyCategory,
-        keySeverity,
         rating,
         readStatus,
         startedAt,
@@ -2197,25 +1353,9 @@ class OwnedItemsCacheData extends DataClass
         ownerUserId,
         ownerLabel,
         locationId,
-        features,
-        hdrFormatsJson,
         purchaseStore,
-        boxSetId,
-        boxSetName,
-        storageDevice,
-        storageSlot,
-        region,
-        packaging,
-        distributor,
         collectionStatus,
-        lastBagBoardDate,
-        marketValueCents,
-        gameCompleteness,
-        gameHasBox,
-        gameHasManual,
-        gamePriceChartingId,
-        gameCoreRegion,
-        gameValueIsLocked
+        marketValueCents
       ]);
   @override
   bool operator ==(Object other) =>
@@ -2223,6 +1363,8 @@ class OwnedItemsCacheData extends DataClass
       (other is OwnedItemsCacheData &&
           other.id == this.id &&
           other.itemId == this.itemId &&
+          other.kind == this.kind &&
+          other.detailsJson == this.detailsJson &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
           other.anchorType == this.anchorType &&
@@ -2237,19 +1379,6 @@ class OwnedItemsCacheData extends DataClass
           other.personalNotes == this.personalNotes &&
           other.quantity == this.quantity &&
           other.indexNumber == this.indexNumber &&
-          other.coverPriceCents == this.coverPriceCents &&
-          other.rawOrSlabbed == this.rawOrSlabbed &&
-          other.gradingCompany == this.gradingCompany &&
-          other.graderNotes == this.graderNotes &&
-          other.signedBy == this.signedBy &&
-          other.labelType == this.labelType &&
-          other.customLabel == this.customLabel &&
-          other.pageQuality == this.pageQuality &&
-          other.certificationNumber == this.certificationNumber &&
-          other.keyComic == this.keyComic &&
-          other.keyReason == this.keyReason &&
-          other.keyCategory == this.keyCategory &&
-          other.keySeverity == this.keySeverity &&
           other.rating == this.rating &&
           other.readStatus == this.readStatus &&
           other.startedAt == this.startedAt &&
@@ -2263,30 +1392,16 @@ class OwnedItemsCacheData extends DataClass
           other.ownerUserId == this.ownerUserId &&
           other.ownerLabel == this.ownerLabel &&
           other.locationId == this.locationId &&
-          other.features == this.features &&
-          other.hdrFormatsJson == this.hdrFormatsJson &&
           other.purchaseStore == this.purchaseStore &&
-          other.boxSetId == this.boxSetId &&
-          other.boxSetName == this.boxSetName &&
-          other.storageDevice == this.storageDevice &&
-          other.storageSlot == this.storageSlot &&
-          other.region == this.region &&
-          other.packaging == this.packaging &&
-          other.distributor == this.distributor &&
           other.collectionStatus == this.collectionStatus &&
-          other.lastBagBoardDate == this.lastBagBoardDate &&
-          other.marketValueCents == this.marketValueCents &&
-          other.gameCompleteness == this.gameCompleteness &&
-          other.gameHasBox == this.gameHasBox &&
-          other.gameHasManual == this.gameHasManual &&
-          other.gamePriceChartingId == this.gamePriceChartingId &&
-          other.gameCoreRegion == this.gameCoreRegion &&
-          other.gameValueIsLocked == this.gameValueIsLocked);
+          other.marketValueCents == this.marketValueCents);
 }
 
 class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String> id;
   final Value<String> itemId;
+  final Value<String> kind;
+  final Value<String?> detailsJson;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
   final Value<String?> anchorType;
@@ -2301,19 +1416,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> personalNotes;
   final Value<int> quantity;
   final Value<int?> indexNumber;
-  final Value<int?> coverPriceCents;
-  final Value<String?> rawOrSlabbed;
-  final Value<String?> gradingCompany;
-  final Value<String?> graderNotes;
-  final Value<String?> signedBy;
-  final Value<String?> labelType;
-  final Value<String?> customLabel;
-  final Value<String?> pageQuality;
-  final Value<String?> certificationNumber;
-  final Value<bool> keyComic;
-  final Value<String?> keyReason;
-  final Value<String?> keyCategory;
-  final Value<String?> keySeverity;
   final Value<int?> rating;
   final Value<String?> readStatus;
   final Value<DateTime?> startedAt;
@@ -2327,29 +1429,15 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   final Value<String?> ownerUserId;
   final Value<String?> ownerLabel;
   final Value<String?> locationId;
-  final Value<String?> features;
-  final Value<String?> hdrFormatsJson;
   final Value<String?> purchaseStore;
-  final Value<String?> boxSetId;
-  final Value<String?> boxSetName;
-  final Value<String?> storageDevice;
-  final Value<String?> storageSlot;
-  final Value<String?> region;
-  final Value<String?> packaging;
-  final Value<String?> distributor;
   final Value<String?> collectionStatus;
-  final Value<DateTime?> lastBagBoardDate;
   final Value<int?> marketValueCents;
-  final Value<String?> gameCompleteness;
-  final Value<bool?> gameHasBox;
-  final Value<bool?> gameHasManual;
-  final Value<String?> gamePriceChartingId;
-  final Value<String?> gameCoreRegion;
-  final Value<bool?> gameValueIsLocked;
   final Value<int> rowid;
   const OwnedItemsCacheCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.detailsJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
     this.anchorType = const Value.absent(),
@@ -2364,19 +1452,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.personalNotes = const Value.absent(),
     this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
-    this.coverPriceCents = const Value.absent(),
-    this.rawOrSlabbed = const Value.absent(),
-    this.gradingCompany = const Value.absent(),
-    this.graderNotes = const Value.absent(),
-    this.signedBy = const Value.absent(),
-    this.labelType = const Value.absent(),
-    this.customLabel = const Value.absent(),
-    this.pageQuality = const Value.absent(),
-    this.certificationNumber = const Value.absent(),
-    this.keyComic = const Value.absent(),
-    this.keyReason = const Value.absent(),
-    this.keyCategory = const Value.absent(),
-    this.keySeverity = const Value.absent(),
     this.rating = const Value.absent(),
     this.readStatus = const Value.absent(),
     this.startedAt = const Value.absent(),
@@ -2390,30 +1465,16 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.ownerUserId = const Value.absent(),
     this.ownerLabel = const Value.absent(),
     this.locationId = const Value.absent(),
-    this.features = const Value.absent(),
-    this.hdrFormatsJson = const Value.absent(),
     this.purchaseStore = const Value.absent(),
-    this.boxSetId = const Value.absent(),
-    this.boxSetName = const Value.absent(),
-    this.storageDevice = const Value.absent(),
-    this.storageSlot = const Value.absent(),
-    this.region = const Value.absent(),
-    this.packaging = const Value.absent(),
-    this.distributor = const Value.absent(),
     this.collectionStatus = const Value.absent(),
-    this.lastBagBoardDate = const Value.absent(),
     this.marketValueCents = const Value.absent(),
-    this.gameCompleteness = const Value.absent(),
-    this.gameHasBox = const Value.absent(),
-    this.gameHasManual = const Value.absent(),
-    this.gamePriceChartingId = const Value.absent(),
-    this.gameCoreRegion = const Value.absent(),
-    this.gameValueIsLocked = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OwnedItemsCacheCompanion.insert({
     required String id,
     required String itemId,
+    this.kind = const Value.absent(),
+    this.detailsJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
     this.anchorType = const Value.absent(),
@@ -2428,19 +1489,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.personalNotes = const Value.absent(),
     this.quantity = const Value.absent(),
     this.indexNumber = const Value.absent(),
-    this.coverPriceCents = const Value.absent(),
-    this.rawOrSlabbed = const Value.absent(),
-    this.gradingCompany = const Value.absent(),
-    this.graderNotes = const Value.absent(),
-    this.signedBy = const Value.absent(),
-    this.labelType = const Value.absent(),
-    this.customLabel = const Value.absent(),
-    this.pageQuality = const Value.absent(),
-    this.certificationNumber = const Value.absent(),
-    this.keyComic = const Value.absent(),
-    this.keyReason = const Value.absent(),
-    this.keyCategory = const Value.absent(),
-    this.keySeverity = const Value.absent(),
     this.rating = const Value.absent(),
     this.readStatus = const Value.absent(),
     this.startedAt = const Value.absent(),
@@ -2454,25 +1502,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     this.ownerUserId = const Value.absent(),
     this.ownerLabel = const Value.absent(),
     this.locationId = const Value.absent(),
-    this.features = const Value.absent(),
-    this.hdrFormatsJson = const Value.absent(),
     this.purchaseStore = const Value.absent(),
-    this.boxSetId = const Value.absent(),
-    this.boxSetName = const Value.absent(),
-    this.storageDevice = const Value.absent(),
-    this.storageSlot = const Value.absent(),
-    this.region = const Value.absent(),
-    this.packaging = const Value.absent(),
-    this.distributor = const Value.absent(),
     this.collectionStatus = const Value.absent(),
-    this.lastBagBoardDate = const Value.absent(),
     this.marketValueCents = const Value.absent(),
-    this.gameCompleteness = const Value.absent(),
-    this.gameHasBox = const Value.absent(),
-    this.gameHasManual = const Value.absent(),
-    this.gamePriceChartingId = const Value.absent(),
-    this.gameCoreRegion = const Value.absent(),
-    this.gameValueIsLocked = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
@@ -2480,6 +1512,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   static Insertable<OwnedItemsCacheData> custom({
     Expression<String>? id,
     Expression<String>? itemId,
+    Expression<String>? kind,
+    Expression<String>? detailsJson,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
     Expression<String>? anchorType,
@@ -2494,19 +1528,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? personalNotes,
     Expression<int>? quantity,
     Expression<int>? indexNumber,
-    Expression<int>? coverPriceCents,
-    Expression<String>? rawOrSlabbed,
-    Expression<String>? gradingCompany,
-    Expression<String>? graderNotes,
-    Expression<String>? signedBy,
-    Expression<String>? labelType,
-    Expression<String>? customLabel,
-    Expression<String>? pageQuality,
-    Expression<String>? certificationNumber,
-    Expression<bool>? keyComic,
-    Expression<String>? keyReason,
-    Expression<String>? keyCategory,
-    Expression<String>? keySeverity,
     Expression<int>? rating,
     Expression<String>? readStatus,
     Expression<DateTime>? startedAt,
@@ -2520,30 +1541,16 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     Expression<String>? ownerUserId,
     Expression<String>? ownerLabel,
     Expression<String>? locationId,
-    Expression<String>? features,
-    Expression<String>? hdrFormatsJson,
     Expression<String>? purchaseStore,
-    Expression<String>? boxSetId,
-    Expression<String>? boxSetName,
-    Expression<String>? storageDevice,
-    Expression<String>? storageSlot,
-    Expression<String>? region,
-    Expression<String>? packaging,
-    Expression<String>? distributor,
     Expression<String>? collectionStatus,
-    Expression<DateTime>? lastBagBoardDate,
     Expression<int>? marketValueCents,
-    Expression<String>? gameCompleteness,
-    Expression<bool>? gameHasBox,
-    Expression<bool>? gameHasManual,
-    Expression<String>? gamePriceChartingId,
-    Expression<String>? gameCoreRegion,
-    Expression<bool>? gameValueIsLocked,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
+      if (kind != null) 'kind': kind,
+      if (detailsJson != null) 'details_json': detailsJson,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
       if (anchorType != null) 'anchor_type': anchorType,
@@ -2558,20 +1565,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (personalNotes != null) 'personal_notes': personalNotes,
       if (quantity != null) 'quantity': quantity,
       if (indexNumber != null) 'index_number': indexNumber,
-      if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
-      if (rawOrSlabbed != null) 'raw_or_slabbed': rawOrSlabbed,
-      if (gradingCompany != null) 'grading_company': gradingCompany,
-      if (graderNotes != null) 'grader_notes': graderNotes,
-      if (signedBy != null) 'signed_by': signedBy,
-      if (labelType != null) 'label_type': labelType,
-      if (customLabel != null) 'custom_label': customLabel,
-      if (pageQuality != null) 'page_quality': pageQuality,
-      if (certificationNumber != null)
-        'certification_number': certificationNumber,
-      if (keyComic != null) 'key_comic': keyComic,
-      if (keyReason != null) 'key_reason': keyReason,
-      if (keyCategory != null) 'key_category': keyCategory,
-      if (keySeverity != null) 'key_severity': keySeverity,
       if (rating != null) 'rating': rating,
       if (readStatus != null) 'read_status': readStatus,
       if (startedAt != null) 'started_at': startedAt,
@@ -2585,26 +1578,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       if (ownerUserId != null) 'owner_user_id': ownerUserId,
       if (ownerLabel != null) 'owner_label': ownerLabel,
       if (locationId != null) 'location_id': locationId,
-      if (features != null) 'features': features,
-      if (hdrFormatsJson != null) 'hdr_formats_json': hdrFormatsJson,
       if (purchaseStore != null) 'purchase_store': purchaseStore,
-      if (boxSetId != null) 'box_set_id': boxSetId,
-      if (boxSetName != null) 'box_set_name': boxSetName,
-      if (storageDevice != null) 'storage_device': storageDevice,
-      if (storageSlot != null) 'storage_slot': storageSlot,
-      if (region != null) 'region': region,
-      if (packaging != null) 'packaging': packaging,
-      if (distributor != null) 'distributor': distributor,
       if (collectionStatus != null) 'collection_status': collectionStatus,
-      if (lastBagBoardDate != null) 'last_bag_board_date': lastBagBoardDate,
       if (marketValueCents != null) 'market_value_cents': marketValueCents,
-      if (gameCompleteness != null) 'game_completeness': gameCompleteness,
-      if (gameHasBox != null) 'game_has_box': gameHasBox,
-      if (gameHasManual != null) 'game_has_manual': gameHasManual,
-      if (gamePriceChartingId != null)
-        'game_price_charting_id': gamePriceChartingId,
-      if (gameCoreRegion != null) 'game_core_region': gameCoreRegion,
-      if (gameValueIsLocked != null) 'game_value_is_locked': gameValueIsLocked,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2612,6 +1588,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
   OwnedItemsCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
+      Value<String>? kind,
+      Value<String?>? detailsJson,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
       Value<String?>? anchorType,
@@ -2626,19 +1604,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? personalNotes,
       Value<int>? quantity,
       Value<int?>? indexNumber,
-      Value<int?>? coverPriceCents,
-      Value<String?>? rawOrSlabbed,
-      Value<String?>? gradingCompany,
-      Value<String?>? graderNotes,
-      Value<String?>? signedBy,
-      Value<String?>? labelType,
-      Value<String?>? customLabel,
-      Value<String?>? pageQuality,
-      Value<String?>? certificationNumber,
-      Value<bool>? keyComic,
-      Value<String?>? keyReason,
-      Value<String?>? keyCategory,
-      Value<String?>? keySeverity,
       Value<int?>? rating,
       Value<String?>? readStatus,
       Value<DateTime?>? startedAt,
@@ -2652,29 +1617,15 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       Value<String?>? ownerUserId,
       Value<String?>? ownerLabel,
       Value<String?>? locationId,
-      Value<String?>? features,
-      Value<String?>? hdrFormatsJson,
       Value<String?>? purchaseStore,
-      Value<String?>? boxSetId,
-      Value<String?>? boxSetName,
-      Value<String?>? storageDevice,
-      Value<String?>? storageSlot,
-      Value<String?>? region,
-      Value<String?>? packaging,
-      Value<String?>? distributor,
       Value<String?>? collectionStatus,
-      Value<DateTime?>? lastBagBoardDate,
       Value<int?>? marketValueCents,
-      Value<String?>? gameCompleteness,
-      Value<bool?>? gameHasBox,
-      Value<bool?>? gameHasManual,
-      Value<String?>? gamePriceChartingId,
-      Value<String?>? gameCoreRegion,
-      Value<bool?>? gameValueIsLocked,
       Value<int>? rowid}) {
     return OwnedItemsCacheCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      kind: kind ?? this.kind,
+      detailsJson: detailsJson ?? this.detailsJson,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
       anchorType: anchorType ?? this.anchorType,
@@ -2689,19 +1640,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       personalNotes: personalNotes ?? this.personalNotes,
       quantity: quantity ?? this.quantity,
       indexNumber: indexNumber ?? this.indexNumber,
-      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
-      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
-      gradingCompany: gradingCompany ?? this.gradingCompany,
-      graderNotes: graderNotes ?? this.graderNotes,
-      signedBy: signedBy ?? this.signedBy,
-      labelType: labelType ?? this.labelType,
-      customLabel: customLabel ?? this.customLabel,
-      pageQuality: pageQuality ?? this.pageQuality,
-      certificationNumber: certificationNumber ?? this.certificationNumber,
-      keyComic: keyComic ?? this.keyComic,
-      keyReason: keyReason ?? this.keyReason,
-      keyCategory: keyCategory ?? this.keyCategory,
-      keySeverity: keySeverity ?? this.keySeverity,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
       startedAt: startedAt ?? this.startedAt,
@@ -2715,25 +1653,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
       ownerUserId: ownerUserId ?? this.ownerUserId,
       ownerLabel: ownerLabel ?? this.ownerLabel,
       locationId: locationId ?? this.locationId,
-      features: features ?? this.features,
-      hdrFormatsJson: hdrFormatsJson ?? this.hdrFormatsJson,
       purchaseStore: purchaseStore ?? this.purchaseStore,
-      boxSetId: boxSetId ?? this.boxSetId,
-      boxSetName: boxSetName ?? this.boxSetName,
-      storageDevice: storageDevice ?? this.storageDevice,
-      storageSlot: storageSlot ?? this.storageSlot,
-      region: region ?? this.region,
-      packaging: packaging ?? this.packaging,
-      distributor: distributor ?? this.distributor,
       collectionStatus: collectionStatus ?? this.collectionStatus,
-      lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
       marketValueCents: marketValueCents ?? this.marketValueCents,
-      gameCompleteness: gameCompleteness ?? this.gameCompleteness,
-      gameHasBox: gameHasBox ?? this.gameHasBox,
-      gameHasManual: gameHasManual ?? this.gameHasManual,
-      gamePriceChartingId: gamePriceChartingId ?? this.gamePriceChartingId,
-      gameCoreRegion: gameCoreRegion ?? this.gameCoreRegion,
-      gameValueIsLocked: gameValueIsLocked ?? this.gameValueIsLocked,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2746,6 +1668,12 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     }
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (detailsJson.present) {
+      map['details_json'] = Variable<String>(detailsJson.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -2789,45 +1717,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (indexNumber.present) {
       map['index_number'] = Variable<int>(indexNumber.value);
     }
-    if (coverPriceCents.present) {
-      map['cover_price_cents'] = Variable<int>(coverPriceCents.value);
-    }
-    if (rawOrSlabbed.present) {
-      map['raw_or_slabbed'] = Variable<String>(rawOrSlabbed.value);
-    }
-    if (gradingCompany.present) {
-      map['grading_company'] = Variable<String>(gradingCompany.value);
-    }
-    if (graderNotes.present) {
-      map['grader_notes'] = Variable<String>(graderNotes.value);
-    }
-    if (signedBy.present) {
-      map['signed_by'] = Variable<String>(signedBy.value);
-    }
-    if (labelType.present) {
-      map['label_type'] = Variable<String>(labelType.value);
-    }
-    if (customLabel.present) {
-      map['custom_label'] = Variable<String>(customLabel.value);
-    }
-    if (pageQuality.present) {
-      map['page_quality'] = Variable<String>(pageQuality.value);
-    }
-    if (certificationNumber.present) {
-      map['certification_number'] = Variable<String>(certificationNumber.value);
-    }
-    if (keyComic.present) {
-      map['key_comic'] = Variable<bool>(keyComic.value);
-    }
-    if (keyReason.present) {
-      map['key_reason'] = Variable<String>(keyReason.value);
-    }
-    if (keyCategory.present) {
-      map['key_category'] = Variable<String>(keyCategory.value);
-    }
-    if (keySeverity.present) {
-      map['key_severity'] = Variable<String>(keySeverity.value);
-    }
     if (rating.present) {
       map['rating'] = Variable<int>(rating.value);
     }
@@ -2867,63 +1756,14 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     if (locationId.present) {
       map['location_id'] = Variable<String>(locationId.value);
     }
-    if (features.present) {
-      map['features'] = Variable<String>(features.value);
-    }
-    if (hdrFormatsJson.present) {
-      map['hdr_formats_json'] = Variable<String>(hdrFormatsJson.value);
-    }
     if (purchaseStore.present) {
       map['purchase_store'] = Variable<String>(purchaseStore.value);
-    }
-    if (boxSetId.present) {
-      map['box_set_id'] = Variable<String>(boxSetId.value);
-    }
-    if (boxSetName.present) {
-      map['box_set_name'] = Variable<String>(boxSetName.value);
-    }
-    if (storageDevice.present) {
-      map['storage_device'] = Variable<String>(storageDevice.value);
-    }
-    if (storageSlot.present) {
-      map['storage_slot'] = Variable<String>(storageSlot.value);
-    }
-    if (region.present) {
-      map['region'] = Variable<String>(region.value);
-    }
-    if (packaging.present) {
-      map['packaging'] = Variable<String>(packaging.value);
-    }
-    if (distributor.present) {
-      map['distributor'] = Variable<String>(distributor.value);
     }
     if (collectionStatus.present) {
       map['collection_status'] = Variable<String>(collectionStatus.value);
     }
-    if (lastBagBoardDate.present) {
-      map['last_bag_board_date'] = Variable<DateTime>(lastBagBoardDate.value);
-    }
     if (marketValueCents.present) {
       map['market_value_cents'] = Variable<int>(marketValueCents.value);
-    }
-    if (gameCompleteness.present) {
-      map['game_completeness'] = Variable<String>(gameCompleteness.value);
-    }
-    if (gameHasBox.present) {
-      map['game_has_box'] = Variable<bool>(gameHasBox.value);
-    }
-    if (gameHasManual.present) {
-      map['game_has_manual'] = Variable<bool>(gameHasManual.value);
-    }
-    if (gamePriceChartingId.present) {
-      map['game_price_charting_id'] =
-          Variable<String>(gamePriceChartingId.value);
-    }
-    if (gameCoreRegion.present) {
-      map['game_core_region'] = Variable<String>(gameCoreRegion.value);
-    }
-    if (gameValueIsLocked.present) {
-      map['game_value_is_locked'] = Variable<bool>(gameValueIsLocked.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -2936,6 +1776,8 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
     return (StringBuffer('OwnedItemsCacheCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('kind: $kind, ')
+          ..write('detailsJson: $detailsJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
           ..write('anchorType: $anchorType, ')
@@ -2950,19 +1792,6 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('personalNotes: $personalNotes, ')
           ..write('quantity: $quantity, ')
           ..write('indexNumber: $indexNumber, ')
-          ..write('coverPriceCents: $coverPriceCents, ')
-          ..write('rawOrSlabbed: $rawOrSlabbed, ')
-          ..write('gradingCompany: $gradingCompany, ')
-          ..write('graderNotes: $graderNotes, ')
-          ..write('signedBy: $signedBy, ')
-          ..write('labelType: $labelType, ')
-          ..write('customLabel: $customLabel, ')
-          ..write('pageQuality: $pageQuality, ')
-          ..write('certificationNumber: $certificationNumber, ')
-          ..write('keyComic: $keyComic, ')
-          ..write('keyReason: $keyReason, ')
-          ..write('keyCategory: $keyCategory, ')
-          ..write('keySeverity: $keySeverity, ')
           ..write('rating: $rating, ')
           ..write('readStatus: $readStatus, ')
           ..write('startedAt: $startedAt, ')
@@ -2976,25 +1805,9 @@ class OwnedItemsCacheCompanion extends UpdateCompanion<OwnedItemsCacheData> {
           ..write('ownerUserId: $ownerUserId, ')
           ..write('ownerLabel: $ownerLabel, ')
           ..write('locationId: $locationId, ')
-          ..write('features: $features, ')
-          ..write('hdrFormatsJson: $hdrFormatsJson, ')
           ..write('purchaseStore: $purchaseStore, ')
-          ..write('boxSetId: $boxSetId, ')
-          ..write('boxSetName: $boxSetName, ')
-          ..write('storageDevice: $storageDevice, ')
-          ..write('storageSlot: $storageSlot, ')
-          ..write('region: $region, ')
-          ..write('packaging: $packaging, ')
-          ..write('distributor: $distributor, ')
           ..write('collectionStatus: $collectionStatus, ')
-          ..write('lastBagBoardDate: $lastBagBoardDate, ')
           ..write('marketValueCents: $marketValueCents, ')
-          ..write('gameCompleteness: $gameCompleteness, ')
-          ..write('gameHasBox: $gameHasBox, ')
-          ..write('gameHasManual: $gameHasManual, ')
-          ..write('gamePriceChartingId: $gamePriceChartingId, ')
-          ..write('gameCoreRegion: $gameCoreRegion, ')
-          ..write('gameValueIsLocked: $gameValueIsLocked, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -15807,6 +14620,8 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
     Function({
   required String id,
   required String itemId,
+  Value<String> kind,
+  Value<String?> detailsJson,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
   Value<String?> anchorType,
@@ -15821,19 +14636,6 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> personalNotes,
   Value<int> quantity,
   Value<int?> indexNumber,
-  Value<int?> coverPriceCents,
-  Value<String?> rawOrSlabbed,
-  Value<String?> gradingCompany,
-  Value<String?> graderNotes,
-  Value<String?> signedBy,
-  Value<String?> labelType,
-  Value<String?> customLabel,
-  Value<String?> pageQuality,
-  Value<String?> certificationNumber,
-  Value<bool> keyComic,
-  Value<String?> keyReason,
-  Value<String?> keyCategory,
-  Value<String?> keySeverity,
   Value<int?> rating,
   Value<String?> readStatus,
   Value<DateTime?> startedAt,
@@ -15847,31 +14649,17 @@ typedef $$OwnedItemsCacheTableCreateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> ownerUserId,
   Value<String?> ownerLabel,
   Value<String?> locationId,
-  Value<String?> features,
-  Value<String?> hdrFormatsJson,
   Value<String?> purchaseStore,
-  Value<String?> boxSetId,
-  Value<String?> boxSetName,
-  Value<String?> storageDevice,
-  Value<String?> storageSlot,
-  Value<String?> region,
-  Value<String?> packaging,
-  Value<String?> distributor,
   Value<String?> collectionStatus,
-  Value<DateTime?> lastBagBoardDate,
   Value<int?> marketValueCents,
-  Value<String?> gameCompleteness,
-  Value<bool?> gameHasBox,
-  Value<bool?> gameHasManual,
-  Value<String?> gamePriceChartingId,
-  Value<String?> gameCoreRegion,
-  Value<bool?> gameValueIsLocked,
   Value<int> rowid,
 });
 typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
     Function({
   Value<String> id,
   Value<String> itemId,
+  Value<String> kind,
+  Value<String?> detailsJson,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
   Value<String?> anchorType,
@@ -15886,19 +14674,6 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> personalNotes,
   Value<int> quantity,
   Value<int?> indexNumber,
-  Value<int?> coverPriceCents,
-  Value<String?> rawOrSlabbed,
-  Value<String?> gradingCompany,
-  Value<String?> graderNotes,
-  Value<String?> signedBy,
-  Value<String?> labelType,
-  Value<String?> customLabel,
-  Value<String?> pageQuality,
-  Value<String?> certificationNumber,
-  Value<bool> keyComic,
-  Value<String?> keyReason,
-  Value<String?> keyCategory,
-  Value<String?> keySeverity,
   Value<int?> rating,
   Value<String?> readStatus,
   Value<DateTime?> startedAt,
@@ -15912,25 +14687,9 @@ typedef $$OwnedItemsCacheTableUpdateCompanionBuilder = OwnedItemsCacheCompanion
   Value<String?> ownerUserId,
   Value<String?> ownerLabel,
   Value<String?> locationId,
-  Value<String?> features,
-  Value<String?> hdrFormatsJson,
   Value<String?> purchaseStore,
-  Value<String?> boxSetId,
-  Value<String?> boxSetName,
-  Value<String?> storageDevice,
-  Value<String?> storageSlot,
-  Value<String?> region,
-  Value<String?> packaging,
-  Value<String?> distributor,
   Value<String?> collectionStatus,
-  Value<DateTime?> lastBagBoardDate,
   Value<int?> marketValueCents,
-  Value<String?> gameCompleteness,
-  Value<bool?> gameHasBox,
-  Value<bool?> gameHasManual,
-  Value<String?> gamePriceChartingId,
-  Value<String?> gameCoreRegion,
-  Value<bool?> gameValueIsLocked,
   Value<int> rowid,
 });
 
@@ -15948,6 +14707,12 @@ class $$OwnedItemsCacheTableFilterComposer
 
   ColumnFilters<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get detailsJson => $composableBuilder(
+      column: $table.detailsJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -15993,48 +14758,6 @@ class $$OwnedItemsCacheTableFilterComposer
   ColumnFilters<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get coverPriceCents => $composableBuilder(
-      column: $table.coverPriceCents,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get rawOrSlabbed => $composableBuilder(
-      column: $table.rawOrSlabbed, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get gradingCompany => $composableBuilder(
-      column: $table.gradingCompany,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get graderNotes => $composableBuilder(
-      column: $table.graderNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get signedBy => $composableBuilder(
-      column: $table.signedBy, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get labelType => $composableBuilder(
-      column: $table.labelType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get customLabel => $composableBuilder(
-      column: $table.customLabel, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get pageQuality => $composableBuilder(
-      column: $table.pageQuality, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get certificationNumber => $composableBuilder(
-      column: $table.certificationNumber,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get keyComic => $composableBuilder(
-      column: $table.keyComic, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get keyReason => $composableBuilder(
-      column: $table.keyReason, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get keyCategory => $composableBuilder(
-      column: $table.keyCategory, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get keySeverity => $composableBuilder(
-      column: $table.keySeverity, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<int> get rating => $composableBuilder(
       column: $table.rating, builder: (column) => ColumnFilters(column));
 
@@ -16075,69 +14798,15 @@ class $$OwnedItemsCacheTableFilterComposer
   ColumnFilters<String> get locationId => $composableBuilder(
       column: $table.locationId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get features => $composableBuilder(
-      column: $table.features, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get hdrFormatsJson => $composableBuilder(
-      column: $table.hdrFormatsJson,
-      builder: (column) => ColumnFilters(column));
-
   ColumnFilters<String> get purchaseStore => $composableBuilder(
       column: $table.purchaseStore, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get boxSetId => $composableBuilder(
-      column: $table.boxSetId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get boxSetName => $composableBuilder(
-      column: $table.boxSetName, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get storageDevice => $composableBuilder(
-      column: $table.storageDevice, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get storageSlot => $composableBuilder(
-      column: $table.storageSlot, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get region => $composableBuilder(
-      column: $table.region, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get packaging => $composableBuilder(
-      column: $table.packaging, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get distributor => $composableBuilder(
-      column: $table.distributor, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get collectionStatus => $composableBuilder(
       column: $table.collectionStatus,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get lastBagBoardDate => $composableBuilder(
-      column: $table.lastBagBoardDate,
-      builder: (column) => ColumnFilters(column));
-
   ColumnFilters<int> get marketValueCents => $composableBuilder(
       column: $table.marketValueCents,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get gameCompleteness => $composableBuilder(
-      column: $table.gameCompleteness,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get gameHasBox => $composableBuilder(
-      column: $table.gameHasBox, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get gameHasManual => $composableBuilder(
-      column: $table.gameHasManual, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get gamePriceChartingId => $composableBuilder(
-      column: $table.gamePriceChartingId,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get gameCoreRegion => $composableBuilder(
-      column: $table.gameCoreRegion,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get gameValueIsLocked => $composableBuilder(
-      column: $table.gameValueIsLocked,
       builder: (column) => ColumnFilters(column));
 }
 
@@ -16155,6 +14824,12 @@ class $$OwnedItemsCacheTableOrderingComposer
 
   ColumnOrderings<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get detailsJson => $composableBuilder(
+      column: $table.detailsJson, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
@@ -16202,49 +14877,6 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get coverPriceCents => $composableBuilder(
-      column: $table.coverPriceCents,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get rawOrSlabbed => $composableBuilder(
-      column: $table.rawOrSlabbed,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get gradingCompany => $composableBuilder(
-      column: $table.gradingCompany,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get graderNotes => $composableBuilder(
-      column: $table.graderNotes, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get signedBy => $composableBuilder(
-      column: $table.signedBy, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get labelType => $composableBuilder(
-      column: $table.labelType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get customLabel => $composableBuilder(
-      column: $table.customLabel, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get pageQuality => $composableBuilder(
-      column: $table.pageQuality, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get certificationNumber => $composableBuilder(
-      column: $table.certificationNumber,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get keyComic => $composableBuilder(
-      column: $table.keyComic, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get keyReason => $composableBuilder(
-      column: $table.keyReason, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get keyCategory => $composableBuilder(
-      column: $table.keyCategory, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get keySeverity => $composableBuilder(
-      column: $table.keySeverity, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<int> get rating => $composableBuilder(
       column: $table.rating, builder: (column) => ColumnOrderings(column));
 
@@ -16285,72 +14917,16 @@ class $$OwnedItemsCacheTableOrderingComposer
   ColumnOrderings<String> get locationId => $composableBuilder(
       column: $table.locationId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get features => $composableBuilder(
-      column: $table.features, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get hdrFormatsJson => $composableBuilder(
-      column: $table.hdrFormatsJson,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get purchaseStore => $composableBuilder(
       column: $table.purchaseStore,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get boxSetId => $composableBuilder(
-      column: $table.boxSetId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get boxSetName => $composableBuilder(
-      column: $table.boxSetName, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get storageDevice => $composableBuilder(
-      column: $table.storageDevice,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get storageSlot => $composableBuilder(
-      column: $table.storageSlot, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get region => $composableBuilder(
-      column: $table.region, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get packaging => $composableBuilder(
-      column: $table.packaging, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get distributor => $composableBuilder(
-      column: $table.distributor, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get collectionStatus => $composableBuilder(
       column: $table.collectionStatus,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get lastBagBoardDate => $composableBuilder(
-      column: $table.lastBagBoardDate,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<int> get marketValueCents => $composableBuilder(
       column: $table.marketValueCents,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get gameCompleteness => $composableBuilder(
-      column: $table.gameCompleteness,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get gameHasBox => $composableBuilder(
-      column: $table.gameHasBox, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get gameHasManual => $composableBuilder(
-      column: $table.gameHasManual,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get gamePriceChartingId => $composableBuilder(
-      column: $table.gamePriceChartingId,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get gameCoreRegion => $composableBuilder(
-      column: $table.gameCoreRegion,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get gameValueIsLocked => $composableBuilder(
-      column: $table.gameValueIsLocked,
       builder: (column) => ColumnOrderings(column));
 }
 
@@ -16368,6 +14944,12 @@ class $$OwnedItemsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get itemId =>
       $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get detailsJson => $composableBuilder(
+      column: $table.detailsJson, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -16411,45 +14993,6 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<int> get indexNumber => $composableBuilder(
       column: $table.indexNumber, builder: (column) => column);
 
-  GeneratedColumn<int> get coverPriceCents => $composableBuilder(
-      column: $table.coverPriceCents, builder: (column) => column);
-
-  GeneratedColumn<String> get rawOrSlabbed => $composableBuilder(
-      column: $table.rawOrSlabbed, builder: (column) => column);
-
-  GeneratedColumn<String> get gradingCompany => $composableBuilder(
-      column: $table.gradingCompany, builder: (column) => column);
-
-  GeneratedColumn<String> get graderNotes => $composableBuilder(
-      column: $table.graderNotes, builder: (column) => column);
-
-  GeneratedColumn<String> get signedBy =>
-      $composableBuilder(column: $table.signedBy, builder: (column) => column);
-
-  GeneratedColumn<String> get labelType =>
-      $composableBuilder(column: $table.labelType, builder: (column) => column);
-
-  GeneratedColumn<String> get customLabel => $composableBuilder(
-      column: $table.customLabel, builder: (column) => column);
-
-  GeneratedColumn<String> get pageQuality => $composableBuilder(
-      column: $table.pageQuality, builder: (column) => column);
-
-  GeneratedColumn<String> get certificationNumber => $composableBuilder(
-      column: $table.certificationNumber, builder: (column) => column);
-
-  GeneratedColumn<bool> get keyComic =>
-      $composableBuilder(column: $table.keyComic, builder: (column) => column);
-
-  GeneratedColumn<String> get keyReason =>
-      $composableBuilder(column: $table.keyReason, builder: (column) => column);
-
-  GeneratedColumn<String> get keyCategory => $composableBuilder(
-      column: $table.keyCategory, builder: (column) => column);
-
-  GeneratedColumn<String> get keySeverity => $composableBuilder(
-      column: $table.keySeverity, builder: (column) => column);
-
   GeneratedColumn<int> get rating =>
       $composableBuilder(column: $table.rating, builder: (column) => column);
 
@@ -16489,62 +15032,14 @@ class $$OwnedItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get locationId => $composableBuilder(
       column: $table.locationId, builder: (column) => column);
 
-  GeneratedColumn<String> get features =>
-      $composableBuilder(column: $table.features, builder: (column) => column);
-
-  GeneratedColumn<String> get hdrFormatsJson => $composableBuilder(
-      column: $table.hdrFormatsJson, builder: (column) => column);
-
   GeneratedColumn<String> get purchaseStore => $composableBuilder(
       column: $table.purchaseStore, builder: (column) => column);
-
-  GeneratedColumn<String> get boxSetId =>
-      $composableBuilder(column: $table.boxSetId, builder: (column) => column);
-
-  GeneratedColumn<String> get boxSetName => $composableBuilder(
-      column: $table.boxSetName, builder: (column) => column);
-
-  GeneratedColumn<String> get storageDevice => $composableBuilder(
-      column: $table.storageDevice, builder: (column) => column);
-
-  GeneratedColumn<String> get storageSlot => $composableBuilder(
-      column: $table.storageSlot, builder: (column) => column);
-
-  GeneratedColumn<String> get region =>
-      $composableBuilder(column: $table.region, builder: (column) => column);
-
-  GeneratedColumn<String> get packaging =>
-      $composableBuilder(column: $table.packaging, builder: (column) => column);
-
-  GeneratedColumn<String> get distributor => $composableBuilder(
-      column: $table.distributor, builder: (column) => column);
 
   GeneratedColumn<String> get collectionStatus => $composableBuilder(
       column: $table.collectionStatus, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastBagBoardDate => $composableBuilder(
-      column: $table.lastBagBoardDate, builder: (column) => column);
-
   GeneratedColumn<int> get marketValueCents => $composableBuilder(
       column: $table.marketValueCents, builder: (column) => column);
-
-  GeneratedColumn<String> get gameCompleteness => $composableBuilder(
-      column: $table.gameCompleteness, builder: (column) => column);
-
-  GeneratedColumn<bool> get gameHasBox => $composableBuilder(
-      column: $table.gameHasBox, builder: (column) => column);
-
-  GeneratedColumn<bool> get gameHasManual => $composableBuilder(
-      column: $table.gameHasManual, builder: (column) => column);
-
-  GeneratedColumn<String> get gamePriceChartingId => $composableBuilder(
-      column: $table.gamePriceChartingId, builder: (column) => column);
-
-  GeneratedColumn<String> get gameCoreRegion => $composableBuilder(
-      column: $table.gameCoreRegion, builder: (column) => column);
-
-  GeneratedColumn<bool> get gameValueIsLocked => $composableBuilder(
-      column: $table.gameValueIsLocked, builder: (column) => column);
 }
 
 class $$OwnedItemsCacheTableTableManager extends RootTableManager<
@@ -16577,6 +15072,8 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<String?> detailsJson = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
             Value<String?> anchorType = const Value.absent(),
@@ -16591,19 +15088,6 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> personalNotes = const Value.absent(),
             Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
-            Value<int?> coverPriceCents = const Value.absent(),
-            Value<String?> rawOrSlabbed = const Value.absent(),
-            Value<String?> gradingCompany = const Value.absent(),
-            Value<String?> graderNotes = const Value.absent(),
-            Value<String?> signedBy = const Value.absent(),
-            Value<String?> labelType = const Value.absent(),
-            Value<String?> customLabel = const Value.absent(),
-            Value<String?> pageQuality = const Value.absent(),
-            Value<String?> certificationNumber = const Value.absent(),
-            Value<bool> keyComic = const Value.absent(),
-            Value<String?> keyReason = const Value.absent(),
-            Value<String?> keyCategory = const Value.absent(),
-            Value<String?> keySeverity = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> readStatus = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
@@ -16617,30 +15101,16 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> ownerUserId = const Value.absent(),
             Value<String?> ownerLabel = const Value.absent(),
             Value<String?> locationId = const Value.absent(),
-            Value<String?> features = const Value.absent(),
-            Value<String?> hdrFormatsJson = const Value.absent(),
             Value<String?> purchaseStore = const Value.absent(),
-            Value<String?> boxSetId = const Value.absent(),
-            Value<String?> boxSetName = const Value.absent(),
-            Value<String?> storageDevice = const Value.absent(),
-            Value<String?> storageSlot = const Value.absent(),
-            Value<String?> region = const Value.absent(),
-            Value<String?> packaging = const Value.absent(),
-            Value<String?> distributor = const Value.absent(),
             Value<String?> collectionStatus = const Value.absent(),
-            Value<DateTime?> lastBagBoardDate = const Value.absent(),
             Value<int?> marketValueCents = const Value.absent(),
-            Value<String?> gameCompleteness = const Value.absent(),
-            Value<bool?> gameHasBox = const Value.absent(),
-            Value<bool?> gameHasManual = const Value.absent(),
-            Value<String?> gamePriceChartingId = const Value.absent(),
-            Value<String?> gameCoreRegion = const Value.absent(),
-            Value<bool?> gameValueIsLocked = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion(
             id: id,
             itemId: itemId,
+            kind: kind,
+            detailsJson: detailsJson,
             createdAt: createdAt,
             isDigital: isDigital,
             anchorType: anchorType,
@@ -16655,19 +15125,6 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             personalNotes: personalNotes,
             quantity: quantity,
             indexNumber: indexNumber,
-            coverPriceCents: coverPriceCents,
-            rawOrSlabbed: rawOrSlabbed,
-            gradingCompany: gradingCompany,
-            graderNotes: graderNotes,
-            signedBy: signedBy,
-            labelType: labelType,
-            customLabel: customLabel,
-            pageQuality: pageQuality,
-            certificationNumber: certificationNumber,
-            keyComic: keyComic,
-            keyReason: keyReason,
-            keyCategory: keyCategory,
-            keySeverity: keySeverity,
             rating: rating,
             readStatus: readStatus,
             startedAt: startedAt,
@@ -16681,30 +15138,16 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             ownerUserId: ownerUserId,
             ownerLabel: ownerLabel,
             locationId: locationId,
-            features: features,
-            hdrFormatsJson: hdrFormatsJson,
             purchaseStore: purchaseStore,
-            boxSetId: boxSetId,
-            boxSetName: boxSetName,
-            storageDevice: storageDevice,
-            storageSlot: storageSlot,
-            region: region,
-            packaging: packaging,
-            distributor: distributor,
             collectionStatus: collectionStatus,
-            lastBagBoardDate: lastBagBoardDate,
             marketValueCents: marketValueCents,
-            gameCompleteness: gameCompleteness,
-            gameHasBox: gameHasBox,
-            gameHasManual: gameHasManual,
-            gamePriceChartingId: gamePriceChartingId,
-            gameCoreRegion: gameCoreRegion,
-            gameValueIsLocked: gameValueIsLocked,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
             required String itemId,
+            Value<String> kind = const Value.absent(),
+            Value<String?> detailsJson = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
             Value<String?> anchorType = const Value.absent(),
@@ -16719,19 +15162,6 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> personalNotes = const Value.absent(),
             Value<int> quantity = const Value.absent(),
             Value<int?> indexNumber = const Value.absent(),
-            Value<int?> coverPriceCents = const Value.absent(),
-            Value<String?> rawOrSlabbed = const Value.absent(),
-            Value<String?> gradingCompany = const Value.absent(),
-            Value<String?> graderNotes = const Value.absent(),
-            Value<String?> signedBy = const Value.absent(),
-            Value<String?> labelType = const Value.absent(),
-            Value<String?> customLabel = const Value.absent(),
-            Value<String?> pageQuality = const Value.absent(),
-            Value<String?> certificationNumber = const Value.absent(),
-            Value<bool> keyComic = const Value.absent(),
-            Value<String?> keyReason = const Value.absent(),
-            Value<String?> keyCategory = const Value.absent(),
-            Value<String?> keySeverity = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> readStatus = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
@@ -16745,30 +15175,16 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             Value<String?> ownerUserId = const Value.absent(),
             Value<String?> ownerLabel = const Value.absent(),
             Value<String?> locationId = const Value.absent(),
-            Value<String?> features = const Value.absent(),
-            Value<String?> hdrFormatsJson = const Value.absent(),
             Value<String?> purchaseStore = const Value.absent(),
-            Value<String?> boxSetId = const Value.absent(),
-            Value<String?> boxSetName = const Value.absent(),
-            Value<String?> storageDevice = const Value.absent(),
-            Value<String?> storageSlot = const Value.absent(),
-            Value<String?> region = const Value.absent(),
-            Value<String?> packaging = const Value.absent(),
-            Value<String?> distributor = const Value.absent(),
             Value<String?> collectionStatus = const Value.absent(),
-            Value<DateTime?> lastBagBoardDate = const Value.absent(),
             Value<int?> marketValueCents = const Value.absent(),
-            Value<String?> gameCompleteness = const Value.absent(),
-            Value<bool?> gameHasBox = const Value.absent(),
-            Value<bool?> gameHasManual = const Value.absent(),
-            Value<String?> gamePriceChartingId = const Value.absent(),
-            Value<String?> gameCoreRegion = const Value.absent(),
-            Value<bool?> gameValueIsLocked = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OwnedItemsCacheCompanion.insert(
             id: id,
             itemId: itemId,
+            kind: kind,
+            detailsJson: detailsJson,
             createdAt: createdAt,
             isDigital: isDigital,
             anchorType: anchorType,
@@ -16783,19 +15199,6 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             personalNotes: personalNotes,
             quantity: quantity,
             indexNumber: indexNumber,
-            coverPriceCents: coverPriceCents,
-            rawOrSlabbed: rawOrSlabbed,
-            gradingCompany: gradingCompany,
-            graderNotes: graderNotes,
-            signedBy: signedBy,
-            labelType: labelType,
-            customLabel: customLabel,
-            pageQuality: pageQuality,
-            certificationNumber: certificationNumber,
-            keyComic: keyComic,
-            keyReason: keyReason,
-            keyCategory: keyCategory,
-            keySeverity: keySeverity,
             rating: rating,
             readStatus: readStatus,
             startedAt: startedAt,
@@ -16809,25 +15212,9 @@ class $$OwnedItemsCacheTableTableManager extends RootTableManager<
             ownerUserId: ownerUserId,
             ownerLabel: ownerLabel,
             locationId: locationId,
-            features: features,
-            hdrFormatsJson: hdrFormatsJson,
             purchaseStore: purchaseStore,
-            boxSetId: boxSetId,
-            boxSetName: boxSetName,
-            storageDevice: storageDevice,
-            storageSlot: storageSlot,
-            region: region,
-            packaging: packaging,
-            distributor: distributor,
             collectionStatus: collectionStatus,
-            lastBagBoardDate: lastBagBoardDate,
             marketValueCents: marketValueCents,
-            gameCompleteness: gameCompleteness,
-            gameHasBox: gameHasBox,
-            gameHasManual: gameHasManual,
-            gamePriceChartingId: gamePriceChartingId,
-            gameCoreRegion: gameCoreRegion,
-            gameValueIsLocked: gameValueIsLocked,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
