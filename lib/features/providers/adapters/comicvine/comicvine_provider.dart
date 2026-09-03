@@ -67,12 +67,22 @@ class ComicVineProvider extends ProviderAdapter {
     String? kind,
     int limit = 25,
   }) async {
+    final targetKind = _resolveTargetKind(kind);
+    final issues = await searchIssues(query, limit: limit);
+    return [
+      for (final issue in issues) _searchResultFromIssue(issue, targetKind),
+    ];
+  }
+
+  Future<List<ComicVineIssue>> searchIssues(
+    String query, {
+    int limit = 25,
+  }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
 
     _ensureConfigured();
 
-    final targetKind = _resolveTargetKind(kind);
     final queryParams = <String, dynamic>{
       'api_key': credentials!.apiKey,
       'format': 'json',
@@ -94,16 +104,13 @@ class ComicVineProvider extends ProviderAdapter {
     final resultsList = data['results'];
     if (resultsList is! List) return [];
 
-    final results = <ProviderSearchResult>[];
+    final results = <ComicVineIssue>[];
     for (final item in resultsList) {
       if (item is! Map) continue;
       final itemMap = Map<String, dynamic>.from(item);
-      final searchResult = _searchResultFromIssue(
-        ComicVineIssue.fromJson(itemMap),
-        targetKind,
-      );
-      if (searchResult.providerItemId.isNotEmpty) {
-        results.add(searchResult);
+      final issue = ComicVineIssue.fromJson(itemMap);
+      if (_canonicalIssueId(issue.id).isNotEmpty) {
+        results.add(issue);
       }
     }
     return results;

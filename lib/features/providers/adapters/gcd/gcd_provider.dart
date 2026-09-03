@@ -70,6 +70,16 @@ class GCDProvider extends ProviderAdapter {
     String? kind,
     int limit = 25,
   }) async {
+    final issues = await searchIssues(query, limit: limit);
+    return [
+      for (final issue in issues) _searchResultFromIssue(issue),
+    ];
+  }
+
+  Future<List<GcdIssue>> searchIssues(
+    String query, {
+    int limit = 25,
+  }) async {
     final trimmed = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (trimmed.isEmpty) return [];
 
@@ -86,13 +96,13 @@ class GCDProvider extends ProviderAdapter {
     final resultsList = data['results'];
     if (resultsList is! List) return [];
 
-    final results = <ProviderSearchResult>[];
+    final results = <GcdIssue>[];
     for (final item in resultsList.take(limit)) {
       if (item is! Map) continue;
       final itemMap = Map<String, dynamic>.from(item);
-      final searchResult = _searchResultFromIssue(GcdIssue.fromJson(itemMap));
-      if (searchResult.providerItemId.isNotEmpty) {
-        results.add(searchResult);
+      final issue = GcdIssue.fromJson(itemMap);
+      if ((_extractIssueId(issue.apiUrl ?? issue.id) ?? '').isNotEmpty) {
+        results.add(issue);
       }
     }
     return results;
