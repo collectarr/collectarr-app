@@ -10,7 +10,7 @@ export 'package:collectarr_app/features/library/kinds/_shared/ownership/video_li
 
 const Object _ownedItemUnset = Object();
 
-class OwnedItem {
+class OwnedItem<TDetails extends OwnedItemDetails> {
   OwnedItem({
     required this.id,
     required this.catalogRef,
@@ -21,7 +21,7 @@ class OwnedItem {
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
-    OwnedItemDetails? details,
+    TDetails? details,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -53,8 +53,8 @@ class OwnedItem {
               variantId: variantId,
               bundleReleaseId: bundleReleaseId,
             ),
-        details =
-            details ?? OwnedItemDetails.defaultForKind(catalogRef.mediaKind);
+        details = details ??
+            OwnedItemDetails.defaultForKind(catalogRef.mediaKind) as TDetails;
 
   final String id;
   final CatalogEntityRef catalogRef;
@@ -85,7 +85,7 @@ class OwnedItem {
   final String? purchaseStore;
   final String? collectionStatus;
   final int? marketValueCents;
-  final OwnedItemDetails details;
+  final TDetails details;
 
   ComicOwnedDetails? get comicDetails => details.comic;
   MangaOwnedDetails? get mangaDetails => details.manga;
@@ -201,10 +201,10 @@ class OwnedItem {
     final catalogRef = CatalogEntityRef.fromJson(catalogRefJson);
     final details = OwnedItemDetails.parseForKind(catalogRef.mediaKind, json);
 
-    return OwnedItem(
+    return OwnedItem<TDetails>(
       id: json['id'] as String,
       catalogRef: catalogRef,
-      details: details,
+      details: details as TDetails,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -262,7 +262,7 @@ class OwnedItem {
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
-    OwnedItemDetails? details,
+    TDetails? details,
     Object? condition = _ownedItemUnset,
     Object? grade = _ownedItemUnset,
     Object? purchaseDate = _ownedItemUnset,
@@ -297,7 +297,7 @@ class OwnedItem {
           )
         : anchor as PersonalItemAnchor?;
 
-    return OwnedItem(
+    return OwnedItem<TDetails>(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
       createdAt: identical(createdAt, _ownedItemUnset)

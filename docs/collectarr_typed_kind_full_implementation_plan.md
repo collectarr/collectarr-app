@@ -1067,6 +1067,14 @@ movieDetails
 ...
 ```
 
+### Status (2026-09-03)
+
+The model now carries `TDetails extends OwnedItemDetails`, and its constructor,
+JSON factory, and `copyWith` preserve that concrete details type. Existing
+runtime detail getters remain as a temporary compatibility layer while kind
+call sites migrate to typed `details`; they must be removed before PR29 is
+complete.
+
 ---
 
 ## PR 30 — Base Owned DB cleanup

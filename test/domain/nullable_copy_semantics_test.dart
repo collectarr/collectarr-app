@@ -9,6 +9,23 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Nullable copy semantics', () {
+    test('OwnedItem exposes typed kind-owned details', () {
+      final item = OwnedItem<ComicOwnedDetails>(
+        id: 'item-typed',
+        catalogRef: CatalogEntityRef(
+          kind: CatalogMediaKind.comic.apiValue,
+          id: 'cat-typed',
+          entityType: CatalogEntityType.issue,
+        ),
+        details: const ComicOwnedDetails(gradingCompany: 'CGC'),
+        updatedAt: DateTime.utc(2025, 1, 1),
+      );
+
+      expect(item.details.gradingCompany, 'CGC');
+      expect(item.copyWith(details: const ComicOwnedDetails()).details,
+          isA<ComicOwnedDetails>());
+    });
+
     test(
         'OwnedItem.copyWith allows preserving, updating, and clearing nullable fields',
         () {
