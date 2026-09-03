@@ -41,8 +41,11 @@ personal-sync separation is structurally present. Durable account/link
 persistence is backed by the shared Drift database, provider credentials remain
 in secure storage, and sync-policy persistence, directional filtering,
 three-way conflict handling, and echo protection are covered by the AniList
-vertical slice. Link creation during imports and the remaining provider
-personal-list integrations described in Phase 7 are still open.
+vertical slice. TMDB account imports now persist a stable account identity and
+create provider links after local application; file imports without an explicit
+account selection remain unlinked. Account selection for file imports and the
+remaining provider personal-list integrations described in Phase 7 are still
+open.
 
 Known incomplete or regressed surfaces:
 

@@ -15,7 +15,12 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_propos
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
+import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
+import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
 import 'package:collectarr_app/features/settings/anime_list_import_service.dart';
 import 'package:collectarr_app/features/settings/provider_csv_import_service.dart';
 import 'package:collectarr_app/features/settings/provider_import_history_store.dart';
@@ -158,6 +163,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required TmdbImportCollection collection,
     required bool keepUnmatchedLocally,
   }) async {
+    final normalizedCredentials = credentials.normalized();
+    final accountId = _tmdbProviderAccountId(normalizedCredentials.accountId);
     final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
     state = [
       ...state,
@@ -171,7 +178,9 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
 
     try {
       // Phase 1: Fetch from TMDB API
-      final entries = await _service.fetchCollection(credentials, collection);
+      final entries =
+          await _service.fetchCollection(normalizedCredentials, collection);
+      await _ensureTmdbAccount(normalizedCredentials, accountId);
       _updateJob(
           jobId,
           (j) => j.copyWith(
@@ -186,8 +195,9 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         entries: entries,
         sourceLabel: 'TMDB account sync',
         keepUnmatchedLocally: keepUnmatchedLocally,
-        apiKey: credentials.apiKey,
-        origin: MutationOrigin.externalProvider(ProviderId.tmdb),
+        apiKey: normalizedCredentials.apiKey,
+        accountId: accountId,
+        origin: MutationOrigin.externalProvider(ProviderId.tmdb, accountId),
       );
     } catch (error) {
       _updateJob(
@@ -485,6 +495,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required String sourceLabel,
     required bool keepUnmatchedLocally,
     String? apiKey,
+    String? accountId,
     required MutationOrigin origin,
   }) async {
     final api = ref.read(apiClientProvider);
@@ -587,6 +598,11 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           apiKey: apiKey,
           origin: origin,
         );
+        await _linkImportedItem(
+          accountId: accountId,
+          localEntityRef: item.catalogRef,
+          entry: enriched,
+        );
         importedCount += 1;
       } else if (keepUnmatchedLocally) {
         unmatchedMatches.add(match);
@@ -661,6 +677,11 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
               apiKey: apiKey,
               origin: origin,
             );
+            await _linkImportedItem(
+              accountId: accountId,
+              localEntityRef: localItem.catalogRef,
+              entry: enriched,
+            );
             await _pendingStore.upsert(
               TmdbPendingImportRecord(
                 localItemId: localItem.id,
@@ -734,6 +755,52 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
               skipped: skippedCount,
               finishedAt: DateTime.now(),
             ));
+  }
+
+  String _tmdbProviderAccountId(String remoteAccountId) {
+    return 'tmdb:${remoteAccountId.trim()}';
+  }
+
+  Future<void> _ensureTmdbAccount(
+    TmdbImportCredentials credentials,
+    String accountId,
+  ) async {
+    final accountStore = ref.read(providerAccountStoreProvider);
+    final existing = await accountStore.getAccount(accountId);
+    await accountStore.saveAccount(
+      ProviderAccount(
+        id: accountId,
+        provider: ProviderId.tmdb,
+        displayName: existing?.displayName ??
+            'TMDb account ${credentials.accountId.trim()}',
+        authType: ProviderAuthType.apiKey,
+        remoteAccountId: credentials.accountId.trim(),
+        remoteHandle: existing?.remoteHandle,
+        username: existing?.username,
+        avatarUrl: existing?.avatarUrl,
+        connectedAt: existing?.connectedAt ?? DateTime.now().toUtc(),
+        lastSyncAt: existing?.lastSyncAt,
+        enabledCapabilities:
+            existing?.enabledCapabilities ?? const {'personalRead'},
+        syncPolicy: existing?.syncPolicy ?? const ProviderSyncPolicy(),
+      ),
+    );
+  }
+
+  Future<void> _linkImportedItem({
+    required String? accountId,
+    required CatalogEntityRef localEntityRef,
+    required TmdbImportEntry entry,
+  }) async {
+    if (accountId == null) return;
+    final linkStore = ref.read(providerLinkStoreProvider);
+    await linkStore.saveLink(
+      ProviderItemLink.fromImportedEntry(
+        accountId: accountId,
+        localEntityRef: localEntityRef,
+        entry: entry.toProviderPersonalEntry(),
+      ),
+    );
   }
 
   Future<TmdbImportEntry> _enrichFromCache(

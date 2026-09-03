@@ -18,6 +18,25 @@ final class ProviderItemLink {
     this.metadata = const {},
   });
 
+  factory ProviderItemLink.fromImportedEntry({
+    required String accountId,
+    ProviderId? provider,
+    required CatalogEntityRef localEntityRef,
+    required ProviderPersonalEntry entry,
+    DateTime? linkedAt,
+  }) {
+    return ProviderItemLink(
+      accountId: accountId,
+      provider: provider ?? entry.provider,
+      remoteItemId: entry.remoteItemId,
+      remoteEntryId: entry.remoteEntryId,
+      localEntityRef: localEntityRef,
+      baseSnapshot: entry,
+      lastPulledAt: linkedAt ?? DateTime.now().toUtc(),
+      remoteRevision: entry.remoteRevision,
+    );
+  }
+
   final String accountId;
   final ProviderId provider;
   final String remoteItemId;

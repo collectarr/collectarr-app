@@ -208,15 +208,11 @@ class ProviderSyncCoordinator {
     required CatalogEntityRef localRef,
     required ProviderPersonalEntry entry,
   }) async {
-    final link = ProviderItemLink(
+    final link = ProviderItemLink.fromImportedEntry(
       accountId: accountId,
       provider: provider,
-      remoteItemId: entry.remoteItemId,
-      remoteEntryId: entry.remoteEntryId,
       localEntityRef: localRef,
-      baseSnapshot: entry,
-      lastPulledAt: DateTime.now().toUtc(),
-      remoteRevision: entry.remoteRevision,
+      entry: entry,
     );
 
     await linkStore.saveLink(link);
