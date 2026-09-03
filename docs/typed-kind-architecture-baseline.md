@@ -132,6 +132,16 @@ their current applicable participants.
 complete mandatory contract set, and rejects optional participants that are not
 active kinds.
 
+## PR 5 Typed Dispatch Boundary
+
+`library_kind_registration.dart` defines the small erased entry point for kind
+dispatch: kind identity, library page construction, Add construction, and
+media/release edit opening. It uses the existing typed request and result
+models, and is exported through `library_kind_registry.dart`.
+
+The existing `LibraryKindRuntime` and page switch remain unchanged for now.
+Concrete registrations and caller migration are deferred to later PRs.
+
 ## Reproduction Commands
 
 Run from the repository root:
@@ -147,7 +157,7 @@ The first command is intentionally textual and over-inclusive. Results must be
 classified using the ownership rules above; names used only for labels or widget
 types are not architecture violations.
 
-## PR 0, PR 1, PR 2, PR 3, and PR 4 Exit Criteria
+## PR 0, PR 1, PR 2, PR 3, PR 4, and PR 5 Exit Criteria
 
 - [x] Baseline document created.
 - [x] Every suspect named by the migration plan is classified.
@@ -168,5 +178,9 @@ types are not architecture violations.
 - [x] Nine-kind contract manifest added.
 - [x] Mandatory contract participants cover every active kind.
 - [x] Optional contract participants are explicitly declared and validated.
+- [x] Small typed dispatch boundary added.
+- [x] Registration boundary exported through the library registry.
+- [x] Existing runtime dispatch remains unchanged.
 
-Next work is PR 5: introduce the small typed dispatch boundary.
+Next work is PR 6: stop extending `LibraryKindRuntime` and begin caller
+migration toward concrete kind modules.

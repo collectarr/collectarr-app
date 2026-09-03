@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 
 final class LibraryKindRegistry {
   LibraryKindRegistry(
