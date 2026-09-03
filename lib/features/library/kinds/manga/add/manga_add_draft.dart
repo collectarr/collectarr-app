@@ -50,9 +50,14 @@ final class MangaAddDraft extends LibraryAddKindDraft {
 
   @override
   OwnedDetailsDraft toOwnedDetailsDraft() => MangaOwnedDetailsDraft(
+        rawOrSlabbed: grading.rawOrSlabbed,
         signedBy: signedBy,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,
+        labelType: grading.labelType,
+        customLabel: grading.customLabel,
+        pageQuality: grading.pageQuality,
+        certificationNumber: grading.certificationNumber,
         obiStripPresent: obiStripPresent,
         slipcoverPresent: slipcoverPresent,
         dustJacketPresent: dustJacketPresent,

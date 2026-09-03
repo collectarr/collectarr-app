@@ -21,6 +21,8 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
@@ -121,6 +123,10 @@ void main() {
     expect(mangaKindModule.trackingProfile, comicTrackingProfile);
     expect(mangaKindModule.presentation, mangaLibraryMediaPresentation);
     expect(mangaKindModule.edit.editDialogBuilder, isNotNull);
+    expect(mangaKindModule.edit.mediaEditDialogBuilder,
+        same(buildMangaMediaLibraryEditDialog));
+    expect(
+        mangaKindModule.edit.presentation, same(mangaLibraryEditPresentation));
     expect(mangaKindModule.identity.countLabel(1), 'Manga');
     expect(mangaKindModule.identity.countLabel(2), 'Manga');
   });

@@ -5,8 +5,11 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
@@ -104,11 +107,21 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     await _loadVocabularies();
   }
 
+  AddSchema<MangaAddManualDraft> _schema() {
+    return mangaAddSchemaFor(
+      publisherOptions: _publisherOptions.isEmpty
+          ? MangaVocabularies.publisher.builtIns
+          : _publisherOptions,
+      onManagePublisher: _managePublishers,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final draft = widget.request.manualDraftAs<MangaAddManualDraft>();
     final request = widget.request;
+    final schema = _schema();
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -143,106 +156,24 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
               child: ListView(
                 children: [
                   LibraryFormSection(
-                    title: 'Volume Details',
+                    title: 'Series',
                     accent: request.accent,
-                    child: Column(
-                      children: [
-                        LibraryResponsiveFormRow(
-                          children: [
-                            LibraryResponsiveFormItem(
-                              flex: 3,
-                              child: SingleValuePickField(
-                                controller: request.titleController,
-                                options: [
-                                  for (final entry in _seriesEntries)
-                                    entry.title,
-                                ],
-                                label: 'Series',
-                                onChanged: _setManualSeries,
-                                onManage: _openManualSeriesPicker,
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.numberController,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  labelText: 'Vol. No.',
-                                  prefixIcon:
-                                      Icon(Icons.confirmation_number_outlined),
-                                ),
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.variantController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Variant',
-                                  prefixIcon:
-                                      Icon(Icons.auto_awesome_motion_outlined),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        LibraryResponsiveFormRow(
-                          children: [
-                            LibraryResponsiveFormItem(
-                              flex: 2,
-                              child: TextField(
-                                controller: draft.barcodeController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Barcode',
-                                  prefixIcon: Icon(Icons.qr_code_2),
-                                ),
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.yearController,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  labelText: 'Year',
-                                  prefixIcon:
-                                      Icon(Icons.calendar_today_outlined),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                    child: SingleValuePickField(
+                      controller: request.titleController,
+                      options: [
+                        for (final entry in _seriesEntries) entry.title,
                       ],
+                      label: 'Series',
+                      onChanged: _setManualSeries,
+                      onManage: _openManualSeriesPicker,
                     ),
                   ),
                   const SizedBox(height: 10),
-                  LibraryFormSection(
-                    title: 'Publishing & Authors',
-                    accent: request.accent,
-                    child: Column(
-                      children: [
-                        LibraryResponsiveFormRow(
-                          children: [
-                            LibraryResponsiveFormItem(
-                              child: SingleValuePickField(
-                                controller: draft.publisherController,
-                                options: _publisherOptions,
-                                label: 'Publisher',
-                                onManage: _managePublishers,
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.creatorsController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Authors / Artists',
-                                  prefixIcon: Icon(Icons.person_outline),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  AddSchemaRenderer<MangaAddManualDraft>(
+                    schema: schema,
+                    draft: draft,
+                    showFooter: false,
+                    onSubmit: (_) async {},
                   ),
                 ],
               ),

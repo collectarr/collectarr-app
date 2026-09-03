@@ -23,6 +23,13 @@ class MangaAddManualDraft implements LibraryKindAddDraft {
     TextEditingController? countryController,
     TextEditingController? editionTitleController,
     TextEditingController? releaseDateController,
+    TextEditingController? rawOrSlabbedController,
+    TextEditingController? gradingCompanyController,
+    TextEditingController? graderNotesController,
+    TextEditingController? labelTypeController,
+    TextEditingController? customLabelController,
+    TextEditingController? pageQualityController,
+    TextEditingController? certificationNumberController,
   })  : numberController = numberController ?? TextEditingController(),
         publisherController = publisherController ?? TextEditingController(),
         yearController = yearController ?? TextEditingController(),
@@ -46,7 +53,20 @@ class MangaAddManualDraft implements LibraryKindAddDraft {
         editionTitleController =
             editionTitleController ?? TextEditingController(),
         releaseDateController =
-            releaseDateController ?? TextEditingController();
+            releaseDateController ?? TextEditingController(),
+        rawOrSlabbedController =
+            rawOrSlabbedController ?? TextEditingController(),
+        gradingCompanyController =
+            gradingCompanyController ?? TextEditingController(),
+        graderNotesController =
+            graderNotesController ?? TextEditingController(),
+        labelTypeController = labelTypeController ?? TextEditingController(),
+        customLabelController =
+            customLabelController ?? TextEditingController(),
+        pageQualityController =
+            pageQualityController ?? TextEditingController(),
+        certificationNumberController =
+            certificationNumberController ?? TextEditingController();
 
   final TextEditingController numberController;
   final TextEditingController publisherController;
@@ -68,6 +88,13 @@ class MangaAddManualDraft implements LibraryKindAddDraft {
   final TextEditingController countryController;
   final TextEditingController editionTitleController;
   final TextEditingController releaseDateController;
+  final TextEditingController rawOrSlabbedController;
+  final TextEditingController gradingCompanyController;
+  final TextEditingController graderNotesController;
+  final TextEditingController labelTypeController;
+  final TextEditingController customLabelController;
+  final TextEditingController pageQualityController;
+  final TextEditingController certificationNumberController;
 
   @override
   void dispose() {
@@ -91,5 +118,12 @@ class MangaAddManualDraft implements LibraryKindAddDraft {
     countryController.dispose();
     editionTitleController.dispose();
     releaseDateController.dispose();
+    rawOrSlabbedController.dispose();
+    gradingCompanyController.dispose();
+    graderNotesController.dispose();
+    labelTypeController.dispose();
+    customLabelController.dispose();
+    pageQualityController.dispose();
+    certificationNumberController.dispose();
   }
 }

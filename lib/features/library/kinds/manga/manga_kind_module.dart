@@ -20,6 +20,8 @@ import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_voc
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
@@ -266,6 +268,8 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildMangaLibraryEditDialog,
+    mediaEditDialogBuilder: buildMangaMediaLibraryEditDialog,
+    presentation: mangaLibraryEditPresentation,
     vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
     editChrome: const LibraryEditChromeConfig(
       titleUsesItemTitle: true,

@@ -62,9 +62,16 @@ class MangaOwnedDetails extends OwnedItemDetails {
 
   @override
   Map<String, dynamic> toJson() => {
+        if (grading.rawOrSlabbed != null)
+          'raw_or_slabbed': grading.rawOrSlabbed,
         if (signedBy != null) 'signed_by': signedBy,
         if (gradingCompany != null) 'grading_company': gradingCompany,
         if (graderNotes != null) 'grader_notes': graderNotes,
+        if (grading.labelType != null) 'label_type': grading.labelType,
+        if (grading.customLabel != null) 'custom_label': grading.customLabel,
+        if (grading.pageQuality != null) 'page_quality': grading.pageQuality,
+        if (grading.certificationNumber != null)
+          'certification_number': grading.certificationNumber,
         if (obiStripPresent) 'obi_strip_present': true,
         if (slipcoverPresent) 'slipcover_present': true,
         if (dustJacketPresent) 'dust_jacket_present': true,
@@ -145,9 +152,14 @@ class MangaOwnedDetails extends OwnedItemDetails {
       identical(this, other) ||
       other is MangaOwnedDetails &&
           runtimeType == other.runtimeType &&
+          grading.rawOrSlabbed == other.grading.rawOrSlabbed &&
           signedBy == other.signedBy &&
           gradingCompany == other.gradingCompany &&
           graderNotes == other.graderNotes &&
+          grading.labelType == other.grading.labelType &&
+          grading.customLabel == other.grading.customLabel &&
+          grading.pageQuality == other.grading.pageQuality &&
+          grading.certificationNumber == other.grading.certificationNumber &&
           obiStripPresent == other.obiStripPresent &&
           slipcoverPresent == other.slipcoverPresent &&
           dustJacketPresent == other.dustJacketPresent &&
@@ -159,9 +171,14 @@ class MangaOwnedDetails extends OwnedItemDetails {
 
   @override
   int get hashCode => Object.hash(
+        grading.rawOrSlabbed,
         signedBy,
         gradingCompany,
         graderNotes,
+        grading.labelType,
+        grading.customLabel,
+        grading.pageQuality,
+        grading.certificationNumber,
         obiStripPresent,
         slipcoverPresent,
         dustJacketPresent,

@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/ownership/grading_details.dart';
 import 'package:flutter/foundation.dart';
 
 /// Represents a tri-state patch operation: unchanged, set new value, or clear value.
@@ -151,9 +152,14 @@ class ComicOwnedDetailsDraft extends OwnedDetailsDraft {
 
 class MangaOwnedDetailsDraft extends OwnedDetailsDraft {
   const MangaOwnedDetailsDraft({
+    this.rawOrSlabbed,
     this.signedBy,
     this.gradingCompany,
     this.graderNotes,
+    this.labelType,
+    this.customLabel,
+    this.pageQuality,
+    this.certificationNumber,
     this.obiStripPresent = false,
     this.slipcoverPresent = false,
     this.dustJacketPresent = false,
@@ -164,9 +170,14 @@ class MangaOwnedDetailsDraft extends OwnedDetailsDraft {
     this.localizedEdition,
   });
 
+  final String? rawOrSlabbed;
   final String? signedBy;
   final String? gradingCompany;
   final String? graderNotes;
+  final String? labelType;
+  final String? customLabel;
+  final String? pageQuality;
+  final String? certificationNumber;
   final bool obiStripPresent;
   final bool slipcoverPresent;
   final bool dustJacketPresent;
@@ -178,6 +189,15 @@ class MangaOwnedDetailsDraft extends OwnedDetailsDraft {
 
   @override
   MangaOwnedDetails toDetails() => MangaOwnedDetails(
+        grading: GradingDetails(
+          rawOrSlabbed: rawOrSlabbed,
+          gradingCompany: gradingCompany,
+          graderNotes: graderNotes,
+          labelType: labelType,
+          customLabel: customLabel,
+          pageQuality: pageQuality,
+          certificationNumber: certificationNumber,
+        ),
         signedBy: signedBy,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,

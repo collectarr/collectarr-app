@@ -1233,7 +1233,17 @@ MangaReleaseEditSchema if applicable
 MangaOwnedEditSchema
 ```
 
-Run all applicable contracts.
+### Status (2026-09-03)
+
+Complete. Manga now has typed Add, Media Edit, and Owned Edit schemas, with
+Manga-specific vocabularies and complete grading and collector-field
+transport. The media and ownership schemas use the generic schema renderer,
+and the Manga edit capability registers the media dialog plus the combined
+editor's custom Owned tab. Manga has no applicable Release Edit schema:
+`MangaMetadata.editions` is a catalog snapshot and there is no Manga-owned
+release model or release edit command to update. Contract tests cover schema
+shape, typed field bindings, validation, selection updates, and nested grading
+equality. Continue with PR36.
 
 ---
 
