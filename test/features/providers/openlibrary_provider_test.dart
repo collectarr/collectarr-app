@@ -25,6 +25,47 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('OpenLibraryProvider', () {
+    test('decodes native search, work, and edition models', () {
+      final searchDoc = OpenLibrarySearchDoc.fromJson({
+        'key': '/works/OL27479W',
+        'title': 'The Hobbit',
+        'author_name': ['J.R.R. Tolkien'],
+        'first_publish_year': 1937,
+        'edition_key': ['OL82563M'],
+        'isbn': ['9780261102354'],
+        'publisher': ['George Allen & Unwin'],
+        'cover_i': 12345,
+      });
+      final work = OpenLibraryWork.fromJson({
+        'key': '/works/OL27479W',
+        'title': 'The Hobbit',
+        'description': {'value': 'A fantasy adventure.'},
+        'subjects': ['Fantasy'],
+      });
+      final edition = OpenLibraryEdition.fromJson({
+        'key': '/books/OL82563M',
+        'title': 'The Hobbit',
+        'subtitle': 'There and Back Again',
+        'publish_date': '1937',
+        'number_of_pages': 310,
+        'isbn_13': ['9780261102354'],
+        'covers': [12345],
+        'works': [
+          {'key': '/works/OL27479W'},
+        ],
+      });
+
+      expect(searchDoc.editionKeys.single, 'OL82563M');
+      expect(searchDoc.authorNames.single, 'J.R.R. Tolkien');
+      expect(searchDoc.coverId, 12345);
+      expect(work.description, 'A fantasy adventure.');
+      expect(work.subjects.single, 'Fantasy');
+      expect(edition.subtitle, 'There and Back Again');
+      expect(edition.numberOfPages, 310);
+      expect(edition.works.single.key, '/works/OL27479W');
+      expect(edition.toJson()['publish_date'], '1937');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = OpenLibraryProvider();
       expect(provider.name, 'openlibrary');

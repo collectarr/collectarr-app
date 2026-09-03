@@ -10,6 +10,7 @@ import '../../domain/models/provider_provenance.dart';
 import '../../domain/models/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../provider_adapter.dart';
+import 'models/open_library_book.dart';
 
 final RegExp _olidRegex = RegExp(r'^(?:OL)?(\d+[MWA])$', caseSensitive: false);
 final RegExp _yearRegex = RegExp(r'\b(\d{4})\b');
@@ -87,8 +88,9 @@ class OpenLibraryProvider extends ProviderAdapter {
     final results = <ProviderSearchResult>[];
     for (final doc in docs.take(limit)) {
       if (doc is! Map) continue;
-      final docMap = Map<String, dynamic>.from(doc);
-      final result = _searchResultFromDoc(docMap);
+      final searchDoc =
+          OpenLibrarySearchDoc.fromJson(Map<String, dynamic>.from(doc));
+      final result = _searchResultFromDoc(searchDoc);
       if (result.providerItemId.isNotEmpty) {
         results.add(result);
       }
@@ -120,42 +122,42 @@ class OpenLibraryProvider extends ProviderAdapter {
       );
     }
 
-    Map<String, dynamic>? workRaw;
-    Map<String, dynamic>? editionRaw;
+    OpenLibraryWork? work;
+    OpenLibraryEdition? edition;
     String rawPayloadString = '';
 
     if (providerId.toUpperCase().startsWith('ISBN:')) {
       final isbn = providerId.substring(5);
       final response =
           await _client.get<Map<String, dynamic>>('/isbn/$isbn.json');
-      editionRaw = response.data != null
-          ? Map<String, dynamic>.from(response.data!)
+      edition = response.data != null
+          ? OpenLibraryEdition.fromJson(response.data!)
           : null;
-      rawPayloadString = jsonEncode(editionRaw);
+      rawPayloadString = jsonEncode(response.data);
     } else if (providerId.toUpperCase().endsWith('M')) {
       final response =
           await _client.get<Map<String, dynamic>>('/books/$providerId.json');
-      editionRaw = response.data != null
-          ? Map<String, dynamic>.from(response.data!)
+      edition = response.data != null
+          ? OpenLibraryEdition.fromJson(response.data!)
           : null;
-      rawPayloadString = jsonEncode(editionRaw);
+      rawPayloadString = jsonEncode(response.data);
     } else {
       final response =
           await _client.get<Map<String, dynamic>>('/works/$providerId.json');
-      workRaw = response.data != null
-          ? Map<String, dynamic>.from(response.data!)
+      work = response.data != null
+          ? OpenLibraryWork.fromJson(response.data!)
           : null;
-      rawPayloadString = jsonEncode(workRaw);
+      rawPayloadString = jsonEncode(response.data);
     }
 
-    if (editionRaw != null && workRaw == null) {
-      final workId = _workIdFromEdition(editionRaw);
+    if (edition != null && work == null) {
+      final workId = _workIdFromEditionModel(edition);
       if (workId != null) {
         try {
           final workResp =
               await _client.get<Map<String, dynamic>>('/works/$workId.json');
           if (workResp.data != null) {
-            workRaw = Map<String, dynamic>.from(workResp.data!);
+            work = OpenLibraryWork.fromJson(workResp.data!);
           }
         } catch (_) {
           // Non-fatal if work endpoint fails when edition is loaded
@@ -163,14 +165,14 @@ class OpenLibraryProvider extends ProviderAdapter {
       }
     }
 
-    if (workRaw == null && editionRaw == null) {
+    if (work == null && edition == null) {
       throw ProviderNotFoundException(
         provider: name,
         message: 'No metadata found for Open Library ID: $providerItemId',
       );
     }
 
-    final normalized = normalize(workRaw: workRaw, editionRaw: editionRaw);
+    final normalized = normalizeTyped(work: work, edition: edition);
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -219,49 +221,57 @@ class OpenLibraryProvider extends ProviderAdapter {
     Map<String, dynamic>? editionRaw,
     Map<String, dynamic>? searchDoc,
   }) {
-    final title = _optionalText(editionRaw?['title']) ??
-        _optionalText(workRaw?['title']) ??
-        _optionalText(searchDoc?['title']) ??
-        'Unknown book';
+    return normalizeTyped(
+      work: workRaw == null ? null : OpenLibraryWork.fromJson(workRaw),
+      edition:
+          editionRaw == null ? null : OpenLibraryEdition.fromJson(editionRaw),
+      searchDoc:
+          searchDoc == null ? null : OpenLibrarySearchDoc.fromJson(searchDoc),
+    );
+  }
 
-    final subtitle = _optionalText(editionRaw?['subtitle']);
-    final synopsis = _description(editionRaw?['description']) ??
-        _description(workRaw?['description']);
+  Map<String, dynamic> normalizeTyped({
+    OpenLibraryWork? work,
+    OpenLibraryEdition? edition,
+    OpenLibrarySearchDoc? searchDoc,
+  }) {
+    final title =
+        edition?.title ?? work?.title ?? searchDoc?.title ?? 'Unknown book';
+
+    final subtitle = edition?.subtitle;
+    final synopsis = edition?.description ?? work?.description;
 
     final isbn = _firstText([
-      editionRaw?['isbn_13'],
-      editionRaw?['isbn_10'],
-      searchDoc?['isbn'],
+      edition?.isbn13,
+      edition?.isbn10,
+      searchDoc?.isbn,
     ]);
 
-    final workId = _workIdFromEdition(editionRaw) ?? _workId(workRaw);
-    final editionId = _editionId(editionRaw) ?? _editionKey(searchDoc);
+    final workId =
+        _workIdFromEditionModel(edition) ?? _normalizeProviderId(work?.key);
+    final editionId = _editionIdModel(edition) ?? _editionKeyModel(searchDoc);
     final primaryId = workId ?? editionId ?? '';
 
-    final publishDateRaw =
-        editionRaw?['publish_date'] ?? searchDoc?['first_publish_year'];
+    final publishDateRaw = edition?.publishDate ?? searchDoc?.firstPublishYear;
     final releaseDate = _parseDate(publishDateRaw);
 
-    final subjects = workRaw?['subjects'];
     final genres = <String>[];
-    if (subjects is List) {
-      for (final s in subjects) {
-        if (s != null && s.toString().trim().isNotEmpty) {
-          genres.add(s.toString().trim());
-          if (genres.length >= 20) break;
-        }
+    for (final subject in work?.subjects ?? const <String>[]) {
+      if (subject.trim().isNotEmpty) {
+        genres.add(subject.trim());
+        if (genres.length >= 20) break;
       }
     }
 
     final publisher = _firstText([
-      editionRaw?['publishers'],
-      searchDoc?['publisher'],
+      edition?.publishers,
+      searchDoc?.publishers,
     ]);
 
-    final pageCount = _parseInt(editionRaw?['number_of_pages']);
+    final pageCount = edition?.numberOfPages;
 
     final creators = <Map<String, dynamic>>[];
-    final authors = _textList(searchDoc?['author_name']);
+    final authors = searchDoc?.authorNames ?? const <String>[];
     for (final author in authors) {
       creators.add(<String, dynamic>{
         'name': author,
@@ -283,8 +293,11 @@ class OpenLibraryProvider extends ProviderAdapter {
       volumeProviderIds['openlibrary'] = workId;
     }
 
-    final coverUrl =
-        _coverUrl(editionRaw ?? searchDoc ?? workRaw ?? {}, isbn: isbn);
+    final coverUrl = _coverUrlTyped(
+      edition: edition,
+      searchDoc: searchDoc,
+      isbn: isbn,
+    );
 
     return {
       'kind': 'book',
@@ -312,12 +325,13 @@ class OpenLibraryProvider extends ProviderAdapter {
     };
   }
 
-  ProviderSearchResult _searchResultFromDoc(Map<String, dynamic> doc) {
-    final title = _optionalText(doc['title']) ?? 'Unknown Open Library book';
-    final providerItemId = _editionKey(doc) ?? _workId(doc) ?? '';
-    final authors = _textList(doc['author_name']);
-    final publishers = _textList(doc['publisher']);
-    final firstPublishYear = _optionalText(doc['first_publish_year']);
+  ProviderSearchResult _searchResultFromDoc(OpenLibrarySearchDoc doc) {
+    final title = doc.title ?? 'Unknown Open Library book';
+    final providerItemId =
+        _editionKeyModel(doc) ?? _normalizeProviderId(doc.key) ?? '';
+    final authors = doc.authorNames;
+    final publishers = doc.publishers;
+    final firstPublishYear = doc.firstPublishYear?.toString();
 
     final summaryParts = <String>[];
     if (authors.isNotEmpty) {
@@ -330,7 +344,7 @@ class OpenLibraryProvider extends ProviderAdapter {
       summaryParts.add(publishers.first);
     }
 
-    final isbn = _firstText([doc['isbn']]);
+    final isbn = _firstText([doc.isbn]);
 
     return ProviderSearchResult(
       provider: name,
@@ -338,7 +352,10 @@ class OpenLibraryProvider extends ProviderAdapter {
       title: title,
       kind: 'book',
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
-      imageUrl: _coverUrl(doc, isbn: isbn),
+      imageUrl: _coverUrlTyped(
+        searchDoc: doc,
+        isbn: isbn,
+      ),
       publisher: publishers.isNotEmpty ? publishers.first : null,
     );
   }
@@ -366,42 +383,34 @@ class OpenLibraryProvider extends ProviderAdapter {
     return text.startsWith('OL') ? text : 'OL$text';
   }
 
-  String? _editionKey(Map<String, dynamic>? data) {
+  String? _editionKeyModel(OpenLibrarySearchDoc? data) {
     if (data == null) return null;
-    final editionKeys = data['edition_key'];
-    final editionId = _firstText([editionKeys]);
+    final editionId = _firstText([data.editionKeys]);
     if (editionId != null) {
       return _normalizeProviderId(editionId);
     }
-    return _editionId(data);
+    return _normalizeProviderId(data.key);
   }
 
-  String? _editionId(Map<String, dynamic>? data) {
+  String? _editionIdModel(OpenLibraryEdition? data) {
     if (data == null) return null;
-    final key = data['key'] ?? data['ocaid'];
-    return _normalizeProviderId(key?.toString());
+    return _normalizeProviderId(data.key ?? data.ocaid);
   }
 
-  String? _workId(Map<String, dynamic>? data) {
-    if (data == null) return null;
-    final key = data['key'];
-    return _normalizeProviderId(key?.toString());
+  String? _workIdFromEditionModel(OpenLibraryEdition? data) {
+    if (data == null || data.works.isEmpty) return null;
+    return _normalizeProviderId(data.works.first.key);
   }
 
-  String? _workIdFromEdition(Map<String, dynamic>? data) {
-    if (data == null) return null;
-    final works = data['works'];
-    if (works is List && works.isNotEmpty) {
-      final first = works.first;
-      if (first is Map) {
-        return _normalizeProviderId(first['key']?.toString());
-      }
-    }
-    return null;
-  }
-
-  String? _coverUrl(Map<String, dynamic> data, {String? isbn}) {
-    final coverId = _firstText([data['covers'], data['cover_i']]);
+  String? _coverUrlTyped({
+    OpenLibraryEdition? edition,
+    OpenLibrarySearchDoc? searchDoc,
+    String? isbn,
+  }) {
+    final coverId = _firstText([
+      edition?.covers,
+      searchDoc?.coverId,
+    ]);
     if (coverId != null && coverId.isNotEmpty && coverId != '-1') {
       return '$coversBaseUrl/b/id/$coverId-L.jpg';
     }
@@ -409,13 +418,6 @@ class OpenLibraryProvider extends ProviderAdapter {
       return '$coversBaseUrl/b/isbn/$isbn-L.jpg';
     }
     return null;
-  }
-
-  String? _description(dynamic value) {
-    if (value is Map) {
-      return _optionalText(value['value']);
-    }
-    return _optionalText(value);
   }
 
   DateTime? _parseDate(dynamic value) {
@@ -434,14 +436,6 @@ class OpenLibraryProvider extends ProviderAdapter {
     return null;
   }
 
-  int? _parseInt(dynamic value) {
-    if (value is num) return value.toInt();
-    if (value != null) {
-      return int.tryParse(value.toString());
-    }
-    return null;
-  }
-
   String? _firstText(List<dynamic> values) {
     for (final val in values) {
       if (val is List) {
@@ -455,19 +449,6 @@ class OpenLibraryProvider extends ProviderAdapter {
       }
     }
     return null;
-  }
-
-  List<String> _textList(dynamic value) {
-    if (value is List) {
-      final list = <String>[];
-      for (final item in value) {
-        final t = _optionalText(item);
-        if (t != null) list.add(t);
-      }
-      return list;
-    }
-    final t = _optionalText(value);
-    return t != null ? [t] : [];
   }
 
   String? _optionalText(dynamic value) {
