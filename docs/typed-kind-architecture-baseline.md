@@ -334,4 +334,31 @@ creator/key-event values, release variants, and composite release ownership.
 - [x] Comic local mapper exported through the Comic domain surface.
 - [x] Persistence round-trip contract added.
 
-Next work is PR 15: create the typed Comic repository.
+## PR 15 Comic Repository
+
+`ComicRepository` now exposes typed media and release operations over the Comic
+local tables. It assembles media aggregates by loading their separately stored
+releases, searches the local Comic media table with deterministic ordering, and
+constrains release reads by both media and release identity.
+
+Media updates persist the parent and embedded releases in one transaction.
+Release updates use the composite parent/release key. An empty embedded release
+list does not delete existing rows, so replacement semantics remain an
+explicit future operation rather than an accidental side effect of an update.
+
+The repository optionally falls back to the typed `ComicRemoteSource` on a
+local media miss, then caches the fetched aggregate through the same local
+mapper. It returns only `ComicMedia` and `ComicRelease` values and does not
+dual-write the legacy generic catalog cache.
+
+Focused repository coverage verifies local aggregate assembly, typed search,
+composite release lookup, upsert behavior, remote fallback, and missing-media
+behavior without a remote source.
+
+- [x] Typed Comic media/release repository added.
+- [x] Local aggregate assembly and deterministic queries added.
+- [x] Optional typed remote fallback added.
+- [x] Repository contract coverage added.
+
+Next work is PR 16: define the typed Comic workspace projection and repository
+integration boundary.
