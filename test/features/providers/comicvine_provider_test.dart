@@ -26,6 +26,31 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('ComicVineProvider', () {
+    test('decodes issue aggregates into provider-native models', () {
+      final issue = ComicVineIssue.fromJson({
+        'id': 160294,
+        'issue_number': '1',
+        'volume': {
+          'name': 'Absolute Batman',
+          'start_year': '2024',
+          'publisher': {'name': 'DC Comics'},
+        },
+        'image': {'scale_large': 'https://example.com/cover.jpg'},
+        'person_credits': [
+          {'name': 'Scott Snyder', 'role': 'Writer'},
+        ],
+      });
+
+      expect(issue.id, '160294');
+      expect(issue.issueNumber, '1');
+      expect(issue.volume?.name, 'Absolute Batman');
+      expect(issue.volume?.startYear, 2024);
+      expect(issue.volume?.publisherName, 'DC Comics');
+      expect(issue.image?.scaleLarge, 'https://example.com/cover.jpg');
+      expect(issue.personCredits.single.name, 'Scott Snyder');
+      expect(issue.toJson()['volume']['name'], 'Absolute Batman');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = ComicVineProvider();
       expect(provider.name, 'comicvine');

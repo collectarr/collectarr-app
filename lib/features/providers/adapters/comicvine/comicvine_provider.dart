@@ -12,6 +12,7 @@ import '../../domain/models/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
+import 'models/comic_vine_issue.dart';
 
 class ComicVineProvider extends ProviderAdapter {
   ComicVineProvider({
@@ -97,7 +98,10 @@ class ComicVineProvider extends ProviderAdapter {
     for (final item in resultsList) {
       if (item is! Map) continue;
       final itemMap = Map<String, dynamic>.from(item);
-      final searchResult = _searchResultFromItem(itemMap, targetKind);
+      final searchResult = _searchResultFromIssue(
+        ComicVineIssue.fromJson(itemMap),
+        targetKind,
+      );
       if (searchResult.providerItemId.isNotEmpty) {
         results.add(searchResult);
       }
@@ -147,8 +151,9 @@ class ComicVineProvider extends ProviderAdapter {
 
     final raw = Map<String, dynamic>.from(rawItem);
     raw['media_type'] = targetKind;
+    final issue = ComicVineIssue.fromJson(raw);
 
-    final normalized = normalize(raw);
+    final normalized = normalizeIssue(issue);
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -164,25 +169,20 @@ class ComicVineProvider extends ProviderAdapter {
       );
     }
 
-    final variantCovers = normalized['variant_covers'];
-    if (variantCovers is List) {
-      for (final vc in variantCovers) {
-        if (vc is Map) {
-          final vcUrl = _optionalText(vc['cover_image_url']);
-          final thumbUrl = _optionalText(vc['thumbnail_image_url']);
-          if (vcUrl != null) {
-            images.add(
-              ProviderImageRef(
-                provider: name,
-                url: vcUrl,
-                thumbnailUrl: thumbUrl,
-                kind: 'variant_cover',
-                attribution: 'Comic Vine',
-                cachePolicy: descriptor.cachePolicy,
-              ),
-            );
-          }
-        }
+    for (final variant in issue.associatedImages) {
+      final vcUrl = _extractImageUrl(variant);
+      if (vcUrl != null) {
+        images.add(
+          ProviderImageRef(
+            provider: name,
+            url: vcUrl,
+            thumbnailUrl:
+                variant.squareMini ?? variant.iconUrl ?? variant.thumbUrl,
+            kind: 'variant_cover',
+            attribution: 'Comic Vine',
+            cachePolicy: descriptor.cachePolicy,
+          ),
+        );
       }
     }
 
@@ -210,25 +210,25 @@ class ComicVineProvider extends ProviderAdapter {
   }
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
-    final rawKind = _optionalText(data['media_type']) ?? 'comic';
-    final issueNumber = _optionalText(data['issue_number']);
-    final volume = data['volume'] is Map
-        ? Map<String, dynamic>.from(data['volume'] as Map)
-        : null;
-    final volumeName = _optionalText(volume?['name']);
-    final issueName = _optionalText(data['name']);
+    return normalizeIssue(ComicVineIssue.fromJson(data));
+  }
+
+  Map<String, dynamic> normalizeIssue(ComicVineIssue issue) {
+    final rawKind = issue.mediaType ?? 'comic';
+    final issueNumber = issue.issueNumber;
+    final volumeName = issue.volume?.name;
+    final issueName = issue.name;
 
     final title = _buildTitle(
         volumeName: volumeName, issueName: issueName, issueNumber: issueNumber);
-    final synopsis = _cleanHtml(
-        _optionalText(data['description']) ?? _optionalText(data['deck']));
-    final coverUrl = _extractImageUrl(data['image']);
-    final creators = _extractCreators(data['person_credits']);
-    final publisher = _extractPublisher(volume);
-    final variantCovers = _extractVariantCovers(data['associated_images']);
-    final volumeStartYear = _parseInt(volume?['start_year']);
+    final synopsis = _cleanHtml(issue.description ?? issue.deck);
+    final coverUrl = _extractImageUrl(issue.image);
+    final creators = _extractCreators(issue.personCredits);
+    final publisher = issue.volume?.publisherName;
+    final variantCovers = _extractVariantCovers(issue.associatedImages);
+    final volumeStartYear = issue.volume?.startYear;
 
-    final canonicalId = _canonicalIssueId(_optionalText(data['id']));
+    final canonicalId = _canonicalIssueId(issue.id);
     final providerIds = <String, String>{};
     if (canonicalId.isNotEmpty) {
       providerIds['comicvine'] = canonicalId;
@@ -259,16 +259,15 @@ class ComicVineProvider extends ProviderAdapter {
     };
   }
 
-  ProviderSearchResult _searchResultFromItem(
-      Map<String, dynamic> item, String kind) {
-    final issueNumber = _optionalText(item['issue_number']);
-    final volume = item['volume'] is Map ? item['volume'] as Map : null;
-    final volumeName = _optionalText(volume?['name']);
-    final issueName = _optionalText(item['name']);
+  ProviderSearchResult _searchResultFromIssue(
+      ComicVineIssue issue, String kind) {
+    final issueNumber = issue.issueNumber;
+    final volumeName = issue.volume?.name;
+    final issueName = issue.name;
 
     final title = _buildTitle(
         volumeName: volumeName, issueName: issueName, issueNumber: issueNumber);
-    final canonicalId = _canonicalIssueId(_optionalText(item['id']));
+    final canonicalId = _canonicalIssueId(issue.id);
 
     final summaryParts = <String>[
       if (volumeName != null && volumeName.isNotEmpty) volumeName,
@@ -281,7 +280,7 @@ class ComicVineProvider extends ProviderAdapter {
       title: title,
       kind: kind,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' ') : null,
-      imageUrl: _extractImageUrl(item['image']),
+      imageUrl: _extractImageUrl(issue.image),
       seriesTitle: volumeName,
       issueNumber: issueNumber,
     );
@@ -341,31 +340,20 @@ class ComicVineProvider extends ProviderAdapter {
     return 'Unknown Comic';
   }
 
-  String? _extractImageUrl(dynamic imageObj) {
-    if (imageObj is! Map) return null;
-    return _optionalText(imageObj['super_url']) ??
-        _optionalText(imageObj['medium_url']) ??
-        _optionalText(imageObj['scale_large']) ??
-        _optionalText(imageObj['original_url']);
+  String? _extractImageUrl(ComicVineImage? image) {
+    return image?.superUrl ??
+        image?.mediumUrl ??
+        image?.scaleLarge ??
+        image?.originalUrl;
   }
 
-  String? _extractPublisher(Map<String, dynamic>? volume) {
-    if (volume == null) return null;
-    final publisher = volume['publisher'];
-    if (publisher is Map) {
-      return _optionalText(publisher['name']);
-    }
-    return null;
-  }
-
-  List<Map<String, dynamic>> _extractCreators(dynamic personCredits) {
-    if (personCredits is! List) return [];
+  List<Map<String, dynamic>> _extractCreators(
+      Iterable<ComicVinePerson> personCredits) {
     final creators = <Map<String, dynamic>>[];
 
     for (final person in personCredits) {
-      if (person is! Map) continue;
-      final name = _optionalText(person['name']);
-      final role = _optionalText(person['role']);
+      final name = person.name;
+      final role = person.role;
       if (name != null && name.isNotEmpty) {
         creators.add(<String, dynamic>{
           'name': name,
@@ -377,19 +365,14 @@ class ComicVineProvider extends ProviderAdapter {
     return creators;
   }
 
-  List<Map<String, dynamic>> _extractVariantCovers(dynamic associatedImages) {
-    if (associatedImages is! List) return [];
+  List<Map<String, dynamic>> _extractVariantCovers(
+      Iterable<ComicVineImage> associatedImages) {
     final variants = <Map<String, dynamic>>[];
 
     for (final img in associatedImages) {
-      if (img is! Map) continue;
-      final url = _optionalText(img['scale_large']) ??
-          _optionalText(img['original_url']) ??
-          _optionalText(img['super_url']);
-      final thumb = _optionalText(img['square_mini']) ??
-          _optionalText(img['icon_url']) ??
-          _optionalText(img['thumb_url']);
-      final caption = _optionalText(img['caption']) ?? 'Variant Cover';
+      final url = img.scaleLarge ?? img.originalUrl ?? img.superUrl;
+      final thumb = img.squareMini ?? img.iconUrl ?? img.thumbUrl;
+      final caption = img.caption ?? 'Variant Cover';
 
       if (url != null) {
         variants.add({
@@ -409,14 +392,6 @@ class ComicVineProvider extends ProviderAdapter {
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
     return withoutTags.isNotEmpty ? withoutTags : null;
-  }
-
-  int? _parseInt(dynamic value) {
-    if (value is num) return value.toInt();
-    if (value != null) {
-      return int.tryParse(value.toString().trim());
-    }
-    return null;
   }
 
   String? _optionalText(dynamic value) {
