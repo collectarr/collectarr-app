@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -286,6 +287,42 @@ abstract final class ComicKindSchema {
     getValue: (dto) => dto.pageCount,
   );
 }
+
+final comicLibraryFacetDefinitions =
+    <LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>>[
+  LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
+    id: ComicFacetIds.publisher,
+    label: 'Publisher',
+    extractValues: (dto) => [
+      if (dto.publisher case final publisher?) publisher,
+    ],
+  ),
+  LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
+    id: ComicFacetIds.genre,
+    label: 'Genre',
+    extractValues: (dto) => dto.metadata?.genres ?? const <String>[],
+  ),
+  LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
+    id: ComicFacetIds.character,
+    label: 'Character',
+    extractValues: (dto) => dto.comic.characters,
+  ),
+  LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
+    id: ComicFacetIds.storyArc,
+    label: 'Story Arc',
+    extractValues: (dto) => dto.comic.storyArcs,
+  ),
+  LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
+    id: ComicFacetIds.writer,
+    label: 'Writer',
+    extractValues: (dto) => dto.metadata?.writers ?? const <String>[],
+  ),
+  LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
+    id: ComicFacetIds.artist,
+    label: 'Artist',
+    extractValues: (dto) => dto.metadata?.artists ?? const <String>[],
+  ),
+];
 
 final comicLibraryFieldDefinitions = [
   ComicKindSchema.title,

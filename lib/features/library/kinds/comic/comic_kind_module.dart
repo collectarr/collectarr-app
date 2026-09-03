@@ -8,7 +8,6 @@ import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
@@ -356,9 +355,10 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     ],
   ),
   providerMapper: const ComicLibraryKindProviderMapper(),
-  facets: const LibraryFacetModule(
+  facets: LibraryFacetModule(
     loadRows: _loadComicFacetRows,
     getFacetValues: _getFacetValues,
+    definitions: comicLibraryFacetDefinitions,
     externalFacetBucketIdsByMode: {
       'comic.story_arc': ComicFacetIds.storyArc,
       'comic.character': ComicFacetIds.character,
@@ -398,23 +398,14 @@ Future<List<LibraryHierarchyNode>> _fetchComicVolumes({
 
 Iterable<String> _getFacetValues(
     LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId) {
-  final source = item.source.catalogItem;
-  final metadata = source?.kindMetadata;
-  final catalogItem = metadata is ComicCatalogMetadata
-      ? ComicCatalogMapper.mapMetadataToComic(metadata, id: source!.identity.id)
-      : null;
-  if (facetId == ComicFacetIds.character) {
-    return catalogItem?.characters ?? const [];
+  final dto = item.dto;
+  if (dto is! ComicWorkspaceDto) {
+    return const [];
   }
-  if (facetId == ComicFacetIds.storyArc) {
-    return catalogItem?.storyArcs ?? const [];
-  }
-  if (facetId == ComicFacetIds.genre) {
-    return catalogItem?.genres ?? const [];
-  }
-  if (facetId == ComicFacetIds.publisher) {
-    final pub = catalogItem?.publisher;
-    return pub != null ? [pub] : const [];
+  for (final definition in comicLibraryFacetDefinitions) {
+    if (definition.id.sameIdentityAs(facetId)) {
+      return definition.extractValues(dto);
+    }
   }
   return const [];
 }

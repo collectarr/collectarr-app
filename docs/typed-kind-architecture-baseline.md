@@ -360,5 +360,23 @@ behavior without a remote source.
 - [x] Optional typed remote fallback added.
 - [x] Repository contract coverage added.
 
-Next work is PR 16: define the typed Comic workspace projection and repository
-integration boundary.
+## PR 16 Comic Workspace Typed Facets
+
+Comic workspace facets are now declared by the Comic schema as typed
+`LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>` values for
+publisher, genre, character, story arc, writer, and artist. The Comic module
+registers those definitions and its erased runtime callback delegates to the
+matching typed extractor instead of rebuilding Comic metadata from the generic
+catalog cache.
+
+Focused workspace coverage verifies the complete facet ID and label surface,
+typed extraction for all six facets, and runtime delegation through the
+existing compatibility callback.
+
+- [x] Typed Comic facet definitions added.
+- [x] Comic facet definitions registered in the kind module.
+- [x] Runtime facet adapter delegates to typed workspace values.
+- [x] Focused Comic workspace facet contract added.
+
+Next work is PR 17: move the remaining Comic vocabulary ownership into the
+typed kind module.
