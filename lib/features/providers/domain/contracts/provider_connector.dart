@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_descrip
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_result.dart';
 
 abstract interface class MetadataCapability {
@@ -111,6 +112,26 @@ final class ProviderConnector implements MetadataCapability {
   bool get supportsBarcode => barcode != null;
   bool get supportsBidirectionalSync =>
       personalRead != null && personalWrite != null;
+
+  Future<List<ProviderSearchHit>> searchHits(
+    String query, {
+    Object? kind,
+    int limit = 25,
+  }) async {
+    final results = await search(query, kind: kind, limit: limit);
+    return [
+      for (final result in results)
+        if (result.providerItemId.trim().isNotEmpty)
+          ProviderSearchHit(
+            providerId: id,
+            kind: catalogMediaKindFromApiValue(result.kind),
+            remoteId: result.providerItemId,
+            title: result.title,
+            subtitle: result.summary,
+            imageUrl: result.imageUrl,
+          ),
+    ];
+  }
 
   bool get canImport => supportsFileImport;
   bool get canPull => supportsPersonalRead;

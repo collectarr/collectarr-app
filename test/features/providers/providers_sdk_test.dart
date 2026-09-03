@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -94,6 +95,26 @@ void main() {
       expect(restored.characterPreview, contains('Bilbo'));
       expect(restored.storyArcPreview, contains('The Quest of Erebor'));
       expect(restored.externalIds['isbn'], '1234567890');
+    });
+
+    test('ProviderConnector exposes summary-only typed search hits', () async {
+      final connector = _FakeTestProvider(
+        descriptor: const ProviderDescriptor(
+          name: 'openlibrary',
+          displayName: 'Open Library',
+          kind: 'book',
+        ),
+      ).toConnector();
+
+      final hits = await connector.searchHits('The Hobbit');
+
+      expect(hits, hasLength(1));
+      expect(hits.single.providerId, ProviderId.openLibrary);
+      expect(hits.single.kind, CatalogMediaKind.book);
+      expect(hits.single.remoteId, 'item-1');
+      expect(hits.single.title, 'Search Result: The Hobbit');
+      expect(hits.single.subtitle, isNull);
+      expect(hits.single.imageUrl, isNull);
     });
 
     test('ProviderException hierarchy retains codes and causes', () {

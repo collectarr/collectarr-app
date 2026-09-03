@@ -30,6 +30,7 @@ export 'domain/models/provider_exception.dart';
 export 'domain/models/provider_image_ref.dart';
 export 'domain/models/provider_provenance.dart';
 export 'domain/models/provider_search_result.dart';
+export 'domain/models/provider_search_hit.dart';
 export 'domain/contracts/provider_connector.dart';
 export 'domain/engine/external_state_engine.dart';
 export 'domain/models/mutation_origin.dart';
