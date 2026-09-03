@@ -468,4 +468,29 @@ variant preservation, and release identity validation.
 - [x] Comic publisher and imprint vocabulary bindings added.
 - [x] Release and Release Edit contracts with focused coverage added.
 
-Next work is PR 21: define the typed Comic Owned Edit schema.
+## PR 21 Comic Owned Edit Schema
+
+Comic-owned grading, signature, key-issue, preservation, and cover-price
+values now have a dedicated `ComicOwnedEditDraft`. The draft covers the full
+typed `ComicOwnedDetails` surface, including custom labels and key severity,
+and can produce both the domain model and the existing owned-details command
+draft for compatibility with current edit flows.
+
+`comic_owned_edit_schema.dart` declares one Owned tab with explicit Collector,
+Signature, Key comic, and Preservation and value sections. Raw/slabbed uses a
+typed selection, page quality and key category use Comic-owned vocabularies,
+and key reason/category/severity become visible only when Key comic is
+enabled. Cover price uses the shared money field shape while its validation
+remains owned by the Comic schema.
+
+The focused Owned Edit contract verifies unique tabs and fields, labels,
+vocabulary bindings, visibility transitions, complete typed round trips, and
+negative cover-price validation. The existing hardcoded pane remains the
+runtime adapter until the later migration steps consume this schema.
+
+- [x] Typed Comic Owned Edit draft added.
+- [x] Collector, signature, key, preservation, and value sections declared.
+- [x] Comic page-quality and key-category vocabulary bindings added.
+- [x] Owned Edit contract and focused schema coverage added.
+
+Next work is PR 22: type Comic hierarchy, stats, and value semantics.
