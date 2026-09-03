@@ -137,6 +137,7 @@ class ProviderSyncCoordinator {
         authType: account.authType,
         remoteAccountId: account.remoteAccountId,
         remoteHandle: account.remoteHandle,
+        username: account.username,
         avatarUrl: account.avatarUrl,
         connectedAt: account.connectedAt,
         lastSyncAt: DateTime.now().toUtc(),
