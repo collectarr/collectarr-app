@@ -26,6 +26,55 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('MusicBrainzProvider', () {
+    test('decodes native MusicBrainz release models', () {
+      final release = MusicBrainzRelease.fromJson({
+        'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+        'title': 'The Dark Side of the Moon',
+        'date': '1973-03-01',
+        'artist-credit': [
+          {
+            'artist': {
+              'id': '83d91898-7763-47d7-b03b-b92132375c47',
+              'name': 'Pink Floyd',
+            },
+          },
+        ],
+        'release-group': {
+          'id': 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+          'title': 'The Dark Side of the Moon',
+        },
+        'label-info': [
+          {
+            'catalog-number': 'SHVL 804',
+            'label': {'name': 'Harvest'},
+          },
+        ],
+        'media': [
+          {
+            'track-count': 1,
+            'format': 'Vinyl',
+            'tracks': [
+              {'position': 1, 'title': 'Speak to Me', 'length': 67000},
+            ],
+          },
+        ],
+        'cover-art-archive': {'artwork': true, 'front': true},
+        'genres': [
+          {'name': 'Progressive Rock'},
+        ],
+      });
+
+      expect(release.id, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
+      expect(release.artistCredits.single.artist?.name, 'Pink Floyd');
+      expect(release.releaseGroup?.id, 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
+      expect(release.labelInfo.single.catalogNumber, 'SHVL 804');
+      expect(release.labelInfo.single.label?.name, 'Harvest');
+      expect(release.media.single.tracks.single.length, 67000);
+      expect(release.coverArtArchive?.front, isTrue);
+      expect(release.genres, ['Progressive Rock']);
+      expect(release.toJson()['title'], 'The Dark Side of the Moon');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = MusicBrainzProvider();
       expect(provider.name, 'musicbrainz');

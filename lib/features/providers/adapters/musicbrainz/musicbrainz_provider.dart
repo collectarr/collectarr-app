@@ -11,6 +11,7 @@ import '../../domain/models/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
+import 'models/musicbrainz_release.dart';
 
 final RegExp _mbidRegex = RegExp(
   r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
@@ -93,8 +94,9 @@ class MusicBrainzProvider extends ProviderAdapter {
     final results = <ProviderSearchResult>[];
     for (final release in releases.take(limit)) {
       if (release is! Map) continue;
-      final releaseMap = Map<String, dynamic>.from(release);
-      final searchResult = _searchResultFromRelease(releaseMap);
+      final typedRelease =
+          MusicBrainzRelease.fromJson(Map<String, dynamic>.from(release));
+      final searchResult = _searchResultFromRelease(typedRelease);
       if (searchResult.providerItemId.isNotEmpty) {
         results.add(searchResult);
       }
@@ -143,7 +145,8 @@ class MusicBrainzProvider extends ProviderAdapter {
     }
 
     final raw = Map<String, dynamic>.from(data);
-    final normalized = normalize(raw);
+    final release = MusicBrainzRelease.fromJson(raw);
+    final normalized = normalizeRelease(release);
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -182,19 +185,21 @@ class MusicBrainzProvider extends ProviderAdapter {
   }
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
-    final providerItemId = _optionalText(data['id']);
-    final title = _optionalText(data['title']) ?? 'Unknown release';
-    final releaseGroup =
-        data['release-group'] is Map ? data['release-group'] as Map : null;
-    final releaseDate = _parseDate(data['date']);
-    final artistNames = _extractArtistNames(data['artist-credit']);
-    final media = data['media'];
-    final (trackCount, mediumFormats, tracks) = _extractMediaDetails(media);
-    final publisher = _extractPublisher(data);
-    final catalogNumber = _extractCatalogNumber(data);
-    final barcode = _optionalText(data['barcode']);
-    final coverUrl = _extractCoverUrl(data);
-    final genres = _extractGenres(data);
+    return normalizeRelease(MusicBrainzRelease.fromJson(data));
+  }
+
+  Map<String, dynamic> normalizeRelease(MusicBrainzRelease release) {
+    final providerItemId = release.id;
+    final title = release.title ?? 'Unknown release';
+    final releaseDate = _parseDate(release.date);
+    final artistNames = _extractArtistNames(release.artistCredits);
+    final (trackCount, mediumFormats, tracks) =
+        _extractMediaDetails(release.media);
+    final publisher = _extractPublisher(release.labelInfo);
+    final catalogNumber = _extractCatalogNumber(release.labelInfo);
+    final barcode = release.barcode;
+    final coverUrl = _extractCoverUrl(release);
+    final genres = release.genres.isNotEmpty ? release.genres : release.tags;
 
     final creators = artistNames
         .map((name) => <String, dynamic>{
@@ -210,7 +215,7 @@ class MusicBrainzProvider extends ProviderAdapter {
     }
 
     final volumeProviderIds = <String, String>{};
-    final releaseGroupId = releaseGroup?['id']?.toString();
+    final releaseGroupId = release.releaseGroup?.id;
     if (releaseGroupId != null && releaseGroupId.isNotEmpty) {
       volumeProviderIds['musicbrainz'] = releaseGroupId;
     }
@@ -241,13 +246,12 @@ class MusicBrainzProvider extends ProviderAdapter {
     };
   }
 
-  ProviderSearchResult _searchResultFromRelease(Map<String, dynamic> release) {
-    final title =
-        _optionalText(release['title']) ?? 'Unknown MusicBrainz release';
-    final providerItemId = _optionalText(release['id']) ?? '';
-    final artistNames = _extractArtistNames(release['artist-credit']);
-    final date = _optionalText(release['date']);
-    final country = _optionalText(release['country']);
+  ProviderSearchResult _searchResultFromRelease(MusicBrainzRelease release) {
+    final title = release.title ?? 'Unknown MusicBrainz release';
+    final providerItemId = release.id ?? '';
+    final artistNames = _extractArtistNames(release.artistCredits);
+    final date = release.date;
+    final country = release.country;
 
     final summaryParts = <String>[
       if (artistNames.isNotEmpty) artistNames.join(', '),
@@ -265,14 +269,13 @@ class MusicBrainzProvider extends ProviderAdapter {
     );
   }
 
-  List<String> _extractArtistNames(dynamic artistCredit) {
-    if (artistCredit is! List) return [];
+  List<String> _extractArtistNames(
+    List<MusicBrainzArtistCredit> artistCredits,
+  ) {
     final names = <String>[];
-    for (final credit in artistCredit) {
-      if (credit is! Map) continue;
-      final artist = credit['artist'];
-      final name = artist is Map ? _optionalText(artist['name']) : null;
-      final creditName = _optionalText(credit['name']);
+    for (final credit in artistCredits) {
+      final name = credit.artist?.name;
+      final creditName = credit.name;
       final finalName = name ?? creditName;
       if (finalName != null && finalName.isNotEmpty) {
         names.add(finalName);
@@ -281,64 +284,39 @@ class MusicBrainzProvider extends ProviderAdapter {
     return names;
   }
 
-  String? _extractPublisher(Map<String, dynamic> data) {
-    final labels = data['label-info'];
-    if (labels is! List) return null;
-    for (final entry in labels) {
-      if (entry is! Map) continue;
-      final label = entry['label'];
-      if (label is Map) {
-        final name = _optionalText(label['name']);
-        if (name != null && name.isNotEmpty) return name;
+  String? _extractPublisher(List<MusicBrainzLabelInfo> labelInfo) {
+    for (final entry in labelInfo) {
+      final name = entry.label?.name;
+      if (name != null && name.isNotEmpty) return name;
+    }
+    return null;
+  }
+
+  String? _extractCatalogNumber(List<MusicBrainzLabelInfo> labelInfo) {
+    for (final entry in labelInfo) {
+      final catalogNumber = entry.catalogNumber;
+      if (catalogNumber != null && catalogNumber.isNotEmpty) {
+        return catalogNumber;
       }
     }
     return null;
   }
 
-  String? _extractCatalogNumber(Map<String, dynamic> data) {
-    final labels = data['label-info'];
-    if (labels is! List) return null;
-    for (final entry in labels) {
-      if (entry is! Map) continue;
-      final cat = _optionalText(entry['catalog-number']);
-      if (cat != null && cat.isNotEmpty) return cat;
-    }
-    return null;
-  }
-
-  String? _extractCoverUrl(Map<String, dynamic> data) {
-    final id = _optionalText(data['id']);
+  String? _extractCoverUrl(MusicBrainzRelease release) {
+    final id = release.id;
     if (id == null || id.isEmpty) return null;
 
-    final caa = data['cover-art-archive'];
-    final hasArtwork =
-        caa is Map && (caa['artwork'] == true || caa['front'] == true);
+    final caa = release.coverArtArchive;
+    final hasArtwork = caa != null && (caa.artwork || caa.front);
     if (hasArtwork || id.isNotEmpty) {
       return '$coverArtArchiveBaseUrl/release/$id/front.jpg';
     }
     return null;
   }
 
-  List<String> _extractGenres(Map<String, dynamic> data) {
-    final genres = data['genres'] ?? data['tags'];
-    if (genres is List) {
-      final list = <String>[];
-      for (final g in genres) {
-        if (g is Map) {
-          final name = _optionalText(g['name']);
-          if (name != null) list.add(name);
-        } else if (g != null && g.toString().trim().isNotEmpty) {
-          list.add(g.toString().trim());
-        }
-      }
-      return list;
-    }
-    return [];
-  }
-
   (int?, List<String>, List<Map<String, dynamic>>) _extractMediaDetails(
-      dynamic media) {
-    if (media is! List || media.isEmpty) {
+      List<MusicBrainzMedium> media) {
+    if (media.isEmpty) {
       return (null, <String>[], <Map<String, dynamic>>[]);
     }
 
@@ -348,33 +326,27 @@ class MusicBrainzProvider extends ProviderAdapter {
 
     for (var discIndex = 1; discIndex <= media.length; discIndex++) {
       final medium = media[discIndex - 1];
-      if (medium is! Map) continue;
 
-      final count = _parseInt(medium['track-count']);
+      final count = medium.trackCount;
       if (count != null && count > 0) {
         totalTracks += count;
       }
 
-      final fmt = _optionalText(medium['format']);
+      final fmt = medium.format;
       if (fmt != null && !formats.contains(fmt)) {
         formats.add(fmt);
       }
 
-      final rawTracks = medium['tracks'];
-      if (rawTracks is! List) continue;
-
-      for (final rawTrack in rawTracks) {
-        if (rawTrack is! Map) continue;
-        final position = _parseInt(rawTrack['position']);
+      for (final rawTrack in medium.tracks) {
+        final position = rawTrack.position;
         if (position == null) continue;
 
-        final title = _optionalText(rawTrack['title']) ?? 'Untitled';
-        final lengthMs = rawTrack['length'];
+        final title = rawTrack.title ?? 'Untitled';
+        final lengthMs = rawTrack.length;
         final durationSeconds =
-            (lengthMs is num && lengthMs > 0) ? (lengthMs ~/ 1000) : null;
+            (lengthMs != null && lengthMs > 0) ? (lengthMs ~/ 1000) : null;
 
-        final artistCredit = rawTrack['artist-credit'];
-        final artistNames = _extractArtistNames(artistCredit);
+        final artistNames = _extractArtistNames(rawTrack.artistCredits);
         final artist = artistNames.isNotEmpty ? artistNames.join(', ') : null;
 
         tracks.add({

@@ -13,6 +13,7 @@ export 'adapters/igdb/models/igdb_game.dart';
 export 'adapters/mangadex/mangadex_provider.dart';
 export 'adapters/mangadex/models/mangadex_manga.dart';
 export 'adapters/musicbrainz/musicbrainz_provider.dart';
+export 'adapters/musicbrainz/models/musicbrainz_release.dart';
 export 'adapters/openlibrary/openlibrary_provider.dart';
 export 'adapters/openlibrary/models/open_library_book.dart';
 export 'adapters/provider_adapter.dart';
