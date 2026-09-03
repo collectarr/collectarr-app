@@ -486,7 +486,9 @@ remains owned by the Comic schema.
 The focused Owned Edit contract verifies unique tabs and fields, labels,
 vocabulary bindings, visibility transitions, complete typed round trips, and
 negative cover-price validation. The existing hardcoded pane remains the
-runtime adapter until the later migration steps consume this schema.
+runtime adapter for legacy fields, while the combined Comic editor now embeds
+the typed Owned schema for owned items without duplicating those fields in the
+old Value tab.
 
 - [x] Typed Comic Owned Edit draft added.
 - [x] Collector, signature, key, preservation, and value sections declared.
@@ -519,12 +521,12 @@ tests verify the typed dispatch and preserve the existing UI-facing behavior.
 
 ## PR 23 Comic Media Edit Runtime
 
-Comic media-scope editing now resolves to a kind-owned typed dialog builder.
-The builder reuses the existing Comic edit controller through
-`ComicMediaEditDraft`, renders `comicMediaEditSchema` with the generic schema
-renderer, and emits the existing `LibraryEditSelection` contract on Save. The
-Combined editor remains the compatibility surface while the remaining typed
-release, owned, and Add panes are migrated.
+Comic media-, release-, and owned-scope editing now resolve to kind-owned typed
+dialog builders. The builders reuse the existing Comic edit controllers through
+typed drafts, render their schemas with the generic schema renderer, and emit
+the existing `LibraryEditSelection` contract on Save. The Combined editor
+embeds the Owned schema only for owned items, while Release uses its dedicated
+dialog and Media keeps its existing scope.
 
 The shared Edit schema renderer now handles both typed select and vocabulary
 fields through erased callback adapters. Empty vocabulary values are represented
@@ -534,7 +536,18 @@ not populated.
 - [x] Comic Media scope registered with the typed schema runtime.
 - [x] Existing Comic edit draft/controller lifecycle reused.
 - [x] Typed Media schema runtime coverage added.
+- [x] Typed Release and Owned schema runtime coverage added.
 - [x] Select and vocabulary renderer dispatch made type-safe at runtime.
 
-Next work is wiring the typed Comic Release and Owned schemas into their
-runtime edit surfaces, followed by the declarative Add pane.
+The Comic Add pane now renders its Main and Collector fields through
+`comicAddSchema` and the generic Add renderer. Series remains an explicit
+authority picker because it is not a manual-draft property, while publisher and
+format options continue to come from the kind-owned vocabulary and pick-list
+services.
+
+- [x] Comic Add schema connected to the manual runtime pane.
+- [x] Runtime Add vocabulary options injected into the typed schema.
+- [x] Comic Add pane contract updated for schema-rendered fields.
+
+Next work is the remaining typed Comic Add workflow behavior and the follow-on
+kind runtime migrations.

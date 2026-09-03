@@ -15,6 +15,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
     this.onCancel,
     this.title,
     this.submitLabel = 'Add',
+    this.showFooter = true,
   });
 
   final AddSchema<TDraft> schema;
@@ -23,6 +24,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
   final VoidCallback? onCancel;
   final String? title;
   final String submitLabel;
+  final bool showFooter;
 
   @override
   State<AddSchemaRenderer<TDraft>> createState() =>
@@ -84,7 +86,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
                   child: _buildSections(context, visibleSections),
                 ),
               ),
-              _buildFooter(context),
+              if (widget.showFooter) _buildFooter(context),
             ],
           ),
         );
@@ -284,6 +286,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
     }
     return DropdownButtonFormField<TValue>(
       initialValue: value(widget.draft),
+      isExpanded: true,
       decoration: InputDecoration(
         labelText: baseField.label,
         errorText: baseField.validate(widget.draft),

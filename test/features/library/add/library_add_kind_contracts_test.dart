@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_dr
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
@@ -176,12 +177,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(LibraryFormSection), findsNWidgets(2));
-      expect(find.byType(LibraryResponsiveFormRow), findsWidgets);
+      expect(find.byType(LibraryFormSection), findsOneWidget);
+      expect(
+          find.byType(AddSchemaRenderer<ComicAddManualDraft>), findsOneWidget);
       expect(find.byType(LibraryAddManualActionBar), findsOneWidget);
       expect(find.text('Main'), findsOneWidget);
       expect(find.text('Collector'), findsOneWidget);
-      expect(find.text('Series'), findsOneWidget);
+      expect(find.text('Series'), findsNWidgets(2));
       expect(find.text('Issue No.'), findsOneWidget);
       expect(find.text('Variant'), findsOneWidget);
       expect(find.text('Raw / Slabbed'), findsOneWidget);
