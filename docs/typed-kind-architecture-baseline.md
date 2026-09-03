@@ -183,6 +183,17 @@ reused only as the structural option value for select and vocabulary fields.
 The focused contract covers all Add field primitives, typed draft mutation,
 section and field visibility, validation, and field ID/label invariants.
 
+## PR 10 Generic AddSchema Renderer
+
+`add_schema_renderer.dart` renders any `AddSchema<TDraft>` with shared section,
+field layout, validation, submit/cancel, responsive layout, and async error
+handling. It consumes only structural Add field specifications; kind-owned
+schemas continue to decide the fields, labels, options, visibility, and
+validation rules.
+
+Focused widget coverage exercises the structural field renderers, draft
+mutation through text input, successful submit, and validation blocking.
+
 ## Reproduction Commands
 
 Run from the repository root:
@@ -198,7 +209,7 @@ The first command is intentionally textual and over-inclusive. Results must be
 classified using the ownership rules above; names used only for labels or widget
 types are not architecture violations.
 
-## PR 0, PR 1, PR 2, PR 3, PR 4, PR 5, PR 6, PR 7, PR 8, and PR 9 Exit Criteria
+## PR 0, PR 1, PR 2, PR 3, PR 4, PR 5, PR 6, PR 7, PR 8, PR 9, and PR 10 Exit Criteria
 
 - [x] Baseline document created.
 - [x] Every suspect named by the migration plan is classified.
@@ -233,5 +244,8 @@ types are not architecture violations.
 - [x] Structural `AddSchema<TDraft>` models added.
 - [x] Add field specifications keep options and accessors typed.
 - [x] Add schema contract coverage added without introducing kind semantics.
+- [x] Generic `AddSchema<TDraft>` renderer added.
+- [x] Add renderer owns visual grammar, validation, submit/cancel, and async state.
+- [x] Add renderer widget coverage added without migrating existing kind dialogs.
 
-Next work is PR 10: add the generic `AddSchema<TDraft>` renderer.
+Next work is PR 11: introduce the Comic domain split.

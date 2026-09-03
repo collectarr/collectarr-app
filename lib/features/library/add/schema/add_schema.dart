@@ -150,6 +150,11 @@ final class SelectAddField<TDraft, TValue> extends AddFieldSpec<TDraft> {
   final TValue? Function(TDraft draft) value;
   final void Function(TDraft draft, TValue? value) setValue;
   final List<EditOption<TValue>> options;
+
+  TValue? currentValue(TDraft draft) => value(draft);
+
+  void updateValue(TDraft draft, TValue? nextValue) =>
+      setValue(draft, nextValue);
 }
 
 final class VocabularyAddField<TDraft, TValue> extends AddFieldSpec<TDraft> {
@@ -166,6 +171,11 @@ final class VocabularyAddField<TDraft, TValue> extends AddFieldSpec<TDraft> {
   final TValue? Function(TDraft draft) value;
   final void Function(TDraft draft, TValue? value) setValue;
   final List<EditOption<TValue>> options;
+
+  TValue? currentValue(TDraft draft) => value(draft);
+
+  void updateValue(TDraft draft, TValue? nextValue) =>
+      setValue(draft, nextValue);
 }
 
 final class MultiVocabularyAddField<TDraft, TValue>
@@ -183,6 +193,11 @@ final class MultiVocabularyAddField<TDraft, TValue>
   final Set<TValue> Function(TDraft draft) values;
   final void Function(TDraft draft, Set<TValue> values) setValues;
   final List<EditOption<TValue>> options;
+
+  Set<TValue> currentValues(TDraft draft) => values(draft);
+
+  void updateValues(TDraft draft, Set<TValue> nextValues) =>
+      setValues(draft, nextValues);
 }
 
 final class ImageAddField<TDraft, TValue> extends AddFieldSpec<TDraft> {
@@ -199,6 +214,11 @@ final class ImageAddField<TDraft, TValue> extends AddFieldSpec<TDraft> {
   final TValue? Function(TDraft draft) value;
   final void Function(TDraft draft, TValue? value) setValue;
   final FutureOr<TValue?> Function(TDraft draft)? select;
+
+  TValue? currentValue(TDraft draft) => value(draft);
+
+  void updateValue(TDraft draft, TValue? nextValue) =>
+      setValue(draft, nextValue);
 }
 
 final class ReadOnlyAddField<TDraft, TValue> extends AddFieldSpec<TDraft> {
@@ -213,6 +233,8 @@ final class ReadOnlyAddField<TDraft, TValue> extends AddFieldSpec<TDraft> {
 
   final TValue? Function(TDraft draft) value;
   final String Function(TValue? value) display;
+
+  String displayValue(TDraft draft) => display(value(draft));
 }
 
 final class CustomAddField<TDraft> extends AddFieldSpec<TDraft> {
