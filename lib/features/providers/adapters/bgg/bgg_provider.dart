@@ -14,6 +14,7 @@ import '../../domain/models/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
+import 'models/bgg_thing.dart';
 
 class BGGProvider extends ProviderAdapter {
   BGGProvider({
@@ -100,19 +101,12 @@ class BGGProvider extends ProviderAdapter {
 
     final results = <ProviderSearchResult>[];
     for (final item in items.take(limit)) {
-      final id = item.getAttribute('id');
+      final thing = BggThing.fromXml(item);
+      final id = thing.id;
       if (id == null || id.isEmpty) continue;
 
-      final nameElement = item.findElements('name').firstWhere(
-            (e) => e.getAttribute('type') == 'primary',
-            orElse: () => item.findElements('name').isNotEmpty
-                ? item.findElements('name').first
-                : XmlElement(const XmlName.parts('name')),
-          );
-      final title = nameElement.getAttribute('value') ?? 'Unknown Board Game';
-
-      final yearElement = item.findElements('yearpublished').firstOrNull;
-      final year = yearElement?.getAttribute('value');
+      final title = _primaryName(thing.names) ?? 'Unknown Board Game';
+      final year = thing.yearPublished?.toString();
 
       results.add(
         ProviderSearchResult(
@@ -179,8 +173,8 @@ class BGGProvider extends ProviderAdapter {
       );
     }
 
-    final raw = _thingItemRaw(itemElement);
-    final normalized = normalize(raw);
+    final thing = BggThing.fromXml(itemElement);
+    final normalized = normalizeThing(thing);
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -206,7 +200,8 @@ class BGGProvider extends ProviderAdapter {
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl:
             'https://boardgamegeek.com/boardgame/$cleanId/${_slug(normalized['title']?.toString() ?? 'game')}',
-        rawPayloadHash: sha256.convert(utf8.encode(jsonEncode(raw))).toString(),
+        rawPayloadHash:
+            sha256.convert(utf8.encode(jsonEncode(thing.toJson()))).toString(),
         providerVersion: '1.0.0',
       ),
       images: images,
@@ -220,25 +215,25 @@ class BGGProvider extends ProviderAdapter {
   }
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
-    final bggId = _optionalText(data['id']);
-    final title = _primaryName(data) ?? 'Unknown board game';
-    final links = data['links'] is List
-        ? (data['links'] as List<dynamic>)
-        : const <dynamic>[];
+    return normalizeThing(BggThing.fromJson(data));
+  }
 
-    final publishers = _linkValues(links, 'boardgamepublisher');
-    final designers = _linkValues(links, 'boardgamedesigner');
-    final categories = _linkValues(links, 'boardgamecategory');
-    final families = _linkValues(links, 'boardgamefamily');
+  Map<String, dynamic> normalizeThing(BggThing data) {
+    final bggId = data.id;
+    final title = _primaryName(data.names) ?? 'Unknown board game';
 
-    final minAge = _parseInt(data['minage']);
-    final minPlayers = _parseInt(data['minplayers']);
-    final maxPlayers = _parseInt(data['maxplayers']);
-    final playingTime = _parseInt(data['playingtime']);
+    final publishers = _linkValues(data.links, 'boardgamepublisher');
+    final designers = _linkValues(data.links, 'boardgamedesigner');
+    final categories = _linkValues(data.links, 'boardgamecategory');
+    final families = _linkValues(data.links, 'boardgamefamily');
 
-    final coverUrl =
-        _optionalText(data['image']) ?? _optionalText(data['thumbnail']);
-    final synopsis = _optionalText(data['description']);
+    final minAge = data.minAge;
+    final minPlayers = data.minPlayers;
+    final maxPlayers = data.maxPlayers;
+    final playingTime = data.playingTime;
+
+    final coverUrl = _optionalText(data.image) ?? _optionalText(data.thumbnail);
+    final synopsis = _optionalText(data.description);
 
     final creators = designers
         .map((d) => <String, dynamic>{
@@ -284,76 +279,22 @@ class BGGProvider extends ProviderAdapter {
     };
   }
 
-  Map<String, dynamic> _thingItemRaw(XmlElement item) {
-    final links = item.findElements('link').map((link) {
-      return {
-        'type': link.getAttribute('type'),
-        'id': link.getAttribute('id'),
-        'value': link.getAttribute('value'),
-      };
-    }).toList();
-
-    final names = item.findElements('name').map((name) {
-      return {
-        'type': name.getAttribute('type'),
-        'sortindex': name.getAttribute('sortindex'),
-        'value': name.getAttribute('value'),
-      };
-    }).toList();
-
-    return {
-      'id': item.getAttribute('id'),
-      'type': item.getAttribute('type'),
-      'names': names,
-      'description': item.findElements('description').firstOrNull?.innerText,
-      'yearpublished':
-          item.findElements('yearpublished').firstOrNull?.getAttribute('value'),
-      'minplayers':
-          item.findElements('minplayers').firstOrNull?.getAttribute('value'),
-      'maxplayers':
-          item.findElements('maxplayers').firstOrNull?.getAttribute('value'),
-      'playingtime':
-          item.findElements('playingtime').firstOrNull?.getAttribute('value'),
-      'minplaytime':
-          item.findElements('minplaytime').firstOrNull?.getAttribute('value'),
-      'maxplaytime':
-          item.findElements('maxplaytime').firstOrNull?.getAttribute('value'),
-      'minage': item.findElements('minage').firstOrNull?.getAttribute('value'),
-      'image': item.findElements('image').firstOrNull?.innerText,
-      'thumbnail': item.findElements('thumbnail').firstOrNull?.innerText,
-      'links': links,
-    };
-  }
-
-  String? _primaryName(Map<String, dynamic> data) {
-    final names = data['names'];
-    if (names is! List) return null;
-
+  String? _primaryName(List<BggName> names) {
     for (final name in names) {
-      if (name is Map) {
-        final nameMap = Map<String, dynamic>.from(name);
-        if (nameMap['type'] != 'primary') continue;
-        final val = _optionalText(nameMap['value']);
-        if (val != null) return val;
-      }
+      if (name.type != 'primary') continue;
+      final value = _optionalText(name.value);
+      if (value != null) return value;
     }
-    if (names.isNotEmpty && names.first is Map) {
-      final firstName = Map<String, dynamic>.from(names.first as Map);
-      return _optionalText(firstName['value']);
-    }
-    return null;
+    return names.isNotEmpty ? _optionalText(names.first.value) : null;
   }
 
-  List<String> _linkValues(List<dynamic> links, String linkType) {
+  List<String> _linkValues(List<BggLink> links, String linkType) {
     final values = <String>[];
     for (final link in links) {
-      if (link is Map) {
-        final linkMap = Map<String, dynamic>.from(link);
-        if (linkMap['type'] != linkType) continue;
-        final val = _optionalText(linkMap['value']);
-        if (val != null && val.isNotEmpty) {
-          values.add(val);
-        }
+      if (link.type != linkType) continue;
+      final value = _optionalText(link.value);
+      if (value != null && value.isNotEmpty) {
+        values.add(value);
       }
     }
     return values;

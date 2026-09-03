@@ -1,5 +1,6 @@
 export 'adapters/anilist/anilist_provider.dart';
 export 'adapters/bgg/bgg_provider.dart';
+export 'adapters/bgg/models/bgg_thing.dart';
 export 'adapters/comicvine/comicvine_provider.dart';
 export 'adapters/comicvine/models/comic_vine_issue.dart';
 export 'adapters/tmdb/models/tmdb_media.dart';

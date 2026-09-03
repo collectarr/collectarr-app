@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:xml/xml.dart';
 import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
@@ -49,6 +50,21 @@ const String _gloomhavenXmlFixture = '''
 
 void main() {
   group('BGGProvider', () {
+    test('decodes native XML board game model', () {
+      final thing = BggThing.fromXml(
+        XmlDocument.parse(_gloomhavenXmlFixture).findAllElements('item').single,
+      );
+
+      expect(thing.id, '174430');
+      expect(thing.names.single.value, 'Gloomhaven');
+      expect(thing.description, contains('tactical combat'));
+      expect(thing.yearPublished, 2017);
+      expect(thing.minPlayers, 1);
+      expect(thing.playingTime, 120);
+      expect(thing.links.first.value, 'Adventure');
+      expect(thing.toJson()['maxplayers'], 4);
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = BGGProvider();
       expect(provider.name, 'bgg');
