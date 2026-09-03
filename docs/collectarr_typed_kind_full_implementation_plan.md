@@ -1019,9 +1019,12 @@ and its conversion bridge are removed, and `MutationOrigin.fileImport` reaches
 the typed apply callback. Production import jobs now carry their origin through
 collection mutations, and file imports are prevented from writing back to
 external providers. TMDB account imports now persist a stable account identity
-and create links with the imported provider snapshot after local application;
-file imports without an explicitly selected provider account remain unlinked.
-The PR remains open for account selection on file imports and the remaining
+and create links with the imported provider snapshot after local application.
+All supported file-import surfaces now offer explicit provider-account
+selection; imports without a selected account remain intentionally unlinked.
+Production collection mutations now read local tracking/wishlist state and
+push linked changes through the coordinator, while provider pulls apply back
+through the same typed mutation path. The PR remains open for the remaining
 provider personal-list integrations described in Phase 7. Continue from this
 PR; do not reopen PR27
 without a provider metadata writeback capability.

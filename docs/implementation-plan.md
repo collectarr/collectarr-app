@@ -42,10 +42,13 @@ persistence is backed by the shared Drift database, provider credentials remain
 in secure storage, and sync-policy persistence, directional filtering,
 three-way conflict handling, and echo protection are covered by the AniList
 vertical slice. TMDB account imports now persist a stable account identity and
-create provider links after local application; file imports without an explicit
-account selection remain unlinked. Account selection for file imports and the
-remaining provider personal-list integrations described in Phase 7 are still
-open.
+create provider links after local application. All supported file-import
+surfaces now offer explicit provider-account selection; imports without a
+selected account remain intentionally unlinked. Production collection
+mutations now read local tracking/wishlist state and push linked changes through
+the coordinator, while provider pulls apply back through the same typed
+mutation path. The remaining provider personal-list integrations described in
+Phase 7 are still open.
 
 Known incomplete or regressed surfaces:
 

@@ -92,6 +92,13 @@ void main() {
     expect(find.text('No queued local TMDB proposals.'), findsOneWidget);
     await _scrollToText(tester, 'MyAnimeList');
     expect(find.text('MyAnimeList'), findsOneWidget);
+    expect(find.byType(DropdownButtonFormField<String>), findsNWidgets(3));
+    expect(find.text('Link imported items to'), findsWidgets);
+    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await pumpUntilSettled(tester);
+    expect(find.text('No account linking'), findsWidgets);
+    await tester.tap(find.text('No account linking').last);
+    await pumpUntilSettled(tester);
     expect(find.text('Available'), findsWidgets);
 
     await _openSettingsTab(tester, 'Account');

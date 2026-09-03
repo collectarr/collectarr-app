@@ -157,6 +157,7 @@ class _AnimeListImportCard extends ConsumerStatefulWidget {
 
 class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
   ProviderId _provider = ProviderId.myAnimeList;
+  String? _accountId;
   bool _keepUnmatchedLocally = true;
   bool _isWorking = false;
 
@@ -179,6 +180,7 @@ class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
               fileName: file.name,
               provider: _provider,
               keepUnmatchedLocally: _keepUnmatchedLocally,
+              accountId: _accountId,
             ),
       );
     } finally {
@@ -279,9 +281,18 @@ class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
               }).toList(growable: false),
               onChanged: (value) {
                 if (value != null) {
-                  setState(() => _provider = value);
+                  setState(() {
+                    _provider = value;
+                    _accountId = null;
+                  });
                 }
               },
+            ),
+            const SizedBox(height: 8),
+            _ProviderAccountSelector(
+              provider: _provider,
+              selectedAccountId: _accountId,
+              onChanged: (value) => setState(() => _accountId = value),
             ),
             const SizedBox(height: 8),
             Row(
@@ -333,6 +344,7 @@ class _ProviderCsvImportCard extends ConsumerStatefulWidget {
 class _ProviderCsvImportCardState
     extends ConsumerState<_ProviderCsvImportCard> {
   ProviderId _provider = ProviderId.trakt;
+  String? _accountId;
   bool _keepUnmatchedLocally = true;
   bool _isWorking = false;
 
@@ -364,6 +376,7 @@ class _ProviderCsvImportCardState
               fileName: file.name,
               provider: _provider,
               keepUnmatchedLocally: _keepUnmatchedLocally,
+              accountId: _accountId,
             ),
       );
     } finally {
@@ -461,9 +474,18 @@ class _ProviderCsvImportCardState
               }).toList(growable: false),
               onChanged: (value) {
                 if (value != null) {
-                  setState(() => _provider = value);
+                  setState(() {
+                    _provider = value;
+                    _accountId = null;
+                  });
                 }
               },
+            ),
+            const SizedBox(height: 8),
+            _ProviderAccountSelector(
+              provider: _provider,
+              selectedAccountId: _accountId,
+              onChanged: (value) => setState(() => _accountId = value),
             ),
             const SizedBox(height: 8),
             Row(
@@ -694,6 +716,7 @@ class _TmdbImportInlineCardState extends ConsumerState<_TmdbImportInlineCard> {
   late final TextEditingController _sessionIdCtrl;
   _TmdbSourceMode _sourceMode = _TmdbSourceMode.csvFile;
   TmdbImportCollection _collection = TmdbImportCollection.ratedMovies;
+  String? _accountId;
   bool _keepUnmatchedLocally = true;
 
   @override
@@ -771,6 +794,7 @@ class _TmdbImportInlineCardState extends ConsumerState<_TmdbImportInlineCard> {
           apiKey: _apiKeyCtrl.text.trim().isNotEmpty
               ? _apiKeyCtrl.text.trim()
               : null,
+          accountId: _accountId,
         ));
     if (!mounted) return;
     showAppToast(
@@ -918,6 +942,14 @@ class _TmdbImportInlineCardState extends ConsumerState<_TmdbImportInlineCard> {
               ),
               const SizedBox(height: 6),
             ],
+            if (_sourceMode == _TmdbSourceMode.csvFile) ...[
+              _ProviderAccountSelector(
+                provider: ProviderId.tmdb,
+                selectedAccountId: _accountId,
+                onChanged: (value) => setState(() => _accountId = value),
+              ),
+              const SizedBox(height: 6),
+            ],
 
             // Options
             Row(
@@ -989,6 +1021,74 @@ class _TmdbImportInlineCardState extends ConsumerState<_TmdbImportInlineCard> {
 // ---------------------------------------------------------------------------
 // Compact source mode chip
 // ---------------------------------------------------------------------------
+
+class _ProviderAccountSelector extends ConsumerWidget {
+  const _ProviderAccountSelector({
+    required this.provider,
+    required this.selectedAccountId,
+    required this.onChanged,
+  });
+
+  final ProviderId provider;
+  final String? selectedAccountId;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final accountsAsync = ref.watch(externalAccountsProvider);
+    return accountsAsync.when(
+      loading: () => const LinearProgressIndicator(minHeight: 2),
+      error: (error, stackTrace) => Text(
+        'Could not load linked accounts: $error',
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.error,
+          fontSize: 11,
+        ),
+      ),
+      data: (accounts) {
+        final providerAccounts = accounts
+            .where((account) => account.provider == provider)
+            .toList(growable: false);
+        final selected = providerAccounts.any(
+          (account) => account.id == selectedAccountId,
+        )
+            ? selectedAccountId
+            : '';
+        return DropdownButtonFormField<String>(
+          initialValue: selected,
+          isExpanded: true,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Link imported items to',
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          ),
+          style: theme.textTheme.bodySmall,
+          items: [
+            const DropdownMenuItem<String>(
+              value: '',
+              child: Text('No account linking'),
+            ),
+            for (final account in providerAccounts)
+              DropdownMenuItem<String>(
+                value: account.id,
+                child: Text(
+                  account.username?.trim().isNotEmpty == true
+                      ? '${account.displayName} · ${account.username}'
+                      : account.displayName,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+          onChanged: (value) => onChanged(
+            value == null || value.isEmpty ? null : value,
+          ),
+        );
+      },
+    );
+  }
+}
 
 class _SourceChip extends StatelessWidget {
   const _SourceChip({
