@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
 
 part 'local_database.g.dart';
 
@@ -380,13 +381,15 @@ class SerialAuthorityCache extends Table {
   ReadingQueueCache,
   PickListValuesCache,
   SerialAuthorityCache,
+  ComicMediaRows,
+  ComicReleaseRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {

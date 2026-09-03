@@ -11923,6 +11923,2441 @@ class SerialAuthorityCacheCompanion
   }
 }
 
+class $ComicMediaRowsTable extends ComicMediaRows
+    with TableInfo<$ComicMediaRowsTable, ComicMediaRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ComicMediaRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortTitleMeta =
+      const VerificationMeta('sortTitle');
+  @override
+  late final GeneratedColumn<String> sortTitle = GeneratedColumn<String>(
+      'sort_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seriesTitleMeta =
+      const VerificationMeta('seriesTitle');
+  @override
+  late final GeneratedColumn<String> seriesTitle = GeneratedColumn<String>(
+      'series_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _issueNumberMeta =
+      const VerificationMeta('issueNumber');
+  @override
+  late final GeneratedColumn<String> issueNumber = GeneratedColumn<String>(
+      'issue_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _publisherMeta =
+      const VerificationMeta('publisher');
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+      'publisher', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _imprintMeta =
+      const VerificationMeta('imprint');
+  @override
+  late final GeneratedColumn<String> imprint = GeneratedColumn<String>(
+      'imprint', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _coverDateMeta =
+      const VerificationMeta('coverDate');
+  @override
+  late final GeneratedColumn<DateTime> coverDate = GeneratedColumn<DateTime>(
+      'cover_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _pageCountMeta =
+      const VerificationMeta('pageCount');
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+      'page_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _countryMeta =
+      const VerificationMeta('country');
+  @override
+  late final GeneratedColumn<String> country = GeneratedColumn<String>(
+      'country', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('US'));
+  static const VerificationMeta _languageMeta =
+      const VerificationMeta('language');
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+      'language', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('en'));
+  static const VerificationMeta _ageRatingMeta =
+      const VerificationMeta('ageRating');
+  @override
+  late final GeneratedColumn<String> ageRating = GeneratedColumn<String>(
+      'age_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _crossoverMeta =
+      const VerificationMeta('crossover');
+  @override
+  late final GeneratedColumn<String> crossover = GeneratedColumn<String>(
+      'crossover', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _synopsisMeta =
+      const VerificationMeta('synopsis');
+  @override
+  late final GeneratedColumn<String> synopsis = GeneratedColumn<String>(
+      'synopsis', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _genresJsonMeta =
+      const VerificationMeta('genresJson');
+  @override
+  late final GeneratedColumn<String> genresJson = GeneratedColumn<String>(
+      'genres_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _searchAliasesJsonMeta =
+      const VerificationMeta('searchAliasesJson');
+  @override
+  late final GeneratedColumn<String> searchAliasesJson =
+      GeneratedColumn<String>('search_aliases_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _writersJsonMeta =
+      const VerificationMeta('writersJson');
+  @override
+  late final GeneratedColumn<String> writersJson = GeneratedColumn<String>(
+      'writers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _artistsJsonMeta =
+      const VerificationMeta('artistsJson');
+  @override
+  late final GeneratedColumn<String> artistsJson = GeneratedColumn<String>(
+      'artists_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _inkersJsonMeta =
+      const VerificationMeta('inkersJson');
+  @override
+  late final GeneratedColumn<String> inkersJson = GeneratedColumn<String>(
+      'inkers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _coloristsJsonMeta =
+      const VerificationMeta('coloristsJson');
+  @override
+  late final GeneratedColumn<String> coloristsJson = GeneratedColumn<String>(
+      'colorists_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _letterersJsonMeta =
+      const VerificationMeta('letterersJson');
+  @override
+  late final GeneratedColumn<String> letterersJson = GeneratedColumn<String>(
+      'letterers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _editorsJsonMeta =
+      const VerificationMeta('editorsJson');
+  @override
+  late final GeneratedColumn<String> editorsJson = GeneratedColumn<String>(
+      'editors_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _coverArtistsJsonMeta =
+      const VerificationMeta('coverArtistsJson');
+  @override
+  late final GeneratedColumn<String> coverArtistsJson = GeneratedColumn<String>(
+      'cover_artists_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _creatorCreditsJsonMeta =
+      const VerificationMeta('creatorCreditsJson');
+  @override
+  late final GeneratedColumn<String> creatorCreditsJson =
+      GeneratedColumn<String>('creator_credits_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _charactersJsonMeta =
+      const VerificationMeta('charactersJson');
+  @override
+  late final GeneratedColumn<String> charactersJson = GeneratedColumn<String>(
+      'characters_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _characterDetailsJsonMeta =
+      const VerificationMeta('characterDetailsJson');
+  @override
+  late final GeneratedColumn<String> characterDetailsJson =
+      GeneratedColumn<String>('character_details_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _creatorsJsonMeta =
+      const VerificationMeta('creatorsJson');
+  @override
+  late final GeneratedColumn<String> creatorsJson = GeneratedColumn<String>(
+      'creators_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _storyArcsJsonMeta =
+      const VerificationMeta('storyArcsJson');
+  @override
+  late final GeneratedColumn<String> storyArcsJson = GeneratedColumn<String>(
+      'story_arcs_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _keyEventsJsonMeta =
+      const VerificationMeta('keyEventsJson');
+  @override
+  late final GeneratedColumn<String> keyEventsJson = GeneratedColumn<String>(
+      'key_events_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _isKeyComicMeta =
+      const VerificationMeta('isKeyComic');
+  @override
+  late final GeneratedColumn<bool> isKeyComic = GeneratedColumn<bool>(
+      'is_key_comic', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_key_comic" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _keyReasonMeta =
+      const VerificationMeta('keyReason');
+  @override
+  late final GeneratedColumn<String> keyReason = GeneratedColumn<String>(
+      'key_reason', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantMeta =
+      const VerificationMeta('variant');
+  @override
+  late final GeneratedColumn<String> variant = GeneratedColumn<String>(
+      'variant', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantDescriptionMeta =
+      const VerificationMeta('variantDescription');
+  @override
+  late final GeneratedColumn<String> variantDescription =
+      GeneratedColumn<String>('variant_description', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _barcodeMeta =
+      const VerificationMeta('barcode');
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+      'barcode', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seriesJsonMeta =
+      const VerificationMeta('seriesJson');
+  @override
+  late final GeneratedColumn<String> seriesJson = GeneratedColumn<String>(
+      'series_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _publishingJsonMeta =
+      const VerificationMeta('publishingJson');
+  @override
+  late final GeneratedColumn<String> publishingJson = GeneratedColumn<String>(
+      'publishing_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionTitleMeta =
+      const VerificationMeta('editionTitle');
+  @override
+  late final GeneratedColumn<String> editionTitle = GeneratedColumn<String>(
+      'edition_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _titleExtensionMeta =
+      const VerificationMeta('titleExtension');
+  @override
+  late final GeneratedColumn<String> titleExtension = GeneratedColumn<String>(
+      'title_extension', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _physicalFormatMeta =
+      const VerificationMeta('physicalFormat');
+  @override
+  late final GeneratedColumn<String> physicalFormat = GeneratedColumn<String>(
+      'physical_format', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _physicalFormatLabelMeta =
+      const VerificationMeta('physicalFormatLabel');
+  @override
+  late final GeneratedColumn<String> physicalFormatLabel =
+      GeneratedColumn<String>('physical_format_label', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _linksJsonMeta =
+      const VerificationMeta('linksJson');
+  @override
+  late final GeneratedColumn<String> linksJson = GeneratedColumn<String>(
+      'links_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        sortTitle,
+        seriesTitle,
+        issueNumber,
+        publisher,
+        imprint,
+        releaseDate,
+        coverDate,
+        pageCount,
+        country,
+        language,
+        ageRating,
+        crossover,
+        synopsis,
+        genresJson,
+        searchAliasesJson,
+        writersJson,
+        artistsJson,
+        inkersJson,
+        coloristsJson,
+        letterersJson,
+        editorsJson,
+        coverArtistsJson,
+        creatorCreditsJson,
+        charactersJson,
+        characterDetailsJson,
+        creatorsJson,
+        storyArcsJson,
+        keyEventsJson,
+        isKeyComic,
+        keyReason,
+        variant,
+        variantDescription,
+        barcode,
+        seriesJson,
+        publishingJson,
+        editionTitle,
+        titleExtension,
+        physicalFormat,
+        physicalFormatLabel,
+        linksJson,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'comic_media_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<ComicMediaRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('sort_title')) {
+      context.handle(_sortTitleMeta,
+          sortTitle.isAcceptableOrUnknown(data['sort_title']!, _sortTitleMeta));
+    }
+    if (data.containsKey('series_title')) {
+      context.handle(
+          _seriesTitleMeta,
+          seriesTitle.isAcceptableOrUnknown(
+              data['series_title']!, _seriesTitleMeta));
+    }
+    if (data.containsKey('issue_number')) {
+      context.handle(
+          _issueNumberMeta,
+          issueNumber.isAcceptableOrUnknown(
+              data['issue_number']!, _issueNumberMeta));
+    }
+    if (data.containsKey('publisher')) {
+      context.handle(_publisherMeta,
+          publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('imprint')) {
+      context.handle(_imprintMeta,
+          imprint.isAcceptableOrUnknown(data['imprint']!, _imprintMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('cover_date')) {
+      context.handle(_coverDateMeta,
+          coverDate.isAcceptableOrUnknown(data['cover_date']!, _coverDateMeta));
+    }
+    if (data.containsKey('page_count')) {
+      context.handle(_pageCountMeta,
+          pageCount.isAcceptableOrUnknown(data['page_count']!, _pageCountMeta));
+    }
+    if (data.containsKey('country')) {
+      context.handle(_countryMeta,
+          country.isAcceptableOrUnknown(data['country']!, _countryMeta));
+    }
+    if (data.containsKey('language')) {
+      context.handle(_languageMeta,
+          language.isAcceptableOrUnknown(data['language']!, _languageMeta));
+    }
+    if (data.containsKey('age_rating')) {
+      context.handle(_ageRatingMeta,
+          ageRating.isAcceptableOrUnknown(data['age_rating']!, _ageRatingMeta));
+    }
+    if (data.containsKey('crossover')) {
+      context.handle(_crossoverMeta,
+          crossover.isAcceptableOrUnknown(data['crossover']!, _crossoverMeta));
+    }
+    if (data.containsKey('synopsis')) {
+      context.handle(_synopsisMeta,
+          synopsis.isAcceptableOrUnknown(data['synopsis']!, _synopsisMeta));
+    }
+    if (data.containsKey('genres_json')) {
+      context.handle(
+          _genresJsonMeta,
+          genresJson.isAcceptableOrUnknown(
+              data['genres_json']!, _genresJsonMeta));
+    }
+    if (data.containsKey('search_aliases_json')) {
+      context.handle(
+          _searchAliasesJsonMeta,
+          searchAliasesJson.isAcceptableOrUnknown(
+              data['search_aliases_json']!, _searchAliasesJsonMeta));
+    }
+    if (data.containsKey('writers_json')) {
+      context.handle(
+          _writersJsonMeta,
+          writersJson.isAcceptableOrUnknown(
+              data['writers_json']!, _writersJsonMeta));
+    }
+    if (data.containsKey('artists_json')) {
+      context.handle(
+          _artistsJsonMeta,
+          artistsJson.isAcceptableOrUnknown(
+              data['artists_json']!, _artistsJsonMeta));
+    }
+    if (data.containsKey('inkers_json')) {
+      context.handle(
+          _inkersJsonMeta,
+          inkersJson.isAcceptableOrUnknown(
+              data['inkers_json']!, _inkersJsonMeta));
+    }
+    if (data.containsKey('colorists_json')) {
+      context.handle(
+          _coloristsJsonMeta,
+          coloristsJson.isAcceptableOrUnknown(
+              data['colorists_json']!, _coloristsJsonMeta));
+    }
+    if (data.containsKey('letterers_json')) {
+      context.handle(
+          _letterersJsonMeta,
+          letterersJson.isAcceptableOrUnknown(
+              data['letterers_json']!, _letterersJsonMeta));
+    }
+    if (data.containsKey('editors_json')) {
+      context.handle(
+          _editorsJsonMeta,
+          editorsJson.isAcceptableOrUnknown(
+              data['editors_json']!, _editorsJsonMeta));
+    }
+    if (data.containsKey('cover_artists_json')) {
+      context.handle(
+          _coverArtistsJsonMeta,
+          coverArtistsJson.isAcceptableOrUnknown(
+              data['cover_artists_json']!, _coverArtistsJsonMeta));
+    }
+    if (data.containsKey('creator_credits_json')) {
+      context.handle(
+          _creatorCreditsJsonMeta,
+          creatorCreditsJson.isAcceptableOrUnknown(
+              data['creator_credits_json']!, _creatorCreditsJsonMeta));
+    }
+    if (data.containsKey('characters_json')) {
+      context.handle(
+          _charactersJsonMeta,
+          charactersJson.isAcceptableOrUnknown(
+              data['characters_json']!, _charactersJsonMeta));
+    }
+    if (data.containsKey('character_details_json')) {
+      context.handle(
+          _characterDetailsJsonMeta,
+          characterDetailsJson.isAcceptableOrUnknown(
+              data['character_details_json']!, _characterDetailsJsonMeta));
+    }
+    if (data.containsKey('creators_json')) {
+      context.handle(
+          _creatorsJsonMeta,
+          creatorsJson.isAcceptableOrUnknown(
+              data['creators_json']!, _creatorsJsonMeta));
+    }
+    if (data.containsKey('story_arcs_json')) {
+      context.handle(
+          _storyArcsJsonMeta,
+          storyArcsJson.isAcceptableOrUnknown(
+              data['story_arcs_json']!, _storyArcsJsonMeta));
+    }
+    if (data.containsKey('key_events_json')) {
+      context.handle(
+          _keyEventsJsonMeta,
+          keyEventsJson.isAcceptableOrUnknown(
+              data['key_events_json']!, _keyEventsJsonMeta));
+    }
+    if (data.containsKey('is_key_comic')) {
+      context.handle(
+          _isKeyComicMeta,
+          isKeyComic.isAcceptableOrUnknown(
+              data['is_key_comic']!, _isKeyComicMeta));
+    }
+    if (data.containsKey('key_reason')) {
+      context.handle(_keyReasonMeta,
+          keyReason.isAcceptableOrUnknown(data['key_reason']!, _keyReasonMeta));
+    }
+    if (data.containsKey('variant')) {
+      context.handle(_variantMeta,
+          variant.isAcceptableOrUnknown(data['variant']!, _variantMeta));
+    }
+    if (data.containsKey('variant_description')) {
+      context.handle(
+          _variantDescriptionMeta,
+          variantDescription.isAcceptableOrUnknown(
+              data['variant_description']!, _variantDescriptionMeta));
+    }
+    if (data.containsKey('barcode')) {
+      context.handle(_barcodeMeta,
+          barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta));
+    }
+    if (data.containsKey('series_json')) {
+      context.handle(
+          _seriesJsonMeta,
+          seriesJson.isAcceptableOrUnknown(
+              data['series_json']!, _seriesJsonMeta));
+    }
+    if (data.containsKey('publishing_json')) {
+      context.handle(
+          _publishingJsonMeta,
+          publishingJson.isAcceptableOrUnknown(
+              data['publishing_json']!, _publishingJsonMeta));
+    }
+    if (data.containsKey('edition_title')) {
+      context.handle(
+          _editionTitleMeta,
+          editionTitle.isAcceptableOrUnknown(
+              data['edition_title']!, _editionTitleMeta));
+    }
+    if (data.containsKey('title_extension')) {
+      context.handle(
+          _titleExtensionMeta,
+          titleExtension.isAcceptableOrUnknown(
+              data['title_extension']!, _titleExtensionMeta));
+    }
+    if (data.containsKey('physical_format')) {
+      context.handle(
+          _physicalFormatMeta,
+          physicalFormat.isAcceptableOrUnknown(
+              data['physical_format']!, _physicalFormatMeta));
+    }
+    if (data.containsKey('physical_format_label')) {
+      context.handle(
+          _physicalFormatLabelMeta,
+          physicalFormatLabel.isAcceptableOrUnknown(
+              data['physical_format_label']!, _physicalFormatLabelMeta));
+    }
+    if (data.containsKey('links_json')) {
+      context.handle(_linksJsonMeta,
+          linksJson.isAcceptableOrUnknown(data['links_json']!, _linksJsonMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ComicMediaRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ComicMediaRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      sortTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_title']),
+      seriesTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_title']),
+      issueNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}issue_number']),
+      publisher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      imprint: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}imprint']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      coverDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}cover_date']),
+      pageCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}page_count']),
+      country: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}country'])!,
+      language: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language'])!,
+      ageRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}age_rating']),
+      crossover: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}crossover']),
+      synopsis: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}synopsis']),
+      genresJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}genres_json'])!,
+      searchAliasesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}search_aliases_json'])!,
+      writersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}writers_json'])!,
+      artistsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}artists_json'])!,
+      inkersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}inkers_json'])!,
+      coloristsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}colorists_json'])!,
+      letterersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}letterers_json'])!,
+      editorsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}editors_json'])!,
+      coverArtistsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}cover_artists_json'])!,
+      creatorCreditsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}creator_credits_json'])!,
+      charactersJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}characters_json'])!,
+      characterDetailsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}character_details_json'])!,
+      creatorsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}creators_json'])!,
+      storyArcsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}story_arcs_json'])!,
+      keyEventsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}key_events_json'])!,
+      isKeyComic: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_key_comic'])!,
+      keyReason: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key_reason']),
+      variant: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant']),
+      variantDescription: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}variant_description']),
+      barcode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}barcode']),
+      seriesJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_json']),
+      publishingJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publishing_json']),
+      editionTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_title']),
+      titleExtension: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title_extension']),
+      physicalFormat: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}physical_format']),
+      physicalFormatLabel: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}physical_format_label']),
+      linksJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}links_json'])!,
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $ComicMediaRowsTable createAlias(String alias) {
+    return $ComicMediaRowsTable(attachedDatabase, alias);
+  }
+}
+
+class ComicMediaRow extends DataClass implements Insertable<ComicMediaRow> {
+  final String id;
+  final String title;
+  final String? sortTitle;
+  final String? seriesTitle;
+  final String? issueNumber;
+  final String? publisher;
+  final String? imprint;
+  final DateTime? releaseDate;
+  final DateTime? coverDate;
+  final int? pageCount;
+  final String country;
+  final String language;
+  final String? ageRating;
+  final String? crossover;
+  final String? synopsis;
+  final String genresJson;
+  final String searchAliasesJson;
+  final String writersJson;
+  final String artistsJson;
+  final String inkersJson;
+  final String coloristsJson;
+  final String letterersJson;
+  final String editorsJson;
+  final String coverArtistsJson;
+  final String creatorCreditsJson;
+  final String charactersJson;
+  final String characterDetailsJson;
+  final String creatorsJson;
+  final String storyArcsJson;
+  final String keyEventsJson;
+  final bool isKeyComic;
+  final String? keyReason;
+  final String? variant;
+  final String? variantDescription;
+  final String? barcode;
+  final String? seriesJson;
+  final String? publishingJson;
+  final String? editionTitle;
+  final String? titleExtension;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final String linksJson;
+  final String rawPayloadJson;
+  const ComicMediaRow(
+      {required this.id,
+      required this.title,
+      this.sortTitle,
+      this.seriesTitle,
+      this.issueNumber,
+      this.publisher,
+      this.imprint,
+      this.releaseDate,
+      this.coverDate,
+      this.pageCount,
+      required this.country,
+      required this.language,
+      this.ageRating,
+      this.crossover,
+      this.synopsis,
+      required this.genresJson,
+      required this.searchAliasesJson,
+      required this.writersJson,
+      required this.artistsJson,
+      required this.inkersJson,
+      required this.coloristsJson,
+      required this.letterersJson,
+      required this.editorsJson,
+      required this.coverArtistsJson,
+      required this.creatorCreditsJson,
+      required this.charactersJson,
+      required this.characterDetailsJson,
+      required this.creatorsJson,
+      required this.storyArcsJson,
+      required this.keyEventsJson,
+      required this.isKeyComic,
+      this.keyReason,
+      this.variant,
+      this.variantDescription,
+      this.barcode,
+      this.seriesJson,
+      this.publishingJson,
+      this.editionTitle,
+      this.titleExtension,
+      this.physicalFormat,
+      this.physicalFormatLabel,
+      required this.linksJson,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || sortTitle != null) {
+      map['sort_title'] = Variable<String>(sortTitle);
+    }
+    if (!nullToAbsent || seriesTitle != null) {
+      map['series_title'] = Variable<String>(seriesTitle);
+    }
+    if (!nullToAbsent || issueNumber != null) {
+      map['issue_number'] = Variable<String>(issueNumber);
+    }
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || imprint != null) {
+      map['imprint'] = Variable<String>(imprint);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || coverDate != null) {
+      map['cover_date'] = Variable<DateTime>(coverDate);
+    }
+    if (!nullToAbsent || pageCount != null) {
+      map['page_count'] = Variable<int>(pageCount);
+    }
+    map['country'] = Variable<String>(country);
+    map['language'] = Variable<String>(language);
+    if (!nullToAbsent || ageRating != null) {
+      map['age_rating'] = Variable<String>(ageRating);
+    }
+    if (!nullToAbsent || crossover != null) {
+      map['crossover'] = Variable<String>(crossover);
+    }
+    if (!nullToAbsent || synopsis != null) {
+      map['synopsis'] = Variable<String>(synopsis);
+    }
+    map['genres_json'] = Variable<String>(genresJson);
+    map['search_aliases_json'] = Variable<String>(searchAliasesJson);
+    map['writers_json'] = Variable<String>(writersJson);
+    map['artists_json'] = Variable<String>(artistsJson);
+    map['inkers_json'] = Variable<String>(inkersJson);
+    map['colorists_json'] = Variable<String>(coloristsJson);
+    map['letterers_json'] = Variable<String>(letterersJson);
+    map['editors_json'] = Variable<String>(editorsJson);
+    map['cover_artists_json'] = Variable<String>(coverArtistsJson);
+    map['creator_credits_json'] = Variable<String>(creatorCreditsJson);
+    map['characters_json'] = Variable<String>(charactersJson);
+    map['character_details_json'] = Variable<String>(characterDetailsJson);
+    map['creators_json'] = Variable<String>(creatorsJson);
+    map['story_arcs_json'] = Variable<String>(storyArcsJson);
+    map['key_events_json'] = Variable<String>(keyEventsJson);
+    map['is_key_comic'] = Variable<bool>(isKeyComic);
+    if (!nullToAbsent || keyReason != null) {
+      map['key_reason'] = Variable<String>(keyReason);
+    }
+    if (!nullToAbsent || variant != null) {
+      map['variant'] = Variable<String>(variant);
+    }
+    if (!nullToAbsent || variantDescription != null) {
+      map['variant_description'] = Variable<String>(variantDescription);
+    }
+    if (!nullToAbsent || barcode != null) {
+      map['barcode'] = Variable<String>(barcode);
+    }
+    if (!nullToAbsent || seriesJson != null) {
+      map['series_json'] = Variable<String>(seriesJson);
+    }
+    if (!nullToAbsent || publishingJson != null) {
+      map['publishing_json'] = Variable<String>(publishingJson);
+    }
+    if (!nullToAbsent || editionTitle != null) {
+      map['edition_title'] = Variable<String>(editionTitle);
+    }
+    if (!nullToAbsent || titleExtension != null) {
+      map['title_extension'] = Variable<String>(titleExtension);
+    }
+    if (!nullToAbsent || physicalFormat != null) {
+      map['physical_format'] = Variable<String>(physicalFormat);
+    }
+    if (!nullToAbsent || physicalFormatLabel != null) {
+      map['physical_format_label'] = Variable<String>(physicalFormatLabel);
+    }
+    map['links_json'] = Variable<String>(linksJson);
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  ComicMediaRowsCompanion toCompanion(bool nullToAbsent) {
+    return ComicMediaRowsCompanion(
+      id: Value(id),
+      title: Value(title),
+      sortTitle: sortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortTitle),
+      seriesTitle: seriesTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seriesTitle),
+      issueNumber: issueNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(issueNumber),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      imprint: imprint == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imprint),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      coverDate: coverDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverDate),
+      pageCount: pageCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pageCount),
+      country: Value(country),
+      language: Value(language),
+      ageRating: ageRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ageRating),
+      crossover: crossover == null && nullToAbsent
+          ? const Value.absent()
+          : Value(crossover),
+      synopsis: synopsis == null && nullToAbsent
+          ? const Value.absent()
+          : Value(synopsis),
+      genresJson: Value(genresJson),
+      searchAliasesJson: Value(searchAliasesJson),
+      writersJson: Value(writersJson),
+      artistsJson: Value(artistsJson),
+      inkersJson: Value(inkersJson),
+      coloristsJson: Value(coloristsJson),
+      letterersJson: Value(letterersJson),
+      editorsJson: Value(editorsJson),
+      coverArtistsJson: Value(coverArtistsJson),
+      creatorCreditsJson: Value(creatorCreditsJson),
+      charactersJson: Value(charactersJson),
+      characterDetailsJson: Value(characterDetailsJson),
+      creatorsJson: Value(creatorsJson),
+      storyArcsJson: Value(storyArcsJson),
+      keyEventsJson: Value(keyEventsJson),
+      isKeyComic: Value(isKeyComic),
+      keyReason: keyReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keyReason),
+      variant: variant == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variant),
+      variantDescription: variantDescription == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantDescription),
+      barcode: barcode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(barcode),
+      seriesJson: seriesJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seriesJson),
+      publishingJson: publishingJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publishingJson),
+      editionTitle: editionTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionTitle),
+      titleExtension: titleExtension == null && nullToAbsent
+          ? const Value.absent()
+          : Value(titleExtension),
+      physicalFormat: physicalFormat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(physicalFormat),
+      physicalFormatLabel: physicalFormatLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(physicalFormatLabel),
+      linksJson: Value(linksJson),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory ComicMediaRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ComicMediaRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      sortTitle: serializer.fromJson<String?>(json['sortTitle']),
+      seriesTitle: serializer.fromJson<String?>(json['seriesTitle']),
+      issueNumber: serializer.fromJson<String?>(json['issueNumber']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      imprint: serializer.fromJson<String?>(json['imprint']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      coverDate: serializer.fromJson<DateTime?>(json['coverDate']),
+      pageCount: serializer.fromJson<int?>(json['pageCount']),
+      country: serializer.fromJson<String>(json['country']),
+      language: serializer.fromJson<String>(json['language']),
+      ageRating: serializer.fromJson<String?>(json['ageRating']),
+      crossover: serializer.fromJson<String?>(json['crossover']),
+      synopsis: serializer.fromJson<String?>(json['synopsis']),
+      genresJson: serializer.fromJson<String>(json['genresJson']),
+      searchAliasesJson: serializer.fromJson<String>(json['searchAliasesJson']),
+      writersJson: serializer.fromJson<String>(json['writersJson']),
+      artistsJson: serializer.fromJson<String>(json['artistsJson']),
+      inkersJson: serializer.fromJson<String>(json['inkersJson']),
+      coloristsJson: serializer.fromJson<String>(json['coloristsJson']),
+      letterersJson: serializer.fromJson<String>(json['letterersJson']),
+      editorsJson: serializer.fromJson<String>(json['editorsJson']),
+      coverArtistsJson: serializer.fromJson<String>(json['coverArtistsJson']),
+      creatorCreditsJson:
+          serializer.fromJson<String>(json['creatorCreditsJson']),
+      charactersJson: serializer.fromJson<String>(json['charactersJson']),
+      characterDetailsJson:
+          serializer.fromJson<String>(json['characterDetailsJson']),
+      creatorsJson: serializer.fromJson<String>(json['creatorsJson']),
+      storyArcsJson: serializer.fromJson<String>(json['storyArcsJson']),
+      keyEventsJson: serializer.fromJson<String>(json['keyEventsJson']),
+      isKeyComic: serializer.fromJson<bool>(json['isKeyComic']),
+      keyReason: serializer.fromJson<String?>(json['keyReason']),
+      variant: serializer.fromJson<String?>(json['variant']),
+      variantDescription:
+          serializer.fromJson<String?>(json['variantDescription']),
+      barcode: serializer.fromJson<String?>(json['barcode']),
+      seriesJson: serializer.fromJson<String?>(json['seriesJson']),
+      publishingJson: serializer.fromJson<String?>(json['publishingJson']),
+      editionTitle: serializer.fromJson<String?>(json['editionTitle']),
+      titleExtension: serializer.fromJson<String?>(json['titleExtension']),
+      physicalFormat: serializer.fromJson<String?>(json['physicalFormat']),
+      physicalFormatLabel:
+          serializer.fromJson<String?>(json['physicalFormatLabel']),
+      linksJson: serializer.fromJson<String>(json['linksJson']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'sortTitle': serializer.toJson<String?>(sortTitle),
+      'seriesTitle': serializer.toJson<String?>(seriesTitle),
+      'issueNumber': serializer.toJson<String?>(issueNumber),
+      'publisher': serializer.toJson<String?>(publisher),
+      'imprint': serializer.toJson<String?>(imprint),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'coverDate': serializer.toJson<DateTime?>(coverDate),
+      'pageCount': serializer.toJson<int?>(pageCount),
+      'country': serializer.toJson<String>(country),
+      'language': serializer.toJson<String>(language),
+      'ageRating': serializer.toJson<String?>(ageRating),
+      'crossover': serializer.toJson<String?>(crossover),
+      'synopsis': serializer.toJson<String?>(synopsis),
+      'genresJson': serializer.toJson<String>(genresJson),
+      'searchAliasesJson': serializer.toJson<String>(searchAliasesJson),
+      'writersJson': serializer.toJson<String>(writersJson),
+      'artistsJson': serializer.toJson<String>(artistsJson),
+      'inkersJson': serializer.toJson<String>(inkersJson),
+      'coloristsJson': serializer.toJson<String>(coloristsJson),
+      'letterersJson': serializer.toJson<String>(letterersJson),
+      'editorsJson': serializer.toJson<String>(editorsJson),
+      'coverArtistsJson': serializer.toJson<String>(coverArtistsJson),
+      'creatorCreditsJson': serializer.toJson<String>(creatorCreditsJson),
+      'charactersJson': serializer.toJson<String>(charactersJson),
+      'characterDetailsJson': serializer.toJson<String>(characterDetailsJson),
+      'creatorsJson': serializer.toJson<String>(creatorsJson),
+      'storyArcsJson': serializer.toJson<String>(storyArcsJson),
+      'keyEventsJson': serializer.toJson<String>(keyEventsJson),
+      'isKeyComic': serializer.toJson<bool>(isKeyComic),
+      'keyReason': serializer.toJson<String?>(keyReason),
+      'variant': serializer.toJson<String?>(variant),
+      'variantDescription': serializer.toJson<String?>(variantDescription),
+      'barcode': serializer.toJson<String?>(barcode),
+      'seriesJson': serializer.toJson<String?>(seriesJson),
+      'publishingJson': serializer.toJson<String?>(publishingJson),
+      'editionTitle': serializer.toJson<String?>(editionTitle),
+      'titleExtension': serializer.toJson<String?>(titleExtension),
+      'physicalFormat': serializer.toJson<String?>(physicalFormat),
+      'physicalFormatLabel': serializer.toJson<String?>(physicalFormatLabel),
+      'linksJson': serializer.toJson<String>(linksJson),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  ComicMediaRow copyWith(
+          {String? id,
+          String? title,
+          Value<String?> sortTitle = const Value.absent(),
+          Value<String?> seriesTitle = const Value.absent(),
+          Value<String?> issueNumber = const Value.absent(),
+          Value<String?> publisher = const Value.absent(),
+          Value<String?> imprint = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          Value<DateTime?> coverDate = const Value.absent(),
+          Value<int?> pageCount = const Value.absent(),
+          String? country,
+          String? language,
+          Value<String?> ageRating = const Value.absent(),
+          Value<String?> crossover = const Value.absent(),
+          Value<String?> synopsis = const Value.absent(),
+          String? genresJson,
+          String? searchAliasesJson,
+          String? writersJson,
+          String? artistsJson,
+          String? inkersJson,
+          String? coloristsJson,
+          String? letterersJson,
+          String? editorsJson,
+          String? coverArtistsJson,
+          String? creatorCreditsJson,
+          String? charactersJson,
+          String? characterDetailsJson,
+          String? creatorsJson,
+          String? storyArcsJson,
+          String? keyEventsJson,
+          bool? isKeyComic,
+          Value<String?> keyReason = const Value.absent(),
+          Value<String?> variant = const Value.absent(),
+          Value<String?> variantDescription = const Value.absent(),
+          Value<String?> barcode = const Value.absent(),
+          Value<String?> seriesJson = const Value.absent(),
+          Value<String?> publishingJson = const Value.absent(),
+          Value<String?> editionTitle = const Value.absent(),
+          Value<String?> titleExtension = const Value.absent(),
+          Value<String?> physicalFormat = const Value.absent(),
+          Value<String?> physicalFormatLabel = const Value.absent(),
+          String? linksJson,
+          String? rawPayloadJson}) =>
+      ComicMediaRow(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        sortTitle: sortTitle.present ? sortTitle.value : this.sortTitle,
+        seriesTitle: seriesTitle.present ? seriesTitle.value : this.seriesTitle,
+        issueNumber: issueNumber.present ? issueNumber.value : this.issueNumber,
+        publisher: publisher.present ? publisher.value : this.publisher,
+        imprint: imprint.present ? imprint.value : this.imprint,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        coverDate: coverDate.present ? coverDate.value : this.coverDate,
+        pageCount: pageCount.present ? pageCount.value : this.pageCount,
+        country: country ?? this.country,
+        language: language ?? this.language,
+        ageRating: ageRating.present ? ageRating.value : this.ageRating,
+        crossover: crossover.present ? crossover.value : this.crossover,
+        synopsis: synopsis.present ? synopsis.value : this.synopsis,
+        genresJson: genresJson ?? this.genresJson,
+        searchAliasesJson: searchAliasesJson ?? this.searchAliasesJson,
+        writersJson: writersJson ?? this.writersJson,
+        artistsJson: artistsJson ?? this.artistsJson,
+        inkersJson: inkersJson ?? this.inkersJson,
+        coloristsJson: coloristsJson ?? this.coloristsJson,
+        letterersJson: letterersJson ?? this.letterersJson,
+        editorsJson: editorsJson ?? this.editorsJson,
+        coverArtistsJson: coverArtistsJson ?? this.coverArtistsJson,
+        creatorCreditsJson: creatorCreditsJson ?? this.creatorCreditsJson,
+        charactersJson: charactersJson ?? this.charactersJson,
+        characterDetailsJson: characterDetailsJson ?? this.characterDetailsJson,
+        creatorsJson: creatorsJson ?? this.creatorsJson,
+        storyArcsJson: storyArcsJson ?? this.storyArcsJson,
+        keyEventsJson: keyEventsJson ?? this.keyEventsJson,
+        isKeyComic: isKeyComic ?? this.isKeyComic,
+        keyReason: keyReason.present ? keyReason.value : this.keyReason,
+        variant: variant.present ? variant.value : this.variant,
+        variantDescription: variantDescription.present
+            ? variantDescription.value
+            : this.variantDescription,
+        barcode: barcode.present ? barcode.value : this.barcode,
+        seriesJson: seriesJson.present ? seriesJson.value : this.seriesJson,
+        publishingJson:
+            publishingJson.present ? publishingJson.value : this.publishingJson,
+        editionTitle:
+            editionTitle.present ? editionTitle.value : this.editionTitle,
+        titleExtension:
+            titleExtension.present ? titleExtension.value : this.titleExtension,
+        physicalFormat:
+            physicalFormat.present ? physicalFormat.value : this.physicalFormat,
+        physicalFormatLabel: physicalFormatLabel.present
+            ? physicalFormatLabel.value
+            : this.physicalFormatLabel,
+        linksJson: linksJson ?? this.linksJson,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  ComicMediaRow copyWithCompanion(ComicMediaRowsCompanion data) {
+    return ComicMediaRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      sortTitle: data.sortTitle.present ? data.sortTitle.value : this.sortTitle,
+      seriesTitle:
+          data.seriesTitle.present ? data.seriesTitle.value : this.seriesTitle,
+      issueNumber:
+          data.issueNumber.present ? data.issueNumber.value : this.issueNumber,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      imprint: data.imprint.present ? data.imprint.value : this.imprint,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      coverDate: data.coverDate.present ? data.coverDate.value : this.coverDate,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      country: data.country.present ? data.country.value : this.country,
+      language: data.language.present ? data.language.value : this.language,
+      ageRating: data.ageRating.present ? data.ageRating.value : this.ageRating,
+      crossover: data.crossover.present ? data.crossover.value : this.crossover,
+      synopsis: data.synopsis.present ? data.synopsis.value : this.synopsis,
+      genresJson:
+          data.genresJson.present ? data.genresJson.value : this.genresJson,
+      searchAliasesJson: data.searchAliasesJson.present
+          ? data.searchAliasesJson.value
+          : this.searchAliasesJson,
+      writersJson:
+          data.writersJson.present ? data.writersJson.value : this.writersJson,
+      artistsJson:
+          data.artistsJson.present ? data.artistsJson.value : this.artistsJson,
+      inkersJson:
+          data.inkersJson.present ? data.inkersJson.value : this.inkersJson,
+      coloristsJson: data.coloristsJson.present
+          ? data.coloristsJson.value
+          : this.coloristsJson,
+      letterersJson: data.letterersJson.present
+          ? data.letterersJson.value
+          : this.letterersJson,
+      editorsJson:
+          data.editorsJson.present ? data.editorsJson.value : this.editorsJson,
+      coverArtistsJson: data.coverArtistsJson.present
+          ? data.coverArtistsJson.value
+          : this.coverArtistsJson,
+      creatorCreditsJson: data.creatorCreditsJson.present
+          ? data.creatorCreditsJson.value
+          : this.creatorCreditsJson,
+      charactersJson: data.charactersJson.present
+          ? data.charactersJson.value
+          : this.charactersJson,
+      characterDetailsJson: data.characterDetailsJson.present
+          ? data.characterDetailsJson.value
+          : this.characterDetailsJson,
+      creatorsJson: data.creatorsJson.present
+          ? data.creatorsJson.value
+          : this.creatorsJson,
+      storyArcsJson: data.storyArcsJson.present
+          ? data.storyArcsJson.value
+          : this.storyArcsJson,
+      keyEventsJson: data.keyEventsJson.present
+          ? data.keyEventsJson.value
+          : this.keyEventsJson,
+      isKeyComic:
+          data.isKeyComic.present ? data.isKeyComic.value : this.isKeyComic,
+      keyReason: data.keyReason.present ? data.keyReason.value : this.keyReason,
+      variant: data.variant.present ? data.variant.value : this.variant,
+      variantDescription: data.variantDescription.present
+          ? data.variantDescription.value
+          : this.variantDescription,
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      seriesJson:
+          data.seriesJson.present ? data.seriesJson.value : this.seriesJson,
+      publishingJson: data.publishingJson.present
+          ? data.publishingJson.value
+          : this.publishingJson,
+      editionTitle: data.editionTitle.present
+          ? data.editionTitle.value
+          : this.editionTitle,
+      titleExtension: data.titleExtension.present
+          ? data.titleExtension.value
+          : this.titleExtension,
+      physicalFormat: data.physicalFormat.present
+          ? data.physicalFormat.value
+          : this.physicalFormat,
+      physicalFormatLabel: data.physicalFormatLabel.present
+          ? data.physicalFormatLabel.value
+          : this.physicalFormatLabel,
+      linksJson: data.linksJson.present ? data.linksJson.value : this.linksJson,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicMediaRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('seriesTitle: $seriesTitle, ')
+          ..write('issueNumber: $issueNumber, ')
+          ..write('publisher: $publisher, ')
+          ..write('imprint: $imprint, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('coverDate: $coverDate, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('country: $country, ')
+          ..write('language: $language, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('crossover: $crossover, ')
+          ..write('synopsis: $synopsis, ')
+          ..write('genresJson: $genresJson, ')
+          ..write('searchAliasesJson: $searchAliasesJson, ')
+          ..write('writersJson: $writersJson, ')
+          ..write('artistsJson: $artistsJson, ')
+          ..write('inkersJson: $inkersJson, ')
+          ..write('coloristsJson: $coloristsJson, ')
+          ..write('letterersJson: $letterersJson, ')
+          ..write('editorsJson: $editorsJson, ')
+          ..write('coverArtistsJson: $coverArtistsJson, ')
+          ..write('creatorCreditsJson: $creatorCreditsJson, ')
+          ..write('charactersJson: $charactersJson, ')
+          ..write('characterDetailsJson: $characterDetailsJson, ')
+          ..write('creatorsJson: $creatorsJson, ')
+          ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('keyEventsJson: $keyEventsJson, ')
+          ..write('isKeyComic: $isKeyComic, ')
+          ..write('keyReason: $keyReason, ')
+          ..write('variant: $variant, ')
+          ..write('variantDescription: $variantDescription, ')
+          ..write('barcode: $barcode, ')
+          ..write('seriesJson: $seriesJson, ')
+          ..write('publishingJson: $publishingJson, ')
+          ..write('editionTitle: $editionTitle, ')
+          ..write('titleExtension: $titleExtension, ')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('physicalFormatLabel: $physicalFormatLabel, ')
+          ..write('linksJson: $linksJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        id,
+        title,
+        sortTitle,
+        seriesTitle,
+        issueNumber,
+        publisher,
+        imprint,
+        releaseDate,
+        coverDate,
+        pageCount,
+        country,
+        language,
+        ageRating,
+        crossover,
+        synopsis,
+        genresJson,
+        searchAliasesJson,
+        writersJson,
+        artistsJson,
+        inkersJson,
+        coloristsJson,
+        letterersJson,
+        editorsJson,
+        coverArtistsJson,
+        creatorCreditsJson,
+        charactersJson,
+        characterDetailsJson,
+        creatorsJson,
+        storyArcsJson,
+        keyEventsJson,
+        isKeyComic,
+        keyReason,
+        variant,
+        variantDescription,
+        barcode,
+        seriesJson,
+        publishingJson,
+        editionTitle,
+        titleExtension,
+        physicalFormat,
+        physicalFormatLabel,
+        linksJson,
+        rawPayloadJson
+      ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ComicMediaRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.sortTitle == this.sortTitle &&
+          other.seriesTitle == this.seriesTitle &&
+          other.issueNumber == this.issueNumber &&
+          other.publisher == this.publisher &&
+          other.imprint == this.imprint &&
+          other.releaseDate == this.releaseDate &&
+          other.coverDate == this.coverDate &&
+          other.pageCount == this.pageCount &&
+          other.country == this.country &&
+          other.language == this.language &&
+          other.ageRating == this.ageRating &&
+          other.crossover == this.crossover &&
+          other.synopsis == this.synopsis &&
+          other.genresJson == this.genresJson &&
+          other.searchAliasesJson == this.searchAliasesJson &&
+          other.writersJson == this.writersJson &&
+          other.artistsJson == this.artistsJson &&
+          other.inkersJson == this.inkersJson &&
+          other.coloristsJson == this.coloristsJson &&
+          other.letterersJson == this.letterersJson &&
+          other.editorsJson == this.editorsJson &&
+          other.coverArtistsJson == this.coverArtistsJson &&
+          other.creatorCreditsJson == this.creatorCreditsJson &&
+          other.charactersJson == this.charactersJson &&
+          other.characterDetailsJson == this.characterDetailsJson &&
+          other.creatorsJson == this.creatorsJson &&
+          other.storyArcsJson == this.storyArcsJson &&
+          other.keyEventsJson == this.keyEventsJson &&
+          other.isKeyComic == this.isKeyComic &&
+          other.keyReason == this.keyReason &&
+          other.variant == this.variant &&
+          other.variantDescription == this.variantDescription &&
+          other.barcode == this.barcode &&
+          other.seriesJson == this.seriesJson &&
+          other.publishingJson == this.publishingJson &&
+          other.editionTitle == this.editionTitle &&
+          other.titleExtension == this.titleExtension &&
+          other.physicalFormat == this.physicalFormat &&
+          other.physicalFormatLabel == this.physicalFormatLabel &&
+          other.linksJson == this.linksJson &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class ComicMediaRowsCompanion extends UpdateCompanion<ComicMediaRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> sortTitle;
+  final Value<String?> seriesTitle;
+  final Value<String?> issueNumber;
+  final Value<String?> publisher;
+  final Value<String?> imprint;
+  final Value<DateTime?> releaseDate;
+  final Value<DateTime?> coverDate;
+  final Value<int?> pageCount;
+  final Value<String> country;
+  final Value<String> language;
+  final Value<String?> ageRating;
+  final Value<String?> crossover;
+  final Value<String?> synopsis;
+  final Value<String> genresJson;
+  final Value<String> searchAliasesJson;
+  final Value<String> writersJson;
+  final Value<String> artistsJson;
+  final Value<String> inkersJson;
+  final Value<String> coloristsJson;
+  final Value<String> letterersJson;
+  final Value<String> editorsJson;
+  final Value<String> coverArtistsJson;
+  final Value<String> creatorCreditsJson;
+  final Value<String> charactersJson;
+  final Value<String> characterDetailsJson;
+  final Value<String> creatorsJson;
+  final Value<String> storyArcsJson;
+  final Value<String> keyEventsJson;
+  final Value<bool> isKeyComic;
+  final Value<String?> keyReason;
+  final Value<String?> variant;
+  final Value<String?> variantDescription;
+  final Value<String?> barcode;
+  final Value<String?> seriesJson;
+  final Value<String?> publishingJson;
+  final Value<String?> editionTitle;
+  final Value<String?> titleExtension;
+  final Value<String?> physicalFormat;
+  final Value<String?> physicalFormatLabel;
+  final Value<String> linksJson;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const ComicMediaRowsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.seriesTitle = const Value.absent(),
+    this.issueNumber = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.imprint = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.coverDate = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.country = const Value.absent(),
+    this.language = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.crossover = const Value.absent(),
+    this.synopsis = const Value.absent(),
+    this.genresJson = const Value.absent(),
+    this.searchAliasesJson = const Value.absent(),
+    this.writersJson = const Value.absent(),
+    this.artistsJson = const Value.absent(),
+    this.inkersJson = const Value.absent(),
+    this.coloristsJson = const Value.absent(),
+    this.letterersJson = const Value.absent(),
+    this.editorsJson = const Value.absent(),
+    this.coverArtistsJson = const Value.absent(),
+    this.creatorCreditsJson = const Value.absent(),
+    this.charactersJson = const Value.absent(),
+    this.characterDetailsJson = const Value.absent(),
+    this.creatorsJson = const Value.absent(),
+    this.storyArcsJson = const Value.absent(),
+    this.keyEventsJson = const Value.absent(),
+    this.isKeyComic = const Value.absent(),
+    this.keyReason = const Value.absent(),
+    this.variant = const Value.absent(),
+    this.variantDescription = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.seriesJson = const Value.absent(),
+    this.publishingJson = const Value.absent(),
+    this.editionTitle = const Value.absent(),
+    this.titleExtension = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.physicalFormatLabel = const Value.absent(),
+    this.linksJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ComicMediaRowsCompanion.insert({
+    required String id,
+    required String title,
+    this.sortTitle = const Value.absent(),
+    this.seriesTitle = const Value.absent(),
+    this.issueNumber = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.imprint = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.coverDate = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.country = const Value.absent(),
+    this.language = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.crossover = const Value.absent(),
+    this.synopsis = const Value.absent(),
+    this.genresJson = const Value.absent(),
+    this.searchAliasesJson = const Value.absent(),
+    this.writersJson = const Value.absent(),
+    this.artistsJson = const Value.absent(),
+    this.inkersJson = const Value.absent(),
+    this.coloristsJson = const Value.absent(),
+    this.letterersJson = const Value.absent(),
+    this.editorsJson = const Value.absent(),
+    this.coverArtistsJson = const Value.absent(),
+    this.creatorCreditsJson = const Value.absent(),
+    this.charactersJson = const Value.absent(),
+    this.characterDetailsJson = const Value.absent(),
+    this.creatorsJson = const Value.absent(),
+    this.storyArcsJson = const Value.absent(),
+    this.keyEventsJson = const Value.absent(),
+    this.isKeyComic = const Value.absent(),
+    this.keyReason = const Value.absent(),
+    this.variant = const Value.absent(),
+    this.variantDescription = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.seriesJson = const Value.absent(),
+    this.publishingJson = const Value.absent(),
+    this.editionTitle = const Value.absent(),
+    this.titleExtension = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.physicalFormatLabel = const Value.absent(),
+    this.linksJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title);
+  static Insertable<ComicMediaRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? sortTitle,
+    Expression<String>? seriesTitle,
+    Expression<String>? issueNumber,
+    Expression<String>? publisher,
+    Expression<String>? imprint,
+    Expression<DateTime>? releaseDate,
+    Expression<DateTime>? coverDate,
+    Expression<int>? pageCount,
+    Expression<String>? country,
+    Expression<String>? language,
+    Expression<String>? ageRating,
+    Expression<String>? crossover,
+    Expression<String>? synopsis,
+    Expression<String>? genresJson,
+    Expression<String>? searchAliasesJson,
+    Expression<String>? writersJson,
+    Expression<String>? artistsJson,
+    Expression<String>? inkersJson,
+    Expression<String>? coloristsJson,
+    Expression<String>? letterersJson,
+    Expression<String>? editorsJson,
+    Expression<String>? coverArtistsJson,
+    Expression<String>? creatorCreditsJson,
+    Expression<String>? charactersJson,
+    Expression<String>? characterDetailsJson,
+    Expression<String>? creatorsJson,
+    Expression<String>? storyArcsJson,
+    Expression<String>? keyEventsJson,
+    Expression<bool>? isKeyComic,
+    Expression<String>? keyReason,
+    Expression<String>? variant,
+    Expression<String>? variantDescription,
+    Expression<String>? barcode,
+    Expression<String>? seriesJson,
+    Expression<String>? publishingJson,
+    Expression<String>? editionTitle,
+    Expression<String>? titleExtension,
+    Expression<String>? physicalFormat,
+    Expression<String>? physicalFormatLabel,
+    Expression<String>? linksJson,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (seriesTitle != null) 'series_title': seriesTitle,
+      if (issueNumber != null) 'issue_number': issueNumber,
+      if (publisher != null) 'publisher': publisher,
+      if (imprint != null) 'imprint': imprint,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (coverDate != null) 'cover_date': coverDate,
+      if (pageCount != null) 'page_count': pageCount,
+      if (country != null) 'country': country,
+      if (language != null) 'language': language,
+      if (ageRating != null) 'age_rating': ageRating,
+      if (crossover != null) 'crossover': crossover,
+      if (synopsis != null) 'synopsis': synopsis,
+      if (genresJson != null) 'genres_json': genresJson,
+      if (searchAliasesJson != null) 'search_aliases_json': searchAliasesJson,
+      if (writersJson != null) 'writers_json': writersJson,
+      if (artistsJson != null) 'artists_json': artistsJson,
+      if (inkersJson != null) 'inkers_json': inkersJson,
+      if (coloristsJson != null) 'colorists_json': coloristsJson,
+      if (letterersJson != null) 'letterers_json': letterersJson,
+      if (editorsJson != null) 'editors_json': editorsJson,
+      if (coverArtistsJson != null) 'cover_artists_json': coverArtistsJson,
+      if (creatorCreditsJson != null)
+        'creator_credits_json': creatorCreditsJson,
+      if (charactersJson != null) 'characters_json': charactersJson,
+      if (characterDetailsJson != null)
+        'character_details_json': characterDetailsJson,
+      if (creatorsJson != null) 'creators_json': creatorsJson,
+      if (storyArcsJson != null) 'story_arcs_json': storyArcsJson,
+      if (keyEventsJson != null) 'key_events_json': keyEventsJson,
+      if (isKeyComic != null) 'is_key_comic': isKeyComic,
+      if (keyReason != null) 'key_reason': keyReason,
+      if (variant != null) 'variant': variant,
+      if (variantDescription != null) 'variant_description': variantDescription,
+      if (barcode != null) 'barcode': barcode,
+      if (seriesJson != null) 'series_json': seriesJson,
+      if (publishingJson != null) 'publishing_json': publishingJson,
+      if (editionTitle != null) 'edition_title': editionTitle,
+      if (titleExtension != null) 'title_extension': titleExtension,
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
+      if (linksJson != null) 'links_json': linksJson,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ComicMediaRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<String?>? sortTitle,
+      Value<String?>? seriesTitle,
+      Value<String?>? issueNumber,
+      Value<String?>? publisher,
+      Value<String?>? imprint,
+      Value<DateTime?>? releaseDate,
+      Value<DateTime?>? coverDate,
+      Value<int?>? pageCount,
+      Value<String>? country,
+      Value<String>? language,
+      Value<String?>? ageRating,
+      Value<String?>? crossover,
+      Value<String?>? synopsis,
+      Value<String>? genresJson,
+      Value<String>? searchAliasesJson,
+      Value<String>? writersJson,
+      Value<String>? artistsJson,
+      Value<String>? inkersJson,
+      Value<String>? coloristsJson,
+      Value<String>? letterersJson,
+      Value<String>? editorsJson,
+      Value<String>? coverArtistsJson,
+      Value<String>? creatorCreditsJson,
+      Value<String>? charactersJson,
+      Value<String>? characterDetailsJson,
+      Value<String>? creatorsJson,
+      Value<String>? storyArcsJson,
+      Value<String>? keyEventsJson,
+      Value<bool>? isKeyComic,
+      Value<String?>? keyReason,
+      Value<String?>? variant,
+      Value<String?>? variantDescription,
+      Value<String?>? barcode,
+      Value<String?>? seriesJson,
+      Value<String?>? publishingJson,
+      Value<String?>? editionTitle,
+      Value<String?>? titleExtension,
+      Value<String?>? physicalFormat,
+      Value<String?>? physicalFormatLabel,
+      Value<String>? linksJson,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return ComicMediaRowsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      sortTitle: sortTitle ?? this.sortTitle,
+      seriesTitle: seriesTitle ?? this.seriesTitle,
+      issueNumber: issueNumber ?? this.issueNumber,
+      publisher: publisher ?? this.publisher,
+      imprint: imprint ?? this.imprint,
+      releaseDate: releaseDate ?? this.releaseDate,
+      coverDate: coverDate ?? this.coverDate,
+      pageCount: pageCount ?? this.pageCount,
+      country: country ?? this.country,
+      language: language ?? this.language,
+      ageRating: ageRating ?? this.ageRating,
+      crossover: crossover ?? this.crossover,
+      synopsis: synopsis ?? this.synopsis,
+      genresJson: genresJson ?? this.genresJson,
+      searchAliasesJson: searchAliasesJson ?? this.searchAliasesJson,
+      writersJson: writersJson ?? this.writersJson,
+      artistsJson: artistsJson ?? this.artistsJson,
+      inkersJson: inkersJson ?? this.inkersJson,
+      coloristsJson: coloristsJson ?? this.coloristsJson,
+      letterersJson: letterersJson ?? this.letterersJson,
+      editorsJson: editorsJson ?? this.editorsJson,
+      coverArtistsJson: coverArtistsJson ?? this.coverArtistsJson,
+      creatorCreditsJson: creatorCreditsJson ?? this.creatorCreditsJson,
+      charactersJson: charactersJson ?? this.charactersJson,
+      characterDetailsJson: characterDetailsJson ?? this.characterDetailsJson,
+      creatorsJson: creatorsJson ?? this.creatorsJson,
+      storyArcsJson: storyArcsJson ?? this.storyArcsJson,
+      keyEventsJson: keyEventsJson ?? this.keyEventsJson,
+      isKeyComic: isKeyComic ?? this.isKeyComic,
+      keyReason: keyReason ?? this.keyReason,
+      variant: variant ?? this.variant,
+      variantDescription: variantDescription ?? this.variantDescription,
+      barcode: barcode ?? this.barcode,
+      seriesJson: seriesJson ?? this.seriesJson,
+      publishingJson: publishingJson ?? this.publishingJson,
+      editionTitle: editionTitle ?? this.editionTitle,
+      titleExtension: titleExtension ?? this.titleExtension,
+      physicalFormat: physicalFormat ?? this.physicalFormat,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
+      linksJson: linksJson ?? this.linksJson,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (sortTitle.present) {
+      map['sort_title'] = Variable<String>(sortTitle.value);
+    }
+    if (seriesTitle.present) {
+      map['series_title'] = Variable<String>(seriesTitle.value);
+    }
+    if (issueNumber.present) {
+      map['issue_number'] = Variable<String>(issueNumber.value);
+    }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (imprint.present) {
+      map['imprint'] = Variable<String>(imprint.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (coverDate.present) {
+      map['cover_date'] = Variable<DateTime>(coverDate.value);
+    }
+    if (pageCount.present) {
+      map['page_count'] = Variable<int>(pageCount.value);
+    }
+    if (country.present) {
+      map['country'] = Variable<String>(country.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (ageRating.present) {
+      map['age_rating'] = Variable<String>(ageRating.value);
+    }
+    if (crossover.present) {
+      map['crossover'] = Variable<String>(crossover.value);
+    }
+    if (synopsis.present) {
+      map['synopsis'] = Variable<String>(synopsis.value);
+    }
+    if (genresJson.present) {
+      map['genres_json'] = Variable<String>(genresJson.value);
+    }
+    if (searchAliasesJson.present) {
+      map['search_aliases_json'] = Variable<String>(searchAliasesJson.value);
+    }
+    if (writersJson.present) {
+      map['writers_json'] = Variable<String>(writersJson.value);
+    }
+    if (artistsJson.present) {
+      map['artists_json'] = Variable<String>(artistsJson.value);
+    }
+    if (inkersJson.present) {
+      map['inkers_json'] = Variable<String>(inkersJson.value);
+    }
+    if (coloristsJson.present) {
+      map['colorists_json'] = Variable<String>(coloristsJson.value);
+    }
+    if (letterersJson.present) {
+      map['letterers_json'] = Variable<String>(letterersJson.value);
+    }
+    if (editorsJson.present) {
+      map['editors_json'] = Variable<String>(editorsJson.value);
+    }
+    if (coverArtistsJson.present) {
+      map['cover_artists_json'] = Variable<String>(coverArtistsJson.value);
+    }
+    if (creatorCreditsJson.present) {
+      map['creator_credits_json'] = Variable<String>(creatorCreditsJson.value);
+    }
+    if (charactersJson.present) {
+      map['characters_json'] = Variable<String>(charactersJson.value);
+    }
+    if (characterDetailsJson.present) {
+      map['character_details_json'] =
+          Variable<String>(characterDetailsJson.value);
+    }
+    if (creatorsJson.present) {
+      map['creators_json'] = Variable<String>(creatorsJson.value);
+    }
+    if (storyArcsJson.present) {
+      map['story_arcs_json'] = Variable<String>(storyArcsJson.value);
+    }
+    if (keyEventsJson.present) {
+      map['key_events_json'] = Variable<String>(keyEventsJson.value);
+    }
+    if (isKeyComic.present) {
+      map['is_key_comic'] = Variable<bool>(isKeyComic.value);
+    }
+    if (keyReason.present) {
+      map['key_reason'] = Variable<String>(keyReason.value);
+    }
+    if (variant.present) {
+      map['variant'] = Variable<String>(variant.value);
+    }
+    if (variantDescription.present) {
+      map['variant_description'] = Variable<String>(variantDescription.value);
+    }
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (seriesJson.present) {
+      map['series_json'] = Variable<String>(seriesJson.value);
+    }
+    if (publishingJson.present) {
+      map['publishing_json'] = Variable<String>(publishingJson.value);
+    }
+    if (editionTitle.present) {
+      map['edition_title'] = Variable<String>(editionTitle.value);
+    }
+    if (titleExtension.present) {
+      map['title_extension'] = Variable<String>(titleExtension.value);
+    }
+    if (physicalFormat.present) {
+      map['physical_format'] = Variable<String>(physicalFormat.value);
+    }
+    if (physicalFormatLabel.present) {
+      map['physical_format_label'] =
+          Variable<String>(physicalFormatLabel.value);
+    }
+    if (linksJson.present) {
+      map['links_json'] = Variable<String>(linksJson.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicMediaRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('seriesTitle: $seriesTitle, ')
+          ..write('issueNumber: $issueNumber, ')
+          ..write('publisher: $publisher, ')
+          ..write('imprint: $imprint, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('coverDate: $coverDate, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('country: $country, ')
+          ..write('language: $language, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('crossover: $crossover, ')
+          ..write('synopsis: $synopsis, ')
+          ..write('genresJson: $genresJson, ')
+          ..write('searchAliasesJson: $searchAliasesJson, ')
+          ..write('writersJson: $writersJson, ')
+          ..write('artistsJson: $artistsJson, ')
+          ..write('inkersJson: $inkersJson, ')
+          ..write('coloristsJson: $coloristsJson, ')
+          ..write('letterersJson: $letterersJson, ')
+          ..write('editorsJson: $editorsJson, ')
+          ..write('coverArtistsJson: $coverArtistsJson, ')
+          ..write('creatorCreditsJson: $creatorCreditsJson, ')
+          ..write('charactersJson: $charactersJson, ')
+          ..write('characterDetailsJson: $characterDetailsJson, ')
+          ..write('creatorsJson: $creatorsJson, ')
+          ..write('storyArcsJson: $storyArcsJson, ')
+          ..write('keyEventsJson: $keyEventsJson, ')
+          ..write('isKeyComic: $isKeyComic, ')
+          ..write('keyReason: $keyReason, ')
+          ..write('variant: $variant, ')
+          ..write('variantDescription: $variantDescription, ')
+          ..write('barcode: $barcode, ')
+          ..write('seriesJson: $seriesJson, ')
+          ..write('publishingJson: $publishingJson, ')
+          ..write('editionTitle: $editionTitle, ')
+          ..write('titleExtension: $titleExtension, ')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('physicalFormatLabel: $physicalFormatLabel, ')
+          ..write('linksJson: $linksJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ComicReleaseRowsTable extends ComicReleaseRows
+    with TableInfo<$ComicReleaseRowsTable, ComicReleaseRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ComicReleaseRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mediaIdMeta =
+      const VerificationMeta('mediaId');
+  @override
+  late final GeneratedColumn<String> mediaId = GeneratedColumn<String>(
+      'media_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _publisherMeta =
+      const VerificationMeta('publisher');
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+      'publisher', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _imprintMeta =
+      const VerificationMeta('imprint');
+  @override
+  late final GeneratedColumn<String> imprint = GeneratedColumn<String>(
+      'imprint', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isbnMeta = const VerificationMeta('isbn');
+  @override
+  late final GeneratedColumn<String> isbn = GeneratedColumn<String>(
+      'isbn', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _upcMeta = const VerificationMeta('upc');
+  @override
+  late final GeneratedColumn<String> upc = GeneratedColumn<String>(
+      'upc', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageUrlMeta =
+      const VerificationMeta('coverImageUrl');
+  @override
+  late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
+      'cover_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantsJsonMeta =
+      const VerificationMeta('variantsJson');
+  @override
+  late final GeneratedColumn<String> variantsJson = GeneratedColumn<String>(
+      'variants_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        mediaId,
+        id,
+        title,
+        publisher,
+        imprint,
+        isbn,
+        upc,
+        releaseDate,
+        coverImageUrl,
+        variantsJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'comic_release_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<ComicReleaseRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('media_id')) {
+      context.handle(_mediaIdMeta,
+          mediaId.isAcceptableOrUnknown(data['media_id']!, _mediaIdMeta));
+    } else if (isInserting) {
+      context.missing(_mediaIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('publisher')) {
+      context.handle(_publisherMeta,
+          publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('imprint')) {
+      context.handle(_imprintMeta,
+          imprint.isAcceptableOrUnknown(data['imprint']!, _imprintMeta));
+    }
+    if (data.containsKey('isbn')) {
+      context.handle(
+          _isbnMeta, isbn.isAcceptableOrUnknown(data['isbn']!, _isbnMeta));
+    }
+    if (data.containsKey('upc')) {
+      context.handle(
+          _upcMeta, upc.isAcceptableOrUnknown(data['upc']!, _upcMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('cover_image_url')) {
+      context.handle(
+          _coverImageUrlMeta,
+          coverImageUrl.isAcceptableOrUnknown(
+              data['cover_image_url']!, _coverImageUrlMeta));
+    }
+    if (data.containsKey('variants_json')) {
+      context.handle(
+          _variantsJsonMeta,
+          variantsJson.isAcceptableOrUnknown(
+              data['variants_json']!, _variantsJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {mediaId, id};
+  @override
+  ComicReleaseRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ComicReleaseRow(
+      mediaId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      publisher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      imprint: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}imprint']),
+      isbn: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}isbn']),
+      upc: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}upc']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      coverImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      variantsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variants_json'])!,
+    );
+  }
+
+  @override
+  $ComicReleaseRowsTable createAlias(String alias) {
+    return $ComicReleaseRowsTable(attachedDatabase, alias);
+  }
+}
+
+class ComicReleaseRow extends DataClass implements Insertable<ComicReleaseRow> {
+  final String mediaId;
+  final String id;
+  final String title;
+  final String? publisher;
+  final String? imprint;
+  final String? isbn;
+  final String? upc;
+  final DateTime? releaseDate;
+  final String? coverImageUrl;
+  final String variantsJson;
+  const ComicReleaseRow(
+      {required this.mediaId,
+      required this.id,
+      required this.title,
+      this.publisher,
+      this.imprint,
+      this.isbn,
+      this.upc,
+      this.releaseDate,
+      this.coverImageUrl,
+      required this.variantsJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['media_id'] = Variable<String>(mediaId);
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || imprint != null) {
+      map['imprint'] = Variable<String>(imprint);
+    }
+    if (!nullToAbsent || isbn != null) {
+      map['isbn'] = Variable<String>(isbn);
+    }
+    if (!nullToAbsent || upc != null) {
+      map['upc'] = Variable<String>(upc);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || coverImageUrl != null) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    map['variants_json'] = Variable<String>(variantsJson);
+    return map;
+  }
+
+  ComicReleaseRowsCompanion toCompanion(bool nullToAbsent) {
+    return ComicReleaseRowsCompanion(
+      mediaId: Value(mediaId),
+      id: Value(id),
+      title: Value(title),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      imprint: imprint == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imprint),
+      isbn: isbn == null && nullToAbsent ? const Value.absent() : Value(isbn),
+      upc: upc == null && nullToAbsent ? const Value.absent() : Value(upc),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      coverImageUrl: coverImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageUrl),
+      variantsJson: Value(variantsJson),
+    );
+  }
+
+  factory ComicReleaseRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ComicReleaseRow(
+      mediaId: serializer.fromJson<String>(json['mediaId']),
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      imprint: serializer.fromJson<String?>(json['imprint']),
+      isbn: serializer.fromJson<String?>(json['isbn']),
+      upc: serializer.fromJson<String?>(json['upc']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      variantsJson: serializer.fromJson<String>(json['variantsJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'mediaId': serializer.toJson<String>(mediaId),
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'publisher': serializer.toJson<String?>(publisher),
+      'imprint': serializer.toJson<String?>(imprint),
+      'isbn': serializer.toJson<String?>(isbn),
+      'upc': serializer.toJson<String?>(upc),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'variantsJson': serializer.toJson<String>(variantsJson),
+    };
+  }
+
+  ComicReleaseRow copyWith(
+          {String? mediaId,
+          String? id,
+          String? title,
+          Value<String?> publisher = const Value.absent(),
+          Value<String?> imprint = const Value.absent(),
+          Value<String?> isbn = const Value.absent(),
+          Value<String?> upc = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          Value<String?> coverImageUrl = const Value.absent(),
+          String? variantsJson}) =>
+      ComicReleaseRow(
+        mediaId: mediaId ?? this.mediaId,
+        id: id ?? this.id,
+        title: title ?? this.title,
+        publisher: publisher.present ? publisher.value : this.publisher,
+        imprint: imprint.present ? imprint.value : this.imprint,
+        isbn: isbn.present ? isbn.value : this.isbn,
+        upc: upc.present ? upc.value : this.upc,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        coverImageUrl:
+            coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        variantsJson: variantsJson ?? this.variantsJson,
+      );
+  ComicReleaseRow copyWithCompanion(ComicReleaseRowsCompanion data) {
+    return ComicReleaseRow(
+      mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      imprint: data.imprint.present ? data.imprint.value : this.imprint,
+      isbn: data.isbn.present ? data.isbn.value : this.isbn,
+      upc: data.upc.present ? data.upc.value : this.upc,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      coverImageUrl: data.coverImageUrl.present
+          ? data.coverImageUrl.value
+          : this.coverImageUrl,
+      variantsJson: data.variantsJson.present
+          ? data.variantsJson.value
+          : this.variantsJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicReleaseRow(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('publisher: $publisher, ')
+          ..write('imprint: $imprint, ')
+          ..write('isbn: $isbn, ')
+          ..write('upc: $upc, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('variantsJson: $variantsJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(mediaId, id, title, publisher, imprint, isbn,
+      upc, releaseDate, coverImageUrl, variantsJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ComicReleaseRow &&
+          other.mediaId == this.mediaId &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.publisher == this.publisher &&
+          other.imprint == this.imprint &&
+          other.isbn == this.isbn &&
+          other.upc == this.upc &&
+          other.releaseDate == this.releaseDate &&
+          other.coverImageUrl == this.coverImageUrl &&
+          other.variantsJson == this.variantsJson);
+}
+
+class ComicReleaseRowsCompanion extends UpdateCompanion<ComicReleaseRow> {
+  final Value<String> mediaId;
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> publisher;
+  final Value<String?> imprint;
+  final Value<String?> isbn;
+  final Value<String?> upc;
+  final Value<DateTime?> releaseDate;
+  final Value<String?> coverImageUrl;
+  final Value<String> variantsJson;
+  final Value<int> rowid;
+  const ComicReleaseRowsCompanion({
+    this.mediaId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.imprint = const Value.absent(),
+    this.isbn = const Value.absent(),
+    this.upc = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.variantsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ComicReleaseRowsCompanion.insert({
+    required String mediaId,
+    required String id,
+    required String title,
+    this.publisher = const Value.absent(),
+    this.imprint = const Value.absent(),
+    this.isbn = const Value.absent(),
+    this.upc = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.variantsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : mediaId = Value(mediaId),
+        id = Value(id),
+        title = Value(title);
+  static Insertable<ComicReleaseRow> custom({
+    Expression<String>? mediaId,
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? publisher,
+    Expression<String>? imprint,
+    Expression<String>? isbn,
+    Expression<String>? upc,
+    Expression<DateTime>? releaseDate,
+    Expression<String>? coverImageUrl,
+    Expression<String>? variantsJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (mediaId != null) 'media_id': mediaId,
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (publisher != null) 'publisher': publisher,
+      if (imprint != null) 'imprint': imprint,
+      if (isbn != null) 'isbn': isbn,
+      if (upc != null) 'upc': upc,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (variantsJson != null) 'variants_json': variantsJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ComicReleaseRowsCompanion copyWith(
+      {Value<String>? mediaId,
+      Value<String>? id,
+      Value<String>? title,
+      Value<String?>? publisher,
+      Value<String?>? imprint,
+      Value<String?>? isbn,
+      Value<String?>? upc,
+      Value<DateTime?>? releaseDate,
+      Value<String?>? coverImageUrl,
+      Value<String>? variantsJson,
+      Value<int>? rowid}) {
+    return ComicReleaseRowsCompanion(
+      mediaId: mediaId ?? this.mediaId,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      publisher: publisher ?? this.publisher,
+      imprint: imprint ?? this.imprint,
+      isbn: isbn ?? this.isbn,
+      upc: upc ?? this.upc,
+      releaseDate: releaseDate ?? this.releaseDate,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      variantsJson: variantsJson ?? this.variantsJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (mediaId.present) {
+      map['media_id'] = Variable<String>(mediaId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (imprint.present) {
+      map['imprint'] = Variable<String>(imprint.value);
+    }
+    if (isbn.present) {
+      map['isbn'] = Variable<String>(isbn.value);
+    }
+    if (upc.present) {
+      map['upc'] = Variable<String>(upc.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (coverImageUrl.present) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl.value);
+    }
+    if (variantsJson.present) {
+      map['variants_json'] = Variable<String>(variantsJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicReleaseRowsCompanion(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('publisher: $publisher, ')
+          ..write('imprint: $imprint, ')
+          ..write('isbn: $isbn, ')
+          ..write('upc: $upc, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('variantsJson: $variantsJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -11964,6 +14399,9 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $PickListValuesCacheTable(this);
   late final $SerialAuthorityCacheTable serialAuthorityCache =
       $SerialAuthorityCacheTable(this);
+  late final $ComicMediaRowsTable comicMediaRows = $ComicMediaRowsTable(this);
+  late final $ComicReleaseRowsTable comicReleaseRows =
+      $ComicReleaseRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -11989,7 +14427,9 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         userFolderItemsCache,
         readingQueueCache,
         pickListValuesCache,
-        serialAuthorityCache
+        serialAuthorityCache,
+        comicMediaRows,
+        comicReleaseRows
       ];
 }
 
@@ -17639,6 +20079,1029 @@ typedef $$SerialAuthorityCacheTableProcessedTableManager
         ),
         SerialAuthorityCacheData,
         PrefetchHooks Function()>;
+typedef $$ComicMediaRowsTableCreateCompanionBuilder = ComicMediaRowsCompanion
+    Function({
+  required String id,
+  required String title,
+  Value<String?> sortTitle,
+  Value<String?> seriesTitle,
+  Value<String?> issueNumber,
+  Value<String?> publisher,
+  Value<String?> imprint,
+  Value<DateTime?> releaseDate,
+  Value<DateTime?> coverDate,
+  Value<int?> pageCount,
+  Value<String> country,
+  Value<String> language,
+  Value<String?> ageRating,
+  Value<String?> crossover,
+  Value<String?> synopsis,
+  Value<String> genresJson,
+  Value<String> searchAliasesJson,
+  Value<String> writersJson,
+  Value<String> artistsJson,
+  Value<String> inkersJson,
+  Value<String> coloristsJson,
+  Value<String> letterersJson,
+  Value<String> editorsJson,
+  Value<String> coverArtistsJson,
+  Value<String> creatorCreditsJson,
+  Value<String> charactersJson,
+  Value<String> characterDetailsJson,
+  Value<String> creatorsJson,
+  Value<String> storyArcsJson,
+  Value<String> keyEventsJson,
+  Value<bool> isKeyComic,
+  Value<String?> keyReason,
+  Value<String?> variant,
+  Value<String?> variantDescription,
+  Value<String?> barcode,
+  Value<String?> seriesJson,
+  Value<String?> publishingJson,
+  Value<String?> editionTitle,
+  Value<String?> titleExtension,
+  Value<String?> physicalFormat,
+  Value<String?> physicalFormatLabel,
+  Value<String> linksJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$ComicMediaRowsTableUpdateCompanionBuilder = ComicMediaRowsCompanion
+    Function({
+  Value<String> id,
+  Value<String> title,
+  Value<String?> sortTitle,
+  Value<String?> seriesTitle,
+  Value<String?> issueNumber,
+  Value<String?> publisher,
+  Value<String?> imprint,
+  Value<DateTime?> releaseDate,
+  Value<DateTime?> coverDate,
+  Value<int?> pageCount,
+  Value<String> country,
+  Value<String> language,
+  Value<String?> ageRating,
+  Value<String?> crossover,
+  Value<String?> synopsis,
+  Value<String> genresJson,
+  Value<String> searchAliasesJson,
+  Value<String> writersJson,
+  Value<String> artistsJson,
+  Value<String> inkersJson,
+  Value<String> coloristsJson,
+  Value<String> letterersJson,
+  Value<String> editorsJson,
+  Value<String> coverArtistsJson,
+  Value<String> creatorCreditsJson,
+  Value<String> charactersJson,
+  Value<String> characterDetailsJson,
+  Value<String> creatorsJson,
+  Value<String> storyArcsJson,
+  Value<String> keyEventsJson,
+  Value<bool> isKeyComic,
+  Value<String?> keyReason,
+  Value<String?> variant,
+  Value<String?> variantDescription,
+  Value<String?> barcode,
+  Value<String?> seriesJson,
+  Value<String?> publishingJson,
+  Value<String?> editionTitle,
+  Value<String?> titleExtension,
+  Value<String?> physicalFormat,
+  Value<String?> physicalFormatLabel,
+  Value<String> linksJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$ComicMediaRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $ComicMediaRowsTable> {
+  $$ComicMediaRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesTitle => $composableBuilder(
+      column: $table.seriesTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imprint => $composableBuilder(
+      column: $table.imprint, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get coverDate => $composableBuilder(
+      column: $table.coverDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get country => $composableBuilder(
+      column: $table.country, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get crossover => $composableBuilder(
+      column: $table.crossover, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get synopsis => $composableBuilder(
+      column: $table.synopsis, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get writersJson => $composableBuilder(
+      column: $table.writersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get artistsJson => $composableBuilder(
+      column: $table.artistsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get inkersJson => $composableBuilder(
+      column: $table.inkersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coloristsJson => $composableBuilder(
+      column: $table.coloristsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get letterersJson => $composableBuilder(
+      column: $table.letterersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editorsJson => $composableBuilder(
+      column: $table.editorsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverArtistsJson => $composableBuilder(
+      column: $table.coverArtistsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get creatorCreditsJson => $composableBuilder(
+      column: $table.creatorCreditsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get charactersJson => $composableBuilder(
+      column: $table.charactersJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get characterDetailsJson => $composableBuilder(
+      column: $table.characterDetailsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get creatorsJson => $composableBuilder(
+      column: $table.creatorsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storyArcsJson => $composableBuilder(
+      column: $table.storyArcsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keyEventsJson => $composableBuilder(
+      column: $table.keyEventsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isKeyComic => $composableBuilder(
+      column: $table.isKeyComic, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keyReason => $composableBuilder(
+      column: $table.keyReason, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variant => $composableBuilder(
+      column: $table.variant, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantDescription => $composableBuilder(
+      column: $table.variantDescription,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get barcode => $composableBuilder(
+      column: $table.barcode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesJson => $composableBuilder(
+      column: $table.seriesJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publishingJson => $composableBuilder(
+      column: $table.publishingJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionTitle => $composableBuilder(
+      column: $table.editionTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get titleExtension => $composableBuilder(
+      column: $table.titleExtension,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get linksJson => $composableBuilder(
+      column: $table.linksJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$ComicMediaRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ComicMediaRowsTable> {
+  $$ComicMediaRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seriesTitle => $composableBuilder(
+      column: $table.seriesTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imprint => $composableBuilder(
+      column: $table.imprint, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get coverDate => $composableBuilder(
+      column: $table.coverDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get country => $composableBuilder(
+      column: $table.country, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get crossover => $composableBuilder(
+      column: $table.crossover, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get synopsis => $composableBuilder(
+      column: $table.synopsis, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get writersJson => $composableBuilder(
+      column: $table.writersJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get artistsJson => $composableBuilder(
+      column: $table.artistsJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get inkersJson => $composableBuilder(
+      column: $table.inkersJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coloristsJson => $composableBuilder(
+      column: $table.coloristsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get letterersJson => $composableBuilder(
+      column: $table.letterersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editorsJson => $composableBuilder(
+      column: $table.editorsJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverArtistsJson => $composableBuilder(
+      column: $table.coverArtistsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get creatorCreditsJson => $composableBuilder(
+      column: $table.creatorCreditsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get charactersJson => $composableBuilder(
+      column: $table.charactersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get characterDetailsJson => $composableBuilder(
+      column: $table.characterDetailsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get creatorsJson => $composableBuilder(
+      column: $table.creatorsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storyArcsJson => $composableBuilder(
+      column: $table.storyArcsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keyEventsJson => $composableBuilder(
+      column: $table.keyEventsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isKeyComic => $composableBuilder(
+      column: $table.isKeyComic, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keyReason => $composableBuilder(
+      column: $table.keyReason, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variant => $composableBuilder(
+      column: $table.variant, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantDescription => $composableBuilder(
+      column: $table.variantDescription,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get barcode => $composableBuilder(
+      column: $table.barcode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seriesJson => $composableBuilder(
+      column: $table.seriesJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publishingJson => $composableBuilder(
+      column: $table.publishingJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionTitle => $composableBuilder(
+      column: $table.editionTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get titleExtension => $composableBuilder(
+      column: $table.titleExtension,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get linksJson => $composableBuilder(
+      column: $table.linksJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$ComicMediaRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ComicMediaRowsTable> {
+  $$ComicMediaRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get sortTitle =>
+      $composableBuilder(column: $table.sortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get seriesTitle => $composableBuilder(
+      column: $table.seriesTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<String> get imprint =>
+      $composableBuilder(column: $table.imprint, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get coverDate =>
+      $composableBuilder(column: $table.coverDate, builder: (column) => column);
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<String> get country =>
+      $composableBuilder(column: $table.country, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get ageRating =>
+      $composableBuilder(column: $table.ageRating, builder: (column) => column);
+
+  GeneratedColumn<String> get crossover =>
+      $composableBuilder(column: $table.crossover, builder: (column) => column);
+
+  GeneratedColumn<String> get synopsis =>
+      $composableBuilder(column: $table.synopsis, builder: (column) => column);
+
+  GeneratedColumn<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => column);
+
+  GeneratedColumn<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get writersJson => $composableBuilder(
+      column: $table.writersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get artistsJson => $composableBuilder(
+      column: $table.artistsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get inkersJson => $composableBuilder(
+      column: $table.inkersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get coloristsJson => $composableBuilder(
+      column: $table.coloristsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get letterersJson => $composableBuilder(
+      column: $table.letterersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get editorsJson => $composableBuilder(
+      column: $table.editorsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get coverArtistsJson => $composableBuilder(
+      column: $table.coverArtistsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get creatorCreditsJson => $composableBuilder(
+      column: $table.creatorCreditsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get charactersJson => $composableBuilder(
+      column: $table.charactersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get characterDetailsJson => $composableBuilder(
+      column: $table.characterDetailsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get creatorsJson => $composableBuilder(
+      column: $table.creatorsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get storyArcsJson => $composableBuilder(
+      column: $table.storyArcsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get keyEventsJson => $composableBuilder(
+      column: $table.keyEventsJson, builder: (column) => column);
+
+  GeneratedColumn<bool> get isKeyComic => $composableBuilder(
+      column: $table.isKeyComic, builder: (column) => column);
+
+  GeneratedColumn<String> get keyReason =>
+      $composableBuilder(column: $table.keyReason, builder: (column) => column);
+
+  GeneratedColumn<String> get variant =>
+      $composableBuilder(column: $table.variant, builder: (column) => column);
+
+  GeneratedColumn<String> get variantDescription => $composableBuilder(
+      column: $table.variantDescription, builder: (column) => column);
+
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get seriesJson => $composableBuilder(
+      column: $table.seriesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get publishingJson => $composableBuilder(
+      column: $table.publishingJson, builder: (column) => column);
+
+  GeneratedColumn<String> get editionTitle => $composableBuilder(
+      column: $table.editionTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get titleExtension => $composableBuilder(
+      column: $table.titleExtension, builder: (column) => column);
+
+  GeneratedColumn<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat, builder: (column) => column);
+
+  GeneratedColumn<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel, builder: (column) => column);
+
+  GeneratedColumn<String> get linksJson =>
+      $composableBuilder(column: $table.linksJson, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$ComicMediaRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ComicMediaRowsTable,
+    ComicMediaRow,
+    $$ComicMediaRowsTableFilterComposer,
+    $$ComicMediaRowsTableOrderingComposer,
+    $$ComicMediaRowsTableAnnotationComposer,
+    $$ComicMediaRowsTableCreateCompanionBuilder,
+    $$ComicMediaRowsTableUpdateCompanionBuilder,
+    (
+      ComicMediaRow,
+      BaseReferences<_$LocalDatabase, $ComicMediaRowsTable, ComicMediaRow>
+    ),
+    ComicMediaRow,
+    PrefetchHooks Function()> {
+  $$ComicMediaRowsTableTableManager(
+      _$LocalDatabase db, $ComicMediaRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ComicMediaRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ComicMediaRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ComicMediaRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> seriesTitle = const Value.absent(),
+            Value<String?> issueNumber = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> imprint = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<DateTime?> coverDate = const Value.absent(),
+            Value<int?> pageCount = const Value.absent(),
+            Value<String> country = const Value.absent(),
+            Value<String> language = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<String?> crossover = const Value.absent(),
+            Value<String?> synopsis = const Value.absent(),
+            Value<String> genresJson = const Value.absent(),
+            Value<String> searchAliasesJson = const Value.absent(),
+            Value<String> writersJson = const Value.absent(),
+            Value<String> artistsJson = const Value.absent(),
+            Value<String> inkersJson = const Value.absent(),
+            Value<String> coloristsJson = const Value.absent(),
+            Value<String> letterersJson = const Value.absent(),
+            Value<String> editorsJson = const Value.absent(),
+            Value<String> coverArtistsJson = const Value.absent(),
+            Value<String> creatorCreditsJson = const Value.absent(),
+            Value<String> charactersJson = const Value.absent(),
+            Value<String> characterDetailsJson = const Value.absent(),
+            Value<String> creatorsJson = const Value.absent(),
+            Value<String> storyArcsJson = const Value.absent(),
+            Value<String> keyEventsJson = const Value.absent(),
+            Value<bool> isKeyComic = const Value.absent(),
+            Value<String?> keyReason = const Value.absent(),
+            Value<String?> variant = const Value.absent(),
+            Value<String?> variantDescription = const Value.absent(),
+            Value<String?> barcode = const Value.absent(),
+            Value<String?> seriesJson = const Value.absent(),
+            Value<String?> publishingJson = const Value.absent(),
+            Value<String?> editionTitle = const Value.absent(),
+            Value<String?> titleExtension = const Value.absent(),
+            Value<String?> physicalFormat = const Value.absent(),
+            Value<String?> physicalFormatLabel = const Value.absent(),
+            Value<String> linksJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicMediaRowsCompanion(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            seriesTitle: seriesTitle,
+            issueNumber: issueNumber,
+            publisher: publisher,
+            imprint: imprint,
+            releaseDate: releaseDate,
+            coverDate: coverDate,
+            pageCount: pageCount,
+            country: country,
+            language: language,
+            ageRating: ageRating,
+            crossover: crossover,
+            synopsis: synopsis,
+            genresJson: genresJson,
+            searchAliasesJson: searchAliasesJson,
+            writersJson: writersJson,
+            artistsJson: artistsJson,
+            inkersJson: inkersJson,
+            coloristsJson: coloristsJson,
+            letterersJson: letterersJson,
+            editorsJson: editorsJson,
+            coverArtistsJson: coverArtistsJson,
+            creatorCreditsJson: creatorCreditsJson,
+            charactersJson: charactersJson,
+            characterDetailsJson: characterDetailsJson,
+            creatorsJson: creatorsJson,
+            storyArcsJson: storyArcsJson,
+            keyEventsJson: keyEventsJson,
+            isKeyComic: isKeyComic,
+            keyReason: keyReason,
+            variant: variant,
+            variantDescription: variantDescription,
+            barcode: barcode,
+            seriesJson: seriesJson,
+            publishingJson: publishingJson,
+            editionTitle: editionTitle,
+            titleExtension: titleExtension,
+            physicalFormat: physicalFormat,
+            physicalFormatLabel: physicalFormatLabel,
+            linksJson: linksJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> seriesTitle = const Value.absent(),
+            Value<String?> issueNumber = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> imprint = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<DateTime?> coverDate = const Value.absent(),
+            Value<int?> pageCount = const Value.absent(),
+            Value<String> country = const Value.absent(),
+            Value<String> language = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<String?> crossover = const Value.absent(),
+            Value<String?> synopsis = const Value.absent(),
+            Value<String> genresJson = const Value.absent(),
+            Value<String> searchAliasesJson = const Value.absent(),
+            Value<String> writersJson = const Value.absent(),
+            Value<String> artistsJson = const Value.absent(),
+            Value<String> inkersJson = const Value.absent(),
+            Value<String> coloristsJson = const Value.absent(),
+            Value<String> letterersJson = const Value.absent(),
+            Value<String> editorsJson = const Value.absent(),
+            Value<String> coverArtistsJson = const Value.absent(),
+            Value<String> creatorCreditsJson = const Value.absent(),
+            Value<String> charactersJson = const Value.absent(),
+            Value<String> characterDetailsJson = const Value.absent(),
+            Value<String> creatorsJson = const Value.absent(),
+            Value<String> storyArcsJson = const Value.absent(),
+            Value<String> keyEventsJson = const Value.absent(),
+            Value<bool> isKeyComic = const Value.absent(),
+            Value<String?> keyReason = const Value.absent(),
+            Value<String?> variant = const Value.absent(),
+            Value<String?> variantDescription = const Value.absent(),
+            Value<String?> barcode = const Value.absent(),
+            Value<String?> seriesJson = const Value.absent(),
+            Value<String?> publishingJson = const Value.absent(),
+            Value<String?> editionTitle = const Value.absent(),
+            Value<String?> titleExtension = const Value.absent(),
+            Value<String?> physicalFormat = const Value.absent(),
+            Value<String?> physicalFormatLabel = const Value.absent(),
+            Value<String> linksJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicMediaRowsCompanion.insert(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            seriesTitle: seriesTitle,
+            issueNumber: issueNumber,
+            publisher: publisher,
+            imprint: imprint,
+            releaseDate: releaseDate,
+            coverDate: coverDate,
+            pageCount: pageCount,
+            country: country,
+            language: language,
+            ageRating: ageRating,
+            crossover: crossover,
+            synopsis: synopsis,
+            genresJson: genresJson,
+            searchAliasesJson: searchAliasesJson,
+            writersJson: writersJson,
+            artistsJson: artistsJson,
+            inkersJson: inkersJson,
+            coloristsJson: coloristsJson,
+            letterersJson: letterersJson,
+            editorsJson: editorsJson,
+            coverArtistsJson: coverArtistsJson,
+            creatorCreditsJson: creatorCreditsJson,
+            charactersJson: charactersJson,
+            characterDetailsJson: characterDetailsJson,
+            creatorsJson: creatorsJson,
+            storyArcsJson: storyArcsJson,
+            keyEventsJson: keyEventsJson,
+            isKeyComic: isKeyComic,
+            keyReason: keyReason,
+            variant: variant,
+            variantDescription: variantDescription,
+            barcode: barcode,
+            seriesJson: seriesJson,
+            publishingJson: publishingJson,
+            editionTitle: editionTitle,
+            titleExtension: titleExtension,
+            physicalFormat: physicalFormat,
+            physicalFormatLabel: physicalFormatLabel,
+            linksJson: linksJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ComicMediaRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $ComicMediaRowsTable,
+    ComicMediaRow,
+    $$ComicMediaRowsTableFilterComposer,
+    $$ComicMediaRowsTableOrderingComposer,
+    $$ComicMediaRowsTableAnnotationComposer,
+    $$ComicMediaRowsTableCreateCompanionBuilder,
+    $$ComicMediaRowsTableUpdateCompanionBuilder,
+    (
+      ComicMediaRow,
+      BaseReferences<_$LocalDatabase, $ComicMediaRowsTable, ComicMediaRow>
+    ),
+    ComicMediaRow,
+    PrefetchHooks Function()>;
+typedef $$ComicReleaseRowsTableCreateCompanionBuilder
+    = ComicReleaseRowsCompanion Function({
+  required String mediaId,
+  required String id,
+  required String title,
+  Value<String?> publisher,
+  Value<String?> imprint,
+  Value<String?> isbn,
+  Value<String?> upc,
+  Value<DateTime?> releaseDate,
+  Value<String?> coverImageUrl,
+  Value<String> variantsJson,
+  Value<int> rowid,
+});
+typedef $$ComicReleaseRowsTableUpdateCompanionBuilder
+    = ComicReleaseRowsCompanion Function({
+  Value<String> mediaId,
+  Value<String> id,
+  Value<String> title,
+  Value<String?> publisher,
+  Value<String?> imprint,
+  Value<String?> isbn,
+  Value<String?> upc,
+  Value<DateTime?> releaseDate,
+  Value<String?> coverImageUrl,
+  Value<String> variantsJson,
+  Value<int> rowid,
+});
+
+class $$ComicReleaseRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $ComicReleaseRowsTable> {
+  $$ComicReleaseRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imprint => $composableBuilder(
+      column: $table.imprint, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get isbn => $composableBuilder(
+      column: $table.isbn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get upc => $composableBuilder(
+      column: $table.upc, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantsJson => $composableBuilder(
+      column: $table.variantsJson, builder: (column) => ColumnFilters(column));
+}
+
+class $$ComicReleaseRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ComicReleaseRowsTable> {
+  $$ComicReleaseRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imprint => $composableBuilder(
+      column: $table.imprint, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get isbn => $composableBuilder(
+      column: $table.isbn, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get upc => $composableBuilder(
+      column: $table.upc, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantsJson => $composableBuilder(
+      column: $table.variantsJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$ComicReleaseRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ComicReleaseRowsTable> {
+  $$ComicReleaseRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get mediaId =>
+      $composableBuilder(column: $table.mediaId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<String> get imprint =>
+      $composableBuilder(column: $table.imprint, builder: (column) => column);
+
+  GeneratedColumn<String> get isbn =>
+      $composableBuilder(column: $table.isbn, builder: (column) => column);
+
+  GeneratedColumn<String> get upc =>
+      $composableBuilder(column: $table.upc, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get variantsJson => $composableBuilder(
+      column: $table.variantsJson, builder: (column) => column);
+}
+
+class $$ComicReleaseRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ComicReleaseRowsTable,
+    ComicReleaseRow,
+    $$ComicReleaseRowsTableFilterComposer,
+    $$ComicReleaseRowsTableOrderingComposer,
+    $$ComicReleaseRowsTableAnnotationComposer,
+    $$ComicReleaseRowsTableCreateCompanionBuilder,
+    $$ComicReleaseRowsTableUpdateCompanionBuilder,
+    (
+      ComicReleaseRow,
+      BaseReferences<_$LocalDatabase, $ComicReleaseRowsTable, ComicReleaseRow>
+    ),
+    ComicReleaseRow,
+    PrefetchHooks Function()> {
+  $$ComicReleaseRowsTableTableManager(
+      _$LocalDatabase db, $ComicReleaseRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ComicReleaseRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ComicReleaseRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ComicReleaseRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> mediaId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> imprint = const Value.absent(),
+            Value<String?> isbn = const Value.absent(),
+            Value<String?> upc = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String> variantsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicReleaseRowsCompanion(
+            mediaId: mediaId,
+            id: id,
+            title: title,
+            publisher: publisher,
+            imprint: imprint,
+            isbn: isbn,
+            upc: upc,
+            releaseDate: releaseDate,
+            coverImageUrl: coverImageUrl,
+            variantsJson: variantsJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String mediaId,
+            required String id,
+            required String title,
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> imprint = const Value.absent(),
+            Value<String?> isbn = const Value.absent(),
+            Value<String?> upc = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String> variantsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicReleaseRowsCompanion.insert(
+            mediaId: mediaId,
+            id: id,
+            title: title,
+            publisher: publisher,
+            imprint: imprint,
+            isbn: isbn,
+            upc: upc,
+            releaseDate: releaseDate,
+            coverImageUrl: coverImageUrl,
+            variantsJson: variantsJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ComicReleaseRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $ComicReleaseRowsTable,
+    ComicReleaseRow,
+    $$ComicReleaseRowsTableFilterComposer,
+    $$ComicReleaseRowsTableOrderingComposer,
+    $$ComicReleaseRowsTableAnnotationComposer,
+    $$ComicReleaseRowsTableCreateCompanionBuilder,
+    $$ComicReleaseRowsTableUpdateCompanionBuilder,
+    (
+      ComicReleaseRow,
+      BaseReferences<_$LocalDatabase, $ComicReleaseRowsTable, ComicReleaseRow>
+    ),
+    ComicReleaseRow,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -17691,4 +21154,8 @@ class $LocalDatabaseManager {
       $$PickListValuesCacheTableTableManager(_db, _db.pickListValuesCache);
   $$SerialAuthorityCacheTableTableManager get serialAuthorityCache =>
       $$SerialAuthorityCacheTableTableManager(_db, _db.serialAuthorityCache);
+  $$ComicMediaRowsTableTableManager get comicMediaRows =>
+      $$ComicMediaRowsTableTableManager(_db, _db.comicMediaRows);
+  $$ComicReleaseRowsTableTableManager get comicReleaseRows =>
+      $$ComicReleaseRowsTableTableManager(_db, _db.comicReleaseRows);
 }

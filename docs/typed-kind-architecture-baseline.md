@@ -293,4 +293,25 @@ classification of every `ComicWorkDto` field.
 - [x] Core mapping and field-adoption contracts added.
 - [x] Generated DTO boundary allowlist narrowed to the Comic mapper.
 
-Next work is PR 13: move Comic local media and release persistence under Comic.
+## PR 13 Comic Local Media And Release Schema
+
+`ComicMediaRows` and `ComicReleaseRows` are now typed Drift tables defined under
+the Comic module. Media identity is the media primary key; release identity is
+scoped by the owning media through a composite `(mediaId, id)` key. Comic-only
+collections and nested semantic values are stored in explicitly named JSON
+columns for the Comic persistence mapper to interpret.
+
+`LocalDatabase` registers both tables and advances the cache schema to v7. The
+existing destructive cache migration remains the upgrade path, so no user
+authored data migration is required.
+
+Focused DB coverage inserts and reads one media row and one release row,
+verifies their association, and updates the existing schema reset assertions.
+
+- [x] Typed `ComicMediaRows` Drift table added under Comic.
+- [x] Typed `ComicReleaseRows` Drift table added under Comic.
+- [x] Comic tables registered in `LocalDatabase` schema v7.
+- [x] Generated Drift database updated.
+- [x] Focused schema and migration coverage added.
+
+Next work is PR 14: add Comic local mappers and persistence round-trip contracts.
