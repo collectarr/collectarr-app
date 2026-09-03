@@ -378,5 +378,20 @@ existing compatibility callback.
 - [x] Runtime facet adapter delegates to typed workspace values.
 - [x] Focused Comic workspace facet contract added.
 
-Next work is PR 17: move the remaining Comic vocabulary ownership into the
-typed kind module.
+## PR 17 Comic Vocabulary Ownership
+
+Comic vocabulary ownership is now covered by a dedicated contract over
+`ComicVocabularies.all`. The ten kind-owned definitions cover publisher,
+imprint, series group, physical format, condition, grade, page quality, key
+category, story arc, and crossover. No Comic defaults are added to the shared
+vocabulary layer; the existing typed projectors and Comic capability remain
+the ownership boundary.
+
+The contract verifies the complete vocabulary count, unique IDs and values,
+non-empty labels, and the existing built-in value surface.
+
+- [x] Comic vocabulary definitions remain kind-owned.
+- [x] Comic vocabulary capability registration is covered.
+- [x] Focused Comic vocabulary contract added.
+
+Next work is PR 18: define the typed Comic Add schema.
