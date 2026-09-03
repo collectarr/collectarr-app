@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -7,7 +8,9 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.da
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_data_factories.dart';
@@ -106,6 +109,41 @@ void main() {
       comicKindModule.transfer.fieldKeysForScope(LibraryEditScope.release),
       contains('coverPriceCents'),
     );
+  });
+
+  testWidgets('Comic media editing uses the typed edit schema', (tester) async {
+    final item = LibraryMetadataItem.fromCatalogItem(
+      testCatalogItem(
+        id: 'comic-media-editor',
+        kind: 'comic',
+        title: 'Saga #1',
+        series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
+      ),
+    );
+    final request = LibraryEditDialogRequest(
+      type: comicKindModule,
+      item: item,
+      ownedItem: null,
+      accent: Colors.blue,
+      scope: LibraryEditScope.media,
+    );
+    final builder = comicKindModule.edit.mediaEditDialogBuilder;
+
+    expect(builder, isNotNull);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => builder!(context, request),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Issue'), findsOneWidget);
+    expect(find.text('Series'), findsOneWidget);
+    expect(find.text('Issue number'), findsOneWidget);
+    expect(find.text('Save'), findsOneWidget);
   });
 }
 

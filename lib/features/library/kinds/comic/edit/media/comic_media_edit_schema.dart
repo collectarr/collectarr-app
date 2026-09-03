@@ -63,7 +63,7 @@ final EditSchema<ComicCatalogMetadata, ComicMediaEditDraft>
             VocabularyEditField<ComicMediaEditDraft, String>(
               id: 'physical_format',
               label: 'Format',
-              value: (draft) => draft.physicalFormat,
+              value: (draft) => _nullableText(draft.physicalFormat),
               setValue: (draft, value) => draft.physicalFormat = value ?? '',
               options: _options(ComicVocabularies.physicalFormat.builtIns),
             ),
@@ -99,21 +99,21 @@ final EditSchema<ComicCatalogMetadata, ComicMediaEditDraft>
             VocabularyEditField<ComicMediaEditDraft, String>(
               id: 'publisher',
               label: 'Publisher',
-              value: (draft) => draft.publisher,
+              value: (draft) => _nullableText(draft.publisher),
               setValue: (draft, value) => draft.publisher = value ?? '',
               options: _options(ComicVocabularies.publisher.builtIns),
             ),
             VocabularyEditField<ComicMediaEditDraft, String>(
               id: 'imprint',
               label: 'Imprint',
-              value: (draft) => draft.imprint,
+              value: (draft) => _nullableText(draft.imprint),
               setValue: (draft, value) => draft.imprint = value ?? '',
               options: _options(ComicVocabularies.imprint.builtIns),
             ),
             VocabularyEditField<ComicMediaEditDraft, String>(
               id: 'series_group',
               label: 'Series group',
-              value: (draft) => draft.seriesGroup,
+              value: (draft) => _nullableText(draft.seriesGroup),
               setValue: (draft, value) => draft.seriesGroup = value ?? '',
               options: _options(ComicVocabularies.seriesGroup.builtIns),
             ),
@@ -273,3 +273,5 @@ String? _validPageCount(ComicMediaEditDraft draft) {
   final value = draft.pageCount;
   return value != null && value < 0 ? 'Page count cannot be negative' : null;
 }
+
+String? _nullableText(String value) => value.trim().isEmpty ? null : value;

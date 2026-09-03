@@ -181,6 +181,11 @@ final class SelectEditField<TDraft, TValue> extends EditFieldSpec<TDraft> {
   final TValue? Function(TDraft draft) value;
   final void Function(TDraft draft, TValue? value) setValue;
   final List<EditOption<TValue>> options;
+
+  TValue? currentValue(TDraft draft) => value(draft);
+
+  void updateValue(TDraft draft, TValue? nextValue) =>
+      setValue(draft, nextValue);
 }
 
 final class VocabularyEditField<TDraft, TValue> extends EditFieldSpec<TDraft> {
@@ -197,6 +202,11 @@ final class VocabularyEditField<TDraft, TValue> extends EditFieldSpec<TDraft> {
   final TValue? Function(TDraft draft) value;
   final void Function(TDraft draft, TValue? value) setValue;
   final List<EditOption<TValue>> options;
+
+  TValue? currentValue(TDraft draft) => value(draft);
+
+  void updateValue(TDraft draft, TValue? nextValue) =>
+      setValue(draft, nextValue);
 }
 
 final class MultiVocabularyEditField<TDraft, TValue>

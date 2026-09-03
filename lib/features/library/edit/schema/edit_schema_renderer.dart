@@ -310,15 +310,28 @@ class _EditSchemaRendererState<TModel, TDraft>
     BuildContext context,
     EditFieldSpec<TDraft> baseField,
   ) {
-    final field = baseField as SelectEditField<TDraft, TValue>;
+    late TValue? Function(TDraft draft) value;
+    late void Function(TDraft draft, TValue? value) setValue;
+    late List<EditOption<TValue>> options;
+    if (baseField is SelectEditField<TDraft, TValue>) {
+      value = (draft) => baseField.currentValue(draft);
+      setValue = (draft, nextValue) => baseField.updateValue(draft, nextValue);
+      options = baseField.options;
+    } else if (baseField is VocabularyEditField<TDraft, TValue>) {
+      value = (draft) => baseField.currentValue(draft);
+      setValue = (draft, nextValue) => baseField.updateValue(draft, nextValue);
+      options = baseField.options;
+    } else {
+      return const SizedBox.shrink();
+    }
     return DropdownButtonFormField<TValue>(
-      initialValue: field.value(widget.draft),
+      initialValue: value(widget.draft),
       decoration: InputDecoration(
-        labelText: field.label,
-        errorText: field.validate(widget.draft),
+        labelText: baseField.label,
+        errorText: baseField.validate(widget.draft),
       ),
       items: [
-        for (final option in field.options)
+        for (final option in options)
           DropdownMenuItem<TValue>(
             value: option.value,
             enabled: option.enabled,
@@ -326,7 +339,7 @@ class _EditSchemaRendererState<TModel, TDraft>
           ),
       ],
       onChanged: (value) {
-        field.setValue(widget.draft, value);
+        setValue(widget.draft, value);
         setState(() => _validationError = null);
       },
     );

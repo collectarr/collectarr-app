@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/media/comic_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/relations/comic_relation_capability.dart';
 import 'package:flutter/material.dart';
@@ -314,6 +315,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildComicLibraryEditDialog,
+    mediaEditDialogBuilder: buildComicMediaLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
     presentation: comicsLibraryEditPresentation,
     conditions: ComicVocabularies.condition.builtIns,
