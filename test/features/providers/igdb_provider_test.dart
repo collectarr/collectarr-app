@@ -26,6 +26,53 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('IGDBProvider', () {
+    test('decodes native game payload models', () {
+      final game = IgdbGame.fromJson({
+        'id': 1942,
+        'name': 'The Witcher 3: Wild Hunt',
+        'summary': 'A role-playing game.',
+        'storyline': 'Geralt searches for Ciri.',
+        'first_release_date': 1431993600,
+        'cover': {
+          'id': 42,
+          'url': '//images.igdb.com/igdb/image/upload/t_thumb/co1.jpg'
+        },
+        'genres': [
+          {'id': 12, 'name': 'Role-playing (RPG)'},
+        ],
+        'involved_companies': [
+          {
+            'developer': true,
+            'publisher': false,
+            'company': {'id': 1, 'name': 'CD Projekt Red'},
+          },
+        ],
+        'platforms': [
+          {'id': 6, 'name': 'PC'},
+        ],
+        'game_modes': [
+          {'id': 1, 'name': 'Single player'},
+        ],
+        'age_ratings': [
+          {'rating': 18, 'category': 1},
+        ],
+        'total_rating': 92.5,
+        'slug': 'the-witcher-3-wild-hunt',
+      });
+
+      expect(game.id, 1942);
+      expect(game.name, 'The Witcher 3: Wild Hunt');
+      expect(game.cover?.url, contains('co1.jpg'));
+      expect(game.genres.single.name, 'Role-playing (RPG)');
+      expect(game.involvedCompanies.single.company?.name, 'CD Projekt Red');
+      expect(game.involvedCompanies.single.developer, isTrue);
+      expect(game.platforms.single.name, 'PC');
+      expect(game.gameModes.single.name, 'Single player');
+      expect(game.ageRatings.single.rating, 18);
+      expect(game.totalRating, 92.5);
+      expect(game.toJson()['slug'], 'the-witcher-3-wild-hunt');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = IGDBProvider();
       expect(provider.name, 'igdb');

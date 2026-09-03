@@ -13,6 +13,7 @@ import '../../domain/models/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
+import 'models/igdb_game.dart';
 
 class IGDBProvider extends ProviderAdapter {
   IGDBProvider({
@@ -84,8 +85,8 @@ class IGDBProvider extends ProviderAdapter {
     final results = <ProviderSearchResult>[];
     for (final game in games) {
       if (game is! Map) continue;
-      final gameMap = Map<String, dynamic>.from(game);
-      final searchResult = _searchResultFromItem(gameMap);
+      final item = IgdbGame.fromJson(Map<String, dynamic>.from(game));
+      final searchResult = _searchResultFromItem(item);
       if (searchResult.providerItemId.isNotEmpty) {
         results.add(searchResult);
       }
@@ -124,7 +125,8 @@ class IGDBProvider extends ProviderAdapter {
     }
 
     final raw = Map<String, dynamic>.from(games.first as Map);
-    final normalized = normalize(raw);
+    final game = IgdbGame.fromJson(raw);
+    final normalized = normalizeGame(game);
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -140,8 +142,8 @@ class IGDBProvider extends ProviderAdapter {
       );
     }
 
-    final gameSlug = _optionalText(raw['slug']) ??
-        _slug(normalized['title']?.toString() ?? 'game');
+    final gameSlug =
+        game.slug ?? _slug(normalized['title']?.toString() ?? 'game');
 
     return NormalizedProviderEnvelopeV1(
       schemaVersion: 'v1',
@@ -166,19 +168,18 @@ class IGDBProvider extends ProviderAdapter {
   }
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
-    final igdbId = _optionalText(data['id']);
-    final title = _optionalText(data['name']) ?? 'Unknown game';
-    final synopsis =
-        _optionalText(data['summary']) ?? _optionalText(data['storyline']);
-    final coverUrl = _extractCoverUrl(data['cover']);
-    final platforms = _extractNames(data['platforms']);
-    final genres = _extractNames(data['genres']);
+    return normalizeGame(IgdbGame.fromJson(data));
+  }
 
-    final companies = data['involved_companies'] is List
-        ? (data['involved_companies'] as List<dynamic>)
-        : const <dynamic>[];
-    final publishers = _extractCompanies(companies, 'publisher');
-    final developers = _extractCompanies(companies, 'developer');
+  Map<String, dynamic> normalizeGame(IgdbGame game) {
+    final igdbId = game.id?.toString();
+    final title = game.name ?? 'Unknown game';
+    final synopsis = game.summary ?? game.storyline;
+    final coverUrl = _extractCoverUrl(game.cover);
+    final platforms = _extractNames(game.platforms);
+    final genres = _extractNames(game.genres);
+    final publishers = _extractCompanies(game.involvedCompanies, 'publisher');
+    final developers = _extractCompanies(game.involvedCompanies, 'developer');
 
     final creators = developers
         .map((d) => <String, dynamic>{
@@ -188,7 +189,7 @@ class IGDBProvider extends ProviderAdapter {
             })
         .toList();
 
-    final totalRating = data['total_rating'];
+    final totalRating = game.totalRating;
     final audienceRating = totalRating != null
         ? (totalRating is num
             ? totalRating.toStringAsFixed(1)
@@ -223,16 +224,15 @@ class IGDBProvider extends ProviderAdapter {
     };
   }
 
-  ProviderSearchResult _searchResultFromItem(Map<String, dynamic> item) {
-    final igdbId = _optionalText(item['id']) ?? '';
-    final title = _optionalText(item['name']) ?? 'Unknown IGDB game';
-    final platforms = _extractNames(item['platforms']);
-    final firstReleaseDate = item['first_release_date'];
+  ProviderSearchResult _searchResultFromItem(IgdbGame item) {
+    final igdbId = item.id?.toString() ?? '';
+    final title = item.name ?? 'Unknown IGDB game';
+    final platforms = _extractNames(item.platforms);
+    final firstReleaseDate = item.firstReleaseDate;
 
     String? releaseIso;
-    if (firstReleaseDate is num) {
-      final dt = DateTime.fromMillisecondsSinceEpoch(
-          firstReleaseDate.toInt() * 1000,
+    if (firstReleaseDate != null) {
+      final dt = DateTime.fromMillisecondsSinceEpoch(firstReleaseDate * 1000,
           isUtc: true);
       releaseIso = dt.toIso8601String().split('T')[0];
     }
@@ -248,7 +248,7 @@ class IGDBProvider extends ProviderAdapter {
       title: title,
       kind: 'game',
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
-      imageUrl: _extractCoverUrl(item['cover']),
+      imageUrl: _extractCoverUrl(item.cover),
     );
   }
 
@@ -289,9 +289,8 @@ class IGDBProvider extends ProviderAdapter {
     return query.replaceAll('"', '\\"');
   }
 
-  String? _extractCoverUrl(dynamic coverObj) {
-    if (coverObj is! Map) return null;
-    var url = _optionalText(coverObj['url']);
+  String? _extractCoverUrl(IgdbCover? coverObj) {
+    var url = _optionalText(coverObj?.url);
     if (url == null) return null;
 
     if (url.startsWith('//')) {
@@ -300,32 +299,24 @@ class IGDBProvider extends ProviderAdapter {
     return url.replaceAll('t_thumb', 't_cover_big');
   }
 
-  List<String> _extractNames(dynamic listObj) {
-    if (listObj is! List) return [];
-    final names = <String>[];
-    for (final item in listObj) {
-      if (item is Map) {
-        final name = _optionalText(item['name']);
-        if (name != null && name.isNotEmpty) {
-          names.add(name);
-        }
-      }
-    }
-    return names;
+  List<String> _extractNames(List<IgdbNamedReference> references) {
+    return [
+      for (final reference in references)
+        if (_optionalText(reference.name) case final name?) name,
+    ];
   }
 
-  List<String> _extractCompanies(List<dynamic> companies, String companyType) {
+  List<String> _extractCompanies(
+      List<IgdbCompanyCredit> companies, String companyType) {
     final list = <String>[];
-    for (final c in companies) {
-      if (c is! Map) continue;
-      final isMatch = c[companyType] == true;
+    for (final companyCredit in companies) {
+      final isMatch = companyType == 'publisher'
+          ? companyCredit.publisher
+          : companyCredit.developer;
       if (isMatch) {
-        final comp = c['company'];
-        if (comp is Map) {
-          final name = _optionalText(comp['name']);
-          if (name != null && name.isNotEmpty) {
-            list.add(name);
-          }
+        final name = _optionalText(companyCredit.company?.name);
+        if (name != null && name.isNotEmpty) {
+          list.add(name);
         }
       }
     }

@@ -7,6 +7,7 @@ export 'adapters/gcd/gcd_provider.dart';
 export 'adapters/gcd/models/gcd_issue.dart';
 export 'adapters/hardcover/hardcover_provider.dart';
 export 'adapters/igdb/igdb_provider.dart';
+export 'adapters/igdb/models/igdb_game.dart';
 export 'adapters/mangadex/mangadex_provider.dart';
 export 'adapters/musicbrainz/musicbrainz_provider.dart';
 export 'adapters/openlibrary/openlibrary_provider.dart';
