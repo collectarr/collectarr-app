@@ -419,4 +419,29 @@ for every manual draft property.
 - [x] Publisher and Format vocabulary bindings added.
 - [x] Add contract and focused schema coverage added.
 
-Next work is PR 19: define the typed Comic Media Edit schema.
+## PR 19 Comic Media Edit Schema
+
+`comic_media_edit_draft.dart` now provides a Comic-owned media draft adapter
+over the existing media controller state. It preserves the current fallback
+behavior for series title, publisher, imprint, page count, and physical
+format while exposing typed values and setters for the declarative schema.
+
+`comic_media_edit_schema.dart` declares the complete seven-tab media surface:
+Main, Details, Creators, Characters, Links, Covers, and My Images. Main and
+Details explicitly own the issue, publication, identifier, date, language,
+genre, crossover, and story-arc fields. Publisher, Imprint, Series Group, and
+Format are bound to Comic-owned vocabularies. Creator, character, link, cover,
+and photo collections remain explicit custom fields so their existing dynamic
+controls do not leak into generic edit infrastructure.
+
+Schema-level validation covers non-negative page counts and invalid date text.
+The focused contract verifies tab and field uniqueness, labels, ordering,
+vocabulary bindings, typed round trips, clearing nullable vocabulary values,
+and validation failures.
+
+- [x] Typed Comic Media Edit draft added.
+- [x] Seven media tabs and their sections declared explicitly.
+- [x] Comic vocabulary bindings and media validation added.
+- [x] Media Edit contract and focused schema coverage added.
+
+Next work is PR 20: define the typed Comic Release Edit schema.
