@@ -1,4 +1,5 @@
 export 'adapters/anilist/anilist_provider.dart';
+export 'adapters/anilist/models/anilist_media.dart';
 export 'adapters/bgg/bgg_provider.dart';
 export 'adapters/bgg/models/bgg_thing.dart';
 export 'adapters/comicvine/comicvine_provider.dart';
@@ -10,6 +11,7 @@ export 'adapters/hardcover/hardcover_provider.dart';
 export 'adapters/igdb/igdb_provider.dart';
 export 'adapters/igdb/models/igdb_game.dart';
 export 'adapters/mangadex/mangadex_provider.dart';
+export 'adapters/mangadex/models/mangadex_manga.dart';
 export 'adapters/musicbrainz/musicbrainz_provider.dart';
 export 'adapters/openlibrary/openlibrary_provider.dart';
 export 'adapters/openlibrary/models/open_library_book.dart';

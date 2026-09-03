@@ -26,6 +26,68 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('AniListProvider', () {
+    test('decodes native media payload models', () {
+      final media = AniListMedia.fromJson({
+        'id': 30002,
+        'idMal': 2,
+        'type': 'MANGA',
+        'title': {
+          'english': 'Berserk',
+          'romaji': 'Berserk',
+          'native': 'ベルセルク',
+        },
+        'description': 'A dark fantasy manga.',
+        'startDate': {'year': 1989, 'month': 8},
+        'coverImage': {'large': 'https://example.test/large.jpg'},
+        'genres': ['Action', 'Adventure'],
+        'staff': {
+          'edges': [
+            {
+              'role': 'Story & Art',
+              'node': {
+                'name': {'full': 'Kentarou Miura'},
+                'siteUrl': 'https://anilist.co/staff/1',
+              },
+            },
+          ],
+        },
+        'characters': {
+          'edges': [
+            {
+              'role': 'MAIN',
+              'node': {
+                'name': {'full': 'Guts'},
+                'image': {'medium': 'https://example.test/guts.jpg'},
+              },
+            },
+          ],
+        },
+        'relations': {
+          'edges': [
+            {
+              'relationType': 'ADAPTATION',
+              'node': {
+                'id': 100,
+                'type': 'ANIME',
+                'title': {'romaji': 'Berserk'},
+              },
+            },
+          ],
+        },
+      });
+
+      expect(media.id, 30002);
+      expect(media.idMal, 2);
+      expect(media.title?.native, 'ベルセルク');
+      expect(media.startDate?.year, 1989);
+      expect(media.coverImage?.large, 'https://example.test/large.jpg');
+      expect(media.genres, containsAll(['Action', 'Adventure']));
+      expect(media.staff.single.name, 'Kentarou Miura');
+      expect(media.characters.single.name, 'Guts');
+      expect(media.relations.single.media?.id, 100);
+      expect(media.toJson()['idMal'], 2);
+    });
+
     test('exposes correct descriptor metadata for manga and anime', () {
       final provider = AniListProvider();
       expect(provider.name, 'anilist');

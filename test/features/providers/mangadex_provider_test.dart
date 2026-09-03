@@ -26,6 +26,45 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('MangaDexProvider', () {
+    test('decodes native MangaDex JSON:API models', () {
+      final manga = MangaDexManga.fromJson({
+        'id': 'd7037b2a-874a-4360-8a7b-07f2001542a9',
+        'attributes': {
+          'title': {'en': 'Chainsaw Man', 'ja-ro': 'チェンソーマン'},
+          'description': {'en': 'A devil hunter story.'},
+          'status': 'ongoing',
+          'year': 2018,
+          'publicationDemographic': 'shounen',
+          'tags': [
+            {
+              'attributes': {
+                'name': {'en': 'Action'},
+              },
+            },
+          ],
+        },
+        'relationships': [
+          {
+            'type': 'author',
+            'attributes': {'name': 'Tatsuki Fujimoto'},
+          },
+          {
+            'type': 'cover_art',
+            'attributes': {'fileName': 'cover.jpg'},
+          },
+        ],
+      });
+
+      expect(manga.id, 'd7037b2a-874a-4360-8a7b-07f2001542a9');
+      expect(manga.attributes?.title?.preferred, 'Chainsaw Man');
+      expect(manga.attributes?.description?.preferred, 'A devil hunter story.');
+      expect(manga.attributes?.year, 2018);
+      expect(manga.attributes?.tags.single.name?.preferred, 'Action');
+      expect(manga.relationships.first.name, 'Tatsuki Fujimoto');
+      expect(manga.relationships.last.fileName, 'cover.jpg');
+      expect(manga.toJson()['id'], manga.id);
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = MangaDexProvider();
       expect(provider.name, 'mangadex');
