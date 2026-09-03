@@ -26,6 +26,26 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('GCDProvider', () {
+    test('decodes issue and story payloads into provider-native models', () {
+      final issue = GcdIssue.fromJson({
+        'id': 12345,
+        'publisher': {'name': 'Marvel Comics'},
+        'story_set': [
+          {
+            'script': 'David Michelinie',
+            'characters': 'Spider-Man; Venom',
+          },
+        ],
+      });
+
+      expect(issue.id, '12345');
+      expect(issue.publisherName, 'Marvel Comics');
+      expect(issue.stories, hasLength(1));
+      expect(issue.stories.single.script, 'David Michelinie');
+      expect(issue.stories.single.characters, 'Spider-Man; Venom');
+      expect(issue.toJson()['publisher_name'], 'Marvel Comics');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = GCDProvider();
       expect(provider.name, 'gcd');

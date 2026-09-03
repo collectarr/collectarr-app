@@ -11,6 +11,7 @@ import '../../domain/models/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
+import 'models/gcd_issue.dart';
 
 final RegExp _issueIdRegex = RegExp(r'/issue/(\d+)/?');
 final RegExp _seriesYearRegex =
@@ -89,7 +90,7 @@ class GCDProvider extends ProviderAdapter {
     for (final item in resultsList.take(limit)) {
       if (item is! Map) continue;
       final itemMap = Map<String, dynamic>.from(item);
-      final searchResult = _searchResultFromItem(itemMap);
+      final searchResult = _searchResultFromIssue(GcdIssue.fromJson(itemMap));
       if (searchResult.providerItemId.isNotEmpty) {
         results.add(searchResult);
       }
@@ -121,7 +122,8 @@ class GCDProvider extends ProviderAdapter {
     }
 
     final raw = Map<String, dynamic>.from(data);
-    final normalized = normalize(raw);
+    final issue = GcdIssue.fromJson(raw);
+    final normalized = normalizeIssue(issue);
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -160,25 +162,26 @@ class GCDProvider extends ProviderAdapter {
   }
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
-    final issueId =
-        _extractIssueId(data['api_url']?.toString() ?? data['id']?.toString());
-    final rawSeriesName = _optionalText(data['series_name']) ?? 'Unknown comic';
+    return normalizeIssue(GcdIssue.fromJson(data));
+  }
+
+  Map<String, dynamic> normalizeIssue(GcdIssue issue) {
+    final issueId = _extractIssueId(issue.apiUrl ?? issue.id);
+    final rawSeriesName = issue.seriesName ?? 'Unknown comic';
     final seriesTitle = _cleanSeriesTitle(rawSeriesName);
-    final issueNumber =
-        _optionalText(data['number']) ?? _optionalText(data['descriptor']);
-    final issueTitle = _optionalText(data['title']);
+    final issueNumber = issue.number ?? issue.descriptor;
+    final issueTitle = issue.title;
     final title = (issueTitle != null && issueTitle.isNotEmpty)
         ? issueTitle
         : (issueNumber != null ? '$seriesTitle #$issueNumber' : seriesTitle);
 
-    final publisher =
-        _optionalText(data['publisher_name']) ?? _extractPublisher(data);
-    final synopsis = _extractSynopsis(data);
-    final coverUrl = _optionalText(data['cover']);
+    final publisher = issue.publisherName;
+    final synopsis = _extractSynopsis(issue);
+    final coverUrl = issue.cover;
     final creators =
-        _extractCredits(data['story_set'], issueEditing: data['editing']);
-    final characters = _extractCharacters(data['story_set']);
-    final storyArcs = _extractStoryArcs(data['story_set']);
+        _extractCredits(issue.stories, issueEditing: issue.editing);
+    final characters = _extractCharacters(issue.stories);
+    final storyArcs = _extractStoryArcs(issue.stories);
 
     final providerIds = <String, String>{};
     if (issueId != null && issueId.isNotEmpty) {
@@ -209,19 +212,16 @@ class GCDProvider extends ProviderAdapter {
     };
   }
 
-  ProviderSearchResult _searchResultFromItem(Map<String, dynamic> item) {
-    final issueId = _extractIssueId(
-            item['api_url']?.toString() ?? item['id']?.toString()) ??
-        '';
-    final seriesName =
-        _optionalText(item['series_name']) ?? 'Unknown GCD issue';
+  ProviderSearchResult _searchResultFromIssue(GcdIssue issue) {
+    final issueId = _extractIssueId(issue.apiUrl ?? issue.id) ?? '';
+    final seriesName = issue.seriesName ?? 'Unknown GCD issue';
     final seriesTitle = _cleanSeriesTitle(seriesName);
-    final descriptor = _optionalText(item['descriptor']);
-    final issueNumber = descriptor ?? _optionalText(item['number']);
+    final descriptor = issue.descriptor;
+    final issueNumber = descriptor ?? issue.number;
     final title = descriptor != null ? '$seriesName #$descriptor' : seriesName;
 
-    final pubDate = _optionalText(item['publication_date']);
-    final price = _optionalText(item['price']);
+    final pubDate = issue.publicationDate;
+    final price = issue.price;
 
     final summaryParts = <String>[
       if (pubDate != null && pubDate.isNotEmpty) pubDate,
@@ -229,12 +229,12 @@ class GCDProvider extends ProviderAdapter {
     ];
 
     final characterPreview = <String>[];
-    for (final char in _extractCharacters(item['story_set'])) {
+    for (final char in _extractCharacters(issue.stories)) {
       final name = char['name']?.toString();
       if (name != null) characterPreview.add(name);
     }
 
-    final storyArcPreview = _extractStoryArcs(item['story_set']);
+    final storyArcPreview = _extractStoryArcs(issue.stories);
 
     return ProviderSearchResult(
       provider: name,
@@ -242,11 +242,11 @@ class GCDProvider extends ProviderAdapter {
       title: title,
       kind: 'comic',
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
-      imageUrl: _optionalText(item['cover']),
+      imageUrl: issue.cover,
       seriesTitle: seriesTitle,
       issueNumber: issueNumber,
-      candidateType: item['variant_of'] != null ? 'variant' : 'issue',
-      isVariant: item['variant_of'] != null,
+      candidateType: issue.variantOf != null ? 'variant' : 'issue',
+      isVariant: issue.variantOf != null,
       characterPreview: characterPreview,
       storyArcPreview: storyArcPreview,
     );
@@ -276,44 +276,30 @@ class GCDProvider extends ProviderAdapter {
     return raw.replaceAll(_seriesYearRegex, '').trim();
   }
 
-  String? _extractPublisher(Map<String, dynamic> data) {
-    final pub = data['publisher'];
-    if (pub is Map) {
-      return _optionalText(pub['name']);
-    }
-    return _optionalText(data['publisher_name']);
-  }
-
-  String? _extractSynopsis(Map<String, dynamic> data) {
-    final synopsis = _optionalText(data['synopsis']);
+  String? _extractSynopsis(GcdIssue issue) {
+    final synopsis = issue.synopsis;
     if (synopsis != null && synopsis.isNotEmpty) return synopsis;
 
-    final stories = data['story_set'];
-    if (stories is List) {
-      for (final story in stories) {
-        if (story is Map) {
-          final s = _optionalText(story['synopsis']);
-          if (s != null && s.isNotEmpty) return s;
-        }
+    for (final story in issue.stories) {
+      final storySynopsis = story.synopsis;
+      if (storySynopsis != null && storySynopsis.isNotEmpty) {
+        return storySynopsis;
       }
     }
     return null;
   }
 
-  List<Map<String, dynamic>> _extractCredits(dynamic storySet,
-      {dynamic issueEditing}) {
+  List<Map<String, dynamic>> _extractCredits(Iterable<GcdStory> storySet,
+      {String? issueEditing}) {
     final credits = <Map<String, dynamic>>[];
 
-    if (storySet is List) {
-      for (final story in storySet) {
-        if (story is! Map) continue;
-        _addCreditIfPresent(credits, story['script'], 'writer');
-        _addCreditIfPresent(credits, story['pencils'], 'penciller');
-        _addCreditIfPresent(credits, story['inks'], 'inker');
-        _addCreditIfPresent(credits, story['colors'], 'colorist');
-        _addCreditIfPresent(credits, story['letters'], 'letterer');
-        _addCreditIfPresent(credits, story['editing'], 'editor');
-      }
+    for (final story in storySet) {
+      _addCreditIfPresent(credits, story.script, 'writer');
+      _addCreditIfPresent(credits, story.pencils, 'penciller');
+      _addCreditIfPresent(credits, story.inks, 'inker');
+      _addCreditIfPresent(credits, story.colors, 'colorist');
+      _addCreditIfPresent(credits, story.letters, 'letterer');
+      _addCreditIfPresent(credits, story.editing, 'editor');
     }
 
     _addCreditIfPresent(credits, issueEditing, 'editor');
@@ -342,14 +328,12 @@ class GCDProvider extends ProviderAdapter {
     }
   }
 
-  List<Map<String, dynamic>> _extractCharacters(dynamic storySet) {
-    if (storySet is! List) return [];
+  List<Map<String, dynamic>> _extractCharacters(Iterable<GcdStory> storySet) {
     final characters = <Map<String, dynamic>>[];
     final seen = <String>{};
 
     for (final story in storySet) {
-      if (story is! Map) continue;
-      final charText = _optionalText(story['characters']);
+      final charText = story.characters;
       if (charText == null || charText.isEmpty) continue;
 
       for (final rawName in charText.split(RegExp(r'[;\n]\s*'))) {
@@ -365,14 +349,12 @@ class GCDProvider extends ProviderAdapter {
     return characters;
   }
 
-  List<String> _extractStoryArcs(dynamic storySet) {
-    if (storySet is! List) return [];
+  List<String> _extractStoryArcs(Iterable<GcdStory> storySet) {
     final arcs = <String>[];
     final seen = <String>{};
 
     for (final story in storySet) {
-      if (story is! Map) continue;
-      final partOf = _optionalText(story['part_of_issue_story_arc']);
+      final partOf = story.partOfIssueStoryArc;
       if (partOf != null &&
           partOf.isNotEmpty &&
           seen.add(partOf.toLowerCase())) {
