@@ -263,7 +263,7 @@ class _EditSchemaRendererState<TModel, TDraft>
           labelText: field.label,
           errorText: field.validate(widget.draft),
         ),
-        child: Text(field.display(value)),
+        child: Text(field.displayValue(value)),
       );
     }
     if (field is CustomEditField<TDraft>) {
@@ -324,14 +324,22 @@ class _EditSchemaRendererState<TModel, TDraft>
     } else {
       return const SizedBox.shrink();
     }
+    final currentValue = value(widget.draft);
+    final resolvedOptions = [
+      if (currentValue != null &&
+          !options.any((option) => option.value == currentValue))
+        EditOption(value: currentValue, label: currentValue.toString()),
+      ...options,
+    ];
     return DropdownButtonFormField<TValue>(
-      initialValue: value(widget.draft),
+      isExpanded: true,
+      initialValue: currentValue,
       decoration: InputDecoration(
         labelText: baseField.label,
         errorText: baseField.validate(widget.draft),
       ),
       items: [
-        for (final option in options)
+        for (final option in resolvedOptions)
           DropdownMenuItem<TValue>(
             value: option.value,
             enabled: option.enabled,

@@ -254,6 +254,8 @@ final class ReadOnlyEditField<TDraft, TValue> extends EditFieldSpec<TDraft> {
 
   final TValue? Function(TDraft draft) value;
   final String Function(TValue? value) display;
+
+  String displayValue(Object? value) => display(value as TValue?);
 }
 
 final class CustomEditField<TDraft> extends EditFieldSpec<TDraft> {

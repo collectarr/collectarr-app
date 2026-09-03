@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/config/library_transfer_capabili
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -143,6 +144,48 @@ void main() {
     expect(find.text('Issue'), findsOneWidget);
     expect(find.text('Series'), findsOneWidget);
     expect(find.text('Issue number'), findsOneWidget);
+    expect(find.text('Save'), findsOneWidget);
+  });
+
+  testWidgets('Comic release editing uses the typed edit schema', (tester) async {
+    final item = LibraryMetadataItem.fromCatalogItem(
+      testCatalogItem(
+        id: 'comic-release-editor',
+        kind: 'comic',
+        title: 'Saga #1',
+        editions: const [
+          CatalogEditionDto(
+            id: 'release-1',
+            title: 'Direct Market Edition',
+            publisher: 'Image',
+          ),
+        ],
+        series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
+      ),
+    );
+    final request = LibraryEditDialogRequest(
+      type: comicKindModule,
+      item: item,
+      ownedItem: null,
+      accent: Colors.blue,
+      scope: LibraryEditScope.release,
+    );
+    final builder = comicKindModule.edit.releaseEditDialogBuilder;
+
+    expect(builder, isNotNull);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => builder!(context, request),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Edition title'), findsOneWidget);
+    expect(find.text('Publisher'), findsOneWidget);
+    expect(find.text('ISBN'), findsOneWidget);
     expect(find.text('Save'), findsOneWidget);
   });
 }
