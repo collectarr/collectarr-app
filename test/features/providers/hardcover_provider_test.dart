@@ -26,6 +26,55 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('HardcoverProvider', () {
+    test('decodes native Hardcover search and book models', () {
+      final searchHits = decodeHardcoverSearchHits([
+        {
+          'document': {
+            'id': 1234,
+            'title': 'Dune',
+            'author_names': ['Frank Herbert'],
+            'featured_series': {'id': 42, 'name': 'Dune', 'slug': 'dune'},
+            'release_year': 1965,
+            'image': {'url': 'https://assets.hardcover.app/covers/dune.jpg'},
+          },
+        },
+      ]);
+      final book = HardcoverBook.fromJson({
+        'id': 1234,
+        'title': 'Dune',
+        'description': 'A story on Arrakis.',
+        'pages': 688,
+        'book_series': [
+          {
+            'series': {'id': 42, 'name': 'Dune', 'slug': 'dune'},
+            'position': 1,
+          },
+        ],
+        'editions': [
+          {
+            'isbn_13': '9780441172719',
+            'pages': 688,
+            'publisher': {'name': 'Chilton Books'},
+          },
+        ],
+        'taggings': [
+          {
+            'tag': {'tag': 'Science Fiction'},
+          },
+        ],
+      });
+
+      expect(searchHits.single.document.id, 1234);
+      expect(searchHits.single.document.authorNames, ['Frank Herbert']);
+      expect(searchHits.single.document.featuredSeries?.name, 'Dune');
+      expect(book.id, 1234);
+      expect(book.bookSeries.single.series?.slug, 'dune');
+      expect(book.editions.single.isbn13, '9780441172719');
+      expect(book.editions.single.publisher?.name, 'Chilton Books');
+      expect(book.taggings.single.name, 'Science Fiction');
+      expect(book.toJson()['title'], 'Dune');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = HardcoverProvider();
       expect(provider.name, 'hardcover');
