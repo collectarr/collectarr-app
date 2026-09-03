@@ -284,12 +284,27 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
     } else {
       return const SizedBox.shrink();
     }
+    final onManage = baseField is VocabularyAddField<TDraft, TValue>
+        ? baseField.onManage
+        : null;
     return DropdownButtonFormField<TValue>(
       initialValue: value(widget.draft),
       isExpanded: true,
       decoration: InputDecoration(
         labelText: baseField.label,
         errorText: baseField.validate(widget.draft),
+        suffixIcon: onManage == null
+            ? null
+            : IconButton(
+                tooltip: 'Manage ${baseField.label}',
+                onPressed: () async {
+                  await onManage(widget.draft);
+                  if (mounted) {
+                    setState(() => _validationError = null);
+                  }
+                },
+                icon: const Icon(Icons.tune),
+              ),
       ),
       items: [
         for (final option in options)

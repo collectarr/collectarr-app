@@ -164,6 +164,7 @@ final class VocabularyAddField<TDraft, TValue> extends AddFieldSpec<TDraft> {
     required this.value,
     required this.setValue,
     required this.options,
+    this.onManage,
     super.visibleWhen,
     super.validator,
   });
@@ -171,6 +172,7 @@ final class VocabularyAddField<TDraft, TValue> extends AddFieldSpec<TDraft> {
   final TValue? Function(TDraft draft) value;
   final void Function(TDraft draft, TValue? value) setValue;
   final List<EditOption<TValue>> options;
+  final FutureOr<void> Function(TDraft draft)? onManage;
 
   TValue? currentValue(TDraft draft) => value(draft);
 

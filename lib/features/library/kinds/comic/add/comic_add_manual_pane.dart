@@ -149,6 +149,17 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
               for (final format in _currentPhysicalFormats()) format.label,
             ]
           : _physicalFormatOptions,
+      onManagePublisher: () => _manageSingleValuePickList(
+        listName: ComicVocabularyIds.publisher.value,
+        label: 'Publishers',
+      ),
+      onManagePhysicalFormat: () => _manageSingleValuePickList(
+        listName: ComicVocabularyIds.physicalFormat.value,
+        label: 'Physical Formats',
+        builtInValues: [
+          for (final format in _currentPhysicalFormats()) format.label,
+        ],
+      ),
     );
     return DecoratedBox(
       decoration: BoxDecoration(

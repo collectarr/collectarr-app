@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart'
     show EditOption;
@@ -9,6 +11,8 @@ final AddSchema<ComicAddManualDraft> comicAddSchema = comicAddSchemaFor();
 AddSchema<ComicAddManualDraft> comicAddSchemaFor({
   Iterable<String>? publisherOptions,
   Iterable<String>? physicalFormatOptions,
+  FutureOr<void> Function()? onManagePublisher,
+  FutureOr<void> Function()? onManagePhysicalFormat,
 }) {
   return AddSchema<ComicAddManualDraft>(
     title: (_) => 'Manual comic issue',
@@ -49,6 +53,9 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
               physicalFormatOptions ??
                   ComicVocabularies.physicalFormat.builtIns,
             ),
+            onManage: onManagePhysicalFormat == null
+                ? null
+                : (_) => onManagePhysicalFormat(),
           ),
           NumberAddField<ComicAddManualDraft>(
             id: 'coverDate',
@@ -66,6 +73,8 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
             options: _optionsFrom(
               publisherOptions ?? ComicVocabularies.publisher.builtIns,
             ),
+            onManage:
+                onManagePublisher == null ? null : (_) => onManagePublisher(),
           ),
           TextAddField<ComicAddManualDraft>(
             id: 'coverImageUrl',
