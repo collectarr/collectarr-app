@@ -13,6 +13,7 @@ import '../../domain/models/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
+import 'models/tmdb_media.dart';
 
 class TMDbProvider extends ProviderAdapter {
   TMDbProvider({
@@ -109,7 +110,8 @@ class TMDbProvider extends ProviderAdapter {
     for (final item in resultsList.take(limit)) {
       if (item is! Map) continue;
       final itemMap = Map<String, dynamic>.from(item);
-      final searchResult = _searchResultFromItem(itemMap, targetKind);
+      final media = _mediaFromRaw(itemMap, targetKind);
+      final searchResult = _searchResultFromItem(media, targetKind);
       if (searchResult.providerItemId.isNotEmpty) {
         results.add(searchResult);
       }
@@ -165,7 +167,10 @@ class TMDbProvider extends ProviderAdapter {
     final raw = Map<String, dynamic>.from(data);
     raw['media_type'] = targetKind;
 
-    final normalized = normalize(raw);
+    final media = _mediaFromRaw(raw, targetKind);
+    final normalized = targetKind == 'tv' || targetKind == 'anime'
+        ? normalizeTv(media as TmdbTvSeries, kind: targetKind)
+        : normalizeMovie(media as TmdbMovie);
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -207,15 +212,33 @@ class TMDbProvider extends ProviderAdapter {
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
     final kind = _kindFromRaw(data);
-    final tmdbId = _parseInt(data['id']);
+    final media = _mediaFromRaw(data, kind);
+    return kind == 'tv' || kind == 'anime'
+        ? normalizeTv(media as TmdbTvSeries, kind: kind)
+        : normalizeMovie(media as TmdbMovie);
+  }
+
+  Map<String, dynamic> normalizeMovie(TmdbMovie movie) {
+    return _normalizeMedia(movie, 'movie');
+  }
+
+  Map<String, dynamic> normalizeTv(
+    TmdbTvSeries series, {
+    String kind = 'tv',
+  }) {
+    return _normalizeMedia(series, kind);
+  }
+
+  Map<String, dynamic> _normalizeMedia(TmdbMedia data, String kind) {
+    final tmdbId = data.id;
     final title = _extractTitle(data, kind) ?? 'Unknown $kind';
-    final synopsis = _optionalText(data['overview']);
-    final runtimeMinutes = _extractRuntime(data, kind);
-    final publisher = _extractPublisher(data['production_companies']);
-    final coverUrl = _extractPosterUrl(data['poster_path']);
-    final creators = _extractCreators(data['credits'], kind);
-    final genres = _extractGenres(data['genres']);
-    final voteAverage = data['vote_average'];
+    final synopsis = data.overview;
+    final runtimeMinutes = _extractRuntime(data);
+    final publisher = _extractPublisher(data.productionCompanies);
+    final coverUrl = _extractPosterUrl(data.posterPath);
+    final creators = _extractCreators(data.credits);
+    final genres = _extractGenres(data.genres);
+    final voteAverage = data.voteAverage;
     final audienceRating = voteAverage != null
         ? (voteAverage is num
             ? voteAverage.toStringAsFixed(1)
@@ -226,10 +249,9 @@ class TMDbProvider extends ProviderAdapter {
     if (tmdbId != null) {
       providerIds['tmdb'] = tmdbId.toString();
     }
-    final externalIds = data['external_ids'];
-    if (externalIds is Map) {
-      final imdb = _optionalText(externalIds['imdb_id']);
-      if (imdb != null) providerIds['imdb'] = imdb;
+    final imdb = data.externalIds?.imdbId;
+    if (imdb != null) {
+      providerIds['imdb'] = imdb;
     }
 
     return {
@@ -256,13 +278,12 @@ class TMDbProvider extends ProviderAdapter {
     };
   }
 
-  ProviderSearchResult _searchResultFromItem(
-      Map<String, dynamic> item, String kind) {
+  ProviderSearchResult _searchResultFromItem(TmdbMedia item, String kind) {
     final title = _extractTitle(item, kind) ?? 'Unknown TMDb $kind';
-    final tmdbId = _parseInt(item['id']);
-    final date = _optionalText(item['release_date']) ??
-        _optionalText(item['first_air_date']);
-    final lang = _optionalText(item['original_language']);
+    final tmdbId = item.id;
+    final date =
+        _optionalText(item.releaseDate) ?? _optionalText(item.firstAirDate);
+    final lang = _optionalText(item.originalLanguage);
 
     final summaryParts = <String>[
       if (date != null && date.isNotEmpty) date,
@@ -275,8 +296,15 @@ class TMDbProvider extends ProviderAdapter {
       title: title,
       kind: kind,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
-      imageUrl: _extractPosterUrl(item['poster_path']),
+      imageUrl: _extractPosterUrl(item.posterPath),
     );
+  }
+
+  TmdbMedia _mediaFromRaw(Map<String, dynamic> data, String kind) {
+    if (kind == 'tv' || kind == 'anime') {
+      return TmdbTvSeries.fromJson(data);
+    }
+    return TmdbMovie.fromJson(data);
   }
 
   void _ensureConfigured() {
@@ -322,94 +350,73 @@ class TMDbProvider extends ProviderAdapter {
     return (_resolveTargetKind(defaultKind), _parseInt(text));
   }
 
-  String? _extractTitle(Map<String, dynamic> data, String kind) {
+  String? _extractTitle(TmdbMedia data, String kind) {
     if (kind == 'tv' || kind == 'anime') {
-      final name = _optionalText(data['name']);
+      final name = _optionalText(data.name);
       if (name != null) return name;
     }
-    return _optionalText(data['title']) ??
-        _optionalText(data['name']) ??
-        _optionalText(data['original_title']);
+    return _optionalText(data.title) ??
+        _optionalText(data.name) ??
+        _optionalText(data.originalTitle);
   }
 
-  String? _extractPosterUrl(dynamic posterPath) {
+  String? _extractPosterUrl(String? posterPath) {
     final path = _optionalText(posterPath);
     if (path == null) return null;
     return '$imageBaseUrl$path';
   }
 
-  int? _extractRuntime(Map<String, dynamic> data, String kind) {
-    final runtime = data['runtime'];
-    if (runtime is num && runtime > 0) return runtime.toInt();
-
-    final episodeRunTime = data['episode_run_time'];
-    if (episodeRunTime is List && episodeRunTime.isNotEmpty) {
-      final first = episodeRunTime.first;
-      if (first is num && first > 0) return first.toInt();
+  int? _extractRuntime(TmdbMedia data) {
+    if (data is TmdbMovie && data.runtime != null && data.runtime! > 0) {
+      return data.runtime;
+    }
+    if (data is TmdbTvSeries && data.episodeRunTime.isNotEmpty) {
+      final first = data.episodeRunTime.first;
+      if (first > 0) return first;
     }
     return null;
   }
 
-  String? _extractPublisher(dynamic productionCompanies) {
-    if (productionCompanies is List && productionCompanies.isNotEmpty) {
-      final first = productionCompanies.first;
-      if (first is Map) {
-        return _optionalText(first['name']);
-      }
-    }
-    return null;
+  String? _extractPublisher(List<TmdbProductionCompany> productionCompanies) {
+    if (productionCompanies.isEmpty) return null;
+    return _optionalText(productionCompanies.first.name);
   }
 
-  List<String> _extractGenres(dynamic genres) {
-    if (genres is List) {
-      final list = <String>[];
-      for (final g in genres) {
-        if (g is Map) {
-          final name = _optionalText(g['name']);
-          if (name != null) list.add(name);
-        }
-      }
-      return list;
-    }
-    return [];
+  List<String> _extractGenres(List<TmdbGenre> genres) {
+    return [
+      for (final genre in genres)
+        if (_optionalText(genre.name) case final name?) name,
+    ];
   }
 
-  List<Map<String, dynamic>> _extractCreators(dynamic credits, String kind) {
-    if (credits is! Map) return [];
+  List<Map<String, dynamic>> _extractCreators(TmdbCredits? credits) {
+    if (credits == null) return [];
     final creators = <Map<String, dynamic>>[];
 
-    final crew = credits['crew'];
-    if (crew is List) {
-      for (final person in crew) {
-        if (person is! Map) continue;
-        final job = _optionalText(person['job']);
-        final name = _optionalText(person['name']);
-        if (name != null &&
-            (job == 'Director' || job == 'Writer' || job == 'Creator')) {
-          if (!creators.any((c) => c['name'] == name && c['role'] == job)) {
-            creators.add(<String, dynamic>{
-              'name': name,
-              'role': job!,
-              'external_ids': <String, dynamic>{},
-            });
-          }
+    for (final person in credits.crew) {
+      final job = _optionalText(person.job);
+      final name = _optionalText(person.name);
+      if (name != null &&
+          (job == 'Director' || job == 'Writer' || job == 'Creator')) {
+        if (!creators.any((c) => c['name'] == name && c['role'] == job)) {
+          creators.add(<String, dynamic>{
+            'name': name,
+            'role': job!,
+            'external_ids': <String, dynamic>{},
+          });
         }
       }
     }
 
-    final cast = credits['cast'];
-    if (cast is List) {
-      for (final person in cast.take(6)) {
-        if (person is! Map) continue;
-        final name = _optionalText(person['name']);
-        if (name != null) {
-          if (!creators.any((c) => c['name'] == name && c['role'] == 'Actor')) {
-            creators.add(<String, dynamic>{
-              'name': name,
-              'role': 'Actor',
-              'external_ids': <String, dynamic>{},
-            });
-          }
+    for (final person in credits.cast.take(6)) {
+      final name = _optionalText(person.name);
+      if (name != null) {
+        if (!creators.any((c) => c['name'] == name && c['role'] == 'Actor')) {
+          creators.add(<String, dynamic>{
+            'name': name,
+            'role': 'Actor',
+            'external_ids': <String, dynamic>{},
+          });
         }
       }
     }

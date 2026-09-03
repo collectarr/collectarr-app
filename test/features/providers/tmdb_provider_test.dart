@@ -26,6 +26,50 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('TMDbProvider', () {
+    test('decodes native movie and TV payload models', () {
+      final movie = TmdbMovie.fromJson({
+        'id': 550,
+        'title': 'Fight Club',
+        'runtime': 139,
+        'genres': [
+          {'id': 18, 'name': 'Drama'},
+        ],
+        'production_companies': [
+          {'id': 711, 'name': '20th Century Fox'},
+        ],
+        'credits': {
+          'crew': [
+            {'name': 'David Fincher', 'job': 'Director'},
+          ],
+          'cast': [
+            {'name': 'Brad Pitt', 'character': 'Tyler Durden'},
+          ],
+        },
+        'external_ids': {'imdb_id': 'tt0137523'},
+      });
+      final tv = TmdbTvSeries.fromJson({
+        'id': 1399,
+        'name': 'Game of Thrones',
+        'first_air_date': '2011-04-17',
+        'episode_run_time': [55, 60],
+        'number_of_seasons': 8,
+      });
+
+      expect(movie.id, 550);
+      expect(movie.title, 'Fight Club');
+      expect(movie.runtime, 139);
+      expect(movie.genres.single.name, 'Drama');
+      expect(movie.productionCompanies.single.name, '20th Century Fox');
+      expect(movie.credits?.crew.single.job, 'Director');
+      expect(movie.credits?.cast.single.character, 'Tyler Durden');
+      expect(movie.externalIds?.imdbId, 'tt0137523');
+      expect(movie.toJson()['runtime'], 139);
+      expect(tv.name, 'Game of Thrones');
+      expect(tv.episodeRunTime, [55, 60]);
+      expect(tv.numberOfSeasons, 8);
+      expect(tv.toJson()['first_air_date'], '2011-04-17');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = TMDbProvider();
       expect(provider.name, 'tmdb');
