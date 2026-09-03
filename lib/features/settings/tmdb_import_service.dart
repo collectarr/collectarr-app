@@ -230,9 +230,6 @@ class TmdbImportEntry {
     );
   }
 
-  ImportRow toImportRow() =>
-      ImportRow.fromProviderPersonalEntry(toProviderPersonalEntry());
-
   TmdbImportEntry copyWith({
     int? tmdbId,
     TmdbMediaType? mediaType,
@@ -335,9 +332,9 @@ class TmdbImportSource implements ImportSource {
   ProviderId get provider => ProviderId.tmdb;
 
   @override
-  Future<List<ImportRow>> readRows() async {
+  Future<List<ProviderPersonalEntry>> readRows() async {
     return [
-      for (final entry in entries) entry.toImportRow(),
+      for (final entry in entries) entry.toProviderPersonalEntry(),
     ];
   }
 }
@@ -716,8 +713,11 @@ class TmdbImportService {
 
   Future<TmdbImportExecutionResult> importPreview({
     required TmdbImportPreview preview,
-    required Future<void> Function(CatalogItem item, TmdbImportEntry entry)
-        importMatch,
+    required Future<void> Function(
+      CatalogItem item,
+      TmdbImportEntry entry,
+      MutationOrigin origin,
+    ) importMatch,
     required Future<void> Function(TmdbImportEntry entry) proposeUnmatched,
   }) async {
     final source = TmdbImportSource(
@@ -729,15 +729,14 @@ class TmdbImportService {
       for (final match in preview.matches) match.entry.providerItemId: match,
     };
     final runner = ImportRunner(
-      matcher: (rawRow) async {
-        final row = rawRow as ImportRow;
-        final match = matchesBySourceId[row.sourceId];
+      matcher: (entry) async {
+        final match = matchesBySourceId[entry.remoteItemId];
         final item = match?.catalogItem;
         if (item == null) {
-          return ImportMapping.unmatched(row);
+          return ImportMapping.unmatched(entry);
         }
         return ImportMapping.matched(
-          row,
+          entry,
           CatalogEntityRef(
             kind: item.kind,
             entityType: CatalogEntityType.work,
@@ -746,18 +745,16 @@ class TmdbImportService {
         );
       },
       applier: (mapping, config) async {
-        final row = mapping.row as ImportRow;
-        final match = matchesBySourceId[row.sourceId];
+        final match = matchesBySourceId[mapping.entry.remoteItemId];
         final item = match?.catalogItem;
         if (match == null || item == null) {
           return ImportRowOutcome.skipped;
         }
-        await importMatch(item, match.entry);
+        await importMatch(item, match.entry, config.origin);
         return ImportRowOutcome.imported;
       },
-      unmatchedHandler: (rawRow, config) async {
-        final row = rawRow as ImportRow;
-        final match = matchesBySourceId[row.sourceId];
+      unmatchedHandler: (entry, config) async {
+        final match = matchesBySourceId[entry.remoteItemId];
         if (match != null) {
           await proposeUnmatched(match.entry);
         }

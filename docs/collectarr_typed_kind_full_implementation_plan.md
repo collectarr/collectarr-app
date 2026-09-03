@@ -1012,10 +1012,13 @@ file import capabilities, and `ExternalStateEngine` use
 `ProviderPersonalEntry`, while kind-owned metadata mapping remains separate.
 Account/link persistence, sync-policy persistence and directional filtering,
 three-way conflict handling, and echo protection are covered by the AniList
-vertical slice. The PR is not complete until the importer framework and the
-remaining provider personal-list integrations are covered as described in
-Phase 7. Continue from this PR; do not reopen PR27 without a provider metadata
-writeback capability.
+vertical slice. The importer framework and TMDB preview path now consume
+`ProviderPersonalEntry` end to end; the duplicate `ImportRow` representation
+and its conversion bridge are removed, and `MutationOrigin.fileImport` reaches
+the typed apply callback. The PR remains open for production import-job origin
+propagation, durable account/link persistence, and the remaining provider
+personal-list integrations described in Phase 7. Continue from this PR; do not
+reopen PR27 without a provider metadata writeback capability.
 
 ---
 
@@ -1989,19 +1992,6 @@ Anime × AniList
 Manga × AniList
 Comic × ComicVine
 ...
-```
-
----
-
-## PR 94 — Personal sync cleanup
-
-Finish:
-
-```text
-ProviderPersonalEntry canonical
-no dynamic ImportMapping.entry
-no dynamic ImportConflict.entry
-no duplicate ImportRow canonical representation
 ```
 
 ---

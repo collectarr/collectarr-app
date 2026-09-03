@@ -3,7 +3,8 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/imports/framework/import_models.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:dio/dio.dart';
@@ -97,7 +98,7 @@ void main() {
       expect(seasons.single.rawPayload['season_number'], 1);
     });
 
-    test('normalizes TMDB entries into import rows', () async {
+    test('normalizes TMDB entries into provider personal entries', () async {
       final entry = TmdbImportEntry(
         tmdbId: 603,
         mediaType: TmdbMediaType.movie,
@@ -114,12 +115,12 @@ void main() {
       final rows = await source.readRows();
 
       expect(rows, hasLength(1));
-      expect(rows.single.sourceId, 'movie:603');
-      expect(rows.single.mediaKind, 'movie');
-      expect(rows.single.status, ImportItemStatus.completed);
-      expect(rows.single.rating, 90);
+      expect(rows.single.remoteItemId, 'movie:603');
+      expect(rows.single.kind.name, 'movie');
+      expect(rows.single.status, ProviderEntryStatus.completed);
+      expect(rows.single.rating, 90.0);
       expect(rows.single.externalIds, containsPair('tmdb', '603'));
-      expect(rows.single.raw['tmdb_id'], 603);
+      expect(rows.single.rawPayload['tmdb_id'], 603);
     });
 
     test('matches on exact title and year before falling back', () async {
@@ -283,8 +284,9 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
       final proposed = <int>[];
       final result = await service.importPreview(
         preview: preview,
-        importMatch: (item, entry) async {
+        importMatch: (item, entry, origin) async {
           imported.add('${item.id}:${entry.tmdbId}');
+          expect(origin, MutationOrigin.fileImport);
         },
         proposeUnmatched: (entry) async {
           proposed.add(entry.tmdbId);

@@ -219,9 +219,11 @@ architecture-negative check prevents the old design from returning.
 - [ ] Wire `ExternalStateEngine` to provider accounts, links, local tracking,
 	sync policy persistence, mutation origin, sync runs, three-way conflicts, and
 	echo protection. Use AniList as the first complete vertical slice.
-- [ ] Integrate the importer framework with `ProviderPersonalEntry` and
-	`ExternalStateEngine`; replace remaining `ImportRow`/`ProviderImportId` runtime
-	paths with typed entries and `MutationOrigin.import`.
+- [ ] Finish importer convergence with `ProviderPersonalEntry` and
+	`ExternalStateEngine`. The framework and TMDB preview path are now typed and
+	pass Dart's `MutationOrigin.fileImport` into the apply callback; production
+	import-job mutation origin propagation and any remaining provider-specific
+	paths are still open.
 - [ ] Add personal-list imports in this order: MAL and AniList, then Trakt, Simkl,
 	and Kitsu, covering watched/read/rated/watchlist/progress data.
 - [ ] Keep contract drift diagnostics as a hard client/Core regression gate and

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 
 /// Reads normalized entries from a specific third-party provider (a MAL
 /// XML export, an AniList GraphQL response, a Trakt CSV, ...). Implementations
@@ -9,11 +10,13 @@ abstract class ImportSource {
   ProviderId get provider;
 
   /// Produce normalized rows / entries from already-loaded source content.
-  Future<List<dynamic>> readRows();
+  Future<List<ProviderPersonalEntry>> readRows();
 }
 
 /// Resolves an incoming entry against the catalog.
-typedef ImportMatcher = Future<ImportMapping> Function(dynamic rowOrEntry);
+typedef ImportMatcher = Future<ImportMapping> Function(
+  ProviderPersonalEntry entry,
+);
 
 /// Detects conflicts between a matched mapping and existing local state.
 typedef ImportConflictDetector = Future<List<ImportConflict>> Function(
@@ -22,7 +25,7 @@ typedef ImportConflictDetector = Future<List<ImportConflict>> Function(
 
 /// Handles entries that did not resolve to a catalog target.
 typedef ImportUnmatchedHandler = Future<void> Function(
-  dynamic rowOrEntry,
+  ProviderPersonalEntry entry,
   ImportRunConfig config,
 );
 
@@ -56,7 +59,7 @@ class ImportRunner {
   }
 
   Future<ImportResult> run(
-    List<dynamic> rows,
+    List<ProviderPersonalEntry> rows,
     ImportRunConfig config,
   ) async {
     final result = ImportResult()..bindContext(config);
