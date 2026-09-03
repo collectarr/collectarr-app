@@ -239,11 +239,7 @@ class TMDbProvider extends ProviderAdapter {
     final creators = _extractCreators(data.credits);
     final genres = _extractGenres(data.genres);
     final voteAverage = data.voteAverage;
-    final audienceRating = voteAverage != null
-        ? (voteAverage is num
-            ? voteAverage.toStringAsFixed(1)
-            : voteAverage.toString())
-        : null;
+    final audienceRating = voteAverage?.toStringAsFixed(1);
 
     final providerIds = <String, String>{};
     if (tmdbId != null) {

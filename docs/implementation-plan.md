@@ -26,50 +26,22 @@ new fields or forwarding getters to `LibraryMetadataItem`; do not make
 `toCatalogItem()` a runtime dependency. It is temporary transport
 interoperability only and is scheduled for removal.
 
-### Current Rebaseline (2026-09-02)
+### Current Checkpoint (2026-09-03)
 
-The current checkout contains a large uncommitted architecture migration. It is
-not commit-ready: the architecture boundary check passes, but the library does
-not yet compile cleanly and the full Flutter test/format gates have not been run
-successfully after the latest changes.
+The executable Phase 0 baseline is green after repairing the Comic edit
+regressions. `dart analyze lib --format machine`,
+`flutter analyze --fatal-warnings --fatal-infos`, the focused typed/provider
+tests, `flutter test`, the Dart format gate, and the architecture boundary
+checker all pass. The full suite reports five intentionally skipped tests.
 
-Completed in the current working tree:
-
-- Edit presentation is neutral: generic grading, Comic, Game, cover-price, and
-	key-specific labels/visibility flags were removed; kind presentation builders
-	own their labels and tab ordering uses neutral priorities.
-- `MediaEditFields`, `ReleaseEditFields`, and `edit_field_config.dart` were
-	removed. Projectors, field definitions, and kind capabilities are now the
-	intended source of field behavior.
-- Generic hierarchy presentation no longer owns video display/grouping types,
-	reading-queue visibility, index reassignment, or concrete collection labels.
-	Reading queue and index reassignment are explicit kind toolbar actions.
-- Detail slots were renamed to neutral roles (`identity`, `personal`,
-	`progress`, `metadata`, `relations`, `links`, `media`, `notes`, `source`,
-	`activity`).
-- The boundary checker now rejects imports from all of `kinds/**` in generic
-	library code, including `_shared`, except for explicit registry composition.
-	`dart run tool/check_library_kind_boundaries.dart` reports no AST boundary
-	violations; its complexity warnings remain informational debt.
-- `LibraryCommonMetadata` was deleted. `LibraryMetadataItem` is flattened to
-	universal identity/display fields plus typed `kindMetadata`.
-- `LibraryMetadataTransportCodec` now owns catalog-envelope conversion at the
-	transport boundary. Provider mappers and several metadata flows construct the
-	flattened item directly.
-- `CatalogCache` is now an opaque `id`/`kind`/`payloadJson`/`cachedAt` table,
-	schema version 6. `CatalogCacheRepository`, workspace cache reads, and serial
-	authority updates no longer reconstruct denormalized kind columns.
-- Drift bindings were regenerated successfully. The generator still reported
-	the malformed Book presentation declaration described in the immediate gate
-	below.
+PR24-PR26 are represented by the existing provider-native search work. PR27 is
+not applicable until a provider exposes metadata writeback; no speculative
+reverse mapper should be added. The next conceptual checkpoint is PR28, whose
+personal-sync separation is structurally present but still needs the complete
+importer/account/link/conflict vertical slice described in Phase 7.
 
 Known incomplete or regressed surfaces:
 
-- `dart analyze lib --format machine` still reports compile errors from old
-	`LibraryMetadataItem` facade calls, workspace adapter references, the malformed
-	Book presentation file, music mapping, fallback video formats, and test
-	factories. There is also a misplaced link-builder call that must be routed to
-	the edit contract or removed.
 - `library_kind_metadata_values.dart` is only a temporary compatibility helper.
 	It must not become a generic release/edition registry.
 - `WorkspaceCommonProjection` and `WorkspaceDtoAdapter` still centralize
@@ -89,97 +61,6 @@ Known incomplete or regressed surfaces:
 The shipped kinds remain: `comic`, `manga`, `anime`, `book`, `game`, `boardgame`,
 `movie`, `tv`, and `music`.
 
-## ✅ Done
-
-### 🏗️ Infrastructure
-- Split from monorepo into `collectarr/collectarr-app`
-- CI runs Flutter analyze/test
-- Local Drift DB stores catalog snapshots, owned items, wishlists, sync queue, and user preferences
-
-### 🎨 Library Shell
-- CLZ-style workspaces with media library top nav, accent colors, resizable panes
-- View controls: table/grid/card modes, sidebars, inspectors
-- Column presets, bulk editing, stats chips, quick views
-- Reduced-motion support for transitions and animated gradients
-
-### 🔍 Add / Search
-- Comics-first add/search: series/issue/barcode/pull-list modes, multi-select, keyboard shortcuts
-- Structured provider search context (`series`, `issue_number`, `year`) sent to Core
-- Provider candidates consume Core's typed comic identity fields (`candidate_type`, `series_title`, `variant_name`)
-- Provider results require explicit user selection; the dialog no longer auto-focuses the first candidate
-- Provider previews load only for the selected candidate, with neutral messaging for mixed-provider result sets
-- Generic add flow supports explicit media/edition/variant/bundle-release reference selection, including bundle member preview before ingest
-- Generic add dialog and workspaces for books, games, board games, movies, and music, with comic-specific add/search still owning its custom flow
-- Queue Ingest button hidden for non-admin users
-
-### 🛠️ Admin Panel
-- User management panel with role editing (viewer/editor/admin)
-- Image cache panel: stats, per-provider breakdown, refresh + purge with confirmation
-- Admin entry point only visible for admin-role users
-
-### 🔄 Sync & Settings
-- Sync pairing, conflict review, retry queue visibility
-- Settings grouped tabs: auto-save, connection, account/admin visibility, nav preferences
-- Sync history log with timestamps, push/pull/reject counts, success/error icons
-
-### 📥 Import / Export
-- CSV/CLZ import-export wizard with media-aware headers, edition title, physical format, barcode matching
-- Custom field columns (`cf_*`) in CSV export/import — definitions auto-matched on import
-
-### 🏷️ Custom Fields & Item Images
-- User-defined custom fields per media kind plus edit scope (`media` / `release`) with text values
-- Custom field management in settings panel with a table-like editor, add/edit/delete, and scope/type chips
-- Custom fields searchable/filterable in both comics and generic library shelves
-- Custom fields shown in inspector detail panels and edit dialogs
-- Multiple images per owned item with captions and sort order
-- Item images shown in inspector and editable in edit dialogs
-- Drift DB schema v2 with `CustomFieldDefinitionsCache`, `CustomFieldValuesCache`, `ItemImagesCache` tables
-- Purchase/sell tracking fields (`soldAt`, `sellPriceCents`, `soldTo`) on owned items
-- Generic edit dialogs support media-, edition-, variant-, and bundle-release-level personal anchors for owned/tracking/wishlist state
-- Edit dialog footer simplified to Save-only; tab navigation uses the tab bar, close uses the title bar X button
-
-### 🎨 UI Polish
-- Distinctive library icons across the active library kinds so comics, books, games, board games, movies, and music stay visually distinct in navigation
-- Animated accent theming across all UI elements (not just top/bottom bars) using `AnimatedTheme`
-- Cleaner auth/login shell with fewer redundant labels and a more branded landing surface
-- Platform-aware settings/tooling placement so desktop-only helpers stay off Android
-- Hyperlink-driven metadata filters feed exact library filters instead of mutating the free-text search box
-- Inspector/detail views surface richer personal value tracking (`cover price`, `sell price`, `profit / loss`)
-- Workspace filter dialog can filter by resolved location path
-
-### 🌳 Hierarchical Shelf Display
-- Hierarchy fields added to data model: `seriesId`, `seriesTitle`, `volumeName`, `volumeNumber`, `volumeStartYear`, `seasonNumber`, `episodeNumber`
-- CatalogCache is now schema v6 with an opaque catalog envelope; hierarchy values are decoded through kind-owned projections
-- Series grouping uses `seriesTitle` with `title` fallback across generic and comics shelf views
-- Two-level grouped grid: series → volume/season sub-groups (auto-detected from data)
-- Sub-group headers with collapsible sections, numeric sorting for seasons/volumes
-- Inspector metadata section shows series, volume, season, episode when available
-
-### ✅ Generic Library Bulk Actions
-- Multi-select mode with toggle per item (checklist icon in toolbar)
-- Bulk action menu: edit, move to owned, move to wishlist, remove selected
-- Bulk edit dialog with tracking status and star rating fields
-- Selection state management with auto-enable/disable
-
-### 🎬 Trailer Links & Physical Media Enrichment
-- TrailerLink model with url, title, source, isAutomatic fields
-- Trailer URLs stored as JSON in CatalogCache, projected into LibraryWorkspaceEntry
-- Detail page trailer section with YouTube detection and url_launcher
-- HDR formats multi-value field on OwnedItem (Drift schema, edit UI FilterChips, sync settings)
-- Physical features text field on OwnedItem (edit UI, sync settings)
-
-### 🔄 Sync & Data Integrity Improvements
-- Sync freshness indicator: relative time subtitle + stale/offline warning icon on sync button
-- Data-first sync: image storage moved outside DB transaction so catalog/owned data commits first
-- Read-only metadata endpoints no longer require authentication (22 GET endpoints made public)
-- Non-UUID item ID guards on all API call sites (seasons, volumes, bundle releases) to prevent 400/422 from synthetic TMDB-local or composite release IDs
-- Friendly error messages for 401/403/connection errors during CSV import resolution
-
-### ⚡ Architecture & Collection Mutations Simplification
-- Decomposed monolithic `CollectionMutations` into dedicated modular services (`mutations/`, `events/`, `runner/`, `providers/`) for owned items, wishlist, tracking, watch sessions, custom episodes, and metadata overrides
-- Introduced strongly typed Domain Value Objects (`Money`, `OwnedItemId`) and backoff integration with `SyncRetryPolicy`
-- Refactored kind workspace preference codecs, field registry definitions, and workspace presentation adapters across all 9 supported library kinds
-
 ## 🎯 Remaining Implementation Plan
 
 The order below is dependency-driven. A phase is complete only when its focused
@@ -188,12 +69,6 @@ architecture-negative check prevents the old design from returning.
 
 ### Phase 0 — Restore a green migration baseline (P0, current)
 
-- [ ] Repair `kinds/book/presentation.dart`, including the missing
-	`booksMetadataLabels` declaration, and rerun the Book analyzer slice.
-- [ ] Resolve the remaining `dart analyze lib --format machine` errors without
-	restoring semantic getters or payload factories to `LibraryMetadataItem`.
-	The current error list includes detail/hero/wiring, editor, export, grouping,
-	inspector, reports, workspace, serial/video, and test-factory callers.
 - [ ] Replace every remaining `.payload`, `.editions`, `.releaseDate`,
 	`.releaseYear`, `.trailerUrls`, `.toSyncPayload()`, and `fromCatalogItem`
 	access on `LibraryMetadataItem` with either the explicit transport codec or a
@@ -210,8 +85,6 @@ architecture-negative check prevents the old design from returning.
 	runtime contract; migrate callers to `CatalogItem` or the opaque envelope.
 - [ ] Resolve fallback physical formats through registry/composition data. Do not
 	import `_shared/video` into generic catalog code merely to restore a constant.
-- [ ] Run the focused analyzer after each repair, then require zero compile errors
-	from `dart analyze lib --format machine` before starting the next phase.
 
 ### Phase 1 — Finish typed metadata and catalog transport ownership (P0)
 
@@ -327,9 +200,6 @@ architecture-negative check prevents the old design from returning.
 - [ ] Finish the shared shell grammar for add, edit, inspector, detail, and admin:
 	header/context bar, main content, optional side panel, pinned footer, loading,
 	empty, and error states.
-- [x] Keep the `LibraryAddDialog` split into controller, layout, and kind adapter;
-	the remaining `part of` pane/extensions can be removed later if they obstruct
-	testing or ownership, but they are not a migration blocker.
 - [ ] Add centralized comfortable/compact/dense metrics and apply them to cards,
 	rows, inspectors, add results, comparison rows, and sidebars.
 - [ ] Keep neutral detail section roles and make kind-owned sections populate them.
@@ -394,13 +264,10 @@ architecture-negative check prevents the old design from returning.
 
 - [ ] Validate global Activity and bring collection-wide filters to parity with
   per-item activity/history sections.
-- [x] Keep calendar aggregation and manual RFC 5545 export.
 - [ ] Add a live subscribable ICS feed with optional kind filters and per-kind
   settings.
 - [ ] Add local notifications for loan due dates, releases, sync conflicts,
   imports, and proposals; define offsets, channels, and quiet hours.
-- [x] Keep the existing CSV/CLZ, TMDb, and generic personal-list importer
-  foundations.
 - [ ] Finish importer integration with `ProviderPersonalEntry` and
   `ExternalStateEngine`, then implement MAL/AniList followed by Trakt, Simkl,
   and Kitsu watched/read/rated/watchlist/progress imports.

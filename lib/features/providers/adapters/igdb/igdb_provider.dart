@@ -190,11 +190,7 @@ class IGDBProvider extends ProviderAdapter {
         .toList();
 
     final totalRating = game.totalRating;
-    final audienceRating = totalRating != null
-        ? (totalRating is num
-            ? totalRating.toStringAsFixed(1)
-            : totalRating.toString())
-        : null;
+    final audienceRating = totalRating?.toStringAsFixed(1);
 
     final providerIds = <String, String>{};
     if (igdbId != null && igdbId.isNotEmpty) {

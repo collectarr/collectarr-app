@@ -180,8 +180,8 @@ class FixtureDto {
   defineOwnedEditContract<int>(
     name: 'fixture',
     create: () => 1,
-    fieldIds: (_) => const ['condition'],
-    label: (_, fieldId) => fieldId,
+    tabIds: (_) => const ['owned'],
+    fieldIds: (_, __) => const ['condition'],
   );
 
   defineProviderIntegrationContract<int>(

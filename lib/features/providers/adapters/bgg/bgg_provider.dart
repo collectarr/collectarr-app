@@ -316,14 +316,6 @@ class BGGProvider extends ProviderAdapter {
         .replaceAll(RegExp(r'^-+|-+$'), '');
   }
 
-  int? _parseInt(dynamic value) {
-    if (value is num) return value.toInt();
-    if (value != null) {
-      return int.tryParse(value.toString().trim());
-    }
-    return null;
-  }
-
   String? _optionalText(dynamic value) {
     if (value == null) return null;
     final text = value.toString().trim();

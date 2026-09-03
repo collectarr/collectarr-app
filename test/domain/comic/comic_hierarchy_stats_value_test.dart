@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_custom_tab_builder.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -150,7 +149,8 @@ void main() {
     expect(find.text('Save'), findsOneWidget);
   });
 
-  testWidgets('Comic release editing uses the typed edit schema', (tester) async {
+  testWidgets('Comic release editing uses the typed edit schema',
+      (tester) async {
     final item = LibraryMetadataItem.fromCatalogItem(
       testCatalogItem(
         id: 'comic-release-editor',

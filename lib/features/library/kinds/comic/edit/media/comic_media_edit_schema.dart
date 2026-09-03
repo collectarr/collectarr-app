@@ -63,7 +63,7 @@ final EditSchema<ComicCatalogMetadata, ComicMediaEditDraft>
             VocabularyEditField<ComicMediaEditDraft, String>(
               id: 'physical_format',
               label: 'Format',
-              value: (draft) => _nullableText(draft.physicalFormat),
+              value: (draft) => draft.physicalFormat,
               setValue: (draft, value) => draft.physicalFormat = value ?? '',
               options: _options(ComicVocabularies.physicalFormat.builtIns),
             ),

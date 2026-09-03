@@ -37,9 +37,9 @@ void main() {
     draft.personal.priceController.text = '19.99';
     draft.personal.currencyController.text = 'USD';
     final comicDraft = draft.kindDetails as ComicEditDraft;
-    comicDraft.rawOrSlabbedController.text = 'Slabbed';
-    comicDraft.gradingCompanyController.text = 'CGC';
-    comicDraft.coverPriceController.text = '3.99';
+    comicDraft.ownedEdit.rawOrSlabbed = 'Slabbed';
+    comicDraft.ownedEdit.gradingCompany = 'CGC';
+    comicDraft.ownedEdit.coverPriceCents = 399;
 
     final cmd = draft.toAddOwnedItemCommand();
 

@@ -747,9 +747,13 @@ void main() {
     await tester.ensureVisible(find.text('Value', skipOffstage: false).last);
     await tester.tap(find.text('Value', skipOffstage: false).last);
     await pumpUntilSettled(tester);
-    expect(find.text('Cover price'), findsOneWidget);
     expect(find.text('Price paid'), findsOneWidget);
     expect(find.text('My value'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Owned', skipOffstage: false).first);
+    await tester.tap(find.text('Owned', skipOffstage: false).first);
+    await pumpUntilSettled(tester);
+    expect(find.text('Cover price'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Personal', skipOffstage: false).last);
     await tester.tap(find.text('Personal', skipOffstage: false).last);

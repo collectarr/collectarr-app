@@ -754,36 +754,6 @@ extension ComicEditTabBuilders on ComicEditHost {
     );
   }
 
-  Widget _comicRawOrSlabbedField() {
-    final rawValue = comicRawOrSlabbedController.text.trim().toLowerCase();
-    final selected = rawValue == 'slabbed' ? 'slabbed' : 'raw';
-    return InputDecorator(
-      decoration: const InputDecoration(labelText: 'Raw / Slabbed'),
-      child: SegmentedButton<String>(
-        segments: const [
-          ButtonSegment<String>(value: 'raw', label: Text('Raw')),
-          ButtonSegment<String>(value: 'slabbed', label: Text('Slabbed')),
-        ],
-        selected: {selected},
-        showSelectedIcon: false,
-        style: ButtonStyle(
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-          ),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: VisualDensity.compact,
-        ),
-        onSelectionChanged: (selection) {
-          comicMutateState(() {
-            final value = selection.first;
-            comicRawOrSlabbedController.text =
-                value == 'slabbed' ? 'Slabbed' : 'Raw';
-          });
-        },
-      ),
-    );
-  }
-
   Widget buildComicPersonalTab() {
     final isRead = comicTrackingController.text.trim().toLowerCase() == 'read';
     return EditTabShell(

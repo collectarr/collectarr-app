@@ -209,7 +209,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                     ),
                   Flexible(
                     fit: FlexFit.loose,
-                    child: ColoredBox(
+                    child: Material(
                       color: p.panel,
                       child: hasTabStrip
                           ? AnimatedBuilder(

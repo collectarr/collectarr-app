@@ -974,6 +974,16 @@ Still owned by Comic.
 
 Provider never imports Comic.
 
+### Status (2026-09-03)
+
+Not applicable in the current checkout. Metadata providers expose only
+read-oriented `search` and `fetchItem` capabilities. The provider write APIs
+currently present are personal-list synchronization and Core ingest/admin
+operations; there is no provider metadata mutation endpoint or client
+capability to map into. Do not add a speculative reverse mapper. Resume this
+PR only when metadata writeback is introduced; until then, continue with PR 28
+and keep its personal-sync path separate from catalog metadata.
+
 ---
 
 ## PR 28 — Personal provider sync explicitly separate
@@ -994,6 +1004,16 @@ provider list DTO
 ```
 
 Do not mix catalog metadata into `ExternalStateEngine`.
+
+### Status (2026-09-03)
+
+Structurally present in the current checkout: provider personal-list mappers,
+file import capabilities, and `ExternalStateEngine` use
+`ProviderPersonalEntry`, while kind-owned metadata mapping remains separate.
+The PR is not complete until the importer/account/link/sync-policy/conflict
+vertical slice is covered as described in Phase 7. Continue from this PR after
+the remaining Phase 0 architecture cleanup; do not reopen PR27 without a
+provider metadata writeback capability.
 
 ---
 

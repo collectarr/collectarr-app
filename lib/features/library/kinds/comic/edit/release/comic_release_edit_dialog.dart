@@ -37,7 +37,8 @@ class _ComicReleaseSchemaEditDialogState
     super.initState();
     final metadata = widget.request.item.kindMetadata;
     if (metadata is! ComicCatalogMetadata) {
-      throw StateError('Expected ComicCatalogMetadata for Comic release editing');
+      throw StateError(
+          'Expected ComicCatalogMetadata for Comic release editing');
     }
     _release = _resolveRelease(
       metadata,
@@ -68,7 +69,8 @@ class _ComicReleaseSchemaEditDialogState
         );
         final metadata = selection.item.kindMetadata;
         if (metadata is! ComicCatalogMetadata) {
-          throw StateError('Expected ComicCatalogMetadata for Comic release save');
+          throw StateError(
+              'Expected ComicCatalogMetadata for Comic release save');
         }
         final updatedRelease = _releaseDraft.toRelease();
         final updatedReleases = [

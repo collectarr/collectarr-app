@@ -373,10 +373,4 @@ class GCDProvider extends ProviderAdapter {
     }
     return arcs;
   }
-
-  String? _optionalText(dynamic value) {
-    if (value == null) return null;
-    final text = value.toString().trim();
-    return text.isNotEmpty ? text : null;
-  }
 }

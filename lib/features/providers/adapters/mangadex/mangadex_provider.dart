@@ -248,7 +248,7 @@ class MangaDexProvider extends ProviderAdapter {
   String? _extractCoverUrl(MangaDexManga manga) {
     final mangaId = manga.id;
     final relationships = manga.relationships;
-    if (mangaId == null || mangaId.isEmpty || relationships is! List) {
+    if (mangaId == null || mangaId.isEmpty) {
       return null;
     }
 

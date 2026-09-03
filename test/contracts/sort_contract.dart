@@ -17,9 +17,7 @@ void defineSortContract<TSubject>({
         expectContract(ids.isNotEmpty, '$name must expose at least one sort');
         expectUnique(ids, '$name sort IDs must be unique');
         for (final sortId in ids) {
-          final result = compare(subject, sortId, Object(), Object());
-          expectContract(
-              result is int, '$name sort $sortId must compare typed values');
+          compare(subject, sortId, Object(), Object());
         }
       },
     ],

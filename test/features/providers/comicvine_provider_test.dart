@@ -48,7 +48,11 @@ void main() {
       expect(issue.volume?.publisherName, 'DC Comics');
       expect(issue.image?.scaleLarge, 'https://example.com/cover.jpg');
       expect(issue.personCredits.single.name, 'Scott Snyder');
-      expect(issue.toJson()['volume']['name'], 'Absolute Batman');
+      final volume = issue.toJson()['volume'];
+      expect(volume, isA<Map<String, dynamic>>());
+      if (volume is Map<String, dynamic>) {
+        expect(volume['name'], 'Absolute Batman');
+      }
     });
 
     test('exposes correct descriptor metadata', () {
