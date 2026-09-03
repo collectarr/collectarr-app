@@ -15,6 +15,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     required this.isRegistryFile,
     required this.kindName,
     required this.repoRoot,
+    this.sourceContent,
   });
 
   final String filePath;
@@ -24,6 +25,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   final bool isRegistryFile;
   final String? kindName;
   final String repoRoot;
+  final String? sourceContent;
 
   final List<String> violations = [];
   final List<String> complexityWarnings = [];
@@ -115,6 +117,95 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'physicalFormatLabel',
   };
 
+  static const _genericMetadataMapAllowlist = {
+    'lib/features/library/add/controllers/library_add_comparisons.dart',
+    'lib/features/library/add/panes/library_add_preview_pane.dart',
+    'lib/features/library/add/services/library_add_workflow_service.dart',
+    'lib/features/library/add/services/library_provider_orchestration_service.dart',
+    'lib/features/library/add/services/provider_add_result_merge.dart',
+    'lib/features/library/config/generic_library_media_presentation.dart',
+    'lib/features/library/config/library_entry_helpers.dart',
+    'lib/features/library/config/library_group_bucket_mutation.dart',
+    'lib/features/library/config/library_page_utilities.dart',
+    'lib/features/library/config/owned_details_codec.dart',
+    'lib/features/library/config/presentation/library_metadata_presentation.dart',
+    'lib/features/library/edit/draft/library_edit_draft.dart',
+    'lib/features/library/generic/library_sort_preset_store.dart',
+    'lib/features/library/generic/page/coordinators/page_cover_coordinator.dart',
+    'lib/features/library/metadata/library_metadata_compare_dialog.dart',
+    'lib/features/library/metadata/library_metadata_proposal.dart',
+    'lib/features/library/metadata/library_metadata_widgets.dart',
+    'lib/features/library/metadata/metadata_proposal_store.dart',
+    'lib/features/library/metadata/provider_candidate.dart',
+  };
+
+  static const _dynamicCatalogAllowlist = {
+    'lib/features/catalog/catalog_cache_repository.dart',
+    'lib/features/collection/csv/collection_csv.dart',
+    'lib/features/collection/mutations/collection_import_service.dart',
+    'lib/features/collection/mutations/owned_item_mutations.dart',
+    'lib/features/collection/mutations/tracking_mutations.dart',
+    'lib/features/collection/mutations/wishlist_mutations.dart',
+    'lib/features/collection/repositories/custom_field_repository.dart',
+    'lib/features/collection/repositories/shelf_controller.dart',
+    'lib/features/library/add/controllers/library_add_comparisons.dart',
+    'lib/features/library/add/library_add_collection_workflow.dart',
+    'lib/features/library/api/library_metadata_transport_codec.dart',
+    'lib/features/library/add/services/library_add_workflow_service.dart',
+    'lib/features/library/config/library_entry_helpers.dart',
+    'lib/features/library/config/library_group_bucket_mutation.dart',
+    'lib/features/library/detail/library_detail_hero.dart',
+    'lib/features/library/detail/story_arc_detail_page.dart',
+    'lib/features/library/generic/library_route_state.dart',
+    'lib/features/library/hierarchy/domain/library_hierarchy_node.dart',
+    'lib/features/library/inspector/metadata_correction_dialog.dart',
+    'lib/features/library/inspector/sections/contributors_section.dart',
+    'lib/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart',
+    'lib/features/library/kinds/_shared/serial/serial_library_media_presentation_builder.dart',
+    'lib/features/library/kinds/_shared/video/detail/video_inspector_sections.dart',
+    'lib/features/library/kinds/_shared/video/domain/video_episode.dart',
+    'lib/features/library/kinds/_shared/video/edit/tabs/video_edit_models.dart',
+    'lib/features/library/kinds/_shared/video/release/video_release_source.dart',
+    'lib/features/library/kinds/anime/domain/anime_metadata.dart',
+    'lib/features/library/kinds/boardgame/domain/boardgame_metadata.dart',
+    'lib/features/library/kinds/boardgame/presentation_builder.dart',
+    'lib/features/library/kinds/book/catalog/book_catalog_mapper.dart',
+    'lib/features/library/kinds/book/domain/book_metadata.dart',
+    'lib/features/library/kinds/book/presentation_builder.dart',
+    'lib/features/library/kinds/comic/detail/comic_series_detail_page.dart',
+    'lib/features/library/kinds/comic/edit/comic_edit_models.dart',
+    'lib/features/library/kinds/comic/inspector_sections.dart',
+    'lib/features/library/kinds/game/catalog/game_catalog_mapper.dart',
+    'lib/features/library/kinds/game/presentation_builder.dart',
+    'lib/features/library/kinds/manga/domain/manga_metadata.dart',
+    'lib/features/library/kinds/manga/presentation_builder.dart',
+    'lib/features/library/kinds/movie/domain/movie_metadata.dart',
+    'lib/features/library/kinds/movie/inspector_sections.dart',
+    'lib/features/library/kinds/movie/presentation_builder.dart',
+    'lib/features/library/kinds/music/catalog/music_catalog_mapper.dart',
+    'lib/features/library/kinds/music/domain/music_metadata.dart',
+    'lib/features/library/kinds/music/edit_dialog.dart',
+    'lib/features/library/kinds/music/presentation_builder.dart',
+    'lib/features/library/kinds/music/workspace/music_card_presentation.dart',
+    'lib/features/library/kinds/tv/domain/tv_metadata.dart',
+    'lib/features/library/kinds/tv/inspector_sections.dart',
+    'lib/features/library/metadata/library_metadata_compare_dialog.dart',
+    'lib/features/library/metadata/library_metadata_proposal.dart',
+    'lib/features/library/metadata/metadata_proposal_store.dart',
+    'lib/features/library/models/library_catalog_item_view.dart',
+    'lib/features/library/models/library_entry.dart',
+    'lib/features/library/models/library_kind_metadata_values.dart',
+    'lib/features/library/models/library_metadata_item.dart',
+    'lib/features/library/workspace/data/library_workspace_repository.dart',
+    'lib/features/library/workspace/layout/library_flow_carousel.dart',
+    'lib/features/library/workspace/tiles/library_workspace_card.dart',
+    'lib/features/providers/domain/mappers/provider_preview_mapper.dart',
+  };
+
+  static const _generatedDtoAllowlist = {
+    'lib/features/library/kinds/_shared/video/providers/video_seasons_provider.dart',
+  };
+
   @override
   void visitPropertyAccess(PropertyAccess node) {
     if (_isStrictGenericContext(relativePath)) {
@@ -173,6 +264,23 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     final importedRelativePath =
         p.relative(importedPath, from: repoRoot).replaceAll('\\', '/');
 
+    if (_isProviderPath(relativePath) &&
+        importedRelativePath.startsWith('lib/features/library/kinds/')) {
+      violations.add(
+        '$relativePath:$lineNumber: Provider code must not import kind-specific modules ($uriString)',
+      );
+      return;
+    }
+
+    if (_isGeneratedCoreDtoPath(importedRelativePath) &&
+        _isKindSourcePath(relativePath) &&
+        !_generatedDtoAllowlist.contains(relativePath)) {
+      violations.add(
+        '$relativePath:$lineNumber: Generated Core DTO import must stay inside the owning kind module ($uriString)',
+      );
+      return;
+    }
+
     if (!importedRelativePath.startsWith('lib/features/library/kinds/')) {
       return;
     }
@@ -201,6 +309,22 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitNamedType(NamedType node) {
+    if (_isGenericMetadataMap(node) &&
+        !_genericMetadataMapAllowlist.contains(relativePath)) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        '$relativePath:$line: Generic metadata map must be classified or moved to a kind-owned mapper',
+      );
+    }
+
+    if (_isDynamicCatalogType(node) &&
+        !_dynamicCatalogAllowlist.contains(relativePath)) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        '$relativePath:$line: Dynamic catalog/metadata object must be replaced or explicitly allowlisted',
+      );
+    }
+
     if (isBoundaryFile) {
       final typeName = node.name.lexeme;
       if (_forbiddenKindDomainTypes.contains(typeName)) {
@@ -352,6 +476,48 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         path.endsWith('.drift.dart') ||
         path.contains('/generated/');
   }
+
+  bool _isGenericMetadataMap(NamedType node) {
+    if (node.name.lexeme != 'Map' ||
+        !relativePath.startsWith('lib/features/library/')) {
+      return false;
+    }
+    final arguments = node.typeArguments?.arguments;
+    if (arguments == null || arguments.length != 2) return false;
+    final keyType = arguments[0].toSource();
+    final valueType = arguments[1].toSource();
+    if (keyType != 'String' ||
+        (valueType != 'dynamic' && valueType != 'Object?')) {
+      return false;
+    }
+    return relativePath.startsWith('lib/features/library/add/') ||
+        relativePath.startsWith('lib/features/library/edit/') ||
+        relativePath.startsWith('lib/features/library/generic/') ||
+        relativePath.startsWith('lib/features/library/metadata/') ||
+        relativePath.startsWith('lib/features/library/config/');
+  }
+
+  bool _isDynamicCatalogType(NamedType node) {
+    if (node.name.lexeme != 'dynamic' ||
+        (!_isLibraryDataPath(relativePath) &&
+            !relativePath.startsWith('lib/features/catalog/'))) {
+      return false;
+    }
+    final lineNumber = lineInfo.getLocation(node.offset).lineNumber;
+    final lines = sourceContent?.split('\n');
+    final declarationSource = lines != null && lineNumber <= lines.length
+        ? lines[lineNumber - 1]
+        : node.parent?.parent?.toSource() ?? '';
+    return RegExp(
+      r'\b(catalog|metadata|payload|item)[A-Za-z0-9_]*\b',
+      caseSensitive: false,
+    ).hasMatch(declarationSource);
+  }
+
+  bool _isLibraryDataPath(String path) {
+    return path.startsWith('lib/features/library/') ||
+        path.startsWith('lib/features/collection/');
+  }
 }
 
 const _registryRoot = 'lib/features/library/kinds/registry/';
@@ -398,6 +564,7 @@ void main(List<String> arguments) {
       isRegistryFile: isRegistryFile,
       kindName: kindName,
       repoRoot: repoRoot,
+      sourceContent: content,
     );
 
     parseResult.unit.accept(visitor);
@@ -448,6 +615,20 @@ bool isBoundaryFile(String relativePath) {
 
 bool isAllowedKindImport(String sourceKind, String importedKind) {
   return false;
+}
+
+bool _isProviderPath(String relativePath) {
+  return relativePath.startsWith('lib/features/providers/');
+}
+
+bool _isKindSourcePath(String relativePath) {
+  return relativePath.startsWith('lib/features/library/kinds/') &&
+      !relativePath.startsWith(_registryRoot);
+}
+
+bool _isGeneratedCoreDtoPath(String relativePath) {
+  return relativePath.startsWith('lib/core/api/generated/') &&
+      relativePath.endsWith('.models.dart');
 }
 
 String? _kindNameForPath(String relativePath) {

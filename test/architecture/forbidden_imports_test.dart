@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -283,6 +284,85 @@ class GenericFieldHandler {
     );
   });
 
+  test('architecture boundary checker rejects provider importing a kind', () {
+    const testCode = '''
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+
+class TestProvider {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/providers/domain/test_provider.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Provider code must not import kind-specific modules'),
+      ),
+    );
+  });
+
+  test(
+      'architecture boundary checker rejects generated DTO in shared kind code',
+      () {
+    const testCode = '''
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+
+class SharedProvider {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath:
+          'lib/features/library/kinds/_shared/video/providers/test_provider.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Generated Core DTO import must stay inside the owning kind'),
+      ),
+    );
+  });
+
+  test('architecture boundary checker rejects generic metadata maps', () {
+    const testCode = '''
+final Map<String, dynamic> metadata = <String, dynamic>{};
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/library/generic/test_metadata.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Generic metadata map must be classified'),
+      ),
+    );
+  });
+
+  test('architecture boundary checker rejects dynamic catalog objects', () {
+    const testCode = '''
+dynamic catalogItem;
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/library/generic/test_catalog.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Dynamic catalog/metadata object must be replaced'),
+      ),
+    );
+  });
+
   test(
       'architecture boundary checker rejects cross-kind concrete import (comic -> manga)',
       () {
@@ -402,4 +482,30 @@ class ComicFeature {}
       isEmpty,
     );
   });
+}
+
+({ArchitectureRuleVisitor visitor, CompilationUnit unit})
+    _visitorForArchitectureTest({
+  required String code,
+  required String relativePath,
+}) {
+  final repoRoot = Directory.current.path;
+  final filePath = p.join(repoRoot, relativePath);
+  final parseResult = parseString(
+    content: code,
+    path: filePath,
+    throwIfDiagnostics: false,
+  );
+  final visitor = ArchitectureRuleVisitor(
+    filePath: filePath,
+    relativePath: relativePath,
+    lineInfo: parseResult.lineInfo,
+    isBoundaryFile: isBoundaryFile(relativePath),
+    isRegistryFile:
+        relativePath.startsWith('lib/features/library/kinds/registry/'),
+    kindName: null,
+    repoRoot: repoRoot,
+    sourceContent: code,
+  );
+  return (visitor: visitor, unit: parseResult.unit);
 }
