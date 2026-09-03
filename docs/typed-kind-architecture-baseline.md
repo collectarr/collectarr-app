@@ -395,3 +395,28 @@ non-empty labels, and the existing built-in value surface.
 - [x] Focused Comic vocabulary contract added.
 
 Next work is PR 18: define the typed Comic Add schema.
+
+## PR 18 Comic Add Schema
+
+`comic_add_schema.dart` now declares the manual Comic Add surface in two
+ordered sections: Main and Collector. The schema owns the 14 fields backed by
+`ComicAddManualDraft`, including issue identity, variant, barcode, cover date,
+cover image, and collector grading/signature data. The Series picker remains
+an external authority control in the existing pane because it has no manual
+draft property.
+
+Publisher and Format are typed `VocabularyAddField` definitions backed by the
+Comic publisher and physical-format vocabularies. Schema-level validation and
+section visibility remain explicit callbacks, while the current pane can
+continue loading user-managed options and rendering its existing controls.
+
+Focused Add coverage verifies section and field ordering, unique labeled field
+registration, vocabulary option bindings, and typed getter/setter round trips
+for every manual draft property.
+
+- [x] Typed Comic Add schema added.
+- [x] Main and Collector sections declared explicitly.
+- [x] Publisher and Format vocabulary bindings added.
+- [x] Add contract and focused schema coverage added.
+
+Next work is PR 19: define the typed Comic Media Edit schema.
