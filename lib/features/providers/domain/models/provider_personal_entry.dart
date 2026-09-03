@@ -69,6 +69,7 @@ final class ProviderPersonalEntry {
           'remoteUpdatedAt': remoteUpdatedAt!.toIso8601String(),
         if (remoteRevision != null) 'remoteRevision': remoteRevision,
         if (notes != null) 'notes': notes,
+        if (rawPayload.isNotEmpty) 'rawPayload': rawPayload,
       };
 
   factory ProviderPersonalEntry.fromJson(Map<String, dynamic> json) {
@@ -100,6 +101,9 @@ final class ProviderPersonalEntry {
           : null,
       remoteRevision: json['remoteRevision']?.toString(),
       notes: json['notes']?.toString(),
+      rawPayload: Map<String, dynamic>.from(
+        (json['rawPayload'] as Map?) ?? const {},
+      ),
     );
   }
 }

@@ -1010,16 +1010,17 @@ Do not mix catalog metadata into `ExternalStateEngine`.
 Structurally present in the current checkout: provider personal-list mappers,
 file import capabilities, and `ExternalStateEngine` use
 `ProviderPersonalEntry`, while kind-owned metadata mapping remains separate.
-Account/link persistence, sync-policy persistence and directional filtering,
-three-way conflict handling, and echo protection are covered by the AniList
-vertical slice. The importer framework and TMDB preview path now consume
+Durable account/link persistence is now backed by the shared Drift database,
+while provider credentials remain in secure storage. Sync-policy persistence
+and directional filtering, three-way conflict handling, and echo protection
+are covered by the AniList vertical slice. The importer framework and TMDB preview path now consume
 `ProviderPersonalEntry` end to end; the duplicate `ImportRow` representation
 and its conversion bridge are removed, and `MutationOrigin.fileImport` reaches
 the typed apply callback. Production import jobs now carry their origin through
 collection mutations, and file imports are prevented from writing back to
-external providers. The PR remains open for durable account/link persistence,
-link creation during imports, and the remaining provider personal-list
-integrations described in Phase 7. Continue from this PR; do not reopen PR27
+external providers. The PR remains open for link creation during imports and
+the remaining provider personal-list integrations described in Phase 7.
+Continue from this PR; do not reopen PR27
 without a provider metadata writeback capability.
 
 ---

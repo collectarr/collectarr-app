@@ -359,6 +359,40 @@ class SerialAuthorityCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class ProviderAccountsCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get provider => text()();
+  TextColumn get displayName => text()();
+  TextColumn get authType => text()();
+  TextColumn get remoteAccountId => text().nullable()();
+  TextColumn get remoteHandle => text().nullable()();
+  TextColumn get username => text().nullable()();
+  TextColumn get avatarUrl => text().nullable()();
+  DateTimeColumn get connectedAt => dateTime().nullable()();
+  DateTimeColumn get lastSyncAt => dateTime().nullable()();
+  TextColumn get enabledCapabilitiesJson => text()();
+  TextColumn get syncPolicyJson => text()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class ProviderItemLinksCache extends Table {
+  TextColumn get accountId => text()();
+  TextColumn get provider => text()();
+  TextColumn get remoteItemId => text()();
+  TextColumn get remoteEntryId => text().nullable()();
+  TextColumn get localEntityRefJson => text()();
+  TextColumn get baseSnapshotJson => text().nullable()();
+  DateTimeColumn get lastPulledAt => dateTime().nullable()();
+  DateTimeColumn get lastPushedAt => dateTime().nullable()();
+  TextColumn get remoteRevision => text().nullable()();
+  TextColumn get metadataJson => text()();
+
+  @override
+  Set<Column> get primaryKey => {accountId, remoteItemId};
+}
+
 @DriftDatabase(tables: [
   CatalogCache,
   OwnedItemsCache,
@@ -381,6 +415,8 @@ class SerialAuthorityCache extends Table {
   ReadingQueueCache,
   PickListValuesCache,
   SerialAuthorityCache,
+  ProviderAccountsCache,
+  ProviderItemLinksCache,
   ComicMediaRows,
   ComicReleaseRows,
 ])
@@ -389,23 +425,25 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (m) => m.createAll(),
-      // All tables in this database are local caches that are rebuilt from
-      // the server on next sync.  A destructive migration is intentional:
-      // it avoids carrying forward every historical ALTER TABLE step while
-      // remaining safe because no user-authored data lives here.
-      onUpgrade: (m, from, to) => _destructiveRebuild(m),
+      onUpgrade: (m, from, to) async {
+        if (from < 8) {
+          await m.createTable(providerAccountsCache);
+          await m.createTable(providerItemLinksCache);
+          return;
+        }
+        await _destructiveRebuild(m);
+      },
       beforeOpen: (details) async {
-        // Force a destructive rebuild for any existing local cache that was
-        // created before the current schema version.
+        // A newer on-disk version cannot be migrated safely by this client.
         if (!details.wasCreated &&
             details.versionBefore != null &&
-            details.versionBefore != details.versionNow) {
+            details.versionBefore! > details.versionNow) {
           await _destructiveRebuild(createMigrator());
         }
       },

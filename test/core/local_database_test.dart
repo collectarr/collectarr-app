@@ -60,13 +60,51 @@ void main() {
     expect(catalogPayload['variant'], 'Regular Cover');
   });
 
-  test('reports the reset v7 schema version', () async {
+  test('reports the reset v8 schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 7);
+    expect(db.schemaVersion, 8);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v7 schema',
+  test('migrates a v7 cache to v8 without losing existing cache rows',
+      () async {
+    final dir = await Directory.systemTemp.createTemp('collectarr_db_migrate');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/cache.sqlite');
+
+    final old = LocalDatabase(NativeDatabase(file));
+    await old.into(old.catalogCache).insert(
+          CatalogCacheCompanion.insert(
+            id: 'comic-1',
+            kind: 'comic',
+            payloadJson: jsonEncode({'id': 'comic-1', 'title': 'Preserved'}),
+            cachedAt: DateTime.utc(2026, 5, 11),
+          ),
+        );
+    await old.customStatement(
+      'DROP TABLE ${old.providerAccountsCache.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.providerItemLinksCache.actualTableName}',
+    );
+    await old.customStatement('PRAGMA user_version = 7');
+    await old.close();
+
+    final db = LocalDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+
+    final catalog = await db.select(db.catalogCache).getSingle();
+    expect(catalog.id, 'comic-1');
+    final payload = jsonDecode(catalog.payloadJson) as Map<String, dynamic>;
+    expect(payload['title'], 'Preserved');
+    expect(await db.select(db.providerAccountsCache).get(), isEmpty);
+    expect(await db.select(db.providerItemLinksCache).get(), isEmpty);
+
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.first, 8);
+  });
+
+  test('destructively rebuilds a higher-versioned cache to the v8 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -98,7 +136,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 7);
+    expect(version.data.values.first, 8);
   });
 
   test('stores personal collection and wishlist data locally', () async {

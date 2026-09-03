@@ -11923,6 +11923,1212 @@ class SerialAuthorityCacheCompanion
   }
 }
 
+class $ProviderAccountsCacheTable extends ProviderAccountsCache
+    with TableInfo<$ProviderAccountsCacheTable, ProviderAccountsCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProviderAccountsCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _providerMeta =
+      const VerificationMeta('provider');
+  @override
+  late final GeneratedColumn<String> provider = GeneratedColumn<String>(
+      'provider', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _displayNameMeta =
+      const VerificationMeta('displayName');
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+      'display_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _authTypeMeta =
+      const VerificationMeta('authType');
+  @override
+  late final GeneratedColumn<String> authType = GeneratedColumn<String>(
+      'auth_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _remoteAccountIdMeta =
+      const VerificationMeta('remoteAccountId');
+  @override
+  late final GeneratedColumn<String> remoteAccountId = GeneratedColumn<String>(
+      'remote_account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _remoteHandleMeta =
+      const VerificationMeta('remoteHandle');
+  @override
+  late final GeneratedColumn<String> remoteHandle = GeneratedColumn<String>(
+      'remote_handle', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _usernameMeta =
+      const VerificationMeta('username');
+  @override
+  late final GeneratedColumn<String> username = GeneratedColumn<String>(
+      'username', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _avatarUrlMeta =
+      const VerificationMeta('avatarUrl');
+  @override
+  late final GeneratedColumn<String> avatarUrl = GeneratedColumn<String>(
+      'avatar_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _connectedAtMeta =
+      const VerificationMeta('connectedAt');
+  @override
+  late final GeneratedColumn<DateTime> connectedAt = GeneratedColumn<DateTime>(
+      'connected_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _lastSyncAtMeta =
+      const VerificationMeta('lastSyncAt');
+  @override
+  late final GeneratedColumn<DateTime> lastSyncAt = GeneratedColumn<DateTime>(
+      'last_sync_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _enabledCapabilitiesJsonMeta =
+      const VerificationMeta('enabledCapabilitiesJson');
+  @override
+  late final GeneratedColumn<String> enabledCapabilitiesJson =
+      GeneratedColumn<String>('enabled_capabilities_json', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _syncPolicyJsonMeta =
+      const VerificationMeta('syncPolicyJson');
+  @override
+  late final GeneratedColumn<String> syncPolicyJson = GeneratedColumn<String>(
+      'sync_policy_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        provider,
+        displayName,
+        authType,
+        remoteAccountId,
+        remoteHandle,
+        username,
+        avatarUrl,
+        connectedAt,
+        lastSyncAt,
+        enabledCapabilitiesJson,
+        syncPolicyJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'provider_accounts_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProviderAccountsCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('provider')) {
+      context.handle(_providerMeta,
+          provider.isAcceptableOrUnknown(data['provider']!, _providerMeta));
+    } else if (isInserting) {
+      context.missing(_providerMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+          _displayNameMeta,
+          displayName.isAcceptableOrUnknown(
+              data['display_name']!, _displayNameMeta));
+    } else if (isInserting) {
+      context.missing(_displayNameMeta);
+    }
+    if (data.containsKey('auth_type')) {
+      context.handle(_authTypeMeta,
+          authType.isAcceptableOrUnknown(data['auth_type']!, _authTypeMeta));
+    } else if (isInserting) {
+      context.missing(_authTypeMeta);
+    }
+    if (data.containsKey('remote_account_id')) {
+      context.handle(
+          _remoteAccountIdMeta,
+          remoteAccountId.isAcceptableOrUnknown(
+              data['remote_account_id']!, _remoteAccountIdMeta));
+    }
+    if (data.containsKey('remote_handle')) {
+      context.handle(
+          _remoteHandleMeta,
+          remoteHandle.isAcceptableOrUnknown(
+              data['remote_handle']!, _remoteHandleMeta));
+    }
+    if (data.containsKey('username')) {
+      context.handle(_usernameMeta,
+          username.isAcceptableOrUnknown(data['username']!, _usernameMeta));
+    }
+    if (data.containsKey('avatar_url')) {
+      context.handle(_avatarUrlMeta,
+          avatarUrl.isAcceptableOrUnknown(data['avatar_url']!, _avatarUrlMeta));
+    }
+    if (data.containsKey('connected_at')) {
+      context.handle(
+          _connectedAtMeta,
+          connectedAt.isAcceptableOrUnknown(
+              data['connected_at']!, _connectedAtMeta));
+    }
+    if (data.containsKey('last_sync_at')) {
+      context.handle(
+          _lastSyncAtMeta,
+          lastSyncAt.isAcceptableOrUnknown(
+              data['last_sync_at']!, _lastSyncAtMeta));
+    }
+    if (data.containsKey('enabled_capabilities_json')) {
+      context.handle(
+          _enabledCapabilitiesJsonMeta,
+          enabledCapabilitiesJson.isAcceptableOrUnknown(
+              data['enabled_capabilities_json']!,
+              _enabledCapabilitiesJsonMeta));
+    } else if (isInserting) {
+      context.missing(_enabledCapabilitiesJsonMeta);
+    }
+    if (data.containsKey('sync_policy_json')) {
+      context.handle(
+          _syncPolicyJsonMeta,
+          syncPolicyJson.isAcceptableOrUnknown(
+              data['sync_policy_json']!, _syncPolicyJsonMeta));
+    } else if (isInserting) {
+      context.missing(_syncPolicyJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProviderAccountsCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProviderAccountsCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      provider: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}provider'])!,
+      displayName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}display_name'])!,
+      authType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}auth_type'])!,
+      remoteAccountId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}remote_account_id']),
+      remoteHandle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_handle']),
+      username: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}username']),
+      avatarUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar_url']),
+      connectedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}connected_at']),
+      lastSyncAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_sync_at']),
+      enabledCapabilitiesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}enabled_capabilities_json'])!,
+      syncPolicyJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}sync_policy_json'])!,
+    );
+  }
+
+  @override
+  $ProviderAccountsCacheTable createAlias(String alias) {
+    return $ProviderAccountsCacheTable(attachedDatabase, alias);
+  }
+}
+
+class ProviderAccountsCacheData extends DataClass
+    implements Insertable<ProviderAccountsCacheData> {
+  final String id;
+  final String provider;
+  final String displayName;
+  final String authType;
+  final String? remoteAccountId;
+  final String? remoteHandle;
+  final String? username;
+  final String? avatarUrl;
+  final DateTime? connectedAt;
+  final DateTime? lastSyncAt;
+  final String enabledCapabilitiesJson;
+  final String syncPolicyJson;
+  const ProviderAccountsCacheData(
+      {required this.id,
+      required this.provider,
+      required this.displayName,
+      required this.authType,
+      this.remoteAccountId,
+      this.remoteHandle,
+      this.username,
+      this.avatarUrl,
+      this.connectedAt,
+      this.lastSyncAt,
+      required this.enabledCapabilitiesJson,
+      required this.syncPolicyJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['provider'] = Variable<String>(provider);
+    map['display_name'] = Variable<String>(displayName);
+    map['auth_type'] = Variable<String>(authType);
+    if (!nullToAbsent || remoteAccountId != null) {
+      map['remote_account_id'] = Variable<String>(remoteAccountId);
+    }
+    if (!nullToAbsent || remoteHandle != null) {
+      map['remote_handle'] = Variable<String>(remoteHandle);
+    }
+    if (!nullToAbsent || username != null) {
+      map['username'] = Variable<String>(username);
+    }
+    if (!nullToAbsent || avatarUrl != null) {
+      map['avatar_url'] = Variable<String>(avatarUrl);
+    }
+    if (!nullToAbsent || connectedAt != null) {
+      map['connected_at'] = Variable<DateTime>(connectedAt);
+    }
+    if (!nullToAbsent || lastSyncAt != null) {
+      map['last_sync_at'] = Variable<DateTime>(lastSyncAt);
+    }
+    map['enabled_capabilities_json'] =
+        Variable<String>(enabledCapabilitiesJson);
+    map['sync_policy_json'] = Variable<String>(syncPolicyJson);
+    return map;
+  }
+
+  ProviderAccountsCacheCompanion toCompanion(bool nullToAbsent) {
+    return ProviderAccountsCacheCompanion(
+      id: Value(id),
+      provider: Value(provider),
+      displayName: Value(displayName),
+      authType: Value(authType),
+      remoteAccountId: remoteAccountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteAccountId),
+      remoteHandle: remoteHandle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteHandle),
+      username: username == null && nullToAbsent
+          ? const Value.absent()
+          : Value(username),
+      avatarUrl: avatarUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarUrl),
+      connectedAt: connectedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(connectedAt),
+      lastSyncAt: lastSyncAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncAt),
+      enabledCapabilitiesJson: Value(enabledCapabilitiesJson),
+      syncPolicyJson: Value(syncPolicyJson),
+    );
+  }
+
+  factory ProviderAccountsCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProviderAccountsCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      provider: serializer.fromJson<String>(json['provider']),
+      displayName: serializer.fromJson<String>(json['displayName']),
+      authType: serializer.fromJson<String>(json['authType']),
+      remoteAccountId: serializer.fromJson<String?>(json['remoteAccountId']),
+      remoteHandle: serializer.fromJson<String?>(json['remoteHandle']),
+      username: serializer.fromJson<String?>(json['username']),
+      avatarUrl: serializer.fromJson<String?>(json['avatarUrl']),
+      connectedAt: serializer.fromJson<DateTime?>(json['connectedAt']),
+      lastSyncAt: serializer.fromJson<DateTime?>(json['lastSyncAt']),
+      enabledCapabilitiesJson:
+          serializer.fromJson<String>(json['enabledCapabilitiesJson']),
+      syncPolicyJson: serializer.fromJson<String>(json['syncPolicyJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'provider': serializer.toJson<String>(provider),
+      'displayName': serializer.toJson<String>(displayName),
+      'authType': serializer.toJson<String>(authType),
+      'remoteAccountId': serializer.toJson<String?>(remoteAccountId),
+      'remoteHandle': serializer.toJson<String?>(remoteHandle),
+      'username': serializer.toJson<String?>(username),
+      'avatarUrl': serializer.toJson<String?>(avatarUrl),
+      'connectedAt': serializer.toJson<DateTime?>(connectedAt),
+      'lastSyncAt': serializer.toJson<DateTime?>(lastSyncAt),
+      'enabledCapabilitiesJson':
+          serializer.toJson<String>(enabledCapabilitiesJson),
+      'syncPolicyJson': serializer.toJson<String>(syncPolicyJson),
+    };
+  }
+
+  ProviderAccountsCacheData copyWith(
+          {String? id,
+          String? provider,
+          String? displayName,
+          String? authType,
+          Value<String?> remoteAccountId = const Value.absent(),
+          Value<String?> remoteHandle = const Value.absent(),
+          Value<String?> username = const Value.absent(),
+          Value<String?> avatarUrl = const Value.absent(),
+          Value<DateTime?> connectedAt = const Value.absent(),
+          Value<DateTime?> lastSyncAt = const Value.absent(),
+          String? enabledCapabilitiesJson,
+          String? syncPolicyJson}) =>
+      ProviderAccountsCacheData(
+        id: id ?? this.id,
+        provider: provider ?? this.provider,
+        displayName: displayName ?? this.displayName,
+        authType: authType ?? this.authType,
+        remoteAccountId: remoteAccountId.present
+            ? remoteAccountId.value
+            : this.remoteAccountId,
+        remoteHandle:
+            remoteHandle.present ? remoteHandle.value : this.remoteHandle,
+        username: username.present ? username.value : this.username,
+        avatarUrl: avatarUrl.present ? avatarUrl.value : this.avatarUrl,
+        connectedAt: connectedAt.present ? connectedAt.value : this.connectedAt,
+        lastSyncAt: lastSyncAt.present ? lastSyncAt.value : this.lastSyncAt,
+        enabledCapabilitiesJson:
+            enabledCapabilitiesJson ?? this.enabledCapabilitiesJson,
+        syncPolicyJson: syncPolicyJson ?? this.syncPolicyJson,
+      );
+  ProviderAccountsCacheData copyWithCompanion(
+      ProviderAccountsCacheCompanion data) {
+    return ProviderAccountsCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      provider: data.provider.present ? data.provider.value : this.provider,
+      displayName:
+          data.displayName.present ? data.displayName.value : this.displayName,
+      authType: data.authType.present ? data.authType.value : this.authType,
+      remoteAccountId: data.remoteAccountId.present
+          ? data.remoteAccountId.value
+          : this.remoteAccountId,
+      remoteHandle: data.remoteHandle.present
+          ? data.remoteHandle.value
+          : this.remoteHandle,
+      username: data.username.present ? data.username.value : this.username,
+      avatarUrl: data.avatarUrl.present ? data.avatarUrl.value : this.avatarUrl,
+      connectedAt:
+          data.connectedAt.present ? data.connectedAt.value : this.connectedAt,
+      lastSyncAt:
+          data.lastSyncAt.present ? data.lastSyncAt.value : this.lastSyncAt,
+      enabledCapabilitiesJson: data.enabledCapabilitiesJson.present
+          ? data.enabledCapabilitiesJson.value
+          : this.enabledCapabilitiesJson,
+      syncPolicyJson: data.syncPolicyJson.present
+          ? data.syncPolicyJson.value
+          : this.syncPolicyJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProviderAccountsCacheData(')
+          ..write('id: $id, ')
+          ..write('provider: $provider, ')
+          ..write('displayName: $displayName, ')
+          ..write('authType: $authType, ')
+          ..write('remoteAccountId: $remoteAccountId, ')
+          ..write('remoteHandle: $remoteHandle, ')
+          ..write('username: $username, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('connectedAt: $connectedAt, ')
+          ..write('lastSyncAt: $lastSyncAt, ')
+          ..write('enabledCapabilitiesJson: $enabledCapabilitiesJson, ')
+          ..write('syncPolicyJson: $syncPolicyJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      provider,
+      displayName,
+      authType,
+      remoteAccountId,
+      remoteHandle,
+      username,
+      avatarUrl,
+      connectedAt,
+      lastSyncAt,
+      enabledCapabilitiesJson,
+      syncPolicyJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProviderAccountsCacheData &&
+          other.id == this.id &&
+          other.provider == this.provider &&
+          other.displayName == this.displayName &&
+          other.authType == this.authType &&
+          other.remoteAccountId == this.remoteAccountId &&
+          other.remoteHandle == this.remoteHandle &&
+          other.username == this.username &&
+          other.avatarUrl == this.avatarUrl &&
+          other.connectedAt == this.connectedAt &&
+          other.lastSyncAt == this.lastSyncAt &&
+          other.enabledCapabilitiesJson == this.enabledCapabilitiesJson &&
+          other.syncPolicyJson == this.syncPolicyJson);
+}
+
+class ProviderAccountsCacheCompanion
+    extends UpdateCompanion<ProviderAccountsCacheData> {
+  final Value<String> id;
+  final Value<String> provider;
+  final Value<String> displayName;
+  final Value<String> authType;
+  final Value<String?> remoteAccountId;
+  final Value<String?> remoteHandle;
+  final Value<String?> username;
+  final Value<String?> avatarUrl;
+  final Value<DateTime?> connectedAt;
+  final Value<DateTime?> lastSyncAt;
+  final Value<String> enabledCapabilitiesJson;
+  final Value<String> syncPolicyJson;
+  final Value<int> rowid;
+  const ProviderAccountsCacheCompanion({
+    this.id = const Value.absent(),
+    this.provider = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.authType = const Value.absent(),
+    this.remoteAccountId = const Value.absent(),
+    this.remoteHandle = const Value.absent(),
+    this.username = const Value.absent(),
+    this.avatarUrl = const Value.absent(),
+    this.connectedAt = const Value.absent(),
+    this.lastSyncAt = const Value.absent(),
+    this.enabledCapabilitiesJson = const Value.absent(),
+    this.syncPolicyJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ProviderAccountsCacheCompanion.insert({
+    required String id,
+    required String provider,
+    required String displayName,
+    required String authType,
+    this.remoteAccountId = const Value.absent(),
+    this.remoteHandle = const Value.absent(),
+    this.username = const Value.absent(),
+    this.avatarUrl = const Value.absent(),
+    this.connectedAt = const Value.absent(),
+    this.lastSyncAt = const Value.absent(),
+    required String enabledCapabilitiesJson,
+    required String syncPolicyJson,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        provider = Value(provider),
+        displayName = Value(displayName),
+        authType = Value(authType),
+        enabledCapabilitiesJson = Value(enabledCapabilitiesJson),
+        syncPolicyJson = Value(syncPolicyJson);
+  static Insertable<ProviderAccountsCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? provider,
+    Expression<String>? displayName,
+    Expression<String>? authType,
+    Expression<String>? remoteAccountId,
+    Expression<String>? remoteHandle,
+    Expression<String>? username,
+    Expression<String>? avatarUrl,
+    Expression<DateTime>? connectedAt,
+    Expression<DateTime>? lastSyncAt,
+    Expression<String>? enabledCapabilitiesJson,
+    Expression<String>? syncPolicyJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (provider != null) 'provider': provider,
+      if (displayName != null) 'display_name': displayName,
+      if (authType != null) 'auth_type': authType,
+      if (remoteAccountId != null) 'remote_account_id': remoteAccountId,
+      if (remoteHandle != null) 'remote_handle': remoteHandle,
+      if (username != null) 'username': username,
+      if (avatarUrl != null) 'avatar_url': avatarUrl,
+      if (connectedAt != null) 'connected_at': connectedAt,
+      if (lastSyncAt != null) 'last_sync_at': lastSyncAt,
+      if (enabledCapabilitiesJson != null)
+        'enabled_capabilities_json': enabledCapabilitiesJson,
+      if (syncPolicyJson != null) 'sync_policy_json': syncPolicyJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ProviderAccountsCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? provider,
+      Value<String>? displayName,
+      Value<String>? authType,
+      Value<String?>? remoteAccountId,
+      Value<String?>? remoteHandle,
+      Value<String?>? username,
+      Value<String?>? avatarUrl,
+      Value<DateTime?>? connectedAt,
+      Value<DateTime?>? lastSyncAt,
+      Value<String>? enabledCapabilitiesJson,
+      Value<String>? syncPolicyJson,
+      Value<int>? rowid}) {
+    return ProviderAccountsCacheCompanion(
+      id: id ?? this.id,
+      provider: provider ?? this.provider,
+      displayName: displayName ?? this.displayName,
+      authType: authType ?? this.authType,
+      remoteAccountId: remoteAccountId ?? this.remoteAccountId,
+      remoteHandle: remoteHandle ?? this.remoteHandle,
+      username: username ?? this.username,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      connectedAt: connectedAt ?? this.connectedAt,
+      lastSyncAt: lastSyncAt ?? this.lastSyncAt,
+      enabledCapabilitiesJson:
+          enabledCapabilitiesJson ?? this.enabledCapabilitiesJson,
+      syncPolicyJson: syncPolicyJson ?? this.syncPolicyJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (provider.present) {
+      map['provider'] = Variable<String>(provider.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (authType.present) {
+      map['auth_type'] = Variable<String>(authType.value);
+    }
+    if (remoteAccountId.present) {
+      map['remote_account_id'] = Variable<String>(remoteAccountId.value);
+    }
+    if (remoteHandle.present) {
+      map['remote_handle'] = Variable<String>(remoteHandle.value);
+    }
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
+    if (avatarUrl.present) {
+      map['avatar_url'] = Variable<String>(avatarUrl.value);
+    }
+    if (connectedAt.present) {
+      map['connected_at'] = Variable<DateTime>(connectedAt.value);
+    }
+    if (lastSyncAt.present) {
+      map['last_sync_at'] = Variable<DateTime>(lastSyncAt.value);
+    }
+    if (enabledCapabilitiesJson.present) {
+      map['enabled_capabilities_json'] =
+          Variable<String>(enabledCapabilitiesJson.value);
+    }
+    if (syncPolicyJson.present) {
+      map['sync_policy_json'] = Variable<String>(syncPolicyJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProviderAccountsCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('provider: $provider, ')
+          ..write('displayName: $displayName, ')
+          ..write('authType: $authType, ')
+          ..write('remoteAccountId: $remoteAccountId, ')
+          ..write('remoteHandle: $remoteHandle, ')
+          ..write('username: $username, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('connectedAt: $connectedAt, ')
+          ..write('lastSyncAt: $lastSyncAt, ')
+          ..write('enabledCapabilitiesJson: $enabledCapabilitiesJson, ')
+          ..write('syncPolicyJson: $syncPolicyJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProviderItemLinksCacheTable extends ProviderItemLinksCache
+    with TableInfo<$ProviderItemLinksCacheTable, ProviderItemLinksCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProviderItemLinksCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _providerMeta =
+      const VerificationMeta('provider');
+  @override
+  late final GeneratedColumn<String> provider = GeneratedColumn<String>(
+      'provider', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _remoteItemIdMeta =
+      const VerificationMeta('remoteItemId');
+  @override
+  late final GeneratedColumn<String> remoteItemId = GeneratedColumn<String>(
+      'remote_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _remoteEntryIdMeta =
+      const VerificationMeta('remoteEntryId');
+  @override
+  late final GeneratedColumn<String> remoteEntryId = GeneratedColumn<String>(
+      'remote_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _localEntityRefJsonMeta =
+      const VerificationMeta('localEntityRefJson');
+  @override
+  late final GeneratedColumn<String> localEntityRefJson =
+      GeneratedColumn<String>('local_entity_ref_json', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _baseSnapshotJsonMeta =
+      const VerificationMeta('baseSnapshotJson');
+  @override
+  late final GeneratedColumn<String> baseSnapshotJson = GeneratedColumn<String>(
+      'base_snapshot_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastPulledAtMeta =
+      const VerificationMeta('lastPulledAt');
+  @override
+  late final GeneratedColumn<DateTime> lastPulledAt = GeneratedColumn<DateTime>(
+      'last_pulled_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _lastPushedAtMeta =
+      const VerificationMeta('lastPushedAt');
+  @override
+  late final GeneratedColumn<DateTime> lastPushedAt = GeneratedColumn<DateTime>(
+      'last_pushed_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _remoteRevisionMeta =
+      const VerificationMeta('remoteRevision');
+  @override
+  late final GeneratedColumn<String> remoteRevision = GeneratedColumn<String>(
+      'remote_revision', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _metadataJsonMeta =
+      const VerificationMeta('metadataJson');
+  @override
+  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
+      'metadata_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        accountId,
+        provider,
+        remoteItemId,
+        remoteEntryId,
+        localEntityRefJson,
+        baseSnapshotJson,
+        lastPulledAt,
+        lastPushedAt,
+        remoteRevision,
+        metadataJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'provider_item_links_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProviderItemLinksCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('provider')) {
+      context.handle(_providerMeta,
+          provider.isAcceptableOrUnknown(data['provider']!, _providerMeta));
+    } else if (isInserting) {
+      context.missing(_providerMeta);
+    }
+    if (data.containsKey('remote_item_id')) {
+      context.handle(
+          _remoteItemIdMeta,
+          remoteItemId.isAcceptableOrUnknown(
+              data['remote_item_id']!, _remoteItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_remoteItemIdMeta);
+    }
+    if (data.containsKey('remote_entry_id')) {
+      context.handle(
+          _remoteEntryIdMeta,
+          remoteEntryId.isAcceptableOrUnknown(
+              data['remote_entry_id']!, _remoteEntryIdMeta));
+    }
+    if (data.containsKey('local_entity_ref_json')) {
+      context.handle(
+          _localEntityRefJsonMeta,
+          localEntityRefJson.isAcceptableOrUnknown(
+              data['local_entity_ref_json']!, _localEntityRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_localEntityRefJsonMeta);
+    }
+    if (data.containsKey('base_snapshot_json')) {
+      context.handle(
+          _baseSnapshotJsonMeta,
+          baseSnapshotJson.isAcceptableOrUnknown(
+              data['base_snapshot_json']!, _baseSnapshotJsonMeta));
+    }
+    if (data.containsKey('last_pulled_at')) {
+      context.handle(
+          _lastPulledAtMeta,
+          lastPulledAt.isAcceptableOrUnknown(
+              data['last_pulled_at']!, _lastPulledAtMeta));
+    }
+    if (data.containsKey('last_pushed_at')) {
+      context.handle(
+          _lastPushedAtMeta,
+          lastPushedAt.isAcceptableOrUnknown(
+              data['last_pushed_at']!, _lastPushedAtMeta));
+    }
+    if (data.containsKey('remote_revision')) {
+      context.handle(
+          _remoteRevisionMeta,
+          remoteRevision.isAcceptableOrUnknown(
+              data['remote_revision']!, _remoteRevisionMeta));
+    }
+    if (data.containsKey('metadata_json')) {
+      context.handle(
+          _metadataJsonMeta,
+          metadataJson.isAcceptableOrUnknown(
+              data['metadata_json']!, _metadataJsonMeta));
+    } else if (isInserting) {
+      context.missing(_metadataJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {accountId, remoteItemId};
+  @override
+  ProviderItemLinksCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProviderItemLinksCacheData(
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id'])!,
+      provider: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}provider'])!,
+      remoteItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_item_id'])!,
+      remoteEntryId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_entry_id']),
+      localEntityRefJson: attachedDatabase.typeMapping.read(DriftSqlType.string,
+          data['${effectivePrefix}local_entity_ref_json'])!,
+      baseSnapshotJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}base_snapshot_json']),
+      lastPulledAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_pulled_at']),
+      lastPushedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_pushed_at']),
+      remoteRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_revision']),
+      metadataJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}metadata_json'])!,
+    );
+  }
+
+  @override
+  $ProviderItemLinksCacheTable createAlias(String alias) {
+    return $ProviderItemLinksCacheTable(attachedDatabase, alias);
+  }
+}
+
+class ProviderItemLinksCacheData extends DataClass
+    implements Insertable<ProviderItemLinksCacheData> {
+  final String accountId;
+  final String provider;
+  final String remoteItemId;
+  final String? remoteEntryId;
+  final String localEntityRefJson;
+  final String? baseSnapshotJson;
+  final DateTime? lastPulledAt;
+  final DateTime? lastPushedAt;
+  final String? remoteRevision;
+  final String metadataJson;
+  const ProviderItemLinksCacheData(
+      {required this.accountId,
+      required this.provider,
+      required this.remoteItemId,
+      this.remoteEntryId,
+      required this.localEntityRefJson,
+      this.baseSnapshotJson,
+      this.lastPulledAt,
+      this.lastPushedAt,
+      this.remoteRevision,
+      required this.metadataJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_id'] = Variable<String>(accountId);
+    map['provider'] = Variable<String>(provider);
+    map['remote_item_id'] = Variable<String>(remoteItemId);
+    if (!nullToAbsent || remoteEntryId != null) {
+      map['remote_entry_id'] = Variable<String>(remoteEntryId);
+    }
+    map['local_entity_ref_json'] = Variable<String>(localEntityRefJson);
+    if (!nullToAbsent || baseSnapshotJson != null) {
+      map['base_snapshot_json'] = Variable<String>(baseSnapshotJson);
+    }
+    if (!nullToAbsent || lastPulledAt != null) {
+      map['last_pulled_at'] = Variable<DateTime>(lastPulledAt);
+    }
+    if (!nullToAbsent || lastPushedAt != null) {
+      map['last_pushed_at'] = Variable<DateTime>(lastPushedAt);
+    }
+    if (!nullToAbsent || remoteRevision != null) {
+      map['remote_revision'] = Variable<String>(remoteRevision);
+    }
+    map['metadata_json'] = Variable<String>(metadataJson);
+    return map;
+  }
+
+  ProviderItemLinksCacheCompanion toCompanion(bool nullToAbsent) {
+    return ProviderItemLinksCacheCompanion(
+      accountId: Value(accountId),
+      provider: Value(provider),
+      remoteItemId: Value(remoteItemId),
+      remoteEntryId: remoteEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteEntryId),
+      localEntityRefJson: Value(localEntityRefJson),
+      baseSnapshotJson: baseSnapshotJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseSnapshotJson),
+      lastPulledAt: lastPulledAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastPulledAt),
+      lastPushedAt: lastPushedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastPushedAt),
+      remoteRevision: remoteRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteRevision),
+      metadataJson: Value(metadataJson),
+    );
+  }
+
+  factory ProviderItemLinksCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProviderItemLinksCacheData(
+      accountId: serializer.fromJson<String>(json['accountId']),
+      provider: serializer.fromJson<String>(json['provider']),
+      remoteItemId: serializer.fromJson<String>(json['remoteItemId']),
+      remoteEntryId: serializer.fromJson<String?>(json['remoteEntryId']),
+      localEntityRefJson:
+          serializer.fromJson<String>(json['localEntityRefJson']),
+      baseSnapshotJson: serializer.fromJson<String?>(json['baseSnapshotJson']),
+      lastPulledAt: serializer.fromJson<DateTime?>(json['lastPulledAt']),
+      lastPushedAt: serializer.fromJson<DateTime?>(json['lastPushedAt']),
+      remoteRevision: serializer.fromJson<String?>(json['remoteRevision']),
+      metadataJson: serializer.fromJson<String>(json['metadataJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountId': serializer.toJson<String>(accountId),
+      'provider': serializer.toJson<String>(provider),
+      'remoteItemId': serializer.toJson<String>(remoteItemId),
+      'remoteEntryId': serializer.toJson<String?>(remoteEntryId),
+      'localEntityRefJson': serializer.toJson<String>(localEntityRefJson),
+      'baseSnapshotJson': serializer.toJson<String?>(baseSnapshotJson),
+      'lastPulledAt': serializer.toJson<DateTime?>(lastPulledAt),
+      'lastPushedAt': serializer.toJson<DateTime?>(lastPushedAt),
+      'remoteRevision': serializer.toJson<String?>(remoteRevision),
+      'metadataJson': serializer.toJson<String>(metadataJson),
+    };
+  }
+
+  ProviderItemLinksCacheData copyWith(
+          {String? accountId,
+          String? provider,
+          String? remoteItemId,
+          Value<String?> remoteEntryId = const Value.absent(),
+          String? localEntityRefJson,
+          Value<String?> baseSnapshotJson = const Value.absent(),
+          Value<DateTime?> lastPulledAt = const Value.absent(),
+          Value<DateTime?> lastPushedAt = const Value.absent(),
+          Value<String?> remoteRevision = const Value.absent(),
+          String? metadataJson}) =>
+      ProviderItemLinksCacheData(
+        accountId: accountId ?? this.accountId,
+        provider: provider ?? this.provider,
+        remoteItemId: remoteItemId ?? this.remoteItemId,
+        remoteEntryId:
+            remoteEntryId.present ? remoteEntryId.value : this.remoteEntryId,
+        localEntityRefJson: localEntityRefJson ?? this.localEntityRefJson,
+        baseSnapshotJson: baseSnapshotJson.present
+            ? baseSnapshotJson.value
+            : this.baseSnapshotJson,
+        lastPulledAt:
+            lastPulledAt.present ? lastPulledAt.value : this.lastPulledAt,
+        lastPushedAt:
+            lastPushedAt.present ? lastPushedAt.value : this.lastPushedAt,
+        remoteRevision:
+            remoteRevision.present ? remoteRevision.value : this.remoteRevision,
+        metadataJson: metadataJson ?? this.metadataJson,
+      );
+  ProviderItemLinksCacheData copyWithCompanion(
+      ProviderItemLinksCacheCompanion data) {
+    return ProviderItemLinksCacheData(
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      provider: data.provider.present ? data.provider.value : this.provider,
+      remoteItemId: data.remoteItemId.present
+          ? data.remoteItemId.value
+          : this.remoteItemId,
+      remoteEntryId: data.remoteEntryId.present
+          ? data.remoteEntryId.value
+          : this.remoteEntryId,
+      localEntityRefJson: data.localEntityRefJson.present
+          ? data.localEntityRefJson.value
+          : this.localEntityRefJson,
+      baseSnapshotJson: data.baseSnapshotJson.present
+          ? data.baseSnapshotJson.value
+          : this.baseSnapshotJson,
+      lastPulledAt: data.lastPulledAt.present
+          ? data.lastPulledAt.value
+          : this.lastPulledAt,
+      lastPushedAt: data.lastPushedAt.present
+          ? data.lastPushedAt.value
+          : this.lastPushedAt,
+      remoteRevision: data.remoteRevision.present
+          ? data.remoteRevision.value
+          : this.remoteRevision,
+      metadataJson: data.metadataJson.present
+          ? data.metadataJson.value
+          : this.metadataJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProviderItemLinksCacheData(')
+          ..write('accountId: $accountId, ')
+          ..write('provider: $provider, ')
+          ..write('remoteItemId: $remoteItemId, ')
+          ..write('remoteEntryId: $remoteEntryId, ')
+          ..write('localEntityRefJson: $localEntityRefJson, ')
+          ..write('baseSnapshotJson: $baseSnapshotJson, ')
+          ..write('lastPulledAt: $lastPulledAt, ')
+          ..write('lastPushedAt: $lastPushedAt, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('metadataJson: $metadataJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      accountId,
+      provider,
+      remoteItemId,
+      remoteEntryId,
+      localEntityRefJson,
+      baseSnapshotJson,
+      lastPulledAt,
+      lastPushedAt,
+      remoteRevision,
+      metadataJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProviderItemLinksCacheData &&
+          other.accountId == this.accountId &&
+          other.provider == this.provider &&
+          other.remoteItemId == this.remoteItemId &&
+          other.remoteEntryId == this.remoteEntryId &&
+          other.localEntityRefJson == this.localEntityRefJson &&
+          other.baseSnapshotJson == this.baseSnapshotJson &&
+          other.lastPulledAt == this.lastPulledAt &&
+          other.lastPushedAt == this.lastPushedAt &&
+          other.remoteRevision == this.remoteRevision &&
+          other.metadataJson == this.metadataJson);
+}
+
+class ProviderItemLinksCacheCompanion
+    extends UpdateCompanion<ProviderItemLinksCacheData> {
+  final Value<String> accountId;
+  final Value<String> provider;
+  final Value<String> remoteItemId;
+  final Value<String?> remoteEntryId;
+  final Value<String> localEntityRefJson;
+  final Value<String?> baseSnapshotJson;
+  final Value<DateTime?> lastPulledAt;
+  final Value<DateTime?> lastPushedAt;
+  final Value<String?> remoteRevision;
+  final Value<String> metadataJson;
+  final Value<int> rowid;
+  const ProviderItemLinksCacheCompanion({
+    this.accountId = const Value.absent(),
+    this.provider = const Value.absent(),
+    this.remoteItemId = const Value.absent(),
+    this.remoteEntryId = const Value.absent(),
+    this.localEntityRefJson = const Value.absent(),
+    this.baseSnapshotJson = const Value.absent(),
+    this.lastPulledAt = const Value.absent(),
+    this.lastPushedAt = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.metadataJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ProviderItemLinksCacheCompanion.insert({
+    required String accountId,
+    required String provider,
+    required String remoteItemId,
+    this.remoteEntryId = const Value.absent(),
+    required String localEntityRefJson,
+    this.baseSnapshotJson = const Value.absent(),
+    this.lastPulledAt = const Value.absent(),
+    this.lastPushedAt = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    required String metadataJson,
+    this.rowid = const Value.absent(),
+  })  : accountId = Value(accountId),
+        provider = Value(provider),
+        remoteItemId = Value(remoteItemId),
+        localEntityRefJson = Value(localEntityRefJson),
+        metadataJson = Value(metadataJson);
+  static Insertable<ProviderItemLinksCacheData> custom({
+    Expression<String>? accountId,
+    Expression<String>? provider,
+    Expression<String>? remoteItemId,
+    Expression<String>? remoteEntryId,
+    Expression<String>? localEntityRefJson,
+    Expression<String>? baseSnapshotJson,
+    Expression<DateTime>? lastPulledAt,
+    Expression<DateTime>? lastPushedAt,
+    Expression<String>? remoteRevision,
+    Expression<String>? metadataJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountId != null) 'account_id': accountId,
+      if (provider != null) 'provider': provider,
+      if (remoteItemId != null) 'remote_item_id': remoteItemId,
+      if (remoteEntryId != null) 'remote_entry_id': remoteEntryId,
+      if (localEntityRefJson != null)
+        'local_entity_ref_json': localEntityRefJson,
+      if (baseSnapshotJson != null) 'base_snapshot_json': baseSnapshotJson,
+      if (lastPulledAt != null) 'last_pulled_at': lastPulledAt,
+      if (lastPushedAt != null) 'last_pushed_at': lastPushedAt,
+      if (remoteRevision != null) 'remote_revision': remoteRevision,
+      if (metadataJson != null) 'metadata_json': metadataJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ProviderItemLinksCacheCompanion copyWith(
+      {Value<String>? accountId,
+      Value<String>? provider,
+      Value<String>? remoteItemId,
+      Value<String?>? remoteEntryId,
+      Value<String>? localEntityRefJson,
+      Value<String?>? baseSnapshotJson,
+      Value<DateTime?>? lastPulledAt,
+      Value<DateTime?>? lastPushedAt,
+      Value<String?>? remoteRevision,
+      Value<String>? metadataJson,
+      Value<int>? rowid}) {
+    return ProviderItemLinksCacheCompanion(
+      accountId: accountId ?? this.accountId,
+      provider: provider ?? this.provider,
+      remoteItemId: remoteItemId ?? this.remoteItemId,
+      remoteEntryId: remoteEntryId ?? this.remoteEntryId,
+      localEntityRefJson: localEntityRefJson ?? this.localEntityRefJson,
+      baseSnapshotJson: baseSnapshotJson ?? this.baseSnapshotJson,
+      lastPulledAt: lastPulledAt ?? this.lastPulledAt,
+      lastPushedAt: lastPushedAt ?? this.lastPushedAt,
+      remoteRevision: remoteRevision ?? this.remoteRevision,
+      metadataJson: metadataJson ?? this.metadataJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (provider.present) {
+      map['provider'] = Variable<String>(provider.value);
+    }
+    if (remoteItemId.present) {
+      map['remote_item_id'] = Variable<String>(remoteItemId.value);
+    }
+    if (remoteEntryId.present) {
+      map['remote_entry_id'] = Variable<String>(remoteEntryId.value);
+    }
+    if (localEntityRefJson.present) {
+      map['local_entity_ref_json'] = Variable<String>(localEntityRefJson.value);
+    }
+    if (baseSnapshotJson.present) {
+      map['base_snapshot_json'] = Variable<String>(baseSnapshotJson.value);
+    }
+    if (lastPulledAt.present) {
+      map['last_pulled_at'] = Variable<DateTime>(lastPulledAt.value);
+    }
+    if (lastPushedAt.present) {
+      map['last_pushed_at'] = Variable<DateTime>(lastPushedAt.value);
+    }
+    if (remoteRevision.present) {
+      map['remote_revision'] = Variable<String>(remoteRevision.value);
+    }
+    if (metadataJson.present) {
+      map['metadata_json'] = Variable<String>(metadataJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProviderItemLinksCacheCompanion(')
+          ..write('accountId: $accountId, ')
+          ..write('provider: $provider, ')
+          ..write('remoteItemId: $remoteItemId, ')
+          ..write('remoteEntryId: $remoteEntryId, ')
+          ..write('localEntityRefJson: $localEntityRefJson, ')
+          ..write('baseSnapshotJson: $baseSnapshotJson, ')
+          ..write('lastPulledAt: $lastPulledAt, ')
+          ..write('lastPushedAt: $lastPushedAt, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('metadataJson: $metadataJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ComicMediaRowsTable extends ComicMediaRows
     with TableInfo<$ComicMediaRowsTable, ComicMediaRow> {
   @override
@@ -14399,6 +15605,10 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $PickListValuesCacheTable(this);
   late final $SerialAuthorityCacheTable serialAuthorityCache =
       $SerialAuthorityCacheTable(this);
+  late final $ProviderAccountsCacheTable providerAccountsCache =
+      $ProviderAccountsCacheTable(this);
+  late final $ProviderItemLinksCacheTable providerItemLinksCache =
+      $ProviderItemLinksCacheTable(this);
   late final $ComicMediaRowsTable comicMediaRows = $ComicMediaRowsTable(this);
   late final $ComicReleaseRowsTable comicReleaseRows =
       $ComicReleaseRowsTable(this);
@@ -14428,6 +15638,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         readingQueueCache,
         pickListValuesCache,
         serialAuthorityCache,
+        providerAccountsCache,
+        providerItemLinksCache,
         comicMediaRows,
         comicReleaseRows
       ];
@@ -20079,6 +21291,564 @@ typedef $$SerialAuthorityCacheTableProcessedTableManager
         ),
         SerialAuthorityCacheData,
         PrefetchHooks Function()>;
+typedef $$ProviderAccountsCacheTableCreateCompanionBuilder
+    = ProviderAccountsCacheCompanion Function({
+  required String id,
+  required String provider,
+  required String displayName,
+  required String authType,
+  Value<String?> remoteAccountId,
+  Value<String?> remoteHandle,
+  Value<String?> username,
+  Value<String?> avatarUrl,
+  Value<DateTime?> connectedAt,
+  Value<DateTime?> lastSyncAt,
+  required String enabledCapabilitiesJson,
+  required String syncPolicyJson,
+  Value<int> rowid,
+});
+typedef $$ProviderAccountsCacheTableUpdateCompanionBuilder
+    = ProviderAccountsCacheCompanion Function({
+  Value<String> id,
+  Value<String> provider,
+  Value<String> displayName,
+  Value<String> authType,
+  Value<String?> remoteAccountId,
+  Value<String?> remoteHandle,
+  Value<String?> username,
+  Value<String?> avatarUrl,
+  Value<DateTime?> connectedAt,
+  Value<DateTime?> lastSyncAt,
+  Value<String> enabledCapabilitiesJson,
+  Value<String> syncPolicyJson,
+  Value<int> rowid,
+});
+
+class $$ProviderAccountsCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $ProviderAccountsCacheTable> {
+  $$ProviderAccountsCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get provider => $composableBuilder(
+      column: $table.provider, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+      column: $table.displayName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get authType => $composableBuilder(
+      column: $table.authType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteAccountId => $composableBuilder(
+      column: $table.remoteAccountId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteHandle => $composableBuilder(
+      column: $table.remoteHandle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get username => $composableBuilder(
+      column: $table.username, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get avatarUrl => $composableBuilder(
+      column: $table.avatarUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get connectedAt => $composableBuilder(
+      column: $table.connectedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastSyncAt => $composableBuilder(
+      column: $table.lastSyncAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get enabledCapabilitiesJson => $composableBuilder(
+      column: $table.enabledCapabilitiesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get syncPolicyJson => $composableBuilder(
+      column: $table.syncPolicyJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$ProviderAccountsCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ProviderAccountsCacheTable> {
+  $$ProviderAccountsCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get provider => $composableBuilder(
+      column: $table.provider, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get displayName => $composableBuilder(
+      column: $table.displayName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get authType => $composableBuilder(
+      column: $table.authType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteAccountId => $composableBuilder(
+      column: $table.remoteAccountId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteHandle => $composableBuilder(
+      column: $table.remoteHandle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get username => $composableBuilder(
+      column: $table.username, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get avatarUrl => $composableBuilder(
+      column: $table.avatarUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get connectedAt => $composableBuilder(
+      column: $table.connectedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastSyncAt => $composableBuilder(
+      column: $table.lastSyncAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get enabledCapabilitiesJson => $composableBuilder(
+      column: $table.enabledCapabilitiesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get syncPolicyJson => $composableBuilder(
+      column: $table.syncPolicyJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$ProviderAccountsCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ProviderAccountsCacheTable> {
+  $$ProviderAccountsCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get provider =>
+      $composableBuilder(column: $table.provider, builder: (column) => column);
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+      column: $table.displayName, builder: (column) => column);
+
+  GeneratedColumn<String> get authType =>
+      $composableBuilder(column: $table.authType, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteAccountId => $composableBuilder(
+      column: $table.remoteAccountId, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteHandle => $composableBuilder(
+      column: $table.remoteHandle, builder: (column) => column);
+
+  GeneratedColumn<String> get username =>
+      $composableBuilder(column: $table.username, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarUrl =>
+      $composableBuilder(column: $table.avatarUrl, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get connectedAt => $composableBuilder(
+      column: $table.connectedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncAt => $composableBuilder(
+      column: $table.lastSyncAt, builder: (column) => column);
+
+  GeneratedColumn<String> get enabledCapabilitiesJson => $composableBuilder(
+      column: $table.enabledCapabilitiesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get syncPolicyJson => $composableBuilder(
+      column: $table.syncPolicyJson, builder: (column) => column);
+}
+
+class $$ProviderAccountsCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ProviderAccountsCacheTable,
+    ProviderAccountsCacheData,
+    $$ProviderAccountsCacheTableFilterComposer,
+    $$ProviderAccountsCacheTableOrderingComposer,
+    $$ProviderAccountsCacheTableAnnotationComposer,
+    $$ProviderAccountsCacheTableCreateCompanionBuilder,
+    $$ProviderAccountsCacheTableUpdateCompanionBuilder,
+    (
+      ProviderAccountsCacheData,
+      BaseReferences<_$LocalDatabase, $ProviderAccountsCacheTable,
+          ProviderAccountsCacheData>
+    ),
+    ProviderAccountsCacheData,
+    PrefetchHooks Function()> {
+  $$ProviderAccountsCacheTableTableManager(
+      _$LocalDatabase db, $ProviderAccountsCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProviderAccountsCacheTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProviderAccountsCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProviderAccountsCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> provider = const Value.absent(),
+            Value<String> displayName = const Value.absent(),
+            Value<String> authType = const Value.absent(),
+            Value<String?> remoteAccountId = const Value.absent(),
+            Value<String?> remoteHandle = const Value.absent(),
+            Value<String?> username = const Value.absent(),
+            Value<String?> avatarUrl = const Value.absent(),
+            Value<DateTime?> connectedAt = const Value.absent(),
+            Value<DateTime?> lastSyncAt = const Value.absent(),
+            Value<String> enabledCapabilitiesJson = const Value.absent(),
+            Value<String> syncPolicyJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ProviderAccountsCacheCompanion(
+            id: id,
+            provider: provider,
+            displayName: displayName,
+            authType: authType,
+            remoteAccountId: remoteAccountId,
+            remoteHandle: remoteHandle,
+            username: username,
+            avatarUrl: avatarUrl,
+            connectedAt: connectedAt,
+            lastSyncAt: lastSyncAt,
+            enabledCapabilitiesJson: enabledCapabilitiesJson,
+            syncPolicyJson: syncPolicyJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String provider,
+            required String displayName,
+            required String authType,
+            Value<String?> remoteAccountId = const Value.absent(),
+            Value<String?> remoteHandle = const Value.absent(),
+            Value<String?> username = const Value.absent(),
+            Value<String?> avatarUrl = const Value.absent(),
+            Value<DateTime?> connectedAt = const Value.absent(),
+            Value<DateTime?> lastSyncAt = const Value.absent(),
+            required String enabledCapabilitiesJson,
+            required String syncPolicyJson,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ProviderAccountsCacheCompanion.insert(
+            id: id,
+            provider: provider,
+            displayName: displayName,
+            authType: authType,
+            remoteAccountId: remoteAccountId,
+            remoteHandle: remoteHandle,
+            username: username,
+            avatarUrl: avatarUrl,
+            connectedAt: connectedAt,
+            lastSyncAt: lastSyncAt,
+            enabledCapabilitiesJson: enabledCapabilitiesJson,
+            syncPolicyJson: syncPolicyJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ProviderAccountsCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $ProviderAccountsCacheTable,
+        ProviderAccountsCacheData,
+        $$ProviderAccountsCacheTableFilterComposer,
+        $$ProviderAccountsCacheTableOrderingComposer,
+        $$ProviderAccountsCacheTableAnnotationComposer,
+        $$ProviderAccountsCacheTableCreateCompanionBuilder,
+        $$ProviderAccountsCacheTableUpdateCompanionBuilder,
+        (
+          ProviderAccountsCacheData,
+          BaseReferences<_$LocalDatabase, $ProviderAccountsCacheTable,
+              ProviderAccountsCacheData>
+        ),
+        ProviderAccountsCacheData,
+        PrefetchHooks Function()>;
+typedef $$ProviderItemLinksCacheTableCreateCompanionBuilder
+    = ProviderItemLinksCacheCompanion Function({
+  required String accountId,
+  required String provider,
+  required String remoteItemId,
+  Value<String?> remoteEntryId,
+  required String localEntityRefJson,
+  Value<String?> baseSnapshotJson,
+  Value<DateTime?> lastPulledAt,
+  Value<DateTime?> lastPushedAt,
+  Value<String?> remoteRevision,
+  required String metadataJson,
+  Value<int> rowid,
+});
+typedef $$ProviderItemLinksCacheTableUpdateCompanionBuilder
+    = ProviderItemLinksCacheCompanion Function({
+  Value<String> accountId,
+  Value<String> provider,
+  Value<String> remoteItemId,
+  Value<String?> remoteEntryId,
+  Value<String> localEntityRefJson,
+  Value<String?> baseSnapshotJson,
+  Value<DateTime?> lastPulledAt,
+  Value<DateTime?> lastPushedAt,
+  Value<String?> remoteRevision,
+  Value<String> metadataJson,
+  Value<int> rowid,
+});
+
+class $$ProviderItemLinksCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $ProviderItemLinksCacheTable> {
+  $$ProviderItemLinksCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get provider => $composableBuilder(
+      column: $table.provider, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteItemId => $composableBuilder(
+      column: $table.remoteItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteEntryId => $composableBuilder(
+      column: $table.remoteEntryId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localEntityRefJson => $composableBuilder(
+      column: $table.localEntityRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get baseSnapshotJson => $composableBuilder(
+      column: $table.baseSnapshotJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastPulledAt => $composableBuilder(
+      column: $table.lastPulledAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastPushedAt => $composableBuilder(
+      column: $table.lastPushedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get metadataJson => $composableBuilder(
+      column: $table.metadataJson, builder: (column) => ColumnFilters(column));
+}
+
+class $$ProviderItemLinksCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ProviderItemLinksCacheTable> {
+  $$ProviderItemLinksCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get provider => $composableBuilder(
+      column: $table.provider, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteItemId => $composableBuilder(
+      column: $table.remoteItemId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteEntryId => $composableBuilder(
+      column: $table.remoteEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localEntityRefJson => $composableBuilder(
+      column: $table.localEntityRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get baseSnapshotJson => $composableBuilder(
+      column: $table.baseSnapshotJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastPulledAt => $composableBuilder(
+      column: $table.lastPulledAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastPushedAt => $composableBuilder(
+      column: $table.lastPushedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get metadataJson => $composableBuilder(
+      column: $table.metadataJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$ProviderItemLinksCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ProviderItemLinksCacheTable> {
+  $$ProviderItemLinksCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get provider =>
+      $composableBuilder(column: $table.provider, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteItemId => $composableBuilder(
+      column: $table.remoteItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteEntryId => $composableBuilder(
+      column: $table.remoteEntryId, builder: (column) => column);
+
+  GeneratedColumn<String> get localEntityRefJson => $composableBuilder(
+      column: $table.localEntityRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get baseSnapshotJson => $composableBuilder(
+      column: $table.baseSnapshotJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastPulledAt => $composableBuilder(
+      column: $table.lastPulledAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastPushedAt => $composableBuilder(
+      column: $table.lastPushedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision, builder: (column) => column);
+
+  GeneratedColumn<String> get metadataJson => $composableBuilder(
+      column: $table.metadataJson, builder: (column) => column);
+}
+
+class $$ProviderItemLinksCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ProviderItemLinksCacheTable,
+    ProviderItemLinksCacheData,
+    $$ProviderItemLinksCacheTableFilterComposer,
+    $$ProviderItemLinksCacheTableOrderingComposer,
+    $$ProviderItemLinksCacheTableAnnotationComposer,
+    $$ProviderItemLinksCacheTableCreateCompanionBuilder,
+    $$ProviderItemLinksCacheTableUpdateCompanionBuilder,
+    (
+      ProviderItemLinksCacheData,
+      BaseReferences<_$LocalDatabase, $ProviderItemLinksCacheTable,
+          ProviderItemLinksCacheData>
+    ),
+    ProviderItemLinksCacheData,
+    PrefetchHooks Function()> {
+  $$ProviderItemLinksCacheTableTableManager(
+      _$LocalDatabase db, $ProviderItemLinksCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProviderItemLinksCacheTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProviderItemLinksCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProviderItemLinksCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> accountId = const Value.absent(),
+            Value<String> provider = const Value.absent(),
+            Value<String> remoteItemId = const Value.absent(),
+            Value<String?> remoteEntryId = const Value.absent(),
+            Value<String> localEntityRefJson = const Value.absent(),
+            Value<String?> baseSnapshotJson = const Value.absent(),
+            Value<DateTime?> lastPulledAt = const Value.absent(),
+            Value<DateTime?> lastPushedAt = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<String> metadataJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ProviderItemLinksCacheCompanion(
+            accountId: accountId,
+            provider: provider,
+            remoteItemId: remoteItemId,
+            remoteEntryId: remoteEntryId,
+            localEntityRefJson: localEntityRefJson,
+            baseSnapshotJson: baseSnapshotJson,
+            lastPulledAt: lastPulledAt,
+            lastPushedAt: lastPushedAt,
+            remoteRevision: remoteRevision,
+            metadataJson: metadataJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String accountId,
+            required String provider,
+            required String remoteItemId,
+            Value<String?> remoteEntryId = const Value.absent(),
+            required String localEntityRefJson,
+            Value<String?> baseSnapshotJson = const Value.absent(),
+            Value<DateTime?> lastPulledAt = const Value.absent(),
+            Value<DateTime?> lastPushedAt = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            required String metadataJson,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ProviderItemLinksCacheCompanion.insert(
+            accountId: accountId,
+            provider: provider,
+            remoteItemId: remoteItemId,
+            remoteEntryId: remoteEntryId,
+            localEntityRefJson: localEntityRefJson,
+            baseSnapshotJson: baseSnapshotJson,
+            lastPulledAt: lastPulledAt,
+            lastPushedAt: lastPushedAt,
+            remoteRevision: remoteRevision,
+            metadataJson: metadataJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ProviderItemLinksCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $ProviderItemLinksCacheTable,
+        ProviderItemLinksCacheData,
+        $$ProviderItemLinksCacheTableFilterComposer,
+        $$ProviderItemLinksCacheTableOrderingComposer,
+        $$ProviderItemLinksCacheTableAnnotationComposer,
+        $$ProviderItemLinksCacheTableCreateCompanionBuilder,
+        $$ProviderItemLinksCacheTableUpdateCompanionBuilder,
+        (
+          ProviderItemLinksCacheData,
+          BaseReferences<_$LocalDatabase, $ProviderItemLinksCacheTable,
+              ProviderItemLinksCacheData>
+        ),
+        ProviderItemLinksCacheData,
+        PrefetchHooks Function()>;
 typedef $$ComicMediaRowsTableCreateCompanionBuilder = ComicMediaRowsCompanion
     Function({
   required String id,
@@ -21154,6 +22924,11 @@ class $LocalDatabaseManager {
       $$PickListValuesCacheTableTableManager(_db, _db.pickListValuesCache);
   $$SerialAuthorityCacheTableTableManager get serialAuthorityCache =>
       $$SerialAuthorityCacheTableTableManager(_db, _db.serialAuthorityCache);
+  $$ProviderAccountsCacheTableTableManager get providerAccountsCache =>
+      $$ProviderAccountsCacheTableTableManager(_db, _db.providerAccountsCache);
+  $$ProviderItemLinksCacheTableTableManager get providerItemLinksCache =>
+      $$ProviderItemLinksCacheTableTableManager(
+          _db, _db.providerItemLinksCache);
   $$ComicMediaRowsTableTableManager get comicMediaRows =>
       $$ComicMediaRowsTableTableManager(_db, _db.comicMediaRows);
   $$ComicReleaseRowsTableTableManager get comicReleaseRows =>

@@ -60,10 +60,7 @@ final class ProviderItemLink {
         'provider': provider.value,
         'remoteItemId': remoteItemId,
         if (remoteEntryId != null) 'remoteEntryId': remoteEntryId,
-        'localEntityRef': {
-          'id': localEntityRef.id,
-          'kind': localEntityRef.kind,
-        },
+        'localEntityRef': localEntityRef.toJson(),
         if (baseSnapshot != null) 'baseSnapshot': baseSnapshot!.toJson(),
         if (lastPulledAt != null)
           'lastPulledAt': lastPulledAt!.toIso8601String(),
