@@ -48,10 +48,15 @@ final class TrackingMutations {
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
 
-  Future<void> updateTrackingEntry(TrackingEntry entry) async {
+  Future<void> updateTrackingEntry(
+    TrackingEntry entry, {
+    MutationOrigin origin = MutationOrigin.user,
+  }) async {
     final now = DateTime.now().toUtc();
     final updated = entry.copyWith(updatedAt: now);
     await mutationRunner.run(
+      origin: origin,
+      localRef: updated.catalogRef,
       action: () async {
         await trackingEntries.upsert(updated);
         await syncQueue
@@ -134,6 +139,7 @@ final class TrackingMutations {
 
     await mutationRunner.run(
       origin: origin,
+      localRef: catalogRef,
       action: () async {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
@@ -174,10 +180,15 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> deleteTrackingEntry(TrackingEntry entry,
-      {bool notify = true}) async {
+  Future<void> deleteTrackingEntry(
+    TrackingEntry entry, {
+    bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
+  }) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
+      origin: origin,
+      localRef: entry.catalogRef,
       action: () async {
         await trackingEntries.markDeleted(entry, now);
         await syncQueue.enqueue(
@@ -212,6 +223,7 @@ final class TrackingMutations {
     int? seasonNumber,
     int? episodeNumber,
     Map<String, int>? episodeRatings,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     final existingEntries =
@@ -225,6 +237,8 @@ final class TrackingMutations {
     final entryId = existing?.id ?? idGenerator();
 
     await mutationRunner.run(
+      origin: origin,
+      localRef: item.catalogRef,
       action: () async {
         final entry = TrackingEntry(
           id: entryId,
@@ -288,34 +302,35 @@ final class TrackingMutations {
         item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
     final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();
+    final normalizedAnchorType = resolvePersonalItemAnchorType(
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    final catalogRef = item is CatalogItem
+        ? item.catalogRefForAnchor(
+            anchorType: normalizedAnchorType,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+          )
+        : CatalogEntityRef(
+            kind: itemKind,
+            entityType: normalizedAnchorType == 'edition'
+                ? CatalogEntityType.edition
+                : (normalizedAnchorType == 'variant'
+                    ? CatalogEntityType.release
+                    : (normalizedAnchorType == 'bundle_release'
+                        ? CatalogEntityType.bundleRelease
+                        : CatalogEntityType.work)),
+            id: variantId ?? editionId ?? bundleReleaseId ?? itemId,
+          );
     await mutationRunner.run(
       origin: origin,
+      localRef: catalogRef,
       action: () async {
         await catalogCache.upsertAll([item]);
-        final normalizedAnchorType = resolvePersonalItemAnchorType(
-          anchorType: anchorType,
-          editionId: editionId,
-          variantId: variantId,
-          bundleReleaseId: bundleReleaseId,
-        );
-        final catalogRef = item is CatalogItem
-            ? item.catalogRefForAnchor(
-                anchorType: normalizedAnchorType,
-                editionId: editionId,
-                variantId: variantId,
-                bundleReleaseId: bundleReleaseId,
-              )
-            : CatalogEntityRef(
-                kind: itemKind,
-                entityType: normalizedAnchorType == 'edition'
-                    ? CatalogEntityType.edition
-                    : (normalizedAnchorType == 'variant'
-                        ? CatalogEntityType.release
-                        : (normalizedAnchorType == 'bundle_release'
-                            ? CatalogEntityType.bundleRelease
-                            : CatalogEntityType.work)),
-                id: variantId ?? editionId ?? bundleReleaseId ?? itemId,
-              );
         final entry = TrackingEntry(
           id: entryId,
           catalogRef: catalogRef,

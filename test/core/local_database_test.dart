@@ -60,13 +60,13 @@ void main() {
     expect(catalogPayload['variant'], 'Regular Cover');
   });
 
-  test('reports the reset v8 schema version', () async {
+  test('reports the reset v9 schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 8);
+    expect(db.schemaVersion, 9);
   });
 
-  test('migrates a v7 cache to v8 without losing existing cache rows',
+  test('migrates a v7 cache to v9 without losing existing cache rows',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_migrate');
     addTearDown(() => dir.delete(recursive: true));
@@ -101,10 +101,77 @@ void main() {
     expect(await db.select(db.providerItemLinksCache).get(), isEmpty);
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 8);
+    expect(version.data.values.first, 9);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v8 schema',
+  test('migrates a v8 provider account table by adding username', () async {
+    final dir = await Directory.systemTemp.createTemp('collectarr_db_username');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/cache.sqlite');
+
+    final old = LocalDatabase(NativeDatabase(file));
+    final accountsTable = old.providerAccountsCache.actualTableName;
+    await old.customStatement('''
+      INSERT INTO $accountsTable (
+        id, provider, display_name, auth_type, remote_account_id,
+        remote_handle, username, avatar_url, connected_at, last_sync_at,
+        enabled_capabilities_json, sync_policy_json
+      ) VALUES (
+        'account-1', 'tmdb', 'TMDB', 'oauth', NULL,
+        NULL, 'old-user', NULL, NULL, NULL, '[]', '{}'
+      )
+    ''');
+    await old.customStatement(
+        'ALTER TABLE $accountsTable RENAME TO ${accountsTable}_current');
+    await old.customStatement('''
+      CREATE TABLE $accountsTable (
+        id TEXT NOT NULL,
+        provider TEXT NOT NULL,
+        display_name TEXT NOT NULL,
+        auth_type TEXT NOT NULL,
+        remote_account_id TEXT,
+        remote_handle TEXT,
+        avatar_url TEXT,
+        connected_at INTEGER,
+        last_sync_at INTEGER,
+        enabled_capabilities_json TEXT NOT NULL,
+        sync_policy_json TEXT NOT NULL,
+        PRIMARY KEY (id)
+      )
+    ''');
+    await old.customStatement('''
+      INSERT INTO $accountsTable (
+        id, provider, display_name, auth_type, remote_account_id,
+        remote_handle, avatar_url, connected_at, last_sync_at,
+        enabled_capabilities_json, sync_policy_json
+      )
+      SELECT id, provider, display_name, auth_type, remote_account_id,
+        remote_handle, avatar_url, connected_at, last_sync_at,
+        enabled_capabilities_json, sync_policy_json
+      FROM ${accountsTable}_current
+    ''');
+    await old.customStatement('DROP TABLE ${accountsTable}_current');
+    await old.customStatement('PRAGMA user_version = 8');
+    await old.close();
+
+    final db = LocalDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+
+    final account = await db.select(db.providerAccountsCache).getSingle();
+    expect(account.id, 'account-1');
+    expect(account.username == null, isTrue);
+    await (db.update(db.providerAccountsCache)
+          ..where((row) => row.id.equals(account.id)))
+        .write(const ProviderAccountsCacheCompanion(
+      username: Value('new-user'),
+    ));
+    final migrated = await db.select(db.providerAccountsCache).getSingle();
+    expect(migrated.username, 'new-user');
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.first, 9);
+  });
+
+  test('destructively rebuilds a higher-versioned cache to the v9 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -136,7 +203,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 8);
+    expect(version.data.values.first, 9);
   });
 
   test('stores personal collection and wishlist data locally', () async {

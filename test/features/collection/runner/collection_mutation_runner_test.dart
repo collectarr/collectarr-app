@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
@@ -125,5 +126,48 @@ void main() {
     );
 
     expect(observedOrigin, MutationOrigin.fileImport);
+  });
+
+  test(
+      'passes local reference and origin to local mutation handler after commit',
+      () async {
+    CatalogEntityRef? observedRef;
+    MutationOrigin? observedOrigin;
+    final runner = CollectionMutationRunner(
+      database: db,
+      events: eventBus,
+      localMutationHandler: (localRef, origin) {
+        observedRef = localRef;
+        observedOrigin = origin;
+      },
+    );
+    const localRef = CatalogEntityRef(
+      id: 'movie-1',
+      kind: 'movie',
+      entityType: CatalogEntityType.work,
+    );
+
+    await runner.run(
+      action: () async {
+        await db.into(db.catalogCache).insert(
+              CatalogCacheCompanion.insert(
+                id: localRef.id,
+                kind: localRef.kind,
+                payloadJson: jsonEncode({
+                  'id': localRef.id,
+                  'kind': localRef.kind,
+                  'title': 'Movie',
+                }),
+                cachedAt: DateTime.now(),
+              ),
+            );
+      },
+      triggerSync: false,
+      origin: MutationOrigin.user,
+      localRef: localRef,
+    );
+
+    expect(observedRef, localRef);
+    expect(observedOrigin, MutationOrigin.user);
   });
 }

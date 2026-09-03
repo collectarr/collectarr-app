@@ -1,4 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
+import 'package:collectarr_app/features/providers/domain/engine/provider_sync_coordinator.dart';
+import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
+import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
@@ -71,6 +82,30 @@ final collectionEventBusProvider = Provider<CollectionEventBus>((ref) {
   return bus;
 });
 
+final providerLocalStateBridgeProvider =
+    Provider<ProviderLocalStateBridge>((ref) {
+  return ProviderLocalStateBridge(
+    catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
+  );
+});
+
+final providerSyncCoordinatorProvider =
+    FutureProvider<ProviderSyncCoordinator>((ref) async {
+  final registry = await ref.watch(providerRegistryProvider.future);
+  final bridge = ref.watch(providerLocalStateBridgeProvider);
+  return ProviderSyncCoordinator(
+    engine: const ExternalStateEngine(),
+    registry: registry,
+    accountStore: ref.watch(providerAccountStoreProvider),
+    linkStore: ref.watch(providerLinkStoreProvider),
+    localStateReader: bridge.read,
+    localStateApplier: (localRef, remoteEntry, origin) =>
+        _applyProviderEntry(ref, localRef, remoteEntry, origin),
+  );
+});
+
 final collectionMutationRunnerProvider =
     Provider<CollectionMutationRunner>((ref) {
   return CollectionMutationRunner(
@@ -80,6 +115,25 @@ final collectionMutationRunnerProvider =
       if (ref.mounted) {
         ref.read(syncControllerProvider.notifier).syncNow();
       }
+    },
+    localMutationHandler: (localRef, origin) async {
+      final link =
+          await ref.read(providerLinkStoreProvider).getLinkByLocalRef(localRef);
+      if (link == null) {
+        return;
+      }
+      final bridge = ref.read(providerLocalStateBridgeProvider);
+      final localEntry = await bridge.read(localRef, link: link);
+      if (localEntry == null) {
+        return;
+      }
+      final coordinator =
+          await ref.read(providerSyncCoordinatorProvider.future);
+      await coordinator.handleLocalMutation(
+        localRef: localRef,
+        localEntry: localEntry,
+        origin: origin,
+      );
     },
   );
 });
@@ -165,3 +219,99 @@ final collectionCommandCoordinatorProvider =
     trackingMutations: ref.watch(trackingMutationsProvider),
   );
 });
+
+Future<void> _applyProviderEntry(
+  Ref ref,
+  CatalogEntityRef localRef,
+  ProviderPersonalEntry remoteEntry,
+  MutationOrigin origin,
+) async {
+  final bridge = ref.read(providerLocalStateBridgeProvider);
+  final trackingEntries =
+      await ref.read(trackingEntriesCacheRepositoryProvider).listActive();
+  TrackingEntry? localTracking;
+  for (final entry in trackingEntries) {
+    if (bridge.matches(entry.catalogRef, localRef)) {
+      localTracking = entry;
+      break;
+    }
+  }
+
+  final status = _trackingStatusForProvider(remoteEntry);
+  final rating = remoteEntry.rating == null
+      ? null
+      : (remoteEntry.rating! / 10).round().clamp(1, 10);
+
+  if (localTracking != null) {
+    await ref.read(trackingMutationsProvider).updateTrackingEntry(
+          localTracking.copyWith(
+            status: status,
+            rating: rating,
+            progressCurrent: remoteEntry.progress,
+            progressTotal: remoteEntry.totalProgress,
+            startedAt: remoteEntry.startedAt,
+            finishedAt: remoteEntry.completedAt,
+            timesCompleted: remoteEntry.repeatCount,
+            notes: remoteEntry.notes,
+          ),
+          origin: origin,
+        );
+    return;
+  }
+
+  final wishlistItems =
+      await ref.read(wishlistItemsCacheRepositoryProvider).listActive();
+  var hasWishlistItem = false;
+  String? wishlistItemId;
+  for (final item in wishlistItems) {
+    if (bridge.matches(item.catalogRef, localRef)) {
+      hasWishlistItem = true;
+      wishlistItemId = item.id;
+      break;
+    }
+  }
+  if (!hasWishlistItem || !_hasProviderState(remoteEntry)) {
+    return;
+  }
+
+  await ref.read(trackingMutationsProvider).upsertTrackingEntry(
+        TrackingTarget.catalog(localRef),
+        status: status ?? MediaTrackingStatus.planned,
+        rating: rating,
+        progressCurrent: remoteEntry.progress,
+        progressTotal: remoteEntry.totalProgress,
+        startedAt: remoteEntry.startedAt,
+        finishedAt: remoteEntry.completedAt,
+        timesCompleted: remoteEntry.repeatCount,
+        notes: remoteEntry.notes,
+        origin: origin,
+      );
+  await ref.read(wishlistMutationsProvider).removeFromWishlist(
+        localRef.id,
+        wishlistItemId: wishlistItemId,
+        origin: origin,
+      );
+}
+
+MediaTrackingStatus? _trackingStatusForProvider(ProviderPersonalEntry entry) {
+  return switch (entry.status) {
+    ProviderEntryStatus.planning => MediaTrackingStatus.planned,
+    ProviderEntryStatus.current => MediaTrackingStatus.inProgress,
+    ProviderEntryStatus.completed => MediaTrackingStatus.completed,
+    ProviderEntryStatus.paused => MediaTrackingStatus.paused,
+    ProviderEntryStatus.dropped => MediaTrackingStatus.dropped,
+    ProviderEntryStatus.repeating => MediaTrackingStatus.repeating,
+    null => null,
+  };
+}
+
+bool _hasProviderState(ProviderPersonalEntry entry) {
+  return entry.status != null ||
+      entry.rating != null ||
+      entry.progress != null ||
+      entry.totalProgress != null ||
+      entry.startedAt != null ||
+      entry.completedAt != null ||
+      entry.repeatCount != 0 ||
+      entry.notes != null;
+}

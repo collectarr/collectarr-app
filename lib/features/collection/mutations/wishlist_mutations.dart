@@ -48,10 +48,36 @@ final class WishlistMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
+    final catalogItem = await catalogCache.findById(itemId);
+    final existing = await wishlist.findActiveByItemAnchor(
+      itemId,
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    final normalizedAnchorType = resolvePersonalItemAnchorType(
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    final localRef = existing?.catalogRef ??
+        (catalogItem != null || fallbackKind != null
+            ? _catalogRefForItem(
+                itemId,
+                catalogItem,
+                fallbackKind: fallbackKind,
+                anchorType: normalizedAnchorType,
+                editionId: editionId,
+                variantId: variantId,
+                bundleReleaseId: bundleReleaseId,
+              )
+            : null);
     await mutationRunner.run(
       origin: origin,
+      localRef: localRef,
       action: () async {
-        final catalogItem = await catalogCache.findById(itemId);
         final existing = await wishlist.findActiveByItemAnchor(
           itemId,
           anchorType: anchorType,
@@ -60,12 +86,6 @@ final class WishlistMutations {
           bundleReleaseId: bundleReleaseId,
         );
         if (existing == null) {
-          final normalizedAnchorType = resolvePersonalItemAnchorType(
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
-          );
           final item = WishlistItem(
             id: idGenerator(),
             catalogRef: _catalogRefForItem(
@@ -109,8 +129,23 @@ final class WishlistMutations {
     final itemId =
         item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
+    final normalizedAnchorType = resolvePersonalItemAnchorType(
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    final localRef = _catalogRefForItem(
+      itemId,
+      item,
+      anchorType: normalizedAnchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
     await mutationRunner.run(
       origin: origin,
+      localRef: localRef,
       action: () async {
         await catalogCache.upsertAll([item]);
         final existing = await wishlist.findActiveByItemAnchor(
@@ -121,12 +156,6 @@ final class WishlistMutations {
           bundleReleaseId: bundleReleaseId,
         );
         if (existing == null) {
-          final normalizedAnchorType = resolvePersonalItemAnchorType(
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
-          );
           final wishlistItem = WishlistItem(
             id: idGenerator(),
             catalogRef: _catalogRefForItem(
@@ -165,6 +194,7 @@ final class WishlistMutations {
     String? currency,
     String? notes,
     bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     final normalizedAnchorType = resolvePersonalItemAnchorType(
@@ -188,6 +218,8 @@ final class WishlistMutations {
       deletedAt: item.deletedAt,
     );
     await mutationRunner.run(
+      origin: origin,
+      localRef: item.catalogRef,
       action: () async {
         await wishlist.upsert(updated);
         await syncQueue
@@ -207,9 +239,21 @@ final class WishlistMutations {
     String? variantId,
     String? bundleReleaseId,
     bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
+    final items = await _wishlistItemsForMutation(
+      itemId,
+      wishlistItemId: wishlistItemId,
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    final localRef = items.isEmpty ? null : items.first.catalogRef;
     await mutationRunner.run(
+      origin: origin,
+      localRef: localRef,
       action: () async {
         final existing = await _wishlistItemsForMutation(
           itemId,

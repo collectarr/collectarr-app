@@ -425,7 +425,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -435,6 +435,21 @@ class LocalDatabase extends _$LocalDatabase {
         if (from < 8) {
           await m.createTable(providerAccountsCache);
           await m.createTable(providerItemLinksCache);
+        } else if (from < 9) {
+          final columns = await customSelect(
+            'PRAGMA table_info(${providerAccountsCache.actualTableName})',
+          ).get();
+          final hasUsername = columns.any(
+            (column) => column.data['name']?.toString() == 'username',
+          );
+          if (!hasUsername) {
+            await m.addColumn(
+              providerAccountsCache,
+              providerAccountsCache.username,
+            );
+          }
+        }
+        if (from < 9) {
           return;
         }
         await _destructiveRebuild(m);
