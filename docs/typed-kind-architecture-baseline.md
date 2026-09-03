@@ -444,4 +444,28 @@ and validation failures.
 - [x] Comic vocabulary bindings and media validation added.
 - [x] Media Edit contract and focused schema coverage added.
 
-Next work is PR 20: define the typed Comic Release Edit schema.
+## PR 20 Comic Release Edit Schema
+
+Comic release semantics are now represented by the existing typed
+`ComicRelease` model and a dedicated `ComicReleaseEditDraft`. The draft owns
+mutable title, publication, identifier, date, cover, and variant state and can
+serialize the edited values back to a `ComicRelease` without losing its typed
+variant list.
+
+`comic_release_edit_schema.dart` declares one Release tab with explicit
+Identity, Publication, Artwork, and Variants sections. The release ID is
+read-only, while edition title, publisher, imprint, ISBN, UPC, release date,
+and cover image have typed edit fields. Variants remain an explicit Comic
+custom field because their dynamic controls belong to the release surface,
+not to generic publishing infrastructure.
+
+Dedicated Release and Release Edit contracts verify non-empty identity,
+unique schema tabs and fields, labels, vocabulary bindings, typed round trips,
+variant preservation, and release identity validation.
+
+- [x] Typed Comic Release Edit draft added.
+- [x] Release, edition, variant, and identifier fields declared explicitly.
+- [x] Comic publisher and imprint vocabulary bindings added.
+- [x] Release and Release Edit contracts with focused coverage added.
+
+Next work is PR 21: define the typed Comic Owned Edit schema.
