@@ -149,6 +149,17 @@ surface. Its current members remain available to existing generic callers, but
 new dispatch contracts must be added to `LibraryKindRegistration` or to the
 owning concrete kind module instead of expanding the runtime interface.
 
+## PR 7 Structural EditSchema
+
+`edit_schema.dart` adds the renderer-neutral edit model:
+`EditSchema<TModel, TDraft>`, typed tabs, sections, and field specifications.
+The shared field vocabulary covers text, number, date, money, toggle, select,
+single and multi vocabulary, image, read-only, and custom fields.
+
+Each field owns only structural data, typed draft accessors, visibility, and
+validation callbacks. The schema contains no media semantics, default tabs,
+global sections, or kind-specific vocabulary.
+
 ## Reproduction Commands
 
 Run from the repository root:
@@ -164,7 +175,7 @@ The first command is intentionally textual and over-inclusive. Results must be
 classified using the ownership rules above; names used only for labels or widget
 types are not architecture violations.
 
-## PR 0, PR 1, PR 2, PR 3, PR 4, PR 5, and PR 6 Exit Criteria
+## PR 0, PR 1, PR 2, PR 3, PR 4, PR 5, PR 6, and PR 7 Exit Criteria
 
 - [x] Baseline document created.
 - [x] Every suspect named by the migration plan is classified.
@@ -190,5 +201,8 @@ types are not architecture violations.
 - [x] Existing runtime dispatch remains unchanged.
 - [x] `LibraryKindRuntime` marked as migration-only.
 - [x] New dispatch ownership is documented for future callers.
+- [x] Structural `EditSchema<TModel, TDraft>` models added.
+- [x] Shared typed edit field specifications added.
+- [x] Schema visibility and validation callbacks covered by focused tests.
 
-Next work is PR 7: introduce structural typed `EditSchema` models.
+Next work is PR 8: add a generic renderer for `EditSchema<TModel, TDraft>`.
