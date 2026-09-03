@@ -171,6 +171,18 @@ owner.
 The renderer has focused widget coverage for dirty save flow and validation
 blocking. Existing kind edit dialogs are not migrated yet.
 
+## PR 9 Structural AddSchema
+
+`add_schema.dart` adds the renderer-neutral Add model:
+`AddSchema<TDraft>`, typed sections, and field specifications matching the
+structural input vocabulary needed by the generic Add renderer. Add schemas
+own their labels, draft accessors, visibility, validation, and options; no
+kind-specific fields or default semantic sections are shared. `EditOption` is
+reused only as the structural option value for select and vocabulary fields.
+
+The focused contract covers all Add field primitives, typed draft mutation,
+section and field visibility, validation, and field ID/label invariants.
+
 ## Reproduction Commands
 
 Run from the repository root:
@@ -186,7 +198,7 @@ The first command is intentionally textual and over-inclusive. Results must be
 classified using the ownership rules above; names used only for labels or widget
 types are not architecture violations.
 
-## PR 0, PR 1, PR 2, PR 3, PR 4, PR 5, PR 6, PR 7, and PR 8 Exit Criteria
+## PR 0, PR 1, PR 2, PR 3, PR 4, PR 5, PR 6, PR 7, PR 8, and PR 9 Exit Criteria
 
 - [x] Baseline document created.
 - [x] Every suspect named by the migration plan is classified.
@@ -218,5 +230,8 @@ types are not architecture violations.
 - [x] Generic `EditSchema<TModel, TDraft>` renderer added.
 - [x] Renderer owns visual grammar, dirty state, validation display, and save/cancel.
 - [x] Renderer widget coverage added without migrating existing kind dialogs.
+- [x] Structural `AddSchema<TDraft>` models added.
+- [x] Add field specifications keep options and accessors typed.
+- [x] Add schema contract coverage added without introducing kind semantics.
 
-Next work is PR 9: introduce structural typed `AddSchema` models.
+Next work is PR 10: add the generic `AddSchema<TDraft>` renderer.
