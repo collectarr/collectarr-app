@@ -271,4 +271,26 @@ and owned-details exposure.
 - [x] Compatibility aliases retained for incremental migration.
 - [x] Focused Comic domain contract added.
 
-Next work is PR 12: add the Comic Core mapper and remote source.
+## PR 12 Comic Core Mapper
+
+`ComicCoreMapper.fromWorkDto` maps `ComicWorkDto` directly to `ComicMedia`.
+Core fields are projected into typed Comic values: contributors become
+`ComicCreatorCredit`, issues become `ComicRelease`, and the Comic discriminator
+is validated at the mapper boundary. The generated DTO import is constrained to
+this explicit Comic adapter by the architecture checker.
+
+`ApiComicRemoteSource` fetches a typed `ComicWorkDto` through the Core API and
+returns the mapped `ComicMedia`. Its fetcher is injectable, keeping the source
+testable without introducing a second transport abstraction.
+
+Focused coverage verifies direct field mapping, contributor and issue
+conversion, typed remote fetching, Core round-trip preservation, and explicit
+classification of every `ComicWorkDto` field.
+
+- [x] Direct `ComicWorkDto` to `ComicMedia` mapper added.
+- [x] Typed contributor and issue projections added.
+- [x] Comic remote source added with Core API integration.
+- [x] Core mapping and field-adoption contracts added.
+- [x] Generated DTO boundary allowlist narrowed to the Comic mapper.
+
+Next work is PR 13: move Comic local media and release persistence under Comic.

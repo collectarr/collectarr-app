@@ -78,6 +78,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
   const ComicMedia({
     this.id,
     required this.title,
+    this.sortTitle,
     this.seriesTitle,
     this.issueNumber,
     this.publisher,
@@ -99,6 +100,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
     this.letterers = const [],
     this.editors = const [],
     this.coverArtists = const [],
+    this.creatorCredits = const [],
     this.characters = const [],
     this.characterDetails = const [],
     this.creators = const [],
@@ -128,6 +130,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
 
   final String title;
   final ComicMediaId? id;
+  final String? sortTitle;
   final String? seriesTitle;
   final String? issueNumber;
   final String? publisher;
@@ -149,6 +152,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
   final List<String> letterers;
   final List<String> editors;
   final List<String> coverArtists;
+  final List<ComicCreatorCredit> creatorCredits;
   final List<String> characters;
   final List<Map<String, dynamic>> characterDetails;
   final List<Map<String, dynamic>> creators;
@@ -173,6 +177,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
         ...rawPayload,
         if (id != null) 'id': id!.value,
         'title': title,
+        if (sortTitle != null) 'sort_title': sortTitle,
         if (seriesTitle != null) 'series_title': seriesTitle,
         if (issueNumber != null) ...{
           'issue_number': issueNumber,
@@ -197,6 +202,8 @@ class ComicMedia implements LibraryKindMetadataRuntime {
         if (letterers.isNotEmpty) 'letterers': letterers,
         if (editors.isNotEmpty) 'editors': editors,
         if (coverArtists.isNotEmpty) 'cover_artists': coverArtists,
+        if (creatorCredits.isNotEmpty)
+          'contributors': creatorCredits.map((e) => e.toJson()).toList(),
         if (characters.isNotEmpty) 'characters': characters,
         if (characterDetails.isNotEmpty) 'character_details': characterDetails,
         if (creators.isNotEmpty) 'creators': creators,
@@ -234,13 +241,16 @@ class ComicMedia implements LibraryKindMetadataRuntime {
                 .map((e) => e.toJson())
                 .toList(),
         },
-        if (releases.isNotEmpty)
+        if (releases.isNotEmpty) ...{
           'editions': releases.map((e) => e.toEditionDto().toJson()).toList(),
+          'issues': releases.map((e) => e.toJson()).toList(),
+        },
       };
 
   ComicMedia copyWith({
     ComicMediaId? id,
     String? title,
+    String? sortTitle,
     String? seriesTitle,
     String? issueNumber,
     String? publisher,
@@ -262,6 +272,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
     List<String>? letterers,
     List<String>? editors,
     List<String>? coverArtists,
+    List<ComicCreatorCredit>? creatorCredits,
     List<String>? characters,
     List<Map<String, dynamic>>? characterDetails,
     List<Map<String, dynamic>>? creators,
@@ -284,6 +295,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
     return ComicMedia(
       id: id ?? this.id,
       title: title ?? this.title,
+      sortTitle: sortTitle ?? this.sortTitle,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       issueNumber: issueNumber ?? this.issueNumber,
       publisher: publisher ?? this.publisher,
@@ -305,6 +317,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
       letterers: letterers ?? this.letterers,
       editors: editors ?? this.editors,
       coverArtists: coverArtists ?? this.coverArtists,
+      creatorCredits: creatorCredits ?? this.creatorCredits,
       characters: characters ?? this.characters,
       characterDetails: characterDetails ?? this.characterDetails,
       creators: creators ?? this.creators,
@@ -349,7 +362,24 @@ class ComicMedia implements LibraryKindMetadataRuntime {
         ? CatalogPublishingDetailsDto.fromJson(pubMap)
         : CatalogPublishingDetailsDto.fromJson(json);
 
-    final rawReleases = (json['editions'] as List<dynamic>?)
+    final rawContributorValues =
+        json['contributors'] as List<dynamic>? ?? const <dynamic>[];
+    final creatorCredits = <ComicCreatorCredit>[];
+    for (final contributor in rawContributorValues) {
+      if (contributor is Map<String, dynamic>) {
+        final credit = ComicCreatorCredit.fromJson(contributor);
+        if (credit.name.isNotEmpty) creatorCredits.add(credit);
+      } else {
+        final name = contributor?.toString().trim();
+        if (name != null && name.isNotEmpty) {
+          creatorCredits.add(
+            ComicCreatorCredit(name: name, role: 'contributor'),
+          );
+        }
+      }
+    }
+
+    final rawReleases = ((json['editions'] ?? json['issues']) as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
             .map((e) =>
                 ComicRelease.fromEditionDto(CatalogEditionDto.fromJson(e)))
@@ -371,6 +401,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
           ? ComicMediaId(json['id'] as String)
           : null,
       title: (json['title'] as String?) ?? '',
+      sortTitle: json['sort_title'] as String?,
       rawPayload: Map<String, dynamic>.from(json),
       seriesTitle: (json['series_title'] ?? series.seriesTitle) as String?,
       issueNumber: (json['issue_number'] ?? json['item_number']) as String?,
@@ -424,6 +455,7 @@ class ComicMedia implements LibraryKindMetadataRuntime {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      creatorCredits: creatorCredits,
       characters: (json['characters'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
