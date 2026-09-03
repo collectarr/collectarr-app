@@ -142,13 +142,11 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final p = providerRegistry.get(normalizedProvider);
       if (p != null) {
         try {
-          final results = await p.searchHits(effectiveQuery, kind: targetKind);
-          candidates = results
-              .map((hit) => ProviderCandidate.fromSearchHit(
-                    hit,
-                    provider: p.descriptor.name,
-                  ))
-              .toList();
+          candidates = await type.add.search.searchProvider(
+            p,
+            query: effectiveQuery,
+            kind: targetKind,
+          );
         } catch (_) {
           candidates = const [];
         }
@@ -157,13 +155,11 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final providers = providerRegistry.getForKind(targetKind);
       final futures = providers.map((p) async {
         try {
-          final results = await p.searchHits(effectiveQuery, kind: targetKind);
-          return results
-              .map((hit) => ProviderCandidate.fromSearchHit(
-                    hit,
-                    provider: p.descriptor.name,
-                  ))
-              .toList();
+          return await type.add.search.searchProvider(
+            p,
+            query: effectiveQuery,
+            kind: targetKind,
+          );
         } catch (_) {
           // A broken provider must NOT destroy the rest of the search!
           return const <ProviderCandidate>[];

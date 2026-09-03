@@ -26,6 +26,8 @@ import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.da
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -414,6 +416,70 @@ void main() {
       expect(results.first.title, 'Good Result for Batman');
 
       sessionController.dispose();
+    });
+
+    test('Comic provider search preserves structured candidate semantics',
+        () async {
+      final registry = InMemoryProviderRegistry();
+      final provider = _MockProvider(
+        name: 'gcd',
+        kind: 'comic',
+        searchHandler: (query, {kind, limit = 25}) async => [
+          const ProviderSearchResult(
+            provider: 'gcd',
+            providerItemId: '2663120',
+            title: 'Absolute Batman #1',
+            kind: 'comic',
+            summary: 'December 2024 · 4.99 USD',
+            candidateType: 'issue',
+            seriesTitle: 'Absolute Batman',
+            issueNumber: '1',
+            volumeStartYear: 2024,
+            publisher: 'DC Comics',
+          ),
+          const ProviderSearchResult(
+            provider: 'gcd',
+            providerItemId: '2665653',
+            title: 'Absolute Batman #1 [Cardstock Variant]',
+            kind: 'comic',
+            candidateType: 'variant',
+            seriesTitle: 'Absolute Batman',
+            issueNumber: '1',
+            variantName: 'Cardstock Variant',
+            isVariant: true,
+          ),
+        ],
+      );
+      registry.register(provider.toConnector());
+
+      final results = await runLibraryAddProviderSearch(
+        type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
+        provider: 'gcd',
+        query: 'Absolute Batman',
+        ranking: libraryKindRuntimeForKind(CatalogMediaKind.comic)
+            .add
+            .search
+            .ranking,
+        searchContext: LibraryAddSearchContext(query: 'Absolute Batman'),
+        providerRegistry: registry,
+      );
+
+      expect(results, hasLength(2));
+      expect(results.first.series?.seriesTitle, 'Absolute Batman');
+      expect(results.first.issueNumber, '1');
+      expect(results.first.candidateType, 'issue');
+      expect(results.first.publisher, 'DC Comics');
+      expect(results.last.variantName, 'Cardstock Variant');
+      expect(results.last.isVariant, isTrue);
+
+      final state = const LibraryAddResultPolicyState(
+        values: {comicAddHideVariantsOptionId: true},
+      );
+      final visible = comicAddResultPolicy.filterProviderResults(
+        candidates: results,
+        state: state,
+      );
+      expect(visible.map((candidate) => candidate.providerItemId), ['2663120']);
     });
 
     test(

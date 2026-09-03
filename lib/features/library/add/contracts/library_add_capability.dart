@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_cache_
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
+import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:flutter/widgets.dart';
 
 export 'library_add_result_policy.dart';
@@ -38,6 +39,14 @@ typedef LibraryAddProviderKindOverridesBuilder = Iterable<String> Function(
   LibraryAddSearchContext context,
 );
 
+typedef LibraryAddProviderSearchBuilder = Future<List<ProviderCandidate>>
+    Function(
+  ProviderConnector provider, {
+  required String query,
+  required String kind,
+  required int limit,
+});
+
 typedef LibraryAddSearchInputPredicate = bool Function(
   LibraryAddSearchContext context,
 );
@@ -59,6 +68,7 @@ class LibraryAddSearchCapability {
     required this.ranking,
     this.searchInputPredicate,
     this.providerKindOverridesBuilder,
+    this.providerSearchBuilder,
     this.kindSpecificPaneBuilder,
     this.coverScanQueryBuilder,
     this.coverScanFilterValuesBuilder,
@@ -74,6 +84,7 @@ class LibraryAddSearchCapability {
   final LibraryAddSearchRanking ranking;
   final LibraryAddSearchInputPredicate? searchInputPredicate;
   final LibraryAddProviderKindOverridesBuilder? providerKindOverridesBuilder;
+  final LibraryAddProviderSearchBuilder? providerSearchBuilder;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       kindSpecificPaneBuilder;
   final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
@@ -85,6 +96,32 @@ class LibraryAddSearchCapability {
 
   Iterable<String> providerKindOverrides(LibraryAddSearchContext context) =>
       providerKindOverridesBuilder?.call(context) ?? const [];
+
+  Future<List<ProviderCandidate>> searchProvider(
+    ProviderConnector provider, {
+    required String query,
+    required String kind,
+    int limit = 25,
+  }) async {
+    final customSearch = providerSearchBuilder;
+    if (customSearch != null) {
+      return customSearch(
+        provider,
+        query: query,
+        kind: kind,
+        limit: limit,
+      );
+    }
+
+    final hits = await provider.searchHits(query, kind: kind, limit: limit);
+    return [
+      for (final hit in hits)
+        ProviderCandidate.fromSearchHit(
+          hit,
+          provider: provider.descriptor.name,
+        ),
+    ];
+  }
 
   bool hasSearchInput(LibraryAddSearchContext context) =>
       searchInputPredicate?.call(context) ?? context.hasAnyInput;

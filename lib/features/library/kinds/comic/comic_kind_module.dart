@@ -27,6 +27,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_search.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
@@ -311,6 +312,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
       ),
       coverScanQueryBuilder: (result) => result.query ?? result.series,
       coverScanFilterValuesBuilder: _comicCoverScanFilterValues,
+      providerSearchBuilder: searchComicProvider,
     ),
     resultPolicy: comicAddResultPolicy,
   ),
