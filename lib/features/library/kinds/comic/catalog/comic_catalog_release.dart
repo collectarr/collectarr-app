@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 
 class ComicRelease {
   const ComicRelease({
@@ -23,6 +24,8 @@ class ComicRelease {
   final DateTime? releaseDate;
   final String? coverImageUrl;
   final List<CatalogVariantDto> variants;
+
+  ComicReleaseId get typedId => ComicReleaseId(id);
 
   factory ComicRelease.fromEditionDto(CatalogEditionDto dto) {
     return ComicRelease(

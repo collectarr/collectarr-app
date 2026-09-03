@@ -248,4 +248,27 @@ types are not architecture violations.
 - [x] Add renderer owns visual grammar, validation, submit/cancel, and async state.
 - [x] Add renderer widget coverage added without migrating existing kind dialogs.
 
-Next work is PR 11: introduce the Comic domain split.
+## PR 11 Comic Domain Split
+
+`ComicMedia` now owns the former `ComicCatalogMetadata` semantic model, while
+`ComicCatalogMetadata` and `ComicMetadata` remain compatibility typedefs for
+incremental caller migration. `ComicMediaId` is a typed identity value object
+and is serialized only at the media JSON/sync boundary.
+
+The existing `ComicRelease` and `ComicOwnedDetails` models are exposed through
+the Comic domain surface. `ComicRelease.typedId` provides the typed
+`ComicReleaseId` projection while its existing string identity remains the
+explicit Core/JSON compatibility boundary. No generic catalog inheritance was
+introduced.
+
+Focused contract coverage verifies media construction and serialization,
+compatibility alias decoding, typed ID equality, release identity projection,
+and owned-details exposure.
+
+- [x] `ComicMedia` introduced as the named owner of Comic media semantics.
+- [x] `ComicMediaId` and `ComicReleaseId` added.
+- [x] Existing release and owned-details models exported from the Comic domain.
+- [x] Compatibility aliases retained for incremental migration.
+- [x] Focused Comic domain contract added.
+
+Next work is PR 12: add the Comic Core mapper and remote source.

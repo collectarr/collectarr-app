@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
@@ -69,11 +70,13 @@ class ComicCreatorCredit {
   }
 }
 
-typedef ComicMetadata = ComicCatalogMetadata;
+typedef ComicMetadata = ComicMedia;
+typedef ComicCatalogMetadata = ComicMedia;
 
 @immutable
-class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
-  const ComicCatalogMetadata({
+class ComicMedia implements LibraryKindMetadataRuntime {
+  const ComicMedia({
+    this.id,
     required this.title,
     this.seriesTitle,
     this.issueNumber,
@@ -124,6 +127,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
+  final ComicMediaId? id;
   final String? seriesTitle;
   final String? issueNumber;
   final String? publisher;
@@ -167,6 +171,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
 
   Map<String, dynamic> toJson() => {
         ...rawPayload,
+        if (id != null) 'id': id!.value,
         'title': title,
         if (seriesTitle != null) 'series_title': seriesTitle,
         if (issueNumber != null) ...{
@@ -233,7 +238,8 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
           'editions': releases.map((e) => e.toEditionDto().toJson()).toList(),
       };
 
-  ComicCatalogMetadata copyWith({
+  ComicMedia copyWith({
+    ComicMediaId? id,
     String? title,
     String? seriesTitle,
     String? issueNumber,
@@ -275,7 +281,8 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     List<ComicLink>? links,
     List<ComicRelease>? releases,
   }) {
-    return ComicCatalogMetadata(
+    return ComicMedia(
+      id: id ?? this.id,
       title: title ?? this.title,
       seriesTitle: seriesTitle ?? this.seriesTitle,
       issueNumber: issueNumber ?? this.issueNumber,
@@ -320,7 +327,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     );
   }
 
-  factory ComicCatalogMetadata.fromJson(Map<String, dynamic> json) {
+  factory ComicMedia.fromJson(Map<String, dynamic> json) {
     final rawLinks = <ComicLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
@@ -359,7 +366,10 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
             .toList(growable: false) ??
         const <Map<String, dynamic>>[];
 
-    return ComicCatalogMetadata(
+    return ComicMedia(
+      id: json['id'] is String && (json['id'] as String).isNotEmpty
+          ? ComicMediaId(json['id'] as String)
+          : null,
       title: (json['title'] as String?) ?? '',
       rawPayload: Map<String, dynamic>.from(json),
       seriesTitle: (json['series_title'] ?? series.seriesTitle) as String?,
