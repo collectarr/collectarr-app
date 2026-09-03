@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
@@ -143,19 +142,11 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final p = providerRegistry.get(normalizedProvider);
       if (p != null) {
         try {
-          final results = await p.search(effectiveQuery, kind: targetKind);
+          final results = await p.searchHits(effectiveQuery, kind: targetKind);
           candidates = results
-              .map((r) => ProviderCandidate(
-                    provider: r.provider,
-                    providerItemId: r.providerItemId,
-                    title: r.title,
-                    kind: r.kind,
-                    summary: r.summary,
-                    imageUrl: r.imageUrl,
-                    series: r.seriesTitle != null
-                        ? CatalogSeriesDetailsDto(seriesTitle: r.seriesTitle)
-                        : null,
-                    issueNumber: r.issueNumber,
+              .map((hit) => ProviderCandidate.fromSearchHit(
+                    hit,
+                    provider: p.descriptor.name,
                   ))
               .toList();
         } catch (_) {
@@ -166,19 +157,11 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final providers = providerRegistry.getForKind(targetKind);
       final futures = providers.map((p) async {
         try {
-          final results = await p.search(effectiveQuery, kind: targetKind);
+          final results = await p.searchHits(effectiveQuery, kind: targetKind);
           return results
-              .map((r) => ProviderCandidate(
-                    provider: r.provider,
-                    providerItemId: r.providerItemId,
-                    title: r.title,
-                    kind: r.kind,
-                    summary: r.summary,
-                    imageUrl: r.imageUrl,
-                    series: r.seriesTitle != null
-                        ? CatalogSeriesDetailsDto(seriesTitle: r.seriesTitle)
-                        : null,
-                    issueNumber: r.issueNumber,
+              .map((hit) => ProviderCandidate.fromSearchHit(
+                    hit,
+                    provider: p.descriptor.name,
                   ))
               .toList();
         } catch (_) {

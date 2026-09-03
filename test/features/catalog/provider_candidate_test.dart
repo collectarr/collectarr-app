@@ -1,5 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -38,6 +41,29 @@ void main() {
     expect(candidate.isVariant, isFalse);
     expect(candidate.characterPreview, ['Spider-Man', 'Aunt May']);
     expect(candidate.storyArcPreview, ['Spider-Island']);
+  });
+
+  test('converts summary-only provider search hits', () {
+    const hit = ProviderSearchHit(
+      providerId: ProviderId.openLibrary,
+      kind: CatalogMediaKind.book,
+      remoteId: 'OL123W',
+      title: 'The Hobbit',
+      subtitle: 'J. R. R. Tolkien',
+      imageUrl: 'https://example.test/hobbit.jpg',
+    );
+
+    final candidate = ProviderCandidate.fromSearchHit(hit);
+
+    expect(candidate.provider, 'openlibrary');
+    expect(candidate.providerItemId, 'OL123W');
+    expect(candidate.kind, 'book');
+    expect(candidate.title, 'The Hobbit');
+    expect(candidate.summary, 'J. R. R. Tolkien');
+    expect(candidate.imageUrl, 'https://example.test/hobbit.jpg');
+    expect(candidate.series, isNull);
+    expect(candidate.issueNumber, isNull);
+    expect(candidate.candidateType, isNull);
   });
 
   test('rejects older provider responses without an explicit fallback kind',

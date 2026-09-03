@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 
 class ProviderCandidate {
   const ProviderCandidate({
@@ -37,6 +38,20 @@ class ProviderCandidate {
   final int? issueCount;
   final List<String> characterPreview;
   final List<String> storyArcPreview;
+
+  factory ProviderCandidate.fromSearchHit(
+    ProviderSearchHit hit, {
+    String? provider,
+  }) {
+    return ProviderCandidate(
+      provider: provider ?? hit.providerId.value,
+      providerItemId: hit.remoteId,
+      title: hit.title,
+      kind: hit.kind.apiValue,
+      summary: hit.subtitle,
+      imageUrl: hit.imageUrl,
+    );
+  }
 
   factory ProviderCandidate.fromJson(
     Map<String, dynamic> json, {
