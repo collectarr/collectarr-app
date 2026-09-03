@@ -314,4 +314,24 @@ verifies their association, and updates the existing schema reset assertions.
 - [x] Generated Drift database updated.
 - [x] Focused schema and migration coverage added.
 
-Next work is PR 14: add Comic local mappers and persistence round-trip contracts.
+## PR 14 Comic Local Mapper And Persistence Contract
+
+`ComicLocalMapper` now owns the explicit conversion between `ComicMedia` and
+`ComicMediaRow`, and between `ComicRelease` and `ComicReleaseRow`. Scalar values
+and dates map directly to typed Drift columns. Lists and nested Comic values are
+encoded only in the JSON columns declared by the Comic schema.
+
+The mapper preserves typed media identity, requires persisted IDs, restores
+optional release aggregates supplied by the repository, and tolerates malformed
+non-critical JSON by restoring an empty collection or absent nested value.
+
+Focused persistence coverage exercises minimal and fully populated media,
+nullable/default fields, Unicode, nested series/publishing values, links,
+creator/key-event values, release variants, and composite release ownership.
+
+- [x] `ComicMedia` to/from `ComicMediaRow` mapper added.
+- [x] `ComicRelease` to/from `ComicReleaseRow` mapper added.
+- [x] Comic local mapper exported through the Comic domain surface.
+- [x] Persistence round-trip contract added.
+
+Next work is PR 15: create the typed Comic repository.
