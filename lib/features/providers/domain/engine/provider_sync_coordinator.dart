@@ -241,12 +241,10 @@ class ProviderSyncCoordinator {
       kind: remote.kind,
       title: remote.title,
       externalIds: remote.externalIds,
-      status: policy.allowsPull(SyncField.status)
-          ? remote.status
-          : local?.status,
-      rating: policy.allowsPull(SyncField.rating)
-          ? remote.rating
-          : local?.rating,
+      status:
+          policy.allowsPull(SyncField.status) ? remote.status : local?.status,
+      rating:
+          policy.allowsPull(SyncField.rating) ? remote.rating : local?.rating,
       progress: policy.allowsPull(SyncField.progress)
           ? remote.progress
           : local?.progress,
@@ -264,9 +262,7 @@ class ProviderSyncCoordinator {
           : local?.repeatCount ?? 0,
       remoteUpdatedAt: remote.remoteUpdatedAt,
       remoteRevision: remote.remoteRevision,
-      notes: policy.allowsPull(SyncField.history)
-          ? remote.notes
-          : local?.notes,
+      notes: policy.allowsPull(SyncField.history) ? remote.notes : local?.notes,
       rawPayload: remote.rawPayload,
     );
   }
@@ -283,12 +279,8 @@ class ProviderSyncCoordinator {
       kind: local.kind,
       title: local.title,
       externalIds: local.externalIds,
-      status: policy.allowsPush(SyncField.status)
-          ? local.status
-          : base?.status,
-      rating: policy.allowsPush(SyncField.rating)
-          ? local.rating
-          : base?.rating,
+      status: policy.allowsPush(SyncField.status) ? local.status : base?.status,
+      rating: policy.allowsPush(SyncField.rating) ? local.rating : base?.rating,
       progress: policy.allowsPush(SyncField.progress)
           ? local.progress
           : base?.progress,
@@ -306,9 +298,7 @@ class ProviderSyncCoordinator {
           : base?.repeatCount ?? 0,
       remoteUpdatedAt: local.remoteUpdatedAt,
       remoteRevision: local.remoteRevision,
-      notes: policy.allowsPush(SyncField.history)
-          ? local.notes
-          : base?.notes,
+      notes: policy.allowsPush(SyncField.history) ? local.notes : base?.notes,
       rawPayload: local.rawPayload,
     );
   }
