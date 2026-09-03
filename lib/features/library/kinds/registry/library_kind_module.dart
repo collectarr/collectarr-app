@@ -58,6 +58,10 @@ export 'package:collectarr_app/features/library/config/library_linked_metadata_c
 export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
+/// Migration-only compatibility surface for existing generic callers.
+///
+/// Do not add members here. New dispatch contracts belong in
+/// [LibraryKindRegistration] or in the concrete kind module that owns them.
 abstract interface class LibraryKindRuntime {
   CatalogMediaKind get kind;
   LibraryKindIdentity get identity;

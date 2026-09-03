@@ -142,6 +142,13 @@ models, and is exported through `library_kind_registry.dart`.
 The existing `LibraryKindRuntime` and page switch remain unchanged for now.
 Concrete registrations and caller migration are deferred to later PRs.
 
+## PR 6 Runtime Migration Guard
+
+`LibraryKindRuntime` is now documented as a migration-only compatibility
+surface. Its current members remain available to existing generic callers, but
+new dispatch contracts must be added to `LibraryKindRegistration` or to the
+owning concrete kind module instead of expanding the runtime interface.
+
 ## Reproduction Commands
 
 Run from the repository root:
@@ -157,7 +164,7 @@ The first command is intentionally textual and over-inclusive. Results must be
 classified using the ownership rules above; names used only for labels or widget
 types are not architecture violations.
 
-## PR 0, PR 1, PR 2, PR 3, PR 4, and PR 5 Exit Criteria
+## PR 0, PR 1, PR 2, PR 3, PR 4, PR 5, and PR 6 Exit Criteria
 
 - [x] Baseline document created.
 - [x] Every suspect named by the migration plan is classified.
@@ -181,6 +188,7 @@ types are not architecture violations.
 - [x] Small typed dispatch boundary added.
 - [x] Registration boundary exported through the library registry.
 - [x] Existing runtime dispatch remains unchanged.
+- [x] `LibraryKindRuntime` marked as migration-only.
+- [x] New dispatch ownership is documented for future callers.
 
-Next work is PR 6: stop extending `LibraryKindRuntime` and begin caller
-migration toward concrete kind modules.
+Next work is PR 7: introduce structural typed `EditSchema` models.
