@@ -2,9 +2,12 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/comic_custom_tab_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
@@ -187,6 +190,77 @@ void main() {
     expect(find.text('Publisher'), findsOneWidget);
     expect(find.text('ISBN'), findsOneWidget);
     expect(find.text('Save'), findsOneWidget);
+  });
+
+  testWidgets('Comic owned editing uses the typed edit schema tab',
+      (tester) async {
+    final item = LibraryMetadataItem.fromCatalogItem(
+      testCatalogItem(
+        id: 'comic-owned-editor',
+        kind: 'comic',
+        title: 'Saga #1',
+        series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
+      ),
+    );
+    final request = LibraryEditDialogRequest(
+      type: comicKindModule,
+      item: item,
+      ownedItem: testOwnedItem(
+        itemId: item.identity.id,
+        rawOrSlabbed: 'Slabbed',
+        gradingCompany: 'CGC',
+        keyComic: true,
+        keyReason: 'First appearance',
+        coverPriceCents: 2500,
+      ),
+      accent: Colors.blue,
+    );
+    final draft = LibraryEditDraft.fromRequest(request);
+    addTearDown(draft.dispose);
+
+    final ownedTabs = comicKindModule.edit.presentation.builder.buildTabs(
+      context: const LibraryEditPresentationContext(
+        isOwned: true,
+        isTrackingOnly: false,
+        hasTrackingContext: true,
+        hasWishlistContext: false,
+        isDigitalFormat: false,
+        hasPhysicalFormats: true,
+        hasEditionAnchors: false,
+        hasBundleReleaseAnchors: false,
+        hasCustomFields: false,
+        scope: LibraryEditScope.all,
+      ),
+    );
+    expect(ownedTabs.map((tab) => tab.id), contains('owned'));
+
+    late Widget ownedTab;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) {
+              ownedTab = buildComicCustomTabView(
+                tabId: 'owned',
+                context: context,
+                draft: draft,
+                accent: Colors.blue,
+                scope: LibraryEditScope.all,
+                item: item,
+                markDirty: () {},
+              )!;
+              return ownedTab;
+            },
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Raw / Slabbed'), findsOneWidget);
+    expect(find.text('Grading company'), findsOneWidget);
+    expect(find.text('Key comic'), findsNWidgets(2));
+    expect(find.text('Cover price'), findsOneWidget);
+    expect(find.text('Save'), findsNothing);
   });
 }
 

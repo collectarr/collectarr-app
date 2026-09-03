@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/owned/comic_owned_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,7 @@ class ComicEditDraft extends KindEditDraft {
     required this.keyCategoryController,
     required this.keyComic,
     required this.lastBagBoardDate,
+    required this.ownedEdit,
     required this.comicEdit,
   });
 
@@ -43,24 +46,12 @@ class ComicEditDraft extends KindEditDraft {
   bool keyComic;
   DateTime? lastBagBoardDate;
 
+  final ComicOwnedEditDraft ownedEdit;
   final ComicEditController comicEdit;
   Future<List<SerialAuthorityEntry>>? seriesEntriesFuture;
 
   @override
-  OwnedDetailsDraft toDetailsDraft() => ComicOwnedDetailsDraft(
-        rawOrSlabbed: emptyToNull(rawOrSlabbedController.text),
-        gradingCompany: emptyToNull(gradingCompanyController.text),
-        graderNotes: emptyToNull(graderNotesController.text),
-        signedBy: emptyToNull(signedByController.text),
-        labelType: emptyToNull(labelTypeController.text),
-        pageQuality: emptyToNull(pageQualityController.text),
-        certificationNumber: emptyToNull(certificationNumberController.text),
-        keyComic: keyComic,
-        keyReason: emptyToNull(keyReasonController.text),
-        keyCategory: emptyToNull(keyCategoryController.text),
-        coverPriceCents: parseMoneyCents(coverPriceController.text),
-        lastBagBoardDate: lastBagBoardDate,
-      );
+  OwnedDetailsDraft toDetailsDraft() => ownedEdit.toDetailsDraft();
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
@@ -68,18 +59,20 @@ class ComicEditDraft extends KindEditDraft {
     if (result.personal != null) {
       result = result.copyWith(
         personal: result.personal!.copyWith(
-          rawOrSlabbed: emptyToNull(rawOrSlabbedController.text),
-          gradingCompany: emptyToNull(gradingCompanyController.text),
-          graderNotes: emptyToNull(graderNotesController.text),
-          signedBy: emptyToNull(signedByController.text),
-          labelType: emptyToNull(labelTypeController.text),
-          pageQuality: emptyToNull(pageQualityController.text),
-          certificationNumber: emptyToNull(certificationNumberController.text),
-          keyComic: keyComic,
-          keyReason: emptyToNull(keyReasonController.text),
-          keyCategory: emptyToNull(keyCategoryController.text),
-          coverPriceCents: parseMoneyCents(coverPriceController.text),
-          lastBagBoardDate: lastBagBoardDate,
+          rawOrSlabbed: ownedEdit.rawOrSlabbed,
+          gradingCompany: ownedEdit.gradingCompany,
+          graderNotes: ownedEdit.graderNotes,
+          signedBy: ownedEdit.signedBy,
+          labelType: ownedEdit.labelType,
+          customLabel: ownedEdit.customLabel,
+          pageQuality: ownedEdit.pageQuality,
+          certificationNumber: ownedEdit.certificationNumber,
+          keyComic: ownedEdit.keyComic,
+          keyReason: ownedEdit.keyReason,
+          keyCategory: ownedEdit.keyCategory,
+          keySeverity: ownedEdit.keySeverity,
+          coverPriceCents: ownedEdit.coverPriceCents,
+          lastBagBoardDate: ownedEdit.lastBagBoardDate,
         ),
       );
     }
@@ -88,6 +81,7 @@ class ComicEditDraft extends KindEditDraft {
 
   @override
   void dispose() {
+    ownedEdit.dispose();
     comicEdit.dispose();
   }
 }
@@ -99,6 +93,9 @@ KindEditDraft createComicEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final comic = ownedItem?.comicDetails;
+  final ownedEdit = ComicOwnedEditDraft.fromDetails(
+    comic ?? const ComicOwnedDetails(),
+  );
   final comicEdit = ComicEditController(
     item: item.kindMetadata as ComicCatalogMetadata,
     itemImages: const [],
@@ -128,6 +125,7 @@ KindEditDraft createComicEditDraft({
         textControllers.create(text: comic?.keyCategory ?? ''),
     keyComic: comic?.keyComic ?? false,
     lastBagBoardDate: comic?.lastBagBoardDate,
+    ownedEdit: ownedEdit,
     comicEdit: comicEdit,
   );
 }

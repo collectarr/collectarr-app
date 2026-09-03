@@ -6,7 +6,9 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:flutter/material.dart';
 
 import 'comic_edit_host_adapter.dart';
+import 'comic_edit_draft.dart';
 import 'comic_edit_tabs.dart';
+import 'owned/comic_owned_edit_tab.dart';
 
 Widget? buildComicCustomTabView({
   required String tabId,
@@ -33,6 +35,13 @@ Widget? buildComicCustomTabView({
     scope: scope,
     markDirty: markDirty,
   );
+  if (tabId == 'owned') {
+    final kindDraft = draft.kindDetails;
+    if (kindDraft is! ComicEditDraft) {
+      throw StateError('Expected ComicEditDraft for Comic owned editing');
+    }
+    return buildComicOwnedEditSchemaTab(comicDraft: kindDraft);
+  }
   return switch (tabId) {
     'main' => host.buildComicMainTab(),
     'creators' => host.buildComicCreatorsTab(),

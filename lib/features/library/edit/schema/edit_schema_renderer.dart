@@ -15,6 +15,8 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     this.onCancel,
     this.title,
     this.initialTabIndex = 0,
+    this.showTabBar = true,
+    this.showFooter = true,
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -24,6 +26,8 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
   final VoidCallback? onCancel;
   final String? title;
   final int initialTabIndex;
+  final bool showTabBar;
+  final bool showFooter;
 
   @override
   State<EditSchemaRenderer<TModel, TDraft>> createState() =>
@@ -86,14 +90,15 @@ class _EditSchemaRendererState<TModel, TDraft>
                   ),
                 ),
               ],
-              _buildTabBar(context, visibleTabs, selectedIndex),
+              if (widget.showTabBar)
+                _buildTabBar(context, visibleTabs, selectedIndex),
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
                   child: _buildTabContent(context, visibleTabs[selectedIndex]),
                 ),
               ),
-              _buildFooter(context),
+              if (widget.showFooter) _buildFooter(context),
             ],
           ),
         );

@@ -668,69 +668,6 @@ extension ComicEditTabBuilders on ComicEditHost {
             children: [
               LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
-                    controller: comicGradeController, label: 'Grade'),
-                LibraryEditTextField(
-                  controller: comicConditionController,
-                  label: 'Condition',
-                ),
-                _comicRawOrSlabbedField(),
-                LibraryEditTextField(
-                  controller: comicGradingCompanyController,
-                  label: 'Grading company',
-                ),
-                LibraryEditTextField(
-                  controller: comicCertificationNumberController,
-                  label: 'Certification number',
-                ),
-              ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                    controller: comicLabelTypeController, label: 'Label type'),
-                LibraryEditTextField(
-                    controller: comicSignedByController, label: 'Signed by'),
-                buildComicPageQualityPickField(label: 'Page quality'),
-                LibraryEditTextField(
-                  controller: comicCoverPriceController,
-                  label: 'Cover price',
-                  validator: optionalMoneyValidator,
-                ),
-              ]),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: comicGraderNotesController,
-                minLines: 2,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Grader notes',
-                  alignLabelWithHint: true,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Material(
-                color: Colors.transparent,
-                child: SwitchListTile(
-                  value: comicKeyComic,
-                  onChanged: (value) =>
-                      comicMutateState(() => comicKeyComic = value),
-                  title: const Text('Key comic'),
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                ),
-              ),
-              if (comicKeyComic) ...[
-                const SizedBox(height: 6),
-                LibraryEditResponsiveRow(children: [
-                  LibraryEditTextField(
-                    controller: comicKeyReasonController,
-                    label: 'Key reason (first appearance, etc.)',
-                  ),
-                  buildComicKeyCategoryPickField(label: 'Key category'),
-                ]),
-              ],
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
                   controller: comicPriceController,
                   label: 'Price paid',
                   validator: optionalMoneyValidator,
@@ -810,13 +747,6 @@ extension ComicEditTabBuilders on ComicEditHost {
                   currency: comicCurrencyController.text,
                 ),
               ],
-              const SizedBox(height: 10),
-              LibraryDateFieldButton(
-                label: 'Last bag & board date',
-                value: comicLastBagBoardDate,
-                onChanged: (value) =>
-                    comicMutateState(() => comicLastBagBoardDate = value),
-              ),
             ],
           ),
         ),

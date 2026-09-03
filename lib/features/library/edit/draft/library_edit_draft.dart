@@ -572,6 +572,7 @@ class LibraryEditDraft {
   }
 
   void dispose() {
+    kindDetails.dispose();
     _textControllers.dispose();
   }
 

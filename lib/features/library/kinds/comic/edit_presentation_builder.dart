@@ -160,6 +160,16 @@ const _comicCombinedTabs = [
   ),
 ];
 
+const _comicOwnedTabs = [
+  ..._comicCombinedTabs,
+  LibraryEditTabSpec(
+    id: 'owned',
+    icon: Icons.inventory_2,
+    label: 'Owned',
+    sectionIds: ['comic_owned'],
+  ),
+];
+
 class ComicLibraryCombinedEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const ComicLibraryCombinedEditPresentationBuilder()
@@ -168,7 +178,7 @@ class ComicLibraryCombinedEditPresentationBuilder
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
-          ownedTabs: _comicCombinedTabs,
+          ownedTabs: _comicOwnedTabs,
           trackedTabs: _comicCombinedTabs,
           catalogTabs: _comicCombinedTabs,
           customTabBuilder: buildComicCustomTabView,
