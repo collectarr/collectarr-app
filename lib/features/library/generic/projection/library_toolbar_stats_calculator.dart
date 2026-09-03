@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 class LibraryToolbarStatsCalculator {
   const LibraryToolbarStatsCalculator();
@@ -7,13 +8,13 @@ class LibraryToolbarStatsCalculator {
   LibraryToolbarCounts calculate({
     required List<LibraryProjectionItem> allItems,
     required int shownCount,
+    required LibraryKindRuntime type,
   }) {
     var owned = 0;
     var wishlist = 0;
     var missingCover = 0;
     var missingMetadata = 0;
     var totalPricePaid = 0;
-    var totalCoverPrice = 0;
     var totalSellPrice = 0;
     String? currency;
 
@@ -32,7 +33,6 @@ class LibraryToolbarStatsCalculator {
       }
       if (ownedItem != null) {
         totalPricePaid += ownedItem.pricePaidCents ?? 0;
-        totalCoverPrice += ownedItem.coverPriceCents ?? 0;
         totalSellPrice += ownedItem.sellPriceCents ?? 0;
         currency ??= ownedItem.currency;
       }
@@ -46,9 +46,11 @@ class LibraryToolbarStatsCalculator {
       missingCover: missingCover,
       missingMetadata: missingMetadata,
       totalPricePaidCents: totalPricePaid,
-      totalCoverPriceCents: totalCoverPrice,
       totalSellPriceCents: totalSellPrice,
       priceCurrency: currency,
+      collectionValue: type.value?.resolveCollectionValueSummary(
+        allItems.map((item) => item.source),
+      ),
     );
   }
 }

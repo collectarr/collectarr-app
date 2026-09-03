@@ -76,9 +76,6 @@ void main() {
     expect(state.wishlistCount, 1);
     expect(state.missingGradeCount, 1);
     expect(state.totalPaidCents, 2000);
-    expect(state.coverPricedCount, 2);
-    expect(state.totalCoverPriceCents, 2500);
-    expect(state.coverPriceCurrency, 'USD');
     expect(state.primaryCurrency, 'USD');
     expect(state.missingMetadataCount, 2);
     expect(state.gradeCounts, {'9.8': 1, 'Ungraded': 1});

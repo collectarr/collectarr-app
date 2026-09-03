@@ -106,6 +106,7 @@ class LibraryProjectionEngine {
     final counts = statsCalculator.calculate(
       allItems: allItems,
       shownCount: filteredItems.length,
+      type: type,
     );
 
     final groupId = query.groupId ??

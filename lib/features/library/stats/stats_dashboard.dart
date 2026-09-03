@@ -43,11 +43,19 @@ class _GenericStatsDashboard extends StatelessWidget {
                 state.totalSellCents! - state.totalPaidCents!,
                 state.primaryCurrency,
               );
-    final collectionValue = state.hasMixedCoverPriceCurrencies
-        ? '${state.coverPricedCount} valued'
-        : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
-            ? null
-            : formatMoney(state.totalCoverPriceCents, state.coverPriceCurrency);
+    final collectionValueSummary =
+        type.value?.resolveCollectionValueSummary(state.entries);
+    final collectionValue = collectionValueSummary == null
+        ? null
+        : collectionValueSummary.hasMixedCurrencies
+            ? '${collectionValueSummary.valuedCount} valued'
+            : collectionValueSummary.totalValueCents == null ||
+                    collectionValueSummary.totalValueCents == 0
+                ? null
+                : formatMoney(
+                    collectionValueSummary.totalValueCents,
+                    collectionValueSummary.currency,
+                  );
     final sellValue = state.totalSellCents == null || state.totalSellCents == 0
         ? null
         : formatMoney(state.totalSellCents, state.primaryCurrency);

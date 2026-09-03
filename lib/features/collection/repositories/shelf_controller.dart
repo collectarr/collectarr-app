@@ -63,17 +63,12 @@ class ShelfState {
     required this.primaryCurrency,
     required this.hasMixedCurrencies,
     this.totalQuantity = 0,
-    this.keyComicCount = 0,
     this.missingMetadataCount = 0,
     this.gradeCounts = const {},
     this.conditionCounts = const {},
     this.readStatusCounts = const {},
     this.locationCounts = const {},
     this.seriesCounts = const {},
-    this.coverPricedCount = 0,
-    this.totalCoverPriceCents,
-    this.coverPriceCurrency,
-    this.hasMixedCoverPriceCurrencies = false,
     this.soldCount = 0,
     this.totalSellCents,
     this.marketValuedCount = 0,
@@ -159,14 +154,6 @@ class ShelfState {
     };
     final hasMixedCurrencies = currencies.length > 1;
     final activeOwned = ownedByItemId.values.toList(growable: false);
-    final coverPricedOwned = activeOwned.where((item) {
-      final comic = item.comicDetails;
-      return comic?.coverPriceCents != null && item.currency != null;
-    }).toList(growable: false);
-    final coverCurrencies = {
-      for (final item in coverPricedOwned) item.currency!,
-    };
-    final hasMixedCoverPriceCurrencies = coverCurrencies.length > 1;
     return ShelfState(
       entries: entries,
       ownedCount: ownedByItemId.length,
@@ -186,10 +173,6 @@ class ShelfState {
         0,
         (total, item) => total + item.quantity,
       ),
-      keyComicCount: activeOwned.where((item) {
-        final comic = item.comicDetails;
-        return comic?.keyComic == true;
-      }).length,
       missingMetadataCount:
           entries.where((entry) => entry.catalogItem == null).length,
       gradeCounts: _counts(activeOwned.map((item) => item.grade ?? 'Ungraded')),
@@ -211,19 +194,6 @@ class ShelfState {
             .where((title) => title.trim().isNotEmpty),
       ),
       soldCount: activeOwned.where((item) => item.isSold).length,
-      coverPricedCount: coverPricedOwned.length,
-      totalCoverPriceCents: hasMixedCoverPriceCurrencies
-          ? null
-          : coverPricedOwned.fold<int>(
-              0,
-              (total, item) {
-                final comic = item.comicDetails;
-                return total + (comic?.coverPriceCents ?? 0);
-              },
-            ),
-      coverPriceCurrency:
-          coverCurrencies.length == 1 ? coverCurrencies.single : null,
-      hasMixedCoverPriceCurrencies: hasMixedCoverPriceCurrencies,
       totalSellCents: hasMixedCurrencies
           ? null
           : activeOwned
@@ -248,17 +218,12 @@ class ShelfState {
   final String? primaryCurrency;
   final bool hasMixedCurrencies;
   final int totalQuantity;
-  final int keyComicCount;
   final int missingMetadataCount;
   final Map<String, int> gradeCounts;
   final Map<String, int> conditionCounts;
   final Map<String, int> readStatusCounts;
   final Map<String, int> locationCounts;
   final Map<String, int> seriesCounts;
-  final int coverPricedCount;
-  final int? totalCoverPriceCents;
-  final String? coverPriceCurrency;
-  final bool hasMixedCoverPriceCurrencies;
   final int soldCount;
   final int? totalSellCents;
   final int marketValuedCount;

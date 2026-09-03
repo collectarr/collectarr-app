@@ -258,9 +258,9 @@ void main() {
 
     test('LibrarySequenceGapAnalyzer computes gaps accurately', () {
       const analyzer = LibrarySequenceGapAnalyzer();
-      final gaps1 = analyzer.calculateMissingIssues(
-        ownedIssues: [1, 2, 4, 5, 8],
-        maxIssue: 8,
+      final gaps1 = analyzer.calculateMissingSequence(
+        ownedValues: [1, 2, 4, 5, 8],
+        maxValue: 8,
       );
       expect(gaps1, [3, 6, 7]);
 
@@ -302,6 +302,7 @@ void main() {
       final stats = calculator.calculate(
         allItems: items,
         shownCount: 2,
+        type: comicType,
       );
 
       expect(stats.total, 3);
@@ -309,7 +310,7 @@ void main() {
       expect(stats.owned, 2);
       expect(stats.wishlist, 1);
       expect(stats.totalPricePaidCents, 900);
-      expect(stats.totalCoverPriceCents, 698);
+      expect(stats.collectionValue?.totalValueCents, 698);
       expect(stats.totalSellPriceCents, 1800);
       expect(stats.priceCurrency, 'USD');
     });

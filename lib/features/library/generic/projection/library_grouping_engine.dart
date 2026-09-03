@@ -5,11 +5,11 @@ import 'package:collectarr_app/features/library/workspace/entry/library_shelf_en
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
+final _sequenceNumberRegExp = RegExp(r'^\s*(\d+)');
 
 int? _parseWholeNumber(String? value) {
   if (value == null || value.trim().isEmpty) return null;
-  final match = _issueNumberRegExp.firstMatch(value);
+  final match = _sequenceNumberRegExp.firstMatch(value);
   return match == null ? null : int.tryParse(match.group(1)!);
 }
 

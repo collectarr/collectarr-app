@@ -33,11 +33,27 @@ import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_ca
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
 const _mangaSeriesFilterId = LibraryAddFilterId('manga.series');
 const _mangaVolumeFilterId = LibraryAddFilterId('manga.volume');
 const _mangaPublisherFilterId = LibraryAddFilterId('manga.publisher');
 const _mangaYearFilterId = LibraryAddFilterId('manga.year');
+
+String? _mangaHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
+  final dto = item.dto;
+  if (dto is! MangaWorkspaceDto) {
+    return null;
+  }
+  if (dto.seriesTitle?.trim().isNotEmpty != true) {
+    return 'Missing series title';
+  }
+  if (item.node.scope != LibraryBrowserScope.title &&
+      dto.variant?.trim().isNotEmpty != true) {
+    return 'Missing release variant';
+  }
+  return null;
+}
 
 final _mangaTransferableFields = <TransferableField>[
   TransferableField(
@@ -157,6 +173,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     fetchChildrenCallback: _fetchMangaVolumes,
     childrenTitleBuilder: _mangaChildrenTitle,
     supportsMediaReleaseSplit: true,
+    contractDiagnosticLabelBuilder: _mangaHierarchyContractDiagnosticLabel,
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,

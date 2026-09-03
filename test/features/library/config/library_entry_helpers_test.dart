@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -95,7 +95,7 @@ void main() {
       ),
     );
     final node = LibraryTitleNodeRef(titleItemId: 'comic-5');
-    final dto = const GenericWorkspaceProjector()
+    final dto = const ComicWorkspaceProjector()
         .projectTitle(source: source, node: node);
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
@@ -107,30 +107,22 @@ void main() {
 
   test('libraryHierarchyContractDiagnosticLabel flags missing release variant',
       () {
-    final edition = CatalogEdition(id: 'rel-2', title: '');
     final source = ShelfEntry(
-      itemId: 'movie-2',
+      itemId: 'comic-2',
       catalogItem: testCatalogItem(
-        id: 'movie-2',
-        kind: 'movie',
-        title: 'Example Movie',
-        series: CatalogSeriesDetailsDto(seriesTitle: 'Example Movie'),
+        id: 'comic-2',
+        kind: 'comic',
+        title: 'Example Comic',
+        series: const CatalogSeriesDetailsDto(seriesTitle: 'Example Comic'),
       ),
     );
-    final node = LibraryReleaseNodeRef(
-      titleItemId: 'movie-2',
-      releaseId: 'rel-2',
-      edition: edition,
+    final node = const LibraryCopyNodeRef(
+      titleItemId: 'comic-2',
+      ownedItemId: 'owned-comic-2',
     );
-    final dto = const GenericWorkspaceProjector().projectRelease(
+    final dto = const ComicWorkspaceProjector().projectTitle(
       source: source,
-      node: node,
-      releaseState: const LibraryReleaseState(
-        isOwned: false,
-        isWishlisted: false,
-        isTracked: false,
-        referenceEditionId: 'rel-2',
-      ),
+      node: const LibraryTitleNodeRef(titleItemId: 'comic-2'),
     );
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 

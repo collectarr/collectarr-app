@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_data_capability.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
@@ -20,6 +21,7 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
     this.childrenTitleBuilder,
     this.fetchChildrenCallback,
     this.browserDelegateBuilder,
+    this.contractDiagnosticLabelBuilder,
   });
 
   final bool supportsMediaReleaseSplit;
@@ -35,6 +37,8 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
     String? providerItemId,
   })? fetchChildrenCallback;
   final LibraryKindBrowserDelegate Function()? browserDelegateBuilder;
+  final String? Function(LibraryProjectionRuntime item)?
+      contractDiagnosticLabelBuilder;
 
   LibraryKindBrowserDelegate buildBrowserDelegate() {
     return browserDelegateBuilder?.call() ?? LibraryNoopBrowserDelegate();
@@ -60,6 +64,9 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
 
   String childrenTitle(int count) =>
       childrenTitleBuilder?.call(count) ?? 'Contents ($count)';
+
+  String? contractDiagnosticLabel(LibraryProjectionRuntime item) =>
+      contractDiagnosticLabelBuilder?.call(item);
 
   bool get scopesOptionsByBrowserMode =>
       supportsMediaReleaseSplit &&

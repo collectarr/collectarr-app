@@ -7,7 +7,6 @@ const kTransferableMediaFieldKeys = <String>[];
 const kTransferableReleaseFieldKeys = <String>[
   'features',
   'boxSetName',
-  'coverPriceCents',
   'packaging',
 ];
 

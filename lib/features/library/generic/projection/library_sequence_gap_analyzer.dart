@@ -1,13 +1,13 @@
 class LibrarySequenceGapAnalyzer {
   const LibrarySequenceGapAnalyzer();
 
-  List<int> calculateMissingIssues({
-    required List<int> ownedIssues,
-    int? maxIssue,
+  List<int> calculateMissingSequence({
+    required List<int> ownedValues,
+    int? maxValue,
   }) {
-    if (ownedIssues.isEmpty) return const [];
-    final sorted = List<int>.from(ownedIssues)..sort();
-    final limit = maxIssue ?? sorted.last;
+    if (ownedValues.isEmpty) return const [];
+    final sorted = List<int>.from(ownedValues)..sort();
+    final limit = maxValue ?? sorted.last;
     final ownedSet = sorted.toSet();
     final gaps = <int>[];
     for (var i = 1; i <= limit; i++) {

@@ -12,14 +12,22 @@ class ComicStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindRuntime type,
   ) {
+    final keyComicCount = countKeyComics(state.entries);
     return [
-      if (state.keyComicCount > 0)
+      if (keyComicCount > 0)
         LibraryStatsTileDescriptor(
           icon: Icons.label_important,
           label: 'Key items',
-          value: state.keyComicCount.toString(),
+          value: keyComicCount.toString(),
         ),
     ];
+  }
+
+  static int countKeyComics(Iterable<ShelfEntry> entries) {
+    return entries
+        .where((entry) => entry.isOwned)
+        .where((entry) => entry.ownedItem?.comicDetails?.keyComic == true)
+        .length;
   }
 
   @override

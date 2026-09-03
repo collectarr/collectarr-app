@@ -469,7 +469,6 @@ class ComicFeature {}
           ownedCount: 0,
           wishlistCount: 0,
           missingGradeCount: 0,
-          keyComicCount: 0,
           pricedCount: 0,
           totalPaidCents: 0,
           primaryCurrency: 'USD',

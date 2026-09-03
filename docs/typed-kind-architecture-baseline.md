@@ -493,4 +493,29 @@ runtime adapter until the later migration steps consume this schema.
 - [x] Comic page-quality and key-category vocabulary bindings added.
 - [x] Owned Edit contract and focused schema coverage added.
 
-Next work is PR 22: type Comic hierarchy, stats, and value semantics.
+## PR 22 Comic Hierarchy, Stats, and Value
+
+Comic hierarchy diagnostics now belong to the kind-owned hierarchy capability.
+The generic helper dispatches by the registered media kind, while Comic and
+Manga provide typed series and release-variant diagnostics. Generic sequence
+gap infrastructure uses sequence terminology and no longer encodes issue
+semantics.
+
+Key-comic counts are calculated by `ComicStatsCapability`, and cover-price
+aggregation is calculated by `ComicValueCapability` through a structural
+collection-value summary. Shared `ShelfState` and toolbar projection counts
+no longer carry Comic-specific key or cover-price fields. The Comic transfer
+configuration also owns its cover-price transfer key rather than inheriting it
+from the generic release list.
+
+Focused hierarchy, stats, value, transfer, projection, shelf, and dashboard
+tests verify the typed dispatch and preserve the existing UI-facing behavior.
+
+- [x] Comic hierarchy diagnostics moved behind a kind-owned capability.
+- [x] Key-comic and cover-price aggregation moved out of shared state.
+- [x] Comic cover-price transfer ownership made explicit.
+- [x] Generic hierarchy sequence terminology cleaned up.
+- [x] PR22 focused contract coverage added.
+
+Next work is the runtime migration of the existing hardcoded Add/Edit panes to
+consume the declarative typed schemas.

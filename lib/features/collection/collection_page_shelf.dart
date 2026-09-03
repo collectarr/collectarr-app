@@ -37,7 +37,7 @@ class _ShelfHeader extends StatelessWidget {
       _ShelfStatCard(
         icon: Icons.key_outlined,
         label: 'Key comics',
-        value: state.keyComicCount.toString(),
+        value: ComicStatsCapability.countKeyComics(state.entries).toString(),
       ),
       _ShelfStatCard(
         icon: Icons.verified_outlined,

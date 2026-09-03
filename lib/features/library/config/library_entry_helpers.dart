@@ -10,10 +10,8 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryOwnedItemResolution {
@@ -53,19 +51,13 @@ bool itemHasMissingDetails(LibraryMetadataItem item) {
 }
 
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
-  final adapter =
-      item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
-  final seriesTitle = adapter?.seriesTitle?.trim();
-  if (seriesTitle == null || seriesTitle.isEmpty) {
-    return 'Missing series title';
+  final kind = item.source.catalogItem?.mediaKind;
+  if (kind == null) {
+    return null;
   }
-  if (item.node.scope != LibraryBrowserScope.title) {
-    final variant = adapter?.variant?.trim();
-    if (variant == null || variant.isEmpty) {
-      return 'Missing release variant';
-    }
-  }
-  return null;
+  return libraryKindRuntimeForKind(kind)
+      .hierarchy
+      .contractDiagnosticLabel(item);
 }
 
 String libraryVolumeDisplayValue(double? volumeNumber) {

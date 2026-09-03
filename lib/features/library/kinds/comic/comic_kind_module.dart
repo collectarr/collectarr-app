@@ -44,11 +44,27 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
 const _comicSeriesFilterId = LibraryAddFilterId('comic.series');
 const _comicIssueFilterId = LibraryAddFilterId('comic.issue');
 const _comicPublisherFilterId = LibraryAddFilterId('comic.publisher');
 const _comicYearFilterId = LibraryAddFilterId('comic.year');
+
+String? _comicHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
+  final dto = item.dto;
+  if (dto is! ComicWorkspaceDto) {
+    return null;
+  }
+  if (dto.seriesTitle?.trim().isNotEmpty != true) {
+    return 'Missing series title';
+  }
+  if (item.node.scope != LibraryBrowserScope.title &&
+      dto.variant?.trim().isNotEmpty != true) {
+    return 'Missing release variant';
+  }
+  return null;
+}
 
 const _comicTransferableFieldKeys = <String>[
   ...kDefaultTransferableFieldKeys,
@@ -58,6 +74,7 @@ const _comicTransferableFieldKeys = <String>[
   'signedBy',
   'keyReason',
   'keyComic',
+  'coverPriceCents',
 ];
 
 final _comicTransferableFields = <TransferableField>[
@@ -202,6 +219,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     fetchChildrenCallback: _fetchComicVolumes,
     childrenTitleBuilder: _comicChildrenTitle,
     supportsMediaReleaseSplit: false,
+    contractDiagnosticLabelBuilder: _comicHierarchyContractDiagnosticLabel,
   ),
   inspector: const LibraryInspectorCapability(
     heroBuilder: buildComicInspectorHero,

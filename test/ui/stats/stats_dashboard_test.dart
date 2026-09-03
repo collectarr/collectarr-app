@@ -117,7 +117,6 @@ void main() {
       ownedCount: 2,
       wishlistCount: 0,
       missingGradeCount: 2,
-      keyComicCount: 1,
       pricedCount: 2,
       totalPaidCents: 6500,
       primaryCurrency: 'USD',

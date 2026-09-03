@@ -9,16 +9,8 @@ class GameStatsCapability implements LibraryStatsCapability {
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
     LibraryKindRuntime type,
-  ) {
-    return [
-      if (state.keyComicCount > 0)
-        LibraryStatsTileDescriptor(
-          icon: Icons.label_important,
-          label: 'Key items',
-          value: state.keyComicCount.toString(),
-        ),
-    ];
-  }
+  ) =>
+      const [];
 
   @override
   List<Widget> buildCustomCards(
