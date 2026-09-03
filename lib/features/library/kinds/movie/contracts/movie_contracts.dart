@@ -224,7 +224,7 @@ final class MovieEntry {
 
     return MovieEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.movieDetails,
+      ownedDetails: shelf.ownedItem?.details as MovieOwnedDetails?,
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

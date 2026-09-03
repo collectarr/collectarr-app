@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -156,7 +157,8 @@ abstract final class MusicKindSchema {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
     id: MusicFieldIds.signedBy,
     label: 'Signed By',
-    getValue: (context) => context.source.ownedItem?.signedBy,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as MusicOwnedDetails?)?.signedBy,
     scope: LibraryFieldScope.copy,
   );
 }

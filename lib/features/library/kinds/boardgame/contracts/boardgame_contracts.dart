@@ -236,7 +236,7 @@ final class BoardGameEntry {
 
     return BoardGameEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.boardgameDetails,
+      ownedDetails: shelf.ownedItem?.details as BoardgameOwnedDetails?,
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

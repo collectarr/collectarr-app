@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -276,6 +277,9 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadata = _gameMetadata(item);
     final owned = item.source.ownedItem;
+    final musicDetails = owned?.details;
+    final ownedMusicDetails =
+        musicDetails is MusicOwnedDetails ? musicDetails : null;
     final releaseYear = adapter?.releaseDate?.year;
     final detailRows = <(String, String)>[
       if (adapter?.publisher?.trim().isNotEmpty == true)
@@ -314,10 +318,10 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Collection status', item.source.ownedItem!.collectionStatus!),
       if (item.source.locationPath?.trim().isNotEmpty == true)
         ('Location', item.source.locationPath!),
-      if (owned?.musicDetails?.storageDevice?.trim().isNotEmpty == true)
-        ('Storage device', owned!.musicDetails!.storageDevice!),
-      if (owned?.musicDetails?.storageSlot?.trim().isNotEmpty == true)
-        ('Storage slot', owned!.musicDetails!.storageSlot!),
+      if (ownedMusicDetails?.storageDevice?.trim().isNotEmpty == true)
+        ('Storage device', ownedMusicDetails!.storageDevice!),
+      if (ownedMusicDetails?.storageSlot?.trim().isNotEmpty == true)
+        ('Storage slot', ownedMusicDetails!.storageSlot!),
       if (owned?.ownerLabel?.trim().isNotEmpty == true)
         ('Owner', owned!.ownerLabel!),
       if (owned?.pricePaidCents != null)

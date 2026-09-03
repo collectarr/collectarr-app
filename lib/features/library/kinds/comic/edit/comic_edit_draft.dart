@@ -90,7 +90,7 @@ KindEditDraft createComicEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final comic = ownedItem?.comicDetails;
+  final comic = ownedItem?.details as ComicOwnedDetails?;
   final ownedEdit = ComicOwnedEditDraft.fromDetails(
     comic ?? const ComicOwnedDetails(),
   );

@@ -64,9 +64,9 @@ final _tvTransferableFields = <TransferableField>[
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.tvDetails?.features,
+    read: (item) => (item.details as TvOwnedDetails?)?.features,
     write: (item, value) {
-      final details = item.tvDetails ?? const TvOwnedDetails();
+      final details = item.details as TvOwnedDetails? ?? const TvOwnedDetails();
       return item.copyWith(details: details.copyWith(features: value));
     },
   ),
@@ -76,9 +76,9 @@ final _tvTransferableFields = <TransferableField>[
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.tvDetails?.boxSetName,
+    read: (item) => (item.details as TvOwnedDetails?)?.boxSetName,
     write: (item, value) {
-      final details = item.tvDetails ?? const TvOwnedDetails();
+      final details = item.details as TvOwnedDetails? ?? const TvOwnedDetails();
       return item.copyWith(details: details.copyWith(boxSetName: value));
     },
   ),
@@ -88,9 +88,9 @@ final _tvTransferableFields = <TransferableField>[
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.tvDetails?.packaging,
+    read: (item) => (item.details as TvOwnedDetails?)?.packaging,
     write: (item, value) {
-      final details = item.tvDetails ?? const TvOwnedDetails();
+      final details = item.details as TvOwnedDetails? ?? const TvOwnedDetails();
       return item.copyWith(details: details.copyWith(packaging: value));
     },
   ),

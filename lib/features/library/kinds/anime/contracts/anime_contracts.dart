@@ -225,7 +225,7 @@ final class AnimeEntry {
 
     return AnimeEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.animeDetails,
+      ownedDetails: shelf.ownedItem?.details as AnimeOwnedDetails?,
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

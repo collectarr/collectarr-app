@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -137,7 +138,8 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.keyComic,
     label: 'Key Comic',
     getValue: (context) =>
-        context.source.ownedItem?.comicDetails?.keyComic == true,
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.keyComic ==
+        true,
     scope: LibraryFieldScope.copy,
   );
 
@@ -145,7 +147,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.keyReason,
     label: 'Key Reason',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.keyReason,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.keyReason,
     scope: LibraryFieldScope.copy,
   );
 
@@ -153,7 +156,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.keyCategory,
     label: 'Key Category',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.keyCategory,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.keyCategory,
     scope: LibraryFieldScope.copy,
   );
 
@@ -161,7 +165,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.keySeverity,
     label: 'Key Severity',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.keySeverity,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.keySeverity,
     scope: LibraryFieldScope.copy,
   );
 
@@ -169,7 +174,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.rawOrSlabbed,
     label: 'Raw / Slabbed',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.rawOrSlabbed,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.rawOrSlabbed,
     scope: LibraryFieldScope.copy,
   );
 
@@ -178,7 +184,8 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.gradingCompany,
     label: 'Grading Company',
     getValue: (context) =>
-        context.source.ownedItem?.comicDetails?.gradingCompany,
+        (context.source.ownedItem?.details as ComicOwnedDetails?)
+            ?.gradingCompany,
     scope: LibraryFieldScope.copy,
   );
 
@@ -186,7 +193,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.graderNotes,
     label: 'Grader Notes',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.graderNotes,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.graderNotes,
     scope: LibraryFieldScope.copy,
   );
 
@@ -194,7 +202,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.signedBy,
     label: 'Signed By',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.signedBy,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.signedBy,
     scope: LibraryFieldScope.copy,
   );
 
@@ -202,7 +211,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.labelType,
     label: 'Label Type',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.labelType,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.labelType,
     scope: LibraryFieldScope.copy,
   );
 
@@ -210,7 +220,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.customLabel,
     label: 'Custom Label',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.customLabel,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.customLabel,
     scope: LibraryFieldScope.copy,
   );
 
@@ -218,7 +229,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.pageQuality,
     label: 'Page Quality',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.pageQuality,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as ComicOwnedDetails?)?.pageQuality,
     scope: LibraryFieldScope.copy,
   );
 
@@ -227,7 +239,8 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.certificationNumber,
     label: 'Certification Number',
     getValue: (context) =>
-        context.source.ownedItem?.comicDetails?.certificationNumber,
+        (context.source.ownedItem?.details as ComicOwnedDetails?)
+            ?.certificationNumber,
     scope: LibraryFieldScope.copy,
   );
 
@@ -236,7 +249,8 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.coverPrice,
     label: 'Cover Price',
     getValue: (context) =>
-        context.source.ownedItem?.comicDetails?.coverPriceCents,
+        (context.source.ownedItem?.details as ComicOwnedDetails?)
+            ?.coverPriceCents,
     scope: LibraryFieldScope.release,
   );
 
@@ -245,7 +259,8 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.lastBagBoardDate,
     label: 'Last Bag & Board Date',
     getValue: (context) =>
-        context.source.ownedItem?.comicDetails?.lastBagBoardDate,
+        (context.source.ownedItem?.details as ComicOwnedDetails?)
+            ?.lastBagBoardDate,
     scope: LibraryFieldScope.copy,
   );
 

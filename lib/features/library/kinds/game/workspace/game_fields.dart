@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -135,7 +136,8 @@ abstract final class GameKindSchema {
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.completeness,
     label: 'Completeness',
-    getValue: (context) => context.source.ownedItem?.gameDetails?.completeness,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as GameOwnedDetails?)?.completeness,
     scope: LibraryFieldScope.copy,
   );
 
@@ -143,7 +145,8 @@ abstract final class GameKindSchema {
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
     id: GameFieldIds.hasBox,
     label: 'Has Box',
-    getValue: (context) => context.source.ownedItem?.gameDetails?.hasBox,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as GameOwnedDetails?)?.hasBox,
     scope: LibraryFieldScope.copy,
   );
 
@@ -151,7 +154,8 @@ abstract final class GameKindSchema {
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
     id: GameFieldIds.hasManual,
     label: 'Has Manual',
-    getValue: (context) => context.source.ownedItem?.gameDetails?.hasManual,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as GameOwnedDetails?)?.hasManual,
     scope: LibraryFieldScope.copy,
   );
 
@@ -160,7 +164,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.priceChartingId,
     label: 'PriceCharting ID',
     getValue: (context) =>
-        context.source.ownedItem?.gameDetails?.priceChartingId,
+        (context.source.ownedItem?.details as GameOwnedDetails?)
+            ?.priceChartingId,
     scope: LibraryFieldScope.release,
   );
 
@@ -169,7 +174,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.coreRegion,
     label: 'Region',
     getValue: (context) =>
-        context.dto.region ?? context.source.ownedItem?.gameDetails?.coreRegion,
+        context.dto.region ??
+        (context.source.ownedItem?.details as GameOwnedDetails?)?.coreRegion,
     scope: LibraryFieldScope.release,
   );
 
@@ -177,7 +183,8 @@ abstract final class GameKindSchema {
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
     id: GameFieldIds.valueLocked,
     label: 'Value Locked',
-    getValue: (context) => context.source.ownedItem?.gameDetails?.valueIsLocked,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as GameOwnedDetails?)?.valueIsLocked,
     scope: LibraryFieldScope.copy,
   );
 

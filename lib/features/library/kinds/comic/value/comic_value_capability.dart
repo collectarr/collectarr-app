@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 
 class ComicValueCapability implements LibraryValueCapability {
@@ -14,7 +15,7 @@ class ComicValueCapability implements LibraryValueCapability {
     final valuedEntries = entries.where((entry) {
       final ownedItem = entry.ownedItem;
       return entry.isOwned &&
-          ownedItem?.comicDetails?.coverPriceCents != null &&
+          (ownedItem?.details as ComicOwnedDetails?)?.coverPriceCents != null &&
           ownedItem?.currency != null;
     }).toList(growable: false);
     if (valuedEntries.isEmpty) {
@@ -30,7 +31,9 @@ class ComicValueCapability implements LibraryValueCapability {
           : valuedEntries.fold<int>(
               0,
               (total, entry) =>
-                  total + entry.ownedItem!.comicDetails!.coverPriceCents!,
+                  total +
+                  (entry.ownedItem!.details as ComicOwnedDetails)
+                      .coverPriceCents!,
             ),
       currency: currencies.length == 1 ? currencies.single : null,
       hasMixedCurrencies: currencies.length > 1,

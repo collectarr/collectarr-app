@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 
 class MangaEditDraft extends KindEditDraft {
   MangaEditDraft({
@@ -111,7 +112,7 @@ KindEditDraft createMangaEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final manga = ownedItem?.mangaDetails;
+  final manga = ownedItem?.details as MangaOwnedDetails?;
   final rawMetadata = item.kindMetadata;
   final MangaMetadata? metadata =
       rawMetadata is MangaMetadata ? rawMetadata : null;

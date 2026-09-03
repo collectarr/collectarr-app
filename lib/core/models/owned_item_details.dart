@@ -46,23 +46,4 @@ abstract class OwnedItemDetails {
     }
     return libraryKindRuntimeForKind(kind).defaultOwnedDetails();
   }
-
-  ComicOwnedDetails? get comic =>
-      this is ComicOwnedDetails ? this as ComicOwnedDetails : null;
-  MangaOwnedDetails? get manga =>
-      this is MangaOwnedDetails ? this as MangaOwnedDetails : null;
-  AnimeOwnedDetails? get anime =>
-      this is AnimeOwnedDetails ? this as AnimeOwnedDetails : null;
-  MovieOwnedDetails? get movie =>
-      this is MovieOwnedDetails ? this as MovieOwnedDetails : null;
-  TvOwnedDetails? get tv =>
-      this is TvOwnedDetails ? this as TvOwnedDetails : null;
-  GameOwnedDetails? get game =>
-      this is GameOwnedDetails ? this as GameOwnedDetails : null;
-  MusicOwnedDetails? get music =>
-      this is MusicOwnedDetails ? this as MusicOwnedDetails : null;
-  BookOwnedDetails? get book =>
-      this is BookOwnedDetails ? this as BookOwnedDetails : null;
-  BoardgameOwnedDetails? get boardgame =>
-      this is BoardgameOwnedDetails ? this as BoardgameOwnedDetails : null;
 }

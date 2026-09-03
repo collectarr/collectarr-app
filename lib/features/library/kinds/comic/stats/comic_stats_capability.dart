@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +27,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
   static int countKeyComics(Iterable<ShelfEntry> entries) {
     return entries
         .where((entry) => entry.isOwned)
-        .where((entry) => entry.ownedItem?.comicDetails?.keyComic == true)
+        .where((entry) =>
+            (entry.ownedItem?.details as ComicOwnedDetails?)?.keyComic == true)
         .length;
   }
 

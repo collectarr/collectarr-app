@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart'
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -76,7 +77,7 @@ KindEditDraft createBoardGameEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final bg = ownedItem?.boardgameDetails;
+  final bg = ownedItem?.details as BoardgameOwnedDetails?;
   final meta = item.kindMetadata is BoardGameMetadata
       ? item.kindMetadata as BoardGameMetadata
       : null;

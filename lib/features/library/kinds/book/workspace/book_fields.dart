@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -210,7 +211,8 @@ abstract final class BookKindSchema {
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.signedBy,
     label: 'Signed By',
-    getValue: (context) => context.source.ownedItem?.signedBy,
+    getValue: (context) =>
+        (context.source.ownedItem?.details as BookOwnedDetails?)?.signedBy,
     scope: LibraryFieldScope.copy,
   );
 }

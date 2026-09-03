@@ -69,9 +69,10 @@ final _movieTransferableFields = <TransferableField>[
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.movieDetails?.features,
+    read: (item) => (item.details as MovieOwnedDetails?)?.features,
     write: (item, value) {
-      final details = item.movieDetails ?? const MovieOwnedDetails();
+      final details =
+          item.details as MovieOwnedDetails? ?? const MovieOwnedDetails();
       return item.copyWith(details: details.copyWith(features: value));
     },
   ),
@@ -81,9 +82,10 @@ final _movieTransferableFields = <TransferableField>[
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.movieDetails?.boxSetName,
+    read: (item) => (item.details as MovieOwnedDetails?)?.boxSetName,
     write: (item, value) {
-      final details = item.movieDetails ?? const MovieOwnedDetails();
+      final details =
+          item.details as MovieOwnedDetails? ?? const MovieOwnedDetails();
       return item.copyWith(details: details.copyWith(boxSetName: value));
     },
   ),
@@ -93,9 +95,10 @@ final _movieTransferableFields = <TransferableField>[
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.movieDetails?.packaging,
+    read: (item) => (item.details as MovieOwnedDetails?)?.packaging,
     write: (item, value) {
-      final details = item.movieDetails ?? const MovieOwnedDetails();
+      final details =
+          item.details as MovieOwnedDetails? ?? const MovieOwnedDetails();
       return item.copyWith(details: details.copyWith(packaging: value));
     },
   ),

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:flutter/material.dart';
 
 /// Builds the [LibraryCardPresentation] for a comic workspace item.
@@ -8,7 +9,7 @@ LibraryCardPresentation buildComicCardPresentation(
   LibraryProjectionRuntime item, {
   required bool musicVertical,
 }) {
-  final comicDetails = item.source.ownedItem?.comicDetails;
+  final comicDetails = item.source.ownedItem?.details as ComicOwnedDetails?;
   final badges = <LibraryCardBadge>[];
 
   if (comicDetails?.keyComic == true) {

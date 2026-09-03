@@ -3,6 +3,7 @@ import 'package:csv/csv.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 
 class CollectionCsvRow {
   const CollectionCsvRow({
@@ -348,7 +349,7 @@ class CollectionCsv {
         ? _customFieldCells(
             o.id, customFieldDefinitions, customFieldValuesByItem)
         : List.filled(customFieldDefinitions.length, '');
-    final comic = o?.comicDetails;
+    final comic = o?.details as ComicOwnedDetails?;
     return [
       ..._catalogFields(entry),
       _status(entry),
@@ -388,7 +389,7 @@ class CollectionCsv {
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
     final o = entry.ownedItem;
-    final comic = o?.comicDetails;
+    final comic = o?.details as ComicOwnedDetails?;
     final cfValues = o != null
         ? _customFieldCells(
             o.id, customFieldDefinitions, customFieldValuesByItem)

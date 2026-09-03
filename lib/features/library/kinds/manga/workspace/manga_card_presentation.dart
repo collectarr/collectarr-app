@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:flutter/material.dart';
 
 /// Builds the [LibraryCardPresentation] for a manga workspace item.
@@ -8,7 +9,7 @@ LibraryCardPresentation buildMangaCardPresentation(
   LibraryProjectionRuntime item, {
   required bool musicVertical,
 }) {
-  final mangaDetails = item.source.ownedItem?.mangaDetails;
+  final mangaDetails = item.source.ownedItem?.details as MangaOwnedDetails?;
   final badges = <LibraryCardBadge>[];
 
   if (mangaDetails?.signedBy != null && mangaDetails!.signedBy!.isNotEmpty) {

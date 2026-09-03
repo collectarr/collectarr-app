@@ -241,7 +241,7 @@ final class GameEntry {
 
     return GameEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.gameDetails,
+      ownedDetails: shelf.ownedItem?.details as GameOwnedDetails?,
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

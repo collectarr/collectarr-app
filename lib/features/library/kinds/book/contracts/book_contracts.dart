@@ -284,7 +284,7 @@ final class BookEntry {
 
     return BookEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.bookDetails,
+      ownedDetails: shelf.ownedItem?.details as BookOwnedDetails?,
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

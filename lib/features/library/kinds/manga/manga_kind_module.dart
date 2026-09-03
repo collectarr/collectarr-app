@@ -61,9 +61,10 @@ final _mangaTransferableFields = <TransferableField>[
     label: 'Signed by',
     icon: Icons.draw_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.mangaDetails?.signedBy,
+    read: (item) => (item.details as MangaOwnedDetails?)?.signedBy,
     write: (item, value) {
-      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      final details =
+          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
       return item.copyWith(details: details.copyWith(signedBy: value));
     },
   ),
@@ -72,9 +73,10 @@ final _mangaTransferableFields = <TransferableField>[
     label: 'Grading company',
     icon: Icons.verified_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.mangaDetails?.gradingCompany,
+    read: (item) => (item.details as MangaOwnedDetails?)?.gradingCompany,
     write: (item, value) {
-      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      final details =
+          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
       return item.copyWith(details: details.copyWith(gradingCompany: value));
     },
   ),
@@ -83,9 +85,10 @@ final _mangaTransferableFields = <TransferableField>[
     label: 'Grader notes',
     icon: Icons.note_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.mangaDetails?.graderNotes,
+    read: (item) => (item.details as MangaOwnedDetails?)?.graderNotes,
     write: (item, value) {
-      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      final details =
+          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
       return item.copyWith(details: details.copyWith(graderNotes: value));
     },
   ),
@@ -96,9 +99,12 @@ final _mangaTransferableFields = <TransferableField>[
     type: TransferableFieldType.boolean,
     scope: LibraryEditScope.release,
     read: (item) =>
-        (item.mangaDetails?.dustJacketPresent == true) ? 'true' : null,
+        ((item.details as MangaOwnedDetails?)?.dustJacketPresent == true)
+            ? 'true'
+            : null,
     write: (item, value) {
-      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      final details =
+          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
       return item.copyWith(
         details: details.copyWith(dustJacketPresent: value == 'true'),
       );
@@ -111,9 +117,12 @@ final _mangaTransferableFields = <TransferableField>[
     type: TransferableFieldType.boolean,
     scope: LibraryEditScope.release,
     read: (item) =>
-        (item.mangaDetails?.obiStripPresent == true) ? 'true' : null,
+        ((item.details as MangaOwnedDetails?)?.obiStripPresent == true)
+            ? 'true'
+            : null,
     write: (item, value) {
-      final details = item.mangaDetails ?? const MangaOwnedDetails();
+      final details =
+          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
       return item.copyWith(
         details: details.copyWith(obiStripPresent: value == 'true'),
       );

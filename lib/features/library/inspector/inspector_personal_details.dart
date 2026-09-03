@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/edit/edition_selection_helpers.d
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
     hide formatDate;
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/ownership/video_like_owned_details.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -335,7 +336,11 @@ class _InspectorPersonalDetailsEditorState
     _currencyController.text = item.currency ?? 'USD';
     _notesController.text = item.personalNotes ?? '';
     _purchaseStoreController.text = item.purchaseStore ?? '';
-    _boxSetNameController.text = item.videoLikeDetails?.boxSetName ?? '';
+    final details = item.details;
+    final videoDetails = details is VideoLikeOwnedDetails
+        ? details as VideoLikeOwnedDetails
+        : null;
+    _boxSetNameController.text = videoDetails?.boxSetName ?? '';
     _selectedLocationId = item.locationId;
     _locationChanged = false;
   }
@@ -401,7 +406,10 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    final video = widget.ownedItem.videoLikeDetails;
+    final details = widget.ownedItem.details;
+    final video = details is VideoLikeOwnedDetails
+        ? details as VideoLikeOwnedDetails
+        : null;
     OwnedDetailsDraft? detailsDraft;
     if (_emptyToNull(_boxSetNameController.text) != null && video != null) {
       detailsDraft = MovieOwnedDetailsDraft(

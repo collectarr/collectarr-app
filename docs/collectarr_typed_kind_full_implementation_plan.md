@@ -1071,9 +1071,10 @@ movieDetails
 
 The model now carries `TDetails extends OwnedItemDetails`, and its constructor,
 JSON factory, and `copyWith` preserve that concrete details type. Existing
-runtime detail getters remain as a temporary compatibility layer while kind
-call sites migrate to typed `details`; they must be removed before PR29 is
-complete.
+kind call sites now read and write their concrete `details` type, including
+shared collection, inspector, export, and video-like surfaces. The runtime
+per-kind detail getters and compatibility helpers have been removed. PR29 is
+complete; continue with PR30.
 
 ---
 

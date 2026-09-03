@@ -49,9 +49,10 @@ final _bookTransferableFields = <TransferableField>[
     label: 'Signed by',
     icon: Icons.draw_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.bookDetails?.signedBy,
+    read: (item) => (item.details as BookOwnedDetails?)?.signedBy,
     write: (item, value) {
-      final details = item.bookDetails ?? const BookOwnedDetails();
+      final details =
+          item.details as BookOwnedDetails? ?? const BookOwnedDetails();
       return item.copyWith(details: details.copyWith(signedBy: value));
     },
   ),
@@ -62,9 +63,12 @@ final _bookTransferableFields = <TransferableField>[
     type: TransferableFieldType.boolean,
     scope: LibraryEditScope.release,
     read: (item) =>
-        (item.bookDetails?.dustJacketPresent == true) ? 'true' : null,
+        ((item.details as BookOwnedDetails?)?.dustJacketPresent == true)
+            ? 'true'
+            : null,
     write: (item, value) {
-      final details = item.bookDetails ?? const BookOwnedDetails();
+      final details =
+          item.details as BookOwnedDetails? ?? const BookOwnedDetails();
       return item.copyWith(
         details: details.copyWith(dustJacketPresent: value == 'true'),
       );
@@ -76,9 +80,10 @@ final _bookTransferableFields = <TransferableField>[
     icon: Icons.grade_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.bookDetails?.dustJacketCondition,
+    read: (item) => (item.details as BookOwnedDetails?)?.dustJacketCondition,
     write: (item, value) {
-      final details = item.bookDetails ?? const BookOwnedDetails();
+      final details =
+          item.details as BookOwnedDetails? ?? const BookOwnedDetails();
       return item.copyWith(
         details: details.copyWith(dustJacketCondition: value),
       );

@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +63,8 @@ class InspectorPersonalSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final details = ownedItem?.details;
+    final ownedComicDetails = details is ComicOwnedDetails ? details : null;
     final catalogEditions = item.source.catalogItem?.editions ?? const [];
     final snapshot = valueSnapshot ??
         LibraryValueSnapshot.fromItem(
@@ -159,11 +162,11 @@ class InspectorPersonalSection extends StatelessWidget {
                     snapshot.manualEstimatedValueCents,
                     snapshot.currency,
                   )),
-            if (ownedItem?.coverPriceCents != null)
+            if (ownedComicDetails?.coverPriceCents != null)
               LibraryDetailField(
                 label: 'Cover price',
                 value: formatMoney(
-                  ownedItem!.coverPriceCents,
+                  ownedComicDetails!.coverPriceCents,
                   ownedItem?.currency ?? adapter?.currency,
                 ),
               ),

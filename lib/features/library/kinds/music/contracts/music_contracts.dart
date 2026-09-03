@@ -165,7 +165,7 @@ final class MusicEntry {
 
     return MusicEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.musicDetails,
+      ownedDetails: shelf.ownedItem?.details as MusicOwnedDetails?,
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

@@ -349,7 +349,7 @@ final class ComicEntry {
 
     return ComicEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.comicDetails,
+      ownedDetails: shelf.ownedItem?.details as ComicOwnedDetails?,
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

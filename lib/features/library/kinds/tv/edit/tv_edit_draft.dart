@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -111,7 +112,7 @@ KindEditDraft createTvEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final video = ownedItem?.tvDetails;
+  final video = ownedItem?.details as TvOwnedDetails?;
   final metadata = item.kindMetadata;
   final tv = metadata is TvSeriesMetadata ? metadata : null;
   final videoEdit = VideoEditController(

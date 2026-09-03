@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -89,7 +91,7 @@ void main() {
 
       expect(keyComicField.readFrom(item), 'true');
       final updated = keyComicField.writeTo(item, 'false');
-      expect(updated.comicDetails?.keyComic, isFalse);
+      expect((updated.details as ComicOwnedDetails).keyComic, isFalse);
     });
 
     test('movie kind provides movie-specific transferable fields', () {
@@ -116,7 +118,7 @@ void main() {
 
       expect(packagingField.readFrom(item), 'Steelbook');
       final updated = packagingField.writeTo(item, 'Digipak');
-      expect(updated.movieDetails?.packaging, 'Digipak');
+      expect((updated.details as MovieOwnedDetails).packaging, 'Digipak');
     });
   });
 }

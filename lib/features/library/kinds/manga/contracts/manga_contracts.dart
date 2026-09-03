@@ -239,7 +239,7 @@ final class MangaEntry {
 
     return MangaEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.mangaDetails,
+      ownedDetails: shelf.ownedItem?.details as MangaOwnedDetails?,
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

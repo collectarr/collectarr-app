@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:flutter/material.dart';
 
 class BookEditDraft extends KindEditDraft {
@@ -114,8 +116,9 @@ KindEditDraft createBookEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final book = ownedItem?.bookDetails;
-  final comic = ownedItem?.comicDetails;
+  final ownedDetails = ownedItem?.details;
+  final book = ownedDetails is BookOwnedDetails ? ownedDetails : null;
+  final comic = ownedDetails is ComicOwnedDetails ? ownedDetails : null;
   final rawMetadata = item.kindMetadata;
   final BookCatalogMetadata? metadata =
       rawMetadata is BookCatalogMetadata ? rawMetadata : null;

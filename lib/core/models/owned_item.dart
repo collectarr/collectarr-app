@@ -87,28 +87,6 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
   final int? marketValueCents;
   final TDetails details;
 
-  ComicOwnedDetails? get comicDetails => details.comic;
-  MangaOwnedDetails? get mangaDetails => details.manga;
-  MovieOwnedDetails? get movieDetails => details.movie;
-  TvOwnedDetails? get tvDetails => details.tv;
-  AnimeOwnedDetails? get animeDetails => details.anime;
-  GameOwnedDetails? get gameDetails => details.game;
-  MusicOwnedDetails? get musicDetails => details.music;
-  BookOwnedDetails? get bookDetails => details.book;
-  BoardgameOwnedDetails? get boardgameDetails => details.boardgame;
-
-  /// Returns the shared video physical-copy fields if this item is
-  /// a Movie, TV show, or Anime; otherwise null.
-  VideoLikeOwnedDetails? get videoLikeDetails =>
-      details is VideoLikeOwnedDetails
-          ? details as VideoLikeOwnedDetails
-          : null;
-
-  String? get signedBy =>
-      comicDetails?.signedBy ?? bookDetails?.signedBy ?? musicDetails?.signedBy;
-
-  int? get coverPriceCents => comicDetails?.coverPriceCents;
-
   String get itemId => catalogRef.id;
 
   OwnedItemId get typedId => OwnedItemId(id);

@@ -217,7 +217,7 @@ final class TvEntry {
 
     return TvEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.tvDetails,
+      ownedDetails: shelf.ownedItem?.details as TvOwnedDetails?,
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

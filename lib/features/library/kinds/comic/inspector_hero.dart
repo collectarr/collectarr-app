@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -122,7 +123,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             : 'Not owned';
     final synopsis = comic?.plotSummary?.trim();
     final plotDescription = comic?.plotDescription?.trim();
-    final comicDetails = ownedItem?.comicDetails;
+    final comicDetails = ownedItem?.details as ComicOwnedDetails?;
     final slabLabel = librarySlabMarkerLabel(
       comicDetails?.rawOrSlabbed,
       comicDetails?.gradingCompany,

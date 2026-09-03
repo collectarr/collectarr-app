@@ -57,9 +57,10 @@ final _animeTransferableFields = <TransferableField>[
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.animeDetails?.features,
+    read: (item) => (item.details as AnimeOwnedDetails?)?.features,
     write: (item, value) {
-      final details = item.animeDetails ?? const AnimeOwnedDetails();
+      final details =
+          item.details as AnimeOwnedDetails? ?? const AnimeOwnedDetails();
       return item.copyWith(details: details.copyWith(features: value));
     },
   ),
@@ -69,9 +70,10 @@ final _animeTransferableFields = <TransferableField>[
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.animeDetails?.boxSetName,
+    read: (item) => (item.details as AnimeOwnedDetails?)?.boxSetName,
     write: (item, value) {
-      final details = item.animeDetails ?? const AnimeOwnedDetails();
+      final details =
+          item.details as AnimeOwnedDetails? ?? const AnimeOwnedDetails();
       return item.copyWith(details: details.copyWith(boxSetName: value));
     },
   ),
@@ -81,9 +83,10 @@ final _animeTransferableFields = <TransferableField>[
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.animeDetails?.packaging,
+    read: (item) => (item.details as AnimeOwnedDetails?)?.packaging,
     write: (item, value) {
-      final details = item.animeDetails ?? const AnimeOwnedDetails();
+      final details =
+          item.details as AnimeOwnedDetails? ?? const AnimeOwnedDetails();
       return item.copyWith(details: details.copyWith(packaging: value));
     },
   ),

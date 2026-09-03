@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -119,9 +120,10 @@ void main() {
     expect(item.condition, 'Near Mint');
     expect(item.grade, '9.8');
     expect(item.pricePaidCents, 1500);
-    expect(item.comicDetails?.gradingCompany, 'CGC');
-    expect(item.comicDetails?.certificationNumber, 'CGC-12345');
-    expect(item.comicDetails?.coverPriceCents, 499);
+    final comicDetails = item.details as ComicOwnedDetails;
+    expect(comicDetails.gradingCompany, 'CGC');
+    expect(comicDetails.certificationNumber, 'CGC-12345');
+    expect(comicDetails.coverPriceCents, 499);
   });
 
   test(
@@ -171,7 +173,8 @@ void main() {
     expect(updated.condition, 'Near Mint');
     expect(updated.grade, '9.6');
     expect(updated.pricePaidCents, 1000);
-    expect(updated.comicDetails?.rawOrSlabbed, 'Slabbed');
-    expect(updated.comicDetails?.gradingCompany, 'CBCS');
+    final comicDetails = updated.details as ComicOwnedDetails;
+    expect(comicDetails.rawOrSlabbed, 'Slabbed');
+    expect(comicDetails.gradingCompany, 'CBCS');
   });
 }

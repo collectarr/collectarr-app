@@ -39,9 +39,13 @@ final _boardgameTransferableFields = <TransferableField>[
     label: 'Sleeved',
     icon: Icons.shield_outlined,
     type: TransferableFieldType.boolean,
-    read: (item) => (item.boardgameDetails?.isSleeved == true) ? 'true' : null,
+    read: (item) =>
+        ((item.details as BoardgameOwnedDetails?)?.isSleeved == true)
+            ? 'true'
+            : null,
     write: (item, value) {
-      final details = item.boardgameDetails ?? const BoardgameOwnedDetails();
+      final details = item.details as BoardgameOwnedDetails? ??
+          const BoardgameOwnedDetails();
       return item.copyWith(
           details: details.copyWith(isSleeved: value == 'true'));
     },
@@ -52,9 +56,12 @@ final _boardgameTransferableFields = <TransferableField>[
     icon: Icons.grid_view_outlined,
     type: TransferableFieldType.boolean,
     read: (item) =>
-        (item.boardgameDetails?.hasCustomInsert == true) ? 'true' : null,
+        ((item.details as BoardgameOwnedDetails?)?.hasCustomInsert == true)
+            ? 'true'
+            : null,
     write: (item, value) {
-      final details = item.boardgameDetails ?? const BoardgameOwnedDetails();
+      final details = item.details as BoardgameOwnedDetails? ??
+          const BoardgameOwnedDetails();
       return item.copyWith(
         details: details.copyWith(hasCustomInsert: value == 'true'),
       );

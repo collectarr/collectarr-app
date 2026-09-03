@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/collection/repositories/user_external_li
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/ownership/video_like_owned_details.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -259,7 +260,10 @@ final boxSetGroupsProvider = Provider<Map<String, List<OwnedItem>>>((ref) {
       final grouped = <String, List<OwnedItem>>{};
       for (final item in items) {
         if (item.isDeleted) continue;
-        final videoDetails = item.videoLikeDetails;
+        final details = item.details;
+        final videoDetails = details is VideoLikeOwnedDetails
+            ? details as VideoLikeOwnedDetails
+            : null;
         final name = videoDetails?.boxSetName;
         if (name != null && name.isNotEmpty) {
           grouped.putIfAbsent(name, () => <OwnedItem>[]).add(item);

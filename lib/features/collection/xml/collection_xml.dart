@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:xml/xml.dart';
 
 /// Exports a generic collection XML containing all shelf entries.
@@ -136,7 +137,7 @@ class CollectionXml {
                 _textElement(
                     builder, 'IndexNumber', owned.indexNumber.toString());
               }
-              final comic = owned.comicDetails;
+              final comic = owned.details as ComicOwnedDetails?;
               _textElement(builder, 'RawOrSlabbed', comic?.rawOrSlabbed);
               _textElement(builder, 'GradingCompany', comic?.gradingCompany);
               _textElement(builder, 'GraderNotes', comic?.graderNotes);

@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/ownership/video_like_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
@@ -40,6 +42,12 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ? const <OwnedItem>[]
             : <OwnedItem>[ownedItem!];
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final details = ownedItem?.details;
+    final ownedVideoDetails = details is VideoLikeOwnedDetails
+        ? details as VideoLikeOwnedDetails
+        : null;
+    final ownedComicDetails = details is ComicOwnedDetails ? details : null;
+    final ownedMusicDetails = details is MusicOwnedDetails ? details : null;
     final paid = formatMoney(
       ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
       ownedItem?.currency ?? adapter?.currency,
@@ -48,7 +56,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       ownedItem?.marketValueCents,
       ownedItem?.currency,
     );
-    final coverPriceCents = ownedItem?.coverPriceCents;
+    final coverPriceCents = ownedComicDetails?.coverPriceCents;
     final currency = ownedItem?.currency ?? adapter?.currency;
     final coverPrice = formatMoney(coverPriceCents, currency);
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, currency);
@@ -142,40 +150,33 @@ class LibraryDetailPersonalSection extends StatelessWidget {
                 label: 'Rating', value: trackingRating?.toString() ?? '-'),
             LibraryDetailField(
                 label: 'Features',
-                value:
-                    genericLibraryDash(ownedItem?.videoLikeDetails?.features)),
+                value: genericLibraryDash(ownedVideoDetails?.features)),
             LibraryDetailField(
                 label: 'HDR Formats',
-                value: (ownedItem?.videoLikeDetails?.hdrFormats.isNotEmpty ??
-                        false)
-                    ? ownedItem!.videoLikeDetails!.hdrFormats.join(', ')
+                value: (ownedVideoDetails?.hdrFormats.isNotEmpty ?? false)
+                    ? ownedVideoDetails!.hdrFormats.join(', ')
                     : '-'),
             LibraryDetailField(
                 label: 'Purchase Store',
                 value: genericLibraryDash(ownedItem?.purchaseStore)),
             LibraryDetailField(
                 label: 'Box Set',
-                value: genericLibraryDash(
-                    ownedItem?.videoLikeDetails?.boxSetName)),
+                value: genericLibraryDash(ownedVideoDetails?.boxSetName)),
             LibraryDetailField(
                 label: 'Storage Device',
-                value:
-                    genericLibraryDash(ownedItem?.musicDetails?.storageDevice)),
+                value: genericLibraryDash(ownedMusicDetails?.storageDevice)),
             LibraryDetailField(
                 label: 'Storage Slot',
-                value:
-                    genericLibraryDash(ownedItem?.musicDetails?.storageSlot)),
+                value: genericLibraryDash(ownedMusicDetails?.storageSlot)),
             LibraryDetailField(
                 label: 'Region',
-                value: genericLibraryDash(ownedItem?.videoLikeDetails?.region)),
+                value: genericLibraryDash(ownedVideoDetails?.region)),
             LibraryDetailField(
                 label: 'Packaging',
-                value:
-                    genericLibraryDash(ownedItem?.videoLikeDetails?.packaging)),
+                value: genericLibraryDash(ownedVideoDetails?.packaging)),
             LibraryDetailField(
                 label: 'Distributor',
-                value: genericLibraryDash(
-                    ownedItem?.videoLikeDetails?.distributor)),
+                value: genericLibraryDash(ownedVideoDetails?.distributor)),
           ],
         ),
         if (trackingRating != null && trackingRating > 0) ...[
