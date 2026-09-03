@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_account
 import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_http_client.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_rate_limiter.dart';
 import 'package:dio/dio.dart';
@@ -73,6 +74,30 @@ void main() {
       expect(context.remoteAccountId, '98765');
       expect(context.remoteHandle, 'saitama_user');
       expect(context.accessToken, 'secret-token-xyz');
+    });
+
+    test('ProviderAccount persists its sync policy', () {
+      const account = ProviderAccount(
+        id: 'acc-1',
+        provider: ProviderId.aniList,
+        displayName: 'My AniList',
+        authType: ProviderAuthType.oauth2,
+        syncPolicy: ProviderSyncPolicy(
+          status: SyncDirection.pullOnly,
+          rating: SyncDirection.pushOnly,
+          progress: SyncDirection.disabled,
+          history: SyncDirection.pullOnly,
+          wishlist: SyncDirection.disabled,
+        ),
+      );
+
+      final restored = ProviderAccount.fromJson(account.toJson());
+
+      expect(restored.syncPolicy.status, SyncDirection.pullOnly);
+      expect(restored.syncPolicy.rating, SyncDirection.pushOnly);
+      expect(restored.syncPolicy.progress, SyncDirection.disabled);
+      expect(restored.syncPolicy.history, SyncDirection.pullOnly);
+      expect(restored.syncPolicy.wishlist, SyncDirection.disabled);
     });
 
     test('readPersonalList distinguishes mediaId vs listEntryId', () async {

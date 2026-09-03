@@ -41,6 +41,18 @@ final class ProviderSyncPolicy {
     };
   }
 
+  bool allowsPull(SyncField field) {
+    final direction = directionFor(field);
+    return direction == SyncDirection.pullOnly ||
+        direction == SyncDirection.bidirectional;
+  }
+
+  bool allowsPush(SyncField field) {
+    final direction = directionFor(field);
+    return direction == SyncDirection.pushOnly ||
+        direction == SyncDirection.bidirectional;
+  }
+
   Map<String, dynamic> toJson() => {
         'status': status.name,
         'rating': rating.name,

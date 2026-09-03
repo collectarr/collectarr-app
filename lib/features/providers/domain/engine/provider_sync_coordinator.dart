@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_account
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
 
@@ -68,6 +69,7 @@ class ProviderSyncCoordinator {
     }
 
     final context = await accountStore.getAccountContext(accountId);
+    final policy = context?.syncPolicy ?? const ProviderSyncPolicy();
     final remoteEntries = await personalRead.readPersonalList(
       accountId: account.remoteAccountId ?? account.remoteHandle ?? account.id,
       kind: kind,
@@ -91,6 +93,7 @@ class ProviderSyncCoordinator {
         remote: remoteEntry,
         base: link?.baseSnapshot,
         local: localEntry,
+        policy: policy,
         mode: SyncEngineMode.pullSync,
       );
 
@@ -104,7 +107,11 @@ class ProviderSyncCoordinator {
             accountId: accountId,
             timestamp: DateTime.now().toUtc(),
           );
-          await localStateApplier!(localRef, remoteEntry, origin);
+          await localStateApplier!(
+            localRef,
+            _mergePullEntry(remoteEntry, localEntry, policy),
+            origin,
+          );
           applied++;
         }
       }
@@ -134,6 +141,7 @@ class ProviderSyncCoordinator {
         connectedAt: account.connectedAt,
         lastSyncAt: DateTime.now().toUtc(),
         enabledCapabilities: account.enabledCapabilities,
+        syncPolicy: account.syncPolicy,
       ),
     );
 
@@ -170,9 +178,14 @@ class ProviderSyncCoordinator {
     }
 
     final context = await accountStore.getAccountContext(link.accountId);
+    final policy = context?.syncPolicy ?? const ProviderSyncPolicy();
+    if (!_hasPushableFields(policy)) {
+      return false;
+    }
+    final entryToWrite = _mergePushEntry(localEntry, link.baseSnapshot, policy);
     await personalWrite.writePersonalEntry(
       accountId: link.accountId,
-      entry: localEntry,
+      entry: entryToWrite,
       context: context,
     );
 
@@ -180,7 +193,7 @@ class ProviderSyncCoordinator {
     await linkStore.updateBaseSnapshot(
       accountId: link.accountId,
       remoteItemId: link.remoteItemId,
-      baseSnapshot: localEntry,
+      baseSnapshot: entryToWrite,
       pushedAt: DateTime.now().toUtc(),
     );
 
@@ -207,5 +220,96 @@ class ProviderSyncCoordinator {
 
     await linkStore.saveLink(link);
     return link;
+  }
+
+  bool _hasPushableFields(ProviderSyncPolicy policy) {
+    return policy.allowsPush(SyncField.status) ||
+        policy.allowsPush(SyncField.rating) ||
+        policy.allowsPush(SyncField.progress) ||
+        policy.allowsPush(SyncField.history);
+  }
+
+  ProviderPersonalEntry _mergePullEntry(
+    ProviderPersonalEntry remote,
+    ProviderPersonalEntry? local,
+    ProviderSyncPolicy policy,
+  ) {
+    return ProviderPersonalEntry(
+      provider: remote.provider,
+      remoteItemId: remote.remoteItemId,
+      remoteEntryId: remote.remoteEntryId,
+      kind: remote.kind,
+      title: remote.title,
+      externalIds: remote.externalIds,
+      status: policy.allowsPull(SyncField.status)
+          ? remote.status
+          : local?.status,
+      rating: policy.allowsPull(SyncField.rating)
+          ? remote.rating
+          : local?.rating,
+      progress: policy.allowsPull(SyncField.progress)
+          ? remote.progress
+          : local?.progress,
+      totalProgress: policy.allowsPull(SyncField.progress)
+          ? remote.totalProgress
+          : local?.totalProgress,
+      startedAt: policy.allowsPull(SyncField.history)
+          ? remote.startedAt
+          : local?.startedAt,
+      completedAt: policy.allowsPull(SyncField.history)
+          ? remote.completedAt
+          : local?.completedAt,
+      repeatCount: policy.allowsPull(SyncField.history)
+          ? remote.repeatCount
+          : local?.repeatCount ?? 0,
+      remoteUpdatedAt: remote.remoteUpdatedAt,
+      remoteRevision: remote.remoteRevision,
+      notes: policy.allowsPull(SyncField.history)
+          ? remote.notes
+          : local?.notes,
+      rawPayload: remote.rawPayload,
+    );
+  }
+
+  ProviderPersonalEntry _mergePushEntry(
+    ProviderPersonalEntry local,
+    ProviderPersonalEntry? base,
+    ProviderSyncPolicy policy,
+  ) {
+    return ProviderPersonalEntry(
+      provider: local.provider,
+      remoteItemId: local.remoteItemId,
+      remoteEntryId: local.remoteEntryId,
+      kind: local.kind,
+      title: local.title,
+      externalIds: local.externalIds,
+      status: policy.allowsPush(SyncField.status)
+          ? local.status
+          : base?.status,
+      rating: policy.allowsPush(SyncField.rating)
+          ? local.rating
+          : base?.rating,
+      progress: policy.allowsPush(SyncField.progress)
+          ? local.progress
+          : base?.progress,
+      totalProgress: policy.allowsPush(SyncField.progress)
+          ? local.totalProgress
+          : base?.totalProgress,
+      startedAt: policy.allowsPush(SyncField.history)
+          ? local.startedAt
+          : base?.startedAt,
+      completedAt: policy.allowsPush(SyncField.history)
+          ? local.completedAt
+          : base?.completedAt,
+      repeatCount: policy.allowsPush(SyncField.history)
+          ? local.repeatCount
+          : base?.repeatCount ?? 0,
+      remoteUpdatedAt: local.remoteUpdatedAt,
+      remoteRevision: local.remoteRevision,
+      notes: policy.allowsPush(SyncField.history)
+          ? local.notes
+          : base?.notes,
+      rawPayload: local.rawPayload,
+    );
   }
 }

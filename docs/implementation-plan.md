@@ -37,8 +37,11 @@ checker all pass. The full suite reports five intentionally skipped tests.
 PR24-PR26 are represented by the existing provider-native search work. PR27 is
 not applicable until a provider exposes metadata writeback; no speculative
 reverse mapper should be added. The next conceptual checkpoint is PR28, whose
-personal-sync separation is structurally present but still needs the complete
-importer/account/link/conflict vertical slice described in Phase 7.
+personal-sync separation is structurally present. Account/link persistence,
+sync-policy persistence and directional filtering, three-way conflict handling,
+and echo protection are covered by the AniList vertical slice. The importer
+framework and the remaining provider personal-list integrations described in
+Phase 7 are still open.
 
 Known incomplete or regressed surfaces:
 

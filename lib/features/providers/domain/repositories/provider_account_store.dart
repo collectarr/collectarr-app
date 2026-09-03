@@ -62,6 +62,7 @@ class InMemoryProviderAccountStore implements ProviderAccountStore {
       remoteHandle: account.remoteHandle,
       accessToken: _accessTokens[account.id],
       credentials: _credentials[account.id] ?? const {},
+      syncPolicy: account.syncPolicy,
     );
   }
 }

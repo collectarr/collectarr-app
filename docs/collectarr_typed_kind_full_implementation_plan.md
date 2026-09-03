@@ -1010,10 +1010,12 @@ Do not mix catalog metadata into `ExternalStateEngine`.
 Structurally present in the current checkout: provider personal-list mappers,
 file import capabilities, and `ExternalStateEngine` use
 `ProviderPersonalEntry`, while kind-owned metadata mapping remains separate.
-The PR is not complete until the importer/account/link/sync-policy/conflict
-vertical slice is covered as described in Phase 7. Continue from this PR after
-the remaining Phase 0 architecture cleanup; do not reopen PR27 without a
-provider metadata writeback capability.
+Account/link persistence, sync-policy persistence and directional filtering,
+three-way conflict handling, and echo protection are covered by the AniList
+vertical slice. The PR is not complete until the importer framework and the
+remaining provider personal-list integrations are covered as described in
+Phase 7. Continue from this PR; do not reopen PR27 without a provider metadata
+writeback capability.
 
 ---
 

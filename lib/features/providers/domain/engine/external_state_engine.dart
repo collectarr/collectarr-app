@@ -74,7 +74,7 @@ class ExternalStateEngine {
     final diffs = <FieldDiff<dynamic>>[];
 
     // Status
-    if (policy.status != SyncDirection.disabled) {
+    if (policy.allowsPull(SyncField.status)) {
       diffs.add(_computeDiff<ProviderEntryStatus>(
         field: SyncField.status,
         base: base?.status,
@@ -85,7 +85,7 @@ class ExternalStateEngine {
     }
 
     // Rating
-    if (policy.rating != SyncDirection.disabled) {
+    if (policy.allowsPull(SyncField.rating)) {
       diffs.add(_computeDiff<double>(
         field: SyncField.rating,
         base: base?.rating,
@@ -96,7 +96,7 @@ class ExternalStateEngine {
     }
 
     // Progress
-    if (policy.progress != SyncDirection.disabled) {
+    if (policy.allowsPull(SyncField.progress)) {
       diffs.add(_computeDiff<int>(
         field: SyncField.progress,
         base: base?.progress,

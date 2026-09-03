@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:flutter/foundation.dart';
 
 enum ProviderAuthType {
@@ -23,6 +24,7 @@ final class ProviderAccount {
     this.connectedAt,
     this.lastSyncAt,
     this.enabledCapabilities = const {},
+    this.syncPolicy = const ProviderSyncPolicy(),
   }) : _username = username;
 
   /// Internal unique ID for the account
@@ -43,6 +45,7 @@ final class ProviderAccount {
   final DateTime? connectedAt;
   final DateTime? lastSyncAt;
   final Set<String> enabledCapabilities;
+  final ProviderSyncPolicy syncPolicy;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -56,6 +59,7 @@ final class ProviderAccount {
         if (connectedAt != null) 'connectedAt': connectedAt!.toIso8601String(),
         if (lastSyncAt != null) 'lastSyncAt': lastSyncAt!.toIso8601String(),
         'enabledCapabilities': enabledCapabilities.toList(),
+        'syncPolicy': syncPolicy.toJson(),
       };
 
   factory ProviderAccount.fromJson(Map<String, dynamic> json) {
@@ -80,6 +84,11 @@ final class ProviderAccount {
       enabledCapabilities: Set<String>.from(
         (json['enabledCapabilities'] as List?) ?? const [],
       ),
+      syncPolicy: json['syncPolicy'] is Map
+          ? ProviderSyncPolicy.fromJson(
+              Map<String, dynamic>.from(json['syncPolicy'] as Map),
+            )
+          : const ProviderSyncPolicy(),
     );
   }
 }
