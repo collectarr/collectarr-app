@@ -1640,6 +1640,16 @@ TvReleaseEditSchema
 TvOwnedEditSchema
 ```
 
+### Status (2026-09-05)
+
+Complete. TV now exposes an independent typed add schema and release-add
+draft, plus media, release, and owned edit schemas backed by `TvSeries`,
+`TvRelease`, and `TvOwnedDetails`. Validation covers identity and date
+consistency, and the typed drafts preserve nested TV graphs and raw fields.
+The legacy generic edit draft remains available only for the existing dialog
+bridge. Focused Add/Edit contract and round-trip tests pass. Continue with
+PR57.
+
 ---
 
 ## PR 57 — TV providers/tracking/watch sessions
