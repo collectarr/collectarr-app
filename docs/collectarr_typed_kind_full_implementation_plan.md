@@ -1906,6 +1906,14 @@ in generic models.
 
 Kinds define their nodes.
 
+### Status (2026-09-05)
+
+Complete. The shared hierarchy provider and renderer operate on
+`LibraryHierarchyNode` trees and never materialize Season, Volume, Episode,
+Chapter, or Issue domain objects. Kind-owned mappers produce the transport
+nodes at the boundary, while the generic UI only handles labels, children,
+actions, and presentation metadata. Continue with PR70.
+
 ---
 
 # PHASE 16 — Remove Catalog Type Erasure
