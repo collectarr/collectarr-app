@@ -34,8 +34,14 @@ class MusicDiscRef {
   final List<MusicTrackRef> tracks;
 }
 
-class MusicRelease {
-  const MusicRelease({
+/// Legacy catalog projection used by the generic catalog/workspace bridge.
+///
+/// Core-backed Music data is represented by the typed domain
+/// `domain/music_release.dart` model. Keeping this projection named
+/// `MusicCatalogRelease` prevents the generic catalog bridge from becoming the
+/// source of truth for Music domain data.
+class MusicCatalogRelease {
+  const MusicCatalogRelease({
     required this.id,
     required this.title,
     this.artist,

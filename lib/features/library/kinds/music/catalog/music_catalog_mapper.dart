@@ -65,7 +65,7 @@ class MusicCatalogMapper {
         );
       }).toList();
 
-      return MusicRelease(
+      return MusicCatalogRelease(
         id: edition.id,
         title: edition.title,
         artist: artistName,
@@ -95,7 +95,7 @@ class MusicCatalogMapper {
       metadata = MusicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
     }
     final music = metadata.music;
-    final List<MusicRelease> releases;
+    final List<MusicCatalogRelease> releases;
     if (metadata.releases.isNotEmpty) {
       releases = metadata.releases.map((release) {
         final discsByNumber = <int, List<MusicTrackMetadata>>{};
@@ -118,7 +118,7 @@ class MusicCatalogMapper {
             tracks: tracks,
           );
         }).toList();
-        return MusicRelease(
+        return MusicCatalogRelease(
           id: release.id,
           title: release.title,
           artist: metadata.artist,
@@ -149,7 +149,7 @@ class MusicCatalogMapper {
             tracks: tracks,
           );
         }).toList();
-        return MusicRelease(
+        return MusicCatalogRelease(
           id: edition.id,
           title: edition.title,
           artist: metadata.artist,
@@ -184,7 +184,7 @@ class MusicCatalogMapper {
         );
       }).toList();
       releases = [
-        MusicRelease(
+        MusicCatalogRelease(
           id: '${item.id}-release',
           title: metadata.title,
           artist: metadata.artist,

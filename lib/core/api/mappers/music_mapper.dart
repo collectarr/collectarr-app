@@ -1,5 +1,8 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_media.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 
 List<String>? tryGetList(dynamic Function() fn) {
   try {
@@ -10,52 +13,11 @@ List<String>? tryGetList(dynamic Function() fn) {
 }
 
 MusicRelease musicReleaseFromDto(MusicReleaseDto dto) {
-  final discs =
-      dto.media.map((m) => musicMediaFromDto(m)).toList(growable: false);
-
-  // Flatten all tracks for the top-level tracks list.
-  final allTracks = discs.expand((d) => d.tracks).toList(growable: false);
-
-  return MusicRelease(
-    id: dto.id,
-    title: dto.title,
-    artist: dto.subtitle,
-    publisher: dto.publisher,
-    catalogNumber: dto.extras,
-    upc: dto.barcode,
-    releaseDate: dto.releaseDate,
-    releaseStatus: dto.releaseStatus,
-    releaseType: dto.releaseType,
-    coverImageUrl: dto.coverImageUrl,
-    genres: () {
-      final rawGenres = dto.toJson()['genres'];
-      return rawGenres is List
-          ? rawGenres.whereType<String>().toList()
-          : const <String>[];
-    }(),
-    discs: discs,
-    tracks: allTracks,
-  );
+  return MusicCoreMapper.fromReleaseDto(dto);
 }
 
-MusicDiscRef musicMediaFromDto(MusicMediaDto dto) {
-  final tracks =
-      dto.tracks.map((t) => musicTrackFromDto(t)).toList(growable: false);
-  return MusicDiscRef(
-    discNumber: dto.mediaNumber,
-    discName: dto.titleValue,
-    discFormat: dto.mediaType,
-    trackCount: dto.trackCount,
-    mediaCondition: dto.mediaCondition,
-    tracks: tracks,
-  );
-}
+MusicMedia musicMediaFromDto(MusicMediaDto dto) =>
+    MusicCoreMapper.fromMediaDto(dto);
 
-MusicTrackRef musicTrackFromDto(MusicTrackDto dto) {
-  return MusicTrackRef(
-    title: dto.title,
-    position: int.tryParse(dto.position),
-    durationSeconds:
-        dto.durationMs != null ? (dto.durationMs! / 1000).round() : null,
-  );
-}
+MusicTrack musicTrackFromDto(MusicTrackDto dto) =>
+    MusicCoreMapper.fromTrackDto(dto);

@@ -46,7 +46,7 @@ class MusicCatalogItem {
   final String id;
   final MusicWorkMetadata work;
   final MusicRecordingMetadata recording;
-  final List<MusicRelease> releases;
+  final List<MusicCatalogRelease> releases;
 
   String get title => work.title;
   String? get originalTitle => work.originalTitle;
