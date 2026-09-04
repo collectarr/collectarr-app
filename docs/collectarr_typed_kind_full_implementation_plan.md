@@ -1847,6 +1847,16 @@ schema, validation, and typed round-trip tests pass. Continue with PR67.
 
 Music-specific track/hierarchy/stats behavior.
 
+### Status (2026-09-05)
+
+Complete. Music now owns a typed MusicBrainz mapper and integration facade,
+release/media/track hierarchy projection, release/media/track tracking state,
+and collection statistics for tracks, media, artists, genres, formats, and
+labels. The Music module no longer uses the shared generic listening profile
+and loads children through the typed Core Music release graph. Focused provider,
+hierarchy, tracking, statistics, and vertical-slice tests pass. Continue with
+PR68.
+
 ---
 
 # PHASE 15 — Remove Legacy Hierarchy Abstractions
