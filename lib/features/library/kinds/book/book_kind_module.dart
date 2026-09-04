@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
@@ -276,8 +277,14 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     createDraft: createBookEditDraft,
   ),
   providerMapper: const BookLibraryKindProviderMapper(),
-  facets: const LibraryFacetModule(
+  facets: LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+    getFacetValues: _getBookFacetValues,
+    definitions: bookLibraryFacetDefinitions,
+    externalFacetBucketIdsByMode: {
+      'book.genre': BookFacetIds.genre,
+      'book.subject': BookFacetIds.subject,
+    },
   ),
 );
 
@@ -291,6 +298,22 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
 }
 
 Map<String, dynamic> _encodeBookMetadata(BookCatalogMetadata m) => m.toJson();
+
+Iterable<String> _getBookFacetValues(
+  LibraryProjectionRuntime item,
+  LibraryFacetIdRuntime facetId,
+) {
+  final dto = item.dto;
+  if (dto is! BookWorkspaceDto) {
+    return const [];
+  }
+  for (final definition in bookLibraryFacetDefinitions) {
+    if (definition.id.sameIdentityAs(facetId)) {
+      return definition.extractValues(dto);
+    }
+  }
+  return const [];
+}
 
 List<LibraryAddAdvancedFilterField<String>> buildBookAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,

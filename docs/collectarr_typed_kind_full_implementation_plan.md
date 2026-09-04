@@ -1336,6 +1336,17 @@ Independent publishing fields.
 
 Do not share with Manga.
 
+### Status (2026-09-04)
+
+Complete. Book now exposes a complete kind-owned workspace registry with
+stable field, column, sort, and group IDs, typed facet definitions for authors,
+publishers, genres, formats, subjects, and translators, and external facet
+buckets for genre and subject. Book vocabulary IDs and definitions remain
+independent under the `book.*` namespace, including the condition vocabulary.
+Contract tests cover registry uniqueness, default resolution, typed facet
+extraction, external facet registration, and vocabulary ownership. Continue
+with PR40.
+
 ---
 
 ## PR 40 — Book Add/Edit/providers/hierarchy

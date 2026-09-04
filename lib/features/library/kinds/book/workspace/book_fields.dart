@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.da
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -217,6 +218,48 @@ abstract final class BookKindSchema {
   );
 }
 
+final bookLibraryFacetDefinitions =
+    <LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>>[
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.author,
+    label: 'Author',
+    extractValues: (dto) =>
+        dto.metadata?.authors ??
+        [
+          if (dto.author case final author?) author,
+        ],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.publisher,
+    label: 'Publisher',
+    extractValues: (dto) => [
+      if (dto.publisher case final publisher?) publisher,
+    ],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.genre,
+    label: 'Genre',
+    extractValues: (dto) => dto.metadata?.genres ?? const <String>[],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.format,
+    label: 'Format',
+    extractValues: (dto) => [
+      if (dto.format case final format?) format,
+    ],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.subject,
+    label: 'Subject',
+    extractValues: (dto) => dto.metadata?.subjects ?? const <String>[],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.translator,
+    label: 'Translator',
+    extractValues: (dto) => dto.metadata?.translators ?? const <String>[],
+  ),
+];
+
 final bookLibraryFieldDefinitions = [
   BookKindSchema.title,
   BookKindSchema.author,
@@ -228,6 +271,11 @@ final bookLibraryFieldDefinitions = [
   BookKindSchema.series,
   BookKindSchema.releaseDate,
   BookKindSchema.pricePaid,
+  BookKindSchema.rating,
+  BookKindSchema.wishlist,
+  BookKindSchema.updatedAt,
+  BookKindSchema.addedAt,
+  BookKindSchema.readStatus,
   BookKindSchema.subtitle,
   BookKindSchema.format,
   BookKindSchema.translator,
@@ -240,6 +288,8 @@ final bookLibraryFieldDefinitions = [
   BookKindSchema.dewey,
   BookKindSchema.locClassification,
   BookKindSchema.signedBy,
+  BookKindSchema.status,
+  BookKindSchema.cover,
 ];
 
 final bookLibraryGroupDefinitions = [

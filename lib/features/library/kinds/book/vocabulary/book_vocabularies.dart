@@ -7,6 +7,7 @@ abstract final class BookVocabularyIds {
   static const format = VocabularyId<String>('book.format');
   static const binding = VocabularyId<String>('book.binding');
   static const language = VocabularyId<String>('book.language');
+  static const condition = VocabularyId<String>('book.condition');
 }
 
 abstract final class BookVocabularies {
@@ -84,7 +85,7 @@ abstract final class BookVocabularies {
   );
 
   static const condition = VocabularyDefinition<String>(
-    id: VocabularyId<String>('book.condition'),
+    id: BookVocabularyIds.condition,
     label: 'Condition',
     builtIns: [
       'New',
