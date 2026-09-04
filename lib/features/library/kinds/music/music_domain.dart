@@ -8,6 +8,8 @@ export 'package:collectarr_app/features/library/kinds/music/domain/music_release
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/remote/music_remote_source.dart';
+export 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 export 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';

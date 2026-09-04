@@ -36298,6 +36298,2513 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
   }
 }
 
+class $MusicReleaseRowsTable extends MusicReleaseRows
+    with TableInfo<$MusicReleaseRowsTable, MusicReleaseRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicReleaseRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _artistMeta = const VerificationMeta('artist');
+  @override
+  late final GeneratedColumn<String> artist = GeneratedColumn<String>(
+      'artist', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _publisherMeta =
+      const VerificationMeta('publisher');
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+      'publisher', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _catalogNumberMeta =
+      const VerificationMeta('catalogNumber');
+  @override
+  late final GeneratedColumn<String> catalogNumber = GeneratedColumn<String>(
+      'catalog_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _barcodeMeta =
+      const VerificationMeta('barcode');
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+      'barcode', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _recordingDateMeta =
+      const VerificationMeta('recordingDate');
+  @override
+  late final GeneratedColumn<DateTime> recordingDate =
+      GeneratedColumn<DateTime>('recording_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _releaseStatusMeta =
+      const VerificationMeta('releaseStatus');
+  @override
+  late final GeneratedColumn<String> releaseStatus = GeneratedColumn<String>(
+      'release_status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseTypeMeta =
+      const VerificationMeta('releaseType');
+  @override
+  late final GeneratedColumn<String> releaseType = GeneratedColumn<String>(
+      'release_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortTitleMeta =
+      const VerificationMeta('sortTitle');
+  @override
+  late final GeneratedColumn<String> sortTitle = GeneratedColumn<String>(
+      'sort_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _subtitleMeta =
+      const VerificationMeta('subtitle');
+  @override
+  late final GeneratedColumn<String> subtitle = GeneratedColumn<String>(
+      'subtitle', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _studioMeta = const VerificationMeta('studio');
+  @override
+  late final GeneratedColumn<String> studio = GeneratedColumn<String>(
+      'studio', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _countryCodeMeta =
+      const VerificationMeta('countryCode');
+  @override
+  late final GeneratedColumn<String> countryCode = GeneratedColumn<String>(
+      'country_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _languageMeta =
+      const VerificationMeta('language');
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+      'language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageUrlMeta =
+      const VerificationMeta('coverImageUrl');
+  @override
+  late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
+      'cover_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _genresJsonMeta =
+      const VerificationMeta('genresJson');
+  @override
+  late final GeneratedColumn<String> genresJson = GeneratedColumn<String>(
+      'genres_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _contributionsJsonMeta =
+      const VerificationMeta('contributionsJson');
+  @override
+  late final GeneratedColumn<String> contributionsJson =
+      GeneratedColumn<String>('contributions_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _isLiveMeta = const VerificationMeta('isLive');
+  @override
+  late final GeneratedColumn<bool> isLive = GeneratedColumn<bool>(
+      'is_live', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_live" IN (0, 1))'));
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        artist,
+        publisher,
+        catalogNumber,
+        barcode,
+        releaseDate,
+        recordingDate,
+        releaseStatus,
+        releaseType,
+        sortTitle,
+        subtitle,
+        studio,
+        countryCode,
+        language,
+        coverImageUrl,
+        genresJson,
+        contributionsJson,
+        isLive,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_release_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MusicReleaseRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('artist')) {
+      context.handle(_artistMeta,
+          artist.isAcceptableOrUnknown(data['artist']!, _artistMeta));
+    }
+    if (data.containsKey('publisher')) {
+      context.handle(_publisherMeta,
+          publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('catalog_number')) {
+      context.handle(
+          _catalogNumberMeta,
+          catalogNumber.isAcceptableOrUnknown(
+              data['catalog_number']!, _catalogNumberMeta));
+    }
+    if (data.containsKey('barcode')) {
+      context.handle(_barcodeMeta,
+          barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('recording_date')) {
+      context.handle(
+          _recordingDateMeta,
+          recordingDate.isAcceptableOrUnknown(
+              data['recording_date']!, _recordingDateMeta));
+    }
+    if (data.containsKey('release_status')) {
+      context.handle(
+          _releaseStatusMeta,
+          releaseStatus.isAcceptableOrUnknown(
+              data['release_status']!, _releaseStatusMeta));
+    }
+    if (data.containsKey('release_type')) {
+      context.handle(
+          _releaseTypeMeta,
+          releaseType.isAcceptableOrUnknown(
+              data['release_type']!, _releaseTypeMeta));
+    }
+    if (data.containsKey('sort_title')) {
+      context.handle(_sortTitleMeta,
+          sortTitle.isAcceptableOrUnknown(data['sort_title']!, _sortTitleMeta));
+    }
+    if (data.containsKey('subtitle')) {
+      context.handle(_subtitleMeta,
+          subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta));
+    }
+    if (data.containsKey('studio')) {
+      context.handle(_studioMeta,
+          studio.isAcceptableOrUnknown(data['studio']!, _studioMeta));
+    }
+    if (data.containsKey('country_code')) {
+      context.handle(
+          _countryCodeMeta,
+          countryCode.isAcceptableOrUnknown(
+              data['country_code']!, _countryCodeMeta));
+    }
+    if (data.containsKey('language')) {
+      context.handle(_languageMeta,
+          language.isAcceptableOrUnknown(data['language']!, _languageMeta));
+    }
+    if (data.containsKey('cover_image_url')) {
+      context.handle(
+          _coverImageUrlMeta,
+          coverImageUrl.isAcceptableOrUnknown(
+              data['cover_image_url']!, _coverImageUrlMeta));
+    }
+    if (data.containsKey('genres_json')) {
+      context.handle(
+          _genresJsonMeta,
+          genresJson.isAcceptableOrUnknown(
+              data['genres_json']!, _genresJsonMeta));
+    }
+    if (data.containsKey('contributions_json')) {
+      context.handle(
+          _contributionsJsonMeta,
+          contributionsJson.isAcceptableOrUnknown(
+              data['contributions_json']!, _contributionsJsonMeta));
+    }
+    if (data.containsKey('is_live')) {
+      context.handle(_isLiveMeta,
+          isLive.isAcceptableOrUnknown(data['is_live']!, _isLiveMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MusicReleaseRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicReleaseRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      artist: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}artist']),
+      publisher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      catalogNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}catalog_number']),
+      barcode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}barcode']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      recordingDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}recording_date']),
+      releaseStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_status']),
+      releaseType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_type']),
+      sortTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_title']),
+      subtitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subtitle']),
+      studio: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}studio']),
+      countryCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}country_code']),
+      language: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language']),
+      coverImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      genresJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}genres_json'])!,
+      contributionsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}contributions_json'])!,
+      isLive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_live']),
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $MusicReleaseRowsTable createAlias(String alias) {
+    return $MusicReleaseRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicReleaseRow extends DataClass implements Insertable<MusicReleaseRow> {
+  final String id;
+  final String title;
+  final String? artist;
+  final String? publisher;
+  final String? catalogNumber;
+  final String? barcode;
+  final DateTime? releaseDate;
+  final DateTime? recordingDate;
+  final String? releaseStatus;
+  final String? releaseType;
+  final String? sortTitle;
+  final String? subtitle;
+  final String? studio;
+  final String? countryCode;
+  final String? language;
+  final String? coverImageUrl;
+  final String genresJson;
+  final String contributionsJson;
+  final bool? isLive;
+  final String rawPayloadJson;
+  const MusicReleaseRow(
+      {required this.id,
+      required this.title,
+      this.artist,
+      this.publisher,
+      this.catalogNumber,
+      this.barcode,
+      this.releaseDate,
+      this.recordingDate,
+      this.releaseStatus,
+      this.releaseType,
+      this.sortTitle,
+      this.subtitle,
+      this.studio,
+      this.countryCode,
+      this.language,
+      this.coverImageUrl,
+      required this.genresJson,
+      required this.contributionsJson,
+      this.isLive,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || artist != null) {
+      map['artist'] = Variable<String>(artist);
+    }
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || catalogNumber != null) {
+      map['catalog_number'] = Variable<String>(catalogNumber);
+    }
+    if (!nullToAbsent || barcode != null) {
+      map['barcode'] = Variable<String>(barcode);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || recordingDate != null) {
+      map['recording_date'] = Variable<DateTime>(recordingDate);
+    }
+    if (!nullToAbsent || releaseStatus != null) {
+      map['release_status'] = Variable<String>(releaseStatus);
+    }
+    if (!nullToAbsent || releaseType != null) {
+      map['release_type'] = Variable<String>(releaseType);
+    }
+    if (!nullToAbsent || sortTitle != null) {
+      map['sort_title'] = Variable<String>(sortTitle);
+    }
+    if (!nullToAbsent || subtitle != null) {
+      map['subtitle'] = Variable<String>(subtitle);
+    }
+    if (!nullToAbsent || studio != null) {
+      map['studio'] = Variable<String>(studio);
+    }
+    if (!nullToAbsent || countryCode != null) {
+      map['country_code'] = Variable<String>(countryCode);
+    }
+    if (!nullToAbsent || language != null) {
+      map['language'] = Variable<String>(language);
+    }
+    if (!nullToAbsent || coverImageUrl != null) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    map['genres_json'] = Variable<String>(genresJson);
+    map['contributions_json'] = Variable<String>(contributionsJson);
+    if (!nullToAbsent || isLive != null) {
+      map['is_live'] = Variable<bool>(isLive);
+    }
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  MusicReleaseRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicReleaseRowsCompanion(
+      id: Value(id),
+      title: Value(title),
+      artist:
+          artist == null && nullToAbsent ? const Value.absent() : Value(artist),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      catalogNumber: catalogNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogNumber),
+      barcode: barcode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(barcode),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      recordingDate: recordingDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recordingDate),
+      releaseStatus: releaseStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseStatus),
+      releaseType: releaseType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseType),
+      sortTitle: sortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortTitle),
+      subtitle: subtitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitle),
+      studio:
+          studio == null && nullToAbsent ? const Value.absent() : Value(studio),
+      countryCode: countryCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(countryCode),
+      language: language == null && nullToAbsent
+          ? const Value.absent()
+          : Value(language),
+      coverImageUrl: coverImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageUrl),
+      genresJson: Value(genresJson),
+      contributionsJson: Value(contributionsJson),
+      isLive:
+          isLive == null && nullToAbsent ? const Value.absent() : Value(isLive),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory MusicReleaseRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicReleaseRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      artist: serializer.fromJson<String?>(json['artist']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      catalogNumber: serializer.fromJson<String?>(json['catalogNumber']),
+      barcode: serializer.fromJson<String?>(json['barcode']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      recordingDate: serializer.fromJson<DateTime?>(json['recordingDate']),
+      releaseStatus: serializer.fromJson<String?>(json['releaseStatus']),
+      releaseType: serializer.fromJson<String?>(json['releaseType']),
+      sortTitle: serializer.fromJson<String?>(json['sortTitle']),
+      subtitle: serializer.fromJson<String?>(json['subtitle']),
+      studio: serializer.fromJson<String?>(json['studio']),
+      countryCode: serializer.fromJson<String?>(json['countryCode']),
+      language: serializer.fromJson<String?>(json['language']),
+      coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      genresJson: serializer.fromJson<String>(json['genresJson']),
+      contributionsJson: serializer.fromJson<String>(json['contributionsJson']),
+      isLive: serializer.fromJson<bool?>(json['isLive']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'artist': serializer.toJson<String?>(artist),
+      'publisher': serializer.toJson<String?>(publisher),
+      'catalogNumber': serializer.toJson<String?>(catalogNumber),
+      'barcode': serializer.toJson<String?>(barcode),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'recordingDate': serializer.toJson<DateTime?>(recordingDate),
+      'releaseStatus': serializer.toJson<String?>(releaseStatus),
+      'releaseType': serializer.toJson<String?>(releaseType),
+      'sortTitle': serializer.toJson<String?>(sortTitle),
+      'subtitle': serializer.toJson<String?>(subtitle),
+      'studio': serializer.toJson<String?>(studio),
+      'countryCode': serializer.toJson<String?>(countryCode),
+      'language': serializer.toJson<String?>(language),
+      'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'genresJson': serializer.toJson<String>(genresJson),
+      'contributionsJson': serializer.toJson<String>(contributionsJson),
+      'isLive': serializer.toJson<bool?>(isLive),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  MusicReleaseRow copyWith(
+          {String? id,
+          String? title,
+          Value<String?> artist = const Value.absent(),
+          Value<String?> publisher = const Value.absent(),
+          Value<String?> catalogNumber = const Value.absent(),
+          Value<String?> barcode = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          Value<DateTime?> recordingDate = const Value.absent(),
+          Value<String?> releaseStatus = const Value.absent(),
+          Value<String?> releaseType = const Value.absent(),
+          Value<String?> sortTitle = const Value.absent(),
+          Value<String?> subtitle = const Value.absent(),
+          Value<String?> studio = const Value.absent(),
+          Value<String?> countryCode = const Value.absent(),
+          Value<String?> language = const Value.absent(),
+          Value<String?> coverImageUrl = const Value.absent(),
+          String? genresJson,
+          String? contributionsJson,
+          Value<bool?> isLive = const Value.absent(),
+          String? rawPayloadJson}) =>
+      MusicReleaseRow(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        artist: artist.present ? artist.value : this.artist,
+        publisher: publisher.present ? publisher.value : this.publisher,
+        catalogNumber:
+            catalogNumber.present ? catalogNumber.value : this.catalogNumber,
+        barcode: barcode.present ? barcode.value : this.barcode,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        recordingDate:
+            recordingDate.present ? recordingDate.value : this.recordingDate,
+        releaseStatus:
+            releaseStatus.present ? releaseStatus.value : this.releaseStatus,
+        releaseType: releaseType.present ? releaseType.value : this.releaseType,
+        sortTitle: sortTitle.present ? sortTitle.value : this.sortTitle,
+        subtitle: subtitle.present ? subtitle.value : this.subtitle,
+        studio: studio.present ? studio.value : this.studio,
+        countryCode: countryCode.present ? countryCode.value : this.countryCode,
+        language: language.present ? language.value : this.language,
+        coverImageUrl:
+            coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        genresJson: genresJson ?? this.genresJson,
+        contributionsJson: contributionsJson ?? this.contributionsJson,
+        isLive: isLive.present ? isLive.value : this.isLive,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  MusicReleaseRow copyWithCompanion(MusicReleaseRowsCompanion data) {
+    return MusicReleaseRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      artist: data.artist.present ? data.artist.value : this.artist,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      catalogNumber: data.catalogNumber.present
+          ? data.catalogNumber.value
+          : this.catalogNumber,
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      recordingDate: data.recordingDate.present
+          ? data.recordingDate.value
+          : this.recordingDate,
+      releaseStatus: data.releaseStatus.present
+          ? data.releaseStatus.value
+          : this.releaseStatus,
+      releaseType:
+          data.releaseType.present ? data.releaseType.value : this.releaseType,
+      sortTitle: data.sortTitle.present ? data.sortTitle.value : this.sortTitle,
+      subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
+      studio: data.studio.present ? data.studio.value : this.studio,
+      countryCode:
+          data.countryCode.present ? data.countryCode.value : this.countryCode,
+      language: data.language.present ? data.language.value : this.language,
+      coverImageUrl: data.coverImageUrl.present
+          ? data.coverImageUrl.value
+          : this.coverImageUrl,
+      genresJson:
+          data.genresJson.present ? data.genresJson.value : this.genresJson,
+      contributionsJson: data.contributionsJson.present
+          ? data.contributionsJson.value
+          : this.contributionsJson,
+      isLive: data.isLive.present ? data.isLive.value : this.isLive,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('artist: $artist, ')
+          ..write('publisher: $publisher, ')
+          ..write('catalogNumber: $catalogNumber, ')
+          ..write('barcode: $barcode, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('recordingDate: $recordingDate, ')
+          ..write('releaseStatus: $releaseStatus, ')
+          ..write('releaseType: $releaseType, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('studio: $studio, ')
+          ..write('countryCode: $countryCode, ')
+          ..write('language: $language, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('genresJson: $genresJson, ')
+          ..write('contributionsJson: $contributionsJson, ')
+          ..write('isLive: $isLive, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      title,
+      artist,
+      publisher,
+      catalogNumber,
+      barcode,
+      releaseDate,
+      recordingDate,
+      releaseStatus,
+      releaseType,
+      sortTitle,
+      subtitle,
+      studio,
+      countryCode,
+      language,
+      coverImageUrl,
+      genresJson,
+      contributionsJson,
+      isLive,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicReleaseRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.artist == this.artist &&
+          other.publisher == this.publisher &&
+          other.catalogNumber == this.catalogNumber &&
+          other.barcode == this.barcode &&
+          other.releaseDate == this.releaseDate &&
+          other.recordingDate == this.recordingDate &&
+          other.releaseStatus == this.releaseStatus &&
+          other.releaseType == this.releaseType &&
+          other.sortTitle == this.sortTitle &&
+          other.subtitle == this.subtitle &&
+          other.studio == this.studio &&
+          other.countryCode == this.countryCode &&
+          other.language == this.language &&
+          other.coverImageUrl == this.coverImageUrl &&
+          other.genresJson == this.genresJson &&
+          other.contributionsJson == this.contributionsJson &&
+          other.isLive == this.isLive &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class MusicReleaseRowsCompanion extends UpdateCompanion<MusicReleaseRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> artist;
+  final Value<String?> publisher;
+  final Value<String?> catalogNumber;
+  final Value<String?> barcode;
+  final Value<DateTime?> releaseDate;
+  final Value<DateTime?> recordingDate;
+  final Value<String?> releaseStatus;
+  final Value<String?> releaseType;
+  final Value<String?> sortTitle;
+  final Value<String?> subtitle;
+  final Value<String?> studio;
+  final Value<String?> countryCode;
+  final Value<String?> language;
+  final Value<String?> coverImageUrl;
+  final Value<String> genresJson;
+  final Value<String> contributionsJson;
+  final Value<bool?> isLive;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const MusicReleaseRowsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.artist = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.catalogNumber = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.recordingDate = const Value.absent(),
+    this.releaseStatus = const Value.absent(),
+    this.releaseType = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.studio = const Value.absent(),
+    this.countryCode = const Value.absent(),
+    this.language = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.genresJson = const Value.absent(),
+    this.contributionsJson = const Value.absent(),
+    this.isLive = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicReleaseRowsCompanion.insert({
+    required String id,
+    required String title,
+    this.artist = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.catalogNumber = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.recordingDate = const Value.absent(),
+    this.releaseStatus = const Value.absent(),
+    this.releaseType = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.studio = const Value.absent(),
+    this.countryCode = const Value.absent(),
+    this.language = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.genresJson = const Value.absent(),
+    this.contributionsJson = const Value.absent(),
+    this.isLive = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title);
+  static Insertable<MusicReleaseRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? artist,
+    Expression<String>? publisher,
+    Expression<String>? catalogNumber,
+    Expression<String>? barcode,
+    Expression<DateTime>? releaseDate,
+    Expression<DateTime>? recordingDate,
+    Expression<String>? releaseStatus,
+    Expression<String>? releaseType,
+    Expression<String>? sortTitle,
+    Expression<String>? subtitle,
+    Expression<String>? studio,
+    Expression<String>? countryCode,
+    Expression<String>? language,
+    Expression<String>? coverImageUrl,
+    Expression<String>? genresJson,
+    Expression<String>? contributionsJson,
+    Expression<bool>? isLive,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (artist != null) 'artist': artist,
+      if (publisher != null) 'publisher': publisher,
+      if (catalogNumber != null) 'catalog_number': catalogNumber,
+      if (barcode != null) 'barcode': barcode,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (recordingDate != null) 'recording_date': recordingDate,
+      if (releaseStatus != null) 'release_status': releaseStatus,
+      if (releaseType != null) 'release_type': releaseType,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (studio != null) 'studio': studio,
+      if (countryCode != null) 'country_code': countryCode,
+      if (language != null) 'language': language,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (genresJson != null) 'genres_json': genresJson,
+      if (contributionsJson != null) 'contributions_json': contributionsJson,
+      if (isLive != null) 'is_live': isLive,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicReleaseRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<String?>? artist,
+      Value<String?>? publisher,
+      Value<String?>? catalogNumber,
+      Value<String?>? barcode,
+      Value<DateTime?>? releaseDate,
+      Value<DateTime?>? recordingDate,
+      Value<String?>? releaseStatus,
+      Value<String?>? releaseType,
+      Value<String?>? sortTitle,
+      Value<String?>? subtitle,
+      Value<String?>? studio,
+      Value<String?>? countryCode,
+      Value<String?>? language,
+      Value<String?>? coverImageUrl,
+      Value<String>? genresJson,
+      Value<String>? contributionsJson,
+      Value<bool?>? isLive,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return MusicReleaseRowsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      artist: artist ?? this.artist,
+      publisher: publisher ?? this.publisher,
+      catalogNumber: catalogNumber ?? this.catalogNumber,
+      barcode: barcode ?? this.barcode,
+      releaseDate: releaseDate ?? this.releaseDate,
+      recordingDate: recordingDate ?? this.recordingDate,
+      releaseStatus: releaseStatus ?? this.releaseStatus,
+      releaseType: releaseType ?? this.releaseType,
+      sortTitle: sortTitle ?? this.sortTitle,
+      subtitle: subtitle ?? this.subtitle,
+      studio: studio ?? this.studio,
+      countryCode: countryCode ?? this.countryCode,
+      language: language ?? this.language,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      genresJson: genresJson ?? this.genresJson,
+      contributionsJson: contributionsJson ?? this.contributionsJson,
+      isLive: isLive ?? this.isLive,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (artist.present) {
+      map['artist'] = Variable<String>(artist.value);
+    }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (catalogNumber.present) {
+      map['catalog_number'] = Variable<String>(catalogNumber.value);
+    }
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (recordingDate.present) {
+      map['recording_date'] = Variable<DateTime>(recordingDate.value);
+    }
+    if (releaseStatus.present) {
+      map['release_status'] = Variable<String>(releaseStatus.value);
+    }
+    if (releaseType.present) {
+      map['release_type'] = Variable<String>(releaseType.value);
+    }
+    if (sortTitle.present) {
+      map['sort_title'] = Variable<String>(sortTitle.value);
+    }
+    if (subtitle.present) {
+      map['subtitle'] = Variable<String>(subtitle.value);
+    }
+    if (studio.present) {
+      map['studio'] = Variable<String>(studio.value);
+    }
+    if (countryCode.present) {
+      map['country_code'] = Variable<String>(countryCode.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (coverImageUrl.present) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl.value);
+    }
+    if (genresJson.present) {
+      map['genres_json'] = Variable<String>(genresJson.value);
+    }
+    if (contributionsJson.present) {
+      map['contributions_json'] = Variable<String>(contributionsJson.value);
+    }
+    if (isLive.present) {
+      map['is_live'] = Variable<bool>(isLive.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicReleaseRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('artist: $artist, ')
+          ..write('publisher: $publisher, ')
+          ..write('catalogNumber: $catalogNumber, ')
+          ..write('barcode: $barcode, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('recordingDate: $recordingDate, ')
+          ..write('releaseStatus: $releaseStatus, ')
+          ..write('releaseType: $releaseType, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('studio: $studio, ')
+          ..write('countryCode: $countryCode, ')
+          ..write('language: $language, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('genresJson: $genresJson, ')
+          ..write('contributionsJson: $contributionsJson, ')
+          ..write('isLive: $isLive, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicMediaRowsTable extends MusicMediaRows
+    with TableInfo<$MusicMediaRowsTable, MusicMediaRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicMediaRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mediaNumberMeta =
+      const VerificationMeta('mediaNumber');
+  @override
+  late final GeneratedColumn<int> mediaNumber = GeneratedColumn<int>(
+      'media_number', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _mediaConditionMeta =
+      const VerificationMeta('mediaCondition');
+  @override
+  late final GeneratedColumn<String> mediaCondition = GeneratedColumn<String>(
+      'media_condition', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _mediaTypeMeta =
+      const VerificationMeta('mediaType');
+  @override
+  late final GeneratedColumn<String> mediaType = GeneratedColumn<String>(
+      'media_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _packagingMeta =
+      const VerificationMeta('packaging');
+  @override
+  late final GeneratedColumn<String> packaging = GeneratedColumn<String>(
+      'packaging', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _rpmMeta = const VerificationMeta('rpm');
+  @override
+  late final GeneratedColumn<int> rpm = GeneratedColumn<int>(
+      'rpm', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _soundTypeMeta =
+      const VerificationMeta('soundType');
+  @override
+  late final GeneratedColumn<String> soundType = GeneratedColumn<String>(
+      'sound_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sparsMeta = const VerificationMeta('spars');
+  @override
+  late final GeneratedColumn<String> spars = GeneratedColumn<String>(
+      'spars', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _trackCountMeta =
+      const VerificationMeta('trackCount');
+  @override
+  late final GeneratedColumn<int> trackCount = GeneratedColumn<int>(
+      'track_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _vinylColorMeta =
+      const VerificationMeta('vinylColor');
+  @override
+  late final GeneratedColumn<String> vinylColor = GeneratedColumn<String>(
+      'vinyl_color', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _vinylWeightMeta =
+      const VerificationMeta('vinylWeight');
+  @override
+  late final GeneratedColumn<String> vinylWeight = GeneratedColumn<String>(
+      'vinyl_weight', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        releaseId,
+        id,
+        mediaNumber,
+        mediaCondition,
+        mediaType,
+        packaging,
+        rpm,
+        soundType,
+        spars,
+        title,
+        trackCount,
+        vinylColor,
+        vinylWeight,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_media_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MusicMediaRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('media_number')) {
+      context.handle(
+          _mediaNumberMeta,
+          mediaNumber.isAcceptableOrUnknown(
+              data['media_number']!, _mediaNumberMeta));
+    } else if (isInserting) {
+      context.missing(_mediaNumberMeta);
+    }
+    if (data.containsKey('media_condition')) {
+      context.handle(
+          _mediaConditionMeta,
+          mediaCondition.isAcceptableOrUnknown(
+              data['media_condition']!, _mediaConditionMeta));
+    }
+    if (data.containsKey('media_type')) {
+      context.handle(_mediaTypeMeta,
+          mediaType.isAcceptableOrUnknown(data['media_type']!, _mediaTypeMeta));
+    }
+    if (data.containsKey('packaging')) {
+      context.handle(_packagingMeta,
+          packaging.isAcceptableOrUnknown(data['packaging']!, _packagingMeta));
+    }
+    if (data.containsKey('rpm')) {
+      context.handle(
+          _rpmMeta, rpm.isAcceptableOrUnknown(data['rpm']!, _rpmMeta));
+    }
+    if (data.containsKey('sound_type')) {
+      context.handle(_soundTypeMeta,
+          soundType.isAcceptableOrUnknown(data['sound_type']!, _soundTypeMeta));
+    }
+    if (data.containsKey('spars')) {
+      context.handle(
+          _sparsMeta, spars.isAcceptableOrUnknown(data['spars']!, _sparsMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    }
+    if (data.containsKey('track_count')) {
+      context.handle(
+          _trackCountMeta,
+          trackCount.isAcceptableOrUnknown(
+              data['track_count']!, _trackCountMeta));
+    }
+    if (data.containsKey('vinyl_color')) {
+      context.handle(
+          _vinylColorMeta,
+          vinylColor.isAcceptableOrUnknown(
+              data['vinyl_color']!, _vinylColorMeta));
+    }
+    if (data.containsKey('vinyl_weight')) {
+      context.handle(
+          _vinylWeightMeta,
+          vinylWeight.isAcceptableOrUnknown(
+              data['vinyl_weight']!, _vinylWeightMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {releaseId, id};
+  @override
+  MusicMediaRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicMediaRow(
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      mediaNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}media_number'])!,
+      mediaCondition: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_condition']),
+      mediaType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_type']),
+      packaging: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}packaging']),
+      rpm: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rpm']),
+      soundType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sound_type']),
+      spars: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}spars']),
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title']),
+      trackCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}track_count']),
+      vinylColor: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}vinyl_color']),
+      vinylWeight: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}vinyl_weight']),
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $MusicMediaRowsTable createAlias(String alias) {
+    return $MusicMediaRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicMediaRow extends DataClass implements Insertable<MusicMediaRow> {
+  final String releaseId;
+  final String id;
+  final int mediaNumber;
+  final String? mediaCondition;
+  final String? mediaType;
+  final String? packaging;
+  final int? rpm;
+  final String? soundType;
+  final String? spars;
+  final String? title;
+  final int? trackCount;
+  final String? vinylColor;
+  final String? vinylWeight;
+  final String rawPayloadJson;
+  const MusicMediaRow(
+      {required this.releaseId,
+      required this.id,
+      required this.mediaNumber,
+      this.mediaCondition,
+      this.mediaType,
+      this.packaging,
+      this.rpm,
+      this.soundType,
+      this.spars,
+      this.title,
+      this.trackCount,
+      this.vinylColor,
+      this.vinylWeight,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['release_id'] = Variable<String>(releaseId);
+    map['id'] = Variable<String>(id);
+    map['media_number'] = Variable<int>(mediaNumber);
+    if (!nullToAbsent || mediaCondition != null) {
+      map['media_condition'] = Variable<String>(mediaCondition);
+    }
+    if (!nullToAbsent || mediaType != null) {
+      map['media_type'] = Variable<String>(mediaType);
+    }
+    if (!nullToAbsent || packaging != null) {
+      map['packaging'] = Variable<String>(packaging);
+    }
+    if (!nullToAbsent || rpm != null) {
+      map['rpm'] = Variable<int>(rpm);
+    }
+    if (!nullToAbsent || soundType != null) {
+      map['sound_type'] = Variable<String>(soundType);
+    }
+    if (!nullToAbsent || spars != null) {
+      map['spars'] = Variable<String>(spars);
+    }
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    if (!nullToAbsent || trackCount != null) {
+      map['track_count'] = Variable<int>(trackCount);
+    }
+    if (!nullToAbsent || vinylColor != null) {
+      map['vinyl_color'] = Variable<String>(vinylColor);
+    }
+    if (!nullToAbsent || vinylWeight != null) {
+      map['vinyl_weight'] = Variable<String>(vinylWeight);
+    }
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  MusicMediaRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicMediaRowsCompanion(
+      releaseId: Value(releaseId),
+      id: Value(id),
+      mediaNumber: Value(mediaNumber),
+      mediaCondition: mediaCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaCondition),
+      mediaType: mediaType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaType),
+      packaging: packaging == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packaging),
+      rpm: rpm == null && nullToAbsent ? const Value.absent() : Value(rpm),
+      soundType: soundType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(soundType),
+      spars:
+          spars == null && nullToAbsent ? const Value.absent() : Value(spars),
+      title:
+          title == null && nullToAbsent ? const Value.absent() : Value(title),
+      trackCount: trackCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackCount),
+      vinylColor: vinylColor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vinylColor),
+      vinylWeight: vinylWeight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vinylWeight),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory MusicMediaRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicMediaRow(
+      releaseId: serializer.fromJson<String>(json['releaseId']),
+      id: serializer.fromJson<String>(json['id']),
+      mediaNumber: serializer.fromJson<int>(json['mediaNumber']),
+      mediaCondition: serializer.fromJson<String?>(json['mediaCondition']),
+      mediaType: serializer.fromJson<String?>(json['mediaType']),
+      packaging: serializer.fromJson<String?>(json['packaging']),
+      rpm: serializer.fromJson<int?>(json['rpm']),
+      soundType: serializer.fromJson<String?>(json['soundType']),
+      spars: serializer.fromJson<String?>(json['spars']),
+      title: serializer.fromJson<String?>(json['title']),
+      trackCount: serializer.fromJson<int?>(json['trackCount']),
+      vinylColor: serializer.fromJson<String?>(json['vinylColor']),
+      vinylWeight: serializer.fromJson<String?>(json['vinylWeight']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'releaseId': serializer.toJson<String>(releaseId),
+      'id': serializer.toJson<String>(id),
+      'mediaNumber': serializer.toJson<int>(mediaNumber),
+      'mediaCondition': serializer.toJson<String?>(mediaCondition),
+      'mediaType': serializer.toJson<String?>(mediaType),
+      'packaging': serializer.toJson<String?>(packaging),
+      'rpm': serializer.toJson<int?>(rpm),
+      'soundType': serializer.toJson<String?>(soundType),
+      'spars': serializer.toJson<String?>(spars),
+      'title': serializer.toJson<String?>(title),
+      'trackCount': serializer.toJson<int?>(trackCount),
+      'vinylColor': serializer.toJson<String?>(vinylColor),
+      'vinylWeight': serializer.toJson<String?>(vinylWeight),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  MusicMediaRow copyWith(
+          {String? releaseId,
+          String? id,
+          int? mediaNumber,
+          Value<String?> mediaCondition = const Value.absent(),
+          Value<String?> mediaType = const Value.absent(),
+          Value<String?> packaging = const Value.absent(),
+          Value<int?> rpm = const Value.absent(),
+          Value<String?> soundType = const Value.absent(),
+          Value<String?> spars = const Value.absent(),
+          Value<String?> title = const Value.absent(),
+          Value<int?> trackCount = const Value.absent(),
+          Value<String?> vinylColor = const Value.absent(),
+          Value<String?> vinylWeight = const Value.absent(),
+          String? rawPayloadJson}) =>
+      MusicMediaRow(
+        releaseId: releaseId ?? this.releaseId,
+        id: id ?? this.id,
+        mediaNumber: mediaNumber ?? this.mediaNumber,
+        mediaCondition:
+            mediaCondition.present ? mediaCondition.value : this.mediaCondition,
+        mediaType: mediaType.present ? mediaType.value : this.mediaType,
+        packaging: packaging.present ? packaging.value : this.packaging,
+        rpm: rpm.present ? rpm.value : this.rpm,
+        soundType: soundType.present ? soundType.value : this.soundType,
+        spars: spars.present ? spars.value : this.spars,
+        title: title.present ? title.value : this.title,
+        trackCount: trackCount.present ? trackCount.value : this.trackCount,
+        vinylColor: vinylColor.present ? vinylColor.value : this.vinylColor,
+        vinylWeight: vinylWeight.present ? vinylWeight.value : this.vinylWeight,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  MusicMediaRow copyWithCompanion(MusicMediaRowsCompanion data) {
+    return MusicMediaRow(
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      id: data.id.present ? data.id.value : this.id,
+      mediaNumber:
+          data.mediaNumber.present ? data.mediaNumber.value : this.mediaNumber,
+      mediaCondition: data.mediaCondition.present
+          ? data.mediaCondition.value
+          : this.mediaCondition,
+      mediaType: data.mediaType.present ? data.mediaType.value : this.mediaType,
+      packaging: data.packaging.present ? data.packaging.value : this.packaging,
+      rpm: data.rpm.present ? data.rpm.value : this.rpm,
+      soundType: data.soundType.present ? data.soundType.value : this.soundType,
+      spars: data.spars.present ? data.spars.value : this.spars,
+      title: data.title.present ? data.title.value : this.title,
+      trackCount:
+          data.trackCount.present ? data.trackCount.value : this.trackCount,
+      vinylColor:
+          data.vinylColor.present ? data.vinylColor.value : this.vinylColor,
+      vinylWeight:
+          data.vinylWeight.present ? data.vinylWeight.value : this.vinylWeight,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicMediaRow(')
+          ..write('releaseId: $releaseId, ')
+          ..write('id: $id, ')
+          ..write('mediaNumber: $mediaNumber, ')
+          ..write('mediaCondition: $mediaCondition, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('packaging: $packaging, ')
+          ..write('rpm: $rpm, ')
+          ..write('soundType: $soundType, ')
+          ..write('spars: $spars, ')
+          ..write('title: $title, ')
+          ..write('trackCount: $trackCount, ')
+          ..write('vinylColor: $vinylColor, ')
+          ..write('vinylWeight: $vinylWeight, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      releaseId,
+      id,
+      mediaNumber,
+      mediaCondition,
+      mediaType,
+      packaging,
+      rpm,
+      soundType,
+      spars,
+      title,
+      trackCount,
+      vinylColor,
+      vinylWeight,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicMediaRow &&
+          other.releaseId == this.releaseId &&
+          other.id == this.id &&
+          other.mediaNumber == this.mediaNumber &&
+          other.mediaCondition == this.mediaCondition &&
+          other.mediaType == this.mediaType &&
+          other.packaging == this.packaging &&
+          other.rpm == this.rpm &&
+          other.soundType == this.soundType &&
+          other.spars == this.spars &&
+          other.title == this.title &&
+          other.trackCount == this.trackCount &&
+          other.vinylColor == this.vinylColor &&
+          other.vinylWeight == this.vinylWeight &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class MusicMediaRowsCompanion extends UpdateCompanion<MusicMediaRow> {
+  final Value<String> releaseId;
+  final Value<String> id;
+  final Value<int> mediaNumber;
+  final Value<String?> mediaCondition;
+  final Value<String?> mediaType;
+  final Value<String?> packaging;
+  final Value<int?> rpm;
+  final Value<String?> soundType;
+  final Value<String?> spars;
+  final Value<String?> title;
+  final Value<int?> trackCount;
+  final Value<String?> vinylColor;
+  final Value<String?> vinylWeight;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const MusicMediaRowsCompanion({
+    this.releaseId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.mediaNumber = const Value.absent(),
+    this.mediaCondition = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.packaging = const Value.absent(),
+    this.rpm = const Value.absent(),
+    this.soundType = const Value.absent(),
+    this.spars = const Value.absent(),
+    this.title = const Value.absent(),
+    this.trackCount = const Value.absent(),
+    this.vinylColor = const Value.absent(),
+    this.vinylWeight = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicMediaRowsCompanion.insert({
+    required String releaseId,
+    required String id,
+    required int mediaNumber,
+    this.mediaCondition = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.packaging = const Value.absent(),
+    this.rpm = const Value.absent(),
+    this.soundType = const Value.absent(),
+    this.spars = const Value.absent(),
+    this.title = const Value.absent(),
+    this.trackCount = const Value.absent(),
+    this.vinylColor = const Value.absent(),
+    this.vinylWeight = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : releaseId = Value(releaseId),
+        id = Value(id),
+        mediaNumber = Value(mediaNumber);
+  static Insertable<MusicMediaRow> custom({
+    Expression<String>? releaseId,
+    Expression<String>? id,
+    Expression<int>? mediaNumber,
+    Expression<String>? mediaCondition,
+    Expression<String>? mediaType,
+    Expression<String>? packaging,
+    Expression<int>? rpm,
+    Expression<String>? soundType,
+    Expression<String>? spars,
+    Expression<String>? title,
+    Expression<int>? trackCount,
+    Expression<String>? vinylColor,
+    Expression<String>? vinylWeight,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (releaseId != null) 'release_id': releaseId,
+      if (id != null) 'id': id,
+      if (mediaNumber != null) 'media_number': mediaNumber,
+      if (mediaCondition != null) 'media_condition': mediaCondition,
+      if (mediaType != null) 'media_type': mediaType,
+      if (packaging != null) 'packaging': packaging,
+      if (rpm != null) 'rpm': rpm,
+      if (soundType != null) 'sound_type': soundType,
+      if (spars != null) 'spars': spars,
+      if (title != null) 'title': title,
+      if (trackCount != null) 'track_count': trackCount,
+      if (vinylColor != null) 'vinyl_color': vinylColor,
+      if (vinylWeight != null) 'vinyl_weight': vinylWeight,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicMediaRowsCompanion copyWith(
+      {Value<String>? releaseId,
+      Value<String>? id,
+      Value<int>? mediaNumber,
+      Value<String?>? mediaCondition,
+      Value<String?>? mediaType,
+      Value<String?>? packaging,
+      Value<int?>? rpm,
+      Value<String?>? soundType,
+      Value<String?>? spars,
+      Value<String?>? title,
+      Value<int?>? trackCount,
+      Value<String?>? vinylColor,
+      Value<String?>? vinylWeight,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return MusicMediaRowsCompanion(
+      releaseId: releaseId ?? this.releaseId,
+      id: id ?? this.id,
+      mediaNumber: mediaNumber ?? this.mediaNumber,
+      mediaCondition: mediaCondition ?? this.mediaCondition,
+      mediaType: mediaType ?? this.mediaType,
+      packaging: packaging ?? this.packaging,
+      rpm: rpm ?? this.rpm,
+      soundType: soundType ?? this.soundType,
+      spars: spars ?? this.spars,
+      title: title ?? this.title,
+      trackCount: trackCount ?? this.trackCount,
+      vinylColor: vinylColor ?? this.vinylColor,
+      vinylWeight: vinylWeight ?? this.vinylWeight,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (mediaNumber.present) {
+      map['media_number'] = Variable<int>(mediaNumber.value);
+    }
+    if (mediaCondition.present) {
+      map['media_condition'] = Variable<String>(mediaCondition.value);
+    }
+    if (mediaType.present) {
+      map['media_type'] = Variable<String>(mediaType.value);
+    }
+    if (packaging.present) {
+      map['packaging'] = Variable<String>(packaging.value);
+    }
+    if (rpm.present) {
+      map['rpm'] = Variable<int>(rpm.value);
+    }
+    if (soundType.present) {
+      map['sound_type'] = Variable<String>(soundType.value);
+    }
+    if (spars.present) {
+      map['spars'] = Variable<String>(spars.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (trackCount.present) {
+      map['track_count'] = Variable<int>(trackCount.value);
+    }
+    if (vinylColor.present) {
+      map['vinyl_color'] = Variable<String>(vinylColor.value);
+    }
+    if (vinylWeight.present) {
+      map['vinyl_weight'] = Variable<String>(vinylWeight.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicMediaRowsCompanion(')
+          ..write('releaseId: $releaseId, ')
+          ..write('id: $id, ')
+          ..write('mediaNumber: $mediaNumber, ')
+          ..write('mediaCondition: $mediaCondition, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('packaging: $packaging, ')
+          ..write('rpm: $rpm, ')
+          ..write('soundType: $soundType, ')
+          ..write('spars: $spars, ')
+          ..write('title: $title, ')
+          ..write('trackCount: $trackCount, ')
+          ..write('vinylColor: $vinylColor, ')
+          ..write('vinylWeight: $vinylWeight, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicTrackRowsTable extends MusicTrackRows
+    with TableInfo<$MusicTrackRowsTable, MusicTrackRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicTrackRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mediaIdMeta =
+      const VerificationMeta('mediaId');
+  @override
+  late final GeneratedColumn<String> mediaId = GeneratedColumn<String>(
+      'media_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _positionMeta =
+      const VerificationMeta('position');
+  @override
+  late final GeneratedColumn<String> position = GeneratedColumn<String>(
+      'position', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _compositionMeta =
+      const VerificationMeta('composition');
+  @override
+  late final GeneratedColumn<String> composition = GeneratedColumn<String>(
+      'composition', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _durationMsMeta =
+      const VerificationMeta('durationMs');
+  @override
+  late final GeneratedColumn<int> durationMs = GeneratedColumn<int>(
+      'duration_ms', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _instrumentMeta =
+      const VerificationMeta('instrument');
+  @override
+  late final GeneratedColumn<String> instrument = GeneratedColumn<String>(
+      'instrument', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _artistMeta = const VerificationMeta('artist');
+  @override
+  late final GeneratedColumn<String> artist = GeneratedColumn<String>(
+      'artist', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        mediaId,
+        id,
+        position,
+        title,
+        composition,
+        durationMs,
+        instrument,
+        artist,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_track_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MusicTrackRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('media_id')) {
+      context.handle(_mediaIdMeta,
+          mediaId.isAcceptableOrUnknown(data['media_id']!, _mediaIdMeta));
+    } else if (isInserting) {
+      context.missing(_mediaIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(_positionMeta,
+          position.isAcceptableOrUnknown(data['position']!, _positionMeta));
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('composition')) {
+      context.handle(
+          _compositionMeta,
+          composition.isAcceptableOrUnknown(
+              data['composition']!, _compositionMeta));
+    }
+    if (data.containsKey('duration_ms')) {
+      context.handle(
+          _durationMsMeta,
+          durationMs.isAcceptableOrUnknown(
+              data['duration_ms']!, _durationMsMeta));
+    }
+    if (data.containsKey('instrument')) {
+      context.handle(
+          _instrumentMeta,
+          instrument.isAcceptableOrUnknown(
+              data['instrument']!, _instrumentMeta));
+    }
+    if (data.containsKey('artist')) {
+      context.handle(_artistMeta,
+          artist.isAcceptableOrUnknown(data['artist']!, _artistMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {mediaId, id};
+  @override
+  MusicTrackRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicTrackRow(
+      mediaId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      position: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}position'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      composition: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}composition']),
+      durationMs: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}duration_ms']),
+      instrument: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}instrument']),
+      artist: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}artist']),
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $MusicTrackRowsTable createAlias(String alias) {
+    return $MusicTrackRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicTrackRow extends DataClass implements Insertable<MusicTrackRow> {
+  final String mediaId;
+  final String id;
+  final String position;
+  final String title;
+  final String? composition;
+  final int? durationMs;
+  final String? instrument;
+  final String? artist;
+  final String rawPayloadJson;
+  const MusicTrackRow(
+      {required this.mediaId,
+      required this.id,
+      required this.position,
+      required this.title,
+      this.composition,
+      this.durationMs,
+      this.instrument,
+      this.artist,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['media_id'] = Variable<String>(mediaId);
+    map['id'] = Variable<String>(id);
+    map['position'] = Variable<String>(position);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || composition != null) {
+      map['composition'] = Variable<String>(composition);
+    }
+    if (!nullToAbsent || durationMs != null) {
+      map['duration_ms'] = Variable<int>(durationMs);
+    }
+    if (!nullToAbsent || instrument != null) {
+      map['instrument'] = Variable<String>(instrument);
+    }
+    if (!nullToAbsent || artist != null) {
+      map['artist'] = Variable<String>(artist);
+    }
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  MusicTrackRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicTrackRowsCompanion(
+      mediaId: Value(mediaId),
+      id: Value(id),
+      position: Value(position),
+      title: Value(title),
+      composition: composition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(composition),
+      durationMs: durationMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationMs),
+      instrument: instrument == null && nullToAbsent
+          ? const Value.absent()
+          : Value(instrument),
+      artist:
+          artist == null && nullToAbsent ? const Value.absent() : Value(artist),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory MusicTrackRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicTrackRow(
+      mediaId: serializer.fromJson<String>(json['mediaId']),
+      id: serializer.fromJson<String>(json['id']),
+      position: serializer.fromJson<String>(json['position']),
+      title: serializer.fromJson<String>(json['title']),
+      composition: serializer.fromJson<String?>(json['composition']),
+      durationMs: serializer.fromJson<int?>(json['durationMs']),
+      instrument: serializer.fromJson<String?>(json['instrument']),
+      artist: serializer.fromJson<String?>(json['artist']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'mediaId': serializer.toJson<String>(mediaId),
+      'id': serializer.toJson<String>(id),
+      'position': serializer.toJson<String>(position),
+      'title': serializer.toJson<String>(title),
+      'composition': serializer.toJson<String?>(composition),
+      'durationMs': serializer.toJson<int?>(durationMs),
+      'instrument': serializer.toJson<String?>(instrument),
+      'artist': serializer.toJson<String?>(artist),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  MusicTrackRow copyWith(
+          {String? mediaId,
+          String? id,
+          String? position,
+          String? title,
+          Value<String?> composition = const Value.absent(),
+          Value<int?> durationMs = const Value.absent(),
+          Value<String?> instrument = const Value.absent(),
+          Value<String?> artist = const Value.absent(),
+          String? rawPayloadJson}) =>
+      MusicTrackRow(
+        mediaId: mediaId ?? this.mediaId,
+        id: id ?? this.id,
+        position: position ?? this.position,
+        title: title ?? this.title,
+        composition: composition.present ? composition.value : this.composition,
+        durationMs: durationMs.present ? durationMs.value : this.durationMs,
+        instrument: instrument.present ? instrument.value : this.instrument,
+        artist: artist.present ? artist.value : this.artist,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  MusicTrackRow copyWithCompanion(MusicTrackRowsCompanion data) {
+    return MusicTrackRow(
+      mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
+      id: data.id.present ? data.id.value : this.id,
+      position: data.position.present ? data.position.value : this.position,
+      title: data.title.present ? data.title.value : this.title,
+      composition:
+          data.composition.present ? data.composition.value : this.composition,
+      durationMs:
+          data.durationMs.present ? data.durationMs.value : this.durationMs,
+      instrument:
+          data.instrument.present ? data.instrument.value : this.instrument,
+      artist: data.artist.present ? data.artist.value : this.artist,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicTrackRow(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('position: $position, ')
+          ..write('title: $title, ')
+          ..write('composition: $composition, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('instrument: $instrument, ')
+          ..write('artist: $artist, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(mediaId, id, position, title, composition,
+      durationMs, instrument, artist, rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicTrackRow &&
+          other.mediaId == this.mediaId &&
+          other.id == this.id &&
+          other.position == this.position &&
+          other.title == this.title &&
+          other.composition == this.composition &&
+          other.durationMs == this.durationMs &&
+          other.instrument == this.instrument &&
+          other.artist == this.artist &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class MusicTrackRowsCompanion extends UpdateCompanion<MusicTrackRow> {
+  final Value<String> mediaId;
+  final Value<String> id;
+  final Value<String> position;
+  final Value<String> title;
+  final Value<String?> composition;
+  final Value<int?> durationMs;
+  final Value<String?> instrument;
+  final Value<String?> artist;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const MusicTrackRowsCompanion({
+    this.mediaId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.position = const Value.absent(),
+    this.title = const Value.absent(),
+    this.composition = const Value.absent(),
+    this.durationMs = const Value.absent(),
+    this.instrument = const Value.absent(),
+    this.artist = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicTrackRowsCompanion.insert({
+    required String mediaId,
+    required String id,
+    required String position,
+    required String title,
+    this.composition = const Value.absent(),
+    this.durationMs = const Value.absent(),
+    this.instrument = const Value.absent(),
+    this.artist = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : mediaId = Value(mediaId),
+        id = Value(id),
+        position = Value(position),
+        title = Value(title);
+  static Insertable<MusicTrackRow> custom({
+    Expression<String>? mediaId,
+    Expression<String>? id,
+    Expression<String>? position,
+    Expression<String>? title,
+    Expression<String>? composition,
+    Expression<int>? durationMs,
+    Expression<String>? instrument,
+    Expression<String>? artist,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (mediaId != null) 'media_id': mediaId,
+      if (id != null) 'id': id,
+      if (position != null) 'position': position,
+      if (title != null) 'title': title,
+      if (composition != null) 'composition': composition,
+      if (durationMs != null) 'duration_ms': durationMs,
+      if (instrument != null) 'instrument': instrument,
+      if (artist != null) 'artist': artist,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicTrackRowsCompanion copyWith(
+      {Value<String>? mediaId,
+      Value<String>? id,
+      Value<String>? position,
+      Value<String>? title,
+      Value<String?>? composition,
+      Value<int?>? durationMs,
+      Value<String?>? instrument,
+      Value<String?>? artist,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return MusicTrackRowsCompanion(
+      mediaId: mediaId ?? this.mediaId,
+      id: id ?? this.id,
+      position: position ?? this.position,
+      title: title ?? this.title,
+      composition: composition ?? this.composition,
+      durationMs: durationMs ?? this.durationMs,
+      instrument: instrument ?? this.instrument,
+      artist: artist ?? this.artist,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (mediaId.present) {
+      map['media_id'] = Variable<String>(mediaId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<String>(position.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (composition.present) {
+      map['composition'] = Variable<String>(composition.value);
+    }
+    if (durationMs.present) {
+      map['duration_ms'] = Variable<int>(durationMs.value);
+    }
+    if (instrument.present) {
+      map['instrument'] = Variable<String>(instrument.value);
+    }
+    if (artist.present) {
+      map['artist'] = Variable<String>(artist.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicTrackRowsCompanion(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('position: $position, ')
+          ..write('title: $title, ')
+          ..write('composition: $composition, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('instrument: $instrument, ')
+          ..write('artist: $artist, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicOwnedDetailsRowsTable extends MusicOwnedDetailsRows
+    with TableInfo<$MusicOwnedDetailsRowsTable, MusicOwnedDetailsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicOwnedDetailsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _storageDeviceMeta =
+      const VerificationMeta('storageDevice');
+  @override
+  late final GeneratedColumn<String> storageDevice = GeneratedColumn<String>(
+      'storage_device', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _storageSlotMeta =
+      const VerificationMeta('storageSlot');
+  @override
+  late final GeneratedColumn<String> storageSlot = GeneratedColumn<String>(
+      'storage_slot', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _signedByMeta =
+      const VerificationMeta('signedBy');
+  @override
+  late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
+      'signed_by', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastCleanedDateMeta =
+      const VerificationMeta('lastCleanedDate');
+  @override
+  late final GeneratedColumn<DateTime> lastCleanedDate =
+      GeneratedColumn<DateTime>('last_cleaned_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _matrixRunoutsJsonMeta =
+      const VerificationMeta('matrixRunoutsJson');
+  @override
+  late final GeneratedColumn<String> matrixRunoutsJson =
+      GeneratedColumn<String>('matrix_runouts_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        ownedItemId,
+        storageDevice,
+        storageSlot,
+        signedBy,
+        lastCleanedDate,
+        matrixRunoutsJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_owned_details_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MusicOwnedDetailsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('storage_device')) {
+      context.handle(
+          _storageDeviceMeta,
+          storageDevice.isAcceptableOrUnknown(
+              data['storage_device']!, _storageDeviceMeta));
+    }
+    if (data.containsKey('storage_slot')) {
+      context.handle(
+          _storageSlotMeta,
+          storageSlot.isAcceptableOrUnknown(
+              data['storage_slot']!, _storageSlotMeta));
+    }
+    if (data.containsKey('signed_by')) {
+      context.handle(_signedByMeta,
+          signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
+    }
+    if (data.containsKey('last_cleaned_date')) {
+      context.handle(
+          _lastCleanedDateMeta,
+          lastCleanedDate.isAcceptableOrUnknown(
+              data['last_cleaned_date']!, _lastCleanedDateMeta));
+    }
+    if (data.containsKey('matrix_runouts_json')) {
+      context.handle(
+          _matrixRunoutsJsonMeta,
+          matrixRunoutsJson.isAcceptableOrUnknown(
+              data['matrix_runouts_json']!, _matrixRunoutsJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  @override
+  MusicOwnedDetailsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicOwnedDetailsRow(
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      storageDevice: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_device']),
+      storageSlot: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_slot']),
+      signedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
+      lastCleanedDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_cleaned_date']),
+      matrixRunoutsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}matrix_runouts_json'])!,
+    );
+  }
+
+  @override
+  $MusicOwnedDetailsRowsTable createAlias(String alias) {
+    return $MusicOwnedDetailsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicOwnedDetailsRow extends DataClass
+    implements Insertable<MusicOwnedDetailsRow> {
+  final String ownedItemId;
+  final String? storageDevice;
+  final String? storageSlot;
+  final String? signedBy;
+  final DateTime? lastCleanedDate;
+  final String matrixRunoutsJson;
+  const MusicOwnedDetailsRow(
+      {required this.ownedItemId,
+      this.storageDevice,
+      this.storageSlot,
+      this.signedBy,
+      this.lastCleanedDate,
+      required this.matrixRunoutsJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || storageDevice != null) {
+      map['storage_device'] = Variable<String>(storageDevice);
+    }
+    if (!nullToAbsent || storageSlot != null) {
+      map['storage_slot'] = Variable<String>(storageSlot);
+    }
+    if (!nullToAbsent || signedBy != null) {
+      map['signed_by'] = Variable<String>(signedBy);
+    }
+    if (!nullToAbsent || lastCleanedDate != null) {
+      map['last_cleaned_date'] = Variable<DateTime>(lastCleanedDate);
+    }
+    map['matrix_runouts_json'] = Variable<String>(matrixRunoutsJson);
+    return map;
+  }
+
+  MusicOwnedDetailsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicOwnedDetailsRowsCompanion(
+      ownedItemId: Value(ownedItemId),
+      storageDevice: storageDevice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageDevice),
+      storageSlot: storageSlot == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageSlot),
+      signedBy: signedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(signedBy),
+      lastCleanedDate: lastCleanedDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastCleanedDate),
+      matrixRunoutsJson: Value(matrixRunoutsJson),
+    );
+  }
+
+  factory MusicOwnedDetailsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicOwnedDetailsRow(
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      storageDevice: serializer.fromJson<String?>(json['storageDevice']),
+      storageSlot: serializer.fromJson<String?>(json['storageSlot']),
+      signedBy: serializer.fromJson<String?>(json['signedBy']),
+      lastCleanedDate: serializer.fromJson<DateTime?>(json['lastCleanedDate']),
+      matrixRunoutsJson: serializer.fromJson<String>(json['matrixRunoutsJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'storageDevice': serializer.toJson<String?>(storageDevice),
+      'storageSlot': serializer.toJson<String?>(storageSlot),
+      'signedBy': serializer.toJson<String?>(signedBy),
+      'lastCleanedDate': serializer.toJson<DateTime?>(lastCleanedDate),
+      'matrixRunoutsJson': serializer.toJson<String>(matrixRunoutsJson),
+    };
+  }
+
+  MusicOwnedDetailsRow copyWith(
+          {String? ownedItemId,
+          Value<String?> storageDevice = const Value.absent(),
+          Value<String?> storageSlot = const Value.absent(),
+          Value<String?> signedBy = const Value.absent(),
+          Value<DateTime?> lastCleanedDate = const Value.absent(),
+          String? matrixRunoutsJson}) =>
+      MusicOwnedDetailsRow(
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        storageDevice:
+            storageDevice.present ? storageDevice.value : this.storageDevice,
+        storageSlot: storageSlot.present ? storageSlot.value : this.storageSlot,
+        signedBy: signedBy.present ? signedBy.value : this.signedBy,
+        lastCleanedDate: lastCleanedDate.present
+            ? lastCleanedDate.value
+            : this.lastCleanedDate,
+        matrixRunoutsJson: matrixRunoutsJson ?? this.matrixRunoutsJson,
+      );
+  MusicOwnedDetailsRow copyWithCompanion(MusicOwnedDetailsRowsCompanion data) {
+    return MusicOwnedDetailsRow(
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      storageDevice: data.storageDevice.present
+          ? data.storageDevice.value
+          : this.storageDevice,
+      storageSlot:
+          data.storageSlot.present ? data.storageSlot.value : this.storageSlot,
+      signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
+      lastCleanedDate: data.lastCleanedDate.present
+          ? data.lastCleanedDate.value
+          : this.lastCleanedDate,
+      matrixRunoutsJson: data.matrixRunoutsJson.present
+          ? data.matrixRunoutsJson.value
+          : this.matrixRunoutsJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicOwnedDetailsRow(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('storageDevice: $storageDevice, ')
+          ..write('storageSlot: $storageSlot, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('lastCleanedDate: $lastCleanedDate, ')
+          ..write('matrixRunoutsJson: $matrixRunoutsJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ownedItemId, storageDevice, storageSlot,
+      signedBy, lastCleanedDate, matrixRunoutsJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicOwnedDetailsRow &&
+          other.ownedItemId == this.ownedItemId &&
+          other.storageDevice == this.storageDevice &&
+          other.storageSlot == this.storageSlot &&
+          other.signedBy == this.signedBy &&
+          other.lastCleanedDate == this.lastCleanedDate &&
+          other.matrixRunoutsJson == this.matrixRunoutsJson);
+}
+
+class MusicOwnedDetailsRowsCompanion
+    extends UpdateCompanion<MusicOwnedDetailsRow> {
+  final Value<String> ownedItemId;
+  final Value<String?> storageDevice;
+  final Value<String?> storageSlot;
+  final Value<String?> signedBy;
+  final Value<DateTime?> lastCleanedDate;
+  final Value<String> matrixRunoutsJson;
+  final Value<int> rowid;
+  const MusicOwnedDetailsRowsCompanion({
+    this.ownedItemId = const Value.absent(),
+    this.storageDevice = const Value.absent(),
+    this.storageSlot = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.lastCleanedDate = const Value.absent(),
+    this.matrixRunoutsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicOwnedDetailsRowsCompanion.insert({
+    required String ownedItemId,
+    this.storageDevice = const Value.absent(),
+    this.storageSlot = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.lastCleanedDate = const Value.absent(),
+    this.matrixRunoutsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : ownedItemId = Value(ownedItemId);
+  static Insertable<MusicOwnedDetailsRow> custom({
+    Expression<String>? ownedItemId,
+    Expression<String>? storageDevice,
+    Expression<String>? storageSlot,
+    Expression<String>? signedBy,
+    Expression<DateTime>? lastCleanedDate,
+    Expression<String>? matrixRunoutsJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (storageDevice != null) 'storage_device': storageDevice,
+      if (storageSlot != null) 'storage_slot': storageSlot,
+      if (signedBy != null) 'signed_by': signedBy,
+      if (lastCleanedDate != null) 'last_cleaned_date': lastCleanedDate,
+      if (matrixRunoutsJson != null) 'matrix_runouts_json': matrixRunoutsJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicOwnedDetailsRowsCompanion copyWith(
+      {Value<String>? ownedItemId,
+      Value<String?>? storageDevice,
+      Value<String?>? storageSlot,
+      Value<String?>? signedBy,
+      Value<DateTime?>? lastCleanedDate,
+      Value<String>? matrixRunoutsJson,
+      Value<int>? rowid}) {
+    return MusicOwnedDetailsRowsCompanion(
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      storageDevice: storageDevice ?? this.storageDevice,
+      storageSlot: storageSlot ?? this.storageSlot,
+      signedBy: signedBy ?? this.signedBy,
+      lastCleanedDate: lastCleanedDate ?? this.lastCleanedDate,
+      matrixRunoutsJson: matrixRunoutsJson ?? this.matrixRunoutsJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (storageDevice.present) {
+      map['storage_device'] = Variable<String>(storageDevice.value);
+    }
+    if (storageSlot.present) {
+      map['storage_slot'] = Variable<String>(storageSlot.value);
+    }
+    if (signedBy.present) {
+      map['signed_by'] = Variable<String>(signedBy.value);
+    }
+    if (lastCleanedDate.present) {
+      map['last_cleaned_date'] = Variable<DateTime>(lastCleanedDate.value);
+    }
+    if (matrixRunoutsJson.present) {
+      map['matrix_runouts_json'] = Variable<String>(matrixRunoutsJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicOwnedDetailsRowsCompanion(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('storageDevice: $storageDevice, ')
+          ..write('storageSlot: $storageSlot, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('lastCleanedDate: $lastCleanedDate, ')
+          ..write('matrixRunoutsJson: $matrixRunoutsJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -36399,6 +38906,12 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $AnimeOwnedDetailsRowsTable(this);
   late final $AnimeTrackingRowsTable animeTrackingRows =
       $AnimeTrackingRowsTable(this);
+  late final $MusicReleaseRowsTable musicReleaseRows =
+      $MusicReleaseRowsTable(this);
+  late final $MusicMediaRowsTable musicMediaRows = $MusicMediaRowsTable(this);
+  late final $MusicTrackRowsTable musicTrackRows = $MusicTrackRowsTable(this);
+  late final $MusicOwnedDetailsRowsTable musicOwnedDetailsRows =
+      $MusicOwnedDetailsRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -36459,7 +38972,11 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         animeEpisodeRows,
         animeReleaseRows,
         animeOwnedDetailsRows,
-        animeTrackingRows
+        animeTrackingRows,
+        musicReleaseRows,
+        musicMediaRows,
+        musicTrackRows,
+        musicOwnedDetailsRows
       ];
 }
 
@@ -53142,6 +55659,1162 @@ typedef $$AnimeTrackingRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     AnimeTrackingRow,
     PrefetchHooks Function()>;
+typedef $$MusicReleaseRowsTableCreateCompanionBuilder
+    = MusicReleaseRowsCompanion Function({
+  required String id,
+  required String title,
+  Value<String?> artist,
+  Value<String?> publisher,
+  Value<String?> catalogNumber,
+  Value<String?> barcode,
+  Value<DateTime?> releaseDate,
+  Value<DateTime?> recordingDate,
+  Value<String?> releaseStatus,
+  Value<String?> releaseType,
+  Value<String?> sortTitle,
+  Value<String?> subtitle,
+  Value<String?> studio,
+  Value<String?> countryCode,
+  Value<String?> language,
+  Value<String?> coverImageUrl,
+  Value<String> genresJson,
+  Value<String> contributionsJson,
+  Value<bool?> isLive,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$MusicReleaseRowsTableUpdateCompanionBuilder
+    = MusicReleaseRowsCompanion Function({
+  Value<String> id,
+  Value<String> title,
+  Value<String?> artist,
+  Value<String?> publisher,
+  Value<String?> catalogNumber,
+  Value<String?> barcode,
+  Value<DateTime?> releaseDate,
+  Value<DateTime?> recordingDate,
+  Value<String?> releaseStatus,
+  Value<String?> releaseType,
+  Value<String?> sortTitle,
+  Value<String?> subtitle,
+  Value<String?> studio,
+  Value<String?> countryCode,
+  Value<String?> language,
+  Value<String?> coverImageUrl,
+  Value<String> genresJson,
+  Value<String> contributionsJson,
+  Value<bool?> isLive,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$MusicReleaseRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseRowsTable> {
+  $$MusicReleaseRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get artist => $composableBuilder(
+      column: $table.artist, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get barcode => $composableBuilder(
+      column: $table.barcode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get recordingDate => $composableBuilder(
+      column: $table.recordingDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseType => $composableBuilder(
+      column: $table.releaseType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get studio => $composableBuilder(
+      column: $table.studio, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get countryCode => $composableBuilder(
+      column: $table.countryCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isLive => $composableBuilder(
+      column: $table.isLive, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicReleaseRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseRowsTable> {
+  $$MusicReleaseRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get artist => $composableBuilder(
+      column: $table.artist, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get barcode => $composableBuilder(
+      column: $table.barcode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get recordingDate => $composableBuilder(
+      column: $table.recordingDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseType => $composableBuilder(
+      column: $table.releaseType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get studio => $composableBuilder(
+      column: $table.studio, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get countryCode => $composableBuilder(
+      column: $table.countryCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isLive => $composableBuilder(
+      column: $table.isLive, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicReleaseRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicReleaseRowsTable> {
+  $$MusicReleaseRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get artist =>
+      $composableBuilder(column: $table.artist, builder: (column) => column);
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get recordingDate => $composableBuilder(
+      column: $table.recordingDate, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseType => $composableBuilder(
+      column: $table.releaseType, builder: (column) => column);
+
+  GeneratedColumn<String> get sortTitle =>
+      $composableBuilder(column: $table.sortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitle =>
+      $composableBuilder(column: $table.subtitle, builder: (column) => column);
+
+  GeneratedColumn<String> get studio =>
+      $composableBuilder(column: $table.studio, builder: (column) => column);
+
+  GeneratedColumn<String> get countryCode => $composableBuilder(
+      column: $table.countryCode, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => column);
+
+  GeneratedColumn<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson, builder: (column) => column);
+
+  GeneratedColumn<bool> get isLive =>
+      $composableBuilder(column: $table.isLive, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$MusicReleaseRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicReleaseRowsTable,
+    MusicReleaseRow,
+    $$MusicReleaseRowsTableFilterComposer,
+    $$MusicReleaseRowsTableOrderingComposer,
+    $$MusicReleaseRowsTableAnnotationComposer,
+    $$MusicReleaseRowsTableCreateCompanionBuilder,
+    $$MusicReleaseRowsTableUpdateCompanionBuilder,
+    (
+      MusicReleaseRow,
+      BaseReferences<_$LocalDatabase, $MusicReleaseRowsTable, MusicReleaseRow>
+    ),
+    MusicReleaseRow,
+    PrefetchHooks Function()> {
+  $$MusicReleaseRowsTableTableManager(
+      _$LocalDatabase db, $MusicReleaseRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicReleaseRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicReleaseRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicReleaseRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> artist = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> catalogNumber = const Value.absent(),
+            Value<String?> barcode = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<DateTime?> recordingDate = const Value.absent(),
+            Value<String?> releaseStatus = const Value.absent(),
+            Value<String?> releaseType = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String?> studio = const Value.absent(),
+            Value<String?> countryCode = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String> genresJson = const Value.absent(),
+            Value<String> contributionsJson = const Value.absent(),
+            Value<bool?> isLive = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseRowsCompanion(
+            id: id,
+            title: title,
+            artist: artist,
+            publisher: publisher,
+            catalogNumber: catalogNumber,
+            barcode: barcode,
+            releaseDate: releaseDate,
+            recordingDate: recordingDate,
+            releaseStatus: releaseStatus,
+            releaseType: releaseType,
+            sortTitle: sortTitle,
+            subtitle: subtitle,
+            studio: studio,
+            countryCode: countryCode,
+            language: language,
+            coverImageUrl: coverImageUrl,
+            genresJson: genresJson,
+            contributionsJson: contributionsJson,
+            isLive: isLive,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            Value<String?> artist = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> catalogNumber = const Value.absent(),
+            Value<String?> barcode = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<DateTime?> recordingDate = const Value.absent(),
+            Value<String?> releaseStatus = const Value.absent(),
+            Value<String?> releaseType = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String?> studio = const Value.absent(),
+            Value<String?> countryCode = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String> genresJson = const Value.absent(),
+            Value<String> contributionsJson = const Value.absent(),
+            Value<bool?> isLive = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicReleaseRowsCompanion.insert(
+            id: id,
+            title: title,
+            artist: artist,
+            publisher: publisher,
+            catalogNumber: catalogNumber,
+            barcode: barcode,
+            releaseDate: releaseDate,
+            recordingDate: recordingDate,
+            releaseStatus: releaseStatus,
+            releaseType: releaseType,
+            sortTitle: sortTitle,
+            subtitle: subtitle,
+            studio: studio,
+            countryCode: countryCode,
+            language: language,
+            coverImageUrl: coverImageUrl,
+            genresJson: genresJson,
+            contributionsJson: contributionsJson,
+            isLive: isLive,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicReleaseRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MusicReleaseRowsTable,
+    MusicReleaseRow,
+    $$MusicReleaseRowsTableFilterComposer,
+    $$MusicReleaseRowsTableOrderingComposer,
+    $$MusicReleaseRowsTableAnnotationComposer,
+    $$MusicReleaseRowsTableCreateCompanionBuilder,
+    $$MusicReleaseRowsTableUpdateCompanionBuilder,
+    (
+      MusicReleaseRow,
+      BaseReferences<_$LocalDatabase, $MusicReleaseRowsTable, MusicReleaseRow>
+    ),
+    MusicReleaseRow,
+    PrefetchHooks Function()>;
+typedef $$MusicMediaRowsTableCreateCompanionBuilder = MusicMediaRowsCompanion
+    Function({
+  required String releaseId,
+  required String id,
+  required int mediaNumber,
+  Value<String?> mediaCondition,
+  Value<String?> mediaType,
+  Value<String?> packaging,
+  Value<int?> rpm,
+  Value<String?> soundType,
+  Value<String?> spars,
+  Value<String?> title,
+  Value<int?> trackCount,
+  Value<String?> vinylColor,
+  Value<String?> vinylWeight,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$MusicMediaRowsTableUpdateCompanionBuilder = MusicMediaRowsCompanion
+    Function({
+  Value<String> releaseId,
+  Value<String> id,
+  Value<int> mediaNumber,
+  Value<String?> mediaCondition,
+  Value<String?> mediaType,
+  Value<String?> packaging,
+  Value<int?> rpm,
+  Value<String?> soundType,
+  Value<String?> spars,
+  Value<String?> title,
+  Value<int?> trackCount,
+  Value<String?> vinylColor,
+  Value<String?> vinylWeight,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$MusicMediaRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicMediaRowsTable> {
+  $$MusicMediaRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get mediaNumber => $composableBuilder(
+      column: $table.mediaNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaCondition => $composableBuilder(
+      column: $table.mediaCondition,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaType => $composableBuilder(
+      column: $table.mediaType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get packaging => $composableBuilder(
+      column: $table.packaging, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rpm => $composableBuilder(
+      column: $table.rpm, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get soundType => $composableBuilder(
+      column: $table.soundType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get spars => $composableBuilder(
+      column: $table.spars, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get trackCount => $composableBuilder(
+      column: $table.trackCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get vinylColor => $composableBuilder(
+      column: $table.vinylColor, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get vinylWeight => $composableBuilder(
+      column: $table.vinylWeight, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicMediaRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicMediaRowsTable> {
+  $$MusicMediaRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get mediaNumber => $composableBuilder(
+      column: $table.mediaNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaCondition => $composableBuilder(
+      column: $table.mediaCondition,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaType => $composableBuilder(
+      column: $table.mediaType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get packaging => $composableBuilder(
+      column: $table.packaging, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rpm => $composableBuilder(
+      column: $table.rpm, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get soundType => $composableBuilder(
+      column: $table.soundType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get spars => $composableBuilder(
+      column: $table.spars, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get trackCount => $composableBuilder(
+      column: $table.trackCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get vinylColor => $composableBuilder(
+      column: $table.vinylColor, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get vinylWeight => $composableBuilder(
+      column: $table.vinylWeight, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicMediaRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicMediaRowsTable> {
+  $$MusicMediaRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get mediaNumber => $composableBuilder(
+      column: $table.mediaNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaCondition => $composableBuilder(
+      column: $table.mediaCondition, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaType =>
+      $composableBuilder(column: $table.mediaType, builder: (column) => column);
+
+  GeneratedColumn<String> get packaging =>
+      $composableBuilder(column: $table.packaging, builder: (column) => column);
+
+  GeneratedColumn<int> get rpm =>
+      $composableBuilder(column: $table.rpm, builder: (column) => column);
+
+  GeneratedColumn<String> get soundType =>
+      $composableBuilder(column: $table.soundType, builder: (column) => column);
+
+  GeneratedColumn<String> get spars =>
+      $composableBuilder(column: $table.spars, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<int> get trackCount => $composableBuilder(
+      column: $table.trackCount, builder: (column) => column);
+
+  GeneratedColumn<String> get vinylColor => $composableBuilder(
+      column: $table.vinylColor, builder: (column) => column);
+
+  GeneratedColumn<String> get vinylWeight => $composableBuilder(
+      column: $table.vinylWeight, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$MusicMediaRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicMediaRowsTable,
+    MusicMediaRow,
+    $$MusicMediaRowsTableFilterComposer,
+    $$MusicMediaRowsTableOrderingComposer,
+    $$MusicMediaRowsTableAnnotationComposer,
+    $$MusicMediaRowsTableCreateCompanionBuilder,
+    $$MusicMediaRowsTableUpdateCompanionBuilder,
+    (
+      MusicMediaRow,
+      BaseReferences<_$LocalDatabase, $MusicMediaRowsTable, MusicMediaRow>
+    ),
+    MusicMediaRow,
+    PrefetchHooks Function()> {
+  $$MusicMediaRowsTableTableManager(
+      _$LocalDatabase db, $MusicMediaRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicMediaRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicMediaRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicMediaRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> releaseId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<int> mediaNumber = const Value.absent(),
+            Value<String?> mediaCondition = const Value.absent(),
+            Value<String?> mediaType = const Value.absent(),
+            Value<String?> packaging = const Value.absent(),
+            Value<int?> rpm = const Value.absent(),
+            Value<String?> soundType = const Value.absent(),
+            Value<String?> spars = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<int?> trackCount = const Value.absent(),
+            Value<String?> vinylColor = const Value.absent(),
+            Value<String?> vinylWeight = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicMediaRowsCompanion(
+            releaseId: releaseId,
+            id: id,
+            mediaNumber: mediaNumber,
+            mediaCondition: mediaCondition,
+            mediaType: mediaType,
+            packaging: packaging,
+            rpm: rpm,
+            soundType: soundType,
+            spars: spars,
+            title: title,
+            trackCount: trackCount,
+            vinylColor: vinylColor,
+            vinylWeight: vinylWeight,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String releaseId,
+            required String id,
+            required int mediaNumber,
+            Value<String?> mediaCondition = const Value.absent(),
+            Value<String?> mediaType = const Value.absent(),
+            Value<String?> packaging = const Value.absent(),
+            Value<int?> rpm = const Value.absent(),
+            Value<String?> soundType = const Value.absent(),
+            Value<String?> spars = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<int?> trackCount = const Value.absent(),
+            Value<String?> vinylColor = const Value.absent(),
+            Value<String?> vinylWeight = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicMediaRowsCompanion.insert(
+            releaseId: releaseId,
+            id: id,
+            mediaNumber: mediaNumber,
+            mediaCondition: mediaCondition,
+            mediaType: mediaType,
+            packaging: packaging,
+            rpm: rpm,
+            soundType: soundType,
+            spars: spars,
+            title: title,
+            trackCount: trackCount,
+            vinylColor: vinylColor,
+            vinylWeight: vinylWeight,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicMediaRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MusicMediaRowsTable,
+    MusicMediaRow,
+    $$MusicMediaRowsTableFilterComposer,
+    $$MusicMediaRowsTableOrderingComposer,
+    $$MusicMediaRowsTableAnnotationComposer,
+    $$MusicMediaRowsTableCreateCompanionBuilder,
+    $$MusicMediaRowsTableUpdateCompanionBuilder,
+    (
+      MusicMediaRow,
+      BaseReferences<_$LocalDatabase, $MusicMediaRowsTable, MusicMediaRow>
+    ),
+    MusicMediaRow,
+    PrefetchHooks Function()>;
+typedef $$MusicTrackRowsTableCreateCompanionBuilder = MusicTrackRowsCompanion
+    Function({
+  required String mediaId,
+  required String id,
+  required String position,
+  required String title,
+  Value<String?> composition,
+  Value<int?> durationMs,
+  Value<String?> instrument,
+  Value<String?> artist,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$MusicTrackRowsTableUpdateCompanionBuilder = MusicTrackRowsCompanion
+    Function({
+  Value<String> mediaId,
+  Value<String> id,
+  Value<String> position,
+  Value<String> title,
+  Value<String?> composition,
+  Value<int?> durationMs,
+  Value<String?> instrument,
+  Value<String?> artist,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$MusicTrackRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicTrackRowsTable> {
+  $$MusicTrackRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get position => $composableBuilder(
+      column: $table.position, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get composition => $composableBuilder(
+      column: $table.composition, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get durationMs => $composableBuilder(
+      column: $table.durationMs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get instrument => $composableBuilder(
+      column: $table.instrument, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get artist => $composableBuilder(
+      column: $table.artist, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicTrackRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicTrackRowsTable> {
+  $$MusicTrackRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get position => $composableBuilder(
+      column: $table.position, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get composition => $composableBuilder(
+      column: $table.composition, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get durationMs => $composableBuilder(
+      column: $table.durationMs, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get instrument => $composableBuilder(
+      column: $table.instrument, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get artist => $composableBuilder(
+      column: $table.artist, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicTrackRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicTrackRowsTable> {
+  $$MusicTrackRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get mediaId =>
+      $composableBuilder(column: $table.mediaId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get composition => $composableBuilder(
+      column: $table.composition, builder: (column) => column);
+
+  GeneratedColumn<int> get durationMs => $composableBuilder(
+      column: $table.durationMs, builder: (column) => column);
+
+  GeneratedColumn<String> get instrument => $composableBuilder(
+      column: $table.instrument, builder: (column) => column);
+
+  GeneratedColumn<String> get artist =>
+      $composableBuilder(column: $table.artist, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$MusicTrackRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicTrackRowsTable,
+    MusicTrackRow,
+    $$MusicTrackRowsTableFilterComposer,
+    $$MusicTrackRowsTableOrderingComposer,
+    $$MusicTrackRowsTableAnnotationComposer,
+    $$MusicTrackRowsTableCreateCompanionBuilder,
+    $$MusicTrackRowsTableUpdateCompanionBuilder,
+    (
+      MusicTrackRow,
+      BaseReferences<_$LocalDatabase, $MusicTrackRowsTable, MusicTrackRow>
+    ),
+    MusicTrackRow,
+    PrefetchHooks Function()> {
+  $$MusicTrackRowsTableTableManager(
+      _$LocalDatabase db, $MusicTrackRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicTrackRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicTrackRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicTrackRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> mediaId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> position = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> composition = const Value.absent(),
+            Value<int?> durationMs = const Value.absent(),
+            Value<String?> instrument = const Value.absent(),
+            Value<String?> artist = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicTrackRowsCompanion(
+            mediaId: mediaId,
+            id: id,
+            position: position,
+            title: title,
+            composition: composition,
+            durationMs: durationMs,
+            instrument: instrument,
+            artist: artist,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String mediaId,
+            required String id,
+            required String position,
+            required String title,
+            Value<String?> composition = const Value.absent(),
+            Value<int?> durationMs = const Value.absent(),
+            Value<String?> instrument = const Value.absent(),
+            Value<String?> artist = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicTrackRowsCompanion.insert(
+            mediaId: mediaId,
+            id: id,
+            position: position,
+            title: title,
+            composition: composition,
+            durationMs: durationMs,
+            instrument: instrument,
+            artist: artist,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicTrackRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MusicTrackRowsTable,
+    MusicTrackRow,
+    $$MusicTrackRowsTableFilterComposer,
+    $$MusicTrackRowsTableOrderingComposer,
+    $$MusicTrackRowsTableAnnotationComposer,
+    $$MusicTrackRowsTableCreateCompanionBuilder,
+    $$MusicTrackRowsTableUpdateCompanionBuilder,
+    (
+      MusicTrackRow,
+      BaseReferences<_$LocalDatabase, $MusicTrackRowsTable, MusicTrackRow>
+    ),
+    MusicTrackRow,
+    PrefetchHooks Function()>;
+typedef $$MusicOwnedDetailsRowsTableCreateCompanionBuilder
+    = MusicOwnedDetailsRowsCompanion Function({
+  required String ownedItemId,
+  Value<String?> storageDevice,
+  Value<String?> storageSlot,
+  Value<String?> signedBy,
+  Value<DateTime?> lastCleanedDate,
+  Value<String> matrixRunoutsJson,
+  Value<int> rowid,
+});
+typedef $$MusicOwnedDetailsRowsTableUpdateCompanionBuilder
+    = MusicOwnedDetailsRowsCompanion Function({
+  Value<String> ownedItemId,
+  Value<String?> storageDevice,
+  Value<String?> storageSlot,
+  Value<String?> signedBy,
+  Value<DateTime?> lastCleanedDate,
+  Value<String> matrixRunoutsJson,
+  Value<int> rowid,
+});
+
+class $$MusicOwnedDetailsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicOwnedDetailsRowsTable> {
+  $$MusicOwnedDetailsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageDevice => $composableBuilder(
+      column: $table.storageDevice, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageSlot => $composableBuilder(
+      column: $table.storageSlot, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastCleanedDate => $composableBuilder(
+      column: $table.lastCleanedDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get matrixRunoutsJson => $composableBuilder(
+      column: $table.matrixRunoutsJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicOwnedDetailsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicOwnedDetailsRowsTable> {
+  $$MusicOwnedDetailsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageDevice => $composableBuilder(
+      column: $table.storageDevice,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageSlot => $composableBuilder(
+      column: $table.storageSlot, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastCleanedDate => $composableBuilder(
+      column: $table.lastCleanedDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get matrixRunoutsJson => $composableBuilder(
+      column: $table.matrixRunoutsJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicOwnedDetailsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicOwnedDetailsRowsTable> {
+  $$MusicOwnedDetailsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get storageDevice => $composableBuilder(
+      column: $table.storageDevice, builder: (column) => column);
+
+  GeneratedColumn<String> get storageSlot => $composableBuilder(
+      column: $table.storageSlot, builder: (column) => column);
+
+  GeneratedColumn<String> get signedBy =>
+      $composableBuilder(column: $table.signedBy, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastCleanedDate => $composableBuilder(
+      column: $table.lastCleanedDate, builder: (column) => column);
+
+  GeneratedColumn<String> get matrixRunoutsJson => $composableBuilder(
+      column: $table.matrixRunoutsJson, builder: (column) => column);
+}
+
+class $$MusicOwnedDetailsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicOwnedDetailsRowsTable,
+    MusicOwnedDetailsRow,
+    $$MusicOwnedDetailsRowsTableFilterComposer,
+    $$MusicOwnedDetailsRowsTableOrderingComposer,
+    $$MusicOwnedDetailsRowsTableAnnotationComposer,
+    $$MusicOwnedDetailsRowsTableCreateCompanionBuilder,
+    $$MusicOwnedDetailsRowsTableUpdateCompanionBuilder,
+    (
+      MusicOwnedDetailsRow,
+      BaseReferences<_$LocalDatabase, $MusicOwnedDetailsRowsTable,
+          MusicOwnedDetailsRow>
+    ),
+    MusicOwnedDetailsRow,
+    PrefetchHooks Function()> {
+  $$MusicOwnedDetailsRowsTableTableManager(
+      _$LocalDatabase db, $MusicOwnedDetailsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicOwnedDetailsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicOwnedDetailsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicOwnedDetailsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String?> storageDevice = const Value.absent(),
+            Value<String?> storageSlot = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<DateTime?> lastCleanedDate = const Value.absent(),
+            Value<String> matrixRunoutsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicOwnedDetailsRowsCompanion(
+            ownedItemId: ownedItemId,
+            storageDevice: storageDevice,
+            storageSlot: storageSlot,
+            signedBy: signedBy,
+            lastCleanedDate: lastCleanedDate,
+            matrixRunoutsJson: matrixRunoutsJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String ownedItemId,
+            Value<String?> storageDevice = const Value.absent(),
+            Value<String?> storageSlot = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<DateTime?> lastCleanedDate = const Value.absent(),
+            Value<String> matrixRunoutsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicOwnedDetailsRowsCompanion.insert(
+            ownedItemId: ownedItemId,
+            storageDevice: storageDevice,
+            storageSlot: storageSlot,
+            signedBy: signedBy,
+            lastCleanedDate: lastCleanedDate,
+            matrixRunoutsJson: matrixRunoutsJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicOwnedDetailsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MusicOwnedDetailsRowsTable,
+        MusicOwnedDetailsRow,
+        $$MusicOwnedDetailsRowsTableFilterComposer,
+        $$MusicOwnedDetailsRowsTableOrderingComposer,
+        $$MusicOwnedDetailsRowsTableAnnotationComposer,
+        $$MusicOwnedDetailsRowsTableCreateCompanionBuilder,
+        $$MusicOwnedDetailsRowsTableUpdateCompanionBuilder,
+        (
+          MusicOwnedDetailsRow,
+          BaseReferences<_$LocalDatabase, $MusicOwnedDetailsRowsTable,
+              MusicOwnedDetailsRow>
+        ),
+        MusicOwnedDetailsRow,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -53268,4 +56941,12 @@ class $LocalDatabaseManager {
       $$AnimeOwnedDetailsRowsTableTableManager(_db, _db.animeOwnedDetailsRows);
   $$AnimeTrackingRowsTableTableManager get animeTrackingRows =>
       $$AnimeTrackingRowsTableTableManager(_db, _db.animeTrackingRows);
+  $$MusicReleaseRowsTableTableManager get musicReleaseRows =>
+      $$MusicReleaseRowsTableTableManager(_db, _db.musicReleaseRows);
+  $$MusicMediaRowsTableTableManager get musicMediaRows =>
+      $$MusicMediaRowsTableTableManager(_db, _db.musicMediaRows);
+  $$MusicTrackRowsTableTableManager get musicTrackRows =>
+      $$MusicTrackRowsTableTableManager(_db, _db.musicTrackRows);
+  $$MusicOwnedDetailsRowsTableTableManager get musicOwnedDetailsRows =>
+      $$MusicOwnedDetailsRowsTableTableManager(_db, _db.musicOwnedDetailsRows);
 }

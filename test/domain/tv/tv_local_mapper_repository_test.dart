@@ -73,10 +73,10 @@ void main() {
     expect(second?.releases.single.id, expected.releases.single.id);
   });
 
-  test('TV schema exposes dedicated graph tables at schema version 20', () {
+  test('TV schema exposes dedicated graph tables at schema version 21', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 20);
+    expect(db.schemaVersion, 21);
   });
 }
 

@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_loc
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_tables.dart';
 
 part 'local_database.g.dart';
 
@@ -432,13 +433,17 @@ class ProviderItemLinksCache extends Table {
   AnimeReleaseRows,
   AnimeOwnedDetailsRows,
   AnimeTrackingRows,
+  MusicReleaseRows,
+  MusicMediaRows,
+  MusicTrackRows,
+  MusicOwnedDetailsRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -516,8 +521,12 @@ class LocalDatabase extends _$LocalDatabase {
           await m.createTable(animeReleaseRows);
           await m.createTable(animeOwnedDetailsRows);
           await m.createTable(animeTrackingRows);
-        } else {
-          await _destructiveRebuild(m);
+        }
+        if (from < 21) {
+          await m.createTable(musicReleaseRows);
+          await m.createTable(musicMediaRows);
+          await m.createTable(musicTrackRows);
+          await m.createTable(musicOwnedDetailsRows);
         }
       },
       beforeOpen: (details) async {
