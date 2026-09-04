@@ -1493,6 +1493,15 @@ MovieTracking
 
 No shared Video domain model.
 
+### Status (2026-09-04)
+
+Complete. Movie now has independent typed media, release, release-media, and
+tracking models, typed identifiers, direct `MovieWorkDto` mapping, release
+payload mapping, and an injectable typed remote source. Core collections are
+decoded into Movie-owned value types rather than remaining as generic payloads.
+Focused mapping, remote-source, wrong-kind, round-trip, and field-adoption tests
+pass. Continue with PR50.
+
 ---
 
 ## PR 50 — Movie DB/repository/workspace

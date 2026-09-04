@@ -1,5 +1,11 @@
 export 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
+export 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_core_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_remote_source.dart';
+export 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
+export 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+export 'package:collectarr_app/features/library/kinds/movie/domain/movie_release.dart';
+export 'package:collectarr_app/features/library/kinds/movie/domain/movie_tracking.dart';
 export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';

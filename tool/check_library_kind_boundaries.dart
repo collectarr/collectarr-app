@@ -210,6 +210,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/kinds/book/data/remote/book_core_mapper.dart',
     'lib/features/library/kinds/game/data/remote/game_core_mapper.dart',
     'lib/features/library/kinds/boardgame/data/remote/boardgame_core_mapper.dart',
+    'lib/features/library/kinds/movie/data/remote/movie_core_mapper.dart',
     'lib/features/library/kinds/_shared/video/providers/video_seasons_provider.dart',
   };
 
