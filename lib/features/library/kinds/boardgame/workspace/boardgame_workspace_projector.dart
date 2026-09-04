@@ -36,8 +36,16 @@ final class BoardGameWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    throw UnsupportedError(
-        'Release projection is not supported for BoardGameWorkspaceProjector');
+    final boardgame =
+        BoardGameCatalogMapper.mapMetadataItemToBoardGame(source.catalogItem!);
+    final metadata = _metadataFor(source);
+    return BoardGameWorkspaceDto(
+      common: WorkspaceCommonProjection.fromShelf(source, node),
+      personal:
+          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      boardgame: boardgame,
+      metadata: metadata,
+    );
   }
 
   @override
@@ -45,7 +53,19 @@ final class BoardGameWorkspaceProjector
     required ShelfEntry source,
     required LibraryCopyNodeRef node,
   }) {
-    throw UnsupportedError(
-        'Copy projection is not supported for BoardGameWorkspaceProjector');
+    return projectTitle(
+      source: source,
+      node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
+    );
+  }
+
+  static BoardGameMetadata? _metadataFor(ShelfEntry source) {
+    final metadata = source.catalogItem?.kindMetadata;
+    if (metadata is BoardGameMetadata) {
+      return metadata;
+    }
+    return metadata == null
+        ? null
+        : BoardGameMetadata.fromJson(metadata.toSyncPayload());
   }
 }

@@ -21136,6 +21136,3038 @@ class GameOwnedDetailsRowsCompanion
   }
 }
 
+class $BoardGameMediaRowsTable extends BoardGameMediaRows
+    with TableInfo<$BoardGameMediaRowsTable, BoardGameMediaRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BoardGameMediaRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortTitleMeta =
+      const VerificationMeta('sortTitle');
+  @override
+  late final GeneratedColumn<String> sortTitle = GeneratedColumn<String>(
+      'sort_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _originalLanguageMeta =
+      const VerificationMeta('originalLanguage');
+  @override
+  late final GeneratedColumn<String> originalLanguage = GeneratedColumn<String>(
+      'original_language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _publisherMeta =
+      const VerificationMeta('publisher');
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+      'publisher', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _subtitleMeta =
+      const VerificationMeta('subtitle');
+  @override
+  late final GeneratedColumn<String> subtitle = GeneratedColumn<String>(
+      'subtitle', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _platformsJsonMeta =
+      const VerificationMeta('platformsJson');
+  @override
+  late final GeneratedColumn<String> platformsJson = GeneratedColumn<String>(
+      'platforms_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _identifiersJsonMeta =
+      const VerificationMeta('identifiersJson');
+  @override
+  late final GeneratedColumn<String> identifiersJson = GeneratedColumn<String>(
+      'identifiers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _contributorsJsonMeta =
+      const VerificationMeta('contributorsJson');
+  @override
+  late final GeneratedColumn<String> contributorsJson = GeneratedColumn<String>(
+      'contributors_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _mechanicsJsonMeta =
+      const VerificationMeta('mechanicsJson');
+  @override
+  late final GeneratedColumn<String> mechanicsJson = GeneratedColumn<String>(
+      'mechanics_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _categoriesJsonMeta =
+      const VerificationMeta('categoriesJson');
+  @override
+  late final GeneratedColumn<String> categoriesJson = GeneratedColumn<String>(
+      'categories_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _familiesJsonMeta =
+      const VerificationMeta('familiesJson');
+  @override
+  late final GeneratedColumn<String> familiesJson = GeneratedColumn<String>(
+      'families_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _expansionsJsonMeta =
+      const VerificationMeta('expansionsJson');
+  @override
+  late final GeneratedColumn<String> expansionsJson = GeneratedColumn<String>(
+      'expansions_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _rankingsJsonMeta =
+      const VerificationMeta('rankingsJson');
+  @override
+  late final GeneratedColumn<String> rankingsJson = GeneratedColumn<String>(
+      'rankings_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _searchAliasesJsonMeta =
+      const VerificationMeta('searchAliasesJson');
+  @override
+  late final GeneratedColumn<String> searchAliasesJson =
+      GeneratedColumn<String>('search_aliases_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        sortTitle,
+        description,
+        releaseDate,
+        originalLanguage,
+        publisher,
+        subtitle,
+        platformsJson,
+        identifiersJson,
+        contributorsJson,
+        mechanicsJson,
+        categoriesJson,
+        familiesJson,
+        expansionsJson,
+        rankingsJson,
+        searchAliasesJson,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'board_game_media_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<BoardGameMediaRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('sort_title')) {
+      context.handle(_sortTitleMeta,
+          sortTitle.isAcceptableOrUnknown(data['sort_title']!, _sortTitleMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('original_language')) {
+      context.handle(
+          _originalLanguageMeta,
+          originalLanguage.isAcceptableOrUnknown(
+              data['original_language']!, _originalLanguageMeta));
+    }
+    if (data.containsKey('publisher')) {
+      context.handle(_publisherMeta,
+          publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('subtitle')) {
+      context.handle(_subtitleMeta,
+          subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta));
+    }
+    if (data.containsKey('platforms_json')) {
+      context.handle(
+          _platformsJsonMeta,
+          platformsJson.isAcceptableOrUnknown(
+              data['platforms_json']!, _platformsJsonMeta));
+    }
+    if (data.containsKey('identifiers_json')) {
+      context.handle(
+          _identifiersJsonMeta,
+          identifiersJson.isAcceptableOrUnknown(
+              data['identifiers_json']!, _identifiersJsonMeta));
+    }
+    if (data.containsKey('contributors_json')) {
+      context.handle(
+          _contributorsJsonMeta,
+          contributorsJson.isAcceptableOrUnknown(
+              data['contributors_json']!, _contributorsJsonMeta));
+    }
+    if (data.containsKey('mechanics_json')) {
+      context.handle(
+          _mechanicsJsonMeta,
+          mechanicsJson.isAcceptableOrUnknown(
+              data['mechanics_json']!, _mechanicsJsonMeta));
+    }
+    if (data.containsKey('categories_json')) {
+      context.handle(
+          _categoriesJsonMeta,
+          categoriesJson.isAcceptableOrUnknown(
+              data['categories_json']!, _categoriesJsonMeta));
+    }
+    if (data.containsKey('families_json')) {
+      context.handle(
+          _familiesJsonMeta,
+          familiesJson.isAcceptableOrUnknown(
+              data['families_json']!, _familiesJsonMeta));
+    }
+    if (data.containsKey('expansions_json')) {
+      context.handle(
+          _expansionsJsonMeta,
+          expansionsJson.isAcceptableOrUnknown(
+              data['expansions_json']!, _expansionsJsonMeta));
+    }
+    if (data.containsKey('rankings_json')) {
+      context.handle(
+          _rankingsJsonMeta,
+          rankingsJson.isAcceptableOrUnknown(
+              data['rankings_json']!, _rankingsJsonMeta));
+    }
+    if (data.containsKey('search_aliases_json')) {
+      context.handle(
+          _searchAliasesJsonMeta,
+          searchAliasesJson.isAcceptableOrUnknown(
+              data['search_aliases_json']!, _searchAliasesJsonMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BoardGameMediaRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BoardGameMediaRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      sortTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_title']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      originalLanguage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}original_language']),
+      publisher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      subtitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subtitle']),
+      platformsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}platforms_json'])!,
+      identifiersJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}identifiers_json'])!,
+      contributorsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}contributors_json'])!,
+      mechanicsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}mechanics_json'])!,
+      categoriesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}categories_json'])!,
+      familiesJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}families_json'])!,
+      expansionsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}expansions_json'])!,
+      rankingsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}rankings_json'])!,
+      searchAliasesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}search_aliases_json'])!,
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $BoardGameMediaRowsTable createAlias(String alias) {
+    return $BoardGameMediaRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BoardGameMediaRow extends DataClass
+    implements Insertable<BoardGameMediaRow> {
+  final String id;
+  final String title;
+  final String? sortTitle;
+  final String? description;
+  final DateTime? releaseDate;
+  final String? originalLanguage;
+  final String? publisher;
+  final String? subtitle;
+  final String platformsJson;
+  final String identifiersJson;
+  final String contributorsJson;
+  final String mechanicsJson;
+  final String categoriesJson;
+  final String familiesJson;
+  final String expansionsJson;
+  final String rankingsJson;
+  final String searchAliasesJson;
+  final String rawPayloadJson;
+  const BoardGameMediaRow(
+      {required this.id,
+      required this.title,
+      this.sortTitle,
+      this.description,
+      this.releaseDate,
+      this.originalLanguage,
+      this.publisher,
+      this.subtitle,
+      required this.platformsJson,
+      required this.identifiersJson,
+      required this.contributorsJson,
+      required this.mechanicsJson,
+      required this.categoriesJson,
+      required this.familiesJson,
+      required this.expansionsJson,
+      required this.rankingsJson,
+      required this.searchAliasesJson,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || sortTitle != null) {
+      map['sort_title'] = Variable<String>(sortTitle);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || originalLanguage != null) {
+      map['original_language'] = Variable<String>(originalLanguage);
+    }
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || subtitle != null) {
+      map['subtitle'] = Variable<String>(subtitle);
+    }
+    map['platforms_json'] = Variable<String>(platformsJson);
+    map['identifiers_json'] = Variable<String>(identifiersJson);
+    map['contributors_json'] = Variable<String>(contributorsJson);
+    map['mechanics_json'] = Variable<String>(mechanicsJson);
+    map['categories_json'] = Variable<String>(categoriesJson);
+    map['families_json'] = Variable<String>(familiesJson);
+    map['expansions_json'] = Variable<String>(expansionsJson);
+    map['rankings_json'] = Variable<String>(rankingsJson);
+    map['search_aliases_json'] = Variable<String>(searchAliasesJson);
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  BoardGameMediaRowsCompanion toCompanion(bool nullToAbsent) {
+    return BoardGameMediaRowsCompanion(
+      id: Value(id),
+      title: Value(title),
+      sortTitle: sortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortTitle),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      originalLanguage: originalLanguage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalLanguage),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      subtitle: subtitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitle),
+      platformsJson: Value(platformsJson),
+      identifiersJson: Value(identifiersJson),
+      contributorsJson: Value(contributorsJson),
+      mechanicsJson: Value(mechanicsJson),
+      categoriesJson: Value(categoriesJson),
+      familiesJson: Value(familiesJson),
+      expansionsJson: Value(expansionsJson),
+      rankingsJson: Value(rankingsJson),
+      searchAliasesJson: Value(searchAliasesJson),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory BoardGameMediaRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BoardGameMediaRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      sortTitle: serializer.fromJson<String?>(json['sortTitle']),
+      description: serializer.fromJson<String?>(json['description']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      originalLanguage: serializer.fromJson<String?>(json['originalLanguage']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      subtitle: serializer.fromJson<String?>(json['subtitle']),
+      platformsJson: serializer.fromJson<String>(json['platformsJson']),
+      identifiersJson: serializer.fromJson<String>(json['identifiersJson']),
+      contributorsJson: serializer.fromJson<String>(json['contributorsJson']),
+      mechanicsJson: serializer.fromJson<String>(json['mechanicsJson']),
+      categoriesJson: serializer.fromJson<String>(json['categoriesJson']),
+      familiesJson: serializer.fromJson<String>(json['familiesJson']),
+      expansionsJson: serializer.fromJson<String>(json['expansionsJson']),
+      rankingsJson: serializer.fromJson<String>(json['rankingsJson']),
+      searchAliasesJson: serializer.fromJson<String>(json['searchAliasesJson']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'sortTitle': serializer.toJson<String?>(sortTitle),
+      'description': serializer.toJson<String?>(description),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'originalLanguage': serializer.toJson<String?>(originalLanguage),
+      'publisher': serializer.toJson<String?>(publisher),
+      'subtitle': serializer.toJson<String?>(subtitle),
+      'platformsJson': serializer.toJson<String>(platformsJson),
+      'identifiersJson': serializer.toJson<String>(identifiersJson),
+      'contributorsJson': serializer.toJson<String>(contributorsJson),
+      'mechanicsJson': serializer.toJson<String>(mechanicsJson),
+      'categoriesJson': serializer.toJson<String>(categoriesJson),
+      'familiesJson': serializer.toJson<String>(familiesJson),
+      'expansionsJson': serializer.toJson<String>(expansionsJson),
+      'rankingsJson': serializer.toJson<String>(rankingsJson),
+      'searchAliasesJson': serializer.toJson<String>(searchAliasesJson),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  BoardGameMediaRow copyWith(
+          {String? id,
+          String? title,
+          Value<String?> sortTitle = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          Value<String?> originalLanguage = const Value.absent(),
+          Value<String?> publisher = const Value.absent(),
+          Value<String?> subtitle = const Value.absent(),
+          String? platformsJson,
+          String? identifiersJson,
+          String? contributorsJson,
+          String? mechanicsJson,
+          String? categoriesJson,
+          String? familiesJson,
+          String? expansionsJson,
+          String? rankingsJson,
+          String? searchAliasesJson,
+          String? rawPayloadJson}) =>
+      BoardGameMediaRow(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        sortTitle: sortTitle.present ? sortTitle.value : this.sortTitle,
+        description: description.present ? description.value : this.description,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        originalLanguage: originalLanguage.present
+            ? originalLanguage.value
+            : this.originalLanguage,
+        publisher: publisher.present ? publisher.value : this.publisher,
+        subtitle: subtitle.present ? subtitle.value : this.subtitle,
+        platformsJson: platformsJson ?? this.platformsJson,
+        identifiersJson: identifiersJson ?? this.identifiersJson,
+        contributorsJson: contributorsJson ?? this.contributorsJson,
+        mechanicsJson: mechanicsJson ?? this.mechanicsJson,
+        categoriesJson: categoriesJson ?? this.categoriesJson,
+        familiesJson: familiesJson ?? this.familiesJson,
+        expansionsJson: expansionsJson ?? this.expansionsJson,
+        rankingsJson: rankingsJson ?? this.rankingsJson,
+        searchAliasesJson: searchAliasesJson ?? this.searchAliasesJson,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  BoardGameMediaRow copyWithCompanion(BoardGameMediaRowsCompanion data) {
+    return BoardGameMediaRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      sortTitle: data.sortTitle.present ? data.sortTitle.value : this.sortTitle,
+      description:
+          data.description.present ? data.description.value : this.description,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      originalLanguage: data.originalLanguage.present
+          ? data.originalLanguage.value
+          : this.originalLanguage,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
+      platformsJson: data.platformsJson.present
+          ? data.platformsJson.value
+          : this.platformsJson,
+      identifiersJson: data.identifiersJson.present
+          ? data.identifiersJson.value
+          : this.identifiersJson,
+      contributorsJson: data.contributorsJson.present
+          ? data.contributorsJson.value
+          : this.contributorsJson,
+      mechanicsJson: data.mechanicsJson.present
+          ? data.mechanicsJson.value
+          : this.mechanicsJson,
+      categoriesJson: data.categoriesJson.present
+          ? data.categoriesJson.value
+          : this.categoriesJson,
+      familiesJson: data.familiesJson.present
+          ? data.familiesJson.value
+          : this.familiesJson,
+      expansionsJson: data.expansionsJson.present
+          ? data.expansionsJson.value
+          : this.expansionsJson,
+      rankingsJson: data.rankingsJson.present
+          ? data.rankingsJson.value
+          : this.rankingsJson,
+      searchAliasesJson: data.searchAliasesJson.present
+          ? data.searchAliasesJson.value
+          : this.searchAliasesJson,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameMediaRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('publisher: $publisher, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('platformsJson: $platformsJson, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('contributorsJson: $contributorsJson, ')
+          ..write('mechanicsJson: $mechanicsJson, ')
+          ..write('categoriesJson: $categoriesJson, ')
+          ..write('familiesJson: $familiesJson, ')
+          ..write('expansionsJson: $expansionsJson, ')
+          ..write('rankingsJson: $rankingsJson, ')
+          ..write('searchAliasesJson: $searchAliasesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      title,
+      sortTitle,
+      description,
+      releaseDate,
+      originalLanguage,
+      publisher,
+      subtitle,
+      platformsJson,
+      identifiersJson,
+      contributorsJson,
+      mechanicsJson,
+      categoriesJson,
+      familiesJson,
+      expansionsJson,
+      rankingsJson,
+      searchAliasesJson,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BoardGameMediaRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.sortTitle == this.sortTitle &&
+          other.description == this.description &&
+          other.releaseDate == this.releaseDate &&
+          other.originalLanguage == this.originalLanguage &&
+          other.publisher == this.publisher &&
+          other.subtitle == this.subtitle &&
+          other.platformsJson == this.platformsJson &&
+          other.identifiersJson == this.identifiersJson &&
+          other.contributorsJson == this.contributorsJson &&
+          other.mechanicsJson == this.mechanicsJson &&
+          other.categoriesJson == this.categoriesJson &&
+          other.familiesJson == this.familiesJson &&
+          other.expansionsJson == this.expansionsJson &&
+          other.rankingsJson == this.rankingsJson &&
+          other.searchAliasesJson == this.searchAliasesJson &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class BoardGameMediaRowsCompanion extends UpdateCompanion<BoardGameMediaRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> sortTitle;
+  final Value<String?> description;
+  final Value<DateTime?> releaseDate;
+  final Value<String?> originalLanguage;
+  final Value<String?> publisher;
+  final Value<String?> subtitle;
+  final Value<String> platformsJson;
+  final Value<String> identifiersJson;
+  final Value<String> contributorsJson;
+  final Value<String> mechanicsJson;
+  final Value<String> categoriesJson;
+  final Value<String> familiesJson;
+  final Value<String> expansionsJson;
+  final Value<String> rankingsJson;
+  final Value<String> searchAliasesJson;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const BoardGameMediaRowsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.platformsJson = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.contributorsJson = const Value.absent(),
+    this.mechanicsJson = const Value.absent(),
+    this.categoriesJson = const Value.absent(),
+    this.familiesJson = const Value.absent(),
+    this.expansionsJson = const Value.absent(),
+    this.rankingsJson = const Value.absent(),
+    this.searchAliasesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BoardGameMediaRowsCompanion.insert({
+    required String id,
+    required String title,
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.platformsJson = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.contributorsJson = const Value.absent(),
+    this.mechanicsJson = const Value.absent(),
+    this.categoriesJson = const Value.absent(),
+    this.familiesJson = const Value.absent(),
+    this.expansionsJson = const Value.absent(),
+    this.rankingsJson = const Value.absent(),
+    this.searchAliasesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title);
+  static Insertable<BoardGameMediaRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? sortTitle,
+    Expression<String>? description,
+    Expression<DateTime>? releaseDate,
+    Expression<String>? originalLanguage,
+    Expression<String>? publisher,
+    Expression<String>? subtitle,
+    Expression<String>? platformsJson,
+    Expression<String>? identifiersJson,
+    Expression<String>? contributorsJson,
+    Expression<String>? mechanicsJson,
+    Expression<String>? categoriesJson,
+    Expression<String>? familiesJson,
+    Expression<String>? expansionsJson,
+    Expression<String>? rankingsJson,
+    Expression<String>? searchAliasesJson,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (description != null) 'description': description,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (originalLanguage != null) 'original_language': originalLanguage,
+      if (publisher != null) 'publisher': publisher,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (platformsJson != null) 'platforms_json': platformsJson,
+      if (identifiersJson != null) 'identifiers_json': identifiersJson,
+      if (contributorsJson != null) 'contributors_json': contributorsJson,
+      if (mechanicsJson != null) 'mechanics_json': mechanicsJson,
+      if (categoriesJson != null) 'categories_json': categoriesJson,
+      if (familiesJson != null) 'families_json': familiesJson,
+      if (expansionsJson != null) 'expansions_json': expansionsJson,
+      if (rankingsJson != null) 'rankings_json': rankingsJson,
+      if (searchAliasesJson != null) 'search_aliases_json': searchAliasesJson,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BoardGameMediaRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<String?>? sortTitle,
+      Value<String?>? description,
+      Value<DateTime?>? releaseDate,
+      Value<String?>? originalLanguage,
+      Value<String?>? publisher,
+      Value<String?>? subtitle,
+      Value<String>? platformsJson,
+      Value<String>? identifiersJson,
+      Value<String>? contributorsJson,
+      Value<String>? mechanicsJson,
+      Value<String>? categoriesJson,
+      Value<String>? familiesJson,
+      Value<String>? expansionsJson,
+      Value<String>? rankingsJson,
+      Value<String>? searchAliasesJson,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return BoardGameMediaRowsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      sortTitle: sortTitle ?? this.sortTitle,
+      description: description ?? this.description,
+      releaseDate: releaseDate ?? this.releaseDate,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
+      publisher: publisher ?? this.publisher,
+      subtitle: subtitle ?? this.subtitle,
+      platformsJson: platformsJson ?? this.platformsJson,
+      identifiersJson: identifiersJson ?? this.identifiersJson,
+      contributorsJson: contributorsJson ?? this.contributorsJson,
+      mechanicsJson: mechanicsJson ?? this.mechanicsJson,
+      categoriesJson: categoriesJson ?? this.categoriesJson,
+      familiesJson: familiesJson ?? this.familiesJson,
+      expansionsJson: expansionsJson ?? this.expansionsJson,
+      rankingsJson: rankingsJson ?? this.rankingsJson,
+      searchAliasesJson: searchAliasesJson ?? this.searchAliasesJson,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (sortTitle.present) {
+      map['sort_title'] = Variable<String>(sortTitle.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (originalLanguage.present) {
+      map['original_language'] = Variable<String>(originalLanguage.value);
+    }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (subtitle.present) {
+      map['subtitle'] = Variable<String>(subtitle.value);
+    }
+    if (platformsJson.present) {
+      map['platforms_json'] = Variable<String>(platformsJson.value);
+    }
+    if (identifiersJson.present) {
+      map['identifiers_json'] = Variable<String>(identifiersJson.value);
+    }
+    if (contributorsJson.present) {
+      map['contributors_json'] = Variable<String>(contributorsJson.value);
+    }
+    if (mechanicsJson.present) {
+      map['mechanics_json'] = Variable<String>(mechanicsJson.value);
+    }
+    if (categoriesJson.present) {
+      map['categories_json'] = Variable<String>(categoriesJson.value);
+    }
+    if (familiesJson.present) {
+      map['families_json'] = Variable<String>(familiesJson.value);
+    }
+    if (expansionsJson.present) {
+      map['expansions_json'] = Variable<String>(expansionsJson.value);
+    }
+    if (rankingsJson.present) {
+      map['rankings_json'] = Variable<String>(rankingsJson.value);
+    }
+    if (searchAliasesJson.present) {
+      map['search_aliases_json'] = Variable<String>(searchAliasesJson.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameMediaRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('publisher: $publisher, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('platformsJson: $platformsJson, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('contributorsJson: $contributorsJson, ')
+          ..write('mechanicsJson: $mechanicsJson, ')
+          ..write('categoriesJson: $categoriesJson, ')
+          ..write('familiesJson: $familiesJson, ')
+          ..write('expansionsJson: $expansionsJson, ')
+          ..write('rankingsJson: $rankingsJson, ')
+          ..write('searchAliasesJson: $searchAliasesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BoardGameEditionRowsTable extends BoardGameEditionRows
+    with TableInfo<$BoardGameEditionRowsTable, BoardGameEditionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BoardGameEditionRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mediaIdMeta =
+      const VerificationMeta('mediaId');
+  @override
+  late final GeneratedColumn<String> mediaId = GeneratedColumn<String>(
+      'media_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleValueMeta =
+      const VerificationMeta('titleValue');
+  @override
+  late final GeneratedColumn<String> titleValue = GeneratedColumn<String>(
+      'title_value', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _workIdMeta = const VerificationMeta('workId');
+  @override
+  late final GeneratedColumn<String> workId = GeneratedColumn<String>(
+      'work_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionTitleMeta =
+      const VerificationMeta('editionTitle');
+  @override
+  late final GeneratedColumn<String> editionTitle = GeneratedColumn<String>(
+      'edition_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ageRatingMeta =
+      const VerificationMeta('ageRating');
+  @override
+  late final GeneratedColumn<String> ageRating = GeneratedColumn<String>(
+      'age_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _audienceRatingMeta =
+      const VerificationMeta('audienceRating');
+  @override
+  late final GeneratedColumn<String> audienceRating = GeneratedColumn<String>(
+      'audience_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _barcodeMeta =
+      const VerificationMeta('barcode');
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+      'barcode', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _catalogNumberMeta =
+      const VerificationMeta('catalogNumber');
+  @override
+  late final GeneratedColumn<String> catalogNumber = GeneratedColumn<String>(
+      'catalog_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _countryMeta =
+      const VerificationMeta('country');
+  @override
+  late final GeneratedColumn<String> country = GeneratedColumn<String>(
+      'country', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageUrlMeta =
+      const VerificationMeta('coverImageUrl');
+  @override
+  late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
+      'cover_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _formatMeta = const VerificationMeta('format');
+  @override
+  late final GeneratedColumn<String> format = GeneratedColumn<String>(
+      'format', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _languageMeta =
+      const VerificationMeta('language');
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+      'language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _maxPlayersMeta =
+      const VerificationMeta('maxPlayers');
+  @override
+  late final GeneratedColumn<int> maxPlayers = GeneratedColumn<int>(
+      'max_players', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _minAgeMeta = const VerificationMeta('minAge');
+  @override
+  late final GeneratedColumn<int> minAge = GeneratedColumn<int>(
+      'min_age', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _minPlayersMeta =
+      const VerificationMeta('minPlayers');
+  @override
+  late final GeneratedColumn<int> minPlayers = GeneratedColumn<int>(
+      'min_players', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _playingTimeMinutesMeta =
+      const VerificationMeta('playingTimeMinutes');
+  @override
+  late final GeneratedColumn<int> playingTimeMinutes = GeneratedColumn<int>(
+      'playing_time_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _publisherMeta =
+      const VerificationMeta('publisher');
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+      'publisher', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _releaseStatusMeta =
+      const VerificationMeta('releaseStatus');
+  @override
+  late final GeneratedColumn<String> releaseStatus = GeneratedColumn<String>(
+      'release_status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        mediaId,
+        id,
+        title,
+        titleValue,
+        workId,
+        editionTitle,
+        ageRating,
+        audienceRating,
+        barcode,
+        catalogNumber,
+        country,
+        coverImageUrl,
+        description,
+        format,
+        language,
+        maxPlayers,
+        minAge,
+        minPlayers,
+        playingTimeMinutes,
+        publisher,
+        releaseDate,
+        releaseStatus,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'board_game_edition_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<BoardGameEditionRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('media_id')) {
+      context.handle(_mediaIdMeta,
+          mediaId.isAcceptableOrUnknown(data['media_id']!, _mediaIdMeta));
+    } else if (isInserting) {
+      context.missing(_mediaIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('title_value')) {
+      context.handle(
+          _titleValueMeta,
+          titleValue.isAcceptableOrUnknown(
+              data['title_value']!, _titleValueMeta));
+    }
+    if (data.containsKey('work_id')) {
+      context.handle(_workIdMeta,
+          workId.isAcceptableOrUnknown(data['work_id']!, _workIdMeta));
+    }
+    if (data.containsKey('edition_title')) {
+      context.handle(
+          _editionTitleMeta,
+          editionTitle.isAcceptableOrUnknown(
+              data['edition_title']!, _editionTitleMeta));
+    }
+    if (data.containsKey('age_rating')) {
+      context.handle(_ageRatingMeta,
+          ageRating.isAcceptableOrUnknown(data['age_rating']!, _ageRatingMeta));
+    }
+    if (data.containsKey('audience_rating')) {
+      context.handle(
+          _audienceRatingMeta,
+          audienceRating.isAcceptableOrUnknown(
+              data['audience_rating']!, _audienceRatingMeta));
+    }
+    if (data.containsKey('barcode')) {
+      context.handle(_barcodeMeta,
+          barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta));
+    }
+    if (data.containsKey('catalog_number')) {
+      context.handle(
+          _catalogNumberMeta,
+          catalogNumber.isAcceptableOrUnknown(
+              data['catalog_number']!, _catalogNumberMeta));
+    }
+    if (data.containsKey('country')) {
+      context.handle(_countryMeta,
+          country.isAcceptableOrUnknown(data['country']!, _countryMeta));
+    }
+    if (data.containsKey('cover_image_url')) {
+      context.handle(
+          _coverImageUrlMeta,
+          coverImageUrl.isAcceptableOrUnknown(
+              data['cover_image_url']!, _coverImageUrlMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('format')) {
+      context.handle(_formatMeta,
+          format.isAcceptableOrUnknown(data['format']!, _formatMeta));
+    }
+    if (data.containsKey('language')) {
+      context.handle(_languageMeta,
+          language.isAcceptableOrUnknown(data['language']!, _languageMeta));
+    }
+    if (data.containsKey('max_players')) {
+      context.handle(
+          _maxPlayersMeta,
+          maxPlayers.isAcceptableOrUnknown(
+              data['max_players']!, _maxPlayersMeta));
+    }
+    if (data.containsKey('min_age')) {
+      context.handle(_minAgeMeta,
+          minAge.isAcceptableOrUnknown(data['min_age']!, _minAgeMeta));
+    }
+    if (data.containsKey('min_players')) {
+      context.handle(
+          _minPlayersMeta,
+          minPlayers.isAcceptableOrUnknown(
+              data['min_players']!, _minPlayersMeta));
+    }
+    if (data.containsKey('playing_time_minutes')) {
+      context.handle(
+          _playingTimeMinutesMeta,
+          playingTimeMinutes.isAcceptableOrUnknown(
+              data['playing_time_minutes']!, _playingTimeMinutesMeta));
+    }
+    if (data.containsKey('publisher')) {
+      context.handle(_publisherMeta,
+          publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('release_status')) {
+      context.handle(
+          _releaseStatusMeta,
+          releaseStatus.isAcceptableOrUnknown(
+              data['release_status']!, _releaseStatusMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {mediaId, id};
+  @override
+  BoardGameEditionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BoardGameEditionRow(
+      mediaId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      titleValue: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title_value']),
+      workId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}work_id']),
+      editionTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_title']),
+      ageRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}age_rating']),
+      audienceRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}audience_rating']),
+      barcode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}barcode']),
+      catalogNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}catalog_number']),
+      country: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}country']),
+      coverImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      format: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}format']),
+      language: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language']),
+      maxPlayers: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}max_players']),
+      minAge: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}min_age']),
+      minPlayers: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}min_players']),
+      playingTimeMinutes: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}playing_time_minutes']),
+      publisher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      releaseStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_status']),
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $BoardGameEditionRowsTable createAlias(String alias) {
+    return $BoardGameEditionRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BoardGameEditionRow extends DataClass
+    implements Insertable<BoardGameEditionRow> {
+  final String mediaId;
+  final String id;
+  final String title;
+  final String? titleValue;
+  final String? workId;
+  final String? editionTitle;
+  final String? ageRating;
+  final String? audienceRating;
+  final String? barcode;
+  final String? catalogNumber;
+  final String? country;
+  final String? coverImageUrl;
+  final String? description;
+  final String? format;
+  final String? language;
+  final int? maxPlayers;
+  final int? minAge;
+  final int? minPlayers;
+  final int? playingTimeMinutes;
+  final String? publisher;
+  final DateTime? releaseDate;
+  final String? releaseStatus;
+  final String rawPayloadJson;
+  const BoardGameEditionRow(
+      {required this.mediaId,
+      required this.id,
+      required this.title,
+      this.titleValue,
+      this.workId,
+      this.editionTitle,
+      this.ageRating,
+      this.audienceRating,
+      this.barcode,
+      this.catalogNumber,
+      this.country,
+      this.coverImageUrl,
+      this.description,
+      this.format,
+      this.language,
+      this.maxPlayers,
+      this.minAge,
+      this.minPlayers,
+      this.playingTimeMinutes,
+      this.publisher,
+      this.releaseDate,
+      this.releaseStatus,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['media_id'] = Variable<String>(mediaId);
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || titleValue != null) {
+      map['title_value'] = Variable<String>(titleValue);
+    }
+    if (!nullToAbsent || workId != null) {
+      map['work_id'] = Variable<String>(workId);
+    }
+    if (!nullToAbsent || editionTitle != null) {
+      map['edition_title'] = Variable<String>(editionTitle);
+    }
+    if (!nullToAbsent || ageRating != null) {
+      map['age_rating'] = Variable<String>(ageRating);
+    }
+    if (!nullToAbsent || audienceRating != null) {
+      map['audience_rating'] = Variable<String>(audienceRating);
+    }
+    if (!nullToAbsent || barcode != null) {
+      map['barcode'] = Variable<String>(barcode);
+    }
+    if (!nullToAbsent || catalogNumber != null) {
+      map['catalog_number'] = Variable<String>(catalogNumber);
+    }
+    if (!nullToAbsent || country != null) {
+      map['country'] = Variable<String>(country);
+    }
+    if (!nullToAbsent || coverImageUrl != null) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || format != null) {
+      map['format'] = Variable<String>(format);
+    }
+    if (!nullToAbsent || language != null) {
+      map['language'] = Variable<String>(language);
+    }
+    if (!nullToAbsent || maxPlayers != null) {
+      map['max_players'] = Variable<int>(maxPlayers);
+    }
+    if (!nullToAbsent || minAge != null) {
+      map['min_age'] = Variable<int>(minAge);
+    }
+    if (!nullToAbsent || minPlayers != null) {
+      map['min_players'] = Variable<int>(minPlayers);
+    }
+    if (!nullToAbsent || playingTimeMinutes != null) {
+      map['playing_time_minutes'] = Variable<int>(playingTimeMinutes);
+    }
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || releaseStatus != null) {
+      map['release_status'] = Variable<String>(releaseStatus);
+    }
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  BoardGameEditionRowsCompanion toCompanion(bool nullToAbsent) {
+    return BoardGameEditionRowsCompanion(
+      mediaId: Value(mediaId),
+      id: Value(id),
+      title: Value(title),
+      titleValue: titleValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(titleValue),
+      workId:
+          workId == null && nullToAbsent ? const Value.absent() : Value(workId),
+      editionTitle: editionTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionTitle),
+      ageRating: ageRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ageRating),
+      audienceRating: audienceRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audienceRating),
+      barcode: barcode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(barcode),
+      catalogNumber: catalogNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogNumber),
+      country: country == null && nullToAbsent
+          ? const Value.absent()
+          : Value(country),
+      coverImageUrl: coverImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageUrl),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      format:
+          format == null && nullToAbsent ? const Value.absent() : Value(format),
+      language: language == null && nullToAbsent
+          ? const Value.absent()
+          : Value(language),
+      maxPlayers: maxPlayers == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maxPlayers),
+      minAge:
+          minAge == null && nullToAbsent ? const Value.absent() : Value(minAge),
+      minPlayers: minPlayers == null && nullToAbsent
+          ? const Value.absent()
+          : Value(minPlayers),
+      playingTimeMinutes: playingTimeMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(playingTimeMinutes),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      releaseStatus: releaseStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseStatus),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory BoardGameEditionRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BoardGameEditionRow(
+      mediaId: serializer.fromJson<String>(json['mediaId']),
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      titleValue: serializer.fromJson<String?>(json['titleValue']),
+      workId: serializer.fromJson<String?>(json['workId']),
+      editionTitle: serializer.fromJson<String?>(json['editionTitle']),
+      ageRating: serializer.fromJson<String?>(json['ageRating']),
+      audienceRating: serializer.fromJson<String?>(json['audienceRating']),
+      barcode: serializer.fromJson<String?>(json['barcode']),
+      catalogNumber: serializer.fromJson<String?>(json['catalogNumber']),
+      country: serializer.fromJson<String?>(json['country']),
+      coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      description: serializer.fromJson<String?>(json['description']),
+      format: serializer.fromJson<String?>(json['format']),
+      language: serializer.fromJson<String?>(json['language']),
+      maxPlayers: serializer.fromJson<int?>(json['maxPlayers']),
+      minAge: serializer.fromJson<int?>(json['minAge']),
+      minPlayers: serializer.fromJson<int?>(json['minPlayers']),
+      playingTimeMinutes: serializer.fromJson<int?>(json['playingTimeMinutes']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      releaseStatus: serializer.fromJson<String?>(json['releaseStatus']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'mediaId': serializer.toJson<String>(mediaId),
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'titleValue': serializer.toJson<String?>(titleValue),
+      'workId': serializer.toJson<String?>(workId),
+      'editionTitle': serializer.toJson<String?>(editionTitle),
+      'ageRating': serializer.toJson<String?>(ageRating),
+      'audienceRating': serializer.toJson<String?>(audienceRating),
+      'barcode': serializer.toJson<String?>(barcode),
+      'catalogNumber': serializer.toJson<String?>(catalogNumber),
+      'country': serializer.toJson<String?>(country),
+      'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'description': serializer.toJson<String?>(description),
+      'format': serializer.toJson<String?>(format),
+      'language': serializer.toJson<String?>(language),
+      'maxPlayers': serializer.toJson<int?>(maxPlayers),
+      'minAge': serializer.toJson<int?>(minAge),
+      'minPlayers': serializer.toJson<int?>(minPlayers),
+      'playingTimeMinutes': serializer.toJson<int?>(playingTimeMinutes),
+      'publisher': serializer.toJson<String?>(publisher),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'releaseStatus': serializer.toJson<String?>(releaseStatus),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  BoardGameEditionRow copyWith(
+          {String? mediaId,
+          String? id,
+          String? title,
+          Value<String?> titleValue = const Value.absent(),
+          Value<String?> workId = const Value.absent(),
+          Value<String?> editionTitle = const Value.absent(),
+          Value<String?> ageRating = const Value.absent(),
+          Value<String?> audienceRating = const Value.absent(),
+          Value<String?> barcode = const Value.absent(),
+          Value<String?> catalogNumber = const Value.absent(),
+          Value<String?> country = const Value.absent(),
+          Value<String?> coverImageUrl = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<String?> format = const Value.absent(),
+          Value<String?> language = const Value.absent(),
+          Value<int?> maxPlayers = const Value.absent(),
+          Value<int?> minAge = const Value.absent(),
+          Value<int?> minPlayers = const Value.absent(),
+          Value<int?> playingTimeMinutes = const Value.absent(),
+          Value<String?> publisher = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          Value<String?> releaseStatus = const Value.absent(),
+          String? rawPayloadJson}) =>
+      BoardGameEditionRow(
+        mediaId: mediaId ?? this.mediaId,
+        id: id ?? this.id,
+        title: title ?? this.title,
+        titleValue: titleValue.present ? titleValue.value : this.titleValue,
+        workId: workId.present ? workId.value : this.workId,
+        editionTitle:
+            editionTitle.present ? editionTitle.value : this.editionTitle,
+        ageRating: ageRating.present ? ageRating.value : this.ageRating,
+        audienceRating:
+            audienceRating.present ? audienceRating.value : this.audienceRating,
+        barcode: barcode.present ? barcode.value : this.barcode,
+        catalogNumber:
+            catalogNumber.present ? catalogNumber.value : this.catalogNumber,
+        country: country.present ? country.value : this.country,
+        coverImageUrl:
+            coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        description: description.present ? description.value : this.description,
+        format: format.present ? format.value : this.format,
+        language: language.present ? language.value : this.language,
+        maxPlayers: maxPlayers.present ? maxPlayers.value : this.maxPlayers,
+        minAge: minAge.present ? minAge.value : this.minAge,
+        minPlayers: minPlayers.present ? minPlayers.value : this.minPlayers,
+        playingTimeMinutes: playingTimeMinutes.present
+            ? playingTimeMinutes.value
+            : this.playingTimeMinutes,
+        publisher: publisher.present ? publisher.value : this.publisher,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        releaseStatus:
+            releaseStatus.present ? releaseStatus.value : this.releaseStatus,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  BoardGameEditionRow copyWithCompanion(BoardGameEditionRowsCompanion data) {
+    return BoardGameEditionRow(
+      mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      titleValue:
+          data.titleValue.present ? data.titleValue.value : this.titleValue,
+      workId: data.workId.present ? data.workId.value : this.workId,
+      editionTitle: data.editionTitle.present
+          ? data.editionTitle.value
+          : this.editionTitle,
+      ageRating: data.ageRating.present ? data.ageRating.value : this.ageRating,
+      audienceRating: data.audienceRating.present
+          ? data.audienceRating.value
+          : this.audienceRating,
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      catalogNumber: data.catalogNumber.present
+          ? data.catalogNumber.value
+          : this.catalogNumber,
+      country: data.country.present ? data.country.value : this.country,
+      coverImageUrl: data.coverImageUrl.present
+          ? data.coverImageUrl.value
+          : this.coverImageUrl,
+      description:
+          data.description.present ? data.description.value : this.description,
+      format: data.format.present ? data.format.value : this.format,
+      language: data.language.present ? data.language.value : this.language,
+      maxPlayers:
+          data.maxPlayers.present ? data.maxPlayers.value : this.maxPlayers,
+      minAge: data.minAge.present ? data.minAge.value : this.minAge,
+      minPlayers:
+          data.minPlayers.present ? data.minPlayers.value : this.minPlayers,
+      playingTimeMinutes: data.playingTimeMinutes.present
+          ? data.playingTimeMinutes.value
+          : this.playingTimeMinutes,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      releaseStatus: data.releaseStatus.present
+          ? data.releaseStatus.value
+          : this.releaseStatus,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameEditionRow(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('titleValue: $titleValue, ')
+          ..write('workId: $workId, ')
+          ..write('editionTitle: $editionTitle, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('audienceRating: $audienceRating, ')
+          ..write('barcode: $barcode, ')
+          ..write('catalogNumber: $catalogNumber, ')
+          ..write('country: $country, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('description: $description, ')
+          ..write('format: $format, ')
+          ..write('language: $language, ')
+          ..write('maxPlayers: $maxPlayers, ')
+          ..write('minAge: $minAge, ')
+          ..write('minPlayers: $minPlayers, ')
+          ..write('playingTimeMinutes: $playingTimeMinutes, ')
+          ..write('publisher: $publisher, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('releaseStatus: $releaseStatus, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        mediaId,
+        id,
+        title,
+        titleValue,
+        workId,
+        editionTitle,
+        ageRating,
+        audienceRating,
+        barcode,
+        catalogNumber,
+        country,
+        coverImageUrl,
+        description,
+        format,
+        language,
+        maxPlayers,
+        minAge,
+        minPlayers,
+        playingTimeMinutes,
+        publisher,
+        releaseDate,
+        releaseStatus,
+        rawPayloadJson
+      ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BoardGameEditionRow &&
+          other.mediaId == this.mediaId &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.titleValue == this.titleValue &&
+          other.workId == this.workId &&
+          other.editionTitle == this.editionTitle &&
+          other.ageRating == this.ageRating &&
+          other.audienceRating == this.audienceRating &&
+          other.barcode == this.barcode &&
+          other.catalogNumber == this.catalogNumber &&
+          other.country == this.country &&
+          other.coverImageUrl == this.coverImageUrl &&
+          other.description == this.description &&
+          other.format == this.format &&
+          other.language == this.language &&
+          other.maxPlayers == this.maxPlayers &&
+          other.minAge == this.minAge &&
+          other.minPlayers == this.minPlayers &&
+          other.playingTimeMinutes == this.playingTimeMinutes &&
+          other.publisher == this.publisher &&
+          other.releaseDate == this.releaseDate &&
+          other.releaseStatus == this.releaseStatus &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class BoardGameEditionRowsCompanion
+    extends UpdateCompanion<BoardGameEditionRow> {
+  final Value<String> mediaId;
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> titleValue;
+  final Value<String?> workId;
+  final Value<String?> editionTitle;
+  final Value<String?> ageRating;
+  final Value<String?> audienceRating;
+  final Value<String?> barcode;
+  final Value<String?> catalogNumber;
+  final Value<String?> country;
+  final Value<String?> coverImageUrl;
+  final Value<String?> description;
+  final Value<String?> format;
+  final Value<String?> language;
+  final Value<int?> maxPlayers;
+  final Value<int?> minAge;
+  final Value<int?> minPlayers;
+  final Value<int?> playingTimeMinutes;
+  final Value<String?> publisher;
+  final Value<DateTime?> releaseDate;
+  final Value<String?> releaseStatus;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const BoardGameEditionRowsCompanion({
+    this.mediaId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.titleValue = const Value.absent(),
+    this.workId = const Value.absent(),
+    this.editionTitle = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.audienceRating = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.catalogNumber = const Value.absent(),
+    this.country = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.description = const Value.absent(),
+    this.format = const Value.absent(),
+    this.language = const Value.absent(),
+    this.maxPlayers = const Value.absent(),
+    this.minAge = const Value.absent(),
+    this.minPlayers = const Value.absent(),
+    this.playingTimeMinutes = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.releaseStatus = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BoardGameEditionRowsCompanion.insert({
+    required String mediaId,
+    required String id,
+    required String title,
+    this.titleValue = const Value.absent(),
+    this.workId = const Value.absent(),
+    this.editionTitle = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.audienceRating = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.catalogNumber = const Value.absent(),
+    this.country = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.description = const Value.absent(),
+    this.format = const Value.absent(),
+    this.language = const Value.absent(),
+    this.maxPlayers = const Value.absent(),
+    this.minAge = const Value.absent(),
+    this.minPlayers = const Value.absent(),
+    this.playingTimeMinutes = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.releaseStatus = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : mediaId = Value(mediaId),
+        id = Value(id),
+        title = Value(title);
+  static Insertable<BoardGameEditionRow> custom({
+    Expression<String>? mediaId,
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? titleValue,
+    Expression<String>? workId,
+    Expression<String>? editionTitle,
+    Expression<String>? ageRating,
+    Expression<String>? audienceRating,
+    Expression<String>? barcode,
+    Expression<String>? catalogNumber,
+    Expression<String>? country,
+    Expression<String>? coverImageUrl,
+    Expression<String>? description,
+    Expression<String>? format,
+    Expression<String>? language,
+    Expression<int>? maxPlayers,
+    Expression<int>? minAge,
+    Expression<int>? minPlayers,
+    Expression<int>? playingTimeMinutes,
+    Expression<String>? publisher,
+    Expression<DateTime>? releaseDate,
+    Expression<String>? releaseStatus,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (mediaId != null) 'media_id': mediaId,
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (titleValue != null) 'title_value': titleValue,
+      if (workId != null) 'work_id': workId,
+      if (editionTitle != null) 'edition_title': editionTitle,
+      if (ageRating != null) 'age_rating': ageRating,
+      if (audienceRating != null) 'audience_rating': audienceRating,
+      if (barcode != null) 'barcode': barcode,
+      if (catalogNumber != null) 'catalog_number': catalogNumber,
+      if (country != null) 'country': country,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (description != null) 'description': description,
+      if (format != null) 'format': format,
+      if (language != null) 'language': language,
+      if (maxPlayers != null) 'max_players': maxPlayers,
+      if (minAge != null) 'min_age': minAge,
+      if (minPlayers != null) 'min_players': minPlayers,
+      if (playingTimeMinutes != null)
+        'playing_time_minutes': playingTimeMinutes,
+      if (publisher != null) 'publisher': publisher,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (releaseStatus != null) 'release_status': releaseStatus,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BoardGameEditionRowsCompanion copyWith(
+      {Value<String>? mediaId,
+      Value<String>? id,
+      Value<String>? title,
+      Value<String?>? titleValue,
+      Value<String?>? workId,
+      Value<String?>? editionTitle,
+      Value<String?>? ageRating,
+      Value<String?>? audienceRating,
+      Value<String?>? barcode,
+      Value<String?>? catalogNumber,
+      Value<String?>? country,
+      Value<String?>? coverImageUrl,
+      Value<String?>? description,
+      Value<String?>? format,
+      Value<String?>? language,
+      Value<int?>? maxPlayers,
+      Value<int?>? minAge,
+      Value<int?>? minPlayers,
+      Value<int?>? playingTimeMinutes,
+      Value<String?>? publisher,
+      Value<DateTime?>? releaseDate,
+      Value<String?>? releaseStatus,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return BoardGameEditionRowsCompanion(
+      mediaId: mediaId ?? this.mediaId,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      titleValue: titleValue ?? this.titleValue,
+      workId: workId ?? this.workId,
+      editionTitle: editionTitle ?? this.editionTitle,
+      ageRating: ageRating ?? this.ageRating,
+      audienceRating: audienceRating ?? this.audienceRating,
+      barcode: barcode ?? this.barcode,
+      catalogNumber: catalogNumber ?? this.catalogNumber,
+      country: country ?? this.country,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      description: description ?? this.description,
+      format: format ?? this.format,
+      language: language ?? this.language,
+      maxPlayers: maxPlayers ?? this.maxPlayers,
+      minAge: minAge ?? this.minAge,
+      minPlayers: minPlayers ?? this.minPlayers,
+      playingTimeMinutes: playingTimeMinutes ?? this.playingTimeMinutes,
+      publisher: publisher ?? this.publisher,
+      releaseDate: releaseDate ?? this.releaseDate,
+      releaseStatus: releaseStatus ?? this.releaseStatus,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (mediaId.present) {
+      map['media_id'] = Variable<String>(mediaId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (titleValue.present) {
+      map['title_value'] = Variable<String>(titleValue.value);
+    }
+    if (workId.present) {
+      map['work_id'] = Variable<String>(workId.value);
+    }
+    if (editionTitle.present) {
+      map['edition_title'] = Variable<String>(editionTitle.value);
+    }
+    if (ageRating.present) {
+      map['age_rating'] = Variable<String>(ageRating.value);
+    }
+    if (audienceRating.present) {
+      map['audience_rating'] = Variable<String>(audienceRating.value);
+    }
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (catalogNumber.present) {
+      map['catalog_number'] = Variable<String>(catalogNumber.value);
+    }
+    if (country.present) {
+      map['country'] = Variable<String>(country.value);
+    }
+    if (coverImageUrl.present) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (format.present) {
+      map['format'] = Variable<String>(format.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (maxPlayers.present) {
+      map['max_players'] = Variable<int>(maxPlayers.value);
+    }
+    if (minAge.present) {
+      map['min_age'] = Variable<int>(minAge.value);
+    }
+    if (minPlayers.present) {
+      map['min_players'] = Variable<int>(minPlayers.value);
+    }
+    if (playingTimeMinutes.present) {
+      map['playing_time_minutes'] = Variable<int>(playingTimeMinutes.value);
+    }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (releaseStatus.present) {
+      map['release_status'] = Variable<String>(releaseStatus.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameEditionRowsCompanion(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('titleValue: $titleValue, ')
+          ..write('workId: $workId, ')
+          ..write('editionTitle: $editionTitle, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('audienceRating: $audienceRating, ')
+          ..write('barcode: $barcode, ')
+          ..write('catalogNumber: $catalogNumber, ')
+          ..write('country: $country, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('description: $description, ')
+          ..write('format: $format, ')
+          ..write('language: $language, ')
+          ..write('maxPlayers: $maxPlayers, ')
+          ..write('minAge: $minAge, ')
+          ..write('minPlayers: $minPlayers, ')
+          ..write('playingTimeMinutes: $playingTimeMinutes, ')
+          ..write('publisher: $publisher, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('releaseStatus: $releaseStatus, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BoardGameOwnedDetailsRowsTable extends BoardGameOwnedDetailsRows
+    with TableInfo<$BoardGameOwnedDetailsRowsTable, BoardGameOwnedDetailsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BoardGameOwnedDetailsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _editionLanguageMeta =
+      const VerificationMeta('editionLanguage');
+  @override
+  late final GeneratedColumn<String> editionLanguage = GeneratedColumn<String>(
+      'edition_language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionRegionMeta =
+      const VerificationMeta('editionRegion');
+  @override
+  late final GeneratedColumn<String> editionRegion = GeneratedColumn<String>(
+      'edition_region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _componentConditionMeta =
+      const VerificationMeta('componentCondition');
+  @override
+  late final GeneratedColumn<String> componentCondition =
+      GeneratedColumn<String>('component_condition', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _componentCompletenessMeta =
+      const VerificationMeta('componentCompleteness');
+  @override
+  late final GeneratedColumn<String> componentCompleteness =
+      GeneratedColumn<String>('component_completeness', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _missingPiecesNotesMeta =
+      const VerificationMeta('missingPiecesNotes');
+  @override
+  late final GeneratedColumn<String> missingPiecesNotes =
+      GeneratedColumn<String>('missing_pieces_notes', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isSleevedMeta =
+      const VerificationMeta('isSleeved');
+  @override
+  late final GeneratedColumn<bool> isSleeved = GeneratedColumn<bool>(
+      'is_sleeved', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_sleeved" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _hasCustomInsertMeta =
+      const VerificationMeta('hasCustomInsert');
+  @override
+  late final GeneratedColumn<bool> hasCustomInsert = GeneratedColumn<bool>(
+      'has_custom_insert', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("has_custom_insert" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _hasPaintedMiniaturesMeta =
+      const VerificationMeta('hasPaintedMiniatures');
+  @override
+  late final GeneratedColumn<bool> hasPaintedMiniatures = GeneratedColumn<bool>(
+      'has_painted_miniatures', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("has_painted_miniatures" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _storageNotesMeta =
+      const VerificationMeta('storageNotes');
+  @override
+  late final GeneratedColumn<String> storageNotes = GeneratedColumn<String>(
+      'storage_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        ownedItemId,
+        editionLanguage,
+        editionRegion,
+        componentCondition,
+        componentCompleteness,
+        missingPiecesNotes,
+        isSleeved,
+        hasCustomInsert,
+        hasPaintedMiniatures,
+        storageNotes
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'board_game_owned_details_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<BoardGameOwnedDetailsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('edition_language')) {
+      context.handle(
+          _editionLanguageMeta,
+          editionLanguage.isAcceptableOrUnknown(
+              data['edition_language']!, _editionLanguageMeta));
+    }
+    if (data.containsKey('edition_region')) {
+      context.handle(
+          _editionRegionMeta,
+          editionRegion.isAcceptableOrUnknown(
+              data['edition_region']!, _editionRegionMeta));
+    }
+    if (data.containsKey('component_condition')) {
+      context.handle(
+          _componentConditionMeta,
+          componentCondition.isAcceptableOrUnknown(
+              data['component_condition']!, _componentConditionMeta));
+    }
+    if (data.containsKey('component_completeness')) {
+      context.handle(
+          _componentCompletenessMeta,
+          componentCompleteness.isAcceptableOrUnknown(
+              data['component_completeness']!, _componentCompletenessMeta));
+    }
+    if (data.containsKey('missing_pieces_notes')) {
+      context.handle(
+          _missingPiecesNotesMeta,
+          missingPiecesNotes.isAcceptableOrUnknown(
+              data['missing_pieces_notes']!, _missingPiecesNotesMeta));
+    }
+    if (data.containsKey('is_sleeved')) {
+      context.handle(_isSleevedMeta,
+          isSleeved.isAcceptableOrUnknown(data['is_sleeved']!, _isSleevedMeta));
+    }
+    if (data.containsKey('has_custom_insert')) {
+      context.handle(
+          _hasCustomInsertMeta,
+          hasCustomInsert.isAcceptableOrUnknown(
+              data['has_custom_insert']!, _hasCustomInsertMeta));
+    }
+    if (data.containsKey('has_painted_miniatures')) {
+      context.handle(
+          _hasPaintedMiniaturesMeta,
+          hasPaintedMiniatures.isAcceptableOrUnknown(
+              data['has_painted_miniatures']!, _hasPaintedMiniaturesMeta));
+    }
+    if (data.containsKey('storage_notes')) {
+      context.handle(
+          _storageNotesMeta,
+          storageNotes.isAcceptableOrUnknown(
+              data['storage_notes']!, _storageNotesMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  @override
+  BoardGameOwnedDetailsRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BoardGameOwnedDetailsRow(
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      editionLanguage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}edition_language']),
+      editionRegion: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_region']),
+      componentCondition: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}component_condition']),
+      componentCompleteness: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}component_completeness']),
+      missingPiecesNotes: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}missing_pieces_notes']),
+      isSleeved: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_sleeved'])!,
+      hasCustomInsert: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}has_custom_insert'])!,
+      hasPaintedMiniatures: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}has_painted_miniatures'])!,
+      storageNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_notes']),
+    );
+  }
+
+  @override
+  $BoardGameOwnedDetailsRowsTable createAlias(String alias) {
+    return $BoardGameOwnedDetailsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BoardGameOwnedDetailsRow extends DataClass
+    implements Insertable<BoardGameOwnedDetailsRow> {
+  final String ownedItemId;
+  final String? editionLanguage;
+  final String? editionRegion;
+  final String? componentCondition;
+  final String? componentCompleteness;
+  final String? missingPiecesNotes;
+  final bool isSleeved;
+  final bool hasCustomInsert;
+  final bool hasPaintedMiniatures;
+  final String? storageNotes;
+  const BoardGameOwnedDetailsRow(
+      {required this.ownedItemId,
+      this.editionLanguage,
+      this.editionRegion,
+      this.componentCondition,
+      this.componentCompleteness,
+      this.missingPiecesNotes,
+      required this.isSleeved,
+      required this.hasCustomInsert,
+      required this.hasPaintedMiniatures,
+      this.storageNotes});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || editionLanguage != null) {
+      map['edition_language'] = Variable<String>(editionLanguage);
+    }
+    if (!nullToAbsent || editionRegion != null) {
+      map['edition_region'] = Variable<String>(editionRegion);
+    }
+    if (!nullToAbsent || componentCondition != null) {
+      map['component_condition'] = Variable<String>(componentCondition);
+    }
+    if (!nullToAbsent || componentCompleteness != null) {
+      map['component_completeness'] = Variable<String>(componentCompleteness);
+    }
+    if (!nullToAbsent || missingPiecesNotes != null) {
+      map['missing_pieces_notes'] = Variable<String>(missingPiecesNotes);
+    }
+    map['is_sleeved'] = Variable<bool>(isSleeved);
+    map['has_custom_insert'] = Variable<bool>(hasCustomInsert);
+    map['has_painted_miniatures'] = Variable<bool>(hasPaintedMiniatures);
+    if (!nullToAbsent || storageNotes != null) {
+      map['storage_notes'] = Variable<String>(storageNotes);
+    }
+    return map;
+  }
+
+  BoardGameOwnedDetailsRowsCompanion toCompanion(bool nullToAbsent) {
+    return BoardGameOwnedDetailsRowsCompanion(
+      ownedItemId: Value(ownedItemId),
+      editionLanguage: editionLanguage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionLanguage),
+      editionRegion: editionRegion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionRegion),
+      componentCondition: componentCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(componentCondition),
+      componentCompleteness: componentCompleteness == null && nullToAbsent
+          ? const Value.absent()
+          : Value(componentCompleteness),
+      missingPiecesNotes: missingPiecesNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(missingPiecesNotes),
+      isSleeved: Value(isSleeved),
+      hasCustomInsert: Value(hasCustomInsert),
+      hasPaintedMiniatures: Value(hasPaintedMiniatures),
+      storageNotes: storageNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageNotes),
+    );
+  }
+
+  factory BoardGameOwnedDetailsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BoardGameOwnedDetailsRow(
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      editionLanguage: serializer.fromJson<String?>(json['editionLanguage']),
+      editionRegion: serializer.fromJson<String?>(json['editionRegion']),
+      componentCondition:
+          serializer.fromJson<String?>(json['componentCondition']),
+      componentCompleteness:
+          serializer.fromJson<String?>(json['componentCompleteness']),
+      missingPiecesNotes:
+          serializer.fromJson<String?>(json['missingPiecesNotes']),
+      isSleeved: serializer.fromJson<bool>(json['isSleeved']),
+      hasCustomInsert: serializer.fromJson<bool>(json['hasCustomInsert']),
+      hasPaintedMiniatures:
+          serializer.fromJson<bool>(json['hasPaintedMiniatures']),
+      storageNotes: serializer.fromJson<String?>(json['storageNotes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'editionLanguage': serializer.toJson<String?>(editionLanguage),
+      'editionRegion': serializer.toJson<String?>(editionRegion),
+      'componentCondition': serializer.toJson<String?>(componentCondition),
+      'componentCompleteness':
+          serializer.toJson<String?>(componentCompleteness),
+      'missingPiecesNotes': serializer.toJson<String?>(missingPiecesNotes),
+      'isSleeved': serializer.toJson<bool>(isSleeved),
+      'hasCustomInsert': serializer.toJson<bool>(hasCustomInsert),
+      'hasPaintedMiniatures': serializer.toJson<bool>(hasPaintedMiniatures),
+      'storageNotes': serializer.toJson<String?>(storageNotes),
+    };
+  }
+
+  BoardGameOwnedDetailsRow copyWith(
+          {String? ownedItemId,
+          Value<String?> editionLanguage = const Value.absent(),
+          Value<String?> editionRegion = const Value.absent(),
+          Value<String?> componentCondition = const Value.absent(),
+          Value<String?> componentCompleteness = const Value.absent(),
+          Value<String?> missingPiecesNotes = const Value.absent(),
+          bool? isSleeved,
+          bool? hasCustomInsert,
+          bool? hasPaintedMiniatures,
+          Value<String?> storageNotes = const Value.absent()}) =>
+      BoardGameOwnedDetailsRow(
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        editionLanguage: editionLanguage.present
+            ? editionLanguage.value
+            : this.editionLanguage,
+        editionRegion:
+            editionRegion.present ? editionRegion.value : this.editionRegion,
+        componentCondition: componentCondition.present
+            ? componentCondition.value
+            : this.componentCondition,
+        componentCompleteness: componentCompleteness.present
+            ? componentCompleteness.value
+            : this.componentCompleteness,
+        missingPiecesNotes: missingPiecesNotes.present
+            ? missingPiecesNotes.value
+            : this.missingPiecesNotes,
+        isSleeved: isSleeved ?? this.isSleeved,
+        hasCustomInsert: hasCustomInsert ?? this.hasCustomInsert,
+        hasPaintedMiniatures: hasPaintedMiniatures ?? this.hasPaintedMiniatures,
+        storageNotes:
+            storageNotes.present ? storageNotes.value : this.storageNotes,
+      );
+  BoardGameOwnedDetailsRow copyWithCompanion(
+      BoardGameOwnedDetailsRowsCompanion data) {
+    return BoardGameOwnedDetailsRow(
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      editionLanguage: data.editionLanguage.present
+          ? data.editionLanguage.value
+          : this.editionLanguage,
+      editionRegion: data.editionRegion.present
+          ? data.editionRegion.value
+          : this.editionRegion,
+      componentCondition: data.componentCondition.present
+          ? data.componentCondition.value
+          : this.componentCondition,
+      componentCompleteness: data.componentCompleteness.present
+          ? data.componentCompleteness.value
+          : this.componentCompleteness,
+      missingPiecesNotes: data.missingPiecesNotes.present
+          ? data.missingPiecesNotes.value
+          : this.missingPiecesNotes,
+      isSleeved: data.isSleeved.present ? data.isSleeved.value : this.isSleeved,
+      hasCustomInsert: data.hasCustomInsert.present
+          ? data.hasCustomInsert.value
+          : this.hasCustomInsert,
+      hasPaintedMiniatures: data.hasPaintedMiniatures.present
+          ? data.hasPaintedMiniatures.value
+          : this.hasPaintedMiniatures,
+      storageNotes: data.storageNotes.present
+          ? data.storageNotes.value
+          : this.storageNotes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameOwnedDetailsRow(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionLanguage: $editionLanguage, ')
+          ..write('editionRegion: $editionRegion, ')
+          ..write('componentCondition: $componentCondition, ')
+          ..write('componentCompleteness: $componentCompleteness, ')
+          ..write('missingPiecesNotes: $missingPiecesNotes, ')
+          ..write('isSleeved: $isSleeved, ')
+          ..write('hasCustomInsert: $hasCustomInsert, ')
+          ..write('hasPaintedMiniatures: $hasPaintedMiniatures, ')
+          ..write('storageNotes: $storageNotes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      ownedItemId,
+      editionLanguage,
+      editionRegion,
+      componentCondition,
+      componentCompleteness,
+      missingPiecesNotes,
+      isSleeved,
+      hasCustomInsert,
+      hasPaintedMiniatures,
+      storageNotes);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BoardGameOwnedDetailsRow &&
+          other.ownedItemId == this.ownedItemId &&
+          other.editionLanguage == this.editionLanguage &&
+          other.editionRegion == this.editionRegion &&
+          other.componentCondition == this.componentCondition &&
+          other.componentCompleteness == this.componentCompleteness &&
+          other.missingPiecesNotes == this.missingPiecesNotes &&
+          other.isSleeved == this.isSleeved &&
+          other.hasCustomInsert == this.hasCustomInsert &&
+          other.hasPaintedMiniatures == this.hasPaintedMiniatures &&
+          other.storageNotes == this.storageNotes);
+}
+
+class BoardGameOwnedDetailsRowsCompanion
+    extends UpdateCompanion<BoardGameOwnedDetailsRow> {
+  final Value<String> ownedItemId;
+  final Value<String?> editionLanguage;
+  final Value<String?> editionRegion;
+  final Value<String?> componentCondition;
+  final Value<String?> componentCompleteness;
+  final Value<String?> missingPiecesNotes;
+  final Value<bool> isSleeved;
+  final Value<bool> hasCustomInsert;
+  final Value<bool> hasPaintedMiniatures;
+  final Value<String?> storageNotes;
+  final Value<int> rowid;
+  const BoardGameOwnedDetailsRowsCompanion({
+    this.ownedItemId = const Value.absent(),
+    this.editionLanguage = const Value.absent(),
+    this.editionRegion = const Value.absent(),
+    this.componentCondition = const Value.absent(),
+    this.componentCompleteness = const Value.absent(),
+    this.missingPiecesNotes = const Value.absent(),
+    this.isSleeved = const Value.absent(),
+    this.hasCustomInsert = const Value.absent(),
+    this.hasPaintedMiniatures = const Value.absent(),
+    this.storageNotes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BoardGameOwnedDetailsRowsCompanion.insert({
+    required String ownedItemId,
+    this.editionLanguage = const Value.absent(),
+    this.editionRegion = const Value.absent(),
+    this.componentCondition = const Value.absent(),
+    this.componentCompleteness = const Value.absent(),
+    this.missingPiecesNotes = const Value.absent(),
+    this.isSleeved = const Value.absent(),
+    this.hasCustomInsert = const Value.absent(),
+    this.hasPaintedMiniatures = const Value.absent(),
+    this.storageNotes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : ownedItemId = Value(ownedItemId);
+  static Insertable<BoardGameOwnedDetailsRow> custom({
+    Expression<String>? ownedItemId,
+    Expression<String>? editionLanguage,
+    Expression<String>? editionRegion,
+    Expression<String>? componentCondition,
+    Expression<String>? componentCompleteness,
+    Expression<String>? missingPiecesNotes,
+    Expression<bool>? isSleeved,
+    Expression<bool>? hasCustomInsert,
+    Expression<bool>? hasPaintedMiniatures,
+    Expression<String>? storageNotes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (editionLanguage != null) 'edition_language': editionLanguage,
+      if (editionRegion != null) 'edition_region': editionRegion,
+      if (componentCondition != null) 'component_condition': componentCondition,
+      if (componentCompleteness != null)
+        'component_completeness': componentCompleteness,
+      if (missingPiecesNotes != null)
+        'missing_pieces_notes': missingPiecesNotes,
+      if (isSleeved != null) 'is_sleeved': isSleeved,
+      if (hasCustomInsert != null) 'has_custom_insert': hasCustomInsert,
+      if (hasPaintedMiniatures != null)
+        'has_painted_miniatures': hasPaintedMiniatures,
+      if (storageNotes != null) 'storage_notes': storageNotes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BoardGameOwnedDetailsRowsCompanion copyWith(
+      {Value<String>? ownedItemId,
+      Value<String?>? editionLanguage,
+      Value<String?>? editionRegion,
+      Value<String?>? componentCondition,
+      Value<String?>? componentCompleteness,
+      Value<String?>? missingPiecesNotes,
+      Value<bool>? isSleeved,
+      Value<bool>? hasCustomInsert,
+      Value<bool>? hasPaintedMiniatures,
+      Value<String?>? storageNotes,
+      Value<int>? rowid}) {
+    return BoardGameOwnedDetailsRowsCompanion(
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      editionLanguage: editionLanguage ?? this.editionLanguage,
+      editionRegion: editionRegion ?? this.editionRegion,
+      componentCondition: componentCondition ?? this.componentCondition,
+      componentCompleteness:
+          componentCompleteness ?? this.componentCompleteness,
+      missingPiecesNotes: missingPiecesNotes ?? this.missingPiecesNotes,
+      isSleeved: isSleeved ?? this.isSleeved,
+      hasCustomInsert: hasCustomInsert ?? this.hasCustomInsert,
+      hasPaintedMiniatures: hasPaintedMiniatures ?? this.hasPaintedMiniatures,
+      storageNotes: storageNotes ?? this.storageNotes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (editionLanguage.present) {
+      map['edition_language'] = Variable<String>(editionLanguage.value);
+    }
+    if (editionRegion.present) {
+      map['edition_region'] = Variable<String>(editionRegion.value);
+    }
+    if (componentCondition.present) {
+      map['component_condition'] = Variable<String>(componentCondition.value);
+    }
+    if (componentCompleteness.present) {
+      map['component_completeness'] =
+          Variable<String>(componentCompleteness.value);
+    }
+    if (missingPiecesNotes.present) {
+      map['missing_pieces_notes'] = Variable<String>(missingPiecesNotes.value);
+    }
+    if (isSleeved.present) {
+      map['is_sleeved'] = Variable<bool>(isSleeved.value);
+    }
+    if (hasCustomInsert.present) {
+      map['has_custom_insert'] = Variable<bool>(hasCustomInsert.value);
+    }
+    if (hasPaintedMiniatures.present) {
+      map['has_painted_miniatures'] =
+          Variable<bool>(hasPaintedMiniatures.value);
+    }
+    if (storageNotes.present) {
+      map['storage_notes'] = Variable<String>(storageNotes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameOwnedDetailsRowsCompanion(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('editionLanguage: $editionLanguage, ')
+          ..write('editionRegion: $editionRegion, ')
+          ..write('componentCondition: $componentCondition, ')
+          ..write('componentCompleteness: $componentCompleteness, ')
+          ..write('missingPiecesNotes: $missingPiecesNotes, ')
+          ..write('isSleeved: $isSleeved, ')
+          ..write('hasCustomInsert: $hasCustomInsert, ')
+          ..write('hasPaintedMiniatures: $hasPaintedMiniatures, ')
+          ..write('storageNotes: $storageNotes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BoardGamePlaySessionsRowsTable extends BoardGamePlaySessionsRows
+    with TableInfo<$BoardGamePlaySessionsRowsTable, BoardGamePlaySessionsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BoardGamePlaySessionsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _boardGameIdMeta =
+      const VerificationMeta('boardGameId');
+  @override
+  late final GeneratedColumn<String> boardGameId = GeneratedColumn<String>(
+      'board_game_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _playersJsonMeta =
+      const VerificationMeta('playersJson');
+  @override
+  late final GeneratedColumn<String> playersJson = GeneratedColumn<String>(
+      'players_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _winnerMeta = const VerificationMeta('winner');
+  @override
+  late final GeneratedColumn<String> winner = GeneratedColumn<String>(
+      'winner', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _scoresJsonMeta =
+      const VerificationMeta('scoresJson');
+  @override
+  late final GeneratedColumn<String> scoresJson = GeneratedColumn<String>(
+      'scores_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _durationMinutesMeta =
+      const VerificationMeta('durationMinutes');
+  @override
+  late final GeneratedColumn<int> durationMinutes = GeneratedColumn<int>(
+      'duration_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _locationMeta =
+      const VerificationMeta('location');
+  @override
+  late final GeneratedColumn<String> location = GeneratedColumn<String>(
+      'location', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        boardGameId,
+        date,
+        playersJson,
+        winner,
+        scoresJson,
+        durationMinutes,
+        location,
+        notes
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'board_game_play_sessions_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<BoardGamePlaySessionsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('board_game_id')) {
+      context.handle(
+          _boardGameIdMeta,
+          boardGameId.isAcceptableOrUnknown(
+              data['board_game_id']!, _boardGameIdMeta));
+    } else if (isInserting) {
+      context.missing(_boardGameIdMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('players_json')) {
+      context.handle(
+          _playersJsonMeta,
+          playersJson.isAcceptableOrUnknown(
+              data['players_json']!, _playersJsonMeta));
+    }
+    if (data.containsKey('winner')) {
+      context.handle(_winnerMeta,
+          winner.isAcceptableOrUnknown(data['winner']!, _winnerMeta));
+    }
+    if (data.containsKey('scores_json')) {
+      context.handle(
+          _scoresJsonMeta,
+          scoresJson.isAcceptableOrUnknown(
+              data['scores_json']!, _scoresJsonMeta));
+    }
+    if (data.containsKey('duration_minutes')) {
+      context.handle(
+          _durationMinutesMeta,
+          durationMinutes.isAcceptableOrUnknown(
+              data['duration_minutes']!, _durationMinutesMeta));
+    }
+    if (data.containsKey('location')) {
+      context.handle(_locationMeta,
+          location.isAcceptableOrUnknown(data['location']!, _locationMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BoardGamePlaySessionsRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BoardGamePlaySessionsRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      boardGameId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}board_game_id'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      playersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}players_json'])!,
+      winner: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}winner']),
+      scoresJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}scores_json'])!,
+      durationMinutes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}duration_minutes']),
+      location: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+    );
+  }
+
+  @override
+  $BoardGamePlaySessionsRowsTable createAlias(String alias) {
+    return $BoardGamePlaySessionsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BoardGamePlaySessionsRow extends DataClass
+    implements Insertable<BoardGamePlaySessionsRow> {
+  final String id;
+  final String boardGameId;
+  final DateTime date;
+  final String playersJson;
+  final String? winner;
+  final String scoresJson;
+  final int? durationMinutes;
+  final String? location;
+  final String? notes;
+  const BoardGamePlaySessionsRow(
+      {required this.id,
+      required this.boardGameId,
+      required this.date,
+      required this.playersJson,
+      this.winner,
+      required this.scoresJson,
+      this.durationMinutes,
+      this.location,
+      this.notes});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['board_game_id'] = Variable<String>(boardGameId);
+    map['date'] = Variable<DateTime>(date);
+    map['players_json'] = Variable<String>(playersJson);
+    if (!nullToAbsent || winner != null) {
+      map['winner'] = Variable<String>(winner);
+    }
+    map['scores_json'] = Variable<String>(scoresJson);
+    if (!nullToAbsent || durationMinutes != null) {
+      map['duration_minutes'] = Variable<int>(durationMinutes);
+    }
+    if (!nullToAbsent || location != null) {
+      map['location'] = Variable<String>(location);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  BoardGamePlaySessionsRowsCompanion toCompanion(bool nullToAbsent) {
+    return BoardGamePlaySessionsRowsCompanion(
+      id: Value(id),
+      boardGameId: Value(boardGameId),
+      date: Value(date),
+      playersJson: Value(playersJson),
+      winner:
+          winner == null && nullToAbsent ? const Value.absent() : Value(winner),
+      scoresJson: Value(scoresJson),
+      durationMinutes: durationMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationMinutes),
+      location: location == null && nullToAbsent
+          ? const Value.absent()
+          : Value(location),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+    );
+  }
+
+  factory BoardGamePlaySessionsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BoardGamePlaySessionsRow(
+      id: serializer.fromJson<String>(json['id']),
+      boardGameId: serializer.fromJson<String>(json['boardGameId']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      playersJson: serializer.fromJson<String>(json['playersJson']),
+      winner: serializer.fromJson<String?>(json['winner']),
+      scoresJson: serializer.fromJson<String>(json['scoresJson']),
+      durationMinutes: serializer.fromJson<int?>(json['durationMinutes']),
+      location: serializer.fromJson<String?>(json['location']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'boardGameId': serializer.toJson<String>(boardGameId),
+      'date': serializer.toJson<DateTime>(date),
+      'playersJson': serializer.toJson<String>(playersJson),
+      'winner': serializer.toJson<String?>(winner),
+      'scoresJson': serializer.toJson<String>(scoresJson),
+      'durationMinutes': serializer.toJson<int?>(durationMinutes),
+      'location': serializer.toJson<String?>(location),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  BoardGamePlaySessionsRow copyWith(
+          {String? id,
+          String? boardGameId,
+          DateTime? date,
+          String? playersJson,
+          Value<String?> winner = const Value.absent(),
+          String? scoresJson,
+          Value<int?> durationMinutes = const Value.absent(),
+          Value<String?> location = const Value.absent(),
+          Value<String?> notes = const Value.absent()}) =>
+      BoardGamePlaySessionsRow(
+        id: id ?? this.id,
+        boardGameId: boardGameId ?? this.boardGameId,
+        date: date ?? this.date,
+        playersJson: playersJson ?? this.playersJson,
+        winner: winner.present ? winner.value : this.winner,
+        scoresJson: scoresJson ?? this.scoresJson,
+        durationMinutes: durationMinutes.present
+            ? durationMinutes.value
+            : this.durationMinutes,
+        location: location.present ? location.value : this.location,
+        notes: notes.present ? notes.value : this.notes,
+      );
+  BoardGamePlaySessionsRow copyWithCompanion(
+      BoardGamePlaySessionsRowsCompanion data) {
+    return BoardGamePlaySessionsRow(
+      id: data.id.present ? data.id.value : this.id,
+      boardGameId:
+          data.boardGameId.present ? data.boardGameId.value : this.boardGameId,
+      date: data.date.present ? data.date.value : this.date,
+      playersJson:
+          data.playersJson.present ? data.playersJson.value : this.playersJson,
+      winner: data.winner.present ? data.winner.value : this.winner,
+      scoresJson:
+          data.scoresJson.present ? data.scoresJson.value : this.scoresJson,
+      durationMinutes: data.durationMinutes.present
+          ? data.durationMinutes.value
+          : this.durationMinutes,
+      location: data.location.present ? data.location.value : this.location,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGamePlaySessionsRow(')
+          ..write('id: $id, ')
+          ..write('boardGameId: $boardGameId, ')
+          ..write('date: $date, ')
+          ..write('playersJson: $playersJson, ')
+          ..write('winner: $winner, ')
+          ..write('scoresJson: $scoresJson, ')
+          ..write('durationMinutes: $durationMinutes, ')
+          ..write('location: $location, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, boardGameId, date, playersJson, winner,
+      scoresJson, durationMinutes, location, notes);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BoardGamePlaySessionsRow &&
+          other.id == this.id &&
+          other.boardGameId == this.boardGameId &&
+          other.date == this.date &&
+          other.playersJson == this.playersJson &&
+          other.winner == this.winner &&
+          other.scoresJson == this.scoresJson &&
+          other.durationMinutes == this.durationMinutes &&
+          other.location == this.location &&
+          other.notes == this.notes);
+}
+
+class BoardGamePlaySessionsRowsCompanion
+    extends UpdateCompanion<BoardGamePlaySessionsRow> {
+  final Value<String> id;
+  final Value<String> boardGameId;
+  final Value<DateTime> date;
+  final Value<String> playersJson;
+  final Value<String?> winner;
+  final Value<String> scoresJson;
+  final Value<int?> durationMinutes;
+  final Value<String?> location;
+  final Value<String?> notes;
+  final Value<int> rowid;
+  const BoardGamePlaySessionsRowsCompanion({
+    this.id = const Value.absent(),
+    this.boardGameId = const Value.absent(),
+    this.date = const Value.absent(),
+    this.playersJson = const Value.absent(),
+    this.winner = const Value.absent(),
+    this.scoresJson = const Value.absent(),
+    this.durationMinutes = const Value.absent(),
+    this.location = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BoardGamePlaySessionsRowsCompanion.insert({
+    required String id,
+    required String boardGameId,
+    required DateTime date,
+    this.playersJson = const Value.absent(),
+    this.winner = const Value.absent(),
+    this.scoresJson = const Value.absent(),
+    this.durationMinutes = const Value.absent(),
+    this.location = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        boardGameId = Value(boardGameId),
+        date = Value(date);
+  static Insertable<BoardGamePlaySessionsRow> custom({
+    Expression<String>? id,
+    Expression<String>? boardGameId,
+    Expression<DateTime>? date,
+    Expression<String>? playersJson,
+    Expression<String>? winner,
+    Expression<String>? scoresJson,
+    Expression<int>? durationMinutes,
+    Expression<String>? location,
+    Expression<String>? notes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (boardGameId != null) 'board_game_id': boardGameId,
+      if (date != null) 'date': date,
+      if (playersJson != null) 'players_json': playersJson,
+      if (winner != null) 'winner': winner,
+      if (scoresJson != null) 'scores_json': scoresJson,
+      if (durationMinutes != null) 'duration_minutes': durationMinutes,
+      if (location != null) 'location': location,
+      if (notes != null) 'notes': notes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BoardGamePlaySessionsRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? boardGameId,
+      Value<DateTime>? date,
+      Value<String>? playersJson,
+      Value<String?>? winner,
+      Value<String>? scoresJson,
+      Value<int?>? durationMinutes,
+      Value<String?>? location,
+      Value<String?>? notes,
+      Value<int>? rowid}) {
+    return BoardGamePlaySessionsRowsCompanion(
+      id: id ?? this.id,
+      boardGameId: boardGameId ?? this.boardGameId,
+      date: date ?? this.date,
+      playersJson: playersJson ?? this.playersJson,
+      winner: winner ?? this.winner,
+      scoresJson: scoresJson ?? this.scoresJson,
+      durationMinutes: durationMinutes ?? this.durationMinutes,
+      location: location ?? this.location,
+      notes: notes ?? this.notes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (boardGameId.present) {
+      map['board_game_id'] = Variable<String>(boardGameId.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (playersJson.present) {
+      map['players_json'] = Variable<String>(playersJson.value);
+    }
+    if (winner.present) {
+      map['winner'] = Variable<String>(winner.value);
+    }
+    if (scoresJson.present) {
+      map['scores_json'] = Variable<String>(scoresJson.value);
+    }
+    if (durationMinutes.present) {
+      map['duration_minutes'] = Variable<int>(durationMinutes.value);
+    }
+    if (location.present) {
+      map['location'] = Variable<String>(location.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGamePlaySessionsRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('boardGameId: $boardGameId, ')
+          ..write('date: $date, ')
+          ..write('playersJson: $playersJson, ')
+          ..write('winner: $winner, ')
+          ..write('scoresJson: $scoresJson, ')
+          ..write('durationMinutes: $durationMinutes, ')
+          ..write('location: $location, ')
+          ..write('notes: $notes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -21199,6 +24231,14 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $GameReleaseRowsTable(this);
   late final $GameOwnedDetailsRowsTable gameOwnedDetailsRows =
       $GameOwnedDetailsRowsTable(this);
+  late final $BoardGameMediaRowsTable boardGameMediaRows =
+      $BoardGameMediaRowsTable(this);
+  late final $BoardGameEditionRowsTable boardGameEditionRows =
+      $BoardGameEditionRowsTable(this);
+  late final $BoardGameOwnedDetailsRowsTable boardGameOwnedDetailsRows =
+      $BoardGameOwnedDetailsRowsTable(this);
+  late final $BoardGamePlaySessionsRowsTable boardGamePlaySessionsRows =
+      $BoardGamePlaySessionsRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -21237,7 +24277,11 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         bookOwnedDetailsRows,
         gameMediaRows,
         gameReleaseRows,
-        gameOwnedDetailsRows
+        gameOwnedDetailsRows,
+        boardGameMediaRows,
+        boardGameEditionRows,
+        boardGameOwnedDetailsRows,
+        boardGamePlaySessionsRows
       ];
 }
 
@@ -31036,6 +34080,1366 @@ typedef $$GameOwnedDetailsRowsTableProcessedTableManager
         ),
         GameOwnedDetailsRow,
         PrefetchHooks Function()>;
+typedef $$BoardGameMediaRowsTableCreateCompanionBuilder
+    = BoardGameMediaRowsCompanion Function({
+  required String id,
+  required String title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> releaseDate,
+  Value<String?> originalLanguage,
+  Value<String?> publisher,
+  Value<String?> subtitle,
+  Value<String> platformsJson,
+  Value<String> identifiersJson,
+  Value<String> contributorsJson,
+  Value<String> mechanicsJson,
+  Value<String> categoriesJson,
+  Value<String> familiesJson,
+  Value<String> expansionsJson,
+  Value<String> rankingsJson,
+  Value<String> searchAliasesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$BoardGameMediaRowsTableUpdateCompanionBuilder
+    = BoardGameMediaRowsCompanion Function({
+  Value<String> id,
+  Value<String> title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> releaseDate,
+  Value<String?> originalLanguage,
+  Value<String?> publisher,
+  Value<String?> subtitle,
+  Value<String> platformsJson,
+  Value<String> identifiersJson,
+  Value<String> contributorsJson,
+  Value<String> mechanicsJson,
+  Value<String> categoriesJson,
+  Value<String> familiesJson,
+  Value<String> expansionsJson,
+  Value<String> rankingsJson,
+  Value<String> searchAliasesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$BoardGameMediaRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BoardGameMediaRowsTable> {
+  $$BoardGameMediaRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get platformsJson => $composableBuilder(
+      column: $table.platformsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contributorsJson => $composableBuilder(
+      column: $table.contributorsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mechanicsJson => $composableBuilder(
+      column: $table.mechanicsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get categoriesJson => $composableBuilder(
+      column: $table.categoriesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get familiesJson => $composableBuilder(
+      column: $table.familiesJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get expansionsJson => $composableBuilder(
+      column: $table.expansionsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rankingsJson => $composableBuilder(
+      column: $table.rankingsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$BoardGameMediaRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BoardGameMediaRowsTable> {
+  $$BoardGameMediaRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get platformsJson => $composableBuilder(
+      column: $table.platformsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contributorsJson => $composableBuilder(
+      column: $table.contributorsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mechanicsJson => $composableBuilder(
+      column: $table.mechanicsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get categoriesJson => $composableBuilder(
+      column: $table.categoriesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get familiesJson => $composableBuilder(
+      column: $table.familiesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get expansionsJson => $composableBuilder(
+      column: $table.expansionsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rankingsJson => $composableBuilder(
+      column: $table.rankingsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$BoardGameMediaRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BoardGameMediaRowsTable> {
+  $$BoardGameMediaRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get sortTitle =>
+      $composableBuilder(column: $table.sortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage, builder: (column) => column);
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitle =>
+      $composableBuilder(column: $table.subtitle, builder: (column) => column);
+
+  GeneratedColumn<String> get platformsJson => $composableBuilder(
+      column: $table.platformsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get contributorsJson => $composableBuilder(
+      column: $table.contributorsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get mechanicsJson => $composableBuilder(
+      column: $table.mechanicsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get categoriesJson => $composableBuilder(
+      column: $table.categoriesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get familiesJson => $composableBuilder(
+      column: $table.familiesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get expansionsJson => $composableBuilder(
+      column: $table.expansionsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get rankingsJson => $composableBuilder(
+      column: $table.rankingsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$BoardGameMediaRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BoardGameMediaRowsTable,
+    BoardGameMediaRow,
+    $$BoardGameMediaRowsTableFilterComposer,
+    $$BoardGameMediaRowsTableOrderingComposer,
+    $$BoardGameMediaRowsTableAnnotationComposer,
+    $$BoardGameMediaRowsTableCreateCompanionBuilder,
+    $$BoardGameMediaRowsTableUpdateCompanionBuilder,
+    (
+      BoardGameMediaRow,
+      BaseReferences<_$LocalDatabase, $BoardGameMediaRowsTable,
+          BoardGameMediaRow>
+    ),
+    BoardGameMediaRow,
+    PrefetchHooks Function()> {
+  $$BoardGameMediaRowsTableTableManager(
+      _$LocalDatabase db, $BoardGameMediaRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BoardGameMediaRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BoardGameMediaRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BoardGameMediaRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String> platformsJson = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String> contributorsJson = const Value.absent(),
+            Value<String> mechanicsJson = const Value.absent(),
+            Value<String> categoriesJson = const Value.absent(),
+            Value<String> familiesJson = const Value.absent(),
+            Value<String> expansionsJson = const Value.absent(),
+            Value<String> rankingsJson = const Value.absent(),
+            Value<String> searchAliasesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameMediaRowsCompanion(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            releaseDate: releaseDate,
+            originalLanguage: originalLanguage,
+            publisher: publisher,
+            subtitle: subtitle,
+            platformsJson: platformsJson,
+            identifiersJson: identifiersJson,
+            contributorsJson: contributorsJson,
+            mechanicsJson: mechanicsJson,
+            categoriesJson: categoriesJson,
+            familiesJson: familiesJson,
+            expansionsJson: expansionsJson,
+            rankingsJson: rankingsJson,
+            searchAliasesJson: searchAliasesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String> platformsJson = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String> contributorsJson = const Value.absent(),
+            Value<String> mechanicsJson = const Value.absent(),
+            Value<String> categoriesJson = const Value.absent(),
+            Value<String> familiesJson = const Value.absent(),
+            Value<String> expansionsJson = const Value.absent(),
+            Value<String> rankingsJson = const Value.absent(),
+            Value<String> searchAliasesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameMediaRowsCompanion.insert(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            releaseDate: releaseDate,
+            originalLanguage: originalLanguage,
+            publisher: publisher,
+            subtitle: subtitle,
+            platformsJson: platformsJson,
+            identifiersJson: identifiersJson,
+            contributorsJson: contributorsJson,
+            mechanicsJson: mechanicsJson,
+            categoriesJson: categoriesJson,
+            familiesJson: familiesJson,
+            expansionsJson: expansionsJson,
+            rankingsJson: rankingsJson,
+            searchAliasesJson: searchAliasesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BoardGameMediaRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $BoardGameMediaRowsTable,
+    BoardGameMediaRow,
+    $$BoardGameMediaRowsTableFilterComposer,
+    $$BoardGameMediaRowsTableOrderingComposer,
+    $$BoardGameMediaRowsTableAnnotationComposer,
+    $$BoardGameMediaRowsTableCreateCompanionBuilder,
+    $$BoardGameMediaRowsTableUpdateCompanionBuilder,
+    (
+      BoardGameMediaRow,
+      BaseReferences<_$LocalDatabase, $BoardGameMediaRowsTable,
+          BoardGameMediaRow>
+    ),
+    BoardGameMediaRow,
+    PrefetchHooks Function()>;
+typedef $$BoardGameEditionRowsTableCreateCompanionBuilder
+    = BoardGameEditionRowsCompanion Function({
+  required String mediaId,
+  required String id,
+  required String title,
+  Value<String?> titleValue,
+  Value<String?> workId,
+  Value<String?> editionTitle,
+  Value<String?> ageRating,
+  Value<String?> audienceRating,
+  Value<String?> barcode,
+  Value<String?> catalogNumber,
+  Value<String?> country,
+  Value<String?> coverImageUrl,
+  Value<String?> description,
+  Value<String?> format,
+  Value<String?> language,
+  Value<int?> maxPlayers,
+  Value<int?> minAge,
+  Value<int?> minPlayers,
+  Value<int?> playingTimeMinutes,
+  Value<String?> publisher,
+  Value<DateTime?> releaseDate,
+  Value<String?> releaseStatus,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$BoardGameEditionRowsTableUpdateCompanionBuilder
+    = BoardGameEditionRowsCompanion Function({
+  Value<String> mediaId,
+  Value<String> id,
+  Value<String> title,
+  Value<String?> titleValue,
+  Value<String?> workId,
+  Value<String?> editionTitle,
+  Value<String?> ageRating,
+  Value<String?> audienceRating,
+  Value<String?> barcode,
+  Value<String?> catalogNumber,
+  Value<String?> country,
+  Value<String?> coverImageUrl,
+  Value<String?> description,
+  Value<String?> format,
+  Value<String?> language,
+  Value<int?> maxPlayers,
+  Value<int?> minAge,
+  Value<int?> minPlayers,
+  Value<int?> playingTimeMinutes,
+  Value<String?> publisher,
+  Value<DateTime?> releaseDate,
+  Value<String?> releaseStatus,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$BoardGameEditionRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BoardGameEditionRowsTable> {
+  $$BoardGameEditionRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get titleValue => $composableBuilder(
+      column: $table.titleValue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get workId => $composableBuilder(
+      column: $table.workId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionTitle => $composableBuilder(
+      column: $table.editionTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get barcode => $composableBuilder(
+      column: $table.barcode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get country => $composableBuilder(
+      column: $table.country, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get format => $composableBuilder(
+      column: $table.format, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get maxPlayers => $composableBuilder(
+      column: $table.maxPlayers, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get minAge => $composableBuilder(
+      column: $table.minAge, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get minPlayers => $composableBuilder(
+      column: $table.minPlayers, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get playingTimeMinutes => $composableBuilder(
+      column: $table.playingTimeMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$BoardGameEditionRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BoardGameEditionRowsTable> {
+  $$BoardGameEditionRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get titleValue => $composableBuilder(
+      column: $table.titleValue, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get workId => $composableBuilder(
+      column: $table.workId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionTitle => $composableBuilder(
+      column: $table.editionTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get barcode => $composableBuilder(
+      column: $table.barcode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get country => $composableBuilder(
+      column: $table.country, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get format => $composableBuilder(
+      column: $table.format, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get maxPlayers => $composableBuilder(
+      column: $table.maxPlayers, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get minAge => $composableBuilder(
+      column: $table.minAge, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get minPlayers => $composableBuilder(
+      column: $table.minPlayers, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get playingTimeMinutes => $composableBuilder(
+      column: $table.playingTimeMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$BoardGameEditionRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BoardGameEditionRowsTable> {
+  $$BoardGameEditionRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get mediaId =>
+      $composableBuilder(column: $table.mediaId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get titleValue => $composableBuilder(
+      column: $table.titleValue, builder: (column) => column);
+
+  GeneratedColumn<String> get workId =>
+      $composableBuilder(column: $table.workId, builder: (column) => column);
+
+  GeneratedColumn<String> get editionTitle => $composableBuilder(
+      column: $table.editionTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get ageRating =>
+      $composableBuilder(column: $table.ageRating, builder: (column) => column);
+
+  GeneratedColumn<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating, builder: (column) => column);
+
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogNumber => $composableBuilder(
+      column: $table.catalogNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get country =>
+      $composableBuilder(column: $table.country, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get format =>
+      $composableBuilder(column: $table.format, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<int> get maxPlayers => $composableBuilder(
+      column: $table.maxPlayers, builder: (column) => column);
+
+  GeneratedColumn<int> get minAge =>
+      $composableBuilder(column: $table.minAge, builder: (column) => column);
+
+  GeneratedColumn<int> get minPlayers => $composableBuilder(
+      column: $table.minPlayers, builder: (column) => column);
+
+  GeneratedColumn<int> get playingTimeMinutes => $composableBuilder(
+      column: $table.playingTimeMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$BoardGameEditionRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BoardGameEditionRowsTable,
+    BoardGameEditionRow,
+    $$BoardGameEditionRowsTableFilterComposer,
+    $$BoardGameEditionRowsTableOrderingComposer,
+    $$BoardGameEditionRowsTableAnnotationComposer,
+    $$BoardGameEditionRowsTableCreateCompanionBuilder,
+    $$BoardGameEditionRowsTableUpdateCompanionBuilder,
+    (
+      BoardGameEditionRow,
+      BaseReferences<_$LocalDatabase, $BoardGameEditionRowsTable,
+          BoardGameEditionRow>
+    ),
+    BoardGameEditionRow,
+    PrefetchHooks Function()> {
+  $$BoardGameEditionRowsTableTableManager(
+      _$LocalDatabase db, $BoardGameEditionRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BoardGameEditionRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BoardGameEditionRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BoardGameEditionRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> mediaId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> titleValue = const Value.absent(),
+            Value<String?> workId = const Value.absent(),
+            Value<String?> editionTitle = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<String?> audienceRating = const Value.absent(),
+            Value<String?> barcode = const Value.absent(),
+            Value<String?> catalogNumber = const Value.absent(),
+            Value<String?> country = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> format = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<int?> maxPlayers = const Value.absent(),
+            Value<int?> minAge = const Value.absent(),
+            Value<int?> minPlayers = const Value.absent(),
+            Value<int?> playingTimeMinutes = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> releaseStatus = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameEditionRowsCompanion(
+            mediaId: mediaId,
+            id: id,
+            title: title,
+            titleValue: titleValue,
+            workId: workId,
+            editionTitle: editionTitle,
+            ageRating: ageRating,
+            audienceRating: audienceRating,
+            barcode: barcode,
+            catalogNumber: catalogNumber,
+            country: country,
+            coverImageUrl: coverImageUrl,
+            description: description,
+            format: format,
+            language: language,
+            maxPlayers: maxPlayers,
+            minAge: minAge,
+            minPlayers: minPlayers,
+            playingTimeMinutes: playingTimeMinutes,
+            publisher: publisher,
+            releaseDate: releaseDate,
+            releaseStatus: releaseStatus,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String mediaId,
+            required String id,
+            required String title,
+            Value<String?> titleValue = const Value.absent(),
+            Value<String?> workId = const Value.absent(),
+            Value<String?> editionTitle = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<String?> audienceRating = const Value.absent(),
+            Value<String?> barcode = const Value.absent(),
+            Value<String?> catalogNumber = const Value.absent(),
+            Value<String?> country = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> format = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<int?> maxPlayers = const Value.absent(),
+            Value<int?> minAge = const Value.absent(),
+            Value<int?> minPlayers = const Value.absent(),
+            Value<int?> playingTimeMinutes = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> releaseStatus = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameEditionRowsCompanion.insert(
+            mediaId: mediaId,
+            id: id,
+            title: title,
+            titleValue: titleValue,
+            workId: workId,
+            editionTitle: editionTitle,
+            ageRating: ageRating,
+            audienceRating: audienceRating,
+            barcode: barcode,
+            catalogNumber: catalogNumber,
+            country: country,
+            coverImageUrl: coverImageUrl,
+            description: description,
+            format: format,
+            language: language,
+            maxPlayers: maxPlayers,
+            minAge: minAge,
+            minPlayers: minPlayers,
+            playingTimeMinutes: playingTimeMinutes,
+            publisher: publisher,
+            releaseDate: releaseDate,
+            releaseStatus: releaseStatus,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BoardGameEditionRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $BoardGameEditionRowsTable,
+        BoardGameEditionRow,
+        $$BoardGameEditionRowsTableFilterComposer,
+        $$BoardGameEditionRowsTableOrderingComposer,
+        $$BoardGameEditionRowsTableAnnotationComposer,
+        $$BoardGameEditionRowsTableCreateCompanionBuilder,
+        $$BoardGameEditionRowsTableUpdateCompanionBuilder,
+        (
+          BoardGameEditionRow,
+          BaseReferences<_$LocalDatabase, $BoardGameEditionRowsTable,
+              BoardGameEditionRow>
+        ),
+        BoardGameEditionRow,
+        PrefetchHooks Function()>;
+typedef $$BoardGameOwnedDetailsRowsTableCreateCompanionBuilder
+    = BoardGameOwnedDetailsRowsCompanion Function({
+  required String ownedItemId,
+  Value<String?> editionLanguage,
+  Value<String?> editionRegion,
+  Value<String?> componentCondition,
+  Value<String?> componentCompleteness,
+  Value<String?> missingPiecesNotes,
+  Value<bool> isSleeved,
+  Value<bool> hasCustomInsert,
+  Value<bool> hasPaintedMiniatures,
+  Value<String?> storageNotes,
+  Value<int> rowid,
+});
+typedef $$BoardGameOwnedDetailsRowsTableUpdateCompanionBuilder
+    = BoardGameOwnedDetailsRowsCompanion Function({
+  Value<String> ownedItemId,
+  Value<String?> editionLanguage,
+  Value<String?> editionRegion,
+  Value<String?> componentCondition,
+  Value<String?> componentCompleteness,
+  Value<String?> missingPiecesNotes,
+  Value<bool> isSleeved,
+  Value<bool> hasCustomInsert,
+  Value<bool> hasPaintedMiniatures,
+  Value<String?> storageNotes,
+  Value<int> rowid,
+});
+
+class $$BoardGameOwnedDetailsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BoardGameOwnedDetailsRowsTable> {
+  $$BoardGameOwnedDetailsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionLanguage => $composableBuilder(
+      column: $table.editionLanguage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionRegion => $composableBuilder(
+      column: $table.editionRegion, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get componentCondition => $composableBuilder(
+      column: $table.componentCondition,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get componentCompleteness => $composableBuilder(
+      column: $table.componentCompleteness,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get missingPiecesNotes => $composableBuilder(
+      column: $table.missingPiecesNotes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isSleeved => $composableBuilder(
+      column: $table.isSleeved, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get hasCustomInsert => $composableBuilder(
+      column: $table.hasCustomInsert,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get hasPaintedMiniatures => $composableBuilder(
+      column: $table.hasPaintedMiniatures,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageNotes => $composableBuilder(
+      column: $table.storageNotes, builder: (column) => ColumnFilters(column));
+}
+
+class $$BoardGameOwnedDetailsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BoardGameOwnedDetailsRowsTable> {
+  $$BoardGameOwnedDetailsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionLanguage => $composableBuilder(
+      column: $table.editionLanguage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionRegion => $composableBuilder(
+      column: $table.editionRegion,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get componentCondition => $composableBuilder(
+      column: $table.componentCondition,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get componentCompleteness => $composableBuilder(
+      column: $table.componentCompleteness,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get missingPiecesNotes => $composableBuilder(
+      column: $table.missingPiecesNotes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isSleeved => $composableBuilder(
+      column: $table.isSleeved, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get hasCustomInsert => $composableBuilder(
+      column: $table.hasCustomInsert,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get hasPaintedMiniatures => $composableBuilder(
+      column: $table.hasPaintedMiniatures,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageNotes => $composableBuilder(
+      column: $table.storageNotes,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$BoardGameOwnedDetailsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BoardGameOwnedDetailsRowsTable> {
+  $$BoardGameOwnedDetailsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get editionLanguage => $composableBuilder(
+      column: $table.editionLanguage, builder: (column) => column);
+
+  GeneratedColumn<String> get editionRegion => $composableBuilder(
+      column: $table.editionRegion, builder: (column) => column);
+
+  GeneratedColumn<String> get componentCondition => $composableBuilder(
+      column: $table.componentCondition, builder: (column) => column);
+
+  GeneratedColumn<String> get componentCompleteness => $composableBuilder(
+      column: $table.componentCompleteness, builder: (column) => column);
+
+  GeneratedColumn<String> get missingPiecesNotes => $composableBuilder(
+      column: $table.missingPiecesNotes, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSleeved =>
+      $composableBuilder(column: $table.isSleeved, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasCustomInsert => $composableBuilder(
+      column: $table.hasCustomInsert, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasPaintedMiniatures => $composableBuilder(
+      column: $table.hasPaintedMiniatures, builder: (column) => column);
+
+  GeneratedColumn<String> get storageNotes => $composableBuilder(
+      column: $table.storageNotes, builder: (column) => column);
+}
+
+class $$BoardGameOwnedDetailsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BoardGameOwnedDetailsRowsTable,
+    BoardGameOwnedDetailsRow,
+    $$BoardGameOwnedDetailsRowsTableFilterComposer,
+    $$BoardGameOwnedDetailsRowsTableOrderingComposer,
+    $$BoardGameOwnedDetailsRowsTableAnnotationComposer,
+    $$BoardGameOwnedDetailsRowsTableCreateCompanionBuilder,
+    $$BoardGameOwnedDetailsRowsTableUpdateCompanionBuilder,
+    (
+      BoardGameOwnedDetailsRow,
+      BaseReferences<_$LocalDatabase, $BoardGameOwnedDetailsRowsTable,
+          BoardGameOwnedDetailsRow>
+    ),
+    BoardGameOwnedDetailsRow,
+    PrefetchHooks Function()> {
+  $$BoardGameOwnedDetailsRowsTableTableManager(
+      _$LocalDatabase db, $BoardGameOwnedDetailsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BoardGameOwnedDetailsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BoardGameOwnedDetailsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BoardGameOwnedDetailsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String?> editionLanguage = const Value.absent(),
+            Value<String?> editionRegion = const Value.absent(),
+            Value<String?> componentCondition = const Value.absent(),
+            Value<String?> componentCompleteness = const Value.absent(),
+            Value<String?> missingPiecesNotes = const Value.absent(),
+            Value<bool> isSleeved = const Value.absent(),
+            Value<bool> hasCustomInsert = const Value.absent(),
+            Value<bool> hasPaintedMiniatures = const Value.absent(),
+            Value<String?> storageNotes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameOwnedDetailsRowsCompanion(
+            ownedItemId: ownedItemId,
+            editionLanguage: editionLanguage,
+            editionRegion: editionRegion,
+            componentCondition: componentCondition,
+            componentCompleteness: componentCompleteness,
+            missingPiecesNotes: missingPiecesNotes,
+            isSleeved: isSleeved,
+            hasCustomInsert: hasCustomInsert,
+            hasPaintedMiniatures: hasPaintedMiniatures,
+            storageNotes: storageNotes,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String ownedItemId,
+            Value<String?> editionLanguage = const Value.absent(),
+            Value<String?> editionRegion = const Value.absent(),
+            Value<String?> componentCondition = const Value.absent(),
+            Value<String?> componentCompleteness = const Value.absent(),
+            Value<String?> missingPiecesNotes = const Value.absent(),
+            Value<bool> isSleeved = const Value.absent(),
+            Value<bool> hasCustomInsert = const Value.absent(),
+            Value<bool> hasPaintedMiniatures = const Value.absent(),
+            Value<String?> storageNotes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameOwnedDetailsRowsCompanion.insert(
+            ownedItemId: ownedItemId,
+            editionLanguage: editionLanguage,
+            editionRegion: editionRegion,
+            componentCondition: componentCondition,
+            componentCompleteness: componentCompleteness,
+            missingPiecesNotes: missingPiecesNotes,
+            isSleeved: isSleeved,
+            hasCustomInsert: hasCustomInsert,
+            hasPaintedMiniatures: hasPaintedMiniatures,
+            storageNotes: storageNotes,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BoardGameOwnedDetailsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $BoardGameOwnedDetailsRowsTable,
+        BoardGameOwnedDetailsRow,
+        $$BoardGameOwnedDetailsRowsTableFilterComposer,
+        $$BoardGameOwnedDetailsRowsTableOrderingComposer,
+        $$BoardGameOwnedDetailsRowsTableAnnotationComposer,
+        $$BoardGameOwnedDetailsRowsTableCreateCompanionBuilder,
+        $$BoardGameOwnedDetailsRowsTableUpdateCompanionBuilder,
+        (
+          BoardGameOwnedDetailsRow,
+          BaseReferences<_$LocalDatabase, $BoardGameOwnedDetailsRowsTable,
+              BoardGameOwnedDetailsRow>
+        ),
+        BoardGameOwnedDetailsRow,
+        PrefetchHooks Function()>;
+typedef $$BoardGamePlaySessionsRowsTableCreateCompanionBuilder
+    = BoardGamePlaySessionsRowsCompanion Function({
+  required String id,
+  required String boardGameId,
+  required DateTime date,
+  Value<String> playersJson,
+  Value<String?> winner,
+  Value<String> scoresJson,
+  Value<int?> durationMinutes,
+  Value<String?> location,
+  Value<String?> notes,
+  Value<int> rowid,
+});
+typedef $$BoardGamePlaySessionsRowsTableUpdateCompanionBuilder
+    = BoardGamePlaySessionsRowsCompanion Function({
+  Value<String> id,
+  Value<String> boardGameId,
+  Value<DateTime> date,
+  Value<String> playersJson,
+  Value<String?> winner,
+  Value<String> scoresJson,
+  Value<int?> durationMinutes,
+  Value<String?> location,
+  Value<String?> notes,
+  Value<int> rowid,
+});
+
+class $$BoardGamePlaySessionsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BoardGamePlaySessionsRowsTable> {
+  $$BoardGamePlaySessionsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boardGameId => $composableBuilder(
+      column: $table.boardGameId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get playersJson => $composableBuilder(
+      column: $table.playersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get winner => $composableBuilder(
+      column: $table.winner, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get scoresJson => $composableBuilder(
+      column: $table.scoresJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get durationMinutes => $composableBuilder(
+      column: $table.durationMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+}
+
+class $$BoardGamePlaySessionsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BoardGamePlaySessionsRowsTable> {
+  $$BoardGamePlaySessionsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boardGameId => $composableBuilder(
+      column: $table.boardGameId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get playersJson => $composableBuilder(
+      column: $table.playersJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get winner => $composableBuilder(
+      column: $table.winner, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get scoresJson => $composableBuilder(
+      column: $table.scoresJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get durationMinutes => $composableBuilder(
+      column: $table.durationMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+}
+
+class $$BoardGamePlaySessionsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BoardGamePlaySessionsRowsTable> {
+  $$BoardGamePlaySessionsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get boardGameId => $composableBuilder(
+      column: $table.boardGameId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get playersJson => $composableBuilder(
+      column: $table.playersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get winner =>
+      $composableBuilder(column: $table.winner, builder: (column) => column);
+
+  GeneratedColumn<String> get scoresJson => $composableBuilder(
+      column: $table.scoresJson, builder: (column) => column);
+
+  GeneratedColumn<int> get durationMinutes => $composableBuilder(
+      column: $table.durationMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get location =>
+      $composableBuilder(column: $table.location, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+}
+
+class $$BoardGamePlaySessionsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BoardGamePlaySessionsRowsTable,
+    BoardGamePlaySessionsRow,
+    $$BoardGamePlaySessionsRowsTableFilterComposer,
+    $$BoardGamePlaySessionsRowsTableOrderingComposer,
+    $$BoardGamePlaySessionsRowsTableAnnotationComposer,
+    $$BoardGamePlaySessionsRowsTableCreateCompanionBuilder,
+    $$BoardGamePlaySessionsRowsTableUpdateCompanionBuilder,
+    (
+      BoardGamePlaySessionsRow,
+      BaseReferences<_$LocalDatabase, $BoardGamePlaySessionsRowsTable,
+          BoardGamePlaySessionsRow>
+    ),
+    BoardGamePlaySessionsRow,
+    PrefetchHooks Function()> {
+  $$BoardGamePlaySessionsRowsTableTableManager(
+      _$LocalDatabase db, $BoardGamePlaySessionsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BoardGamePlaySessionsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BoardGamePlaySessionsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BoardGamePlaySessionsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> boardGameId = const Value.absent(),
+            Value<DateTime> date = const Value.absent(),
+            Value<String> playersJson = const Value.absent(),
+            Value<String?> winner = const Value.absent(),
+            Value<String> scoresJson = const Value.absent(),
+            Value<int?> durationMinutes = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGamePlaySessionsRowsCompanion(
+            id: id,
+            boardGameId: boardGameId,
+            date: date,
+            playersJson: playersJson,
+            winner: winner,
+            scoresJson: scoresJson,
+            durationMinutes: durationMinutes,
+            location: location,
+            notes: notes,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String boardGameId,
+            required DateTime date,
+            Value<String> playersJson = const Value.absent(),
+            Value<String?> winner = const Value.absent(),
+            Value<String> scoresJson = const Value.absent(),
+            Value<int?> durationMinutes = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGamePlaySessionsRowsCompanion.insert(
+            id: id,
+            boardGameId: boardGameId,
+            date: date,
+            playersJson: playersJson,
+            winner: winner,
+            scoresJson: scoresJson,
+            durationMinutes: durationMinutes,
+            location: location,
+            notes: notes,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BoardGamePlaySessionsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $BoardGamePlaySessionsRowsTable,
+        BoardGamePlaySessionsRow,
+        $$BoardGamePlaySessionsRowsTableFilterComposer,
+        $$BoardGamePlaySessionsRowsTableOrderingComposer,
+        $$BoardGamePlaySessionsRowsTableAnnotationComposer,
+        $$BoardGamePlaySessionsRowsTableCreateCompanionBuilder,
+        $$BoardGamePlaySessionsRowsTableUpdateCompanionBuilder,
+        (
+          BoardGamePlaySessionsRow,
+          BaseReferences<_$LocalDatabase, $BoardGamePlaySessionsRowsTable,
+              BoardGamePlaySessionsRow>
+        ),
+        BoardGamePlaySessionsRow,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -31115,4 +35519,14 @@ class $LocalDatabaseManager {
       $$GameReleaseRowsTableTableManager(_db, _db.gameReleaseRows);
   $$GameOwnedDetailsRowsTableTableManager get gameOwnedDetailsRows =>
       $$GameOwnedDetailsRowsTableTableManager(_db, _db.gameOwnedDetailsRows);
+  $$BoardGameMediaRowsTableTableManager get boardGameMediaRows =>
+      $$BoardGameMediaRowsTableTableManager(_db, _db.boardGameMediaRows);
+  $$BoardGameEditionRowsTableTableManager get boardGameEditionRows =>
+      $$BoardGameEditionRowsTableTableManager(_db, _db.boardGameEditionRows);
+  $$BoardGameOwnedDetailsRowsTableTableManager get boardGameOwnedDetailsRows =>
+      $$BoardGameOwnedDetailsRowsTableTableManager(
+          _db, _db.boardGameOwnedDetailsRows);
+  $$BoardGamePlaySessionsRowsTableTableManager get boardGamePlaySessionsRows =>
+      $$BoardGamePlaySessionsRowsTableTableManager(
+          _db, _db.boardGamePlaySessionsRows);
 }

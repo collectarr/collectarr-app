@@ -170,6 +170,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/kinds/boardgame/domain/boardgame_metadata.dart',
     'lib/features/library/kinds/boardgame/presentation_builder.dart',
     'lib/features/library/kinds/book/catalog/book_catalog_mapper.dart',
+    'lib/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart',
     'lib/features/library/kinds/book/domain/book_metadata.dart',
     'lib/features/library/kinds/book/presentation_builder.dart',
     'lib/features/library/kinds/comic/detail/comic_series_detail_page.dart',
@@ -189,6 +190,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/kinds/music/workspace/music_card_presentation.dart',
     'lib/features/library/kinds/tv/domain/tv_metadata.dart',
     'lib/features/library/kinds/tv/inspector_sections.dart',
+    'lib/features/library/kinds/boardgame/edit/release/boardgame_release_edit_dialog.dart',
     'lib/features/library/metadata/library_metadata_compare_dialog.dart',
     'lib/features/library/metadata/library_metadata_proposal.dart',
     'lib/features/library/metadata/metadata_proposal_store.dart',
@@ -207,6 +209,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/kinds/manga/data/remote/manga_core_mapper.dart',
     'lib/features/library/kinds/book/data/remote/book_core_mapper.dart',
     'lib/features/library/kinds/game/data/remote/game_core_mapper.dart',
+    'lib/features/library/kinds/boardgame/data/remote/boardgame_core_mapper.dart',
     'lib/features/library/kinds/_shared/video/providers/video_seasons_provider.dart',
   };
 

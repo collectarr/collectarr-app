@@ -5,8 +5,9 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BoardGamePlayStatsSection extends StatelessWidget {
+class BoardGamePlayStatsSection extends ConsumerWidget {
   const BoardGamePlayStatsSection({
     super.key,
     required this.request,
@@ -15,14 +16,21 @@ class BoardGamePlayStatsSection extends StatelessWidget {
   final LibraryInspectorRequest request;
 
   @override
-  Widget build(BuildContext context) {
-    final work = request.item.source.catalogItem as BoardGameWork?;
-    if (work == null) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dto = request.item.dto;
+    if (dto is! BoardGameWorkspaceDto) {
       return const SizedBox.shrink();
     }
+    final work = dto.boardgame;
 
     final edition = _primaryEdition(work);
     final stats = work.playStats;
+    final sessionStats = ref
+        .watch(boardGamePlayStatsProvider(BoardGameMediaId(work.id)))
+        .asData
+        ?.value;
+    final playCount = sessionStats?.playCount ?? stats?.playCount;
+    final lastPlayed = sessionStats?.lastPlayed ?? stats?.lastPlayed;
     final facts = <LibraryDetailField>[
       if (edition?.minPlayers != null ||
           edition?.maxPlayers != null ||
@@ -38,12 +46,16 @@ class BoardGamePlayStatsSection extends StatelessWidget {
       if (stats?.bggRating != null)
         LibraryDetailField(
             label: 'BGG rating', value: stats!.bggRating!.toStringAsFixed(2)),
-      if (stats?.playCount != null)
+      if (playCount != null && playCount > 0)
+        LibraryDetailField(label: 'Play count', value: playCount.toString()),
+      if (lastPlayed != null)
         LibraryDetailField(
-            label: 'Play count', value: stats!.playCount.toString()),
-      if (stats?.lastPlayed != null)
+            label: 'Last played', value: _formatDate(lastPlayed)),
+      if (sessionStats?.averageDurationMinutes != null)
         LibraryDetailField(
-            label: 'Last played', value: _formatDate(stats!.lastPlayed!)),
+          label: 'Average duration',
+          value: '${sessionStats!.averageDurationMinutes!.round()} min',
+        ),
       if (stats?.favoritePlayerCount != null)
         LibraryDetailField(
             label: 'Favorite players',
@@ -79,6 +91,32 @@ class BoardGamePlayStatsSection extends StatelessWidget {
         LibraryDetailChipGroupWidget(
           label: 'Player stats',
           values: [stats!.playerStats!],
+        ),
+      ],
+      if (sessionStats?.mostPlayedWith.isNotEmpty == true) ...[
+        if (work.mechanics.isNotEmpty ||
+            work.categories.isNotEmpty ||
+            work.expansions.isNotEmpty ||
+            stats?.playerStats?.isNotEmpty == true)
+          const SizedBox(height: 8),
+        LibraryDetailChipGroupWidget(
+          label: 'Most played with',
+          values: sessionStats!.mostPlayedWith,
+        ),
+      ],
+      if (sessionStats?.winStats.isNotEmpty == true) ...[
+        if (work.mechanics.isNotEmpty ||
+            work.categories.isNotEmpty ||
+            work.expansions.isNotEmpty ||
+            stats?.playerStats?.isNotEmpty == true ||
+            sessionStats!.mostPlayedWith.isNotEmpty)
+          const SizedBox(height: 8),
+        LibraryDetailChipGroupWidget(
+          label: 'Wins',
+          values: [
+            for (final entry in sessionStats!.winStats.entries)
+              '${entry.key}: ${entry.value}',
+          ],
         ),
       ],
     ];

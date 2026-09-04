@@ -12,22 +12,27 @@ import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_ad
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/boardgame_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
 const _boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
@@ -87,7 +92,7 @@ Iterable<String?> _boardGameLinkedMetadataValues(
 final boardGameKindModule =
     LibraryKindSpec<BoardGameWorkspaceDto, BoardgameOwnedDetails>(
   presentation: boardGamesLibraryMediaPresentation,
-  trackingProfile: gameTrackingProfile,
+  trackingProfile: boardGameTrackingProfile,
   projector: const BoardGameWorkspaceProjector(),
   ownedDetailsCodec: const BoardgameOwnedDetailsCodec(),
   fields: boardgameLibraryKindSchema.toRegistry(),
@@ -113,6 +118,7 @@ final boardGameKindModule =
     supportsMediaReleaseSplit: false,
   ),
   inspector: const LibraryInspectorCapability(
+    sectionsBuilder: buildBoardGameInspectorSections,
     showsDefaultPersonalSection: false,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<BoardGameMetadata>(
@@ -174,18 +180,39 @@ final boardGameKindModule =
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildBoardGameLibraryEditDialog,
+    mediaEditDialogBuilder: buildBoardGameMediaLibraryEditDialog,
+    releaseEditDialogBuilder: buildBoardGameReleaseLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
     presentation: boardGamesLibraryEditPresentation,
     createDraft: createBoardGameEditDraft,
   ),
   providerMapper: const BoardGameLibraryKindProviderMapper(),
-  facets: const LibraryFacetModule(
+  stats: const BoardGameStatsCapability(),
+  facets: LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+    getFacetValues: _getBoardGameFacetValues,
+    definitions: boardgameLibraryFacetDefinitions,
   ),
 );
 
 Map<String, dynamic> _encodeBoardGameMetadata(BoardGameMetadata m) =>
     m.toJson();
+
+Iterable<String> _getBoardGameFacetValues(
+  LibraryProjectionRuntime item,
+  LibraryFacetIdRuntime facetId,
+) {
+  final dto = item.dto;
+  if (dto is! BoardGameWorkspaceDto) {
+    return const [];
+  }
+  for (final definition in boardgameLibraryFacetDefinitions) {
+    if (definition.id.sameIdentityAs(facetId)) {
+      return definition.extractValues(dto);
+    }
+  }
+  return const [];
+}
 
 List<LibraryAddAdvancedFilterField<String>>
     buildBoardGameAddAdvancedFilterFields(

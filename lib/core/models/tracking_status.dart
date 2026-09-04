@@ -29,7 +29,8 @@ MediaTrackingStatus? mediaTrackingStatusFromString(String? value) {
     'plan to read' ||
     'plan to watch' ||
     'backlog' ||
-    'want to listen' =>
+    'want to listen' ||
+    'want to play' =>
       MediaTrackingStatus.planned,
     'reading' ||
     'watching' ||
@@ -50,7 +51,8 @@ MediaTrackingStatus? mediaTrackingStatusFromString(String? value) {
     'rewatching' ||
     'replaying' ||
     'repeating' ||
-    'on repeat' =>
+    'on repeat' ||
+    'replay' =>
       MediaTrackingStatus.repeating,
     _ => null,
   };

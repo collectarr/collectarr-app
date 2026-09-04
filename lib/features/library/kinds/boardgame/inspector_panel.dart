@@ -21,6 +21,16 @@ Widget buildBoardGameInspectorPanel(
   return BoardGameInspectorPanel(request: request);
 }
 
+List<Widget> buildBoardGameInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest inspector,
+) {
+  return [
+    _BoardGameInspectorMain(inspector: inspector),
+    BoardGamePlayStatsSection(request: inspector),
+  ];
+}
+
 class BoardGameInspectorPanel extends StatelessWidget {
   const BoardGameInspectorPanel({super.key, required this.request});
 
