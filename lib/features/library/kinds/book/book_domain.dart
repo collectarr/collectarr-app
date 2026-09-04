@@ -7,6 +7,10 @@ import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_
 
 export 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+export 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+export 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
+export 'package:collectarr_app/features/library/kinds/book/data/remote/book_core_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/book/data/remote/book_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';

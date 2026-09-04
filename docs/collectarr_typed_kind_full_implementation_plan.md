@@ -1297,6 +1297,20 @@ BookOwnedDetails
 
 Direct Core DTO mapping.
 
+### Status (2026-09-04)
+
+Complete for the Book domain and Core mapper slice. Book now has typed media
+and release identifiers, a `BookMedia` domain model, typed release/edition
+fields, and direct mapping from `BookWorkDto` and `BookEditionDto`. The Book
+remote source fetches typed Core work DTOs, validates the Book kind boundary,
+and maps them without going through the generic `CatalogItemDto` transport
+model. Existing `BookCatalogItem` and `BookOwnedDetails` compatibility paths
+remain available for the later persistence and UI migration slices.
+
+Focused Book Core mapping tests cover work and edition field adoption, typed
+variants, wrong-kind rejection, remote-source mapping, and round-trip
+preservation. Continue with PR38.
+
 ---
 
 ## PR 38 — Book DB + repository
