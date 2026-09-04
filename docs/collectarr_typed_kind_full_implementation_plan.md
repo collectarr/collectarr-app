@@ -1618,6 +1618,15 @@ TV owns Season/Episode hierarchy.
 
 Generic hierarchy renderer only renders typed nodes supplied to it.
 
+### Status (2026-09-05)
+
+Complete. TV workspace projections now carry a typed `TvSeries` graph through
+the TV-owned workspace mapper, while legacy catalog/video projections remain
+available as compatibility bridges. TV hierarchy loading maps Core seasons and
+episodes through TV-owned models before producing generic renderer nodes, and
+the shelf drilldown consumes `TvSeason`/`TvEpisode` internally. Focused
+workspace, hierarchy, and drilldown tests pass. Continue with PR56.
+
 ---
 
 ## PR 56 — TV Add/Edit

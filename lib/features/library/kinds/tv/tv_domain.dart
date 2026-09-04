@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 export 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+export 'package:collectarr_app/features/library/kinds/tv/domain/tv_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
@@ -24,12 +25,14 @@ export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_deta
 export 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_release.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
+export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_mapper.dart';
 
 // ---------------------------------------------------------------------------
 // Transitional typedefs

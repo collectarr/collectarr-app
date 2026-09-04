@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -17,6 +18,7 @@ final class TvWorkspaceProjector
   }) {
     final video =
         VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final series = TvWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     TvSeriesMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is TvSeriesMetadata) {
@@ -26,6 +28,7 @@ final class TvWorkspaceProjector
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       video: video,
+      series: series,
       metadata: metadata,
     );
   }
@@ -38,6 +41,7 @@ final class TvWorkspaceProjector
   }) {
     final video =
         VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final series = TvWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     TvSeriesMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is TvSeriesMetadata) {
@@ -47,6 +51,7 @@ final class TvWorkspaceProjector
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       video: video,
+      series: series,
       metadata: metadata,
     );
   }
@@ -58,6 +63,7 @@ final class TvWorkspaceProjector
   }) {
     final video =
         VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final series = TvWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     TvSeriesMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is TvSeriesMetadata) {
@@ -67,6 +73,7 @@ final class TvWorkspaceProjector
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       video: video,
+      series: series,
       metadata: metadata,
     );
   }

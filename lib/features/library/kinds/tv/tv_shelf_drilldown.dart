@@ -1,9 +1,12 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/season.dart';
+// The legacy override adapter is intentionally dynamic until all UI callers
+// have moved to TV-owned season models.
+// ignore_for_file: avoid_dynamic_calls
+
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/providers/video_seasons_provider.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -27,21 +30,22 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
   final VoidCallback onBack;
   final Future<void> Function() onRefreshFromCore;
   final VoidCallback onOpenTitleDetails;
-  final List<Season>? seasonsOverride;
+
+  /// Accepts typed TV seasons and legacy season values during UI migration.
+  final List<Object>? seasonsOverride;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
-    final seasons = seasonsOverride;
+    final seasons = seasonsOverride
+        ?.map((season) => _coerceSeason(season, titleItem.node.titleItemId))
+        .toList(growable: false);
     if (seasons != null) {
       return _buildWithSeasons(context, seasons);
     }
-    final seriesRef = CatalogEntityRef(
-      kind: 'tv',
-      entityType: CatalogEntityType.work,
-      id: titleItem.node.titleItemId,
+    final seasonsAsync = ref.watch(
+      tvSeasonsBySeriesProvider(titleItem.node.titleItemId),
     );
-    final seasonsAsync = ref.watch(seasonsByCatalogRefProvider(seriesRef));
     return seasonsAsync.when(
       loading: () => _TvShelfDrilldownShell(
         titleItem: titleItem,
@@ -69,7 +73,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
     );
   }
 
-  Widget _buildWithSeasons(BuildContext context, List<Season> seasons) {
+  Widget _buildWithSeasons(BuildContext context, List<TvSeason> seasons) {
     final palette = appPalette(context);
     final projector = const TvWorkspaceProjector();
     final seasonItems = [
@@ -122,18 +126,20 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                 child: Column(
                   children: [
                     LibraryCoverImage(
-                      title: seasonItem.season.title.isEmpty
+                      title: seasonItem.season.title == null ||
+                              seasonItem.season.title!.isEmpty
                           ? 'Season ${seasonItem.season.seasonNumber}'
-                          : seasonItem.season.title,
-                      imageUrl: seasonItem.season.posterUrl ??
+                          : seasonItem.season.title!,
+                      imageUrl: seasonItem.season.coverImageUrl ??
                           titleItem.dto.coverImageUrl,
                       fit: BoxFit.cover,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      seasonItem.season.title.isEmpty
+                      seasonItem.season.title == null ||
+                              seasonItem.season.title!.isEmpty
                           ? 'Season ${seasonItem.season.seasonNumber}'
-                          : seasonItem.season.title,
+                          : seasonItem.season.title!,
                       style: TextStyle(
                         color: palette.textPrimary,
                         fontWeight: FontWeight.w600,
@@ -146,7 +152,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                       Row(
                         children: [
                           Text(
-                            'E${ep.episodeNumber.toString().padLeft(2, '0')}',
+                            'E${_episodeNumber(ep.episodeNumber)}',
                             style: TextStyle(
                               color: palette.accent,
                               fontSize: 11,
@@ -156,7 +162,8 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              ep.title,
+                              ep.title ??
+                                  'Episode ${_episodeNumber(ep.episodeNumber)}',
                               style: TextStyle(
                                 color: palette.textSecondary,
                                 fontSize: 11,
@@ -244,6 +251,61 @@ class _TvShelfSeasonItem {
     required this.item,
   });
 
-  final Season season;
+  final TvSeason season;
   final LibraryProjectionRuntime item;
+}
+
+TvSeason _coerceSeason(Object value, String seriesId) {
+  if (value case final TvSeason season) {
+    return season;
+  }
+
+  // Compatibility adapter for callers that still pass the old shared Season
+  // model. The drilldown itself only consumes TV-owned models after this
+  // boundary.
+  final legacy = value as dynamic;
+  final seasonNumber = (legacy.seasonNumber as num?)?.toInt() ?? 0;
+  final seasonId =
+      legacy.providerItemId?.toString() ?? '$seriesId:season:$seasonNumber';
+  final rawEpisodes =
+      (legacy.episodes as Iterable<dynamic>? ?? const <dynamic>[])
+          .cast<Object>();
+  return TvSeason(
+    id: seasonId,
+    seriesId: seriesId,
+    seasonNumber: seasonNumber,
+    title: legacy.title?.toString(),
+    description: legacy.overview?.toString(),
+    airDate: DateTime.tryParse(legacy.airDate?.toString() ?? ''),
+    episodeCount: (legacy.episodeCount as num?)?.toInt(),
+    coverImageUrl: legacy.posterUrl?.toString(),
+    episodes: [
+      for (final entry in rawEpisodes)
+        _coerceEpisode(entry, seriesId, seasonId),
+    ],
+  );
+}
+
+TvEpisode _coerceEpisode(Object value, String seriesId, String seasonId) {
+  final legacy = value as dynamic;
+  final number = (legacy.episodeNumber as num?)?.toDouble();
+  final fallback = number?.toString() ?? '0';
+  return TvEpisode(
+    id: legacy.providerItemId?.toString() ?? '$seasonId:episode:$fallback',
+    seriesId: seriesId,
+    seasonId: seasonId,
+    episodeNumber: number,
+    title: legacy.title?.toString(),
+    description: legacy.overview?.toString(),
+    airDate: DateTime.tryParse(legacy.airDate?.toString() ?? ''),
+    runtimeMinutes: (legacy.runtimeMinutes as num?)?.toInt(),
+  );
+}
+
+String _episodeNumber(double? number) {
+  if (number == null) return '--';
+  final label = number == number.truncateToDouble()
+      ? number.toInt().toString()
+      : number.toString();
+  return label.padLeft(2, '0');
 }

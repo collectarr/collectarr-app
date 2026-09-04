@@ -131,49 +131,49 @@ abstract final class TvKindSchema {
   static final firstAirDate = dateField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.firstAirDate,
     label: 'First Air Date',
-    getValue: (dto) => dto.metadata?.firstAirDate,
+    getValue: (dto) => dto.firstAirDate,
   );
 
   static final lastAirDate = dateField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.lastAirDate,
     label: 'Last Air Date',
-    getValue: (dto) => dto.metadata?.lastAirDate,
+    getValue: (dto) => dto.lastAirDate,
   );
 
   static final tvStatus = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.tvStatus,
     label: 'Series Status',
-    getValue: (dto) => dto.metadata?.status,
+    getValue: (dto) => dto.tvStatus,
   );
 
   static final streamingService = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.streamingService,
     label: 'Streamer',
-    getValue: (dto) => dto.metadata?.streamingService,
+    getValue: (dto) => dto.streamingService,
   );
 
   static final contentRating = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.contentRating,
     label: 'Content Rating',
-    getValue: (dto) => dto.metadata?.contentRating,
+    getValue: (dto) => dto.contentRating,
   );
 
   static final seasonCount = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.seasonCount,
     label: 'Seasons',
-    getValue: (dto) => dto.metadata?.seasonCount,
+    getValue: (dto) => dto.seasonCount,
   );
 
   static final episodeCount = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.episodeCount,
     label: 'Episodes',
-    getValue: (dto) => dto.metadata?.episodeCount,
+    getValue: (dto) => dto.episodeCount,
   );
 
   static final episodeRuntimeMinutes = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.episodeRuntimeMinutes,
     label: 'Episode Runtime (m)',
-    getValue: (dto) => dto.metadata?.episodeRuntimeMinutes,
+    getValue: (dto) => dto.episodeRuntimeMinutes,
   );
 }
 

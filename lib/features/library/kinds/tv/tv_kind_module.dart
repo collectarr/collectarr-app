@@ -34,6 +34,8 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 
 import 'package:collectarr_app/features/library/kinds/tv/stats/tv_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_hierarchy_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -256,23 +258,10 @@ Future<List<LibraryHierarchyNode>> _fetchTvSeasons({
   final seasons = await api
       .getTvSeriesSeasonsDto(itemId)
       .timeout(const Duration(seconds: 60));
-  return [
-    for (final season in seasons)
-      LibraryHierarchyNode(
-        id: season.id,
-        label: season.title,
-        secondaryLabel: season.episodeCount != null
-            ? '${season.episodeCount} episodes'
-            : null,
-        level: LibraryHierarchyLevel.container,
-        imageUrl: season.coverImageUrlValue,
-        totalCount: season.episodeCount,
-        metadata: {
-          'seasonNumber': season.seasonNumber,
-          'airDate': season.airDateValue?.toIso8601String(),
-        },
-      ),
+  final typedSeasons = [
+    for (final season in seasons) TvCoreMapper.fromSeasonDto(season),
   ];
+  return TvHierarchyMapper.toLibraryNodes(typedSeasons);
 }
 
 List<LibraryAddAdvancedFilterField<String>> buildTvAddAdvancedFilterFields(
