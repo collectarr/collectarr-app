@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/local/book_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
 
@@ -398,13 +399,16 @@ class ProviderItemLinksCache extends Table {
   ComicOwnedDetailsRows,
   MangaMediaRows,
   MangaOwnedDetailsRows,
+  BookMediaRows,
+  BookReleaseRows,
+  BookOwnedDetailsRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration {
@@ -438,6 +442,11 @@ class LocalDatabase extends _$LocalDatabase {
         if (from < 12) {
           await m.createTable(mangaMediaRows);
           await m.createTable(mangaOwnedDetailsRows);
+        }
+        if (from < 13) {
+          await m.createTable(bookMediaRows);
+          await m.createTable(bookReleaseRows);
+          await m.createTable(bookOwnedDetailsRows);
         } else {
           await _destructiveRebuild(m);
         }

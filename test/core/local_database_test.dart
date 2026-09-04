@@ -64,10 +64,10 @@ void main() {
   test('reports the current schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 12);
+    expect(db.schemaVersion, 13);
   });
 
-  test('migrates a v7 cache to v11 without losing existing cache rows',
+  test('migrates a v7 cache to v13 without losing existing cache rows',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_migrate');
     addTearDown(() => dir.delete(recursive: true));
@@ -97,6 +97,15 @@ void main() {
     await old.customStatement(
       'DROP TABLE ${old.mangaOwnedDetailsRows.actualTableName}',
     );
+    await old.customStatement(
+      'DROP TABLE ${old.bookMediaRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookReleaseRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookOwnedDetailsRows.actualTableName}',
+    );
     await old.customStatement('PRAGMA user_version = 7');
     await old.close();
 
@@ -111,7 +120,7 @@ void main() {
     expect(await db.select(db.providerItemLinksCache).get(), isEmpty);
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 12);
+    expect(version.data.values.first, 13);
   });
 
   test('migrates a v8 provider account table by adding username', () async {
@@ -170,6 +179,15 @@ void main() {
     await old.customStatement(
       'DROP TABLE ${old.mangaOwnedDetailsRows.actualTableName}',
     );
+    await old.customStatement(
+      'DROP TABLE ${old.bookMediaRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookReleaseRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookOwnedDetailsRows.actualTableName}',
+    );
     await old.customStatement('PRAGMA user_version = 8');
     await old.close();
 
@@ -187,7 +205,7 @@ void main() {
     final migrated = await db.select(db.providerAccountsCache).getSingle();
     expect(migrated.username, 'new-user');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 12);
+    expect(version.data.values.first, 13);
   });
 
   test('migrates v9 owned semantic columns into typed details JSON', () async {
@@ -346,6 +364,15 @@ void main() {
     await old.customStatement(
       'DROP TABLE ${old.mangaOwnedDetailsRows.actualTableName}',
     );
+    await old.customStatement(
+      'DROP TABLE ${old.bookMediaRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookReleaseRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookOwnedDetailsRows.actualTableName}',
+    );
     await old.customStatement('PRAGMA user_version = 10');
     await old.close();
 
@@ -357,13 +384,47 @@ void main() {
     final mangaMediaRows = await db.select(db.mangaMediaRows).get();
     final mangaOwnedDetailsRows =
         await db.select(db.mangaOwnedDetailsRows).get();
+    final bookMediaRows = await db.select(db.bookMediaRows).get();
+    final bookReleaseRows = await db.select(db.bookReleaseRows).get();
+    final bookOwnedDetailsRows = await db.select(db.bookOwnedDetailsRows).get();
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(owned.id, 'owned-legacy');
     expect(owned.detailsJson, jsonEncode({'key_comic': true}));
     expect(detailsRows, isEmpty);
     expect(mangaMediaRows, isEmpty);
     expect(mangaOwnedDetailsRows, isEmpty);
-    expect(version.data.values.first, 12);
+    expect(bookMediaRows, isEmpty);
+    expect(bookReleaseRows, isEmpty);
+    expect(bookOwnedDetailsRows, isEmpty);
+    expect(version.data.values.first, 13);
+  });
+
+  test('creates Book tables when migrating from v12', () async {
+    final dir = await Directory.systemTemp.createTemp('collectarr_db_v13');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/cache.sqlite');
+
+    final old = LocalDatabase(NativeDatabase(file));
+    await old.customStatement(
+      'DROP TABLE ${old.bookMediaRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookReleaseRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookOwnedDetailsRows.actualTableName}',
+    );
+    await old.customStatement('PRAGMA user_version = 12');
+    await old.close();
+
+    final db = LocalDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+
+    expect(await db.select(db.bookMediaRows).get(), isEmpty);
+    expect(await db.select(db.bookReleaseRows).get(), isEmpty);
+    expect(await db.select(db.bookOwnedDetailsRows).get(), isEmpty);
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.first, 13);
   });
 
   test('owned item repository round-trips opaque kind details', () async {
@@ -420,7 +481,7 @@ void main() {
     expect((malformed!.details as ComicOwnedDetails).keyComic, isFalse);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v12 schema',
+  test('destructively rebuilds a higher-versioned cache to the v13 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -441,7 +502,7 @@ void main() {
             cachedAt: DateTime.utc(2026, 5, 11),
           ),
         );
-    await old.customStatement('PRAGMA user_version = 13');
+    await old.customStatement('PRAGMA user_version = 14');
     await old.close();
 
     // Reopening with the reset schema version must wipe and recreate the cache.
@@ -452,7 +513,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 12);
+    expect(version.data.values.first, 13);
   });
 
   test('stores personal collection and wishlist data locally', () async {

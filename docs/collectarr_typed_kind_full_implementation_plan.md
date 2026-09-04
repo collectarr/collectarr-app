@@ -1317,6 +1317,17 @@ preservation. Continue with PR38.
 
 Kind-owned tables and persistence.
 
+### Status (2026-09-04)
+
+Complete for the Book persistence slice. Book now has kind-owned Drift tables
+for media, editions, and owned details, with schema migration v12 -> v13.
+Local mappers preserve typed work fields, edition fields, variants, and opaque
+transport lists/maps. `BookRepository` persists and reloads media with
+edition children, supports typed media/release lookup and deterministic
+search, caches typed remote fetches, and round-trips `BookOwnedDetails`.
+Focused mapper, repository, and database migration tests cover the new
+boundaries. Continue with PR39.
+
 ---
 
 ## PR 39 — Book workspace/vocabularies

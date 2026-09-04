@@ -16806,6 +16806,2420 @@ class MangaOwnedDetailsRowsCompanion
   }
 }
 
+class $BookMediaRowsTable extends BookMediaRows
+    with TableInfo<$BookMediaRowsTable, BookMediaRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BookMediaRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortTitleMeta =
+      const VerificationMeta('sortTitle');
+  @override
+  late final GeneratedColumn<String> sortTitle = GeneratedColumn<String>(
+      'sort_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _firstPublicationDateMeta =
+      const VerificationMeta('firstPublicationDate');
+  @override
+  late final GeneratedColumn<DateTime> firstPublicationDate =
+      GeneratedColumn<DateTime>('first_publication_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _originalLanguageMeta =
+      const VerificationMeta('originalLanguage');
+  @override
+  late final GeneratedColumn<String> originalLanguage = GeneratedColumn<String>(
+      'original_language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _originalPublicationDateMeta =
+      const VerificationMeta('originalPublicationDate');
+  @override
+  late final GeneratedColumn<DateTime> originalPublicationDate =
+      GeneratedColumn<DateTime>('original_publication_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _subtitleMeta =
+      const VerificationMeta('subtitle');
+  @override
+  late final GeneratedColumn<String> subtitle = GeneratedColumn<String>(
+      'subtitle', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _searchAliasesJsonMeta =
+      const VerificationMeta('searchAliasesJson');
+  @override
+  late final GeneratedColumn<String> searchAliasesJson =
+      GeneratedColumn<String>('search_aliases_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _genresJsonMeta =
+      const VerificationMeta('genresJson');
+  @override
+  late final GeneratedColumn<String> genresJson = GeneratedColumn<String>(
+      'genres_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _contributorsJsonMeta =
+      const VerificationMeta('contributorsJson');
+  @override
+  late final GeneratedColumn<String> contributorsJson = GeneratedColumn<String>(
+      'contributors_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _seriesJsonMeta =
+      const VerificationMeta('seriesJson');
+  @override
+  late final GeneratedColumn<String> seriesJson = GeneratedColumn<String>(
+      'series_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        sortTitle,
+        description,
+        firstPublicationDate,
+        originalLanguage,
+        originalPublicationDate,
+        subtitle,
+        searchAliasesJson,
+        genresJson,
+        contributorsJson,
+        seriesJson,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'book_media_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<BookMediaRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('sort_title')) {
+      context.handle(_sortTitleMeta,
+          sortTitle.isAcceptableOrUnknown(data['sort_title']!, _sortTitleMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('first_publication_date')) {
+      context.handle(
+          _firstPublicationDateMeta,
+          firstPublicationDate.isAcceptableOrUnknown(
+              data['first_publication_date']!, _firstPublicationDateMeta));
+    }
+    if (data.containsKey('original_language')) {
+      context.handle(
+          _originalLanguageMeta,
+          originalLanguage.isAcceptableOrUnknown(
+              data['original_language']!, _originalLanguageMeta));
+    }
+    if (data.containsKey('original_publication_date')) {
+      context.handle(
+          _originalPublicationDateMeta,
+          originalPublicationDate.isAcceptableOrUnknown(
+              data['original_publication_date']!,
+              _originalPublicationDateMeta));
+    }
+    if (data.containsKey('subtitle')) {
+      context.handle(_subtitleMeta,
+          subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta));
+    }
+    if (data.containsKey('search_aliases_json')) {
+      context.handle(
+          _searchAliasesJsonMeta,
+          searchAliasesJson.isAcceptableOrUnknown(
+              data['search_aliases_json']!, _searchAliasesJsonMeta));
+    }
+    if (data.containsKey('genres_json')) {
+      context.handle(
+          _genresJsonMeta,
+          genresJson.isAcceptableOrUnknown(
+              data['genres_json']!, _genresJsonMeta));
+    }
+    if (data.containsKey('contributors_json')) {
+      context.handle(
+          _contributorsJsonMeta,
+          contributorsJson.isAcceptableOrUnknown(
+              data['contributors_json']!, _contributorsJsonMeta));
+    }
+    if (data.containsKey('series_json')) {
+      context.handle(
+          _seriesJsonMeta,
+          seriesJson.isAcceptableOrUnknown(
+              data['series_json']!, _seriesJsonMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BookMediaRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BookMediaRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      sortTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_title']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      firstPublicationDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}first_publication_date']),
+      originalLanguage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}original_language']),
+      originalPublicationDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}original_publication_date']),
+      subtitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subtitle']),
+      searchAliasesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}search_aliases_json'])!,
+      genresJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}genres_json'])!,
+      contributorsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}contributors_json'])!,
+      seriesJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_json'])!,
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $BookMediaRowsTable createAlias(String alias) {
+    return $BookMediaRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BookMediaRow extends DataClass implements Insertable<BookMediaRow> {
+  final String id;
+  final String title;
+  final String? sortTitle;
+  final String? description;
+  final DateTime? firstPublicationDate;
+  final String? originalLanguage;
+  final DateTime? originalPublicationDate;
+  final String? subtitle;
+  final String searchAliasesJson;
+  final String genresJson;
+  final String contributorsJson;
+  final String seriesJson;
+  final String rawPayloadJson;
+  const BookMediaRow(
+      {required this.id,
+      required this.title,
+      this.sortTitle,
+      this.description,
+      this.firstPublicationDate,
+      this.originalLanguage,
+      this.originalPublicationDate,
+      this.subtitle,
+      required this.searchAliasesJson,
+      required this.genresJson,
+      required this.contributorsJson,
+      required this.seriesJson,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || sortTitle != null) {
+      map['sort_title'] = Variable<String>(sortTitle);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || firstPublicationDate != null) {
+      map['first_publication_date'] = Variable<DateTime>(firstPublicationDate);
+    }
+    if (!nullToAbsent || originalLanguage != null) {
+      map['original_language'] = Variable<String>(originalLanguage);
+    }
+    if (!nullToAbsent || originalPublicationDate != null) {
+      map['original_publication_date'] =
+          Variable<DateTime>(originalPublicationDate);
+    }
+    if (!nullToAbsent || subtitle != null) {
+      map['subtitle'] = Variable<String>(subtitle);
+    }
+    map['search_aliases_json'] = Variable<String>(searchAliasesJson);
+    map['genres_json'] = Variable<String>(genresJson);
+    map['contributors_json'] = Variable<String>(contributorsJson);
+    map['series_json'] = Variable<String>(seriesJson);
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  BookMediaRowsCompanion toCompanion(bool nullToAbsent) {
+    return BookMediaRowsCompanion(
+      id: Value(id),
+      title: Value(title),
+      sortTitle: sortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortTitle),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      firstPublicationDate: firstPublicationDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firstPublicationDate),
+      originalLanguage: originalLanguage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalLanguage),
+      originalPublicationDate: originalPublicationDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalPublicationDate),
+      subtitle: subtitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitle),
+      searchAliasesJson: Value(searchAliasesJson),
+      genresJson: Value(genresJson),
+      contributorsJson: Value(contributorsJson),
+      seriesJson: Value(seriesJson),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory BookMediaRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BookMediaRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      sortTitle: serializer.fromJson<String?>(json['sortTitle']),
+      description: serializer.fromJson<String?>(json['description']),
+      firstPublicationDate:
+          serializer.fromJson<DateTime?>(json['firstPublicationDate']),
+      originalLanguage: serializer.fromJson<String?>(json['originalLanguage']),
+      originalPublicationDate:
+          serializer.fromJson<DateTime?>(json['originalPublicationDate']),
+      subtitle: serializer.fromJson<String?>(json['subtitle']),
+      searchAliasesJson: serializer.fromJson<String>(json['searchAliasesJson']),
+      genresJson: serializer.fromJson<String>(json['genresJson']),
+      contributorsJson: serializer.fromJson<String>(json['contributorsJson']),
+      seriesJson: serializer.fromJson<String>(json['seriesJson']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'sortTitle': serializer.toJson<String?>(sortTitle),
+      'description': serializer.toJson<String?>(description),
+      'firstPublicationDate':
+          serializer.toJson<DateTime?>(firstPublicationDate),
+      'originalLanguage': serializer.toJson<String?>(originalLanguage),
+      'originalPublicationDate':
+          serializer.toJson<DateTime?>(originalPublicationDate),
+      'subtitle': serializer.toJson<String?>(subtitle),
+      'searchAliasesJson': serializer.toJson<String>(searchAliasesJson),
+      'genresJson': serializer.toJson<String>(genresJson),
+      'contributorsJson': serializer.toJson<String>(contributorsJson),
+      'seriesJson': serializer.toJson<String>(seriesJson),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  BookMediaRow copyWith(
+          {String? id,
+          String? title,
+          Value<String?> sortTitle = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<DateTime?> firstPublicationDate = const Value.absent(),
+          Value<String?> originalLanguage = const Value.absent(),
+          Value<DateTime?> originalPublicationDate = const Value.absent(),
+          Value<String?> subtitle = const Value.absent(),
+          String? searchAliasesJson,
+          String? genresJson,
+          String? contributorsJson,
+          String? seriesJson,
+          String? rawPayloadJson}) =>
+      BookMediaRow(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        sortTitle: sortTitle.present ? sortTitle.value : this.sortTitle,
+        description: description.present ? description.value : this.description,
+        firstPublicationDate: firstPublicationDate.present
+            ? firstPublicationDate.value
+            : this.firstPublicationDate,
+        originalLanguage: originalLanguage.present
+            ? originalLanguage.value
+            : this.originalLanguage,
+        originalPublicationDate: originalPublicationDate.present
+            ? originalPublicationDate.value
+            : this.originalPublicationDate,
+        subtitle: subtitle.present ? subtitle.value : this.subtitle,
+        searchAliasesJson: searchAliasesJson ?? this.searchAliasesJson,
+        genresJson: genresJson ?? this.genresJson,
+        contributorsJson: contributorsJson ?? this.contributorsJson,
+        seriesJson: seriesJson ?? this.seriesJson,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  BookMediaRow copyWithCompanion(BookMediaRowsCompanion data) {
+    return BookMediaRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      sortTitle: data.sortTitle.present ? data.sortTitle.value : this.sortTitle,
+      description:
+          data.description.present ? data.description.value : this.description,
+      firstPublicationDate: data.firstPublicationDate.present
+          ? data.firstPublicationDate.value
+          : this.firstPublicationDate,
+      originalLanguage: data.originalLanguage.present
+          ? data.originalLanguage.value
+          : this.originalLanguage,
+      originalPublicationDate: data.originalPublicationDate.present
+          ? data.originalPublicationDate.value
+          : this.originalPublicationDate,
+      subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
+      searchAliasesJson: data.searchAliasesJson.present
+          ? data.searchAliasesJson.value
+          : this.searchAliasesJson,
+      genresJson:
+          data.genresJson.present ? data.genresJson.value : this.genresJson,
+      contributorsJson: data.contributorsJson.present
+          ? data.contributorsJson.value
+          : this.contributorsJson,
+      seriesJson:
+          data.seriesJson.present ? data.seriesJson.value : this.seriesJson,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookMediaRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('firstPublicationDate: $firstPublicationDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('originalPublicationDate: $originalPublicationDate, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('searchAliasesJson: $searchAliasesJson, ')
+          ..write('genresJson: $genresJson, ')
+          ..write('contributorsJson: $contributorsJson, ')
+          ..write('seriesJson: $seriesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      title,
+      sortTitle,
+      description,
+      firstPublicationDate,
+      originalLanguage,
+      originalPublicationDate,
+      subtitle,
+      searchAliasesJson,
+      genresJson,
+      contributorsJson,
+      seriesJson,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BookMediaRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.sortTitle == this.sortTitle &&
+          other.description == this.description &&
+          other.firstPublicationDate == this.firstPublicationDate &&
+          other.originalLanguage == this.originalLanguage &&
+          other.originalPublicationDate == this.originalPublicationDate &&
+          other.subtitle == this.subtitle &&
+          other.searchAliasesJson == this.searchAliasesJson &&
+          other.genresJson == this.genresJson &&
+          other.contributorsJson == this.contributorsJson &&
+          other.seriesJson == this.seriesJson &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class BookMediaRowsCompanion extends UpdateCompanion<BookMediaRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> sortTitle;
+  final Value<String?> description;
+  final Value<DateTime?> firstPublicationDate;
+  final Value<String?> originalLanguage;
+  final Value<DateTime?> originalPublicationDate;
+  final Value<String?> subtitle;
+  final Value<String> searchAliasesJson;
+  final Value<String> genresJson;
+  final Value<String> contributorsJson;
+  final Value<String> seriesJson;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const BookMediaRowsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.firstPublicationDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.originalPublicationDate = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.searchAliasesJson = const Value.absent(),
+    this.genresJson = const Value.absent(),
+    this.contributorsJson = const Value.absent(),
+    this.seriesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BookMediaRowsCompanion.insert({
+    required String id,
+    required String title,
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.firstPublicationDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.originalPublicationDate = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.searchAliasesJson = const Value.absent(),
+    this.genresJson = const Value.absent(),
+    this.contributorsJson = const Value.absent(),
+    this.seriesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title);
+  static Insertable<BookMediaRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? sortTitle,
+    Expression<String>? description,
+    Expression<DateTime>? firstPublicationDate,
+    Expression<String>? originalLanguage,
+    Expression<DateTime>? originalPublicationDate,
+    Expression<String>? subtitle,
+    Expression<String>? searchAliasesJson,
+    Expression<String>? genresJson,
+    Expression<String>? contributorsJson,
+    Expression<String>? seriesJson,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (description != null) 'description': description,
+      if (firstPublicationDate != null)
+        'first_publication_date': firstPublicationDate,
+      if (originalLanguage != null) 'original_language': originalLanguage,
+      if (originalPublicationDate != null)
+        'original_publication_date': originalPublicationDate,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (searchAliasesJson != null) 'search_aliases_json': searchAliasesJson,
+      if (genresJson != null) 'genres_json': genresJson,
+      if (contributorsJson != null) 'contributors_json': contributorsJson,
+      if (seriesJson != null) 'series_json': seriesJson,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BookMediaRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<String?>? sortTitle,
+      Value<String?>? description,
+      Value<DateTime?>? firstPublicationDate,
+      Value<String?>? originalLanguage,
+      Value<DateTime?>? originalPublicationDate,
+      Value<String?>? subtitle,
+      Value<String>? searchAliasesJson,
+      Value<String>? genresJson,
+      Value<String>? contributorsJson,
+      Value<String>? seriesJson,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return BookMediaRowsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      sortTitle: sortTitle ?? this.sortTitle,
+      description: description ?? this.description,
+      firstPublicationDate: firstPublicationDate ?? this.firstPublicationDate,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
+      originalPublicationDate:
+          originalPublicationDate ?? this.originalPublicationDate,
+      subtitle: subtitle ?? this.subtitle,
+      searchAliasesJson: searchAliasesJson ?? this.searchAliasesJson,
+      genresJson: genresJson ?? this.genresJson,
+      contributorsJson: contributorsJson ?? this.contributorsJson,
+      seriesJson: seriesJson ?? this.seriesJson,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (sortTitle.present) {
+      map['sort_title'] = Variable<String>(sortTitle.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (firstPublicationDate.present) {
+      map['first_publication_date'] =
+          Variable<DateTime>(firstPublicationDate.value);
+    }
+    if (originalLanguage.present) {
+      map['original_language'] = Variable<String>(originalLanguage.value);
+    }
+    if (originalPublicationDate.present) {
+      map['original_publication_date'] =
+          Variable<DateTime>(originalPublicationDate.value);
+    }
+    if (subtitle.present) {
+      map['subtitle'] = Variable<String>(subtitle.value);
+    }
+    if (searchAliasesJson.present) {
+      map['search_aliases_json'] = Variable<String>(searchAliasesJson.value);
+    }
+    if (genresJson.present) {
+      map['genres_json'] = Variable<String>(genresJson.value);
+    }
+    if (contributorsJson.present) {
+      map['contributors_json'] = Variable<String>(contributorsJson.value);
+    }
+    if (seriesJson.present) {
+      map['series_json'] = Variable<String>(seriesJson.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookMediaRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('firstPublicationDate: $firstPublicationDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('originalPublicationDate: $originalPublicationDate, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('searchAliasesJson: $searchAliasesJson, ')
+          ..write('genresJson: $genresJson, ')
+          ..write('contributorsJson: $contributorsJson, ')
+          ..write('seriesJson: $seriesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BookReleaseRowsTable extends BookReleaseRows
+    with TableInfo<$BookReleaseRowsTable, BookReleaseRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BookReleaseRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mediaIdMeta =
+      const VerificationMeta('mediaId');
+  @override
+  late final GeneratedColumn<String> mediaId = GeneratedColumn<String>(
+      'media_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _workIdMeta = const VerificationMeta('workId');
+  @override
+  late final GeneratedColumn<String> workId = GeneratedColumn<String>(
+      'work_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _titleValueMeta =
+      const VerificationMeta('titleValue');
+  @override
+  late final GeneratedColumn<String> titleValue = GeneratedColumn<String>(
+      'title_value', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _displayTitleMeta =
+      const VerificationMeta('displayTitle');
+  @override
+  late final GeneratedColumn<String> displayTitle = GeneratedColumn<String>(
+      'display_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ageRatingMeta =
+      const VerificationMeta('ageRating');
+  @override
+  late final GeneratedColumn<String> ageRating = GeneratedColumn<String>(
+      'age_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _audioLengthMinutesMeta =
+      const VerificationMeta('audioLengthMinutes');
+  @override
+  late final GeneratedColumn<int> audioLengthMinutes = GeneratedColumn<int>(
+      'audio_length_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _bindingMeta =
+      const VerificationMeta('binding');
+  @override
+  late final GeneratedColumn<String> binding = GeneratedColumn<String>(
+      'binding', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _contributorsJsonMeta =
+      const VerificationMeta('contributorsJson');
+  @override
+  late final GeneratedColumn<String> contributorsJson = GeneratedColumn<String>(
+      'contributors_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _coverImageKeyMeta =
+      const VerificationMeta('coverImageKey');
+  @override
+  late final GeneratedColumn<String> coverImageKey = GeneratedColumn<String>(
+      'cover_image_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _publisherMeta =
+      const VerificationMeta('publisher');
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+      'publisher', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _distributorMeta =
+      const VerificationMeta('distributor');
+  @override
+  late final GeneratedColumn<String> distributor = GeneratedColumn<String>(
+      'distributor', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionStatementMeta =
+      const VerificationMeta('editionStatement');
+  @override
+  late final GeneratedColumn<String> editionStatement = GeneratedColumn<String>(
+      'edition_statement', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isbnMeta = const VerificationMeta('isbn');
+  @override
+  late final GeneratedColumn<String> isbn = GeneratedColumn<String>(
+      'isbn', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _identifiersJsonMeta =
+      const VerificationMeta('identifiersJson');
+  @override
+  late final GeneratedColumn<String> identifiersJson = GeneratedColumn<String>(
+      'identifiers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _imprintMeta =
+      const VerificationMeta('imprint');
+  @override
+  late final GeneratedColumn<String> imprint = GeneratedColumn<String>(
+      'imprint', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _upcMeta = const VerificationMeta('upc');
+  @override
+  late final GeneratedColumn<String> upc = GeneratedColumn<String>(
+      'upc', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pageCountMeta =
+      const VerificationMeta('pageCount');
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+      'page_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _languageMeta =
+      const VerificationMeta('language');
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+      'language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _regionMeta = const VerificationMeta('region');
+  @override
+  late final GeneratedColumn<String> region = GeneratedColumn<String>(
+      'region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _releaseStatusMeta =
+      const VerificationMeta('releaseStatus');
+  @override
+  late final GeneratedColumn<String> releaseStatus = GeneratedColumn<String>(
+      'release_status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _physicalFormatMeta =
+      const VerificationMeta('physicalFormat');
+  @override
+  late final GeneratedColumn<String> physicalFormat = GeneratedColumn<String>(
+      'physical_format', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _physicalFormatLabelMeta =
+      const VerificationMeta('physicalFormatLabel');
+  @override
+  late final GeneratedColumn<String> physicalFormatLabel =
+      GeneratedColumn<String>('physical_format_label', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageUrlMeta =
+      const VerificationMeta('coverImageUrl');
+  @override
+  late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
+      'cover_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _thumbnailImageUrlMeta =
+      const VerificationMeta('thumbnailImageUrl');
+  @override
+  late final GeneratedColumn<String> thumbnailImageUrl =
+      GeneratedColumn<String>('thumbnail_image_url', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dimensionsMeta =
+      const VerificationMeta('dimensions');
+  @override
+  late final GeneratedColumn<String> dimensions = GeneratedColumn<String>(
+      'dimensions', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _firstEditionMeta =
+      const VerificationMeta('firstEdition');
+  @override
+  late final GeneratedColumn<bool> firstEdition = GeneratedColumn<bool>(
+      'first_edition', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("first_edition" IN (0, 1))'));
+  static const VerificationMeta _variantsJsonMeta =
+      const VerificationMeta('variantsJson');
+  @override
+  late final GeneratedColumn<String> variantsJson = GeneratedColumn<String>(
+      'variants_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        mediaId,
+        id,
+        title,
+        workId,
+        titleValue,
+        displayTitle,
+        ageRating,
+        audioLengthMinutes,
+        binding,
+        contributorsJson,
+        coverImageKey,
+        publisher,
+        distributor,
+        description,
+        editionStatement,
+        isbn,
+        identifiersJson,
+        imprint,
+        upc,
+        pageCount,
+        language,
+        region,
+        releaseDate,
+        releaseStatus,
+        physicalFormat,
+        physicalFormatLabel,
+        coverImageUrl,
+        thumbnailImageUrl,
+        dimensions,
+        firstEdition,
+        variantsJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'book_release_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<BookReleaseRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('media_id')) {
+      context.handle(_mediaIdMeta,
+          mediaId.isAcceptableOrUnknown(data['media_id']!, _mediaIdMeta));
+    } else if (isInserting) {
+      context.missing(_mediaIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('work_id')) {
+      context.handle(_workIdMeta,
+          workId.isAcceptableOrUnknown(data['work_id']!, _workIdMeta));
+    }
+    if (data.containsKey('title_value')) {
+      context.handle(
+          _titleValueMeta,
+          titleValue.isAcceptableOrUnknown(
+              data['title_value']!, _titleValueMeta));
+    }
+    if (data.containsKey('display_title')) {
+      context.handle(
+          _displayTitleMeta,
+          displayTitle.isAcceptableOrUnknown(
+              data['display_title']!, _displayTitleMeta));
+    }
+    if (data.containsKey('age_rating')) {
+      context.handle(_ageRatingMeta,
+          ageRating.isAcceptableOrUnknown(data['age_rating']!, _ageRatingMeta));
+    }
+    if (data.containsKey('audio_length_minutes')) {
+      context.handle(
+          _audioLengthMinutesMeta,
+          audioLengthMinutes.isAcceptableOrUnknown(
+              data['audio_length_minutes']!, _audioLengthMinutesMeta));
+    }
+    if (data.containsKey('binding')) {
+      context.handle(_bindingMeta,
+          binding.isAcceptableOrUnknown(data['binding']!, _bindingMeta));
+    }
+    if (data.containsKey('contributors_json')) {
+      context.handle(
+          _contributorsJsonMeta,
+          contributorsJson.isAcceptableOrUnknown(
+              data['contributors_json']!, _contributorsJsonMeta));
+    }
+    if (data.containsKey('cover_image_key')) {
+      context.handle(
+          _coverImageKeyMeta,
+          coverImageKey.isAcceptableOrUnknown(
+              data['cover_image_key']!, _coverImageKeyMeta));
+    }
+    if (data.containsKey('publisher')) {
+      context.handle(_publisherMeta,
+          publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('distributor')) {
+      context.handle(
+          _distributorMeta,
+          distributor.isAcceptableOrUnknown(
+              data['distributor']!, _distributorMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('edition_statement')) {
+      context.handle(
+          _editionStatementMeta,
+          editionStatement.isAcceptableOrUnknown(
+              data['edition_statement']!, _editionStatementMeta));
+    }
+    if (data.containsKey('isbn')) {
+      context.handle(
+          _isbnMeta, isbn.isAcceptableOrUnknown(data['isbn']!, _isbnMeta));
+    }
+    if (data.containsKey('identifiers_json')) {
+      context.handle(
+          _identifiersJsonMeta,
+          identifiersJson.isAcceptableOrUnknown(
+              data['identifiers_json']!, _identifiersJsonMeta));
+    }
+    if (data.containsKey('imprint')) {
+      context.handle(_imprintMeta,
+          imprint.isAcceptableOrUnknown(data['imprint']!, _imprintMeta));
+    }
+    if (data.containsKey('upc')) {
+      context.handle(
+          _upcMeta, upc.isAcceptableOrUnknown(data['upc']!, _upcMeta));
+    }
+    if (data.containsKey('page_count')) {
+      context.handle(_pageCountMeta,
+          pageCount.isAcceptableOrUnknown(data['page_count']!, _pageCountMeta));
+    }
+    if (data.containsKey('language')) {
+      context.handle(_languageMeta,
+          language.isAcceptableOrUnknown(data['language']!, _languageMeta));
+    }
+    if (data.containsKey('region')) {
+      context.handle(_regionMeta,
+          region.isAcceptableOrUnknown(data['region']!, _regionMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('release_status')) {
+      context.handle(
+          _releaseStatusMeta,
+          releaseStatus.isAcceptableOrUnknown(
+              data['release_status']!, _releaseStatusMeta));
+    }
+    if (data.containsKey('physical_format')) {
+      context.handle(
+          _physicalFormatMeta,
+          physicalFormat.isAcceptableOrUnknown(
+              data['physical_format']!, _physicalFormatMeta));
+    }
+    if (data.containsKey('physical_format_label')) {
+      context.handle(
+          _physicalFormatLabelMeta,
+          physicalFormatLabel.isAcceptableOrUnknown(
+              data['physical_format_label']!, _physicalFormatLabelMeta));
+    }
+    if (data.containsKey('cover_image_url')) {
+      context.handle(
+          _coverImageUrlMeta,
+          coverImageUrl.isAcceptableOrUnknown(
+              data['cover_image_url']!, _coverImageUrlMeta));
+    }
+    if (data.containsKey('thumbnail_image_url')) {
+      context.handle(
+          _thumbnailImageUrlMeta,
+          thumbnailImageUrl.isAcceptableOrUnknown(
+              data['thumbnail_image_url']!, _thumbnailImageUrlMeta));
+    }
+    if (data.containsKey('dimensions')) {
+      context.handle(
+          _dimensionsMeta,
+          dimensions.isAcceptableOrUnknown(
+              data['dimensions']!, _dimensionsMeta));
+    }
+    if (data.containsKey('first_edition')) {
+      context.handle(
+          _firstEditionMeta,
+          firstEdition.isAcceptableOrUnknown(
+              data['first_edition']!, _firstEditionMeta));
+    }
+    if (data.containsKey('variants_json')) {
+      context.handle(
+          _variantsJsonMeta,
+          variantsJson.isAcceptableOrUnknown(
+              data['variants_json']!, _variantsJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {mediaId, id};
+  @override
+  BookReleaseRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BookReleaseRow(
+      mediaId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      workId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}work_id']),
+      titleValue: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title_value']),
+      displayTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}display_title']),
+      ageRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}age_rating']),
+      audioLengthMinutes: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}audio_length_minutes']),
+      binding: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}binding']),
+      contributorsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}contributors_json'])!,
+      coverImageKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_key']),
+      publisher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      distributor: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}distributor']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      editionStatement: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}edition_statement']),
+      isbn: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}isbn']),
+      identifiersJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}identifiers_json'])!,
+      imprint: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}imprint']),
+      upc: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}upc']),
+      pageCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}page_count']),
+      language: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language']),
+      region: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}region']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      releaseStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_status']),
+      physicalFormat: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}physical_format']),
+      physicalFormatLabel: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}physical_format_label']),
+      coverImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      thumbnailImageUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}thumbnail_image_url']),
+      dimensions: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}dimensions']),
+      firstEdition: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}first_edition']),
+      variantsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variants_json'])!,
+    );
+  }
+
+  @override
+  $BookReleaseRowsTable createAlias(String alias) {
+    return $BookReleaseRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BookReleaseRow extends DataClass implements Insertable<BookReleaseRow> {
+  final String mediaId;
+  final String id;
+  final String title;
+  final String? workId;
+  final String? titleValue;
+  final String? displayTitle;
+  final String? ageRating;
+  final int? audioLengthMinutes;
+  final String? binding;
+  final String contributorsJson;
+  final String? coverImageKey;
+  final String? publisher;
+  final String? distributor;
+  final String? description;
+  final String? editionStatement;
+  final String? isbn;
+  final String identifiersJson;
+  final String? imprint;
+  final String? upc;
+  final int? pageCount;
+  final String? language;
+  final String? region;
+  final DateTime? releaseDate;
+  final String? releaseStatus;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final String? dimensions;
+  final bool? firstEdition;
+  final String variantsJson;
+  const BookReleaseRow(
+      {required this.mediaId,
+      required this.id,
+      required this.title,
+      this.workId,
+      this.titleValue,
+      this.displayTitle,
+      this.ageRating,
+      this.audioLengthMinutes,
+      this.binding,
+      required this.contributorsJson,
+      this.coverImageKey,
+      this.publisher,
+      this.distributor,
+      this.description,
+      this.editionStatement,
+      this.isbn,
+      required this.identifiersJson,
+      this.imprint,
+      this.upc,
+      this.pageCount,
+      this.language,
+      this.region,
+      this.releaseDate,
+      this.releaseStatus,
+      this.physicalFormat,
+      this.physicalFormatLabel,
+      this.coverImageUrl,
+      this.thumbnailImageUrl,
+      this.dimensions,
+      this.firstEdition,
+      required this.variantsJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['media_id'] = Variable<String>(mediaId);
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || workId != null) {
+      map['work_id'] = Variable<String>(workId);
+    }
+    if (!nullToAbsent || titleValue != null) {
+      map['title_value'] = Variable<String>(titleValue);
+    }
+    if (!nullToAbsent || displayTitle != null) {
+      map['display_title'] = Variable<String>(displayTitle);
+    }
+    if (!nullToAbsent || ageRating != null) {
+      map['age_rating'] = Variable<String>(ageRating);
+    }
+    if (!nullToAbsent || audioLengthMinutes != null) {
+      map['audio_length_minutes'] = Variable<int>(audioLengthMinutes);
+    }
+    if (!nullToAbsent || binding != null) {
+      map['binding'] = Variable<String>(binding);
+    }
+    map['contributors_json'] = Variable<String>(contributorsJson);
+    if (!nullToAbsent || coverImageKey != null) {
+      map['cover_image_key'] = Variable<String>(coverImageKey);
+    }
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || distributor != null) {
+      map['distributor'] = Variable<String>(distributor);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || editionStatement != null) {
+      map['edition_statement'] = Variable<String>(editionStatement);
+    }
+    if (!nullToAbsent || isbn != null) {
+      map['isbn'] = Variable<String>(isbn);
+    }
+    map['identifiers_json'] = Variable<String>(identifiersJson);
+    if (!nullToAbsent || imprint != null) {
+      map['imprint'] = Variable<String>(imprint);
+    }
+    if (!nullToAbsent || upc != null) {
+      map['upc'] = Variable<String>(upc);
+    }
+    if (!nullToAbsent || pageCount != null) {
+      map['page_count'] = Variable<int>(pageCount);
+    }
+    if (!nullToAbsent || language != null) {
+      map['language'] = Variable<String>(language);
+    }
+    if (!nullToAbsent || region != null) {
+      map['region'] = Variable<String>(region);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || releaseStatus != null) {
+      map['release_status'] = Variable<String>(releaseStatus);
+    }
+    if (!nullToAbsent || physicalFormat != null) {
+      map['physical_format'] = Variable<String>(physicalFormat);
+    }
+    if (!nullToAbsent || physicalFormatLabel != null) {
+      map['physical_format_label'] = Variable<String>(physicalFormatLabel);
+    }
+    if (!nullToAbsent || coverImageUrl != null) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    if (!nullToAbsent || thumbnailImageUrl != null) {
+      map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl);
+    }
+    if (!nullToAbsent || dimensions != null) {
+      map['dimensions'] = Variable<String>(dimensions);
+    }
+    if (!nullToAbsent || firstEdition != null) {
+      map['first_edition'] = Variable<bool>(firstEdition);
+    }
+    map['variants_json'] = Variable<String>(variantsJson);
+    return map;
+  }
+
+  BookReleaseRowsCompanion toCompanion(bool nullToAbsent) {
+    return BookReleaseRowsCompanion(
+      mediaId: Value(mediaId),
+      id: Value(id),
+      title: Value(title),
+      workId:
+          workId == null && nullToAbsent ? const Value.absent() : Value(workId),
+      titleValue: titleValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(titleValue),
+      displayTitle: displayTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayTitle),
+      ageRating: ageRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ageRating),
+      audioLengthMinutes: audioLengthMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioLengthMinutes),
+      binding: binding == null && nullToAbsent
+          ? const Value.absent()
+          : Value(binding),
+      contributorsJson: Value(contributorsJson),
+      coverImageKey: coverImageKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageKey),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      distributor: distributor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(distributor),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      editionStatement: editionStatement == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionStatement),
+      isbn: isbn == null && nullToAbsent ? const Value.absent() : Value(isbn),
+      identifiersJson: Value(identifiersJson),
+      imprint: imprint == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imprint),
+      upc: upc == null && nullToAbsent ? const Value.absent() : Value(upc),
+      pageCount: pageCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pageCount),
+      language: language == null && nullToAbsent
+          ? const Value.absent()
+          : Value(language),
+      region:
+          region == null && nullToAbsent ? const Value.absent() : Value(region),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      releaseStatus: releaseStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseStatus),
+      physicalFormat: physicalFormat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(physicalFormat),
+      physicalFormatLabel: physicalFormatLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(physicalFormatLabel),
+      coverImageUrl: coverImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageUrl),
+      thumbnailImageUrl: thumbnailImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thumbnailImageUrl),
+      dimensions: dimensions == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dimensions),
+      firstEdition: firstEdition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firstEdition),
+      variantsJson: Value(variantsJson),
+    );
+  }
+
+  factory BookReleaseRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BookReleaseRow(
+      mediaId: serializer.fromJson<String>(json['mediaId']),
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      workId: serializer.fromJson<String?>(json['workId']),
+      titleValue: serializer.fromJson<String?>(json['titleValue']),
+      displayTitle: serializer.fromJson<String?>(json['displayTitle']),
+      ageRating: serializer.fromJson<String?>(json['ageRating']),
+      audioLengthMinutes: serializer.fromJson<int?>(json['audioLengthMinutes']),
+      binding: serializer.fromJson<String?>(json['binding']),
+      contributorsJson: serializer.fromJson<String>(json['contributorsJson']),
+      coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      distributor: serializer.fromJson<String?>(json['distributor']),
+      description: serializer.fromJson<String?>(json['description']),
+      editionStatement: serializer.fromJson<String?>(json['editionStatement']),
+      isbn: serializer.fromJson<String?>(json['isbn']),
+      identifiersJson: serializer.fromJson<String>(json['identifiersJson']),
+      imprint: serializer.fromJson<String?>(json['imprint']),
+      upc: serializer.fromJson<String?>(json['upc']),
+      pageCount: serializer.fromJson<int?>(json['pageCount']),
+      language: serializer.fromJson<String?>(json['language']),
+      region: serializer.fromJson<String?>(json['region']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      releaseStatus: serializer.fromJson<String?>(json['releaseStatus']),
+      physicalFormat: serializer.fromJson<String?>(json['physicalFormat']),
+      physicalFormatLabel:
+          serializer.fromJson<String?>(json['physicalFormatLabel']),
+      coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      thumbnailImageUrl:
+          serializer.fromJson<String?>(json['thumbnailImageUrl']),
+      dimensions: serializer.fromJson<String?>(json['dimensions']),
+      firstEdition: serializer.fromJson<bool?>(json['firstEdition']),
+      variantsJson: serializer.fromJson<String>(json['variantsJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'mediaId': serializer.toJson<String>(mediaId),
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'workId': serializer.toJson<String?>(workId),
+      'titleValue': serializer.toJson<String?>(titleValue),
+      'displayTitle': serializer.toJson<String?>(displayTitle),
+      'ageRating': serializer.toJson<String?>(ageRating),
+      'audioLengthMinutes': serializer.toJson<int?>(audioLengthMinutes),
+      'binding': serializer.toJson<String?>(binding),
+      'contributorsJson': serializer.toJson<String>(contributorsJson),
+      'coverImageKey': serializer.toJson<String?>(coverImageKey),
+      'publisher': serializer.toJson<String?>(publisher),
+      'distributor': serializer.toJson<String?>(distributor),
+      'description': serializer.toJson<String?>(description),
+      'editionStatement': serializer.toJson<String?>(editionStatement),
+      'isbn': serializer.toJson<String?>(isbn),
+      'identifiersJson': serializer.toJson<String>(identifiersJson),
+      'imprint': serializer.toJson<String?>(imprint),
+      'upc': serializer.toJson<String?>(upc),
+      'pageCount': serializer.toJson<int?>(pageCount),
+      'language': serializer.toJson<String?>(language),
+      'region': serializer.toJson<String?>(region),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'releaseStatus': serializer.toJson<String?>(releaseStatus),
+      'physicalFormat': serializer.toJson<String?>(physicalFormat),
+      'physicalFormatLabel': serializer.toJson<String?>(physicalFormatLabel),
+      'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'thumbnailImageUrl': serializer.toJson<String?>(thumbnailImageUrl),
+      'dimensions': serializer.toJson<String?>(dimensions),
+      'firstEdition': serializer.toJson<bool?>(firstEdition),
+      'variantsJson': serializer.toJson<String>(variantsJson),
+    };
+  }
+
+  BookReleaseRow copyWith(
+          {String? mediaId,
+          String? id,
+          String? title,
+          Value<String?> workId = const Value.absent(),
+          Value<String?> titleValue = const Value.absent(),
+          Value<String?> displayTitle = const Value.absent(),
+          Value<String?> ageRating = const Value.absent(),
+          Value<int?> audioLengthMinutes = const Value.absent(),
+          Value<String?> binding = const Value.absent(),
+          String? contributorsJson,
+          Value<String?> coverImageKey = const Value.absent(),
+          Value<String?> publisher = const Value.absent(),
+          Value<String?> distributor = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<String?> editionStatement = const Value.absent(),
+          Value<String?> isbn = const Value.absent(),
+          String? identifiersJson,
+          Value<String?> imprint = const Value.absent(),
+          Value<String?> upc = const Value.absent(),
+          Value<int?> pageCount = const Value.absent(),
+          Value<String?> language = const Value.absent(),
+          Value<String?> region = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          Value<String?> releaseStatus = const Value.absent(),
+          Value<String?> physicalFormat = const Value.absent(),
+          Value<String?> physicalFormatLabel = const Value.absent(),
+          Value<String?> coverImageUrl = const Value.absent(),
+          Value<String?> thumbnailImageUrl = const Value.absent(),
+          Value<String?> dimensions = const Value.absent(),
+          Value<bool?> firstEdition = const Value.absent(),
+          String? variantsJson}) =>
+      BookReleaseRow(
+        mediaId: mediaId ?? this.mediaId,
+        id: id ?? this.id,
+        title: title ?? this.title,
+        workId: workId.present ? workId.value : this.workId,
+        titleValue: titleValue.present ? titleValue.value : this.titleValue,
+        displayTitle:
+            displayTitle.present ? displayTitle.value : this.displayTitle,
+        ageRating: ageRating.present ? ageRating.value : this.ageRating,
+        audioLengthMinutes: audioLengthMinutes.present
+            ? audioLengthMinutes.value
+            : this.audioLengthMinutes,
+        binding: binding.present ? binding.value : this.binding,
+        contributorsJson: contributorsJson ?? this.contributorsJson,
+        coverImageKey:
+            coverImageKey.present ? coverImageKey.value : this.coverImageKey,
+        publisher: publisher.present ? publisher.value : this.publisher,
+        distributor: distributor.present ? distributor.value : this.distributor,
+        description: description.present ? description.value : this.description,
+        editionStatement: editionStatement.present
+            ? editionStatement.value
+            : this.editionStatement,
+        isbn: isbn.present ? isbn.value : this.isbn,
+        identifiersJson: identifiersJson ?? this.identifiersJson,
+        imprint: imprint.present ? imprint.value : this.imprint,
+        upc: upc.present ? upc.value : this.upc,
+        pageCount: pageCount.present ? pageCount.value : this.pageCount,
+        language: language.present ? language.value : this.language,
+        region: region.present ? region.value : this.region,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        releaseStatus:
+            releaseStatus.present ? releaseStatus.value : this.releaseStatus,
+        physicalFormat:
+            physicalFormat.present ? physicalFormat.value : this.physicalFormat,
+        physicalFormatLabel: physicalFormatLabel.present
+            ? physicalFormatLabel.value
+            : this.physicalFormatLabel,
+        coverImageUrl:
+            coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        thumbnailImageUrl: thumbnailImageUrl.present
+            ? thumbnailImageUrl.value
+            : this.thumbnailImageUrl,
+        dimensions: dimensions.present ? dimensions.value : this.dimensions,
+        firstEdition:
+            firstEdition.present ? firstEdition.value : this.firstEdition,
+        variantsJson: variantsJson ?? this.variantsJson,
+      );
+  BookReleaseRow copyWithCompanion(BookReleaseRowsCompanion data) {
+    return BookReleaseRow(
+      mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      workId: data.workId.present ? data.workId.value : this.workId,
+      titleValue:
+          data.titleValue.present ? data.titleValue.value : this.titleValue,
+      displayTitle: data.displayTitle.present
+          ? data.displayTitle.value
+          : this.displayTitle,
+      ageRating: data.ageRating.present ? data.ageRating.value : this.ageRating,
+      audioLengthMinutes: data.audioLengthMinutes.present
+          ? data.audioLengthMinutes.value
+          : this.audioLengthMinutes,
+      binding: data.binding.present ? data.binding.value : this.binding,
+      contributorsJson: data.contributorsJson.present
+          ? data.contributorsJson.value
+          : this.contributorsJson,
+      coverImageKey: data.coverImageKey.present
+          ? data.coverImageKey.value
+          : this.coverImageKey,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      distributor:
+          data.distributor.present ? data.distributor.value : this.distributor,
+      description:
+          data.description.present ? data.description.value : this.description,
+      editionStatement: data.editionStatement.present
+          ? data.editionStatement.value
+          : this.editionStatement,
+      isbn: data.isbn.present ? data.isbn.value : this.isbn,
+      identifiersJson: data.identifiersJson.present
+          ? data.identifiersJson.value
+          : this.identifiersJson,
+      imprint: data.imprint.present ? data.imprint.value : this.imprint,
+      upc: data.upc.present ? data.upc.value : this.upc,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      language: data.language.present ? data.language.value : this.language,
+      region: data.region.present ? data.region.value : this.region,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      releaseStatus: data.releaseStatus.present
+          ? data.releaseStatus.value
+          : this.releaseStatus,
+      physicalFormat: data.physicalFormat.present
+          ? data.physicalFormat.value
+          : this.physicalFormat,
+      physicalFormatLabel: data.physicalFormatLabel.present
+          ? data.physicalFormatLabel.value
+          : this.physicalFormatLabel,
+      coverImageUrl: data.coverImageUrl.present
+          ? data.coverImageUrl.value
+          : this.coverImageUrl,
+      thumbnailImageUrl: data.thumbnailImageUrl.present
+          ? data.thumbnailImageUrl.value
+          : this.thumbnailImageUrl,
+      dimensions:
+          data.dimensions.present ? data.dimensions.value : this.dimensions,
+      firstEdition: data.firstEdition.present
+          ? data.firstEdition.value
+          : this.firstEdition,
+      variantsJson: data.variantsJson.present
+          ? data.variantsJson.value
+          : this.variantsJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookReleaseRow(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('workId: $workId, ')
+          ..write('titleValue: $titleValue, ')
+          ..write('displayTitle: $displayTitle, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('audioLengthMinutes: $audioLengthMinutes, ')
+          ..write('binding: $binding, ')
+          ..write('contributorsJson: $contributorsJson, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('publisher: $publisher, ')
+          ..write('distributor: $distributor, ')
+          ..write('description: $description, ')
+          ..write('editionStatement: $editionStatement, ')
+          ..write('isbn: $isbn, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('imprint: $imprint, ')
+          ..write('upc: $upc, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('language: $language, ')
+          ..write('region: $region, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('releaseStatus: $releaseStatus, ')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('physicalFormatLabel: $physicalFormatLabel, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
+          ..write('dimensions: $dimensions, ')
+          ..write('firstEdition: $firstEdition, ')
+          ..write('variantsJson: $variantsJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        mediaId,
+        id,
+        title,
+        workId,
+        titleValue,
+        displayTitle,
+        ageRating,
+        audioLengthMinutes,
+        binding,
+        contributorsJson,
+        coverImageKey,
+        publisher,
+        distributor,
+        description,
+        editionStatement,
+        isbn,
+        identifiersJson,
+        imprint,
+        upc,
+        pageCount,
+        language,
+        region,
+        releaseDate,
+        releaseStatus,
+        physicalFormat,
+        physicalFormatLabel,
+        coverImageUrl,
+        thumbnailImageUrl,
+        dimensions,
+        firstEdition,
+        variantsJson
+      ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BookReleaseRow &&
+          other.mediaId == this.mediaId &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.workId == this.workId &&
+          other.titleValue == this.titleValue &&
+          other.displayTitle == this.displayTitle &&
+          other.ageRating == this.ageRating &&
+          other.audioLengthMinutes == this.audioLengthMinutes &&
+          other.binding == this.binding &&
+          other.contributorsJson == this.contributorsJson &&
+          other.coverImageKey == this.coverImageKey &&
+          other.publisher == this.publisher &&
+          other.distributor == this.distributor &&
+          other.description == this.description &&
+          other.editionStatement == this.editionStatement &&
+          other.isbn == this.isbn &&
+          other.identifiersJson == this.identifiersJson &&
+          other.imprint == this.imprint &&
+          other.upc == this.upc &&
+          other.pageCount == this.pageCount &&
+          other.language == this.language &&
+          other.region == this.region &&
+          other.releaseDate == this.releaseDate &&
+          other.releaseStatus == this.releaseStatus &&
+          other.physicalFormat == this.physicalFormat &&
+          other.physicalFormatLabel == this.physicalFormatLabel &&
+          other.coverImageUrl == this.coverImageUrl &&
+          other.thumbnailImageUrl == this.thumbnailImageUrl &&
+          other.dimensions == this.dimensions &&
+          other.firstEdition == this.firstEdition &&
+          other.variantsJson == this.variantsJson);
+}
+
+class BookReleaseRowsCompanion extends UpdateCompanion<BookReleaseRow> {
+  final Value<String> mediaId;
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> workId;
+  final Value<String?> titleValue;
+  final Value<String?> displayTitle;
+  final Value<String?> ageRating;
+  final Value<int?> audioLengthMinutes;
+  final Value<String?> binding;
+  final Value<String> contributorsJson;
+  final Value<String?> coverImageKey;
+  final Value<String?> publisher;
+  final Value<String?> distributor;
+  final Value<String?> description;
+  final Value<String?> editionStatement;
+  final Value<String?> isbn;
+  final Value<String> identifiersJson;
+  final Value<String?> imprint;
+  final Value<String?> upc;
+  final Value<int?> pageCount;
+  final Value<String?> language;
+  final Value<String?> region;
+  final Value<DateTime?> releaseDate;
+  final Value<String?> releaseStatus;
+  final Value<String?> physicalFormat;
+  final Value<String?> physicalFormatLabel;
+  final Value<String?> coverImageUrl;
+  final Value<String?> thumbnailImageUrl;
+  final Value<String?> dimensions;
+  final Value<bool?> firstEdition;
+  final Value<String> variantsJson;
+  final Value<int> rowid;
+  const BookReleaseRowsCompanion({
+    this.mediaId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.workId = const Value.absent(),
+    this.titleValue = const Value.absent(),
+    this.displayTitle = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.audioLengthMinutes = const Value.absent(),
+    this.binding = const Value.absent(),
+    this.contributorsJson = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.description = const Value.absent(),
+    this.editionStatement = const Value.absent(),
+    this.isbn = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.imprint = const Value.absent(),
+    this.upc = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.language = const Value.absent(),
+    this.region = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.releaseStatus = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.physicalFormatLabel = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.thumbnailImageUrl = const Value.absent(),
+    this.dimensions = const Value.absent(),
+    this.firstEdition = const Value.absent(),
+    this.variantsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BookReleaseRowsCompanion.insert({
+    required String mediaId,
+    required String id,
+    required String title,
+    this.workId = const Value.absent(),
+    this.titleValue = const Value.absent(),
+    this.displayTitle = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.audioLengthMinutes = const Value.absent(),
+    this.binding = const Value.absent(),
+    this.contributorsJson = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.description = const Value.absent(),
+    this.editionStatement = const Value.absent(),
+    this.isbn = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.imprint = const Value.absent(),
+    this.upc = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.language = const Value.absent(),
+    this.region = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.releaseStatus = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.physicalFormatLabel = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.thumbnailImageUrl = const Value.absent(),
+    this.dimensions = const Value.absent(),
+    this.firstEdition = const Value.absent(),
+    this.variantsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : mediaId = Value(mediaId),
+        id = Value(id),
+        title = Value(title);
+  static Insertable<BookReleaseRow> custom({
+    Expression<String>? mediaId,
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? workId,
+    Expression<String>? titleValue,
+    Expression<String>? displayTitle,
+    Expression<String>? ageRating,
+    Expression<int>? audioLengthMinutes,
+    Expression<String>? binding,
+    Expression<String>? contributorsJson,
+    Expression<String>? coverImageKey,
+    Expression<String>? publisher,
+    Expression<String>? distributor,
+    Expression<String>? description,
+    Expression<String>? editionStatement,
+    Expression<String>? isbn,
+    Expression<String>? identifiersJson,
+    Expression<String>? imprint,
+    Expression<String>? upc,
+    Expression<int>? pageCount,
+    Expression<String>? language,
+    Expression<String>? region,
+    Expression<DateTime>? releaseDate,
+    Expression<String>? releaseStatus,
+    Expression<String>? physicalFormat,
+    Expression<String>? physicalFormatLabel,
+    Expression<String>? coverImageUrl,
+    Expression<String>? thumbnailImageUrl,
+    Expression<String>? dimensions,
+    Expression<bool>? firstEdition,
+    Expression<String>? variantsJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (mediaId != null) 'media_id': mediaId,
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (workId != null) 'work_id': workId,
+      if (titleValue != null) 'title_value': titleValue,
+      if (displayTitle != null) 'display_title': displayTitle,
+      if (ageRating != null) 'age_rating': ageRating,
+      if (audioLengthMinutes != null)
+        'audio_length_minutes': audioLengthMinutes,
+      if (binding != null) 'binding': binding,
+      if (contributorsJson != null) 'contributors_json': contributorsJson,
+      if (coverImageKey != null) 'cover_image_key': coverImageKey,
+      if (publisher != null) 'publisher': publisher,
+      if (distributor != null) 'distributor': distributor,
+      if (description != null) 'description': description,
+      if (editionStatement != null) 'edition_statement': editionStatement,
+      if (isbn != null) 'isbn': isbn,
+      if (identifiersJson != null) 'identifiers_json': identifiersJson,
+      if (imprint != null) 'imprint': imprint,
+      if (upc != null) 'upc': upc,
+      if (pageCount != null) 'page_count': pageCount,
+      if (language != null) 'language': language,
+      if (region != null) 'region': region,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (releaseStatus != null) 'release_status': releaseStatus,
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (physicalFormatLabel != null)
+        'physical_format_label': physicalFormatLabel,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+      if (dimensions != null) 'dimensions': dimensions,
+      if (firstEdition != null) 'first_edition': firstEdition,
+      if (variantsJson != null) 'variants_json': variantsJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BookReleaseRowsCompanion copyWith(
+      {Value<String>? mediaId,
+      Value<String>? id,
+      Value<String>? title,
+      Value<String?>? workId,
+      Value<String?>? titleValue,
+      Value<String?>? displayTitle,
+      Value<String?>? ageRating,
+      Value<int?>? audioLengthMinutes,
+      Value<String?>? binding,
+      Value<String>? contributorsJson,
+      Value<String?>? coverImageKey,
+      Value<String?>? publisher,
+      Value<String?>? distributor,
+      Value<String?>? description,
+      Value<String?>? editionStatement,
+      Value<String?>? isbn,
+      Value<String>? identifiersJson,
+      Value<String?>? imprint,
+      Value<String?>? upc,
+      Value<int?>? pageCount,
+      Value<String?>? language,
+      Value<String?>? region,
+      Value<DateTime?>? releaseDate,
+      Value<String?>? releaseStatus,
+      Value<String?>? physicalFormat,
+      Value<String?>? physicalFormatLabel,
+      Value<String?>? coverImageUrl,
+      Value<String?>? thumbnailImageUrl,
+      Value<String?>? dimensions,
+      Value<bool?>? firstEdition,
+      Value<String>? variantsJson,
+      Value<int>? rowid}) {
+    return BookReleaseRowsCompanion(
+      mediaId: mediaId ?? this.mediaId,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      workId: workId ?? this.workId,
+      titleValue: titleValue ?? this.titleValue,
+      displayTitle: displayTitle ?? this.displayTitle,
+      ageRating: ageRating ?? this.ageRating,
+      audioLengthMinutes: audioLengthMinutes ?? this.audioLengthMinutes,
+      binding: binding ?? this.binding,
+      contributorsJson: contributorsJson ?? this.contributorsJson,
+      coverImageKey: coverImageKey ?? this.coverImageKey,
+      publisher: publisher ?? this.publisher,
+      distributor: distributor ?? this.distributor,
+      description: description ?? this.description,
+      editionStatement: editionStatement ?? this.editionStatement,
+      isbn: isbn ?? this.isbn,
+      identifiersJson: identifiersJson ?? this.identifiersJson,
+      imprint: imprint ?? this.imprint,
+      upc: upc ?? this.upc,
+      pageCount: pageCount ?? this.pageCount,
+      language: language ?? this.language,
+      region: region ?? this.region,
+      releaseDate: releaseDate ?? this.releaseDate,
+      releaseStatus: releaseStatus ?? this.releaseStatus,
+      physicalFormat: physicalFormat ?? this.physicalFormat,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
+      dimensions: dimensions ?? this.dimensions,
+      firstEdition: firstEdition ?? this.firstEdition,
+      variantsJson: variantsJson ?? this.variantsJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (mediaId.present) {
+      map['media_id'] = Variable<String>(mediaId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (workId.present) {
+      map['work_id'] = Variable<String>(workId.value);
+    }
+    if (titleValue.present) {
+      map['title_value'] = Variable<String>(titleValue.value);
+    }
+    if (displayTitle.present) {
+      map['display_title'] = Variable<String>(displayTitle.value);
+    }
+    if (ageRating.present) {
+      map['age_rating'] = Variable<String>(ageRating.value);
+    }
+    if (audioLengthMinutes.present) {
+      map['audio_length_minutes'] = Variable<int>(audioLengthMinutes.value);
+    }
+    if (binding.present) {
+      map['binding'] = Variable<String>(binding.value);
+    }
+    if (contributorsJson.present) {
+      map['contributors_json'] = Variable<String>(contributorsJson.value);
+    }
+    if (coverImageKey.present) {
+      map['cover_image_key'] = Variable<String>(coverImageKey.value);
+    }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (distributor.present) {
+      map['distributor'] = Variable<String>(distributor.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (editionStatement.present) {
+      map['edition_statement'] = Variable<String>(editionStatement.value);
+    }
+    if (isbn.present) {
+      map['isbn'] = Variable<String>(isbn.value);
+    }
+    if (identifiersJson.present) {
+      map['identifiers_json'] = Variable<String>(identifiersJson.value);
+    }
+    if (imprint.present) {
+      map['imprint'] = Variable<String>(imprint.value);
+    }
+    if (upc.present) {
+      map['upc'] = Variable<String>(upc.value);
+    }
+    if (pageCount.present) {
+      map['page_count'] = Variable<int>(pageCount.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (region.present) {
+      map['region'] = Variable<String>(region.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (releaseStatus.present) {
+      map['release_status'] = Variable<String>(releaseStatus.value);
+    }
+    if (physicalFormat.present) {
+      map['physical_format'] = Variable<String>(physicalFormat.value);
+    }
+    if (physicalFormatLabel.present) {
+      map['physical_format_label'] =
+          Variable<String>(physicalFormatLabel.value);
+    }
+    if (coverImageUrl.present) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl.value);
+    }
+    if (thumbnailImageUrl.present) {
+      map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl.value);
+    }
+    if (dimensions.present) {
+      map['dimensions'] = Variable<String>(dimensions.value);
+    }
+    if (firstEdition.present) {
+      map['first_edition'] = Variable<bool>(firstEdition.value);
+    }
+    if (variantsJson.present) {
+      map['variants_json'] = Variable<String>(variantsJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookReleaseRowsCompanion(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('workId: $workId, ')
+          ..write('titleValue: $titleValue, ')
+          ..write('displayTitle: $displayTitle, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('audioLengthMinutes: $audioLengthMinutes, ')
+          ..write('binding: $binding, ')
+          ..write('contributorsJson: $contributorsJson, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('publisher: $publisher, ')
+          ..write('distributor: $distributor, ')
+          ..write('description: $description, ')
+          ..write('editionStatement: $editionStatement, ')
+          ..write('isbn: $isbn, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('imprint: $imprint, ')
+          ..write('upc: $upc, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('language: $language, ')
+          ..write('region: $region, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('releaseStatus: $releaseStatus, ')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('physicalFormatLabel: $physicalFormatLabel, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
+          ..write('dimensions: $dimensions, ')
+          ..write('firstEdition: $firstEdition, ')
+          ..write('variantsJson: $variantsJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BookOwnedDetailsRowsTable extends BookOwnedDetailsRows
+    with TableInfo<$BookOwnedDetailsRowsTable, BookOwnedDetailsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BookOwnedDetailsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _signedByMeta =
+      const VerificationMeta('signedBy');
+  @override
+  late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
+      'signed_by', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dustJacketPresentMeta =
+      const VerificationMeta('dustJacketPresent');
+  @override
+  late final GeneratedColumn<bool> dustJacketPresent = GeneratedColumn<bool>(
+      'dust_jacket_present', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("dust_jacket_present" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _dustJacketConditionMeta =
+      const VerificationMeta('dustJacketCondition');
+  @override
+  late final GeneratedColumn<String> dustJacketCondition =
+      GeneratedColumn<String>('dust_jacket_condition', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [ownedItemId, signedBy, dustJacketPresent, dustJacketCondition];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'book_owned_details_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<BookOwnedDetailsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('signed_by')) {
+      context.handle(_signedByMeta,
+          signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
+    }
+    if (data.containsKey('dust_jacket_present')) {
+      context.handle(
+          _dustJacketPresentMeta,
+          dustJacketPresent.isAcceptableOrUnknown(
+              data['dust_jacket_present']!, _dustJacketPresentMeta));
+    }
+    if (data.containsKey('dust_jacket_condition')) {
+      context.handle(
+          _dustJacketConditionMeta,
+          dustJacketCondition.isAcceptableOrUnknown(
+              data['dust_jacket_condition']!, _dustJacketConditionMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  @override
+  BookOwnedDetailsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BookOwnedDetailsRow(
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      signedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
+      dustJacketPresent: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}dust_jacket_present'])!,
+      dustJacketCondition: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}dust_jacket_condition']),
+    );
+  }
+
+  @override
+  $BookOwnedDetailsRowsTable createAlias(String alias) {
+    return $BookOwnedDetailsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BookOwnedDetailsRow extends DataClass
+    implements Insertable<BookOwnedDetailsRow> {
+  final String ownedItemId;
+  final String? signedBy;
+  final bool dustJacketPresent;
+  final String? dustJacketCondition;
+  const BookOwnedDetailsRow(
+      {required this.ownedItemId,
+      this.signedBy,
+      required this.dustJacketPresent,
+      this.dustJacketCondition});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || signedBy != null) {
+      map['signed_by'] = Variable<String>(signedBy);
+    }
+    map['dust_jacket_present'] = Variable<bool>(dustJacketPresent);
+    if (!nullToAbsent || dustJacketCondition != null) {
+      map['dust_jacket_condition'] = Variable<String>(dustJacketCondition);
+    }
+    return map;
+  }
+
+  BookOwnedDetailsRowsCompanion toCompanion(bool nullToAbsent) {
+    return BookOwnedDetailsRowsCompanion(
+      ownedItemId: Value(ownedItemId),
+      signedBy: signedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(signedBy),
+      dustJacketPresent: Value(dustJacketPresent),
+      dustJacketCondition: dustJacketCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dustJacketCondition),
+    );
+  }
+
+  factory BookOwnedDetailsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BookOwnedDetailsRow(
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      signedBy: serializer.fromJson<String?>(json['signedBy']),
+      dustJacketPresent: serializer.fromJson<bool>(json['dustJacketPresent']),
+      dustJacketCondition:
+          serializer.fromJson<String?>(json['dustJacketCondition']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'signedBy': serializer.toJson<String?>(signedBy),
+      'dustJacketPresent': serializer.toJson<bool>(dustJacketPresent),
+      'dustJacketCondition': serializer.toJson<String?>(dustJacketCondition),
+    };
+  }
+
+  BookOwnedDetailsRow copyWith(
+          {String? ownedItemId,
+          Value<String?> signedBy = const Value.absent(),
+          bool? dustJacketPresent,
+          Value<String?> dustJacketCondition = const Value.absent()}) =>
+      BookOwnedDetailsRow(
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        signedBy: signedBy.present ? signedBy.value : this.signedBy,
+        dustJacketPresent: dustJacketPresent ?? this.dustJacketPresent,
+        dustJacketCondition: dustJacketCondition.present
+            ? dustJacketCondition.value
+            : this.dustJacketCondition,
+      );
+  BookOwnedDetailsRow copyWithCompanion(BookOwnedDetailsRowsCompanion data) {
+    return BookOwnedDetailsRow(
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
+      dustJacketPresent: data.dustJacketPresent.present
+          ? data.dustJacketPresent.value
+          : this.dustJacketPresent,
+      dustJacketCondition: data.dustJacketCondition.present
+          ? data.dustJacketCondition.value
+          : this.dustJacketCondition,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookOwnedDetailsRow(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('dustJacketPresent: $dustJacketPresent, ')
+          ..write('dustJacketCondition: $dustJacketCondition')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      ownedItemId, signedBy, dustJacketPresent, dustJacketCondition);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BookOwnedDetailsRow &&
+          other.ownedItemId == this.ownedItemId &&
+          other.signedBy == this.signedBy &&
+          other.dustJacketPresent == this.dustJacketPresent &&
+          other.dustJacketCondition == this.dustJacketCondition);
+}
+
+class BookOwnedDetailsRowsCompanion
+    extends UpdateCompanion<BookOwnedDetailsRow> {
+  final Value<String> ownedItemId;
+  final Value<String?> signedBy;
+  final Value<bool> dustJacketPresent;
+  final Value<String?> dustJacketCondition;
+  final Value<int> rowid;
+  const BookOwnedDetailsRowsCompanion({
+    this.ownedItemId = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.dustJacketPresent = const Value.absent(),
+    this.dustJacketCondition = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BookOwnedDetailsRowsCompanion.insert({
+    required String ownedItemId,
+    this.signedBy = const Value.absent(),
+    this.dustJacketPresent = const Value.absent(),
+    this.dustJacketCondition = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : ownedItemId = Value(ownedItemId);
+  static Insertable<BookOwnedDetailsRow> custom({
+    Expression<String>? ownedItemId,
+    Expression<String>? signedBy,
+    Expression<bool>? dustJacketPresent,
+    Expression<String>? dustJacketCondition,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (signedBy != null) 'signed_by': signedBy,
+      if (dustJacketPresent != null) 'dust_jacket_present': dustJacketPresent,
+      if (dustJacketCondition != null)
+        'dust_jacket_condition': dustJacketCondition,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BookOwnedDetailsRowsCompanion copyWith(
+      {Value<String>? ownedItemId,
+      Value<String?>? signedBy,
+      Value<bool>? dustJacketPresent,
+      Value<String?>? dustJacketCondition,
+      Value<int>? rowid}) {
+    return BookOwnedDetailsRowsCompanion(
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      signedBy: signedBy ?? this.signedBy,
+      dustJacketPresent: dustJacketPresent ?? this.dustJacketPresent,
+      dustJacketCondition: dustJacketCondition ?? this.dustJacketCondition,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (signedBy.present) {
+      map['signed_by'] = Variable<String>(signedBy.value);
+    }
+    if (dustJacketPresent.present) {
+      map['dust_jacket_present'] = Variable<bool>(dustJacketPresent.value);
+    }
+    if (dustJacketCondition.present) {
+      map['dust_jacket_condition'] =
+          Variable<String>(dustJacketCondition.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookOwnedDetailsRowsCompanion(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('dustJacketPresent: $dustJacketPresent, ')
+          ..write('dustJacketCondition: $dustJacketCondition, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -16859,6 +19273,11 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $MangaMediaRowsTable mangaMediaRows = $MangaMediaRowsTable(this);
   late final $MangaOwnedDetailsRowsTable mangaOwnedDetailsRows =
       $MangaOwnedDetailsRowsTable(this);
+  late final $BookMediaRowsTable bookMediaRows = $BookMediaRowsTable(this);
+  late final $BookReleaseRowsTable bookReleaseRows =
+      $BookReleaseRowsTable(this);
+  late final $BookOwnedDetailsRowsTable bookOwnedDetailsRows =
+      $BookOwnedDetailsRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -16891,7 +19310,10 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         comicReleaseRows,
         comicOwnedDetailsRows,
         mangaMediaRows,
-        mangaOwnedDetailsRows
+        mangaOwnedDetailsRows,
+        bookMediaRows,
+        bookReleaseRows,
+        bookOwnedDetailsRows
       ];
 }
 
@@ -24753,6 +27175,1064 @@ typedef $$MangaOwnedDetailsRowsTableProcessedTableManager
         ),
         MangaOwnedDetailsRow,
         PrefetchHooks Function()>;
+typedef $$BookMediaRowsTableCreateCompanionBuilder = BookMediaRowsCompanion
+    Function({
+  required String id,
+  required String title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> firstPublicationDate,
+  Value<String?> originalLanguage,
+  Value<DateTime?> originalPublicationDate,
+  Value<String?> subtitle,
+  Value<String> searchAliasesJson,
+  Value<String> genresJson,
+  Value<String> contributorsJson,
+  Value<String> seriesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$BookMediaRowsTableUpdateCompanionBuilder = BookMediaRowsCompanion
+    Function({
+  Value<String> id,
+  Value<String> title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> firstPublicationDate,
+  Value<String?> originalLanguage,
+  Value<DateTime?> originalPublicationDate,
+  Value<String?> subtitle,
+  Value<String> searchAliasesJson,
+  Value<String> genresJson,
+  Value<String> contributorsJson,
+  Value<String> seriesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$BookMediaRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BookMediaRowsTable> {
+  $$BookMediaRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get firstPublicationDate => $composableBuilder(
+      column: $table.firstPublicationDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get originalPublicationDate => $composableBuilder(
+      column: $table.originalPublicationDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contributorsJson => $composableBuilder(
+      column: $table.contributorsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesJson => $composableBuilder(
+      column: $table.seriesJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$BookMediaRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BookMediaRowsTable> {
+  $$BookMediaRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get firstPublicationDate => $composableBuilder(
+      column: $table.firstPublicationDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get originalPublicationDate => $composableBuilder(
+      column: $table.originalPublicationDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contributorsJson => $composableBuilder(
+      column: $table.contributorsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seriesJson => $composableBuilder(
+      column: $table.seriesJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$BookMediaRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BookMediaRowsTable> {
+  $$BookMediaRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get sortTitle =>
+      $composableBuilder(column: $table.sortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get firstPublicationDate => $composableBuilder(
+      column: $table.firstPublicationDate, builder: (column) => column);
+
+  GeneratedColumn<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get originalPublicationDate => $composableBuilder(
+      column: $table.originalPublicationDate, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitle =>
+      $composableBuilder(column: $table.subtitle, builder: (column) => column);
+
+  GeneratedColumn<String> get searchAliasesJson => $composableBuilder(
+      column: $table.searchAliasesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get genresJson => $composableBuilder(
+      column: $table.genresJson, builder: (column) => column);
+
+  GeneratedColumn<String> get contributorsJson => $composableBuilder(
+      column: $table.contributorsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get seriesJson => $composableBuilder(
+      column: $table.seriesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$BookMediaRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BookMediaRowsTable,
+    BookMediaRow,
+    $$BookMediaRowsTableFilterComposer,
+    $$BookMediaRowsTableOrderingComposer,
+    $$BookMediaRowsTableAnnotationComposer,
+    $$BookMediaRowsTableCreateCompanionBuilder,
+    $$BookMediaRowsTableUpdateCompanionBuilder,
+    (
+      BookMediaRow,
+      BaseReferences<_$LocalDatabase, $BookMediaRowsTable, BookMediaRow>
+    ),
+    BookMediaRow,
+    PrefetchHooks Function()> {
+  $$BookMediaRowsTableTableManager(
+      _$LocalDatabase db, $BookMediaRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BookMediaRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BookMediaRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BookMediaRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> firstPublicationDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<DateTime?> originalPublicationDate = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String> searchAliasesJson = const Value.absent(),
+            Value<String> genresJson = const Value.absent(),
+            Value<String> contributorsJson = const Value.absent(),
+            Value<String> seriesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookMediaRowsCompanion(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            firstPublicationDate: firstPublicationDate,
+            originalLanguage: originalLanguage,
+            originalPublicationDate: originalPublicationDate,
+            subtitle: subtitle,
+            searchAliasesJson: searchAliasesJson,
+            genresJson: genresJson,
+            contributorsJson: contributorsJson,
+            seriesJson: seriesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> firstPublicationDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<DateTime?> originalPublicationDate = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String> searchAliasesJson = const Value.absent(),
+            Value<String> genresJson = const Value.absent(),
+            Value<String> contributorsJson = const Value.absent(),
+            Value<String> seriesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookMediaRowsCompanion.insert(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            firstPublicationDate: firstPublicationDate,
+            originalLanguage: originalLanguage,
+            originalPublicationDate: originalPublicationDate,
+            subtitle: subtitle,
+            searchAliasesJson: searchAliasesJson,
+            genresJson: genresJson,
+            contributorsJson: contributorsJson,
+            seriesJson: seriesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BookMediaRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $BookMediaRowsTable,
+    BookMediaRow,
+    $$BookMediaRowsTableFilterComposer,
+    $$BookMediaRowsTableOrderingComposer,
+    $$BookMediaRowsTableAnnotationComposer,
+    $$BookMediaRowsTableCreateCompanionBuilder,
+    $$BookMediaRowsTableUpdateCompanionBuilder,
+    (
+      BookMediaRow,
+      BaseReferences<_$LocalDatabase, $BookMediaRowsTable, BookMediaRow>
+    ),
+    BookMediaRow,
+    PrefetchHooks Function()>;
+typedef $$BookReleaseRowsTableCreateCompanionBuilder = BookReleaseRowsCompanion
+    Function({
+  required String mediaId,
+  required String id,
+  required String title,
+  Value<String?> workId,
+  Value<String?> titleValue,
+  Value<String?> displayTitle,
+  Value<String?> ageRating,
+  Value<int?> audioLengthMinutes,
+  Value<String?> binding,
+  Value<String> contributorsJson,
+  Value<String?> coverImageKey,
+  Value<String?> publisher,
+  Value<String?> distributor,
+  Value<String?> description,
+  Value<String?> editionStatement,
+  Value<String?> isbn,
+  Value<String> identifiersJson,
+  Value<String?> imprint,
+  Value<String?> upc,
+  Value<int?> pageCount,
+  Value<String?> language,
+  Value<String?> region,
+  Value<DateTime?> releaseDate,
+  Value<String?> releaseStatus,
+  Value<String?> physicalFormat,
+  Value<String?> physicalFormatLabel,
+  Value<String?> coverImageUrl,
+  Value<String?> thumbnailImageUrl,
+  Value<String?> dimensions,
+  Value<bool?> firstEdition,
+  Value<String> variantsJson,
+  Value<int> rowid,
+});
+typedef $$BookReleaseRowsTableUpdateCompanionBuilder = BookReleaseRowsCompanion
+    Function({
+  Value<String> mediaId,
+  Value<String> id,
+  Value<String> title,
+  Value<String?> workId,
+  Value<String?> titleValue,
+  Value<String?> displayTitle,
+  Value<String?> ageRating,
+  Value<int?> audioLengthMinutes,
+  Value<String?> binding,
+  Value<String> contributorsJson,
+  Value<String?> coverImageKey,
+  Value<String?> publisher,
+  Value<String?> distributor,
+  Value<String?> description,
+  Value<String?> editionStatement,
+  Value<String?> isbn,
+  Value<String> identifiersJson,
+  Value<String?> imprint,
+  Value<String?> upc,
+  Value<int?> pageCount,
+  Value<String?> language,
+  Value<String?> region,
+  Value<DateTime?> releaseDate,
+  Value<String?> releaseStatus,
+  Value<String?> physicalFormat,
+  Value<String?> physicalFormatLabel,
+  Value<String?> coverImageUrl,
+  Value<String?> thumbnailImageUrl,
+  Value<String?> dimensions,
+  Value<bool?> firstEdition,
+  Value<String> variantsJson,
+  Value<int> rowid,
+});
+
+class $$BookReleaseRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BookReleaseRowsTable> {
+  $$BookReleaseRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get workId => $composableBuilder(
+      column: $table.workId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get titleValue => $composableBuilder(
+      column: $table.titleValue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get displayTitle => $composableBuilder(
+      column: $table.displayTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get audioLengthMinutes => $composableBuilder(
+      column: $table.audioLengthMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get binding => $composableBuilder(
+      column: $table.binding, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contributorsJson => $composableBuilder(
+      column: $table.contributorsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionStatement => $composableBuilder(
+      column: $table.editionStatement,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get isbn => $composableBuilder(
+      column: $table.isbn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imprint => $composableBuilder(
+      column: $table.imprint, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get upc => $composableBuilder(
+      column: $table.upc, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dimensions => $composableBuilder(
+      column: $table.dimensions, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get firstEdition => $composableBuilder(
+      column: $table.firstEdition, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantsJson => $composableBuilder(
+      column: $table.variantsJson, builder: (column) => ColumnFilters(column));
+}
+
+class $$BookReleaseRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BookReleaseRowsTable> {
+  $$BookReleaseRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get workId => $composableBuilder(
+      column: $table.workId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get titleValue => $composableBuilder(
+      column: $table.titleValue, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get displayTitle => $composableBuilder(
+      column: $table.displayTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get audioLengthMinutes => $composableBuilder(
+      column: $table.audioLengthMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get binding => $composableBuilder(
+      column: $table.binding, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contributorsJson => $composableBuilder(
+      column: $table.contributorsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionStatement => $composableBuilder(
+      column: $table.editionStatement,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get isbn => $composableBuilder(
+      column: $table.isbn, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imprint => $composableBuilder(
+      column: $table.imprint, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get upc => $composableBuilder(
+      column: $table.upc, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dimensions => $composableBuilder(
+      column: $table.dimensions, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get firstEdition => $composableBuilder(
+      column: $table.firstEdition,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantsJson => $composableBuilder(
+      column: $table.variantsJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$BookReleaseRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BookReleaseRowsTable> {
+  $$BookReleaseRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get mediaId =>
+      $composableBuilder(column: $table.mediaId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get workId =>
+      $composableBuilder(column: $table.workId, builder: (column) => column);
+
+  GeneratedColumn<String> get titleValue => $composableBuilder(
+      column: $table.titleValue, builder: (column) => column);
+
+  GeneratedColumn<String> get displayTitle => $composableBuilder(
+      column: $table.displayTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get ageRating =>
+      $composableBuilder(column: $table.ageRating, builder: (column) => column);
+
+  GeneratedColumn<int> get audioLengthMinutes => $composableBuilder(
+      column: $table.audioLengthMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get binding =>
+      $composableBuilder(column: $table.binding, builder: (column) => column);
+
+  GeneratedColumn<String> get contributorsJson => $composableBuilder(
+      column: $table.contributorsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => column);
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get editionStatement => $composableBuilder(
+      column: $table.editionStatement, builder: (column) => column);
+
+  GeneratedColumn<String> get isbn =>
+      $composableBuilder(column: $table.isbn, builder: (column) => column);
+
+  GeneratedColumn<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get imprint =>
+      $composableBuilder(column: $table.imprint, builder: (column) => column);
+
+  GeneratedColumn<String> get upc =>
+      $composableBuilder(column: $table.upc, builder: (column) => column);
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get region =>
+      $composableBuilder(column: $table.region, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseStatus => $composableBuilder(
+      column: $table.releaseStatus, builder: (column) => column);
+
+  GeneratedColumn<String> get physicalFormat => $composableBuilder(
+      column: $table.physicalFormat, builder: (column) => column);
+
+  GeneratedColumn<String> get physicalFormatLabel => $composableBuilder(
+      column: $table.physicalFormatLabel, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get dimensions => $composableBuilder(
+      column: $table.dimensions, builder: (column) => column);
+
+  GeneratedColumn<bool> get firstEdition => $composableBuilder(
+      column: $table.firstEdition, builder: (column) => column);
+
+  GeneratedColumn<String> get variantsJson => $composableBuilder(
+      column: $table.variantsJson, builder: (column) => column);
+}
+
+class $$BookReleaseRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BookReleaseRowsTable,
+    BookReleaseRow,
+    $$BookReleaseRowsTableFilterComposer,
+    $$BookReleaseRowsTableOrderingComposer,
+    $$BookReleaseRowsTableAnnotationComposer,
+    $$BookReleaseRowsTableCreateCompanionBuilder,
+    $$BookReleaseRowsTableUpdateCompanionBuilder,
+    (
+      BookReleaseRow,
+      BaseReferences<_$LocalDatabase, $BookReleaseRowsTable, BookReleaseRow>
+    ),
+    BookReleaseRow,
+    PrefetchHooks Function()> {
+  $$BookReleaseRowsTableTableManager(
+      _$LocalDatabase db, $BookReleaseRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BookReleaseRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BookReleaseRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BookReleaseRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> mediaId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> workId = const Value.absent(),
+            Value<String?> titleValue = const Value.absent(),
+            Value<String?> displayTitle = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<int?> audioLengthMinutes = const Value.absent(),
+            Value<String?> binding = const Value.absent(),
+            Value<String> contributorsJson = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> editionStatement = const Value.absent(),
+            Value<String?> isbn = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String?> imprint = const Value.absent(),
+            Value<String?> upc = const Value.absent(),
+            Value<int?> pageCount = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> releaseStatus = const Value.absent(),
+            Value<String?> physicalFormat = const Value.absent(),
+            Value<String?> physicalFormatLabel = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> thumbnailImageUrl = const Value.absent(),
+            Value<String?> dimensions = const Value.absent(),
+            Value<bool?> firstEdition = const Value.absent(),
+            Value<String> variantsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookReleaseRowsCompanion(
+            mediaId: mediaId,
+            id: id,
+            title: title,
+            workId: workId,
+            titleValue: titleValue,
+            displayTitle: displayTitle,
+            ageRating: ageRating,
+            audioLengthMinutes: audioLengthMinutes,
+            binding: binding,
+            contributorsJson: contributorsJson,
+            coverImageKey: coverImageKey,
+            publisher: publisher,
+            distributor: distributor,
+            description: description,
+            editionStatement: editionStatement,
+            isbn: isbn,
+            identifiersJson: identifiersJson,
+            imprint: imprint,
+            upc: upc,
+            pageCount: pageCount,
+            language: language,
+            region: region,
+            releaseDate: releaseDate,
+            releaseStatus: releaseStatus,
+            physicalFormat: physicalFormat,
+            physicalFormatLabel: physicalFormatLabel,
+            coverImageUrl: coverImageUrl,
+            thumbnailImageUrl: thumbnailImageUrl,
+            dimensions: dimensions,
+            firstEdition: firstEdition,
+            variantsJson: variantsJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String mediaId,
+            required String id,
+            required String title,
+            Value<String?> workId = const Value.absent(),
+            Value<String?> titleValue = const Value.absent(),
+            Value<String?> displayTitle = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<int?> audioLengthMinutes = const Value.absent(),
+            Value<String?> binding = const Value.absent(),
+            Value<String> contributorsJson = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> editionStatement = const Value.absent(),
+            Value<String?> isbn = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String?> imprint = const Value.absent(),
+            Value<String?> upc = const Value.absent(),
+            Value<int?> pageCount = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> releaseStatus = const Value.absent(),
+            Value<String?> physicalFormat = const Value.absent(),
+            Value<String?> physicalFormatLabel = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> thumbnailImageUrl = const Value.absent(),
+            Value<String?> dimensions = const Value.absent(),
+            Value<bool?> firstEdition = const Value.absent(),
+            Value<String> variantsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookReleaseRowsCompanion.insert(
+            mediaId: mediaId,
+            id: id,
+            title: title,
+            workId: workId,
+            titleValue: titleValue,
+            displayTitle: displayTitle,
+            ageRating: ageRating,
+            audioLengthMinutes: audioLengthMinutes,
+            binding: binding,
+            contributorsJson: contributorsJson,
+            coverImageKey: coverImageKey,
+            publisher: publisher,
+            distributor: distributor,
+            description: description,
+            editionStatement: editionStatement,
+            isbn: isbn,
+            identifiersJson: identifiersJson,
+            imprint: imprint,
+            upc: upc,
+            pageCount: pageCount,
+            language: language,
+            region: region,
+            releaseDate: releaseDate,
+            releaseStatus: releaseStatus,
+            physicalFormat: physicalFormat,
+            physicalFormatLabel: physicalFormatLabel,
+            coverImageUrl: coverImageUrl,
+            thumbnailImageUrl: thumbnailImageUrl,
+            dimensions: dimensions,
+            firstEdition: firstEdition,
+            variantsJson: variantsJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BookReleaseRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $BookReleaseRowsTable,
+    BookReleaseRow,
+    $$BookReleaseRowsTableFilterComposer,
+    $$BookReleaseRowsTableOrderingComposer,
+    $$BookReleaseRowsTableAnnotationComposer,
+    $$BookReleaseRowsTableCreateCompanionBuilder,
+    $$BookReleaseRowsTableUpdateCompanionBuilder,
+    (
+      BookReleaseRow,
+      BaseReferences<_$LocalDatabase, $BookReleaseRowsTable, BookReleaseRow>
+    ),
+    BookReleaseRow,
+    PrefetchHooks Function()>;
+typedef $$BookOwnedDetailsRowsTableCreateCompanionBuilder
+    = BookOwnedDetailsRowsCompanion Function({
+  required String ownedItemId,
+  Value<String?> signedBy,
+  Value<bool> dustJacketPresent,
+  Value<String?> dustJacketCondition,
+  Value<int> rowid,
+});
+typedef $$BookOwnedDetailsRowsTableUpdateCompanionBuilder
+    = BookOwnedDetailsRowsCompanion Function({
+  Value<String> ownedItemId,
+  Value<String?> signedBy,
+  Value<bool> dustJacketPresent,
+  Value<String?> dustJacketCondition,
+  Value<int> rowid,
+});
+
+class $$BookOwnedDetailsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BookOwnedDetailsRowsTable> {
+  $$BookOwnedDetailsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get dustJacketPresent => $composableBuilder(
+      column: $table.dustJacketPresent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dustJacketCondition => $composableBuilder(
+      column: $table.dustJacketCondition,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$BookOwnedDetailsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BookOwnedDetailsRowsTable> {
+  $$BookOwnedDetailsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get dustJacketPresent => $composableBuilder(
+      column: $table.dustJacketPresent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dustJacketCondition => $composableBuilder(
+      column: $table.dustJacketCondition,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$BookOwnedDetailsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BookOwnedDetailsRowsTable> {
+  $$BookOwnedDetailsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get signedBy =>
+      $composableBuilder(column: $table.signedBy, builder: (column) => column);
+
+  GeneratedColumn<bool> get dustJacketPresent => $composableBuilder(
+      column: $table.dustJacketPresent, builder: (column) => column);
+
+  GeneratedColumn<String> get dustJacketCondition => $composableBuilder(
+      column: $table.dustJacketCondition, builder: (column) => column);
+}
+
+class $$BookOwnedDetailsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BookOwnedDetailsRowsTable,
+    BookOwnedDetailsRow,
+    $$BookOwnedDetailsRowsTableFilterComposer,
+    $$BookOwnedDetailsRowsTableOrderingComposer,
+    $$BookOwnedDetailsRowsTableAnnotationComposer,
+    $$BookOwnedDetailsRowsTableCreateCompanionBuilder,
+    $$BookOwnedDetailsRowsTableUpdateCompanionBuilder,
+    (
+      BookOwnedDetailsRow,
+      BaseReferences<_$LocalDatabase, $BookOwnedDetailsRowsTable,
+          BookOwnedDetailsRow>
+    ),
+    BookOwnedDetailsRow,
+    PrefetchHooks Function()> {
+  $$BookOwnedDetailsRowsTableTableManager(
+      _$LocalDatabase db, $BookOwnedDetailsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BookOwnedDetailsRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BookOwnedDetailsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BookOwnedDetailsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> dustJacketPresent = const Value.absent(),
+            Value<String?> dustJacketCondition = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookOwnedDetailsRowsCompanion(
+            ownedItemId: ownedItemId,
+            signedBy: signedBy,
+            dustJacketPresent: dustJacketPresent,
+            dustJacketCondition: dustJacketCondition,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String ownedItemId,
+            Value<String?> signedBy = const Value.absent(),
+            Value<bool> dustJacketPresent = const Value.absent(),
+            Value<String?> dustJacketCondition = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookOwnedDetailsRowsCompanion.insert(
+            ownedItemId: ownedItemId,
+            signedBy: signedBy,
+            dustJacketPresent: dustJacketPresent,
+            dustJacketCondition: dustJacketCondition,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BookOwnedDetailsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $BookOwnedDetailsRowsTable,
+        BookOwnedDetailsRow,
+        $$BookOwnedDetailsRowsTableFilterComposer,
+        $$BookOwnedDetailsRowsTableOrderingComposer,
+        $$BookOwnedDetailsRowsTableAnnotationComposer,
+        $$BookOwnedDetailsRowsTableCreateCompanionBuilder,
+        $$BookOwnedDetailsRowsTableUpdateCompanionBuilder,
+        (
+          BookOwnedDetailsRow,
+          BaseReferences<_$LocalDatabase, $BookOwnedDetailsRowsTable,
+              BookOwnedDetailsRow>
+        ),
+        BookOwnedDetailsRow,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -24820,4 +28300,10 @@ class $LocalDatabaseManager {
       $$MangaMediaRowsTableTableManager(_db, _db.mangaMediaRows);
   $$MangaOwnedDetailsRowsTableTableManager get mangaOwnedDetailsRows =>
       $$MangaOwnedDetailsRowsTableTableManager(_db, _db.mangaOwnedDetailsRows);
+  $$BookMediaRowsTableTableManager get bookMediaRows =>
+      $$BookMediaRowsTableTableManager(_db, _db.bookMediaRows);
+  $$BookReleaseRowsTableTableManager get bookReleaseRows =>
+      $$BookReleaseRowsTableTableManager(_db, _db.bookReleaseRows);
+  $$BookOwnedDetailsRowsTableTableManager get bookOwnedDetailsRows =>
+      $$BookOwnedDetailsRowsTableTableManager(_db, _db.bookOwnedDetailsRows);
 }
