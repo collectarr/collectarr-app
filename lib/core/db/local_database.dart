@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/local/board
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
 
 part 'local_database.g.dart';
 
@@ -411,13 +412,16 @@ class ProviderItemLinksCache extends Table {
   BoardGameEditionRows,
   BoardGameOwnedDetailsRows,
   BoardGamePlaySessionsRows,
+  MovieMediaRows,
+  MovieReleaseRows,
+  MovieOwnedDetailsRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration {
@@ -469,6 +473,11 @@ class LocalDatabase extends _$LocalDatabase {
         }
         if (from < 16) {
           await m.createTable(boardGamePlaySessionsRows);
+        }
+        if (from < 17) {
+          await m.createTable(movieMediaRows);
+          await m.createTable(movieReleaseRows);
+          await m.createTable(movieOwnedDetailsRows);
         } else {
           await _destructiveRebuild(m);
         }

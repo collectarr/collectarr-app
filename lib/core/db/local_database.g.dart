@@ -24168,6 +24168,2037 @@ class BoardGamePlaySessionsRowsCompanion
   }
 }
 
+class $MovieMediaRowsTable extends MovieMediaRows
+    with TableInfo<$MovieMediaRowsTable, MovieMediaRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MovieMediaRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortTitleMeta =
+      const VerificationMeta('sortTitle');
+  @override
+  late final GeneratedColumn<String> sortTitle = GeneratedColumn<String>(
+      'sort_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _originalLanguageMeta =
+      const VerificationMeta('originalLanguage');
+  @override
+  late final GeneratedColumn<String> originalLanguage = GeneratedColumn<String>(
+      'original_language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ageRatingMeta =
+      const VerificationMeta('ageRating');
+  @override
+  late final GeneratedColumn<String> ageRating = GeneratedColumn<String>(
+      'age_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _audienceRatingMeta =
+      const VerificationMeta('audienceRating');
+  @override
+  late final GeneratedColumn<String> audienceRating = GeneratedColumn<String>(
+      'audience_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _runtimeMinutesMeta =
+      const VerificationMeta('runtimeMinutes');
+  @override
+  late final GeneratedColumn<int> runtimeMinutes = GeneratedColumn<int>(
+      'runtime_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _subtitleMeta =
+      const VerificationMeta('subtitle');
+  @override
+  late final GeneratedColumn<String> subtitle = GeneratedColumn<String>(
+      'subtitle', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _characterAppearancesJsonMeta =
+      const VerificationMeta('characterAppearancesJson');
+  @override
+  late final GeneratedColumn<String> characterAppearancesJson =
+      GeneratedColumn<String>('character_appearances_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _contributionsJsonMeta =
+      const VerificationMeta('contributionsJson');
+  @override
+  late final GeneratedColumn<String> contributionsJson =
+      GeneratedColumn<String>('contributions_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _externalLinksJsonMeta =
+      const VerificationMeta('externalLinksJson');
+  @override
+  late final GeneratedColumn<String> externalLinksJson =
+      GeneratedColumn<String>('external_links_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _identifiersJsonMeta =
+      const VerificationMeta('identifiersJson');
+  @override
+  late final GeneratedColumn<String> identifiersJson = GeneratedColumn<String>(
+      'identifiers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _trailerUrlsJsonMeta =
+      const VerificationMeta('trailerUrlsJson');
+  @override
+  late final GeneratedColumn<String> trailerUrlsJson = GeneratedColumn<String>(
+      'trailer_urls_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        sortTitle,
+        description,
+        releaseDate,
+        originalLanguage,
+        ageRating,
+        audienceRating,
+        runtimeMinutes,
+        subtitle,
+        characterAppearancesJson,
+        contributionsJson,
+        externalLinksJson,
+        identifiersJson,
+        trailerUrlsJson,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'movie_media_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MovieMediaRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('sort_title')) {
+      context.handle(_sortTitleMeta,
+          sortTitle.isAcceptableOrUnknown(data['sort_title']!, _sortTitleMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('original_language')) {
+      context.handle(
+          _originalLanguageMeta,
+          originalLanguage.isAcceptableOrUnknown(
+              data['original_language']!, _originalLanguageMeta));
+    }
+    if (data.containsKey('age_rating')) {
+      context.handle(_ageRatingMeta,
+          ageRating.isAcceptableOrUnknown(data['age_rating']!, _ageRatingMeta));
+    }
+    if (data.containsKey('audience_rating')) {
+      context.handle(
+          _audienceRatingMeta,
+          audienceRating.isAcceptableOrUnknown(
+              data['audience_rating']!, _audienceRatingMeta));
+    }
+    if (data.containsKey('runtime_minutes')) {
+      context.handle(
+          _runtimeMinutesMeta,
+          runtimeMinutes.isAcceptableOrUnknown(
+              data['runtime_minutes']!, _runtimeMinutesMeta));
+    }
+    if (data.containsKey('subtitle')) {
+      context.handle(_subtitleMeta,
+          subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta));
+    }
+    if (data.containsKey('character_appearances_json')) {
+      context.handle(
+          _characterAppearancesJsonMeta,
+          characterAppearancesJson.isAcceptableOrUnknown(
+              data['character_appearances_json']!,
+              _characterAppearancesJsonMeta));
+    }
+    if (data.containsKey('contributions_json')) {
+      context.handle(
+          _contributionsJsonMeta,
+          contributionsJson.isAcceptableOrUnknown(
+              data['contributions_json']!, _contributionsJsonMeta));
+    }
+    if (data.containsKey('external_links_json')) {
+      context.handle(
+          _externalLinksJsonMeta,
+          externalLinksJson.isAcceptableOrUnknown(
+              data['external_links_json']!, _externalLinksJsonMeta));
+    }
+    if (data.containsKey('identifiers_json')) {
+      context.handle(
+          _identifiersJsonMeta,
+          identifiersJson.isAcceptableOrUnknown(
+              data['identifiers_json']!, _identifiersJsonMeta));
+    }
+    if (data.containsKey('trailer_urls_json')) {
+      context.handle(
+          _trailerUrlsJsonMeta,
+          trailerUrlsJson.isAcceptableOrUnknown(
+              data['trailer_urls_json']!, _trailerUrlsJsonMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MovieMediaRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MovieMediaRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      sortTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_title']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      originalLanguage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}original_language']),
+      ageRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}age_rating']),
+      audienceRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}audience_rating']),
+      runtimeMinutes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}runtime_minutes']),
+      subtitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subtitle']),
+      characterAppearancesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}character_appearances_json'])!,
+      contributionsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}contributions_json'])!,
+      externalLinksJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}external_links_json'])!,
+      identifiersJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}identifiers_json'])!,
+      trailerUrlsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}trailer_urls_json'])!,
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $MovieMediaRowsTable createAlias(String alias) {
+    return $MovieMediaRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MovieMediaRow extends DataClass implements Insertable<MovieMediaRow> {
+  final String id;
+  final String title;
+  final String? sortTitle;
+  final String? description;
+  final DateTime? releaseDate;
+  final String? originalLanguage;
+  final String? ageRating;
+  final String? audienceRating;
+  final int? runtimeMinutes;
+  final String? subtitle;
+  final String characterAppearancesJson;
+  final String contributionsJson;
+  final String externalLinksJson;
+  final String identifiersJson;
+  final String trailerUrlsJson;
+  final String rawPayloadJson;
+  const MovieMediaRow(
+      {required this.id,
+      required this.title,
+      this.sortTitle,
+      this.description,
+      this.releaseDate,
+      this.originalLanguage,
+      this.ageRating,
+      this.audienceRating,
+      this.runtimeMinutes,
+      this.subtitle,
+      required this.characterAppearancesJson,
+      required this.contributionsJson,
+      required this.externalLinksJson,
+      required this.identifiersJson,
+      required this.trailerUrlsJson,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || sortTitle != null) {
+      map['sort_title'] = Variable<String>(sortTitle);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || originalLanguage != null) {
+      map['original_language'] = Variable<String>(originalLanguage);
+    }
+    if (!nullToAbsent || ageRating != null) {
+      map['age_rating'] = Variable<String>(ageRating);
+    }
+    if (!nullToAbsent || audienceRating != null) {
+      map['audience_rating'] = Variable<String>(audienceRating);
+    }
+    if (!nullToAbsent || runtimeMinutes != null) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes);
+    }
+    if (!nullToAbsent || subtitle != null) {
+      map['subtitle'] = Variable<String>(subtitle);
+    }
+    map['character_appearances_json'] =
+        Variable<String>(characterAppearancesJson);
+    map['contributions_json'] = Variable<String>(contributionsJson);
+    map['external_links_json'] = Variable<String>(externalLinksJson);
+    map['identifiers_json'] = Variable<String>(identifiersJson);
+    map['trailer_urls_json'] = Variable<String>(trailerUrlsJson);
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  MovieMediaRowsCompanion toCompanion(bool nullToAbsent) {
+    return MovieMediaRowsCompanion(
+      id: Value(id),
+      title: Value(title),
+      sortTitle: sortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortTitle),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      originalLanguage: originalLanguage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalLanguage),
+      ageRating: ageRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ageRating),
+      audienceRating: audienceRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audienceRating),
+      runtimeMinutes: runtimeMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(runtimeMinutes),
+      subtitle: subtitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitle),
+      characterAppearancesJson: Value(characterAppearancesJson),
+      contributionsJson: Value(contributionsJson),
+      externalLinksJson: Value(externalLinksJson),
+      identifiersJson: Value(identifiersJson),
+      trailerUrlsJson: Value(trailerUrlsJson),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory MovieMediaRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MovieMediaRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      sortTitle: serializer.fromJson<String?>(json['sortTitle']),
+      description: serializer.fromJson<String?>(json['description']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      originalLanguage: serializer.fromJson<String?>(json['originalLanguage']),
+      ageRating: serializer.fromJson<String?>(json['ageRating']),
+      audienceRating: serializer.fromJson<String?>(json['audienceRating']),
+      runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
+      subtitle: serializer.fromJson<String?>(json['subtitle']),
+      characterAppearancesJson:
+          serializer.fromJson<String>(json['characterAppearancesJson']),
+      contributionsJson: serializer.fromJson<String>(json['contributionsJson']),
+      externalLinksJson: serializer.fromJson<String>(json['externalLinksJson']),
+      identifiersJson: serializer.fromJson<String>(json['identifiersJson']),
+      trailerUrlsJson: serializer.fromJson<String>(json['trailerUrlsJson']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'sortTitle': serializer.toJson<String?>(sortTitle),
+      'description': serializer.toJson<String?>(description),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'originalLanguage': serializer.toJson<String?>(originalLanguage),
+      'ageRating': serializer.toJson<String?>(ageRating),
+      'audienceRating': serializer.toJson<String?>(audienceRating),
+      'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
+      'subtitle': serializer.toJson<String?>(subtitle),
+      'characterAppearancesJson':
+          serializer.toJson<String>(characterAppearancesJson),
+      'contributionsJson': serializer.toJson<String>(contributionsJson),
+      'externalLinksJson': serializer.toJson<String>(externalLinksJson),
+      'identifiersJson': serializer.toJson<String>(identifiersJson),
+      'trailerUrlsJson': serializer.toJson<String>(trailerUrlsJson),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  MovieMediaRow copyWith(
+          {String? id,
+          String? title,
+          Value<String?> sortTitle = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          Value<String?> originalLanguage = const Value.absent(),
+          Value<String?> ageRating = const Value.absent(),
+          Value<String?> audienceRating = const Value.absent(),
+          Value<int?> runtimeMinutes = const Value.absent(),
+          Value<String?> subtitle = const Value.absent(),
+          String? characterAppearancesJson,
+          String? contributionsJson,
+          String? externalLinksJson,
+          String? identifiersJson,
+          String? trailerUrlsJson,
+          String? rawPayloadJson}) =>
+      MovieMediaRow(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        sortTitle: sortTitle.present ? sortTitle.value : this.sortTitle,
+        description: description.present ? description.value : this.description,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        originalLanguage: originalLanguage.present
+            ? originalLanguage.value
+            : this.originalLanguage,
+        ageRating: ageRating.present ? ageRating.value : this.ageRating,
+        audienceRating:
+            audienceRating.present ? audienceRating.value : this.audienceRating,
+        runtimeMinutes:
+            runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
+        subtitle: subtitle.present ? subtitle.value : this.subtitle,
+        characterAppearancesJson:
+            characterAppearancesJson ?? this.characterAppearancesJson,
+        contributionsJson: contributionsJson ?? this.contributionsJson,
+        externalLinksJson: externalLinksJson ?? this.externalLinksJson,
+        identifiersJson: identifiersJson ?? this.identifiersJson,
+        trailerUrlsJson: trailerUrlsJson ?? this.trailerUrlsJson,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  MovieMediaRow copyWithCompanion(MovieMediaRowsCompanion data) {
+    return MovieMediaRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      sortTitle: data.sortTitle.present ? data.sortTitle.value : this.sortTitle,
+      description:
+          data.description.present ? data.description.value : this.description,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      originalLanguage: data.originalLanguage.present
+          ? data.originalLanguage.value
+          : this.originalLanguage,
+      ageRating: data.ageRating.present ? data.ageRating.value : this.ageRating,
+      audienceRating: data.audienceRating.present
+          ? data.audienceRating.value
+          : this.audienceRating,
+      runtimeMinutes: data.runtimeMinutes.present
+          ? data.runtimeMinutes.value
+          : this.runtimeMinutes,
+      subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
+      characterAppearancesJson: data.characterAppearancesJson.present
+          ? data.characterAppearancesJson.value
+          : this.characterAppearancesJson,
+      contributionsJson: data.contributionsJson.present
+          ? data.contributionsJson.value
+          : this.contributionsJson,
+      externalLinksJson: data.externalLinksJson.present
+          ? data.externalLinksJson.value
+          : this.externalLinksJson,
+      identifiersJson: data.identifiersJson.present
+          ? data.identifiersJson.value
+          : this.identifiersJson,
+      trailerUrlsJson: data.trailerUrlsJson.present
+          ? data.trailerUrlsJson.value
+          : this.trailerUrlsJson,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MovieMediaRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('audienceRating: $audienceRating, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('characterAppearancesJson: $characterAppearancesJson, ')
+          ..write('contributionsJson: $contributionsJson, ')
+          ..write('externalLinksJson: $externalLinksJson, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('trailerUrlsJson: $trailerUrlsJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      title,
+      sortTitle,
+      description,
+      releaseDate,
+      originalLanguage,
+      ageRating,
+      audienceRating,
+      runtimeMinutes,
+      subtitle,
+      characterAppearancesJson,
+      contributionsJson,
+      externalLinksJson,
+      identifiersJson,
+      trailerUrlsJson,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MovieMediaRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.sortTitle == this.sortTitle &&
+          other.description == this.description &&
+          other.releaseDate == this.releaseDate &&
+          other.originalLanguage == this.originalLanguage &&
+          other.ageRating == this.ageRating &&
+          other.audienceRating == this.audienceRating &&
+          other.runtimeMinutes == this.runtimeMinutes &&
+          other.subtitle == this.subtitle &&
+          other.characterAppearancesJson == this.characterAppearancesJson &&
+          other.contributionsJson == this.contributionsJson &&
+          other.externalLinksJson == this.externalLinksJson &&
+          other.identifiersJson == this.identifiersJson &&
+          other.trailerUrlsJson == this.trailerUrlsJson &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class MovieMediaRowsCompanion extends UpdateCompanion<MovieMediaRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> sortTitle;
+  final Value<String?> description;
+  final Value<DateTime?> releaseDate;
+  final Value<String?> originalLanguage;
+  final Value<String?> ageRating;
+  final Value<String?> audienceRating;
+  final Value<int?> runtimeMinutes;
+  final Value<String?> subtitle;
+  final Value<String> characterAppearancesJson;
+  final Value<String> contributionsJson;
+  final Value<String> externalLinksJson;
+  final Value<String> identifiersJson;
+  final Value<String> trailerUrlsJson;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const MovieMediaRowsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.audienceRating = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.characterAppearancesJson = const Value.absent(),
+    this.contributionsJson = const Value.absent(),
+    this.externalLinksJson = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.trailerUrlsJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MovieMediaRowsCompanion.insert({
+    required String id,
+    required String title,
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.ageRating = const Value.absent(),
+    this.audienceRating = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.characterAppearancesJson = const Value.absent(),
+    this.contributionsJson = const Value.absent(),
+    this.externalLinksJson = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.trailerUrlsJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title);
+  static Insertable<MovieMediaRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? sortTitle,
+    Expression<String>? description,
+    Expression<DateTime>? releaseDate,
+    Expression<String>? originalLanguage,
+    Expression<String>? ageRating,
+    Expression<String>? audienceRating,
+    Expression<int>? runtimeMinutes,
+    Expression<String>? subtitle,
+    Expression<String>? characterAppearancesJson,
+    Expression<String>? contributionsJson,
+    Expression<String>? externalLinksJson,
+    Expression<String>? identifiersJson,
+    Expression<String>? trailerUrlsJson,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (description != null) 'description': description,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (originalLanguage != null) 'original_language': originalLanguage,
+      if (ageRating != null) 'age_rating': ageRating,
+      if (audienceRating != null) 'audience_rating': audienceRating,
+      if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (characterAppearancesJson != null)
+        'character_appearances_json': characterAppearancesJson,
+      if (contributionsJson != null) 'contributions_json': contributionsJson,
+      if (externalLinksJson != null) 'external_links_json': externalLinksJson,
+      if (identifiersJson != null) 'identifiers_json': identifiersJson,
+      if (trailerUrlsJson != null) 'trailer_urls_json': trailerUrlsJson,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MovieMediaRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<String?>? sortTitle,
+      Value<String?>? description,
+      Value<DateTime?>? releaseDate,
+      Value<String?>? originalLanguage,
+      Value<String?>? ageRating,
+      Value<String?>? audienceRating,
+      Value<int?>? runtimeMinutes,
+      Value<String?>? subtitle,
+      Value<String>? characterAppearancesJson,
+      Value<String>? contributionsJson,
+      Value<String>? externalLinksJson,
+      Value<String>? identifiersJson,
+      Value<String>? trailerUrlsJson,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return MovieMediaRowsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      sortTitle: sortTitle ?? this.sortTitle,
+      description: description ?? this.description,
+      releaseDate: releaseDate ?? this.releaseDate,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
+      ageRating: ageRating ?? this.ageRating,
+      audienceRating: audienceRating ?? this.audienceRating,
+      runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      subtitle: subtitle ?? this.subtitle,
+      characterAppearancesJson:
+          characterAppearancesJson ?? this.characterAppearancesJson,
+      contributionsJson: contributionsJson ?? this.contributionsJson,
+      externalLinksJson: externalLinksJson ?? this.externalLinksJson,
+      identifiersJson: identifiersJson ?? this.identifiersJson,
+      trailerUrlsJson: trailerUrlsJson ?? this.trailerUrlsJson,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (sortTitle.present) {
+      map['sort_title'] = Variable<String>(sortTitle.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (originalLanguage.present) {
+      map['original_language'] = Variable<String>(originalLanguage.value);
+    }
+    if (ageRating.present) {
+      map['age_rating'] = Variable<String>(ageRating.value);
+    }
+    if (audienceRating.present) {
+      map['audience_rating'] = Variable<String>(audienceRating.value);
+    }
+    if (runtimeMinutes.present) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes.value);
+    }
+    if (subtitle.present) {
+      map['subtitle'] = Variable<String>(subtitle.value);
+    }
+    if (characterAppearancesJson.present) {
+      map['character_appearances_json'] =
+          Variable<String>(characterAppearancesJson.value);
+    }
+    if (contributionsJson.present) {
+      map['contributions_json'] = Variable<String>(contributionsJson.value);
+    }
+    if (externalLinksJson.present) {
+      map['external_links_json'] = Variable<String>(externalLinksJson.value);
+    }
+    if (identifiersJson.present) {
+      map['identifiers_json'] = Variable<String>(identifiersJson.value);
+    }
+    if (trailerUrlsJson.present) {
+      map['trailer_urls_json'] = Variable<String>(trailerUrlsJson.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MovieMediaRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('ageRating: $ageRating, ')
+          ..write('audienceRating: $audienceRating, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('characterAppearancesJson: $characterAppearancesJson, ')
+          ..write('contributionsJson: $contributionsJson, ')
+          ..write('externalLinksJson: $externalLinksJson, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('trailerUrlsJson: $trailerUrlsJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MovieReleaseRowsTable extends MovieReleaseRows
+    with TableInfo<$MovieReleaseRowsTable, MovieReleaseRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MovieReleaseRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mediaIdMeta =
+      const VerificationMeta('mediaId');
+  @override
+  late final GeneratedColumn<String> mediaId = GeneratedColumn<String>(
+      'media_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _workIdMeta = const VerificationMeta('workId');
+  @override
+  late final GeneratedColumn<String> workId = GeneratedColumn<String>(
+      'work_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageKeyMeta =
+      const VerificationMeta('coverImageKey');
+  @override
+  late final GeneratedColumn<String> coverImageKey = GeneratedColumn<String>(
+      'cover_image_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageUrlMeta =
+      const VerificationMeta('coverImageUrl');
+  @override
+  late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
+      'cover_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _distributorMeta =
+      const VerificationMeta('distributor');
+  @override
+  late final GeneratedColumn<String> distributor = GeneratedColumn<String>(
+      'distributor', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _externalLinksJsonMeta =
+      const VerificationMeta('externalLinksJson');
+  @override
+  late final GeneratedColumn<String> externalLinksJson =
+      GeneratedColumn<String>('external_links_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _formatMeta = const VerificationMeta('format');
+  @override
+  late final GeneratedColumn<String> format = GeneratedColumn<String>(
+      'format', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _languageMeta =
+      const VerificationMeta('language');
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+      'language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _mediaJsonMeta =
+      const VerificationMeta('mediaJson');
+  @override
+  late final GeneratedColumn<String> mediaJson = GeneratedColumn<String>(
+      'media_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _regionMeta = const VerificationMeta('region');
+  @override
+  late final GeneratedColumn<String> region = GeneratedColumn<String>(
+      'region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _trailerUrlsJsonMeta =
+      const VerificationMeta('trailerUrlsJson');
+  @override
+  late final GeneratedColumn<String> trailerUrlsJson = GeneratedColumn<String>(
+      'trailer_urls_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        mediaId,
+        id,
+        title,
+        workId,
+        coverImageKey,
+        coverImageUrl,
+        description,
+        distributor,
+        externalLinksJson,
+        format,
+        language,
+        mediaJson,
+        region,
+        releaseDate,
+        trailerUrlsJson,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'movie_release_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MovieReleaseRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('media_id')) {
+      context.handle(_mediaIdMeta,
+          mediaId.isAcceptableOrUnknown(data['media_id']!, _mediaIdMeta));
+    } else if (isInserting) {
+      context.missing(_mediaIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('work_id')) {
+      context.handle(_workIdMeta,
+          workId.isAcceptableOrUnknown(data['work_id']!, _workIdMeta));
+    }
+    if (data.containsKey('cover_image_key')) {
+      context.handle(
+          _coverImageKeyMeta,
+          coverImageKey.isAcceptableOrUnknown(
+              data['cover_image_key']!, _coverImageKeyMeta));
+    }
+    if (data.containsKey('cover_image_url')) {
+      context.handle(
+          _coverImageUrlMeta,
+          coverImageUrl.isAcceptableOrUnknown(
+              data['cover_image_url']!, _coverImageUrlMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('distributor')) {
+      context.handle(
+          _distributorMeta,
+          distributor.isAcceptableOrUnknown(
+              data['distributor']!, _distributorMeta));
+    }
+    if (data.containsKey('external_links_json')) {
+      context.handle(
+          _externalLinksJsonMeta,
+          externalLinksJson.isAcceptableOrUnknown(
+              data['external_links_json']!, _externalLinksJsonMeta));
+    }
+    if (data.containsKey('format')) {
+      context.handle(_formatMeta,
+          format.isAcceptableOrUnknown(data['format']!, _formatMeta));
+    }
+    if (data.containsKey('language')) {
+      context.handle(_languageMeta,
+          language.isAcceptableOrUnknown(data['language']!, _languageMeta));
+    }
+    if (data.containsKey('media_json')) {
+      context.handle(_mediaJsonMeta,
+          mediaJson.isAcceptableOrUnknown(data['media_json']!, _mediaJsonMeta));
+    }
+    if (data.containsKey('region')) {
+      context.handle(_regionMeta,
+          region.isAcceptableOrUnknown(data['region']!, _regionMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('trailer_urls_json')) {
+      context.handle(
+          _trailerUrlsJsonMeta,
+          trailerUrlsJson.isAcceptableOrUnknown(
+              data['trailer_urls_json']!, _trailerUrlsJsonMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {mediaId, id};
+  @override
+  MovieReleaseRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MovieReleaseRow(
+      mediaId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      workId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}work_id']),
+      coverImageKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_key']),
+      coverImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      distributor: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}distributor']),
+      externalLinksJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}external_links_json'])!,
+      format: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}format']),
+      language: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language']),
+      mediaJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_json'])!,
+      region: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}region']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      trailerUrlsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}trailer_urls_json'])!,
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $MovieReleaseRowsTable createAlias(String alias) {
+    return $MovieReleaseRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MovieReleaseRow extends DataClass implements Insertable<MovieReleaseRow> {
+  final String mediaId;
+  final String id;
+  final String title;
+  final String? workId;
+  final String? coverImageKey;
+  final String? coverImageUrl;
+  final String? description;
+  final String? distributor;
+  final String externalLinksJson;
+  final String? format;
+  final String? language;
+  final String mediaJson;
+  final String? region;
+  final DateTime? releaseDate;
+  final String trailerUrlsJson;
+  final String rawPayloadJson;
+  const MovieReleaseRow(
+      {required this.mediaId,
+      required this.id,
+      required this.title,
+      this.workId,
+      this.coverImageKey,
+      this.coverImageUrl,
+      this.description,
+      this.distributor,
+      required this.externalLinksJson,
+      this.format,
+      this.language,
+      required this.mediaJson,
+      this.region,
+      this.releaseDate,
+      required this.trailerUrlsJson,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['media_id'] = Variable<String>(mediaId);
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || workId != null) {
+      map['work_id'] = Variable<String>(workId);
+    }
+    if (!nullToAbsent || coverImageKey != null) {
+      map['cover_image_key'] = Variable<String>(coverImageKey);
+    }
+    if (!nullToAbsent || coverImageUrl != null) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || distributor != null) {
+      map['distributor'] = Variable<String>(distributor);
+    }
+    map['external_links_json'] = Variable<String>(externalLinksJson);
+    if (!nullToAbsent || format != null) {
+      map['format'] = Variable<String>(format);
+    }
+    if (!nullToAbsent || language != null) {
+      map['language'] = Variable<String>(language);
+    }
+    map['media_json'] = Variable<String>(mediaJson);
+    if (!nullToAbsent || region != null) {
+      map['region'] = Variable<String>(region);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    map['trailer_urls_json'] = Variable<String>(trailerUrlsJson);
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  MovieReleaseRowsCompanion toCompanion(bool nullToAbsent) {
+    return MovieReleaseRowsCompanion(
+      mediaId: Value(mediaId),
+      id: Value(id),
+      title: Value(title),
+      workId:
+          workId == null && nullToAbsent ? const Value.absent() : Value(workId),
+      coverImageKey: coverImageKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageKey),
+      coverImageUrl: coverImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageUrl),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      distributor: distributor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(distributor),
+      externalLinksJson: Value(externalLinksJson),
+      format:
+          format == null && nullToAbsent ? const Value.absent() : Value(format),
+      language: language == null && nullToAbsent
+          ? const Value.absent()
+          : Value(language),
+      mediaJson: Value(mediaJson),
+      region:
+          region == null && nullToAbsent ? const Value.absent() : Value(region),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      trailerUrlsJson: Value(trailerUrlsJson),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory MovieReleaseRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MovieReleaseRow(
+      mediaId: serializer.fromJson<String>(json['mediaId']),
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      workId: serializer.fromJson<String?>(json['workId']),
+      coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
+      coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      description: serializer.fromJson<String?>(json['description']),
+      distributor: serializer.fromJson<String?>(json['distributor']),
+      externalLinksJson: serializer.fromJson<String>(json['externalLinksJson']),
+      format: serializer.fromJson<String?>(json['format']),
+      language: serializer.fromJson<String?>(json['language']),
+      mediaJson: serializer.fromJson<String>(json['mediaJson']),
+      region: serializer.fromJson<String?>(json['region']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      trailerUrlsJson: serializer.fromJson<String>(json['trailerUrlsJson']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'mediaId': serializer.toJson<String>(mediaId),
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'workId': serializer.toJson<String?>(workId),
+      'coverImageKey': serializer.toJson<String?>(coverImageKey),
+      'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'description': serializer.toJson<String?>(description),
+      'distributor': serializer.toJson<String?>(distributor),
+      'externalLinksJson': serializer.toJson<String>(externalLinksJson),
+      'format': serializer.toJson<String?>(format),
+      'language': serializer.toJson<String?>(language),
+      'mediaJson': serializer.toJson<String>(mediaJson),
+      'region': serializer.toJson<String?>(region),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'trailerUrlsJson': serializer.toJson<String>(trailerUrlsJson),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  MovieReleaseRow copyWith(
+          {String? mediaId,
+          String? id,
+          String? title,
+          Value<String?> workId = const Value.absent(),
+          Value<String?> coverImageKey = const Value.absent(),
+          Value<String?> coverImageUrl = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<String?> distributor = const Value.absent(),
+          String? externalLinksJson,
+          Value<String?> format = const Value.absent(),
+          Value<String?> language = const Value.absent(),
+          String? mediaJson,
+          Value<String?> region = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          String? trailerUrlsJson,
+          String? rawPayloadJson}) =>
+      MovieReleaseRow(
+        mediaId: mediaId ?? this.mediaId,
+        id: id ?? this.id,
+        title: title ?? this.title,
+        workId: workId.present ? workId.value : this.workId,
+        coverImageKey:
+            coverImageKey.present ? coverImageKey.value : this.coverImageKey,
+        coverImageUrl:
+            coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        description: description.present ? description.value : this.description,
+        distributor: distributor.present ? distributor.value : this.distributor,
+        externalLinksJson: externalLinksJson ?? this.externalLinksJson,
+        format: format.present ? format.value : this.format,
+        language: language.present ? language.value : this.language,
+        mediaJson: mediaJson ?? this.mediaJson,
+        region: region.present ? region.value : this.region,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        trailerUrlsJson: trailerUrlsJson ?? this.trailerUrlsJson,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  MovieReleaseRow copyWithCompanion(MovieReleaseRowsCompanion data) {
+    return MovieReleaseRow(
+      mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      workId: data.workId.present ? data.workId.value : this.workId,
+      coverImageKey: data.coverImageKey.present
+          ? data.coverImageKey.value
+          : this.coverImageKey,
+      coverImageUrl: data.coverImageUrl.present
+          ? data.coverImageUrl.value
+          : this.coverImageUrl,
+      description:
+          data.description.present ? data.description.value : this.description,
+      distributor:
+          data.distributor.present ? data.distributor.value : this.distributor,
+      externalLinksJson: data.externalLinksJson.present
+          ? data.externalLinksJson.value
+          : this.externalLinksJson,
+      format: data.format.present ? data.format.value : this.format,
+      language: data.language.present ? data.language.value : this.language,
+      mediaJson: data.mediaJson.present ? data.mediaJson.value : this.mediaJson,
+      region: data.region.present ? data.region.value : this.region,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      trailerUrlsJson: data.trailerUrlsJson.present
+          ? data.trailerUrlsJson.value
+          : this.trailerUrlsJson,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MovieReleaseRow(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('workId: $workId, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('description: $description, ')
+          ..write('distributor: $distributor, ')
+          ..write('externalLinksJson: $externalLinksJson, ')
+          ..write('format: $format, ')
+          ..write('language: $language, ')
+          ..write('mediaJson: $mediaJson, ')
+          ..write('region: $region, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('trailerUrlsJson: $trailerUrlsJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      mediaId,
+      id,
+      title,
+      workId,
+      coverImageKey,
+      coverImageUrl,
+      description,
+      distributor,
+      externalLinksJson,
+      format,
+      language,
+      mediaJson,
+      region,
+      releaseDate,
+      trailerUrlsJson,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MovieReleaseRow &&
+          other.mediaId == this.mediaId &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.workId == this.workId &&
+          other.coverImageKey == this.coverImageKey &&
+          other.coverImageUrl == this.coverImageUrl &&
+          other.description == this.description &&
+          other.distributor == this.distributor &&
+          other.externalLinksJson == this.externalLinksJson &&
+          other.format == this.format &&
+          other.language == this.language &&
+          other.mediaJson == this.mediaJson &&
+          other.region == this.region &&
+          other.releaseDate == this.releaseDate &&
+          other.trailerUrlsJson == this.trailerUrlsJson &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class MovieReleaseRowsCompanion extends UpdateCompanion<MovieReleaseRow> {
+  final Value<String> mediaId;
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> workId;
+  final Value<String?> coverImageKey;
+  final Value<String?> coverImageUrl;
+  final Value<String?> description;
+  final Value<String?> distributor;
+  final Value<String> externalLinksJson;
+  final Value<String?> format;
+  final Value<String?> language;
+  final Value<String> mediaJson;
+  final Value<String?> region;
+  final Value<DateTime?> releaseDate;
+  final Value<String> trailerUrlsJson;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const MovieReleaseRowsCompanion({
+    this.mediaId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.workId = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.description = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.externalLinksJson = const Value.absent(),
+    this.format = const Value.absent(),
+    this.language = const Value.absent(),
+    this.mediaJson = const Value.absent(),
+    this.region = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.trailerUrlsJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MovieReleaseRowsCompanion.insert({
+    required String mediaId,
+    required String id,
+    required String title,
+    this.workId = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.description = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.externalLinksJson = const Value.absent(),
+    this.format = const Value.absent(),
+    this.language = const Value.absent(),
+    this.mediaJson = const Value.absent(),
+    this.region = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.trailerUrlsJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : mediaId = Value(mediaId),
+        id = Value(id),
+        title = Value(title);
+  static Insertable<MovieReleaseRow> custom({
+    Expression<String>? mediaId,
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? workId,
+    Expression<String>? coverImageKey,
+    Expression<String>? coverImageUrl,
+    Expression<String>? description,
+    Expression<String>? distributor,
+    Expression<String>? externalLinksJson,
+    Expression<String>? format,
+    Expression<String>? language,
+    Expression<String>? mediaJson,
+    Expression<String>? region,
+    Expression<DateTime>? releaseDate,
+    Expression<String>? trailerUrlsJson,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (mediaId != null) 'media_id': mediaId,
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (workId != null) 'work_id': workId,
+      if (coverImageKey != null) 'cover_image_key': coverImageKey,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (description != null) 'description': description,
+      if (distributor != null) 'distributor': distributor,
+      if (externalLinksJson != null) 'external_links_json': externalLinksJson,
+      if (format != null) 'format': format,
+      if (language != null) 'language': language,
+      if (mediaJson != null) 'media_json': mediaJson,
+      if (region != null) 'region': region,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (trailerUrlsJson != null) 'trailer_urls_json': trailerUrlsJson,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MovieReleaseRowsCompanion copyWith(
+      {Value<String>? mediaId,
+      Value<String>? id,
+      Value<String>? title,
+      Value<String?>? workId,
+      Value<String?>? coverImageKey,
+      Value<String?>? coverImageUrl,
+      Value<String?>? description,
+      Value<String?>? distributor,
+      Value<String>? externalLinksJson,
+      Value<String?>? format,
+      Value<String?>? language,
+      Value<String>? mediaJson,
+      Value<String?>? region,
+      Value<DateTime?>? releaseDate,
+      Value<String>? trailerUrlsJson,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return MovieReleaseRowsCompanion(
+      mediaId: mediaId ?? this.mediaId,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      workId: workId ?? this.workId,
+      coverImageKey: coverImageKey ?? this.coverImageKey,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      description: description ?? this.description,
+      distributor: distributor ?? this.distributor,
+      externalLinksJson: externalLinksJson ?? this.externalLinksJson,
+      format: format ?? this.format,
+      language: language ?? this.language,
+      mediaJson: mediaJson ?? this.mediaJson,
+      region: region ?? this.region,
+      releaseDate: releaseDate ?? this.releaseDate,
+      trailerUrlsJson: trailerUrlsJson ?? this.trailerUrlsJson,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (mediaId.present) {
+      map['media_id'] = Variable<String>(mediaId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (workId.present) {
+      map['work_id'] = Variable<String>(workId.value);
+    }
+    if (coverImageKey.present) {
+      map['cover_image_key'] = Variable<String>(coverImageKey.value);
+    }
+    if (coverImageUrl.present) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (distributor.present) {
+      map['distributor'] = Variable<String>(distributor.value);
+    }
+    if (externalLinksJson.present) {
+      map['external_links_json'] = Variable<String>(externalLinksJson.value);
+    }
+    if (format.present) {
+      map['format'] = Variable<String>(format.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (mediaJson.present) {
+      map['media_json'] = Variable<String>(mediaJson.value);
+    }
+    if (region.present) {
+      map['region'] = Variable<String>(region.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (trailerUrlsJson.present) {
+      map['trailer_urls_json'] = Variable<String>(trailerUrlsJson.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MovieReleaseRowsCompanion(')
+          ..write('mediaId: $mediaId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('workId: $workId, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('description: $description, ')
+          ..write('distributor: $distributor, ')
+          ..write('externalLinksJson: $externalLinksJson, ')
+          ..write('format: $format, ')
+          ..write('language: $language, ')
+          ..write('mediaJson: $mediaJson, ')
+          ..write('region: $region, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('trailerUrlsJson: $trailerUrlsJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MovieOwnedDetailsRowsTable extends MovieOwnedDetailsRows
+    with TableInfo<$MovieOwnedDetailsRowsTable, MovieOwnedDetailsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MovieOwnedDetailsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _featuresMeta =
+      const VerificationMeta('features');
+  @override
+  late final GeneratedColumn<String> features = GeneratedColumn<String>(
+      'features', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _hdrFormatsJsonMeta =
+      const VerificationMeta('hdrFormatsJson');
+  @override
+  late final GeneratedColumn<String> hdrFormatsJson = GeneratedColumn<String>(
+      'hdr_formats_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _boxSetIdMeta =
+      const VerificationMeta('boxSetId');
+  @override
+  late final GeneratedColumn<String> boxSetId = GeneratedColumn<String>(
+      'box_set_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _boxSetNameMeta =
+      const VerificationMeta('boxSetName');
+  @override
+  late final GeneratedColumn<String> boxSetName = GeneratedColumn<String>(
+      'box_set_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _regionMeta = const VerificationMeta('region');
+  @override
+  late final GeneratedColumn<String> region = GeneratedColumn<String>(
+      'region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _packagingMeta =
+      const VerificationMeta('packaging');
+  @override
+  late final GeneratedColumn<String> packaging = GeneratedColumn<String>(
+      'packaging', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _distributorMeta =
+      const VerificationMeta('distributor');
+  @override
+  late final GeneratedColumn<String> distributor = GeneratedColumn<String>(
+      'distributor', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        ownedItemId,
+        features,
+        hdrFormatsJson,
+        boxSetId,
+        boxSetName,
+        region,
+        packaging,
+        distributor
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'movie_owned_details_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MovieOwnedDetailsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('features')) {
+      context.handle(_featuresMeta,
+          features.isAcceptableOrUnknown(data['features']!, _featuresMeta));
+    }
+    if (data.containsKey('hdr_formats_json')) {
+      context.handle(
+          _hdrFormatsJsonMeta,
+          hdrFormatsJson.isAcceptableOrUnknown(
+              data['hdr_formats_json']!, _hdrFormatsJsonMeta));
+    }
+    if (data.containsKey('box_set_id')) {
+      context.handle(_boxSetIdMeta,
+          boxSetId.isAcceptableOrUnknown(data['box_set_id']!, _boxSetIdMeta));
+    }
+    if (data.containsKey('box_set_name')) {
+      context.handle(
+          _boxSetNameMeta,
+          boxSetName.isAcceptableOrUnknown(
+              data['box_set_name']!, _boxSetNameMeta));
+    }
+    if (data.containsKey('region')) {
+      context.handle(_regionMeta,
+          region.isAcceptableOrUnknown(data['region']!, _regionMeta));
+    }
+    if (data.containsKey('packaging')) {
+      context.handle(_packagingMeta,
+          packaging.isAcceptableOrUnknown(data['packaging']!, _packagingMeta));
+    }
+    if (data.containsKey('distributor')) {
+      context.handle(
+          _distributorMeta,
+          distributor.isAcceptableOrUnknown(
+              data['distributor']!, _distributorMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  @override
+  MovieOwnedDetailsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MovieOwnedDetailsRow(
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      features: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}features']),
+      hdrFormatsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}hdr_formats_json'])!,
+      boxSetId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_id']),
+      boxSetName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_name']),
+      region: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}region']),
+      packaging: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}packaging']),
+      distributor: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}distributor']),
+    );
+  }
+
+  @override
+  $MovieOwnedDetailsRowsTable createAlias(String alias) {
+    return $MovieOwnedDetailsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MovieOwnedDetailsRow extends DataClass
+    implements Insertable<MovieOwnedDetailsRow> {
+  final String ownedItemId;
+  final String? features;
+  final String hdrFormatsJson;
+  final String? boxSetId;
+  final String? boxSetName;
+  final String? region;
+  final String? packaging;
+  final String? distributor;
+  const MovieOwnedDetailsRow(
+      {required this.ownedItemId,
+      this.features,
+      required this.hdrFormatsJson,
+      this.boxSetId,
+      this.boxSetName,
+      this.region,
+      this.packaging,
+      this.distributor});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || features != null) {
+      map['features'] = Variable<String>(features);
+    }
+    map['hdr_formats_json'] = Variable<String>(hdrFormatsJson);
+    if (!nullToAbsent || boxSetId != null) {
+      map['box_set_id'] = Variable<String>(boxSetId);
+    }
+    if (!nullToAbsent || boxSetName != null) {
+      map['box_set_name'] = Variable<String>(boxSetName);
+    }
+    if (!nullToAbsent || region != null) {
+      map['region'] = Variable<String>(region);
+    }
+    if (!nullToAbsent || packaging != null) {
+      map['packaging'] = Variable<String>(packaging);
+    }
+    if (!nullToAbsent || distributor != null) {
+      map['distributor'] = Variable<String>(distributor);
+    }
+    return map;
+  }
+
+  MovieOwnedDetailsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MovieOwnedDetailsRowsCompanion(
+      ownedItemId: Value(ownedItemId),
+      features: features == null && nullToAbsent
+          ? const Value.absent()
+          : Value(features),
+      hdrFormatsJson: Value(hdrFormatsJson),
+      boxSetId: boxSetId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetId),
+      boxSetName: boxSetName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetName),
+      region:
+          region == null && nullToAbsent ? const Value.absent() : Value(region),
+      packaging: packaging == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packaging),
+      distributor: distributor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(distributor),
+    );
+  }
+
+  factory MovieOwnedDetailsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MovieOwnedDetailsRow(
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      features: serializer.fromJson<String?>(json['features']),
+      hdrFormatsJson: serializer.fromJson<String>(json['hdrFormatsJson']),
+      boxSetId: serializer.fromJson<String?>(json['boxSetId']),
+      boxSetName: serializer.fromJson<String?>(json['boxSetName']),
+      region: serializer.fromJson<String?>(json['region']),
+      packaging: serializer.fromJson<String?>(json['packaging']),
+      distributor: serializer.fromJson<String?>(json['distributor']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'features': serializer.toJson<String?>(features),
+      'hdrFormatsJson': serializer.toJson<String>(hdrFormatsJson),
+      'boxSetId': serializer.toJson<String?>(boxSetId),
+      'boxSetName': serializer.toJson<String?>(boxSetName),
+      'region': serializer.toJson<String?>(region),
+      'packaging': serializer.toJson<String?>(packaging),
+      'distributor': serializer.toJson<String?>(distributor),
+    };
+  }
+
+  MovieOwnedDetailsRow copyWith(
+          {String? ownedItemId,
+          Value<String?> features = const Value.absent(),
+          String? hdrFormatsJson,
+          Value<String?> boxSetId = const Value.absent(),
+          Value<String?> boxSetName = const Value.absent(),
+          Value<String?> region = const Value.absent(),
+          Value<String?> packaging = const Value.absent(),
+          Value<String?> distributor = const Value.absent()}) =>
+      MovieOwnedDetailsRow(
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        features: features.present ? features.value : this.features,
+        hdrFormatsJson: hdrFormatsJson ?? this.hdrFormatsJson,
+        boxSetId: boxSetId.present ? boxSetId.value : this.boxSetId,
+        boxSetName: boxSetName.present ? boxSetName.value : this.boxSetName,
+        region: region.present ? region.value : this.region,
+        packaging: packaging.present ? packaging.value : this.packaging,
+        distributor: distributor.present ? distributor.value : this.distributor,
+      );
+  MovieOwnedDetailsRow copyWithCompanion(MovieOwnedDetailsRowsCompanion data) {
+    return MovieOwnedDetailsRow(
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      features: data.features.present ? data.features.value : this.features,
+      hdrFormatsJson: data.hdrFormatsJson.present
+          ? data.hdrFormatsJson.value
+          : this.hdrFormatsJson,
+      boxSetId: data.boxSetId.present ? data.boxSetId.value : this.boxSetId,
+      boxSetName:
+          data.boxSetName.present ? data.boxSetName.value : this.boxSetName,
+      region: data.region.present ? data.region.value : this.region,
+      packaging: data.packaging.present ? data.packaging.value : this.packaging,
+      distributor:
+          data.distributor.present ? data.distributor.value : this.distributor,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MovieOwnedDetailsRow(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('features: $features, ')
+          ..write('hdrFormatsJson: $hdrFormatsJson, ')
+          ..write('boxSetId: $boxSetId, ')
+          ..write('boxSetName: $boxSetName, ')
+          ..write('region: $region, ')
+          ..write('packaging: $packaging, ')
+          ..write('distributor: $distributor')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ownedItemId, features, hdrFormatsJson,
+      boxSetId, boxSetName, region, packaging, distributor);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MovieOwnedDetailsRow &&
+          other.ownedItemId == this.ownedItemId &&
+          other.features == this.features &&
+          other.hdrFormatsJson == this.hdrFormatsJson &&
+          other.boxSetId == this.boxSetId &&
+          other.boxSetName == this.boxSetName &&
+          other.region == this.region &&
+          other.packaging == this.packaging &&
+          other.distributor == this.distributor);
+}
+
+class MovieOwnedDetailsRowsCompanion
+    extends UpdateCompanion<MovieOwnedDetailsRow> {
+  final Value<String> ownedItemId;
+  final Value<String?> features;
+  final Value<String> hdrFormatsJson;
+  final Value<String?> boxSetId;
+  final Value<String?> boxSetName;
+  final Value<String?> region;
+  final Value<String?> packaging;
+  final Value<String?> distributor;
+  final Value<int> rowid;
+  const MovieOwnedDetailsRowsCompanion({
+    this.ownedItemId = const Value.absent(),
+    this.features = const Value.absent(),
+    this.hdrFormatsJson = const Value.absent(),
+    this.boxSetId = const Value.absent(),
+    this.boxSetName = const Value.absent(),
+    this.region = const Value.absent(),
+    this.packaging = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MovieOwnedDetailsRowsCompanion.insert({
+    required String ownedItemId,
+    this.features = const Value.absent(),
+    this.hdrFormatsJson = const Value.absent(),
+    this.boxSetId = const Value.absent(),
+    this.boxSetName = const Value.absent(),
+    this.region = const Value.absent(),
+    this.packaging = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : ownedItemId = Value(ownedItemId);
+  static Insertable<MovieOwnedDetailsRow> custom({
+    Expression<String>? ownedItemId,
+    Expression<String>? features,
+    Expression<String>? hdrFormatsJson,
+    Expression<String>? boxSetId,
+    Expression<String>? boxSetName,
+    Expression<String>? region,
+    Expression<String>? packaging,
+    Expression<String>? distributor,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (features != null) 'features': features,
+      if (hdrFormatsJson != null) 'hdr_formats_json': hdrFormatsJson,
+      if (boxSetId != null) 'box_set_id': boxSetId,
+      if (boxSetName != null) 'box_set_name': boxSetName,
+      if (region != null) 'region': region,
+      if (packaging != null) 'packaging': packaging,
+      if (distributor != null) 'distributor': distributor,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MovieOwnedDetailsRowsCompanion copyWith(
+      {Value<String>? ownedItemId,
+      Value<String?>? features,
+      Value<String>? hdrFormatsJson,
+      Value<String?>? boxSetId,
+      Value<String?>? boxSetName,
+      Value<String?>? region,
+      Value<String?>? packaging,
+      Value<String?>? distributor,
+      Value<int>? rowid}) {
+    return MovieOwnedDetailsRowsCompanion(
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      features: features ?? this.features,
+      hdrFormatsJson: hdrFormatsJson ?? this.hdrFormatsJson,
+      boxSetId: boxSetId ?? this.boxSetId,
+      boxSetName: boxSetName ?? this.boxSetName,
+      region: region ?? this.region,
+      packaging: packaging ?? this.packaging,
+      distributor: distributor ?? this.distributor,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (features.present) {
+      map['features'] = Variable<String>(features.value);
+    }
+    if (hdrFormatsJson.present) {
+      map['hdr_formats_json'] = Variable<String>(hdrFormatsJson.value);
+    }
+    if (boxSetId.present) {
+      map['box_set_id'] = Variable<String>(boxSetId.value);
+    }
+    if (boxSetName.present) {
+      map['box_set_name'] = Variable<String>(boxSetName.value);
+    }
+    if (region.present) {
+      map['region'] = Variable<String>(region.value);
+    }
+    if (packaging.present) {
+      map['packaging'] = Variable<String>(packaging.value);
+    }
+    if (distributor.present) {
+      map['distributor'] = Variable<String>(distributor.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MovieOwnedDetailsRowsCompanion(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('features: $features, ')
+          ..write('hdrFormatsJson: $hdrFormatsJson, ')
+          ..write('boxSetId: $boxSetId, ')
+          ..write('boxSetName: $boxSetName, ')
+          ..write('region: $region, ')
+          ..write('packaging: $packaging, ')
+          ..write('distributor: $distributor, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -24239,6 +26270,11 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $BoardGameOwnedDetailsRowsTable(this);
   late final $BoardGamePlaySessionsRowsTable boardGamePlaySessionsRows =
       $BoardGamePlaySessionsRowsTable(this);
+  late final $MovieMediaRowsTable movieMediaRows = $MovieMediaRowsTable(this);
+  late final $MovieReleaseRowsTable movieReleaseRows =
+      $MovieReleaseRowsTable(this);
+  late final $MovieOwnedDetailsRowsTable movieOwnedDetailsRows =
+      $MovieOwnedDetailsRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -24281,7 +26317,10 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         boardGameMediaRows,
         boardGameEditionRows,
         boardGameOwnedDetailsRows,
-        boardGamePlaySessionsRows
+        boardGamePlaySessionsRows,
+        movieMediaRows,
+        movieReleaseRows,
+        movieOwnedDetailsRows
       ];
 }
 
@@ -35440,6 +37479,937 @@ typedef $$BoardGamePlaySessionsRowsTableProcessedTableManager
         ),
         BoardGamePlaySessionsRow,
         PrefetchHooks Function()>;
+typedef $$MovieMediaRowsTableCreateCompanionBuilder = MovieMediaRowsCompanion
+    Function({
+  required String id,
+  required String title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> releaseDate,
+  Value<String?> originalLanguage,
+  Value<String?> ageRating,
+  Value<String?> audienceRating,
+  Value<int?> runtimeMinutes,
+  Value<String?> subtitle,
+  Value<String> characterAppearancesJson,
+  Value<String> contributionsJson,
+  Value<String> externalLinksJson,
+  Value<String> identifiersJson,
+  Value<String> trailerUrlsJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$MovieMediaRowsTableUpdateCompanionBuilder = MovieMediaRowsCompanion
+    Function({
+  Value<String> id,
+  Value<String> title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> releaseDate,
+  Value<String?> originalLanguage,
+  Value<String?> ageRating,
+  Value<String?> audienceRating,
+  Value<int?> runtimeMinutes,
+  Value<String?> subtitle,
+  Value<String> characterAppearancesJson,
+  Value<String> contributionsJson,
+  Value<String> externalLinksJson,
+  Value<String> identifiersJson,
+  Value<String> trailerUrlsJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$MovieMediaRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MovieMediaRowsTable> {
+  $$MovieMediaRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get characterAppearancesJson => $composableBuilder(
+      column: $table.characterAppearancesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get externalLinksJson => $composableBuilder(
+      column: $table.externalLinksJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trailerUrlsJson => $composableBuilder(
+      column: $table.trailerUrlsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MovieMediaRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MovieMediaRowsTable> {
+  $$MovieMediaRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ageRating => $composableBuilder(
+      column: $table.ageRating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subtitle => $composableBuilder(
+      column: $table.subtitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get characterAppearancesJson => $composableBuilder(
+      column: $table.characterAppearancesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get externalLinksJson => $composableBuilder(
+      column: $table.externalLinksJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trailerUrlsJson => $composableBuilder(
+      column: $table.trailerUrlsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MovieMediaRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MovieMediaRowsTable> {
+  $$MovieMediaRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get sortTitle =>
+      $composableBuilder(column: $table.sortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage, builder: (column) => column);
+
+  GeneratedColumn<String> get ageRating =>
+      $composableBuilder(column: $table.ageRating, builder: (column) => column);
+
+  GeneratedColumn<String> get audienceRating => $composableBuilder(
+      column: $table.audienceRating, builder: (column) => column);
+
+  GeneratedColumn<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitle =>
+      $composableBuilder(column: $table.subtitle, builder: (column) => column);
+
+  GeneratedColumn<String> get characterAppearancesJson => $composableBuilder(
+      column: $table.characterAppearancesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get externalLinksJson => $composableBuilder(
+      column: $table.externalLinksJson, builder: (column) => column);
+
+  GeneratedColumn<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get trailerUrlsJson => $composableBuilder(
+      column: $table.trailerUrlsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$MovieMediaRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MovieMediaRowsTable,
+    MovieMediaRow,
+    $$MovieMediaRowsTableFilterComposer,
+    $$MovieMediaRowsTableOrderingComposer,
+    $$MovieMediaRowsTableAnnotationComposer,
+    $$MovieMediaRowsTableCreateCompanionBuilder,
+    $$MovieMediaRowsTableUpdateCompanionBuilder,
+    (
+      MovieMediaRow,
+      BaseReferences<_$LocalDatabase, $MovieMediaRowsTable, MovieMediaRow>
+    ),
+    MovieMediaRow,
+    PrefetchHooks Function()> {
+  $$MovieMediaRowsTableTableManager(
+      _$LocalDatabase db, $MovieMediaRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MovieMediaRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MovieMediaRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MovieMediaRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<String?> audienceRating = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String> characterAppearancesJson = const Value.absent(),
+            Value<String> contributionsJson = const Value.absent(),
+            Value<String> externalLinksJson = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String> trailerUrlsJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MovieMediaRowsCompanion(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            releaseDate: releaseDate,
+            originalLanguage: originalLanguage,
+            ageRating: ageRating,
+            audienceRating: audienceRating,
+            runtimeMinutes: runtimeMinutes,
+            subtitle: subtitle,
+            characterAppearancesJson: characterAppearancesJson,
+            contributionsJson: contributionsJson,
+            externalLinksJson: externalLinksJson,
+            identifiersJson: identifiersJson,
+            trailerUrlsJson: trailerUrlsJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<String?> ageRating = const Value.absent(),
+            Value<String?> audienceRating = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> subtitle = const Value.absent(),
+            Value<String> characterAppearancesJson = const Value.absent(),
+            Value<String> contributionsJson = const Value.absent(),
+            Value<String> externalLinksJson = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String> trailerUrlsJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MovieMediaRowsCompanion.insert(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            releaseDate: releaseDate,
+            originalLanguage: originalLanguage,
+            ageRating: ageRating,
+            audienceRating: audienceRating,
+            runtimeMinutes: runtimeMinutes,
+            subtitle: subtitle,
+            characterAppearancesJson: characterAppearancesJson,
+            contributionsJson: contributionsJson,
+            externalLinksJson: externalLinksJson,
+            identifiersJson: identifiersJson,
+            trailerUrlsJson: trailerUrlsJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MovieMediaRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MovieMediaRowsTable,
+    MovieMediaRow,
+    $$MovieMediaRowsTableFilterComposer,
+    $$MovieMediaRowsTableOrderingComposer,
+    $$MovieMediaRowsTableAnnotationComposer,
+    $$MovieMediaRowsTableCreateCompanionBuilder,
+    $$MovieMediaRowsTableUpdateCompanionBuilder,
+    (
+      MovieMediaRow,
+      BaseReferences<_$LocalDatabase, $MovieMediaRowsTable, MovieMediaRow>
+    ),
+    MovieMediaRow,
+    PrefetchHooks Function()>;
+typedef $$MovieReleaseRowsTableCreateCompanionBuilder
+    = MovieReleaseRowsCompanion Function({
+  required String mediaId,
+  required String id,
+  required String title,
+  Value<String?> workId,
+  Value<String?> coverImageKey,
+  Value<String?> coverImageUrl,
+  Value<String?> description,
+  Value<String?> distributor,
+  Value<String> externalLinksJson,
+  Value<String?> format,
+  Value<String?> language,
+  Value<String> mediaJson,
+  Value<String?> region,
+  Value<DateTime?> releaseDate,
+  Value<String> trailerUrlsJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$MovieReleaseRowsTableUpdateCompanionBuilder
+    = MovieReleaseRowsCompanion Function({
+  Value<String> mediaId,
+  Value<String> id,
+  Value<String> title,
+  Value<String?> workId,
+  Value<String?> coverImageKey,
+  Value<String?> coverImageUrl,
+  Value<String?> description,
+  Value<String?> distributor,
+  Value<String> externalLinksJson,
+  Value<String?> format,
+  Value<String?> language,
+  Value<String> mediaJson,
+  Value<String?> region,
+  Value<DateTime?> releaseDate,
+  Value<String> trailerUrlsJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$MovieReleaseRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MovieReleaseRowsTable> {
+  $$MovieReleaseRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get workId => $composableBuilder(
+      column: $table.workId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get externalLinksJson => $composableBuilder(
+      column: $table.externalLinksJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get format => $composableBuilder(
+      column: $table.format, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaJson => $composableBuilder(
+      column: $table.mediaJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trailerUrlsJson => $composableBuilder(
+      column: $table.trailerUrlsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MovieReleaseRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MovieReleaseRowsTable> {
+  $$MovieReleaseRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get workId => $composableBuilder(
+      column: $table.workId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get externalLinksJson => $composableBuilder(
+      column: $table.externalLinksJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get format => $composableBuilder(
+      column: $table.format, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaJson => $composableBuilder(
+      column: $table.mediaJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trailerUrlsJson => $composableBuilder(
+      column: $table.trailerUrlsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MovieReleaseRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MovieReleaseRowsTable> {
+  $$MovieReleaseRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get mediaId =>
+      $composableBuilder(column: $table.mediaId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get workId =>
+      $composableBuilder(column: $table.workId, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => column);
+
+  GeneratedColumn<String> get externalLinksJson => $composableBuilder(
+      column: $table.externalLinksJson, builder: (column) => column);
+
+  GeneratedColumn<String> get format =>
+      $composableBuilder(column: $table.format, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaJson =>
+      $composableBuilder(column: $table.mediaJson, builder: (column) => column);
+
+  GeneratedColumn<String> get region =>
+      $composableBuilder(column: $table.region, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<String> get trailerUrlsJson => $composableBuilder(
+      column: $table.trailerUrlsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$MovieReleaseRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MovieReleaseRowsTable,
+    MovieReleaseRow,
+    $$MovieReleaseRowsTableFilterComposer,
+    $$MovieReleaseRowsTableOrderingComposer,
+    $$MovieReleaseRowsTableAnnotationComposer,
+    $$MovieReleaseRowsTableCreateCompanionBuilder,
+    $$MovieReleaseRowsTableUpdateCompanionBuilder,
+    (
+      MovieReleaseRow,
+      BaseReferences<_$LocalDatabase, $MovieReleaseRowsTable, MovieReleaseRow>
+    ),
+    MovieReleaseRow,
+    PrefetchHooks Function()> {
+  $$MovieReleaseRowsTableTableManager(
+      _$LocalDatabase db, $MovieReleaseRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MovieReleaseRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MovieReleaseRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MovieReleaseRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> mediaId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> workId = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<String> externalLinksJson = const Value.absent(),
+            Value<String?> format = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<String> mediaJson = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String> trailerUrlsJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MovieReleaseRowsCompanion(
+            mediaId: mediaId,
+            id: id,
+            title: title,
+            workId: workId,
+            coverImageKey: coverImageKey,
+            coverImageUrl: coverImageUrl,
+            description: description,
+            distributor: distributor,
+            externalLinksJson: externalLinksJson,
+            format: format,
+            language: language,
+            mediaJson: mediaJson,
+            region: region,
+            releaseDate: releaseDate,
+            trailerUrlsJson: trailerUrlsJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String mediaId,
+            required String id,
+            required String title,
+            Value<String?> workId = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<String> externalLinksJson = const Value.absent(),
+            Value<String?> format = const Value.absent(),
+            Value<String?> language = const Value.absent(),
+            Value<String> mediaJson = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String> trailerUrlsJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MovieReleaseRowsCompanion.insert(
+            mediaId: mediaId,
+            id: id,
+            title: title,
+            workId: workId,
+            coverImageKey: coverImageKey,
+            coverImageUrl: coverImageUrl,
+            description: description,
+            distributor: distributor,
+            externalLinksJson: externalLinksJson,
+            format: format,
+            language: language,
+            mediaJson: mediaJson,
+            region: region,
+            releaseDate: releaseDate,
+            trailerUrlsJson: trailerUrlsJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MovieReleaseRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MovieReleaseRowsTable,
+    MovieReleaseRow,
+    $$MovieReleaseRowsTableFilterComposer,
+    $$MovieReleaseRowsTableOrderingComposer,
+    $$MovieReleaseRowsTableAnnotationComposer,
+    $$MovieReleaseRowsTableCreateCompanionBuilder,
+    $$MovieReleaseRowsTableUpdateCompanionBuilder,
+    (
+      MovieReleaseRow,
+      BaseReferences<_$LocalDatabase, $MovieReleaseRowsTable, MovieReleaseRow>
+    ),
+    MovieReleaseRow,
+    PrefetchHooks Function()>;
+typedef $$MovieOwnedDetailsRowsTableCreateCompanionBuilder
+    = MovieOwnedDetailsRowsCompanion Function({
+  required String ownedItemId,
+  Value<String?> features,
+  Value<String> hdrFormatsJson,
+  Value<String?> boxSetId,
+  Value<String?> boxSetName,
+  Value<String?> region,
+  Value<String?> packaging,
+  Value<String?> distributor,
+  Value<int> rowid,
+});
+typedef $$MovieOwnedDetailsRowsTableUpdateCompanionBuilder
+    = MovieOwnedDetailsRowsCompanion Function({
+  Value<String> ownedItemId,
+  Value<String?> features,
+  Value<String> hdrFormatsJson,
+  Value<String?> boxSetId,
+  Value<String?> boxSetName,
+  Value<String?> region,
+  Value<String?> packaging,
+  Value<String?> distributor,
+  Value<int> rowid,
+});
+
+class $$MovieOwnedDetailsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MovieOwnedDetailsRowsTable> {
+  $$MovieOwnedDetailsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get features => $composableBuilder(
+      column: $table.features, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get hdrFormatsJson => $composableBuilder(
+      column: $table.hdrFormatsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetId => $composableBuilder(
+      column: $table.boxSetId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get packaging => $composableBuilder(
+      column: $table.packaging, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnFilters(column));
+}
+
+class $$MovieOwnedDetailsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MovieOwnedDetailsRowsTable> {
+  $$MovieOwnedDetailsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get features => $composableBuilder(
+      column: $table.features, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get hdrFormatsJson => $composableBuilder(
+      column: $table.hdrFormatsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetId => $composableBuilder(
+      column: $table.boxSetId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get packaging => $composableBuilder(
+      column: $table.packaging, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MovieOwnedDetailsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MovieOwnedDetailsRowsTable> {
+  $$MovieOwnedDetailsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get features =>
+      $composableBuilder(column: $table.features, builder: (column) => column);
+
+  GeneratedColumn<String> get hdrFormatsJson => $composableBuilder(
+      column: $table.hdrFormatsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetId =>
+      $composableBuilder(column: $table.boxSetId, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => column);
+
+  GeneratedColumn<String> get region =>
+      $composableBuilder(column: $table.region, builder: (column) => column);
+
+  GeneratedColumn<String> get packaging =>
+      $composableBuilder(column: $table.packaging, builder: (column) => column);
+
+  GeneratedColumn<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => column);
+}
+
+class $$MovieOwnedDetailsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MovieOwnedDetailsRowsTable,
+    MovieOwnedDetailsRow,
+    $$MovieOwnedDetailsRowsTableFilterComposer,
+    $$MovieOwnedDetailsRowsTableOrderingComposer,
+    $$MovieOwnedDetailsRowsTableAnnotationComposer,
+    $$MovieOwnedDetailsRowsTableCreateCompanionBuilder,
+    $$MovieOwnedDetailsRowsTableUpdateCompanionBuilder,
+    (
+      MovieOwnedDetailsRow,
+      BaseReferences<_$LocalDatabase, $MovieOwnedDetailsRowsTable,
+          MovieOwnedDetailsRow>
+    ),
+    MovieOwnedDetailsRow,
+    PrefetchHooks Function()> {
+  $$MovieOwnedDetailsRowsTableTableManager(
+      _$LocalDatabase db, $MovieOwnedDetailsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MovieOwnedDetailsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MovieOwnedDetailsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MovieOwnedDetailsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String?> features = const Value.absent(),
+            Value<String> hdrFormatsJson = const Value.absent(),
+            Value<String?> boxSetId = const Value.absent(),
+            Value<String?> boxSetName = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<String?> packaging = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MovieOwnedDetailsRowsCompanion(
+            ownedItemId: ownedItemId,
+            features: features,
+            hdrFormatsJson: hdrFormatsJson,
+            boxSetId: boxSetId,
+            boxSetName: boxSetName,
+            region: region,
+            packaging: packaging,
+            distributor: distributor,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String ownedItemId,
+            Value<String?> features = const Value.absent(),
+            Value<String> hdrFormatsJson = const Value.absent(),
+            Value<String?> boxSetId = const Value.absent(),
+            Value<String?> boxSetName = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<String?> packaging = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MovieOwnedDetailsRowsCompanion.insert(
+            ownedItemId: ownedItemId,
+            features: features,
+            hdrFormatsJson: hdrFormatsJson,
+            boxSetId: boxSetId,
+            boxSetName: boxSetName,
+            region: region,
+            packaging: packaging,
+            distributor: distributor,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MovieOwnedDetailsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MovieOwnedDetailsRowsTable,
+        MovieOwnedDetailsRow,
+        $$MovieOwnedDetailsRowsTableFilterComposer,
+        $$MovieOwnedDetailsRowsTableOrderingComposer,
+        $$MovieOwnedDetailsRowsTableAnnotationComposer,
+        $$MovieOwnedDetailsRowsTableCreateCompanionBuilder,
+        $$MovieOwnedDetailsRowsTableUpdateCompanionBuilder,
+        (
+          MovieOwnedDetailsRow,
+          BaseReferences<_$LocalDatabase, $MovieOwnedDetailsRowsTable,
+              MovieOwnedDetailsRow>
+        ),
+        MovieOwnedDetailsRow,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -35529,4 +38499,10 @@ class $LocalDatabaseManager {
   $$BoardGamePlaySessionsRowsTableTableManager get boardGamePlaySessionsRows =>
       $$BoardGamePlaySessionsRowsTableTableManager(
           _db, _db.boardGamePlaySessionsRows);
+  $$MovieMediaRowsTableTableManager get movieMediaRows =>
+      $$MovieMediaRowsTableTableManager(_db, _db.movieMediaRows);
+  $$MovieReleaseRowsTableTableManager get movieReleaseRows =>
+      $$MovieReleaseRowsTableTableManager(_db, _db.movieReleaseRows);
+  $$MovieOwnedDetailsRowsTableTableManager get movieOwnedDetailsRows =>
+      $$MovieOwnedDetailsRowsTableTableManager(_db, _db.movieOwnedDetailsRows);
 }

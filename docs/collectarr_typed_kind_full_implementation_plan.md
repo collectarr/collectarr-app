@@ -1510,6 +1510,15 @@ Movie-owned tables.
 
 Duplicate video technical columns if needed.
 
+### Status (2026-09-05)
+
+Complete. Movie now has dedicated Drift media, release, and owned-details
+tables, typed local mappers, repository cache/remote fallback, schema migration
+to v17, and a typed `MovieMedia` workspace projection. Existing video workspace
+access remains as a compatibility bridge while Movie fields consume typed media
+where available. Focused Movie, workspace, repository, and database migration
+tests pass. Continue with PR51.
+
 ---
 
 ## PR 51 — Movie Add/Edit

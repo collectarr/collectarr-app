@@ -146,9 +146,7 @@ abstract final class MovieKindSchema {
   static final genre = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.genre,
     label: 'Genre',
-    getValue: (dto) => dto.movie.work.genres.isNotEmpty
-        ? dto.movie.work.genres.join(', ')
-        : null,
+    getValue: (dto) => dto.genres.isNotEmpty ? dto.genres.join(', ') : null,
   );
 
   static final audienceRating = textField<MovieKind, MovieWorkspaceDto>(
@@ -167,23 +165,28 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.edition,
     label: 'Edition',
     getValue: (dto) =>
-        dto.movie.releases.isNotEmpty ? dto.movie.releases.first.title : null,
+        dto.media.primaryRelease?.title ??
+        (dto.movie.releases.isNotEmpty ? dto.movie.releases.first.title : null),
     scope: LibraryFieldScope.release,
   );
 
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audioTracks,
     label: 'Audio Tracks',
-    getValue: (dto) => dto.movie.technical.audioTracks,
+    getValue: (dto) =>
+        dto.media.primaryRelease?.media.firstOrNull?.audioTracks ??
+        dto.movie.technical.audioTracks,
     scope: LibraryFieldScope.release,
   );
 
   static final editionReleaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.editionReleaseDate,
     label: 'Edition Release Date',
-    getValue: (dto) => dto.movie.releases.isNotEmpty
-        ? dto.movie.releases.first.releaseDate
-        : null,
+    getValue: (dto) =>
+        dto.media.primaryRelease?.releaseDate ??
+        (dto.movie.releases.isNotEmpty
+            ? dto.movie.releases.first.releaseDate
+            : null),
     scope: LibraryFieldScope.release,
   );
 

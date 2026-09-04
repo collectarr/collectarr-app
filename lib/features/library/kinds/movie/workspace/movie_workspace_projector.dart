@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -17,6 +18,7 @@ final class MovieWorkspaceProjector
   }) {
     final movie =
         VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final media = MovieWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     MovieCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is MovieCatalogMetadata) {
@@ -26,6 +28,7 @@ final class MovieWorkspaceProjector
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       movie: movie,
+      media: media,
       metadata: metadata,
     );
   }
@@ -38,6 +41,7 @@ final class MovieWorkspaceProjector
   }) {
     final movie =
         VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final media = MovieWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     MovieCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is MovieCatalogMetadata) {
@@ -47,6 +51,7 @@ final class MovieWorkspaceProjector
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       movie: movie,
+      media: media,
       metadata: metadata,
     );
   }
@@ -58,6 +63,7 @@ final class MovieWorkspaceProjector
   }) {
     final movie =
         VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final media = MovieWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     MovieCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is MovieCatalogMetadata) {
@@ -67,6 +73,7 @@ final class MovieWorkspaceProjector
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       movie: movie,
+      media: media,
       metadata: metadata,
     );
   }

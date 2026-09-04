@@ -24,5 +24,6 @@ void main() {
 
     expect(titleDto.title, 'The Matrix');
     expect(titleDto.movie.technical.runtimeMinutes, 136);
+    expect(titleDto.media.runtimeMinutes, 136);
   });
 }
