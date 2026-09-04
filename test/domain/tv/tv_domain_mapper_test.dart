@@ -6,6 +6,99 @@ import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('TvCoreMapper maps generated Core DTOs into TV-owned models', () {
+    final dto = TvSeriesDto.fromJson({
+      'id': 'series-typed',
+      'title': 'The Expanse',
+      'description': 'A political space opera.',
+      'original_air_date': '2015-12-14T00:00:00Z',
+      'end_date': '2022-01-14T00:00:00Z',
+      'season_count': 6,
+      'episode_count': 62,
+      'network': 'Syfy',
+      'original_language': 'en',
+      'status': 'Ended',
+      'seasons': [
+        {
+          'id': 'season-typed',
+          'series_id': 'series-typed',
+          'season_number': 1,
+          'episode_count': 10,
+          'episodes': [
+            {
+              'id': 'episode-typed',
+              'series_id': 'series-typed',
+              'season_id': 'season-typed',
+              'season_number': 1,
+              'episode_number': 1,
+              'episode_title': 'Dulcinea',
+              'runtime_minutes': 43,
+            },
+          ],
+        },
+      ],
+      'releases': [
+        {
+          'id': 'release-typed',
+          'series_id': 'series-typed',
+          'title': 'Season One Blu-ray',
+          'format': 'Blu-ray',
+          'media': [
+            {
+              'id': 'media-typed',
+              'release_id': 'release-typed',
+              'media_number': 1,
+              'media_type': 'disc',
+              'episode_count': 5,
+            },
+          ],
+          'episode_mappings': [
+            {
+              'id': 'map-typed',
+              'release_id': 'release-typed',
+              'media_id': 'media-typed',
+              'episode_id': 'episode-typed',
+              'disc_number': 1,
+              'sequence_number': 1,
+            },
+          ],
+        },
+      ],
+      'contributions': [
+        {'name': 'Mark Fergus', 'role': 'Creator'},
+      ],
+      'identifiers': [
+        {
+          'id': 'id-typed',
+          'identifier_type': 'imdb',
+          'value': 'tt3230854',
+          'is_primary': true,
+        },
+      ],
+      'character_appearances': [
+        {
+          'id': 'character-typed',
+          'character_id': 'holden',
+          'character_name': 'James Holden',
+          'role': 'Lead',
+        },
+      ],
+      'kind': 'tv',
+    });
+
+    final series = TvCoreMapper.fromSeriesDto(dto);
+
+    expect(series.id, 'series-typed');
+    expect(series.originalAirDate, DateTime.utc(2015, 12, 14));
+    expect(series.seasons.single.episodes.single.episodeNumber, 1);
+    expect(series.releases.single.format, 'Blu-ray');
+    expect(series.releases.single.media.single.mediaNumber, 1);
+    expect(series.releases.single.episodeMappings.single.discNumber, 1);
+    expect(series.contributions.single.name, 'Mark Fergus');
+    expect(series.identifiers.single.value, 'tt3230854');
+    expect(series.characterAppearances.single.characterName, 'James Holden');
+  });
+
   test('maps typed tv dto data and raw release graph into domain models', () {
     final mediaJson = {
       'id': 'media-1',

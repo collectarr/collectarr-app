@@ -1577,6 +1577,15 @@ TvReleaseMedia
 
 No generic `Season`.
 
+### Status (2026-09-05)
+
+Complete. TV now exposes its own typed series, season, episode, release,
+release-media, episode-map, contributor, identifier, and character models.
+`TvCoreMapper` maps the generated Core DTO graph directly into those models,
+including nested seasons, releases, media, mappings, and typed credits. The
+legacy shared-video mapper remains isolated for the compatibility editor path.
+Focused Core mapping and TV vertical-slice tests pass. Continue with PR54.
+
 ---
 
 ## PR 54 — TV DB/repository

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/domain/video_episode.dart';
 
 TvEpisode tvEpisodeFromDto(dynamic dto) => const TvEpisode();
 
