@@ -18,6 +18,7 @@ final class GameWorkspaceDto extends WorkspaceDtoAdapter {
   final GameCatalogMetadata? metadata;
 
   // Domain convenience getters
+  String? get platform => metadata?.platform ?? game.platforms.firstOrNull;
   String? get franchise => metadata?.franchise;
   String? get edition => metadata?.edition;
   String? get ageRating => metadata?.ageRating;

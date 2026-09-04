@@ -28,7 +28,7 @@ abstract final class GameKindSchema {
   static final platform = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.platform,
     label: 'Platform',
-    getValue: (dto) => dto.format,
+    getValue: (dto) => dto.platform,
   );
 
   static final developer = textField<GameKind, GameWorkspaceDto>(
@@ -249,10 +249,19 @@ final gameLibraryFieldDefinitions = [
   GameKindSchema.location,
   GameKindSchema.pricePaid,
   GameKindSchema.barcode,
+  GameKindSchema.status,
+  GameKindSchema.cover,
+  GameKindSchema.rating,
+  GameKindSchema.wishlist,
+  GameKindSchema.updatedAt,
+  GameKindSchema.addedAt,
+  GameKindSchema.completionStatus,
   GameKindSchema.completeness,
   GameKindSchema.coreRegion,
   GameKindSchema.hasBox,
   GameKindSchema.hasManual,
+  GameKindSchema.priceChartingId,
+  GameKindSchema.valueLocked,
   GameKindSchema.franchise,
   GameKindSchema.series,
   GameKindSchema.ageRating,

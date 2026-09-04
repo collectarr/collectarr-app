@@ -25,8 +25,10 @@ import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_facet_definitions.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
@@ -128,13 +130,35 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     createDraft: createGameEditDraft,
   ),
   providerMapper: const GameLibraryKindProviderMapper(),
-  facets: const LibraryFacetModule(
+  facets: LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+    getFacetValues: _getGameFacetValues,
+    definitions: gameLibraryFacetDefinitions,
+    externalFacetBucketIdsByMode: {
+      'game.genre': GameFacetIds.genre,
+      'game.region': GameFacetIds.region,
+    },
   ),
   buildCardPresentation: buildGameCardPresentation,
 );
 
 Map<String, dynamic> _encodeGameMetadata(GameCatalogMetadata m) => m.toJson();
+
+Iterable<String> _getGameFacetValues(
+  LibraryProjectionRuntime item,
+  LibraryFacetIdRuntime facetId,
+) {
+  final dto = item.dto;
+  if (dto is! GameWorkspaceDto) {
+    return const [];
+  }
+  for (final definition in gameLibraryFacetDefinitions) {
+    if (definition.id.sameIdentityAs(facetId)) {
+      return definition.extractValues(dto);
+    }
+  }
+  return const [];
+}
 
 List<LibraryAddAdvancedFilterField<String>> buildGameAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
