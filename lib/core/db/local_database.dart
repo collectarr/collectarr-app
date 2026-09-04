@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/local/book_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
 
 part 'local_database.g.dart';
@@ -402,13 +403,16 @@ class ProviderItemLinksCache extends Table {
   BookMediaRows,
   BookReleaseRows,
   BookOwnedDetailsRows,
+  GameMediaRows,
+  GameReleaseRows,
+  GameOwnedDetailsRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration {
@@ -447,6 +451,11 @@ class LocalDatabase extends _$LocalDatabase {
           await m.createTable(bookMediaRows);
           await m.createTable(bookReleaseRows);
           await m.createTable(bookOwnedDetailsRows);
+        }
+        if (from < 14) {
+          await m.createTable(gameMediaRows);
+          await m.createTable(gameReleaseRows);
+          await m.createTable(gameOwnedDetailsRows);
         } else {
           await _destructiveRebuild(m);
         }

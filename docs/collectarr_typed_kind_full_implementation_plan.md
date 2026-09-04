@@ -1403,6 +1403,15 @@ wrong-kind tests pass. Continue with PR42.
 
 Separate media/release/owned tables.
 
+### Status (2026-09-04)
+
+Complete. Game persistence now owns separate media, release, and owned-details
+tables at schema version 14. Typed local mappers preserve Game metadata,
+release fields, list values, and raw payloads, while `GameRepository` provides
+transactional media-plus-release updates, deterministic search, release
+lookup/enumeration, owned-details persistence, and typed remote fallback with
+cache population. Focused mapper, repository, and migration tests pass.
+
 ---
 
 ## PR 43 — Game workspace/vocabularies
