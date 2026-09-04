@@ -21,7 +21,7 @@ abstract final class AnimeKindSchema {
   static final studio = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.studio,
     label: 'Studio',
-    getValue: (dto) => dto.metadata?.studios.firstOrNull ?? dto.publisher,
+    getValue: (dto) => dto.studio ?? dto.publisher,
   );
 
   static final publisher = textField<AnimeKind, AnimeWorkspaceDto>(
@@ -147,7 +147,7 @@ abstract final class AnimeKindSchema {
   static final format = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.format,
     label: 'Format',
-    getValue: (dto) => dto.metadata?.format.label,
+    getValue: (dto) => dto.animeType,
   );
 
   static final season = textField<AnimeKind, AnimeWorkspaceDto>(
@@ -165,7 +165,7 @@ abstract final class AnimeKindSchema {
   static final episodeCount = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.episodeCount,
     label: 'Episode Count',
-    getValue: (dto) => dto.metadata?.episodeCount,
+    getValue: (dto) => dto.episodeCount,
   );
 
   static final episodeRuntimeMinutes =
@@ -178,7 +178,7 @@ abstract final class AnimeKindSchema {
   static final airingStatus = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.airingStatus,
     label: 'Airing Status',
-    getValue: (dto) => dto.metadata?.airingStatus.label,
+    getValue: (dto) => dto.airingStatus,
   );
 
   static final sourceMaterial = textField<AnimeKind, AnimeWorkspaceDto>(

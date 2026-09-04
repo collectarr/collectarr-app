@@ -1698,6 +1698,10 @@ Duplicate TV-like schema where appropriate.
 
 Intentional.
 
+### Status (2026-09-05)
+
+Complete. Anime now has dedicated Drift media, episode, release, owned-details, and tracking tables at schema 20, typed local mappers, repository cache/remote fallback, and migration coverage from v19. Workspace projections carry an Anime-owned `AnimeMedia` graph, hierarchy loading maps typed episodes into generic renderer nodes, and legacy metadata/video projections remain only as compatibility bridges. Focused Anime, workspace, hierarchy, repository, and database tests pass. Continue with PR60.
+
 ---
 
 ## PR 60 — Anime Add/Edit

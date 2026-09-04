@@ -1,6 +1,7 @@
 export 'package:collectarr_app/features/library/kinds/anime/contracts/anime_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy.dart';
+export 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_episode.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
@@ -16,3 +17,4 @@ export 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_re
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
+export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_mapper.dart';

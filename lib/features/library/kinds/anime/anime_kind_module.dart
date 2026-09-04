@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
@@ -28,6 +29,9 @@ import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fiel
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
+import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
@@ -133,6 +137,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
     providers: [anilistMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(
+    fetchChildrenCallback: _fetchAnimeEpisodes,
     childrenTitleBuilder: _animeChildrenTitle,
     supportsMediaReleaseSplit: true,
   ),
@@ -228,7 +233,20 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   buildCardPresentation: buildAnimeCardPresentation,
 );
 
-String _animeChildrenTitle(int count) => 'Seasons ($count)';
+String _animeChildrenTitle(int count) => 'Episodes ($count)';
+
+Future<List<LibraryHierarchyNode>> _fetchAnimeEpisodes({
+  required ApiClient api,
+  required String itemId,
+  String? provider,
+  String? providerItemId,
+}) async {
+  final dto =
+      await api.getAnimeSeriesDto(itemId).timeout(const Duration(seconds: 60));
+  return AnimeHierarchyMapper.toLibraryNodes(
+    AnimeCoreMapper.fromSeriesDto(dto),
+  );
+}
 
 Map<String, dynamic> _encodeAnimeMetadata(AnimeMetadata m) => m.toJson();
 
