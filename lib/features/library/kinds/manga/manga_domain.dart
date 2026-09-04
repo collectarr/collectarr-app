@@ -2,6 +2,7 @@ export 'package:collectarr_app/features/library/kinds/manga/contracts/manga_cont
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
+export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';

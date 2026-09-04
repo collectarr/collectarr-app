@@ -1261,6 +1261,26 @@ No generic Season conversions.
 
 Manga provider integrations independent from Anime even for AniList.
 
+### Status (2026-09-04)
+
+Complete for the Manga hierarchy, provider, and stats slice. Manga hierarchy
+now owns typed series, volume, and chapter nodes, groups raw Manga chapter
+rows into ordered volumes, and maps them to generic UI nodes only at the
+presentation boundary. The Manga path uses a dedicated raw chapter API
+boundary and does not convert through the generic `Season` model. Manga's
+provider mapper now exposes typed `MangaMetadata` decoding and rejects
+non-Manga envelopes, so the shared AniList adapter remains independent from
+Anime semantics. Manga stats derive missing volumes directly from typed
+metadata rather than serialized payloads.
+
+Focused hierarchy/provider/stats tests and the existing Manga vertical slice
+tests pass. Full validation passed for `build_runner`, `flutter analyze
+--fatal-warnings --fatal-infos`, `flutter test` (`+1523`, 5 skipped), and
+PR36-file format checks. The global format check still reports the existing
+unmodified `manga_repository.dart`; the architecture checker still reports
+the four pre-existing violations and existing complexity-budget findings.
+Continue with PR37.
+
 ---
 
 # PHASE 8 — Book

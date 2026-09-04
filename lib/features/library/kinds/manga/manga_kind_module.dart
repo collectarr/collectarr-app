@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_dialog.dart';
@@ -316,25 +317,14 @@ Future<List<LibraryHierarchyNode>> _fetchMangaVolumes({
   String? provider,
   String? providerItemId,
 }) async {
-  final volumes = await api
-      .getItemVolumes(itemId, kind: CatalogMediaKind.manga.apiValue)
+  final chapterRows = await api
+      .getMangaChapterRows(itemId)
       .timeout(const Duration(seconds: 60));
-  return [
-    for (final volume in volumes)
-      LibraryHierarchyNode(
-        id: 'volume_${volume.seasonNumber}',
-        label: volume.title,
-        secondaryLabel:
-            volume.episodeCount != null ? '${volume.episodeCount} items' : null,
-        level: LibraryHierarchyLevel.container,
-        imageUrl: volume.posterUrl,
-        totalCount: volume.episodeCount,
-        metadata: {
-          'number': volume.seasonNumber,
-          'airDate': volume.airDate,
-        },
-      ),
-  ];
+  final hierarchy = MangaHierarchyMapper.fromChapterRows(
+    seriesId: itemId,
+    rows: chapterRows,
+  );
+  return MangaHierarchyMapper.toLibraryNodes(hierarchy);
 }
 
 List<LibraryAddAdvancedFilterField<String>> buildMangaAddAdvancedFilterFields(

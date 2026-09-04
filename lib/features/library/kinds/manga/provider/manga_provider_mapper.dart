@@ -10,43 +10,47 @@ class MangaLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<MangaCatalog> {
   const MangaLibraryKindProviderMapper();
 
+  MangaMetadata metadataFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+    _validateMangaEnvelope(envelope);
+    final norm = envelope.normalized;
+    final title = norm['title']?.toString() ?? 'Unknown';
+    final coverImageUrl = norm['cover_image_url']?.toString() ??
+        (envelope.images.isNotEmpty ? envelope.images.first.url : null);
+
+    return MangaMetadata.fromJson({
+      ...norm,
+      'title': title,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (coverImageUrl != null) 'thumbnail_image_url': coverImageUrl,
+    });
+  }
+
   @override
   MangaCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+    _validateMangaEnvelope(envelope);
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
 
     return MangaCatalog.fromJson({
+      ...norm,
       'id': envelope.providerItemId,
       'title': title,
-      'cover_image_url': coverImageUrl,
-      'thumbnail_image_url': coverImageUrl,
-      ...norm,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (coverImageUrl != null) 'thumbnail_image_url': coverImageUrl,
     });
   }
 
   @override
   LibraryMetadataItem metadataItemFromEnvelope(
       NormalizedProviderEnvelopeV1 envelope) {
-    final norm = envelope.normalized;
-    final title = norm['title']?.toString() ?? 'Unknown';
-    final coverImageUrl = norm['cover_image_url']?.toString() ??
-        (envelope.images.isNotEmpty ? envelope.images.first.url : null);
-
-    final mangaMetadata = MangaMetadata.fromJson({
-      ...norm,
-      'title': title,
-      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
-      if (coverImageUrl != null) 'thumbnail_image_url': coverImageUrl,
-    });
-
     return LibraryMetadataItem(
       identity: LibraryItemIdentity(
         id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.manga,
       ),
-      kindMetadata: mangaMetadata,
+      kindMetadata: metadataFromEnvelope(envelope),
     );
   }
 
@@ -68,5 +72,13 @@ class MangaLibraryKindProviderMapper
       }
     }
     return corrections;
+  }
+
+  void _validateMangaEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+    if (envelope.kind.trim().toLowerCase() != CatalogMediaKind.manga.apiValue) {
+      throw StateError(
+        'Manga provider integration received ${envelope.kind} data',
+      );
+    }
   }
 }

@@ -263,6 +263,21 @@ class ApiClient {
     return _volumesFromBookRaw(response.data?['editions']);
   }
 
+  Future<List<Map<String, dynamic>>> getMangaChapterRows(String itemId) async {
+    final encodedId = Uri.encodeComponent(itemId);
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/metadata/manga/works/$encodedId',
+    );
+    final chapters = response.data?['chapters'];
+    if (chapters is! List) {
+      return const <Map<String, dynamic>>[];
+    }
+    return chapters
+        .whereType<Map<Object?, Object?>>()
+        .map((chapter) => Map<String, dynamic>.from(chapter))
+        .toList(growable: false);
+  }
+
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }

@@ -1,12 +1,30 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
+class MangaChapterHierarchyNode {
+  const MangaChapterHierarchyNode({
+    required this.chapterId,
+    required this.chapterNumber,
+    this.title,
+    this.pageCount,
+    this.releaseDate,
+  });
+
+  final String chapterId;
+  final int chapterNumber;
+  final String? title;
+  final int? pageCount;
+  final String? releaseDate;
+}
+
+@immutable
 class MangaVolumeHierarchyNode {
   const MangaVolumeHierarchyNode({
     required this.volumeId,
     required this.volumeNumber,
     this.title,
     this.chapterCount,
+    this.chapters = const [],
     this.releases = const [],
   });
 
@@ -14,6 +32,7 @@ class MangaVolumeHierarchyNode {
   final int volumeNumber;
   final String? title;
   final int? chapterCount;
+  final List<MangaChapterHierarchyNode> chapters;
   final List<String> releases;
 }
 
