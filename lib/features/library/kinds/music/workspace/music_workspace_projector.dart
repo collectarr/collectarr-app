@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -17,6 +18,7 @@ final class MusicWorkspaceProjector
   }) {
     final music =
         MusicCatalogMapper.mapMetadataItemToMusic(source.catalogItem!);
+    final release = MusicWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     MusicCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is MusicCatalogMetadata) {
@@ -26,6 +28,7 @@ final class MusicWorkspaceProjector
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       music: music,
+      release: release,
       metadata: metadata,
     );
   }
@@ -38,6 +41,11 @@ final class MusicWorkspaceProjector
   }) {
     final music =
         MusicCatalogMapper.mapMetadataItemToMusic(source.catalogItem!);
+    final release = MusicWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!,
+      releaseId: node.releaseId,
+      edition: node.edition,
+    );
     MusicCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is MusicCatalogMetadata) {
@@ -48,6 +56,7 @@ final class MusicWorkspaceProjector
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       music: music,
+      release: release,
       metadata: metadata,
     );
   }
