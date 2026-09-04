@@ -538,7 +538,7 @@ class _ShelfVolumesPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final volumesAsync = ref.watch(
-      shelfVolumesProvider(
+      shelfMangaHierarchyProvider(
         (itemId: itemId, canHydrateFromCore: true),
       ),
     );
@@ -559,7 +559,8 @@ class _ShelfVolumesPanel extends ConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ),
-      data: (volumes) {
+      data: (hierarchy) {
+        final volumes = hierarchy.volumes;
         if (volumes.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -584,7 +585,7 @@ class _ShelfVolumesPanel extends ConsumerWidget {
 class _ShelfVolumeTile extends StatefulWidget {
   const _ShelfVolumeTile({required this.volume});
 
-  final Season volume;
+  final MangaVolumeHierarchyNode volume;
 
   @override
   State<_ShelfVolumeTile> createState() => _ShelfVolumeTileState();
@@ -618,27 +619,27 @@ class _ShelfVolumeTileState extends State<_ShelfVolumeTile> {
           ),
           subtitle: Text(
             [
-              if (volume.episodeCount != null)
-                '${volume.episodeCount} chapters',
+              if (volume.chapterCount != null)
+                '${volume.chapterCount} chapters',
               if (volume.airDate != null) volume.airDate!,
             ].join(' · '),
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          trailing: volume.episodes.isNotEmpty
+          trailing: volume.chapters.isNotEmpty
               ? Icon(
                   _expanded ? Icons.expand_less : Icons.expand_more,
                   size: 18,
                 )
               : null,
-          onTap: volume.episodes.isNotEmpty
+          onTap: volume.chapters.isNotEmpty
               ? () => setState(() => _expanded = !_expanded)
               : null,
         ),
-        if (_expanded && volume.episodes.isNotEmpty)
+        if (_expanded && volume.chapters.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(left: 40, right: 8, bottom: 4),
             child: Column(
-              children: volume.episodes
+              children: volume.chapters
                   .map((ch) => _ShelfChapterRow(chapter: ch))
                   .toList(),
             ),
@@ -651,7 +652,7 @@ class _ShelfVolumeTileState extends State<_ShelfVolumeTile> {
 class _ShelfChapterRow extends StatelessWidget {
   const _ShelfChapterRow({required this.chapter});
 
-  final Episode chapter;
+  final MangaChapterHierarchyNode chapter;
 
   @override
   Widget build(BuildContext context) {
@@ -662,7 +663,7 @@ class _ShelfChapterRow extends StatelessWidget {
           SizedBox(
             width: 32,
             child: Text(
-              'Ch. ${chapter.episodeNumber}',
+              'Ch. ${chapter.chapterNumber}',
               style: Theme.of(context).textTheme.labelSmall,
               textAlign: TextAlign.center,
             ),
@@ -676,9 +677,9 @@ class _ShelfChapterRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          if (chapter.pageCount != null || chapter.runtimeMinutes != null)
+          if (chapter.pageCount != null)
             Text(
-              '${chapter.pageCount ?? chapter.runtimeMinutes}p',
+              '${chapter.pageCount}p',
               style: Theme.of(context).textTheme.labelSmall,
             ),
         ],

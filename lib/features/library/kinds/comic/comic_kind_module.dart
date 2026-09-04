@@ -7,7 +7,9 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
@@ -409,25 +411,11 @@ Future<List<LibraryHierarchyNode>> _fetchComicVolumes({
   String? provider,
   String? providerItemId,
 }) async {
-  final volumes = await api
-      .getItemVolumes(itemId, kind: CatalogMediaKind.comic.apiValue)
-      .timeout(const Duration(seconds: 60));
-  return [
-    for (final volume in volumes)
-      LibraryHierarchyNode(
-        id: 'volume_${volume.seasonNumber}',
-        label: volume.title,
-        secondaryLabel:
-            volume.episodeCount != null ? '${volume.episodeCount} items' : null,
-        level: LibraryHierarchyLevel.container,
-        imageUrl: volume.posterUrl,
-        totalCount: volume.episodeCount,
-        metadata: {
-          'number': volume.seasonNumber,
-          'airDate': volume.airDate,
-        },
-      ),
-  ];
+  final work =
+      await api.getComicWorkDto(itemId).timeout(const Duration(seconds: 60));
+  return ComicHierarchyMapper.toLibraryNodes(
+    ComicCoreMapper.fromWorkDto(work),
+  );
 }
 
 Iterable<String> _getFacetValues(

@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
@@ -12,6 +11,7 @@ import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/shelf_volumes_provider.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';

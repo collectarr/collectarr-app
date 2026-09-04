@@ -245,44 +245,6 @@ class ApiClient {
     return _catalogApi.getMusicTrackDto(id);
   }
 
-  Future<List<Season>> getItemVolumes(
-    String itemId, {
-    required String kind,
-  }) async {
-    final normalizedKind = kind.trim().toLowerCase();
-    if (normalizedKind == 'book') {
-      throw StateError(
-        'Book hierarchy must be loaded through getBookWorkDto',
-      );
-    }
-    final encodedId = Uri.encodeComponent(itemId);
-    if (normalizedKind == 'manga') {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/metadata/manga/works/$encodedId',
-      );
-      return _volumesFromMangaRaw(response.data?['chapters']);
-    }
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/metadata/books/works/$encodedId',
-    );
-    return _volumesFromLegacyRaw(response.data?['editions']);
-  }
-
-  Future<List<Map<String, dynamic>>> getMangaChapterRows(String itemId) async {
-    final encodedId = Uri.encodeComponent(itemId);
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/metadata/manga/works/$encodedId',
-    );
-    final chapters = response.data?['chapters'];
-    if (chapters is! List) {
-      return const <Map<String, dynamic>>[];
-    }
-    return chapters
-        .whereType<Map<Object?, Object?>>()
-        .map((chapter) => Map<String, dynamic>.from(chapter))
-        .toList(growable: false);
-  }
-
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }
@@ -515,83 +477,6 @@ class ApiClient {
       query: query,
       kind: kind,
     );
-  }
-
-  List<Season> _volumesFromLegacyRaw(dynamic raw) {
-    if (raw is! List) {
-      return const <Season>[];
-    }
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .toList(growable: false)
-        .asMap()
-        .entries
-        .map(
-      (entry) {
-        final edition = entry.value;
-        return Season(
-          seasonNumber: edition['volume_number'] as int? ?? entry.key + 1,
-          title: _seasonStringValue(
-            edition['title'],
-            'Edition ${entry.key + 1}',
-          ),
-          providerItemId: edition['id']?.toString(),
-          overview: edition['description']?.toString(),
-          airDate: edition['release_date']?.toString(),
-          episodeCount: (edition['variants'] as List<dynamic>?)?.length,
-          posterUrl: edition['cover_image_url']?.toString() ??
-              edition['thumbnail_image_url']?.toString(),
-        );
-      },
-    ).toList(growable: false);
-  }
-
-  List<Season> _volumesFromMangaRaw(dynamic raw) {
-    if (raw is! List) {
-      return const <Season>[];
-    }
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .toList(growable: false)
-        .asMap()
-        .entries
-        .map(
-      (entry) {
-        final chapter = entry.value;
-        final chapterNumber =
-            chapter['chapter_number'] as int? ?? entry.key + 1;
-        final chapterTitle = _seasonStringValue(
-          chapter['chapter_title'],
-          'Chapter $chapterNumber',
-        );
-        return Season(
-          seasonNumber: chapter['volume_number'] as int? ?? chapterNumber,
-          title: _seasonStringValue(
-            chapter['volume_title'],
-            'Volume $chapterNumber',
-          ),
-          providerItemId: chapter['id']?.toString(),
-          overview: chapter['summary']?.toString(),
-          airDate: chapter['release_date']?.toString(),
-          episodeCount: 1,
-          episodes: [
-            Episode(
-              episodeNumber: chapterNumber,
-              title: chapterTitle,
-              providerItemId: chapter['id']?.toString(),
-              overview: chapter['summary']?.toString(),
-              airDate: chapter['release_date']?.toString(),
-              pageCount: chapter['page_count'] as int?,
-            ),
-          ],
-        );
-      },
-    ).toList(growable: false);
-  }
-
-  String _seasonStringValue(dynamic value, String fallback) {
-    final text = value?.toString().trim();
-    return text == null || text.isEmpty ? fallback : text;
   }
 
   Future<AdminProviderIngestResult> adminProviderIngest({

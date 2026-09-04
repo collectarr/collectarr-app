@@ -284,7 +284,7 @@ void main() {
             isA<TvSeriesDto>());
       });
 
-      test('uses typed volume and TV season routes when kind is known',
+      test('uses typed manga work and TV season routes when kind is known',
           () async {
         final interceptor = _FakeApiInterceptor();
         interceptor.onGet('/metadata/manga/works/manga-1', {
@@ -331,10 +331,8 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        expect(
-          await client.getItemVolumes('manga-1', kind: 'manga'),
-          hasLength(1),
-        );
+        final manga = await client.getMangaWorkDto('manga-1');
+        expect(manga.chapters, hasLength(1));
         expect(
           await client.getTvSeriesSeasonsDto('tv-1'),
           hasLength(1),
@@ -342,16 +340,6 @@ void main() {
         expect(
           await client.getTvSeasonEpisodesDto('season-1'),
           hasLength(1),
-        );
-      });
-
-      test('does not expose Book editions through generic volume models',
-          () async {
-        final client = _createTestClient(_FakeApiInterceptor());
-
-        expect(
-          () => client.getItemVolumes('book-1', kind: 'book'),
-          throwsA(isA<StateError>()),
         );
       });
 
