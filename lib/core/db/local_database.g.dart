@@ -30940,6 +30940,2038 @@ class TvOwnedDetailsRowsCompanion extends UpdateCompanion<TvOwnedDetailsRow> {
   }
 }
 
+class $TvWatchSessionRowsTable extends TvWatchSessionRows
+    with TableInfo<$TvWatchSessionRowsTable, TvWatchSessionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvWatchSessionRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seriesIdMeta =
+      const VerificationMeta('seriesId');
+  @override
+  late final GeneratedColumn<String> seriesId = GeneratedColumn<String>(
+      'series_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _episodeIdMeta =
+      const VerificationMeta('episodeId');
+  @override
+  late final GeneratedColumn<String> episodeId = GeneratedColumn<String>(
+      'episode_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
+  @override
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _trackingEntryIdMeta =
+      const VerificationMeta('trackingEntryId');
+  @override
+  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
+      'tracking_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seenWhereMeta =
+      const VerificationMeta('seenWhere');
+  @override
+  late final GeneratedColumn<String> seenWhere = GeneratedColumn<String>(
+      'seen_where', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _watchedAtMeta =
+      const VerificationMeta('watchedAt');
+  @override
+  late final GeneratedColumn<DateTime> watchedAt = GeneratedColumn<DateTime>(
+      'watched_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        seriesId,
+        episodeId,
+        targetRefJson,
+        trackingEntryId,
+        seasonNumber,
+        episodeNumber,
+        sourceType,
+        seenWhere,
+        watchedAt,
+        rating,
+        notes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_watch_session_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvWatchSessionRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('series_id')) {
+      context.handle(_seriesIdMeta,
+          seriesId.isAcceptableOrUnknown(data['series_id']!, _seriesIdMeta));
+    } else if (isInserting) {
+      context.missing(_seriesIdMeta);
+    }
+    if (data.containsKey('episode_id')) {
+      context.handle(_episodeIdMeta,
+          episodeId.isAcceptableOrUnknown(data['episode_id']!, _episodeIdMeta));
+    }
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
+    }
+    if (data.containsKey('tracking_entry_id')) {
+      context.handle(
+          _trackingEntryIdMeta,
+          trackingEntryId.isAcceptableOrUnknown(
+              data['tracking_entry_id']!, _trackingEntryIdMeta));
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('seen_where')) {
+      context.handle(_seenWhereMeta,
+          seenWhere.isAcceptableOrUnknown(data['seen_where']!, _seenWhereMeta));
+    }
+    if (data.containsKey('watched_at')) {
+      context.handle(_watchedAtMeta,
+          watchedAt.isAcceptableOrUnknown(data['watched_at']!, _watchedAtMeta));
+    } else if (isInserting) {
+      context.missing(_watchedAtMeta);
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TvWatchSessionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvWatchSessionRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      seriesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_id'])!,
+      episodeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}episode_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
+      trackingEntryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      seenWhere: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}seen_where']),
+      watchedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}watched_at'])!,
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $TvWatchSessionRowsTable createAlias(String alias) {
+    return $TvWatchSessionRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvWatchSessionRow extends DataClass
+    implements Insertable<TvWatchSessionRow> {
+  final String id;
+  final String seriesId;
+  final String? episodeId;
+  final String? targetRefJson;
+  final String? trackingEntryId;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final String? sourceType;
+  final String? seenWhere;
+  final DateTime watchedAt;
+  final int? rating;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const TvWatchSessionRow(
+      {required this.id,
+      required this.seriesId,
+      this.episodeId,
+      this.targetRefJson,
+      this.trackingEntryId,
+      this.seasonNumber,
+      this.episodeNumber,
+      this.sourceType,
+      this.seenWhere,
+      required this.watchedAt,
+      this.rating,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['series_id'] = Variable<String>(seriesId);
+    if (!nullToAbsent || episodeId != null) {
+      map['episode_id'] = Variable<String>(episodeId);
+    }
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
+    }
+    if (!nullToAbsent || trackingEntryId != null) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
+    }
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || seenWhere != null) {
+      map['seen_where'] = Variable<String>(seenWhere);
+    }
+    map['watched_at'] = Variable<DateTime>(watchedAt);
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  TvWatchSessionRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvWatchSessionRowsCompanion(
+      id: Value(id),
+      seriesId: Value(seriesId),
+      episodeId: episodeId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeId),
+      targetRefJson: targetRefJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetRefJson),
+      trackingEntryId: trackingEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackingEntryId),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      seenWhere: seenWhere == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seenWhere),
+      watchedAt: Value(watchedAt),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory TvWatchSessionRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvWatchSessionRow(
+      id: serializer.fromJson<String>(json['id']),
+      seriesId: serializer.fromJson<String>(json['seriesId']),
+      episodeId: serializer.fromJson<String?>(json['episodeId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
+      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      seenWhere: serializer.fromJson<String?>(json['seenWhere']),
+      watchedAt: serializer.fromJson<DateTime>(json['watchedAt']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'seriesId': serializer.toJson<String>(seriesId),
+      'episodeId': serializer.toJson<String?>(episodeId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
+      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'seenWhere': serializer.toJson<String?>(seenWhere),
+      'watchedAt': serializer.toJson<DateTime>(watchedAt),
+      'rating': serializer.toJson<int?>(rating),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  TvWatchSessionRow copyWith(
+          {String? id,
+          String? seriesId,
+          Value<String?> episodeId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
+          Value<String?> trackingEntryId = const Value.absent(),
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> seenWhere = const Value.absent(),
+          DateTime? watchedAt,
+          Value<int?> rating = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      TvWatchSessionRow(
+        id: id ?? this.id,
+        seriesId: seriesId ?? this.seriesId,
+        episodeId: episodeId.present ? episodeId.value : this.episodeId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
+        trackingEntryId: trackingEntryId.present
+            ? trackingEntryId.value
+            : this.trackingEntryId,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        seenWhere: seenWhere.present ? seenWhere.value : this.seenWhere,
+        watchedAt: watchedAt ?? this.watchedAt,
+        rating: rating.present ? rating.value : this.rating,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  TvWatchSessionRow copyWithCompanion(TvWatchSessionRowsCompanion data) {
+    return TvWatchSessionRow(
+      id: data.id.present ? data.id.value : this.id,
+      seriesId: data.seriesId.present ? data.seriesId.value : this.seriesId,
+      episodeId: data.episodeId.present ? data.episodeId.value : this.episodeId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
+      trackingEntryId: data.trackingEntryId.present
+          ? data.trackingEntryId.value
+          : this.trackingEntryId,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      seenWhere: data.seenWhere.present ? data.seenWhere.value : this.seenWhere,
+      watchedAt: data.watchedAt.present ? data.watchedAt.value : this.watchedAt,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvWatchSessionRow(')
+          ..write('id: $id, ')
+          ..write('seriesId: $seriesId, ')
+          ..write('episodeId: $episodeId, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('seenWhere: $seenWhere, ')
+          ..write('watchedAt: $watchedAt, ')
+          ..write('rating: $rating, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      seriesId,
+      episodeId,
+      targetRefJson,
+      trackingEntryId,
+      seasonNumber,
+      episodeNumber,
+      sourceType,
+      seenWhere,
+      watchedAt,
+      rating,
+      notes,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvWatchSessionRow &&
+          other.id == this.id &&
+          other.seriesId == this.seriesId &&
+          other.episodeId == this.episodeId &&
+          other.targetRefJson == this.targetRefJson &&
+          other.trackingEntryId == this.trackingEntryId &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.sourceType == this.sourceType &&
+          other.seenWhere == this.seenWhere &&
+          other.watchedAt == this.watchedAt &&
+          other.rating == this.rating &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class TvWatchSessionRowsCompanion extends UpdateCompanion<TvWatchSessionRow> {
+  final Value<String> id;
+  final Value<String> seriesId;
+  final Value<String?> episodeId;
+  final Value<String?> targetRefJson;
+  final Value<String?> trackingEntryId;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
+  final Value<String?> sourceType;
+  final Value<String?> seenWhere;
+  final Value<DateTime> watchedAt;
+  final Value<int?> rating;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const TvWatchSessionRowsCompanion({
+    this.id = const Value.absent(),
+    this.seriesId = const Value.absent(),
+    this.episodeId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.seenWhere = const Value.absent(),
+    this.watchedAt = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvWatchSessionRowsCompanion.insert({
+    required String id,
+    required String seriesId,
+    this.episodeId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.seenWhere = const Value.absent(),
+    required DateTime watchedAt,
+    this.rating = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        seriesId = Value(seriesId),
+        watchedAt = Value(watchedAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<TvWatchSessionRow> custom({
+    Expression<String>? id,
+    Expression<String>? seriesId,
+    Expression<String>? episodeId,
+    Expression<String>? targetRefJson,
+    Expression<String>? trackingEntryId,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<String>? sourceType,
+    Expression<String>? seenWhere,
+    Expression<DateTime>? watchedAt,
+    Expression<int>? rating,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (seriesId != null) 'series_id': seriesId,
+      if (episodeId != null) 'episode_id': episodeId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
+      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (sourceType != null) 'source_type': sourceType,
+      if (seenWhere != null) 'seen_where': seenWhere,
+      if (watchedAt != null) 'watched_at': watchedAt,
+      if (rating != null) 'rating': rating,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvWatchSessionRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? seriesId,
+      Value<String?>? episodeId,
+      Value<String?>? targetRefJson,
+      Value<String?>? trackingEntryId,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
+      Value<String?>? sourceType,
+      Value<String?>? seenWhere,
+      Value<DateTime>? watchedAt,
+      Value<int?>? rating,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return TvWatchSessionRowsCompanion(
+      id: id ?? this.id,
+      seriesId: seriesId ?? this.seriesId,
+      episodeId: episodeId ?? this.episodeId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      sourceType: sourceType ?? this.sourceType,
+      seenWhere: seenWhere ?? this.seenWhere,
+      watchedAt: watchedAt ?? this.watchedAt,
+      rating: rating ?? this.rating,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (seriesId.present) {
+      map['series_id'] = Variable<String>(seriesId.value);
+    }
+    if (episodeId.present) {
+      map['episode_id'] = Variable<String>(episodeId.value);
+    }
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
+    }
+    if (trackingEntryId.present) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (seenWhere.present) {
+      map['seen_where'] = Variable<String>(seenWhere.value);
+    }
+    if (watchedAt.present) {
+      map['watched_at'] = Variable<DateTime>(watchedAt.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvWatchSessionRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('seriesId: $seriesId, ')
+          ..write('episodeId: $episodeId, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('seenWhere: $seenWhere, ')
+          ..write('watchedAt: $watchedAt, ')
+          ..write('rating: $rating, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TvEpisodeProgressRowsTable extends TvEpisodeProgressRows
+    with TableInfo<$TvEpisodeProgressRowsTable, TvEpisodeProgressRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvEpisodeProgressRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _seriesIdMeta =
+      const VerificationMeta('seriesId');
+  @override
+  late final GeneratedColumn<String> seriesId = GeneratedColumn<String>(
+      'series_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonIdMeta =
+      const VerificationMeta('seasonId');
+  @override
+  late final GeneratedColumn<String> seasonId = GeneratedColumn<String>(
+      'season_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _episodeIdMeta =
+      const VerificationMeta('episodeId');
+  @override
+  late final GeneratedColumn<String> episodeId = GeneratedColumn<String>(
+      'episode_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<double> episodeNumber = GeneratedColumn<double>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _watchedCountMeta =
+      const VerificationMeta('watchedCount');
+  @override
+  late final GeneratedColumn<int> watchedCount = GeneratedColumn<int>(
+      'watched_count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _completedMeta =
+      const VerificationMeta('completed');
+  @override
+  late final GeneratedColumn<bool> completed = GeneratedColumn<bool>(
+      'completed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("completed" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _lastWatchedAtMeta =
+      const VerificationMeta('lastWatchedAt');
+  @override
+  late final GeneratedColumn<DateTime> lastWatchedAt =
+      GeneratedColumn<DateTime>('last_watched_at', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        seriesId,
+        seasonId,
+        episodeId,
+        seasonNumber,
+        episodeNumber,
+        watchedCount,
+        completed,
+        lastWatchedAt,
+        rating,
+        notes,
+        updatedAt,
+        deletedAt,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_episode_progress_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<TvEpisodeProgressRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('series_id')) {
+      context.handle(_seriesIdMeta,
+          seriesId.isAcceptableOrUnknown(data['series_id']!, _seriesIdMeta));
+    } else if (isInserting) {
+      context.missing(_seriesIdMeta);
+    }
+    if (data.containsKey('season_id')) {
+      context.handle(_seasonIdMeta,
+          seasonId.isAcceptableOrUnknown(data['season_id']!, _seasonIdMeta));
+    } else if (isInserting) {
+      context.missing(_seasonIdMeta);
+    }
+    if (data.containsKey('episode_id')) {
+      context.handle(_episodeIdMeta,
+          episodeId.isAcceptableOrUnknown(data['episode_id']!, _episodeIdMeta));
+    } else if (isInserting) {
+      context.missing(_episodeIdMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('watched_count')) {
+      context.handle(
+          _watchedCountMeta,
+          watchedCount.isAcceptableOrUnknown(
+              data['watched_count']!, _watchedCountMeta));
+    }
+    if (data.containsKey('completed')) {
+      context.handle(_completedMeta,
+          completed.isAcceptableOrUnknown(data['completed']!, _completedMeta));
+    }
+    if (data.containsKey('last_watched_at')) {
+      context.handle(
+          _lastWatchedAtMeta,
+          lastWatchedAt.isAcceptableOrUnknown(
+              data['last_watched_at']!, _lastWatchedAtMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {seriesId, seasonId, episodeId};
+  @override
+  TvEpisodeProgressRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvEpisodeProgressRow(
+      seriesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_id'])!,
+      seasonId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}season_id'])!,
+      episodeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}episode_id'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}episode_number']),
+      watchedCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}watched_count'])!,
+      completed: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}completed'])!,
+      lastWatchedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_watched_at']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $TvEpisodeProgressRowsTable createAlias(String alias) {
+    return $TvEpisodeProgressRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvEpisodeProgressRow extends DataClass
+    implements Insertable<TvEpisodeProgressRow> {
+  final String seriesId;
+  final String seasonId;
+  final String episodeId;
+  final int? seasonNumber;
+  final double? episodeNumber;
+  final int watchedCount;
+  final bool completed;
+  final DateTime? lastWatchedAt;
+  final int? rating;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final String rawPayloadJson;
+  const TvEpisodeProgressRow(
+      {required this.seriesId,
+      required this.seasonId,
+      required this.episodeId,
+      this.seasonNumber,
+      this.episodeNumber,
+      required this.watchedCount,
+      required this.completed,
+      this.lastWatchedAt,
+      this.rating,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['series_id'] = Variable<String>(seriesId);
+    map['season_id'] = Variable<String>(seasonId);
+    map['episode_id'] = Variable<String>(episodeId);
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<double>(episodeNumber);
+    }
+    map['watched_count'] = Variable<int>(watchedCount);
+    map['completed'] = Variable<bool>(completed);
+    if (!nullToAbsent || lastWatchedAt != null) {
+      map['last_watched_at'] = Variable<DateTime>(lastWatchedAt);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  TvEpisodeProgressRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvEpisodeProgressRowsCompanion(
+      seriesId: Value(seriesId),
+      seasonId: Value(seasonId),
+      episodeId: Value(episodeId),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+      watchedCount: Value(watchedCount),
+      completed: Value(completed),
+      lastWatchedAt: lastWatchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastWatchedAt),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory TvEpisodeProgressRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvEpisodeProgressRow(
+      seriesId: serializer.fromJson<String>(json['seriesId']),
+      seasonId: serializer.fromJson<String>(json['seasonId']),
+      episodeId: serializer.fromJson<String>(json['episodeId']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<double?>(json['episodeNumber']),
+      watchedCount: serializer.fromJson<int>(json['watchedCount']),
+      completed: serializer.fromJson<bool>(json['completed']),
+      lastWatchedAt: serializer.fromJson<DateTime?>(json['lastWatchedAt']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'seriesId': serializer.toJson<String>(seriesId),
+      'seasonId': serializer.toJson<String>(seasonId),
+      'episodeId': serializer.toJson<String>(episodeId),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<double?>(episodeNumber),
+      'watchedCount': serializer.toJson<int>(watchedCount),
+      'completed': serializer.toJson<bool>(completed),
+      'lastWatchedAt': serializer.toJson<DateTime?>(lastWatchedAt),
+      'rating': serializer.toJson<int?>(rating),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  TvEpisodeProgressRow copyWith(
+          {String? seriesId,
+          String? seasonId,
+          String? episodeId,
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<double?> episodeNumber = const Value.absent(),
+          int? watchedCount,
+          bool? completed,
+          Value<DateTime?> lastWatchedAt = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
+          String? rawPayloadJson}) =>
+      TvEpisodeProgressRow(
+        seriesId: seriesId ?? this.seriesId,
+        seasonId: seasonId ?? this.seasonId,
+        episodeId: episodeId ?? this.episodeId,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        watchedCount: watchedCount ?? this.watchedCount,
+        completed: completed ?? this.completed,
+        lastWatchedAt:
+            lastWatchedAt.present ? lastWatchedAt.value : this.lastWatchedAt,
+        rating: rating.present ? rating.value : this.rating,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  TvEpisodeProgressRow copyWithCompanion(TvEpisodeProgressRowsCompanion data) {
+    return TvEpisodeProgressRow(
+      seriesId: data.seriesId.present ? data.seriesId.value : this.seriesId,
+      seasonId: data.seasonId.present ? data.seasonId.value : this.seasonId,
+      episodeId: data.episodeId.present ? data.episodeId.value : this.episodeId,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      watchedCount: data.watchedCount.present
+          ? data.watchedCount.value
+          : this.watchedCount,
+      completed: data.completed.present ? data.completed.value : this.completed,
+      lastWatchedAt: data.lastWatchedAt.present
+          ? data.lastWatchedAt.value
+          : this.lastWatchedAt,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvEpisodeProgressRow(')
+          ..write('seriesId: $seriesId, ')
+          ..write('seasonId: $seasonId, ')
+          ..write('episodeId: $episodeId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('watchedCount: $watchedCount, ')
+          ..write('completed: $completed, ')
+          ..write('lastWatchedAt: $lastWatchedAt, ')
+          ..write('rating: $rating, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      seriesId,
+      seasonId,
+      episodeId,
+      seasonNumber,
+      episodeNumber,
+      watchedCount,
+      completed,
+      lastWatchedAt,
+      rating,
+      notes,
+      updatedAt,
+      deletedAt,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvEpisodeProgressRow &&
+          other.seriesId == this.seriesId &&
+          other.seasonId == this.seasonId &&
+          other.episodeId == this.episodeId &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.watchedCount == this.watchedCount &&
+          other.completed == this.completed &&
+          other.lastWatchedAt == this.lastWatchedAt &&
+          other.rating == this.rating &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class TvEpisodeProgressRowsCompanion
+    extends UpdateCompanion<TvEpisodeProgressRow> {
+  final Value<String> seriesId;
+  final Value<String> seasonId;
+  final Value<String> episodeId;
+  final Value<int?> seasonNumber;
+  final Value<double?> episodeNumber;
+  final Value<int> watchedCount;
+  final Value<bool> completed;
+  final Value<DateTime?> lastWatchedAt;
+  final Value<int?> rating;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const TvEpisodeProgressRowsCompanion({
+    this.seriesId = const Value.absent(),
+    this.seasonId = const Value.absent(),
+    this.episodeId = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.watchedCount = const Value.absent(),
+    this.completed = const Value.absent(),
+    this.lastWatchedAt = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvEpisodeProgressRowsCompanion.insert({
+    required String seriesId,
+    required String seasonId,
+    required String episodeId,
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.watchedCount = const Value.absent(),
+    this.completed = const Value.absent(),
+    this.lastWatchedAt = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : seriesId = Value(seriesId),
+        seasonId = Value(seasonId),
+        episodeId = Value(episodeId),
+        updatedAt = Value(updatedAt);
+  static Insertable<TvEpisodeProgressRow> custom({
+    Expression<String>? seriesId,
+    Expression<String>? seasonId,
+    Expression<String>? episodeId,
+    Expression<int>? seasonNumber,
+    Expression<double>? episodeNumber,
+    Expression<int>? watchedCount,
+    Expression<bool>? completed,
+    Expression<DateTime>? lastWatchedAt,
+    Expression<int>? rating,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (seriesId != null) 'series_id': seriesId,
+      if (seasonId != null) 'season_id': seasonId,
+      if (episodeId != null) 'episode_id': episodeId,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (watchedCount != null) 'watched_count': watchedCount,
+      if (completed != null) 'completed': completed,
+      if (lastWatchedAt != null) 'last_watched_at': lastWatchedAt,
+      if (rating != null) 'rating': rating,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvEpisodeProgressRowsCompanion copyWith(
+      {Value<String>? seriesId,
+      Value<String>? seasonId,
+      Value<String>? episodeId,
+      Value<int?>? seasonNumber,
+      Value<double?>? episodeNumber,
+      Value<int>? watchedCount,
+      Value<bool>? completed,
+      Value<DateTime?>? lastWatchedAt,
+      Value<int?>? rating,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return TvEpisodeProgressRowsCompanion(
+      seriesId: seriesId ?? this.seriesId,
+      seasonId: seasonId ?? this.seasonId,
+      episodeId: episodeId ?? this.episodeId,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      watchedCount: watchedCount ?? this.watchedCount,
+      completed: completed ?? this.completed,
+      lastWatchedAt: lastWatchedAt ?? this.lastWatchedAt,
+      rating: rating ?? this.rating,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (seriesId.present) {
+      map['series_id'] = Variable<String>(seriesId.value);
+    }
+    if (seasonId.present) {
+      map['season_id'] = Variable<String>(seasonId.value);
+    }
+    if (episodeId.present) {
+      map['episode_id'] = Variable<String>(episodeId.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<double>(episodeNumber.value);
+    }
+    if (watchedCount.present) {
+      map['watched_count'] = Variable<int>(watchedCount.value);
+    }
+    if (completed.present) {
+      map['completed'] = Variable<bool>(completed.value);
+    }
+    if (lastWatchedAt.present) {
+      map['last_watched_at'] = Variable<DateTime>(lastWatchedAt.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvEpisodeProgressRowsCompanion(')
+          ..write('seriesId: $seriesId, ')
+          ..write('seasonId: $seasonId, ')
+          ..write('episodeId: $episodeId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('watchedCount: $watchedCount, ')
+          ..write('completed: $completed, ')
+          ..write('lastWatchedAt: $lastWatchedAt, ')
+          ..write('rating: $rating, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TvCustomEpisodeRowsTable extends TvCustomEpisodeRows
+    with TableInfo<$TvCustomEpisodeRowsTable, TvCustomEpisodeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvCustomEpisodeRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seriesIdMeta =
+      const VerificationMeta('seriesId');
+  @override
+  late final GeneratedColumn<String> seriesId = GeneratedColumn<String>(
+      'series_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _airDateMeta =
+      const VerificationMeta('airDate');
+  @override
+  late final GeneratedColumn<DateTime> airDate = GeneratedColumn<DateTime>(
+      'air_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _runtimeMinutesMeta =
+      const VerificationMeta('runtimeMinutes');
+  @override
+  late final GeneratedColumn<int> runtimeMinutes = GeneratedColumn<int>(
+      'runtime_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _stillImageUrlMeta =
+      const VerificationMeta('stillImageUrl');
+  @override
+  late final GeneratedColumn<String> stillImageUrl = GeneratedColumn<String>(
+      'still_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _localImagePathMeta =
+      const VerificationMeta('localImagePath');
+  @override
+  late final GeneratedColumn<String> localImagePath = GeneratedColumn<String>(
+      'local_image_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _thumbnailImageUrlMeta =
+      const VerificationMeta('thumbnailImageUrl');
+  @override
+  late final GeneratedColumn<String> thumbnailImageUrl =
+      GeneratedColumn<String>('thumbnail_image_url', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        seriesId,
+        seasonNumber,
+        episodeNumber,
+        title,
+        description,
+        airDate,
+        runtimeMinutes,
+        stillImageUrl,
+        localImagePath,
+        thumbnailImageUrl,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_custom_episode_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvCustomEpisodeRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('series_id')) {
+      context.handle(_seriesIdMeta,
+          seriesId.isAcceptableOrUnknown(data['series_id']!, _seriesIdMeta));
+    } else if (isInserting) {
+      context.missing(_seriesIdMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    } else if (isInserting) {
+      context.missing(_seasonNumberMeta);
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    } else if (isInserting) {
+      context.missing(_episodeNumberMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('air_date')) {
+      context.handle(_airDateMeta,
+          airDate.isAcceptableOrUnknown(data['air_date']!, _airDateMeta));
+    }
+    if (data.containsKey('runtime_minutes')) {
+      context.handle(
+          _runtimeMinutesMeta,
+          runtimeMinutes.isAcceptableOrUnknown(
+              data['runtime_minutes']!, _runtimeMinutesMeta));
+    }
+    if (data.containsKey('still_image_url')) {
+      context.handle(
+          _stillImageUrlMeta,
+          stillImageUrl.isAcceptableOrUnknown(
+              data['still_image_url']!, _stillImageUrlMeta));
+    }
+    if (data.containsKey('local_image_path')) {
+      context.handle(
+          _localImagePathMeta,
+          localImagePath.isAcceptableOrUnknown(
+              data['local_image_path']!, _localImagePathMeta));
+    }
+    if (data.containsKey('thumbnail_image_url')) {
+      context.handle(
+          _thumbnailImageUrlMeta,
+          thumbnailImageUrl.isAcceptableOrUnknown(
+              data['thumbnail_image_url']!, _thumbnailImageUrlMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TvCustomEpisodeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvCustomEpisodeRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      seriesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_id'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number'])!,
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      airDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}air_date']),
+      runtimeMinutes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}runtime_minutes']),
+      stillImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}still_image_url']),
+      localImagePath: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}local_image_path']),
+      thumbnailImageUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}thumbnail_image_url']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $TvCustomEpisodeRowsTable createAlias(String alias) {
+    return $TvCustomEpisodeRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvCustomEpisodeRow extends DataClass
+    implements Insertable<TvCustomEpisodeRow> {
+  final String id;
+  final String seriesId;
+  final int seasonNumber;
+  final int episodeNumber;
+  final String title;
+  final String? description;
+  final DateTime? airDate;
+  final int? runtimeMinutes;
+  final String? stillImageUrl;
+  final String? localImagePath;
+  final String? thumbnailImageUrl;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const TvCustomEpisodeRow(
+      {required this.id,
+      required this.seriesId,
+      required this.seasonNumber,
+      required this.episodeNumber,
+      required this.title,
+      this.description,
+      this.airDate,
+      this.runtimeMinutes,
+      this.stillImageUrl,
+      this.localImagePath,
+      this.thumbnailImageUrl,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['series_id'] = Variable<String>(seriesId);
+    map['season_number'] = Variable<int>(seasonNumber);
+    map['episode_number'] = Variable<int>(episodeNumber);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || airDate != null) {
+      map['air_date'] = Variable<DateTime>(airDate);
+    }
+    if (!nullToAbsent || runtimeMinutes != null) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes);
+    }
+    if (!nullToAbsent || stillImageUrl != null) {
+      map['still_image_url'] = Variable<String>(stillImageUrl);
+    }
+    if (!nullToAbsent || localImagePath != null) {
+      map['local_image_path'] = Variable<String>(localImagePath);
+    }
+    if (!nullToAbsent || thumbnailImageUrl != null) {
+      map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  TvCustomEpisodeRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvCustomEpisodeRowsCompanion(
+      id: Value(id),
+      seriesId: Value(seriesId),
+      seasonNumber: Value(seasonNumber),
+      episodeNumber: Value(episodeNumber),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      airDate: airDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(airDate),
+      runtimeMinutes: runtimeMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(runtimeMinutes),
+      stillImageUrl: stillImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stillImageUrl),
+      localImagePath: localImagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localImagePath),
+      thumbnailImageUrl: thumbnailImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thumbnailImageUrl),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory TvCustomEpisodeRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvCustomEpisodeRow(
+      id: serializer.fromJson<String>(json['id']),
+      seriesId: serializer.fromJson<String>(json['seriesId']),
+      seasonNumber: serializer.fromJson<int>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int>(json['episodeNumber']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      airDate: serializer.fromJson<DateTime?>(json['airDate']),
+      runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
+      stillImageUrl: serializer.fromJson<String?>(json['stillImageUrl']),
+      localImagePath: serializer.fromJson<String?>(json['localImagePath']),
+      thumbnailImageUrl:
+          serializer.fromJson<String?>(json['thumbnailImageUrl']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'seriesId': serializer.toJson<String>(seriesId),
+      'seasonNumber': serializer.toJson<int>(seasonNumber),
+      'episodeNumber': serializer.toJson<int>(episodeNumber),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'airDate': serializer.toJson<DateTime?>(airDate),
+      'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
+      'stillImageUrl': serializer.toJson<String?>(stillImageUrl),
+      'localImagePath': serializer.toJson<String?>(localImagePath),
+      'thumbnailImageUrl': serializer.toJson<String?>(thumbnailImageUrl),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  TvCustomEpisodeRow copyWith(
+          {String? id,
+          String? seriesId,
+          int? seasonNumber,
+          int? episodeNumber,
+          String? title,
+          Value<String?> description = const Value.absent(),
+          Value<DateTime?> airDate = const Value.absent(),
+          Value<int?> runtimeMinutes = const Value.absent(),
+          Value<String?> stillImageUrl = const Value.absent(),
+          Value<String?> localImagePath = const Value.absent(),
+          Value<String?> thumbnailImageUrl = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      TvCustomEpisodeRow(
+        id: id ?? this.id,
+        seriesId: seriesId ?? this.seriesId,
+        seasonNumber: seasonNumber ?? this.seasonNumber,
+        episodeNumber: episodeNumber ?? this.episodeNumber,
+        title: title ?? this.title,
+        description: description.present ? description.value : this.description,
+        airDate: airDate.present ? airDate.value : this.airDate,
+        runtimeMinutes:
+            runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
+        stillImageUrl:
+            stillImageUrl.present ? stillImageUrl.value : this.stillImageUrl,
+        localImagePath:
+            localImagePath.present ? localImagePath.value : this.localImagePath,
+        thumbnailImageUrl: thumbnailImageUrl.present
+            ? thumbnailImageUrl.value
+            : this.thumbnailImageUrl,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  TvCustomEpisodeRow copyWithCompanion(TvCustomEpisodeRowsCompanion data) {
+    return TvCustomEpisodeRow(
+      id: data.id.present ? data.id.value : this.id,
+      seriesId: data.seriesId.present ? data.seriesId.value : this.seriesId,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      title: data.title.present ? data.title.value : this.title,
+      description:
+          data.description.present ? data.description.value : this.description,
+      airDate: data.airDate.present ? data.airDate.value : this.airDate,
+      runtimeMinutes: data.runtimeMinutes.present
+          ? data.runtimeMinutes.value
+          : this.runtimeMinutes,
+      stillImageUrl: data.stillImageUrl.present
+          ? data.stillImageUrl.value
+          : this.stillImageUrl,
+      localImagePath: data.localImagePath.present
+          ? data.localImagePath.value
+          : this.localImagePath,
+      thumbnailImageUrl: data.thumbnailImageUrl.present
+          ? data.thumbnailImageUrl.value
+          : this.thumbnailImageUrl,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvCustomEpisodeRow(')
+          ..write('id: $id, ')
+          ..write('seriesId: $seriesId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('airDate: $airDate, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('stillImageUrl: $stillImageUrl, ')
+          ..write('localImagePath: $localImagePath, ')
+          ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      seriesId,
+      seasonNumber,
+      episodeNumber,
+      title,
+      description,
+      airDate,
+      runtimeMinutes,
+      stillImageUrl,
+      localImagePath,
+      thumbnailImageUrl,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvCustomEpisodeRow &&
+          other.id == this.id &&
+          other.seriesId == this.seriesId &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.airDate == this.airDate &&
+          other.runtimeMinutes == this.runtimeMinutes &&
+          other.stillImageUrl == this.stillImageUrl &&
+          other.localImagePath == this.localImagePath &&
+          other.thumbnailImageUrl == this.thumbnailImageUrl &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class TvCustomEpisodeRowsCompanion extends UpdateCompanion<TvCustomEpisodeRow> {
+  final Value<String> id;
+  final Value<String> seriesId;
+  final Value<int> seasonNumber;
+  final Value<int> episodeNumber;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<DateTime?> airDate;
+  final Value<int?> runtimeMinutes;
+  final Value<String?> stillImageUrl;
+  final Value<String?> localImagePath;
+  final Value<String?> thumbnailImageUrl;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const TvCustomEpisodeRowsCompanion({
+    this.id = const Value.absent(),
+    this.seriesId = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.airDate = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.stillImageUrl = const Value.absent(),
+    this.localImagePath = const Value.absent(),
+    this.thumbnailImageUrl = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvCustomEpisodeRowsCompanion.insert({
+    required String id,
+    required String seriesId,
+    required int seasonNumber,
+    required int episodeNumber,
+    required String title,
+    this.description = const Value.absent(),
+    this.airDate = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.stillImageUrl = const Value.absent(),
+    this.localImagePath = const Value.absent(),
+    this.thumbnailImageUrl = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        seriesId = Value(seriesId),
+        seasonNumber = Value(seasonNumber),
+        episodeNumber = Value(episodeNumber),
+        title = Value(title),
+        updatedAt = Value(updatedAt);
+  static Insertable<TvCustomEpisodeRow> custom({
+    Expression<String>? id,
+    Expression<String>? seriesId,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<DateTime>? airDate,
+    Expression<int>? runtimeMinutes,
+    Expression<String>? stillImageUrl,
+    Expression<String>? localImagePath,
+    Expression<String>? thumbnailImageUrl,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (seriesId != null) 'series_id': seriesId,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (airDate != null) 'air_date': airDate,
+      if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+      if (stillImageUrl != null) 'still_image_url': stillImageUrl,
+      if (localImagePath != null) 'local_image_path': localImagePath,
+      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvCustomEpisodeRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? seriesId,
+      Value<int>? seasonNumber,
+      Value<int>? episodeNumber,
+      Value<String>? title,
+      Value<String?>? description,
+      Value<DateTime?>? airDate,
+      Value<int?>? runtimeMinutes,
+      Value<String?>? stillImageUrl,
+      Value<String?>? localImagePath,
+      Value<String?>? thumbnailImageUrl,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return TvCustomEpisodeRowsCompanion(
+      id: id ?? this.id,
+      seriesId: seriesId ?? this.seriesId,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      airDate: airDate ?? this.airDate,
+      runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      stillImageUrl: stillImageUrl ?? this.stillImageUrl,
+      localImagePath: localImagePath ?? this.localImagePath,
+      thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (seriesId.present) {
+      map['series_id'] = Variable<String>(seriesId.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (airDate.present) {
+      map['air_date'] = Variable<DateTime>(airDate.value);
+    }
+    if (runtimeMinutes.present) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes.value);
+    }
+    if (stillImageUrl.present) {
+      map['still_image_url'] = Variable<String>(stillImageUrl.value);
+    }
+    if (localImagePath.present) {
+      map['local_image_path'] = Variable<String>(localImagePath.value);
+    }
+    if (thumbnailImageUrl.present) {
+      map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvCustomEpisodeRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('seriesId: $seriesId, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('airDate: $airDate, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('stillImageUrl: $stillImageUrl, ')
+          ..write('localImagePath: $localImagePath, ')
+          ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -31026,6 +33058,12 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $TvReleaseEpisodeMapRowsTable(this);
   late final $TvOwnedDetailsRowsTable tvOwnedDetailsRows =
       $TvOwnedDetailsRowsTable(this);
+  late final $TvWatchSessionRowsTable tvWatchSessionRows =
+      $TvWatchSessionRowsTable(this);
+  late final $TvEpisodeProgressRowsTable tvEpisodeProgressRows =
+      $TvEpisodeProgressRowsTable(this);
+  late final $TvCustomEpisodeRowsTable tvCustomEpisodeRows =
+      $TvCustomEpisodeRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -31078,7 +33116,10 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         tvReleaseRows,
         tvReleaseMediaRows,
         tvReleaseEpisodeMapRows,
-        tvOwnedDetailsRows
+        tvOwnedDetailsRows,
+        tvWatchSessionRows,
+        tvEpisodeProgressRows,
+        tvCustomEpisodeRows
       ];
 }
 
@@ -45316,6 +47357,936 @@ typedef $$TvOwnedDetailsRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     TvOwnedDetailsRow,
     PrefetchHooks Function()>;
+typedef $$TvWatchSessionRowsTableCreateCompanionBuilder
+    = TvWatchSessionRowsCompanion Function({
+  required String id,
+  required String seriesId,
+  Value<String?> episodeId,
+  Value<String?> targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<String?> sourceType,
+  Value<String?> seenWhere,
+  required DateTime watchedAt,
+  Value<int?> rating,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$TvWatchSessionRowsTableUpdateCompanionBuilder
+    = TvWatchSessionRowsCompanion Function({
+  Value<String> id,
+  Value<String> seriesId,
+  Value<String?> episodeId,
+  Value<String?> targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<String?> sourceType,
+  Value<String?> seenWhere,
+  Value<DateTime> watchedAt,
+  Value<int?> rating,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$TvWatchSessionRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvWatchSessionRowsTable> {
+  $$TvWatchSessionRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get episodeId => $composableBuilder(
+      column: $table.episodeId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seenWhere => $composableBuilder(
+      column: $table.seenWhere, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get watchedAt => $composableBuilder(
+      column: $table.watchedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$TvWatchSessionRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvWatchSessionRowsTable> {
+  $$TvWatchSessionRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get episodeId => $composableBuilder(
+      column: $table.episodeId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seenWhere => $composableBuilder(
+      column: $table.seenWhere, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get watchedAt => $composableBuilder(
+      column: $table.watchedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvWatchSessionRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvWatchSessionRowsTable> {
+  $$TvWatchSessionRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get seriesId =>
+      $composableBuilder(column: $table.seriesId, builder: (column) => column);
+
+  GeneratedColumn<String> get episodeId =>
+      $composableBuilder(column: $table.episodeId, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get seenWhere =>
+      $composableBuilder(column: $table.seenWhere, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get watchedAt =>
+      $composableBuilder(column: $table.watchedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$TvWatchSessionRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvWatchSessionRowsTable,
+    TvWatchSessionRow,
+    $$TvWatchSessionRowsTableFilterComposer,
+    $$TvWatchSessionRowsTableOrderingComposer,
+    $$TvWatchSessionRowsTableAnnotationComposer,
+    $$TvWatchSessionRowsTableCreateCompanionBuilder,
+    $$TvWatchSessionRowsTableUpdateCompanionBuilder,
+    (
+      TvWatchSessionRow,
+      BaseReferences<_$LocalDatabase, $TvWatchSessionRowsTable,
+          TvWatchSessionRow>
+    ),
+    TvWatchSessionRow,
+    PrefetchHooks Function()> {
+  $$TvWatchSessionRowsTableTableManager(
+      _$LocalDatabase db, $TvWatchSessionRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvWatchSessionRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvWatchSessionRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvWatchSessionRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> seriesId = const Value.absent(),
+            Value<String?> episodeId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> seenWhere = const Value.absent(),
+            Value<DateTime> watchedAt = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvWatchSessionRowsCompanion(
+            id: id,
+            seriesId: seriesId,
+            episodeId: episodeId,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            sourceType: sourceType,
+            seenWhere: seenWhere,
+            watchedAt: watchedAt,
+            rating: rating,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String seriesId,
+            Value<String?> episodeId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> seenWhere = const Value.absent(),
+            required DateTime watchedAt,
+            Value<int?> rating = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvWatchSessionRowsCompanion.insert(
+            id: id,
+            seriesId: seriesId,
+            episodeId: episodeId,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            sourceType: sourceType,
+            seenWhere: seenWhere,
+            watchedAt: watchedAt,
+            rating: rating,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvWatchSessionRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvWatchSessionRowsTable,
+    TvWatchSessionRow,
+    $$TvWatchSessionRowsTableFilterComposer,
+    $$TvWatchSessionRowsTableOrderingComposer,
+    $$TvWatchSessionRowsTableAnnotationComposer,
+    $$TvWatchSessionRowsTableCreateCompanionBuilder,
+    $$TvWatchSessionRowsTableUpdateCompanionBuilder,
+    (
+      TvWatchSessionRow,
+      BaseReferences<_$LocalDatabase, $TvWatchSessionRowsTable,
+          TvWatchSessionRow>
+    ),
+    TvWatchSessionRow,
+    PrefetchHooks Function()>;
+typedef $$TvEpisodeProgressRowsTableCreateCompanionBuilder
+    = TvEpisodeProgressRowsCompanion Function({
+  required String seriesId,
+  required String seasonId,
+  required String episodeId,
+  Value<int?> seasonNumber,
+  Value<double?> episodeNumber,
+  Value<int> watchedCount,
+  Value<bool> completed,
+  Value<DateTime?> lastWatchedAt,
+  Value<int?> rating,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$TvEpisodeProgressRowsTableUpdateCompanionBuilder
+    = TvEpisodeProgressRowsCompanion Function({
+  Value<String> seriesId,
+  Value<String> seasonId,
+  Value<String> episodeId,
+  Value<int?> seasonNumber,
+  Value<double?> episodeNumber,
+  Value<int> watchedCount,
+  Value<bool> completed,
+  Value<DateTime?> lastWatchedAt,
+  Value<int?> rating,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$TvEpisodeProgressRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvEpisodeProgressRowsTable> {
+  $$TvEpisodeProgressRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seasonId => $composableBuilder(
+      column: $table.seasonId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get episodeId => $composableBuilder(
+      column: $table.episodeId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get watchedCount => $composableBuilder(
+      column: $table.watchedCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get completed => $composableBuilder(
+      column: $table.completed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastWatchedAt => $composableBuilder(
+      column: $table.lastWatchedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$TvEpisodeProgressRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvEpisodeProgressRowsTable> {
+  $$TvEpisodeProgressRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seasonId => $composableBuilder(
+      column: $table.seasonId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get episodeId => $composableBuilder(
+      column: $table.episodeId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get watchedCount => $composableBuilder(
+      column: $table.watchedCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get completed => $composableBuilder(
+      column: $table.completed, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastWatchedAt => $composableBuilder(
+      column: $table.lastWatchedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvEpisodeProgressRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvEpisodeProgressRowsTable> {
+  $$TvEpisodeProgressRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get seriesId =>
+      $composableBuilder(column: $table.seriesId, builder: (column) => column);
+
+  GeneratedColumn<String> get seasonId =>
+      $composableBuilder(column: $table.seasonId, builder: (column) => column);
+
+  GeneratedColumn<String> get episodeId =>
+      $composableBuilder(column: $table.episodeId, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<double> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get watchedCount => $composableBuilder(
+      column: $table.watchedCount, builder: (column) => column);
+
+  GeneratedColumn<bool> get completed =>
+      $composableBuilder(column: $table.completed, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastWatchedAt => $composableBuilder(
+      column: $table.lastWatchedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$TvEpisodeProgressRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvEpisodeProgressRowsTable,
+    TvEpisodeProgressRow,
+    $$TvEpisodeProgressRowsTableFilterComposer,
+    $$TvEpisodeProgressRowsTableOrderingComposer,
+    $$TvEpisodeProgressRowsTableAnnotationComposer,
+    $$TvEpisodeProgressRowsTableCreateCompanionBuilder,
+    $$TvEpisodeProgressRowsTableUpdateCompanionBuilder,
+    (
+      TvEpisodeProgressRow,
+      BaseReferences<_$LocalDatabase, $TvEpisodeProgressRowsTable,
+          TvEpisodeProgressRow>
+    ),
+    TvEpisodeProgressRow,
+    PrefetchHooks Function()> {
+  $$TvEpisodeProgressRowsTableTableManager(
+      _$LocalDatabase db, $TvEpisodeProgressRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvEpisodeProgressRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvEpisodeProgressRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvEpisodeProgressRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> seriesId = const Value.absent(),
+            Value<String> seasonId = const Value.absent(),
+            Value<String> episodeId = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<double?> episodeNumber = const Value.absent(),
+            Value<int> watchedCount = const Value.absent(),
+            Value<bool> completed = const Value.absent(),
+            Value<DateTime?> lastWatchedAt = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvEpisodeProgressRowsCompanion(
+            seriesId: seriesId,
+            seasonId: seasonId,
+            episodeId: episodeId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            watchedCount: watchedCount,
+            completed: completed,
+            lastWatchedAt: lastWatchedAt,
+            rating: rating,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String seriesId,
+            required String seasonId,
+            required String episodeId,
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<double?> episodeNumber = const Value.absent(),
+            Value<int> watchedCount = const Value.absent(),
+            Value<bool> completed = const Value.absent(),
+            Value<DateTime?> lastWatchedAt = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvEpisodeProgressRowsCompanion.insert(
+            seriesId: seriesId,
+            seasonId: seasonId,
+            episodeId: episodeId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            watchedCount: watchedCount,
+            completed: completed,
+            lastWatchedAt: lastWatchedAt,
+            rating: rating,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvEpisodeProgressRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $TvEpisodeProgressRowsTable,
+        TvEpisodeProgressRow,
+        $$TvEpisodeProgressRowsTableFilterComposer,
+        $$TvEpisodeProgressRowsTableOrderingComposer,
+        $$TvEpisodeProgressRowsTableAnnotationComposer,
+        $$TvEpisodeProgressRowsTableCreateCompanionBuilder,
+        $$TvEpisodeProgressRowsTableUpdateCompanionBuilder,
+        (
+          TvEpisodeProgressRow,
+          BaseReferences<_$LocalDatabase, $TvEpisodeProgressRowsTable,
+              TvEpisodeProgressRow>
+        ),
+        TvEpisodeProgressRow,
+        PrefetchHooks Function()>;
+typedef $$TvCustomEpisodeRowsTableCreateCompanionBuilder
+    = TvCustomEpisodeRowsCompanion Function({
+  required String id,
+  required String seriesId,
+  required int seasonNumber,
+  required int episodeNumber,
+  required String title,
+  Value<String?> description,
+  Value<DateTime?> airDate,
+  Value<int?> runtimeMinutes,
+  Value<String?> stillImageUrl,
+  Value<String?> localImagePath,
+  Value<String?> thumbnailImageUrl,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$TvCustomEpisodeRowsTableUpdateCompanionBuilder
+    = TvCustomEpisodeRowsCompanion Function({
+  Value<String> id,
+  Value<String> seriesId,
+  Value<int> seasonNumber,
+  Value<int> episodeNumber,
+  Value<String> title,
+  Value<String?> description,
+  Value<DateTime?> airDate,
+  Value<int?> runtimeMinutes,
+  Value<String?> stillImageUrl,
+  Value<String?> localImagePath,
+  Value<String?> thumbnailImageUrl,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$TvCustomEpisodeRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvCustomEpisodeRowsTable> {
+  $$TvCustomEpisodeRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get airDate => $composableBuilder(
+      column: $table.airDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get stillImageUrl => $composableBuilder(
+      column: $table.stillImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localImagePath => $composableBuilder(
+      column: $table.localImagePath,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$TvCustomEpisodeRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvCustomEpisodeRowsTable> {
+  $$TvCustomEpisodeRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get airDate => $composableBuilder(
+      column: $table.airDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get stillImageUrl => $composableBuilder(
+      column: $table.stillImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localImagePath => $composableBuilder(
+      column: $table.localImagePath,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvCustomEpisodeRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvCustomEpisodeRowsTable> {
+  $$TvCustomEpisodeRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get seriesId =>
+      $composableBuilder(column: $table.seriesId, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get airDate =>
+      $composableBuilder(column: $table.airDate, builder: (column) => column);
+
+  GeneratedColumn<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get stillImageUrl => $composableBuilder(
+      column: $table.stillImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get localImagePath => $composableBuilder(
+      column: $table.localImagePath, builder: (column) => column);
+
+  GeneratedColumn<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$TvCustomEpisodeRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvCustomEpisodeRowsTable,
+    TvCustomEpisodeRow,
+    $$TvCustomEpisodeRowsTableFilterComposer,
+    $$TvCustomEpisodeRowsTableOrderingComposer,
+    $$TvCustomEpisodeRowsTableAnnotationComposer,
+    $$TvCustomEpisodeRowsTableCreateCompanionBuilder,
+    $$TvCustomEpisodeRowsTableUpdateCompanionBuilder,
+    (
+      TvCustomEpisodeRow,
+      BaseReferences<_$LocalDatabase, $TvCustomEpisodeRowsTable,
+          TvCustomEpisodeRow>
+    ),
+    TvCustomEpisodeRow,
+    PrefetchHooks Function()> {
+  $$TvCustomEpisodeRowsTableTableManager(
+      _$LocalDatabase db, $TvCustomEpisodeRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvCustomEpisodeRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvCustomEpisodeRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvCustomEpisodeRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> seriesId = const Value.absent(),
+            Value<int> seasonNumber = const Value.absent(),
+            Value<int> episodeNumber = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> airDate = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> stillImageUrl = const Value.absent(),
+            Value<String?> localImagePath = const Value.absent(),
+            Value<String?> thumbnailImageUrl = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvCustomEpisodeRowsCompanion(
+            id: id,
+            seriesId: seriesId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            title: title,
+            description: description,
+            airDate: airDate,
+            runtimeMinutes: runtimeMinutes,
+            stillImageUrl: stillImageUrl,
+            localImagePath: localImagePath,
+            thumbnailImageUrl: thumbnailImageUrl,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String seriesId,
+            required int seasonNumber,
+            required int episodeNumber,
+            required String title,
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> airDate = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> stillImageUrl = const Value.absent(),
+            Value<String?> localImagePath = const Value.absent(),
+            Value<String?> thumbnailImageUrl = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvCustomEpisodeRowsCompanion.insert(
+            id: id,
+            seriesId: seriesId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            title: title,
+            description: description,
+            airDate: airDate,
+            runtimeMinutes: runtimeMinutes,
+            stillImageUrl: stillImageUrl,
+            localImagePath: localImagePath,
+            thumbnailImageUrl: thumbnailImageUrl,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvCustomEpisodeRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvCustomEpisodeRowsTable,
+    TvCustomEpisodeRow,
+    $$TvCustomEpisodeRowsTableFilterComposer,
+    $$TvCustomEpisodeRowsTableOrderingComposer,
+    $$TvCustomEpisodeRowsTableAnnotationComposer,
+    $$TvCustomEpisodeRowsTableCreateCompanionBuilder,
+    $$TvCustomEpisodeRowsTableUpdateCompanionBuilder,
+    (
+      TvCustomEpisodeRow,
+      BaseReferences<_$LocalDatabase, $TvCustomEpisodeRowsTable,
+          TvCustomEpisodeRow>
+    ),
+    TvCustomEpisodeRow,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -45426,4 +48397,10 @@ class $LocalDatabaseManager {
           _db, _db.tvReleaseEpisodeMapRows);
   $$TvOwnedDetailsRowsTableTableManager get tvOwnedDetailsRows =>
       $$TvOwnedDetailsRowsTableTableManager(_db, _db.tvOwnedDetailsRows);
+  $$TvWatchSessionRowsTableTableManager get tvWatchSessionRows =>
+      $$TvWatchSessionRowsTableTableManager(_db, _db.tvWatchSessionRows);
+  $$TvEpisodeProgressRowsTableTableManager get tvEpisodeProgressRows =>
+      $$TvEpisodeProgressRowsTableTableManager(_db, _db.tvEpisodeProgressRows);
+  $$TvCustomEpisodeRowsTableTableManager get tvCustomEpisodeRows =>
+      $$TvCustomEpisodeRowsTableTableManager(_db, _db.tvCustomEpisodeRows);
 }

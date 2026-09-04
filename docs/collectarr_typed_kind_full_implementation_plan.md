@@ -1664,6 +1664,10 @@ custom episodes if appropriate
 
 No `_shared/video` persistence.
 
+### Status (2026-09-05)
+
+Complete. TV now has dedicated typed watch-session, episode-progress, and custom-episode models and Drift tables (schema 19), a typed tracking repository, provider envelope mapping with kind validation and image fallback, and a TV-owned tracking profile. Focused tracking/provider, migration, and repository tests pass. Continue with PR58.
+
 ---
 
 # PHASE 13 — Anime

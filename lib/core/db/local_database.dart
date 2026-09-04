@@ -423,13 +423,16 @@ class ProviderItemLinksCache extends Table {
   TvReleaseMediaRows,
   TvReleaseEpisodeMapRows,
   TvOwnedDetailsRows,
+  TvWatchSessionRows,
+  TvEpisodeProgressRows,
+  TvCustomEpisodeRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration {
@@ -495,6 +498,11 @@ class LocalDatabase extends _$LocalDatabase {
           await m.createTable(tvReleaseMediaRows);
           await m.createTable(tvReleaseEpisodeMapRows);
           await m.createTable(tvOwnedDetailsRows);
+        }
+        if (from < 19) {
+          await m.createTable(tvWatchSessionRows);
+          await m.createTable(tvEpisodeProgressRows);
+          await m.createTable(tvCustomEpisodeRows);
         } else {
           await _destructiveRebuild(m);
         }

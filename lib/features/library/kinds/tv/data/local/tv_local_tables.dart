@@ -138,3 +138,61 @@ class TvOwnedDetailsRows extends Table {
   @override
   Set<Column> get primaryKey => {ownedItemId};
 }
+
+class TvWatchSessionRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get seriesId => text()();
+  TextColumn get episodeId => text().nullable()();
+  TextColumn get targetRefJson => text().nullable()();
+  TextColumn get trackingEntryId => text().nullable()();
+  IntColumn get seasonNumber => integer().nullable()();
+  IntColumn get episodeNumber => integer().nullable()();
+  TextColumn get sourceType => text().nullable()();
+  TextColumn get seenWhere => text().nullable()();
+  DateTimeColumn get watchedAt => dateTime()();
+  IntColumn get rating => integer().nullable()();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class TvEpisodeProgressRows extends Table {
+  TextColumn get seriesId => text()();
+  TextColumn get seasonId => text()();
+  TextColumn get episodeId => text()();
+  IntColumn get seasonNumber => integer().nullable()();
+  RealColumn get episodeNumber => real().nullable()();
+  IntColumn get watchedCount => integer().withDefault(const Constant(0))();
+  BoolColumn get completed => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get lastWatchedAt => dateTime().nullable()();
+  IntColumn get rating => integer().nullable()();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+  TextColumn get rawPayloadJson => text().withDefault(const Constant('{}'))();
+
+  @override
+  Set<Column> get primaryKey => {seriesId, seasonId, episodeId};
+}
+
+class TvCustomEpisodeRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get seriesId => text()();
+  IntColumn get seasonNumber => integer()();
+  IntColumn get episodeNumber => integer()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  DateTimeColumn get airDate => dateTime().nullable()();
+  IntColumn get runtimeMinutes => integer().nullable()();
+  TextColumn get stillImageUrl => text().nullable()();
+  TextColumn get localImagePath => text().nullable()();
+  TextColumn get thumbnailImageUrl => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

@@ -19,7 +19,9 @@ export 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_remote_s
 export 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
 export 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
+export 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+export 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
@@ -33,6 +35,8 @@ export 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_edit_sc
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_typed_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
