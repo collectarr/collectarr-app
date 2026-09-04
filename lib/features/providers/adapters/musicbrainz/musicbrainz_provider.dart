@@ -222,13 +222,18 @@ class MusicBrainzProvider extends ProviderAdapter {
 
     return {
       'kind': 'music',
+      if (providerItemId != null) 'id': providerItemId,
       'title': title,
+      if (artistNames.isNotEmpty) 'artist': artistNames.join(', '),
       if (publisher != null) 'publisher': publisher,
       if (catalogNumber != null) 'catalog_number': catalogNumber,
       if (releaseDate != null)
         'release_date': releaseDate.toIso8601String().split('T').first,
       if (barcode != null) 'barcode': barcode,
+      if (release.country != null) 'country': release.country,
       if (coverUrl != null) 'cover_image_url': coverUrl,
+      if (mediumFormats.isNotEmpty) 'formats': mediumFormats,
+      if (mediumFormats.isNotEmpty) 'format': mediumFormats.first,
       'creators': creators,
       'genres': genres,
       'characters': <dynamic>[],

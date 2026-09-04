@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
@@ -8,6 +9,11 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draf
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
+import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
@@ -16,7 +22,6 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -63,7 +68,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     LibrarySearchTarget.mediaOnly,
     LibrarySearchTarget.tracksOnly,
   ],
-  trackingProfile: listeningTrackingProfile,
+  trackingProfile: musicTrackingProfile,
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: musicLibraryKindSchema.toRegistry(),
@@ -87,6 +92,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     childrenTitleBuilder: _musicChildrenTitle,
+    fetchChildrenCallback: _fetchMusicTracks,
     supportsMediaReleaseSplit: true,
   ),
   uiPolicy: const LibraryUiPolicy(
@@ -99,6 +105,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     _musicLinkedMetadataValues,
   ),
   transfer: const LibraryTransferCapability(),
+  stats: const MusicStatsCapability(),
   add: StandardLibraryAddCapability<MusicAddDraft>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
@@ -168,6 +175,18 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
 );
 
 String _musicChildrenTitle(int count) => 'Discs ($count)';
+
+Future<List<LibraryHierarchyNode>> _fetchMusicTracks({
+  required ApiClient api,
+  required String itemId,
+  String? provider,
+  String? providerItemId,
+}) async {
+  final dto =
+      await api.getMusicReleaseDto(itemId).timeout(const Duration(seconds: 60));
+  final release = MusicCoreMapper.fromReleaseDto(dto);
+  return MusicHierarchyMapper.toLibraryNodes(release);
+}
 
 Map<String, dynamic> _encodeMusicMetadata(MusicCatalogMetadata m) => m.toJson();
 
