@@ -23,6 +23,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -125,7 +127,10 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildGameLibraryEditDialog,
+    mediaEditDialogBuilder: buildGameMediaLibraryEditDialog,
+    releaseEditDialogBuilder: buildGameReleaseLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
+    conditions: GameVocabularies.condition.builtIns,
     presentation: gameLibraryEditPresentation,
     createDraft: createGameEditDraft,
   ),

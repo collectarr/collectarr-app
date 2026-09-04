@@ -89,6 +89,11 @@ KindEditDraft createGameEditDraft({
     initialReleaseDate:
         meta?.releaseDate != null ? formatDate(meta!.releaseDate!) : '',
     initialReleaseYear: meta?.releaseDate?.year.toString() ?? '',
+    initialFranchise: meta?.franchise ?? '',
+    initialGenres: meta?.genres.join(', ') ?? '',
+    initialAgeRating: meta?.ageRating ?? '',
+    initialLanguage: meta?.languages.join(', ') ?? '',
+    initialCountry: meta?.country ?? '',
   );
 
   return GameEditDraft(

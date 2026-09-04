@@ -15,6 +15,13 @@ const _gameMainTab = LibraryEditTabSpec(
   ],
 );
 
+const _gameOwnedTab = LibraryEditTabSpec(
+  id: 'owned',
+  icon: Icons.inventory_2,
+  label: 'Owned',
+  sectionIds: [],
+);
+
 const _gameMediaSecondaryTabs = [
   LibraryEditTabSpec(
     id: 'synopsis',
@@ -94,6 +101,7 @@ const _gameReleaseIdentityTab = LibraryEditTabSpec(
 
 const _gameCombinedTabs = [
   _gameMainTab,
+  _gameOwnedTab,
   _gameReleaseIdentityTab,
   ..._gameMediaSecondaryTabs,
   ..._gameReleaseTabs,

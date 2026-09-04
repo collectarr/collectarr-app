@@ -4,6 +4,9 @@ import 'package:collectarr_app/features/library/edit/fields/library_edit_field_g
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
+import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/owned/game_owned_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +21,25 @@ Widget? buildGameCustomTabView({
   required LibraryMetadataItem item,
   required VoidCallback markDirty,
 }) {
+  if (tabId == 'owned') {
+    final kindDraft = draft.kindDetails;
+    if (kindDraft is! GameEditDraft) {
+      throw StateError('Expected GameEditDraft for Game owned editing');
+    }
+    final details = kindDraft.toDetailsDraft().toDetails();
+    if (details is! GameOwnedDetails) {
+      throw StateError('Expected GameOwnedDetails for Game owned editing');
+    }
+    return EditSchemaRenderer<GameOwnedDetails, GameEditDraft>(
+      schema: gameOwnedEditSchema,
+      model: details,
+      draft: kindDraft,
+      showTabBar: false,
+      showFooter: false,
+      onSave: (_) {},
+      onCancel: () {},
+    );
+  }
   if (tabId == 'release') {
     return EditTabShell(
       children: [
