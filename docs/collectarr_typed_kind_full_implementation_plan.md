@@ -1873,6 +1873,15 @@ Volume → Season
 
 Each kind calls its typed API directly.
 
+### Status (2026-09-05)
+
+Complete. The generic `ApiClient.getItemVolumes()` route and its legacy
+Season-producing adapters are gone. Comic hierarchy loading now consumes
+`ComicWorkDto` through the Comic mapper, while Manga shelf loading consumes
+`MangaWorkDto` and `MangaSeriesHierarchy`; the collection shelf no longer
+depends on generic Season/Episode models for Manga. Focused API, Comic, and
+Manga hierarchy tests pass. Continue with PR69.
+
 ---
 
 ## PR 69 — Make hierarchy renderer type-generic, not domain-generic
