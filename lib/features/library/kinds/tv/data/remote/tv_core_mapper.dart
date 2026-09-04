@@ -19,6 +19,7 @@ final class TvCoreMapper {
       runtimeMinutes: dto.runtimeMinutes,
       coverImageUrl: dto.coverImageUrlValue,
       coverImageKey: dto.coverImageKey,
+      rawPayload: Map<String, dynamic>.from(dto.toJson()),
     );
   }
 
@@ -36,6 +37,7 @@ final class TvCoreMapper {
       episodes: [
         for (final episode in dto.episodes) fromEpisodeDto(episode),
       ],
+      rawPayload: Map<String, dynamic>.from(dto.toJson()),
     );
   }
 
@@ -62,6 +64,7 @@ final class TvCoreMapper {
       episodes: _maps(dto.raw['episodes'])
           .map((json) => fromEpisodeDto(TvEpisodeDto.fromJson(json)))
           .toList(growable: false),
+      rawPayload: Map<String, dynamic>.from(dto.toJson()),
     );
   }
 
@@ -107,6 +110,7 @@ final class TvCoreMapper {
         for (final mapping in dto.episodeMappings)
           fromReleaseEpisodeMapDto(mapping),
       ],
+      rawPayload: Map<String, dynamic>.from(dto.toJson()),
     );
   }
 
@@ -150,6 +154,7 @@ final class TvCoreMapper {
       characterAppearances: _maps(dto.characterAppearances)
           .map(TvCharacterAppearance.fromJson)
           .toList(growable: false),
+      rawPayload: Map<String, dynamic>.from(dto.toJson()),
     );
   }
 

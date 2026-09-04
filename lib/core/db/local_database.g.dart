@@ -26199,6 +26199,4747 @@ class MovieOwnedDetailsRowsCompanion
   }
 }
 
+class $TvSeriesRowsTable extends TvSeriesRows
+    with TableInfo<$TvSeriesRowsTable, TvSeriesRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvSeriesRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortTitleMeta =
+      const VerificationMeta('sortTitle');
+  @override
+  late final GeneratedColumn<String> sortTitle = GeneratedColumn<String>(
+      'sort_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _endDateMeta =
+      const VerificationMeta('endDate');
+  @override
+  late final GeneratedColumn<DateTime> endDate = GeneratedColumn<DateTime>(
+      'end_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _episodeCountMeta =
+      const VerificationMeta('episodeCount');
+  @override
+  late final GeneratedColumn<int> episodeCount = GeneratedColumn<int>(
+      'episode_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _networkMeta =
+      const VerificationMeta('network');
+  @override
+  late final GeneratedColumn<String> network = GeneratedColumn<String>(
+      'network', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _originalAirDateMeta =
+      const VerificationMeta('originalAirDate');
+  @override
+  late final GeneratedColumn<DateTime> originalAirDate =
+      GeneratedColumn<DateTime>('original_air_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _originalLanguageMeta =
+      const VerificationMeta('originalLanguage');
+  @override
+  late final GeneratedColumn<String> originalLanguage = GeneratedColumn<String>(
+      'original_language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seasonCountMeta =
+      const VerificationMeta('seasonCount');
+  @override
+  late final GeneratedColumn<int> seasonCount = GeneratedColumn<int>(
+      'season_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _contributionsJsonMeta =
+      const VerificationMeta('contributionsJson');
+  @override
+  late final GeneratedColumn<String> contributionsJson =
+      GeneratedColumn<String>('contributions_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _identifiersJsonMeta =
+      const VerificationMeta('identifiersJson');
+  @override
+  late final GeneratedColumn<String> identifiersJson = GeneratedColumn<String>(
+      'identifiers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _characterAppearancesJsonMeta =
+      const VerificationMeta('characterAppearancesJson');
+  @override
+  late final GeneratedColumn<String> characterAppearancesJson =
+      GeneratedColumn<String>('character_appearances_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        sortTitle,
+        description,
+        endDate,
+        episodeCount,
+        network,
+        originalAirDate,
+        originalLanguage,
+        seasonCount,
+        status,
+        contributionsJson,
+        identifiersJson,
+        characterAppearancesJson,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_series_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvSeriesRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('sort_title')) {
+      context.handle(_sortTitleMeta,
+          sortTitle.isAcceptableOrUnknown(data['sort_title']!, _sortTitleMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(_endDateMeta,
+          endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta));
+    }
+    if (data.containsKey('episode_count')) {
+      context.handle(
+          _episodeCountMeta,
+          episodeCount.isAcceptableOrUnknown(
+              data['episode_count']!, _episodeCountMeta));
+    }
+    if (data.containsKey('network')) {
+      context.handle(_networkMeta,
+          network.isAcceptableOrUnknown(data['network']!, _networkMeta));
+    }
+    if (data.containsKey('original_air_date')) {
+      context.handle(
+          _originalAirDateMeta,
+          originalAirDate.isAcceptableOrUnknown(
+              data['original_air_date']!, _originalAirDateMeta));
+    }
+    if (data.containsKey('original_language')) {
+      context.handle(
+          _originalLanguageMeta,
+          originalLanguage.isAcceptableOrUnknown(
+              data['original_language']!, _originalLanguageMeta));
+    }
+    if (data.containsKey('season_count')) {
+      context.handle(
+          _seasonCountMeta,
+          seasonCount.isAcceptableOrUnknown(
+              data['season_count']!, _seasonCountMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('contributions_json')) {
+      context.handle(
+          _contributionsJsonMeta,
+          contributionsJson.isAcceptableOrUnknown(
+              data['contributions_json']!, _contributionsJsonMeta));
+    }
+    if (data.containsKey('identifiers_json')) {
+      context.handle(
+          _identifiersJsonMeta,
+          identifiersJson.isAcceptableOrUnknown(
+              data['identifiers_json']!, _identifiersJsonMeta));
+    }
+    if (data.containsKey('character_appearances_json')) {
+      context.handle(
+          _characterAppearancesJsonMeta,
+          characterAppearancesJson.isAcceptableOrUnknown(
+              data['character_appearances_json']!,
+              _characterAppearancesJsonMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TvSeriesRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvSeriesRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      sortTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_title']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      endDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_date']),
+      episodeCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_count']),
+      network: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}network']),
+      originalAirDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}original_air_date']),
+      originalLanguage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}original_language']),
+      seasonCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_count']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      contributionsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}contributions_json'])!,
+      identifiersJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}identifiers_json'])!,
+      characterAppearancesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}character_appearances_json'])!,
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $TvSeriesRowsTable createAlias(String alias) {
+    return $TvSeriesRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvSeriesRow extends DataClass implements Insertable<TvSeriesRow> {
+  final String id;
+  final String title;
+  final String? sortTitle;
+  final String? description;
+  final DateTime? endDate;
+  final int? episodeCount;
+  final String? network;
+  final DateTime? originalAirDate;
+  final String? originalLanguage;
+  final int? seasonCount;
+  final String? status;
+  final String contributionsJson;
+  final String identifiersJson;
+  final String characterAppearancesJson;
+  final String rawPayloadJson;
+  const TvSeriesRow(
+      {required this.id,
+      required this.title,
+      this.sortTitle,
+      this.description,
+      this.endDate,
+      this.episodeCount,
+      this.network,
+      this.originalAirDate,
+      this.originalLanguage,
+      this.seasonCount,
+      this.status,
+      required this.contributionsJson,
+      required this.identifiersJson,
+      required this.characterAppearancesJson,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || sortTitle != null) {
+      map['sort_title'] = Variable<String>(sortTitle);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || endDate != null) {
+      map['end_date'] = Variable<DateTime>(endDate);
+    }
+    if (!nullToAbsent || episodeCount != null) {
+      map['episode_count'] = Variable<int>(episodeCount);
+    }
+    if (!nullToAbsent || network != null) {
+      map['network'] = Variable<String>(network);
+    }
+    if (!nullToAbsent || originalAirDate != null) {
+      map['original_air_date'] = Variable<DateTime>(originalAirDate);
+    }
+    if (!nullToAbsent || originalLanguage != null) {
+      map['original_language'] = Variable<String>(originalLanguage);
+    }
+    if (!nullToAbsent || seasonCount != null) {
+      map['season_count'] = Variable<int>(seasonCount);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    map['contributions_json'] = Variable<String>(contributionsJson);
+    map['identifiers_json'] = Variable<String>(identifiersJson);
+    map['character_appearances_json'] =
+        Variable<String>(characterAppearancesJson);
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  TvSeriesRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvSeriesRowsCompanion(
+      id: Value(id),
+      title: Value(title),
+      sortTitle: sortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortTitle),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      endDate: endDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endDate),
+      episodeCount: episodeCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeCount),
+      network: network == null && nullToAbsent
+          ? const Value.absent()
+          : Value(network),
+      originalAirDate: originalAirDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalAirDate),
+      originalLanguage: originalLanguage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalLanguage),
+      seasonCount: seasonCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonCount),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      contributionsJson: Value(contributionsJson),
+      identifiersJson: Value(identifiersJson),
+      characterAppearancesJson: Value(characterAppearancesJson),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory TvSeriesRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvSeriesRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      sortTitle: serializer.fromJson<String?>(json['sortTitle']),
+      description: serializer.fromJson<String?>(json['description']),
+      endDate: serializer.fromJson<DateTime?>(json['endDate']),
+      episodeCount: serializer.fromJson<int?>(json['episodeCount']),
+      network: serializer.fromJson<String?>(json['network']),
+      originalAirDate: serializer.fromJson<DateTime?>(json['originalAirDate']),
+      originalLanguage: serializer.fromJson<String?>(json['originalLanguage']),
+      seasonCount: serializer.fromJson<int?>(json['seasonCount']),
+      status: serializer.fromJson<String?>(json['status']),
+      contributionsJson: serializer.fromJson<String>(json['contributionsJson']),
+      identifiersJson: serializer.fromJson<String>(json['identifiersJson']),
+      characterAppearancesJson:
+          serializer.fromJson<String>(json['characterAppearancesJson']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'sortTitle': serializer.toJson<String?>(sortTitle),
+      'description': serializer.toJson<String?>(description),
+      'endDate': serializer.toJson<DateTime?>(endDate),
+      'episodeCount': serializer.toJson<int?>(episodeCount),
+      'network': serializer.toJson<String?>(network),
+      'originalAirDate': serializer.toJson<DateTime?>(originalAirDate),
+      'originalLanguage': serializer.toJson<String?>(originalLanguage),
+      'seasonCount': serializer.toJson<int?>(seasonCount),
+      'status': serializer.toJson<String?>(status),
+      'contributionsJson': serializer.toJson<String>(contributionsJson),
+      'identifiersJson': serializer.toJson<String>(identifiersJson),
+      'characterAppearancesJson':
+          serializer.toJson<String>(characterAppearancesJson),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  TvSeriesRow copyWith(
+          {String? id,
+          String? title,
+          Value<String?> sortTitle = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<DateTime?> endDate = const Value.absent(),
+          Value<int?> episodeCount = const Value.absent(),
+          Value<String?> network = const Value.absent(),
+          Value<DateTime?> originalAirDate = const Value.absent(),
+          Value<String?> originalLanguage = const Value.absent(),
+          Value<int?> seasonCount = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          String? contributionsJson,
+          String? identifiersJson,
+          String? characterAppearancesJson,
+          String? rawPayloadJson}) =>
+      TvSeriesRow(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        sortTitle: sortTitle.present ? sortTitle.value : this.sortTitle,
+        description: description.present ? description.value : this.description,
+        endDate: endDate.present ? endDate.value : this.endDate,
+        episodeCount:
+            episodeCount.present ? episodeCount.value : this.episodeCount,
+        network: network.present ? network.value : this.network,
+        originalAirDate: originalAirDate.present
+            ? originalAirDate.value
+            : this.originalAirDate,
+        originalLanguage: originalLanguage.present
+            ? originalLanguage.value
+            : this.originalLanguage,
+        seasonCount: seasonCount.present ? seasonCount.value : this.seasonCount,
+        status: status.present ? status.value : this.status,
+        contributionsJson: contributionsJson ?? this.contributionsJson,
+        identifiersJson: identifiersJson ?? this.identifiersJson,
+        characterAppearancesJson:
+            characterAppearancesJson ?? this.characterAppearancesJson,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  TvSeriesRow copyWithCompanion(TvSeriesRowsCompanion data) {
+    return TvSeriesRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      sortTitle: data.sortTitle.present ? data.sortTitle.value : this.sortTitle,
+      description:
+          data.description.present ? data.description.value : this.description,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      episodeCount: data.episodeCount.present
+          ? data.episodeCount.value
+          : this.episodeCount,
+      network: data.network.present ? data.network.value : this.network,
+      originalAirDate: data.originalAirDate.present
+          ? data.originalAirDate.value
+          : this.originalAirDate,
+      originalLanguage: data.originalLanguage.present
+          ? data.originalLanguage.value
+          : this.originalLanguage,
+      seasonCount:
+          data.seasonCount.present ? data.seasonCount.value : this.seasonCount,
+      status: data.status.present ? data.status.value : this.status,
+      contributionsJson: data.contributionsJson.present
+          ? data.contributionsJson.value
+          : this.contributionsJson,
+      identifiersJson: data.identifiersJson.present
+          ? data.identifiersJson.value
+          : this.identifiersJson,
+      characterAppearancesJson: data.characterAppearancesJson.present
+          ? data.characterAppearancesJson.value
+          : this.characterAppearancesJson,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvSeriesRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('endDate: $endDate, ')
+          ..write('episodeCount: $episodeCount, ')
+          ..write('network: $network, ')
+          ..write('originalAirDate: $originalAirDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('seasonCount: $seasonCount, ')
+          ..write('status: $status, ')
+          ..write('contributionsJson: $contributionsJson, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('characterAppearancesJson: $characterAppearancesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      title,
+      sortTitle,
+      description,
+      endDate,
+      episodeCount,
+      network,
+      originalAirDate,
+      originalLanguage,
+      seasonCount,
+      status,
+      contributionsJson,
+      identifiersJson,
+      characterAppearancesJson,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvSeriesRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.sortTitle == this.sortTitle &&
+          other.description == this.description &&
+          other.endDate == this.endDate &&
+          other.episodeCount == this.episodeCount &&
+          other.network == this.network &&
+          other.originalAirDate == this.originalAirDate &&
+          other.originalLanguage == this.originalLanguage &&
+          other.seasonCount == this.seasonCount &&
+          other.status == this.status &&
+          other.contributionsJson == this.contributionsJson &&
+          other.identifiersJson == this.identifiersJson &&
+          other.characterAppearancesJson == this.characterAppearancesJson &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class TvSeriesRowsCompanion extends UpdateCompanion<TvSeriesRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> sortTitle;
+  final Value<String?> description;
+  final Value<DateTime?> endDate;
+  final Value<int?> episodeCount;
+  final Value<String?> network;
+  final Value<DateTime?> originalAirDate;
+  final Value<String?> originalLanguage;
+  final Value<int?> seasonCount;
+  final Value<String?> status;
+  final Value<String> contributionsJson;
+  final Value<String> identifiersJson;
+  final Value<String> characterAppearancesJson;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const TvSeriesRowsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.episodeCount = const Value.absent(),
+    this.network = const Value.absent(),
+    this.originalAirDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.seasonCount = const Value.absent(),
+    this.status = const Value.absent(),
+    this.contributionsJson = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.characterAppearancesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvSeriesRowsCompanion.insert({
+    required String id,
+    required String title,
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.episodeCount = const Value.absent(),
+    this.network = const Value.absent(),
+    this.originalAirDate = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
+    this.seasonCount = const Value.absent(),
+    this.status = const Value.absent(),
+    this.contributionsJson = const Value.absent(),
+    this.identifiersJson = const Value.absent(),
+    this.characterAppearancesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title);
+  static Insertable<TvSeriesRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? sortTitle,
+    Expression<String>? description,
+    Expression<DateTime>? endDate,
+    Expression<int>? episodeCount,
+    Expression<String>? network,
+    Expression<DateTime>? originalAirDate,
+    Expression<String>? originalLanguage,
+    Expression<int>? seasonCount,
+    Expression<String>? status,
+    Expression<String>? contributionsJson,
+    Expression<String>? identifiersJson,
+    Expression<String>? characterAppearancesJson,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (description != null) 'description': description,
+      if (endDate != null) 'end_date': endDate,
+      if (episodeCount != null) 'episode_count': episodeCount,
+      if (network != null) 'network': network,
+      if (originalAirDate != null) 'original_air_date': originalAirDate,
+      if (originalLanguage != null) 'original_language': originalLanguage,
+      if (seasonCount != null) 'season_count': seasonCount,
+      if (status != null) 'status': status,
+      if (contributionsJson != null) 'contributions_json': contributionsJson,
+      if (identifiersJson != null) 'identifiers_json': identifiersJson,
+      if (characterAppearancesJson != null)
+        'character_appearances_json': characterAppearancesJson,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvSeriesRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<String?>? sortTitle,
+      Value<String?>? description,
+      Value<DateTime?>? endDate,
+      Value<int?>? episodeCount,
+      Value<String?>? network,
+      Value<DateTime?>? originalAirDate,
+      Value<String?>? originalLanguage,
+      Value<int?>? seasonCount,
+      Value<String?>? status,
+      Value<String>? contributionsJson,
+      Value<String>? identifiersJson,
+      Value<String>? characterAppearancesJson,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return TvSeriesRowsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      sortTitle: sortTitle ?? this.sortTitle,
+      description: description ?? this.description,
+      endDate: endDate ?? this.endDate,
+      episodeCount: episodeCount ?? this.episodeCount,
+      network: network ?? this.network,
+      originalAirDate: originalAirDate ?? this.originalAirDate,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
+      seasonCount: seasonCount ?? this.seasonCount,
+      status: status ?? this.status,
+      contributionsJson: contributionsJson ?? this.contributionsJson,
+      identifiersJson: identifiersJson ?? this.identifiersJson,
+      characterAppearancesJson:
+          characterAppearancesJson ?? this.characterAppearancesJson,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (sortTitle.present) {
+      map['sort_title'] = Variable<String>(sortTitle.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<DateTime>(endDate.value);
+    }
+    if (episodeCount.present) {
+      map['episode_count'] = Variable<int>(episodeCount.value);
+    }
+    if (network.present) {
+      map['network'] = Variable<String>(network.value);
+    }
+    if (originalAirDate.present) {
+      map['original_air_date'] = Variable<DateTime>(originalAirDate.value);
+    }
+    if (originalLanguage.present) {
+      map['original_language'] = Variable<String>(originalLanguage.value);
+    }
+    if (seasonCount.present) {
+      map['season_count'] = Variable<int>(seasonCount.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (contributionsJson.present) {
+      map['contributions_json'] = Variable<String>(contributionsJson.value);
+    }
+    if (identifiersJson.present) {
+      map['identifiers_json'] = Variable<String>(identifiersJson.value);
+    }
+    if (characterAppearancesJson.present) {
+      map['character_appearances_json'] =
+          Variable<String>(characterAppearancesJson.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvSeriesRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('endDate: $endDate, ')
+          ..write('episodeCount: $episodeCount, ')
+          ..write('network: $network, ')
+          ..write('originalAirDate: $originalAirDate, ')
+          ..write('originalLanguage: $originalLanguage, ')
+          ..write('seasonCount: $seasonCount, ')
+          ..write('status: $status, ')
+          ..write('contributionsJson: $contributionsJson, ')
+          ..write('identifiersJson: $identifiersJson, ')
+          ..write('characterAppearancesJson: $characterAppearancesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TvSeasonRowsTable extends TvSeasonRows
+    with TableInfo<$TvSeasonRowsTable, TvSeasonRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvSeasonRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _seriesIdMeta =
+      const VerificationMeta('seriesId');
+  @override
+  late final GeneratedColumn<String> seriesId = GeneratedColumn<String>(
+      'series_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _airDateMeta =
+      const VerificationMeta('airDate');
+  @override
+  late final GeneratedColumn<DateTime> airDate = GeneratedColumn<DateTime>(
+      'air_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _episodeCountMeta =
+      const VerificationMeta('episodeCount');
+  @override
+  late final GeneratedColumn<int> episodeCount = GeneratedColumn<int>(
+      'episode_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageUrlMeta =
+      const VerificationMeta('coverImageUrl');
+  @override
+  late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
+      'cover_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageKeyMeta =
+      const VerificationMeta('coverImageKey');
+  @override
+  late final GeneratedColumn<String> coverImageKey = GeneratedColumn<String>(
+      'cover_image_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        seriesId,
+        id,
+        seasonNumber,
+        title,
+        description,
+        airDate,
+        episodeCount,
+        coverImageUrl,
+        coverImageKey,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_season_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvSeasonRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('series_id')) {
+      context.handle(_seriesIdMeta,
+          seriesId.isAcceptableOrUnknown(data['series_id']!, _seriesIdMeta));
+    } else if (isInserting) {
+      context.missing(_seriesIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('air_date')) {
+      context.handle(_airDateMeta,
+          airDate.isAcceptableOrUnknown(data['air_date']!, _airDateMeta));
+    }
+    if (data.containsKey('episode_count')) {
+      context.handle(
+          _episodeCountMeta,
+          episodeCount.isAcceptableOrUnknown(
+              data['episode_count']!, _episodeCountMeta));
+    }
+    if (data.containsKey('cover_image_url')) {
+      context.handle(
+          _coverImageUrlMeta,
+          coverImageUrl.isAcceptableOrUnknown(
+              data['cover_image_url']!, _coverImageUrlMeta));
+    }
+    if (data.containsKey('cover_image_key')) {
+      context.handle(
+          _coverImageKeyMeta,
+          coverImageKey.isAcceptableOrUnknown(
+              data['cover_image_key']!, _coverImageKeyMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {seriesId, id};
+  @override
+  TvSeasonRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvSeasonRow(
+      seriesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      airDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}air_date']),
+      episodeCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_count']),
+      coverImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      coverImageKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_key']),
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $TvSeasonRowsTable createAlias(String alias) {
+    return $TvSeasonRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvSeasonRow extends DataClass implements Insertable<TvSeasonRow> {
+  final String seriesId;
+  final String id;
+  final int? seasonNumber;
+  final String? title;
+  final String? description;
+  final DateTime? airDate;
+  final int? episodeCount;
+  final String? coverImageUrl;
+  final String? coverImageKey;
+  final String rawPayloadJson;
+  const TvSeasonRow(
+      {required this.seriesId,
+      required this.id,
+      this.seasonNumber,
+      this.title,
+      this.description,
+      this.airDate,
+      this.episodeCount,
+      this.coverImageUrl,
+      this.coverImageKey,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['series_id'] = Variable<String>(seriesId);
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || airDate != null) {
+      map['air_date'] = Variable<DateTime>(airDate);
+    }
+    if (!nullToAbsent || episodeCount != null) {
+      map['episode_count'] = Variable<int>(episodeCount);
+    }
+    if (!nullToAbsent || coverImageUrl != null) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    if (!nullToAbsent || coverImageKey != null) {
+      map['cover_image_key'] = Variable<String>(coverImageKey);
+    }
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  TvSeasonRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvSeasonRowsCompanion(
+      seriesId: Value(seriesId),
+      id: Value(id),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      title:
+          title == null && nullToAbsent ? const Value.absent() : Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      airDate: airDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(airDate),
+      episodeCount: episodeCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeCount),
+      coverImageUrl: coverImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageUrl),
+      coverImageKey: coverImageKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageKey),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory TvSeasonRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvSeasonRow(
+      seriesId: serializer.fromJson<String>(json['seriesId']),
+      id: serializer.fromJson<String>(json['id']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      title: serializer.fromJson<String?>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      airDate: serializer.fromJson<DateTime?>(json['airDate']),
+      episodeCount: serializer.fromJson<int?>(json['episodeCount']),
+      coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'seriesId': serializer.toJson<String>(seriesId),
+      'id': serializer.toJson<String>(id),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'title': serializer.toJson<String?>(title),
+      'description': serializer.toJson<String?>(description),
+      'airDate': serializer.toJson<DateTime?>(airDate),
+      'episodeCount': serializer.toJson<int?>(episodeCount),
+      'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'coverImageKey': serializer.toJson<String?>(coverImageKey),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  TvSeasonRow copyWith(
+          {String? seriesId,
+          String? id,
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<String?> title = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<DateTime?> airDate = const Value.absent(),
+          Value<int?> episodeCount = const Value.absent(),
+          Value<String?> coverImageUrl = const Value.absent(),
+          Value<String?> coverImageKey = const Value.absent(),
+          String? rawPayloadJson}) =>
+      TvSeasonRow(
+        seriesId: seriesId ?? this.seriesId,
+        id: id ?? this.id,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        title: title.present ? title.value : this.title,
+        description: description.present ? description.value : this.description,
+        airDate: airDate.present ? airDate.value : this.airDate,
+        episodeCount:
+            episodeCount.present ? episodeCount.value : this.episodeCount,
+        coverImageUrl:
+            coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        coverImageKey:
+            coverImageKey.present ? coverImageKey.value : this.coverImageKey,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  TvSeasonRow copyWithCompanion(TvSeasonRowsCompanion data) {
+    return TvSeasonRow(
+      seriesId: data.seriesId.present ? data.seriesId.value : this.seriesId,
+      id: data.id.present ? data.id.value : this.id,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      title: data.title.present ? data.title.value : this.title,
+      description:
+          data.description.present ? data.description.value : this.description,
+      airDate: data.airDate.present ? data.airDate.value : this.airDate,
+      episodeCount: data.episodeCount.present
+          ? data.episodeCount.value
+          : this.episodeCount,
+      coverImageUrl: data.coverImageUrl.present
+          ? data.coverImageUrl.value
+          : this.coverImageUrl,
+      coverImageKey: data.coverImageKey.present
+          ? data.coverImageKey.value
+          : this.coverImageKey,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvSeasonRow(')
+          ..write('seriesId: $seriesId, ')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('airDate: $airDate, ')
+          ..write('episodeCount: $episodeCount, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      seriesId,
+      id,
+      seasonNumber,
+      title,
+      description,
+      airDate,
+      episodeCount,
+      coverImageUrl,
+      coverImageKey,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvSeasonRow &&
+          other.seriesId == this.seriesId &&
+          other.id == this.id &&
+          other.seasonNumber == this.seasonNumber &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.airDate == this.airDate &&
+          other.episodeCount == this.episodeCount &&
+          other.coverImageUrl == this.coverImageUrl &&
+          other.coverImageKey == this.coverImageKey &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class TvSeasonRowsCompanion extends UpdateCompanion<TvSeasonRow> {
+  final Value<String> seriesId;
+  final Value<String> id;
+  final Value<int?> seasonNumber;
+  final Value<String?> title;
+  final Value<String?> description;
+  final Value<DateTime?> airDate;
+  final Value<int?> episodeCount;
+  final Value<String?> coverImageUrl;
+  final Value<String?> coverImageKey;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const TvSeasonRowsCompanion({
+    this.seriesId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.airDate = const Value.absent(),
+    this.episodeCount = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvSeasonRowsCompanion.insert({
+    required String seriesId,
+    required String id,
+    this.seasonNumber = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.airDate = const Value.absent(),
+    this.episodeCount = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : seriesId = Value(seriesId),
+        id = Value(id);
+  static Insertable<TvSeasonRow> custom({
+    Expression<String>? seriesId,
+    Expression<String>? id,
+    Expression<int>? seasonNumber,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<DateTime>? airDate,
+    Expression<int>? episodeCount,
+    Expression<String>? coverImageUrl,
+    Expression<String>? coverImageKey,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (seriesId != null) 'series_id': seriesId,
+      if (id != null) 'id': id,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (airDate != null) 'air_date': airDate,
+      if (episodeCount != null) 'episode_count': episodeCount,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (coverImageKey != null) 'cover_image_key': coverImageKey,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvSeasonRowsCompanion copyWith(
+      {Value<String>? seriesId,
+      Value<String>? id,
+      Value<int?>? seasonNumber,
+      Value<String?>? title,
+      Value<String?>? description,
+      Value<DateTime?>? airDate,
+      Value<int?>? episodeCount,
+      Value<String?>? coverImageUrl,
+      Value<String?>? coverImageKey,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return TvSeasonRowsCompanion(
+      seriesId: seriesId ?? this.seriesId,
+      id: id ?? this.id,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      airDate: airDate ?? this.airDate,
+      episodeCount: episodeCount ?? this.episodeCount,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      coverImageKey: coverImageKey ?? this.coverImageKey,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (seriesId.present) {
+      map['series_id'] = Variable<String>(seriesId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (airDate.present) {
+      map['air_date'] = Variable<DateTime>(airDate.value);
+    }
+    if (episodeCount.present) {
+      map['episode_count'] = Variable<int>(episodeCount.value);
+    }
+    if (coverImageUrl.present) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl.value);
+    }
+    if (coverImageKey.present) {
+      map['cover_image_key'] = Variable<String>(coverImageKey.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvSeasonRowsCompanion(')
+          ..write('seriesId: $seriesId, ')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('airDate: $airDate, ')
+          ..write('episodeCount: $episodeCount, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TvEpisodeRowsTable extends TvEpisodeRows
+    with TableInfo<$TvEpisodeRowsTable, TvEpisodeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvEpisodeRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _seriesIdMeta =
+      const VerificationMeta('seriesId');
+  @override
+  late final GeneratedColumn<String> seriesId = GeneratedColumn<String>(
+      'series_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonIdMeta =
+      const VerificationMeta('seasonId');
+  @override
+  late final GeneratedColumn<String> seasonId = GeneratedColumn<String>(
+      'season_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<double> episodeNumber = GeneratedColumn<double>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _originalTitleMeta =
+      const VerificationMeta('originalTitle');
+  @override
+  late final GeneratedColumn<String> originalTitle = GeneratedColumn<String>(
+      'original_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _airDateMeta =
+      const VerificationMeta('airDate');
+  @override
+  late final GeneratedColumn<DateTime> airDate = GeneratedColumn<DateTime>(
+      'air_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _runtimeMinutesMeta =
+      const VerificationMeta('runtimeMinutes');
+  @override
+  late final GeneratedColumn<int> runtimeMinutes = GeneratedColumn<int>(
+      'runtime_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageUrlMeta =
+      const VerificationMeta('coverImageUrl');
+  @override
+  late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
+      'cover_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageKeyMeta =
+      const VerificationMeta('coverImageKey');
+  @override
+  late final GeneratedColumn<String> coverImageKey = GeneratedColumn<String>(
+      'cover_image_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        seriesId,
+        seasonId,
+        id,
+        seasonNumber,
+        episodeNumber,
+        title,
+        originalTitle,
+        description,
+        airDate,
+        runtimeMinutes,
+        coverImageUrl,
+        coverImageKey,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_episode_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvEpisodeRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('series_id')) {
+      context.handle(_seriesIdMeta,
+          seriesId.isAcceptableOrUnknown(data['series_id']!, _seriesIdMeta));
+    } else if (isInserting) {
+      context.missing(_seriesIdMeta);
+    }
+    if (data.containsKey('season_id')) {
+      context.handle(_seasonIdMeta,
+          seasonId.isAcceptableOrUnknown(data['season_id']!, _seasonIdMeta));
+    } else if (isInserting) {
+      context.missing(_seasonIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    }
+    if (data.containsKey('original_title')) {
+      context.handle(
+          _originalTitleMeta,
+          originalTitle.isAcceptableOrUnknown(
+              data['original_title']!, _originalTitleMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('air_date')) {
+      context.handle(_airDateMeta,
+          airDate.isAcceptableOrUnknown(data['air_date']!, _airDateMeta));
+    }
+    if (data.containsKey('runtime_minutes')) {
+      context.handle(
+          _runtimeMinutesMeta,
+          runtimeMinutes.isAcceptableOrUnknown(
+              data['runtime_minutes']!, _runtimeMinutesMeta));
+    }
+    if (data.containsKey('cover_image_url')) {
+      context.handle(
+          _coverImageUrlMeta,
+          coverImageUrl.isAcceptableOrUnknown(
+              data['cover_image_url']!, _coverImageUrlMeta));
+    }
+    if (data.containsKey('cover_image_key')) {
+      context.handle(
+          _coverImageKeyMeta,
+          coverImageKey.isAcceptableOrUnknown(
+              data['cover_image_key']!, _coverImageKeyMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TvEpisodeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvEpisodeRow(
+      seriesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_id'])!,
+      seasonId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}season_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}episode_number']),
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title']),
+      originalTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}original_title']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      airDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}air_date']),
+      runtimeMinutes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}runtime_minutes']),
+      coverImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      coverImageKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_key']),
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $TvEpisodeRowsTable createAlias(String alias) {
+    return $TvEpisodeRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvEpisodeRow extends DataClass implements Insertable<TvEpisodeRow> {
+  final String seriesId;
+  final String seasonId;
+  final String id;
+  final int? seasonNumber;
+  final double? episodeNumber;
+  final String? title;
+  final String? originalTitle;
+  final String? description;
+  final DateTime? airDate;
+  final int? runtimeMinutes;
+  final String? coverImageUrl;
+  final String? coverImageKey;
+  final String rawPayloadJson;
+  const TvEpisodeRow(
+      {required this.seriesId,
+      required this.seasonId,
+      required this.id,
+      this.seasonNumber,
+      this.episodeNumber,
+      this.title,
+      this.originalTitle,
+      this.description,
+      this.airDate,
+      this.runtimeMinutes,
+      this.coverImageUrl,
+      this.coverImageKey,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['series_id'] = Variable<String>(seriesId);
+    map['season_id'] = Variable<String>(seasonId);
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<double>(episodeNumber);
+    }
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    if (!nullToAbsent || originalTitle != null) {
+      map['original_title'] = Variable<String>(originalTitle);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || airDate != null) {
+      map['air_date'] = Variable<DateTime>(airDate);
+    }
+    if (!nullToAbsent || runtimeMinutes != null) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes);
+    }
+    if (!nullToAbsent || coverImageUrl != null) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    if (!nullToAbsent || coverImageKey != null) {
+      map['cover_image_key'] = Variable<String>(coverImageKey);
+    }
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  TvEpisodeRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvEpisodeRowsCompanion(
+      seriesId: Value(seriesId),
+      seasonId: Value(seasonId),
+      id: Value(id),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+      title:
+          title == null && nullToAbsent ? const Value.absent() : Value(title),
+      originalTitle: originalTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalTitle),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      airDate: airDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(airDate),
+      runtimeMinutes: runtimeMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(runtimeMinutes),
+      coverImageUrl: coverImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageUrl),
+      coverImageKey: coverImageKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageKey),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory TvEpisodeRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvEpisodeRow(
+      seriesId: serializer.fromJson<String>(json['seriesId']),
+      seasonId: serializer.fromJson<String>(json['seasonId']),
+      id: serializer.fromJson<String>(json['id']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<double?>(json['episodeNumber']),
+      title: serializer.fromJson<String?>(json['title']),
+      originalTitle: serializer.fromJson<String?>(json['originalTitle']),
+      description: serializer.fromJson<String?>(json['description']),
+      airDate: serializer.fromJson<DateTime?>(json['airDate']),
+      runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
+      coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'seriesId': serializer.toJson<String>(seriesId),
+      'seasonId': serializer.toJson<String>(seasonId),
+      'id': serializer.toJson<String>(id),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<double?>(episodeNumber),
+      'title': serializer.toJson<String?>(title),
+      'originalTitle': serializer.toJson<String?>(originalTitle),
+      'description': serializer.toJson<String?>(description),
+      'airDate': serializer.toJson<DateTime?>(airDate),
+      'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
+      'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'coverImageKey': serializer.toJson<String?>(coverImageKey),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  TvEpisodeRow copyWith(
+          {String? seriesId,
+          String? seasonId,
+          String? id,
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<double?> episodeNumber = const Value.absent(),
+          Value<String?> title = const Value.absent(),
+          Value<String?> originalTitle = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<DateTime?> airDate = const Value.absent(),
+          Value<int?> runtimeMinutes = const Value.absent(),
+          Value<String?> coverImageUrl = const Value.absent(),
+          Value<String?> coverImageKey = const Value.absent(),
+          String? rawPayloadJson}) =>
+      TvEpisodeRow(
+        seriesId: seriesId ?? this.seriesId,
+        seasonId: seasonId ?? this.seasonId,
+        id: id ?? this.id,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        title: title.present ? title.value : this.title,
+        originalTitle:
+            originalTitle.present ? originalTitle.value : this.originalTitle,
+        description: description.present ? description.value : this.description,
+        airDate: airDate.present ? airDate.value : this.airDate,
+        runtimeMinutes:
+            runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
+        coverImageUrl:
+            coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        coverImageKey:
+            coverImageKey.present ? coverImageKey.value : this.coverImageKey,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  TvEpisodeRow copyWithCompanion(TvEpisodeRowsCompanion data) {
+    return TvEpisodeRow(
+      seriesId: data.seriesId.present ? data.seriesId.value : this.seriesId,
+      seasonId: data.seasonId.present ? data.seasonId.value : this.seasonId,
+      id: data.id.present ? data.id.value : this.id,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      title: data.title.present ? data.title.value : this.title,
+      originalTitle: data.originalTitle.present
+          ? data.originalTitle.value
+          : this.originalTitle,
+      description:
+          data.description.present ? data.description.value : this.description,
+      airDate: data.airDate.present ? data.airDate.value : this.airDate,
+      runtimeMinutes: data.runtimeMinutes.present
+          ? data.runtimeMinutes.value
+          : this.runtimeMinutes,
+      coverImageUrl: data.coverImageUrl.present
+          ? data.coverImageUrl.value
+          : this.coverImageUrl,
+      coverImageKey: data.coverImageKey.present
+          ? data.coverImageKey.value
+          : this.coverImageKey,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvEpisodeRow(')
+          ..write('seriesId: $seriesId, ')
+          ..write('seasonId: $seasonId, ')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('title: $title, ')
+          ..write('originalTitle: $originalTitle, ')
+          ..write('description: $description, ')
+          ..write('airDate: $airDate, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      seriesId,
+      seasonId,
+      id,
+      seasonNumber,
+      episodeNumber,
+      title,
+      originalTitle,
+      description,
+      airDate,
+      runtimeMinutes,
+      coverImageUrl,
+      coverImageKey,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvEpisodeRow &&
+          other.seriesId == this.seriesId &&
+          other.seasonId == this.seasonId &&
+          other.id == this.id &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.title == this.title &&
+          other.originalTitle == this.originalTitle &&
+          other.description == this.description &&
+          other.airDate == this.airDate &&
+          other.runtimeMinutes == this.runtimeMinutes &&
+          other.coverImageUrl == this.coverImageUrl &&
+          other.coverImageKey == this.coverImageKey &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class TvEpisodeRowsCompanion extends UpdateCompanion<TvEpisodeRow> {
+  final Value<String> seriesId;
+  final Value<String> seasonId;
+  final Value<String> id;
+  final Value<int?> seasonNumber;
+  final Value<double?> episodeNumber;
+  final Value<String?> title;
+  final Value<String?> originalTitle;
+  final Value<String?> description;
+  final Value<DateTime?> airDate;
+  final Value<int?> runtimeMinutes;
+  final Value<String?> coverImageUrl;
+  final Value<String?> coverImageKey;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const TvEpisodeRowsCompanion({
+    this.seriesId = const Value.absent(),
+    this.seasonId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.title = const Value.absent(),
+    this.originalTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.airDate = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvEpisodeRowsCompanion.insert({
+    required String seriesId,
+    required String seasonId,
+    required String id,
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.title = const Value.absent(),
+    this.originalTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.airDate = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : seriesId = Value(seriesId),
+        seasonId = Value(seasonId),
+        id = Value(id);
+  static Insertable<TvEpisodeRow> custom({
+    Expression<String>? seriesId,
+    Expression<String>? seasonId,
+    Expression<String>? id,
+    Expression<int>? seasonNumber,
+    Expression<double>? episodeNumber,
+    Expression<String>? title,
+    Expression<String>? originalTitle,
+    Expression<String>? description,
+    Expression<DateTime>? airDate,
+    Expression<int>? runtimeMinutes,
+    Expression<String>? coverImageUrl,
+    Expression<String>? coverImageKey,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (seriesId != null) 'series_id': seriesId,
+      if (seasonId != null) 'season_id': seasonId,
+      if (id != null) 'id': id,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (title != null) 'title': title,
+      if (originalTitle != null) 'original_title': originalTitle,
+      if (description != null) 'description': description,
+      if (airDate != null) 'air_date': airDate,
+      if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (coverImageKey != null) 'cover_image_key': coverImageKey,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvEpisodeRowsCompanion copyWith(
+      {Value<String>? seriesId,
+      Value<String>? seasonId,
+      Value<String>? id,
+      Value<int?>? seasonNumber,
+      Value<double?>? episodeNumber,
+      Value<String?>? title,
+      Value<String?>? originalTitle,
+      Value<String?>? description,
+      Value<DateTime?>? airDate,
+      Value<int?>? runtimeMinutes,
+      Value<String?>? coverImageUrl,
+      Value<String?>? coverImageKey,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return TvEpisodeRowsCompanion(
+      seriesId: seriesId ?? this.seriesId,
+      seasonId: seasonId ?? this.seasonId,
+      id: id ?? this.id,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      title: title ?? this.title,
+      originalTitle: originalTitle ?? this.originalTitle,
+      description: description ?? this.description,
+      airDate: airDate ?? this.airDate,
+      runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      coverImageKey: coverImageKey ?? this.coverImageKey,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (seriesId.present) {
+      map['series_id'] = Variable<String>(seriesId.value);
+    }
+    if (seasonId.present) {
+      map['season_id'] = Variable<String>(seasonId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<double>(episodeNumber.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (originalTitle.present) {
+      map['original_title'] = Variable<String>(originalTitle.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (airDate.present) {
+      map['air_date'] = Variable<DateTime>(airDate.value);
+    }
+    if (runtimeMinutes.present) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes.value);
+    }
+    if (coverImageUrl.present) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl.value);
+    }
+    if (coverImageKey.present) {
+      map['cover_image_key'] = Variable<String>(coverImageKey.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvEpisodeRowsCompanion(')
+          ..write('seriesId: $seriesId, ')
+          ..write('seasonId: $seasonId, ')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('title: $title, ')
+          ..write('originalTitle: $originalTitle, ')
+          ..write('description: $description, ')
+          ..write('airDate: $airDate, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TvReleaseRowsTable extends TvReleaseRows
+    with TableInfo<$TvReleaseRowsTable, TvReleaseRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvReleaseRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _seriesIdMeta =
+      const VerificationMeta('seriesId');
+  @override
+  late final GeneratedColumn<String> seriesId = GeneratedColumn<String>(
+      'series_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortTitleMeta =
+      const VerificationMeta('sortTitle');
+  @override
+  late final GeneratedColumn<String> sortTitle = GeneratedColumn<String>(
+      'sort_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _mediaCountMeta =
+      const VerificationMeta('mediaCount');
+  @override
+  late final GeneratedColumn<int> mediaCount = GeneratedColumn<int>(
+      'media_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _formatMeta = const VerificationMeta('format');
+  @override
+  late final GeneratedColumn<String> format = GeneratedColumn<String>(
+      'format', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _regionCodeMeta =
+      const VerificationMeta('regionCode');
+  @override
+  late final GeneratedColumn<String> regionCode = GeneratedColumn<String>(
+      'region_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  @override
+  late final GeneratedColumn<DateTime> releaseDate = GeneratedColumn<DateTime>(
+      'release_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _publisherMeta =
+      const VerificationMeta('publisher');
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+      'publisher', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _skuMeta = const VerificationMeta('sku');
+  @override
+  late final GeneratedColumn<String> sku = GeneratedColumn<String>(
+      'sku', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _caseTypeMeta =
+      const VerificationMeta('caseType');
+  @override
+  late final GeneratedColumn<String> caseType = GeneratedColumn<String>(
+      'case_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _episodeCountMeta =
+      const VerificationMeta('episodeCount');
+  @override
+  late final GeneratedColumn<int> episodeCount = GeneratedColumn<int>(
+      'episode_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _seasonCountMeta =
+      const VerificationMeta('seasonCount');
+  @override
+  late final GeneratedColumn<int> seasonCount = GeneratedColumn<int>(
+      'season_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _runtimeMinutesMeta =
+      const VerificationMeta('runtimeMinutes');
+  @override
+  late final GeneratedColumn<int> runtimeMinutes = GeneratedColumn<int>(
+      'runtime_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _languageAudioJsonMeta =
+      const VerificationMeta('languageAudioJson');
+  @override
+  late final GeneratedColumn<String> languageAudioJson =
+      GeneratedColumn<String>('language_audio_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _languageSubtitlesJsonMeta =
+      const VerificationMeta('languageSubtitlesJson');
+  @override
+  late final GeneratedColumn<String> languageSubtitlesJson =
+      GeneratedColumn<String>('language_subtitles_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _contentRatingMeta =
+      const VerificationMeta('contentRating');
+  @override
+  late final GeneratedColumn<String> contentRating = GeneratedColumn<String>(
+      'content_rating', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageUrlMeta =
+      const VerificationMeta('coverImageUrl');
+  @override
+  late final GeneratedColumn<String> coverImageUrl = GeneratedColumn<String>(
+      'cover_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImageKeyMeta =
+      const VerificationMeta('coverImageKey');
+  @override
+  late final GeneratedColumn<String> coverImageKey = GeneratedColumn<String>(
+      'cover_image_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        seriesId,
+        id,
+        title,
+        sortTitle,
+        description,
+        mediaCount,
+        format,
+        regionCode,
+        releaseDate,
+        publisher,
+        sku,
+        caseType,
+        episodeCount,
+        seasonCount,
+        runtimeMinutes,
+        languageAudioJson,
+        languageSubtitlesJson,
+        contentRating,
+        coverImageUrl,
+        coverImageKey,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_release_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvReleaseRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('series_id')) {
+      context.handle(_seriesIdMeta,
+          seriesId.isAcceptableOrUnknown(data['series_id']!, _seriesIdMeta));
+    } else if (isInserting) {
+      context.missing(_seriesIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('sort_title')) {
+      context.handle(_sortTitleMeta,
+          sortTitle.isAcceptableOrUnknown(data['sort_title']!, _sortTitleMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('media_count')) {
+      context.handle(
+          _mediaCountMeta,
+          mediaCount.isAcceptableOrUnknown(
+              data['media_count']!, _mediaCountMeta));
+    }
+    if (data.containsKey('format')) {
+      context.handle(_formatMeta,
+          format.isAcceptableOrUnknown(data['format']!, _formatMeta));
+    }
+    if (data.containsKey('region_code')) {
+      context.handle(
+          _regionCodeMeta,
+          regionCode.isAcceptableOrUnknown(
+              data['region_code']!, _regionCodeMeta));
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['release_date']!, _releaseDateMeta));
+    }
+    if (data.containsKey('publisher')) {
+      context.handle(_publisherMeta,
+          publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta));
+    }
+    if (data.containsKey('sku')) {
+      context.handle(
+          _skuMeta, sku.isAcceptableOrUnknown(data['sku']!, _skuMeta));
+    }
+    if (data.containsKey('case_type')) {
+      context.handle(_caseTypeMeta,
+          caseType.isAcceptableOrUnknown(data['case_type']!, _caseTypeMeta));
+    }
+    if (data.containsKey('episode_count')) {
+      context.handle(
+          _episodeCountMeta,
+          episodeCount.isAcceptableOrUnknown(
+              data['episode_count']!, _episodeCountMeta));
+    }
+    if (data.containsKey('season_count')) {
+      context.handle(
+          _seasonCountMeta,
+          seasonCount.isAcceptableOrUnknown(
+              data['season_count']!, _seasonCountMeta));
+    }
+    if (data.containsKey('runtime_minutes')) {
+      context.handle(
+          _runtimeMinutesMeta,
+          runtimeMinutes.isAcceptableOrUnknown(
+              data['runtime_minutes']!, _runtimeMinutesMeta));
+    }
+    if (data.containsKey('language_audio_json')) {
+      context.handle(
+          _languageAudioJsonMeta,
+          languageAudioJson.isAcceptableOrUnknown(
+              data['language_audio_json']!, _languageAudioJsonMeta));
+    }
+    if (data.containsKey('language_subtitles_json')) {
+      context.handle(
+          _languageSubtitlesJsonMeta,
+          languageSubtitlesJson.isAcceptableOrUnknown(
+              data['language_subtitles_json']!, _languageSubtitlesJsonMeta));
+    }
+    if (data.containsKey('content_rating')) {
+      context.handle(
+          _contentRatingMeta,
+          contentRating.isAcceptableOrUnknown(
+              data['content_rating']!, _contentRatingMeta));
+    }
+    if (data.containsKey('cover_image_url')) {
+      context.handle(
+          _coverImageUrlMeta,
+          coverImageUrl.isAcceptableOrUnknown(
+              data['cover_image_url']!, _coverImageUrlMeta));
+    }
+    if (data.containsKey('cover_image_key')) {
+      context.handle(
+          _coverImageKeyMeta,
+          coverImageKey.isAcceptableOrUnknown(
+              data['cover_image_key']!, _coverImageKeyMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {seriesId, id};
+  @override
+  TvReleaseRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvReleaseRow(
+      seriesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}series_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      sortTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_title']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      mediaCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}media_count']),
+      format: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}format']),
+      regionCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}region_code']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}release_date']),
+      publisher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publisher']),
+      sku: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sku']),
+      caseType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}case_type']),
+      episodeCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_count']),
+      seasonCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_count']),
+      runtimeMinutes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}runtime_minutes']),
+      languageAudioJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}language_audio_json'])!,
+      languageSubtitlesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}language_subtitles_json'])!,
+      contentRating: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content_rating']),
+      coverImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_url']),
+      coverImageKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_image_key']),
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $TvReleaseRowsTable createAlias(String alias) {
+    return $TvReleaseRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvReleaseRow extends DataClass implements Insertable<TvReleaseRow> {
+  final String seriesId;
+  final String id;
+  final String title;
+  final String? sortTitle;
+  final String? description;
+  final int? mediaCount;
+  final String? format;
+  final String? regionCode;
+  final DateTime? releaseDate;
+  final String? publisher;
+  final String? sku;
+  final String? caseType;
+  final int? episodeCount;
+  final int? seasonCount;
+  final int? runtimeMinutes;
+  final String languageAudioJson;
+  final String languageSubtitlesJson;
+  final String? contentRating;
+  final String? coverImageUrl;
+  final String? coverImageKey;
+  final String rawPayloadJson;
+  const TvReleaseRow(
+      {required this.seriesId,
+      required this.id,
+      required this.title,
+      this.sortTitle,
+      this.description,
+      this.mediaCount,
+      this.format,
+      this.regionCode,
+      this.releaseDate,
+      this.publisher,
+      this.sku,
+      this.caseType,
+      this.episodeCount,
+      this.seasonCount,
+      this.runtimeMinutes,
+      required this.languageAudioJson,
+      required this.languageSubtitlesJson,
+      this.contentRating,
+      this.coverImageUrl,
+      this.coverImageKey,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['series_id'] = Variable<String>(seriesId);
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || sortTitle != null) {
+      map['sort_title'] = Variable<String>(sortTitle);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || mediaCount != null) {
+      map['media_count'] = Variable<int>(mediaCount);
+    }
+    if (!nullToAbsent || format != null) {
+      map['format'] = Variable<String>(format);
+    }
+    if (!nullToAbsent || regionCode != null) {
+      map['region_code'] = Variable<String>(regionCode);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<DateTime>(releaseDate);
+    }
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || sku != null) {
+      map['sku'] = Variable<String>(sku);
+    }
+    if (!nullToAbsent || caseType != null) {
+      map['case_type'] = Variable<String>(caseType);
+    }
+    if (!nullToAbsent || episodeCount != null) {
+      map['episode_count'] = Variable<int>(episodeCount);
+    }
+    if (!nullToAbsent || seasonCount != null) {
+      map['season_count'] = Variable<int>(seasonCount);
+    }
+    if (!nullToAbsent || runtimeMinutes != null) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes);
+    }
+    map['language_audio_json'] = Variable<String>(languageAudioJson);
+    map['language_subtitles_json'] = Variable<String>(languageSubtitlesJson);
+    if (!nullToAbsent || contentRating != null) {
+      map['content_rating'] = Variable<String>(contentRating);
+    }
+    if (!nullToAbsent || coverImageUrl != null) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl);
+    }
+    if (!nullToAbsent || coverImageKey != null) {
+      map['cover_image_key'] = Variable<String>(coverImageKey);
+    }
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  TvReleaseRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvReleaseRowsCompanion(
+      seriesId: Value(seriesId),
+      id: Value(id),
+      title: Value(title),
+      sortTitle: sortTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortTitle),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      mediaCount: mediaCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaCount),
+      format:
+          format == null && nullToAbsent ? const Value.absent() : Value(format),
+      regionCode: regionCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(regionCode),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      sku: sku == null && nullToAbsent ? const Value.absent() : Value(sku),
+      caseType: caseType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(caseType),
+      episodeCount: episodeCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeCount),
+      seasonCount: seasonCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonCount),
+      runtimeMinutes: runtimeMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(runtimeMinutes),
+      languageAudioJson: Value(languageAudioJson),
+      languageSubtitlesJson: Value(languageSubtitlesJson),
+      contentRating: contentRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contentRating),
+      coverImageUrl: coverImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageUrl),
+      coverImageKey: coverImageKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImageKey),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory TvReleaseRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvReleaseRow(
+      seriesId: serializer.fromJson<String>(json['seriesId']),
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      sortTitle: serializer.fromJson<String?>(json['sortTitle']),
+      description: serializer.fromJson<String?>(json['description']),
+      mediaCount: serializer.fromJson<int?>(json['mediaCount']),
+      format: serializer.fromJson<String?>(json['format']),
+      regionCode: serializer.fromJson<String?>(json['regionCode']),
+      releaseDate: serializer.fromJson<DateTime?>(json['releaseDate']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      sku: serializer.fromJson<String?>(json['sku']),
+      caseType: serializer.fromJson<String?>(json['caseType']),
+      episodeCount: serializer.fromJson<int?>(json['episodeCount']),
+      seasonCount: serializer.fromJson<int?>(json['seasonCount']),
+      runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
+      languageAudioJson: serializer.fromJson<String>(json['languageAudioJson']),
+      languageSubtitlesJson:
+          serializer.fromJson<String>(json['languageSubtitlesJson']),
+      contentRating: serializer.fromJson<String?>(json['contentRating']),
+      coverImageUrl: serializer.fromJson<String?>(json['coverImageUrl']),
+      coverImageKey: serializer.fromJson<String?>(json['coverImageKey']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'seriesId': serializer.toJson<String>(seriesId),
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'sortTitle': serializer.toJson<String?>(sortTitle),
+      'description': serializer.toJson<String?>(description),
+      'mediaCount': serializer.toJson<int?>(mediaCount),
+      'format': serializer.toJson<String?>(format),
+      'regionCode': serializer.toJson<String?>(regionCode),
+      'releaseDate': serializer.toJson<DateTime?>(releaseDate),
+      'publisher': serializer.toJson<String?>(publisher),
+      'sku': serializer.toJson<String?>(sku),
+      'caseType': serializer.toJson<String?>(caseType),
+      'episodeCount': serializer.toJson<int?>(episodeCount),
+      'seasonCount': serializer.toJson<int?>(seasonCount),
+      'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
+      'languageAudioJson': serializer.toJson<String>(languageAudioJson),
+      'languageSubtitlesJson': serializer.toJson<String>(languageSubtitlesJson),
+      'contentRating': serializer.toJson<String?>(contentRating),
+      'coverImageUrl': serializer.toJson<String?>(coverImageUrl),
+      'coverImageKey': serializer.toJson<String?>(coverImageKey),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  TvReleaseRow copyWith(
+          {String? seriesId,
+          String? id,
+          String? title,
+          Value<String?> sortTitle = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<int?> mediaCount = const Value.absent(),
+          Value<String?> format = const Value.absent(),
+          Value<String?> regionCode = const Value.absent(),
+          Value<DateTime?> releaseDate = const Value.absent(),
+          Value<String?> publisher = const Value.absent(),
+          Value<String?> sku = const Value.absent(),
+          Value<String?> caseType = const Value.absent(),
+          Value<int?> episodeCount = const Value.absent(),
+          Value<int?> seasonCount = const Value.absent(),
+          Value<int?> runtimeMinutes = const Value.absent(),
+          String? languageAudioJson,
+          String? languageSubtitlesJson,
+          Value<String?> contentRating = const Value.absent(),
+          Value<String?> coverImageUrl = const Value.absent(),
+          Value<String?> coverImageKey = const Value.absent(),
+          String? rawPayloadJson}) =>
+      TvReleaseRow(
+        seriesId: seriesId ?? this.seriesId,
+        id: id ?? this.id,
+        title: title ?? this.title,
+        sortTitle: sortTitle.present ? sortTitle.value : this.sortTitle,
+        description: description.present ? description.value : this.description,
+        mediaCount: mediaCount.present ? mediaCount.value : this.mediaCount,
+        format: format.present ? format.value : this.format,
+        regionCode: regionCode.present ? regionCode.value : this.regionCode,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        publisher: publisher.present ? publisher.value : this.publisher,
+        sku: sku.present ? sku.value : this.sku,
+        caseType: caseType.present ? caseType.value : this.caseType,
+        episodeCount:
+            episodeCount.present ? episodeCount.value : this.episodeCount,
+        seasonCount: seasonCount.present ? seasonCount.value : this.seasonCount,
+        runtimeMinutes:
+            runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
+        languageAudioJson: languageAudioJson ?? this.languageAudioJson,
+        languageSubtitlesJson:
+            languageSubtitlesJson ?? this.languageSubtitlesJson,
+        contentRating:
+            contentRating.present ? contentRating.value : this.contentRating,
+        coverImageUrl:
+            coverImageUrl.present ? coverImageUrl.value : this.coverImageUrl,
+        coverImageKey:
+            coverImageKey.present ? coverImageKey.value : this.coverImageKey,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  TvReleaseRow copyWithCompanion(TvReleaseRowsCompanion data) {
+    return TvReleaseRow(
+      seriesId: data.seriesId.present ? data.seriesId.value : this.seriesId,
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      sortTitle: data.sortTitle.present ? data.sortTitle.value : this.sortTitle,
+      description:
+          data.description.present ? data.description.value : this.description,
+      mediaCount:
+          data.mediaCount.present ? data.mediaCount.value : this.mediaCount,
+      format: data.format.present ? data.format.value : this.format,
+      regionCode:
+          data.regionCode.present ? data.regionCode.value : this.regionCode,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      sku: data.sku.present ? data.sku.value : this.sku,
+      caseType: data.caseType.present ? data.caseType.value : this.caseType,
+      episodeCount: data.episodeCount.present
+          ? data.episodeCount.value
+          : this.episodeCount,
+      seasonCount:
+          data.seasonCount.present ? data.seasonCount.value : this.seasonCount,
+      runtimeMinutes: data.runtimeMinutes.present
+          ? data.runtimeMinutes.value
+          : this.runtimeMinutes,
+      languageAudioJson: data.languageAudioJson.present
+          ? data.languageAudioJson.value
+          : this.languageAudioJson,
+      languageSubtitlesJson: data.languageSubtitlesJson.present
+          ? data.languageSubtitlesJson.value
+          : this.languageSubtitlesJson,
+      contentRating: data.contentRating.present
+          ? data.contentRating.value
+          : this.contentRating,
+      coverImageUrl: data.coverImageUrl.present
+          ? data.coverImageUrl.value
+          : this.coverImageUrl,
+      coverImageKey: data.coverImageKey.present
+          ? data.coverImageKey.value
+          : this.coverImageKey,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvReleaseRow(')
+          ..write('seriesId: $seriesId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('mediaCount: $mediaCount, ')
+          ..write('format: $format, ')
+          ..write('regionCode: $regionCode, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('publisher: $publisher, ')
+          ..write('sku: $sku, ')
+          ..write('caseType: $caseType, ')
+          ..write('episodeCount: $episodeCount, ')
+          ..write('seasonCount: $seasonCount, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('languageAudioJson: $languageAudioJson, ')
+          ..write('languageSubtitlesJson: $languageSubtitlesJson, ')
+          ..write('contentRating: $contentRating, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        seriesId,
+        id,
+        title,
+        sortTitle,
+        description,
+        mediaCount,
+        format,
+        regionCode,
+        releaseDate,
+        publisher,
+        sku,
+        caseType,
+        episodeCount,
+        seasonCount,
+        runtimeMinutes,
+        languageAudioJson,
+        languageSubtitlesJson,
+        contentRating,
+        coverImageUrl,
+        coverImageKey,
+        rawPayloadJson
+      ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvReleaseRow &&
+          other.seriesId == this.seriesId &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.sortTitle == this.sortTitle &&
+          other.description == this.description &&
+          other.mediaCount == this.mediaCount &&
+          other.format == this.format &&
+          other.regionCode == this.regionCode &&
+          other.releaseDate == this.releaseDate &&
+          other.publisher == this.publisher &&
+          other.sku == this.sku &&
+          other.caseType == this.caseType &&
+          other.episodeCount == this.episodeCount &&
+          other.seasonCount == this.seasonCount &&
+          other.runtimeMinutes == this.runtimeMinutes &&
+          other.languageAudioJson == this.languageAudioJson &&
+          other.languageSubtitlesJson == this.languageSubtitlesJson &&
+          other.contentRating == this.contentRating &&
+          other.coverImageUrl == this.coverImageUrl &&
+          other.coverImageKey == this.coverImageKey &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class TvReleaseRowsCompanion extends UpdateCompanion<TvReleaseRow> {
+  final Value<String> seriesId;
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> sortTitle;
+  final Value<String?> description;
+  final Value<int?> mediaCount;
+  final Value<String?> format;
+  final Value<String?> regionCode;
+  final Value<DateTime?> releaseDate;
+  final Value<String?> publisher;
+  final Value<String?> sku;
+  final Value<String?> caseType;
+  final Value<int?> episodeCount;
+  final Value<int?> seasonCount;
+  final Value<int?> runtimeMinutes;
+  final Value<String> languageAudioJson;
+  final Value<String> languageSubtitlesJson;
+  final Value<String?> contentRating;
+  final Value<String?> coverImageUrl;
+  final Value<String?> coverImageKey;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const TvReleaseRowsCompanion({
+    this.seriesId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.mediaCount = const Value.absent(),
+    this.format = const Value.absent(),
+    this.regionCode = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.sku = const Value.absent(),
+    this.caseType = const Value.absent(),
+    this.episodeCount = const Value.absent(),
+    this.seasonCount = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.languageAudioJson = const Value.absent(),
+    this.languageSubtitlesJson = const Value.absent(),
+    this.contentRating = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvReleaseRowsCompanion.insert({
+    required String seriesId,
+    required String id,
+    required String title,
+    this.sortTitle = const Value.absent(),
+    this.description = const Value.absent(),
+    this.mediaCount = const Value.absent(),
+    this.format = const Value.absent(),
+    this.regionCode = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.sku = const Value.absent(),
+    this.caseType = const Value.absent(),
+    this.episodeCount = const Value.absent(),
+    this.seasonCount = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.languageAudioJson = const Value.absent(),
+    this.languageSubtitlesJson = const Value.absent(),
+    this.contentRating = const Value.absent(),
+    this.coverImageUrl = const Value.absent(),
+    this.coverImageKey = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : seriesId = Value(seriesId),
+        id = Value(id),
+        title = Value(title);
+  static Insertable<TvReleaseRow> custom({
+    Expression<String>? seriesId,
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? sortTitle,
+    Expression<String>? description,
+    Expression<int>? mediaCount,
+    Expression<String>? format,
+    Expression<String>? regionCode,
+    Expression<DateTime>? releaseDate,
+    Expression<String>? publisher,
+    Expression<String>? sku,
+    Expression<String>? caseType,
+    Expression<int>? episodeCount,
+    Expression<int>? seasonCount,
+    Expression<int>? runtimeMinutes,
+    Expression<String>? languageAudioJson,
+    Expression<String>? languageSubtitlesJson,
+    Expression<String>? contentRating,
+    Expression<String>? coverImageUrl,
+    Expression<String>? coverImageKey,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (seriesId != null) 'series_id': seriesId,
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (sortTitle != null) 'sort_title': sortTitle,
+      if (description != null) 'description': description,
+      if (mediaCount != null) 'media_count': mediaCount,
+      if (format != null) 'format': format,
+      if (regionCode != null) 'region_code': regionCode,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (publisher != null) 'publisher': publisher,
+      if (sku != null) 'sku': sku,
+      if (caseType != null) 'case_type': caseType,
+      if (episodeCount != null) 'episode_count': episodeCount,
+      if (seasonCount != null) 'season_count': seasonCount,
+      if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+      if (languageAudioJson != null) 'language_audio_json': languageAudioJson,
+      if (languageSubtitlesJson != null)
+        'language_subtitles_json': languageSubtitlesJson,
+      if (contentRating != null) 'content_rating': contentRating,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (coverImageKey != null) 'cover_image_key': coverImageKey,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvReleaseRowsCompanion copyWith(
+      {Value<String>? seriesId,
+      Value<String>? id,
+      Value<String>? title,
+      Value<String?>? sortTitle,
+      Value<String?>? description,
+      Value<int?>? mediaCount,
+      Value<String?>? format,
+      Value<String?>? regionCode,
+      Value<DateTime?>? releaseDate,
+      Value<String?>? publisher,
+      Value<String?>? sku,
+      Value<String?>? caseType,
+      Value<int?>? episodeCount,
+      Value<int?>? seasonCount,
+      Value<int?>? runtimeMinutes,
+      Value<String>? languageAudioJson,
+      Value<String>? languageSubtitlesJson,
+      Value<String?>? contentRating,
+      Value<String?>? coverImageUrl,
+      Value<String?>? coverImageKey,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return TvReleaseRowsCompanion(
+      seriesId: seriesId ?? this.seriesId,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      sortTitle: sortTitle ?? this.sortTitle,
+      description: description ?? this.description,
+      mediaCount: mediaCount ?? this.mediaCount,
+      format: format ?? this.format,
+      regionCode: regionCode ?? this.regionCode,
+      releaseDate: releaseDate ?? this.releaseDate,
+      publisher: publisher ?? this.publisher,
+      sku: sku ?? this.sku,
+      caseType: caseType ?? this.caseType,
+      episodeCount: episodeCount ?? this.episodeCount,
+      seasonCount: seasonCount ?? this.seasonCount,
+      runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      languageAudioJson: languageAudioJson ?? this.languageAudioJson,
+      languageSubtitlesJson:
+          languageSubtitlesJson ?? this.languageSubtitlesJson,
+      contentRating: contentRating ?? this.contentRating,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      coverImageKey: coverImageKey ?? this.coverImageKey,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (seriesId.present) {
+      map['series_id'] = Variable<String>(seriesId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (sortTitle.present) {
+      map['sort_title'] = Variable<String>(sortTitle.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (mediaCount.present) {
+      map['media_count'] = Variable<int>(mediaCount.value);
+    }
+    if (format.present) {
+      map['format'] = Variable<String>(format.value);
+    }
+    if (regionCode.present) {
+      map['region_code'] = Variable<String>(regionCode.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<DateTime>(releaseDate.value);
+    }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (sku.present) {
+      map['sku'] = Variable<String>(sku.value);
+    }
+    if (caseType.present) {
+      map['case_type'] = Variable<String>(caseType.value);
+    }
+    if (episodeCount.present) {
+      map['episode_count'] = Variable<int>(episodeCount.value);
+    }
+    if (seasonCount.present) {
+      map['season_count'] = Variable<int>(seasonCount.value);
+    }
+    if (runtimeMinutes.present) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes.value);
+    }
+    if (languageAudioJson.present) {
+      map['language_audio_json'] = Variable<String>(languageAudioJson.value);
+    }
+    if (languageSubtitlesJson.present) {
+      map['language_subtitles_json'] =
+          Variable<String>(languageSubtitlesJson.value);
+    }
+    if (contentRating.present) {
+      map['content_rating'] = Variable<String>(contentRating.value);
+    }
+    if (coverImageUrl.present) {
+      map['cover_image_url'] = Variable<String>(coverImageUrl.value);
+    }
+    if (coverImageKey.present) {
+      map['cover_image_key'] = Variable<String>(coverImageKey.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvReleaseRowsCompanion(')
+          ..write('seriesId: $seriesId, ')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('sortTitle: $sortTitle, ')
+          ..write('description: $description, ')
+          ..write('mediaCount: $mediaCount, ')
+          ..write('format: $format, ')
+          ..write('regionCode: $regionCode, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('publisher: $publisher, ')
+          ..write('sku: $sku, ')
+          ..write('caseType: $caseType, ')
+          ..write('episodeCount: $episodeCount, ')
+          ..write('seasonCount: $seasonCount, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('languageAudioJson: $languageAudioJson, ')
+          ..write('languageSubtitlesJson: $languageSubtitlesJson, ')
+          ..write('contentRating: $contentRating, ')
+          ..write('coverImageUrl: $coverImageUrl, ')
+          ..write('coverImageKey: $coverImageKey, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TvReleaseMediaRowsTable extends TvReleaseMediaRows
+    with TableInfo<$TvReleaseMediaRowsTable, TvReleaseMediaRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvReleaseMediaRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mediaNumberMeta =
+      const VerificationMeta('mediaNumber');
+  @override
+  late final GeneratedColumn<int> mediaNumber = GeneratedColumn<int>(
+      'media_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _mediaTypeMeta =
+      const VerificationMeta('mediaType');
+  @override
+  late final GeneratedColumn<String> mediaType = GeneratedColumn<String>(
+      'media_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _episodeCountMeta =
+      const VerificationMeta('episodeCount');
+  @override
+  late final GeneratedColumn<int> episodeCount = GeneratedColumn<int>(
+      'episode_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _runtimeMinutesMeta =
+      const VerificationMeta('runtimeMinutes');
+  @override
+  late final GeneratedColumn<int> runtimeMinutes = GeneratedColumn<int>(
+      'runtime_minutes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _regionCodeMeta =
+      const VerificationMeta('regionCode');
+  @override
+  late final GeneratedColumn<String> regionCode = GeneratedColumn<String>(
+      'region_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _encodingMeta =
+      const VerificationMeta('encoding');
+  @override
+  late final GeneratedColumn<String> encoding = GeneratedColumn<String>(
+      'encoding', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _aspectRatioMeta =
+      const VerificationMeta('aspectRatio');
+  @override
+  late final GeneratedColumn<String> aspectRatio = GeneratedColumn<String>(
+      'aspect_ratio', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  @override
+  late final GeneratedColumn<String> color = GeneratedColumn<String>(
+      'color', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _audioTracksMeta =
+      const VerificationMeta('audioTracks');
+  @override
+  late final GeneratedColumn<String> audioTracks = GeneratedColumn<String>(
+      'audio_tracks', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _subtitlesMeta =
+      const VerificationMeta('subtitles');
+  @override
+  late final GeneratedColumn<String> subtitles = GeneratedColumn<String>(
+      'subtitles', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _layersMeta = const VerificationMeta('layers');
+  @override
+  late final GeneratedColumn<String> layers = GeneratedColumn<String>(
+      'layers', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _frameRateMeta =
+      const VerificationMeta('frameRate');
+  @override
+  late final GeneratedColumn<String> frameRate = GeneratedColumn<String>(
+      'frame_rate', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bitDepthMeta =
+      const VerificationMeta('bitDepth');
+  @override
+  late final GeneratedColumn<String> bitDepth = GeneratedColumn<String>(
+      'bit_depth', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _resolutionMeta =
+      const VerificationMeta('resolution');
+  @override
+  late final GeneratedColumn<String> resolution = GeneratedColumn<String>(
+      'resolution', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _hdrFormatMeta =
+      const VerificationMeta('hdrFormat');
+  @override
+  late final GeneratedColumn<String> hdrFormat = GeneratedColumn<String>(
+      'hdr_format', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _episodesJsonMeta =
+      const VerificationMeta('episodesJson');
+  @override
+  late final GeneratedColumn<String> episodesJson = GeneratedColumn<String>(
+      'episodes_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _rawPayloadJsonMeta =
+      const VerificationMeta('rawPayloadJson');
+  @override
+  late final GeneratedColumn<String> rawPayloadJson = GeneratedColumn<String>(
+      'raw_payload_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        releaseId,
+        id,
+        mediaNumber,
+        mediaType,
+        title,
+        episodeCount,
+        runtimeMinutes,
+        regionCode,
+        encoding,
+        aspectRatio,
+        color,
+        audioTracks,
+        subtitles,
+        layers,
+        frameRate,
+        bitDepth,
+        resolution,
+        hdrFormat,
+        episodesJson,
+        rawPayloadJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_release_media_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvReleaseMediaRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('media_number')) {
+      context.handle(
+          _mediaNumberMeta,
+          mediaNumber.isAcceptableOrUnknown(
+              data['media_number']!, _mediaNumberMeta));
+    }
+    if (data.containsKey('media_type')) {
+      context.handle(_mediaTypeMeta,
+          mediaType.isAcceptableOrUnknown(data['media_type']!, _mediaTypeMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    }
+    if (data.containsKey('episode_count')) {
+      context.handle(
+          _episodeCountMeta,
+          episodeCount.isAcceptableOrUnknown(
+              data['episode_count']!, _episodeCountMeta));
+    }
+    if (data.containsKey('runtime_minutes')) {
+      context.handle(
+          _runtimeMinutesMeta,
+          runtimeMinutes.isAcceptableOrUnknown(
+              data['runtime_minutes']!, _runtimeMinutesMeta));
+    }
+    if (data.containsKey('region_code')) {
+      context.handle(
+          _regionCodeMeta,
+          regionCode.isAcceptableOrUnknown(
+              data['region_code']!, _regionCodeMeta));
+    }
+    if (data.containsKey('encoding')) {
+      context.handle(_encodingMeta,
+          encoding.isAcceptableOrUnknown(data['encoding']!, _encodingMeta));
+    }
+    if (data.containsKey('aspect_ratio')) {
+      context.handle(
+          _aspectRatioMeta,
+          aspectRatio.isAcceptableOrUnknown(
+              data['aspect_ratio']!, _aspectRatioMeta));
+    }
+    if (data.containsKey('color')) {
+      context.handle(
+          _colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
+    }
+    if (data.containsKey('audio_tracks')) {
+      context.handle(
+          _audioTracksMeta,
+          audioTracks.isAcceptableOrUnknown(
+              data['audio_tracks']!, _audioTracksMeta));
+    }
+    if (data.containsKey('subtitles')) {
+      context.handle(_subtitlesMeta,
+          subtitles.isAcceptableOrUnknown(data['subtitles']!, _subtitlesMeta));
+    }
+    if (data.containsKey('layers')) {
+      context.handle(_layersMeta,
+          layers.isAcceptableOrUnknown(data['layers']!, _layersMeta));
+    }
+    if (data.containsKey('frame_rate')) {
+      context.handle(_frameRateMeta,
+          frameRate.isAcceptableOrUnknown(data['frame_rate']!, _frameRateMeta));
+    }
+    if (data.containsKey('bit_depth')) {
+      context.handle(_bitDepthMeta,
+          bitDepth.isAcceptableOrUnknown(data['bit_depth']!, _bitDepthMeta));
+    }
+    if (data.containsKey('resolution')) {
+      context.handle(
+          _resolutionMeta,
+          resolution.isAcceptableOrUnknown(
+              data['resolution']!, _resolutionMeta));
+    }
+    if (data.containsKey('hdr_format')) {
+      context.handle(_hdrFormatMeta,
+          hdrFormat.isAcceptableOrUnknown(data['hdr_format']!, _hdrFormatMeta));
+    }
+    if (data.containsKey('episodes_json')) {
+      context.handle(
+          _episodesJsonMeta,
+          episodesJson.isAcceptableOrUnknown(
+              data['episodes_json']!, _episodesJsonMeta));
+    }
+    if (data.containsKey('raw_payload_json')) {
+      context.handle(
+          _rawPayloadJsonMeta,
+          rawPayloadJson.isAcceptableOrUnknown(
+              data['raw_payload_json']!, _rawPayloadJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {releaseId, id};
+  @override
+  TvReleaseMediaRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvReleaseMediaRow(
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      mediaNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}media_number']),
+      mediaType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_type']),
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title']),
+      episodeCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_count']),
+      runtimeMinutes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}runtime_minutes']),
+      regionCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}region_code']),
+      encoding: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}encoding']),
+      aspectRatio: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}aspect_ratio']),
+      color: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}color']),
+      audioTracks: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}audio_tracks']),
+      subtitles: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subtitles']),
+      layers: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}layers']),
+      frameRate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}frame_rate']),
+      bitDepth: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}bit_depth']),
+      resolution: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}resolution']),
+      hdrFormat: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}hdr_format']),
+      episodesJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}episodes_json'])!,
+      rawPayloadJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}raw_payload_json'])!,
+    );
+  }
+
+  @override
+  $TvReleaseMediaRowsTable createAlias(String alias) {
+    return $TvReleaseMediaRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvReleaseMediaRow extends DataClass
+    implements Insertable<TvReleaseMediaRow> {
+  final String releaseId;
+  final String id;
+  final int? mediaNumber;
+  final String? mediaType;
+  final String? title;
+  final int? episodeCount;
+  final int? runtimeMinutes;
+  final String? regionCode;
+  final String? encoding;
+  final String? aspectRatio;
+  final String? color;
+  final String? audioTracks;
+  final String? subtitles;
+  final String? layers;
+  final String? frameRate;
+  final String? bitDepth;
+  final String? resolution;
+  final String? hdrFormat;
+  final String episodesJson;
+  final String rawPayloadJson;
+  const TvReleaseMediaRow(
+      {required this.releaseId,
+      required this.id,
+      this.mediaNumber,
+      this.mediaType,
+      this.title,
+      this.episodeCount,
+      this.runtimeMinutes,
+      this.regionCode,
+      this.encoding,
+      this.aspectRatio,
+      this.color,
+      this.audioTracks,
+      this.subtitles,
+      this.layers,
+      this.frameRate,
+      this.bitDepth,
+      this.resolution,
+      this.hdrFormat,
+      required this.episodesJson,
+      required this.rawPayloadJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['release_id'] = Variable<String>(releaseId);
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || mediaNumber != null) {
+      map['media_number'] = Variable<int>(mediaNumber);
+    }
+    if (!nullToAbsent || mediaType != null) {
+      map['media_type'] = Variable<String>(mediaType);
+    }
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    if (!nullToAbsent || episodeCount != null) {
+      map['episode_count'] = Variable<int>(episodeCount);
+    }
+    if (!nullToAbsent || runtimeMinutes != null) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes);
+    }
+    if (!nullToAbsent || regionCode != null) {
+      map['region_code'] = Variable<String>(regionCode);
+    }
+    if (!nullToAbsent || encoding != null) {
+      map['encoding'] = Variable<String>(encoding);
+    }
+    if (!nullToAbsent || aspectRatio != null) {
+      map['aspect_ratio'] = Variable<String>(aspectRatio);
+    }
+    if (!nullToAbsent || color != null) {
+      map['color'] = Variable<String>(color);
+    }
+    if (!nullToAbsent || audioTracks != null) {
+      map['audio_tracks'] = Variable<String>(audioTracks);
+    }
+    if (!nullToAbsent || subtitles != null) {
+      map['subtitles'] = Variable<String>(subtitles);
+    }
+    if (!nullToAbsent || layers != null) {
+      map['layers'] = Variable<String>(layers);
+    }
+    if (!nullToAbsent || frameRate != null) {
+      map['frame_rate'] = Variable<String>(frameRate);
+    }
+    if (!nullToAbsent || bitDepth != null) {
+      map['bit_depth'] = Variable<String>(bitDepth);
+    }
+    if (!nullToAbsent || resolution != null) {
+      map['resolution'] = Variable<String>(resolution);
+    }
+    if (!nullToAbsent || hdrFormat != null) {
+      map['hdr_format'] = Variable<String>(hdrFormat);
+    }
+    map['episodes_json'] = Variable<String>(episodesJson);
+    map['raw_payload_json'] = Variable<String>(rawPayloadJson);
+    return map;
+  }
+
+  TvReleaseMediaRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvReleaseMediaRowsCompanion(
+      releaseId: Value(releaseId),
+      id: Value(id),
+      mediaNumber: mediaNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaNumber),
+      mediaType: mediaType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaType),
+      title:
+          title == null && nullToAbsent ? const Value.absent() : Value(title),
+      episodeCount: episodeCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeCount),
+      runtimeMinutes: runtimeMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(runtimeMinutes),
+      regionCode: regionCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(regionCode),
+      encoding: encoding == null && nullToAbsent
+          ? const Value.absent()
+          : Value(encoding),
+      aspectRatio: aspectRatio == null && nullToAbsent
+          ? const Value.absent()
+          : Value(aspectRatio),
+      color:
+          color == null && nullToAbsent ? const Value.absent() : Value(color),
+      audioTracks: audioTracks == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioTracks),
+      subtitles: subtitles == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitles),
+      layers:
+          layers == null && nullToAbsent ? const Value.absent() : Value(layers),
+      frameRate: frameRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(frameRate),
+      bitDepth: bitDepth == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bitDepth),
+      resolution: resolution == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resolution),
+      hdrFormat: hdrFormat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hdrFormat),
+      episodesJson: Value(episodesJson),
+      rawPayloadJson: Value(rawPayloadJson),
+    );
+  }
+
+  factory TvReleaseMediaRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvReleaseMediaRow(
+      releaseId: serializer.fromJson<String>(json['releaseId']),
+      id: serializer.fromJson<String>(json['id']),
+      mediaNumber: serializer.fromJson<int?>(json['mediaNumber']),
+      mediaType: serializer.fromJson<String?>(json['mediaType']),
+      title: serializer.fromJson<String?>(json['title']),
+      episodeCount: serializer.fromJson<int?>(json['episodeCount']),
+      runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
+      regionCode: serializer.fromJson<String?>(json['regionCode']),
+      encoding: serializer.fromJson<String?>(json['encoding']),
+      aspectRatio: serializer.fromJson<String?>(json['aspectRatio']),
+      color: serializer.fromJson<String?>(json['color']),
+      audioTracks: serializer.fromJson<String?>(json['audioTracks']),
+      subtitles: serializer.fromJson<String?>(json['subtitles']),
+      layers: serializer.fromJson<String?>(json['layers']),
+      frameRate: serializer.fromJson<String?>(json['frameRate']),
+      bitDepth: serializer.fromJson<String?>(json['bitDepth']),
+      resolution: serializer.fromJson<String?>(json['resolution']),
+      hdrFormat: serializer.fromJson<String?>(json['hdrFormat']),
+      episodesJson: serializer.fromJson<String>(json['episodesJson']),
+      rawPayloadJson: serializer.fromJson<String>(json['rawPayloadJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'releaseId': serializer.toJson<String>(releaseId),
+      'id': serializer.toJson<String>(id),
+      'mediaNumber': serializer.toJson<int?>(mediaNumber),
+      'mediaType': serializer.toJson<String?>(mediaType),
+      'title': serializer.toJson<String?>(title),
+      'episodeCount': serializer.toJson<int?>(episodeCount),
+      'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
+      'regionCode': serializer.toJson<String?>(regionCode),
+      'encoding': serializer.toJson<String?>(encoding),
+      'aspectRatio': serializer.toJson<String?>(aspectRatio),
+      'color': serializer.toJson<String?>(color),
+      'audioTracks': serializer.toJson<String?>(audioTracks),
+      'subtitles': serializer.toJson<String?>(subtitles),
+      'layers': serializer.toJson<String?>(layers),
+      'frameRate': serializer.toJson<String?>(frameRate),
+      'bitDepth': serializer.toJson<String?>(bitDepth),
+      'resolution': serializer.toJson<String?>(resolution),
+      'hdrFormat': serializer.toJson<String?>(hdrFormat),
+      'episodesJson': serializer.toJson<String>(episodesJson),
+      'rawPayloadJson': serializer.toJson<String>(rawPayloadJson),
+    };
+  }
+
+  TvReleaseMediaRow copyWith(
+          {String? releaseId,
+          String? id,
+          Value<int?> mediaNumber = const Value.absent(),
+          Value<String?> mediaType = const Value.absent(),
+          Value<String?> title = const Value.absent(),
+          Value<int?> episodeCount = const Value.absent(),
+          Value<int?> runtimeMinutes = const Value.absent(),
+          Value<String?> regionCode = const Value.absent(),
+          Value<String?> encoding = const Value.absent(),
+          Value<String?> aspectRatio = const Value.absent(),
+          Value<String?> color = const Value.absent(),
+          Value<String?> audioTracks = const Value.absent(),
+          Value<String?> subtitles = const Value.absent(),
+          Value<String?> layers = const Value.absent(),
+          Value<String?> frameRate = const Value.absent(),
+          Value<String?> bitDepth = const Value.absent(),
+          Value<String?> resolution = const Value.absent(),
+          Value<String?> hdrFormat = const Value.absent(),
+          String? episodesJson,
+          String? rawPayloadJson}) =>
+      TvReleaseMediaRow(
+        releaseId: releaseId ?? this.releaseId,
+        id: id ?? this.id,
+        mediaNumber: mediaNumber.present ? mediaNumber.value : this.mediaNumber,
+        mediaType: mediaType.present ? mediaType.value : this.mediaType,
+        title: title.present ? title.value : this.title,
+        episodeCount:
+            episodeCount.present ? episodeCount.value : this.episodeCount,
+        runtimeMinutes:
+            runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
+        regionCode: regionCode.present ? regionCode.value : this.regionCode,
+        encoding: encoding.present ? encoding.value : this.encoding,
+        aspectRatio: aspectRatio.present ? aspectRatio.value : this.aspectRatio,
+        color: color.present ? color.value : this.color,
+        audioTracks: audioTracks.present ? audioTracks.value : this.audioTracks,
+        subtitles: subtitles.present ? subtitles.value : this.subtitles,
+        layers: layers.present ? layers.value : this.layers,
+        frameRate: frameRate.present ? frameRate.value : this.frameRate,
+        bitDepth: bitDepth.present ? bitDepth.value : this.bitDepth,
+        resolution: resolution.present ? resolution.value : this.resolution,
+        hdrFormat: hdrFormat.present ? hdrFormat.value : this.hdrFormat,
+        episodesJson: episodesJson ?? this.episodesJson,
+        rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      );
+  TvReleaseMediaRow copyWithCompanion(TvReleaseMediaRowsCompanion data) {
+    return TvReleaseMediaRow(
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      id: data.id.present ? data.id.value : this.id,
+      mediaNumber:
+          data.mediaNumber.present ? data.mediaNumber.value : this.mediaNumber,
+      mediaType: data.mediaType.present ? data.mediaType.value : this.mediaType,
+      title: data.title.present ? data.title.value : this.title,
+      episodeCount: data.episodeCount.present
+          ? data.episodeCount.value
+          : this.episodeCount,
+      runtimeMinutes: data.runtimeMinutes.present
+          ? data.runtimeMinutes.value
+          : this.runtimeMinutes,
+      regionCode:
+          data.regionCode.present ? data.regionCode.value : this.regionCode,
+      encoding: data.encoding.present ? data.encoding.value : this.encoding,
+      aspectRatio:
+          data.aspectRatio.present ? data.aspectRatio.value : this.aspectRatio,
+      color: data.color.present ? data.color.value : this.color,
+      audioTracks:
+          data.audioTracks.present ? data.audioTracks.value : this.audioTracks,
+      subtitles: data.subtitles.present ? data.subtitles.value : this.subtitles,
+      layers: data.layers.present ? data.layers.value : this.layers,
+      frameRate: data.frameRate.present ? data.frameRate.value : this.frameRate,
+      bitDepth: data.bitDepth.present ? data.bitDepth.value : this.bitDepth,
+      resolution:
+          data.resolution.present ? data.resolution.value : this.resolution,
+      hdrFormat: data.hdrFormat.present ? data.hdrFormat.value : this.hdrFormat,
+      episodesJson: data.episodesJson.present
+          ? data.episodesJson.value
+          : this.episodesJson,
+      rawPayloadJson: data.rawPayloadJson.present
+          ? data.rawPayloadJson.value
+          : this.rawPayloadJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvReleaseMediaRow(')
+          ..write('releaseId: $releaseId, ')
+          ..write('id: $id, ')
+          ..write('mediaNumber: $mediaNumber, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('title: $title, ')
+          ..write('episodeCount: $episodeCount, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('regionCode: $regionCode, ')
+          ..write('encoding: $encoding, ')
+          ..write('aspectRatio: $aspectRatio, ')
+          ..write('color: $color, ')
+          ..write('audioTracks: $audioTracks, ')
+          ..write('subtitles: $subtitles, ')
+          ..write('layers: $layers, ')
+          ..write('frameRate: $frameRate, ')
+          ..write('bitDepth: $bitDepth, ')
+          ..write('resolution: $resolution, ')
+          ..write('hdrFormat: $hdrFormat, ')
+          ..write('episodesJson: $episodesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      releaseId,
+      id,
+      mediaNumber,
+      mediaType,
+      title,
+      episodeCount,
+      runtimeMinutes,
+      regionCode,
+      encoding,
+      aspectRatio,
+      color,
+      audioTracks,
+      subtitles,
+      layers,
+      frameRate,
+      bitDepth,
+      resolution,
+      hdrFormat,
+      episodesJson,
+      rawPayloadJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvReleaseMediaRow &&
+          other.releaseId == this.releaseId &&
+          other.id == this.id &&
+          other.mediaNumber == this.mediaNumber &&
+          other.mediaType == this.mediaType &&
+          other.title == this.title &&
+          other.episodeCount == this.episodeCount &&
+          other.runtimeMinutes == this.runtimeMinutes &&
+          other.regionCode == this.regionCode &&
+          other.encoding == this.encoding &&
+          other.aspectRatio == this.aspectRatio &&
+          other.color == this.color &&
+          other.audioTracks == this.audioTracks &&
+          other.subtitles == this.subtitles &&
+          other.layers == this.layers &&
+          other.frameRate == this.frameRate &&
+          other.bitDepth == this.bitDepth &&
+          other.resolution == this.resolution &&
+          other.hdrFormat == this.hdrFormat &&
+          other.episodesJson == this.episodesJson &&
+          other.rawPayloadJson == this.rawPayloadJson);
+}
+
+class TvReleaseMediaRowsCompanion extends UpdateCompanion<TvReleaseMediaRow> {
+  final Value<String> releaseId;
+  final Value<String> id;
+  final Value<int?> mediaNumber;
+  final Value<String?> mediaType;
+  final Value<String?> title;
+  final Value<int?> episodeCount;
+  final Value<int?> runtimeMinutes;
+  final Value<String?> regionCode;
+  final Value<String?> encoding;
+  final Value<String?> aspectRatio;
+  final Value<String?> color;
+  final Value<String?> audioTracks;
+  final Value<String?> subtitles;
+  final Value<String?> layers;
+  final Value<String?> frameRate;
+  final Value<String?> bitDepth;
+  final Value<String?> resolution;
+  final Value<String?> hdrFormat;
+  final Value<String> episodesJson;
+  final Value<String> rawPayloadJson;
+  final Value<int> rowid;
+  const TvReleaseMediaRowsCompanion({
+    this.releaseId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.mediaNumber = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.title = const Value.absent(),
+    this.episodeCount = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.regionCode = const Value.absent(),
+    this.encoding = const Value.absent(),
+    this.aspectRatio = const Value.absent(),
+    this.color = const Value.absent(),
+    this.audioTracks = const Value.absent(),
+    this.subtitles = const Value.absent(),
+    this.layers = const Value.absent(),
+    this.frameRate = const Value.absent(),
+    this.bitDepth = const Value.absent(),
+    this.resolution = const Value.absent(),
+    this.hdrFormat = const Value.absent(),
+    this.episodesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvReleaseMediaRowsCompanion.insert({
+    required String releaseId,
+    required String id,
+    this.mediaNumber = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.title = const Value.absent(),
+    this.episodeCount = const Value.absent(),
+    this.runtimeMinutes = const Value.absent(),
+    this.regionCode = const Value.absent(),
+    this.encoding = const Value.absent(),
+    this.aspectRatio = const Value.absent(),
+    this.color = const Value.absent(),
+    this.audioTracks = const Value.absent(),
+    this.subtitles = const Value.absent(),
+    this.layers = const Value.absent(),
+    this.frameRate = const Value.absent(),
+    this.bitDepth = const Value.absent(),
+    this.resolution = const Value.absent(),
+    this.hdrFormat = const Value.absent(),
+    this.episodesJson = const Value.absent(),
+    this.rawPayloadJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : releaseId = Value(releaseId),
+        id = Value(id);
+  static Insertable<TvReleaseMediaRow> custom({
+    Expression<String>? releaseId,
+    Expression<String>? id,
+    Expression<int>? mediaNumber,
+    Expression<String>? mediaType,
+    Expression<String>? title,
+    Expression<int>? episodeCount,
+    Expression<int>? runtimeMinutes,
+    Expression<String>? regionCode,
+    Expression<String>? encoding,
+    Expression<String>? aspectRatio,
+    Expression<String>? color,
+    Expression<String>? audioTracks,
+    Expression<String>? subtitles,
+    Expression<String>? layers,
+    Expression<String>? frameRate,
+    Expression<String>? bitDepth,
+    Expression<String>? resolution,
+    Expression<String>? hdrFormat,
+    Expression<String>? episodesJson,
+    Expression<String>? rawPayloadJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (releaseId != null) 'release_id': releaseId,
+      if (id != null) 'id': id,
+      if (mediaNumber != null) 'media_number': mediaNumber,
+      if (mediaType != null) 'media_type': mediaType,
+      if (title != null) 'title': title,
+      if (episodeCount != null) 'episode_count': episodeCount,
+      if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+      if (regionCode != null) 'region_code': regionCode,
+      if (encoding != null) 'encoding': encoding,
+      if (aspectRatio != null) 'aspect_ratio': aspectRatio,
+      if (color != null) 'color': color,
+      if (audioTracks != null) 'audio_tracks': audioTracks,
+      if (subtitles != null) 'subtitles': subtitles,
+      if (layers != null) 'layers': layers,
+      if (frameRate != null) 'frame_rate': frameRate,
+      if (bitDepth != null) 'bit_depth': bitDepth,
+      if (resolution != null) 'resolution': resolution,
+      if (hdrFormat != null) 'hdr_format': hdrFormat,
+      if (episodesJson != null) 'episodes_json': episodesJson,
+      if (rawPayloadJson != null) 'raw_payload_json': rawPayloadJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvReleaseMediaRowsCompanion copyWith(
+      {Value<String>? releaseId,
+      Value<String>? id,
+      Value<int?>? mediaNumber,
+      Value<String?>? mediaType,
+      Value<String?>? title,
+      Value<int?>? episodeCount,
+      Value<int?>? runtimeMinutes,
+      Value<String?>? regionCode,
+      Value<String?>? encoding,
+      Value<String?>? aspectRatio,
+      Value<String?>? color,
+      Value<String?>? audioTracks,
+      Value<String?>? subtitles,
+      Value<String?>? layers,
+      Value<String?>? frameRate,
+      Value<String?>? bitDepth,
+      Value<String?>? resolution,
+      Value<String?>? hdrFormat,
+      Value<String>? episodesJson,
+      Value<String>? rawPayloadJson,
+      Value<int>? rowid}) {
+    return TvReleaseMediaRowsCompanion(
+      releaseId: releaseId ?? this.releaseId,
+      id: id ?? this.id,
+      mediaNumber: mediaNumber ?? this.mediaNumber,
+      mediaType: mediaType ?? this.mediaType,
+      title: title ?? this.title,
+      episodeCount: episodeCount ?? this.episodeCount,
+      runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      regionCode: regionCode ?? this.regionCode,
+      encoding: encoding ?? this.encoding,
+      aspectRatio: aspectRatio ?? this.aspectRatio,
+      color: color ?? this.color,
+      audioTracks: audioTracks ?? this.audioTracks,
+      subtitles: subtitles ?? this.subtitles,
+      layers: layers ?? this.layers,
+      frameRate: frameRate ?? this.frameRate,
+      bitDepth: bitDepth ?? this.bitDepth,
+      resolution: resolution ?? this.resolution,
+      hdrFormat: hdrFormat ?? this.hdrFormat,
+      episodesJson: episodesJson ?? this.episodesJson,
+      rawPayloadJson: rawPayloadJson ?? this.rawPayloadJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (mediaNumber.present) {
+      map['media_number'] = Variable<int>(mediaNumber.value);
+    }
+    if (mediaType.present) {
+      map['media_type'] = Variable<String>(mediaType.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (episodeCount.present) {
+      map['episode_count'] = Variable<int>(episodeCount.value);
+    }
+    if (runtimeMinutes.present) {
+      map['runtime_minutes'] = Variable<int>(runtimeMinutes.value);
+    }
+    if (regionCode.present) {
+      map['region_code'] = Variable<String>(regionCode.value);
+    }
+    if (encoding.present) {
+      map['encoding'] = Variable<String>(encoding.value);
+    }
+    if (aspectRatio.present) {
+      map['aspect_ratio'] = Variable<String>(aspectRatio.value);
+    }
+    if (color.present) {
+      map['color'] = Variable<String>(color.value);
+    }
+    if (audioTracks.present) {
+      map['audio_tracks'] = Variable<String>(audioTracks.value);
+    }
+    if (subtitles.present) {
+      map['subtitles'] = Variable<String>(subtitles.value);
+    }
+    if (layers.present) {
+      map['layers'] = Variable<String>(layers.value);
+    }
+    if (frameRate.present) {
+      map['frame_rate'] = Variable<String>(frameRate.value);
+    }
+    if (bitDepth.present) {
+      map['bit_depth'] = Variable<String>(bitDepth.value);
+    }
+    if (resolution.present) {
+      map['resolution'] = Variable<String>(resolution.value);
+    }
+    if (hdrFormat.present) {
+      map['hdr_format'] = Variable<String>(hdrFormat.value);
+    }
+    if (episodesJson.present) {
+      map['episodes_json'] = Variable<String>(episodesJson.value);
+    }
+    if (rawPayloadJson.present) {
+      map['raw_payload_json'] = Variable<String>(rawPayloadJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvReleaseMediaRowsCompanion(')
+          ..write('releaseId: $releaseId, ')
+          ..write('id: $id, ')
+          ..write('mediaNumber: $mediaNumber, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('title: $title, ')
+          ..write('episodeCount: $episodeCount, ')
+          ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('regionCode: $regionCode, ')
+          ..write('encoding: $encoding, ')
+          ..write('aspectRatio: $aspectRatio, ')
+          ..write('color: $color, ')
+          ..write('audioTracks: $audioTracks, ')
+          ..write('subtitles: $subtitles, ')
+          ..write('layers: $layers, ')
+          ..write('frameRate: $frameRate, ')
+          ..write('bitDepth: $bitDepth, ')
+          ..write('resolution: $resolution, ')
+          ..write('hdrFormat: $hdrFormat, ')
+          ..write('episodesJson: $episodesJson, ')
+          ..write('rawPayloadJson: $rawPayloadJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TvReleaseEpisodeMapRowsTable extends TvReleaseEpisodeMapRows
+    with TableInfo<$TvReleaseEpisodeMapRowsTable, TvReleaseEpisodeMapRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvReleaseEpisodeMapRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _releaseIdMeta =
+      const VerificationMeta('releaseId');
+  @override
+  late final GeneratedColumn<String> releaseId = GeneratedColumn<String>(
+      'release_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mediaIdMeta =
+      const VerificationMeta('mediaId');
+  @override
+  late final GeneratedColumn<String> mediaId = GeneratedColumn<String>(
+      'media_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _episodeIdMeta =
+      const VerificationMeta('episodeId');
+  @override
+  late final GeneratedColumn<String> episodeId = GeneratedColumn<String>(
+      'episode_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _discNumberMeta =
+      const VerificationMeta('discNumber');
+  @override
+  late final GeneratedColumn<int> discNumber = GeneratedColumn<int>(
+      'disc_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _sequenceNumberMeta =
+      const VerificationMeta('sequenceNumber');
+  @override
+  late final GeneratedColumn<int> sequenceNumber = GeneratedColumn<int>(
+      'sequence_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [releaseId, id, mediaId, episodeId, discNumber, sequenceNumber];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_release_episode_map_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<TvReleaseEpisodeMapRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('release_id')) {
+      context.handle(_releaseIdMeta,
+          releaseId.isAcceptableOrUnknown(data['release_id']!, _releaseIdMeta));
+    } else if (isInserting) {
+      context.missing(_releaseIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('media_id')) {
+      context.handle(_mediaIdMeta,
+          mediaId.isAcceptableOrUnknown(data['media_id']!, _mediaIdMeta));
+    } else if (isInserting) {
+      context.missing(_mediaIdMeta);
+    }
+    if (data.containsKey('episode_id')) {
+      context.handle(_episodeIdMeta,
+          episodeId.isAcceptableOrUnknown(data['episode_id']!, _episodeIdMeta));
+    } else if (isInserting) {
+      context.missing(_episodeIdMeta);
+    }
+    if (data.containsKey('disc_number')) {
+      context.handle(
+          _discNumberMeta,
+          discNumber.isAcceptableOrUnknown(
+              data['disc_number']!, _discNumberMeta));
+    }
+    if (data.containsKey('sequence_number')) {
+      context.handle(
+          _sequenceNumberMeta,
+          sequenceNumber.isAcceptableOrUnknown(
+              data['sequence_number']!, _sequenceNumberMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {releaseId, id};
+  @override
+  TvReleaseEpisodeMapRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvReleaseEpisodeMapRow(
+      releaseId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}release_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      mediaId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}media_id'])!,
+      episodeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}episode_id'])!,
+      discNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}disc_number']),
+      sequenceNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sequence_number']),
+    );
+  }
+
+  @override
+  $TvReleaseEpisodeMapRowsTable createAlias(String alias) {
+    return $TvReleaseEpisodeMapRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvReleaseEpisodeMapRow extends DataClass
+    implements Insertable<TvReleaseEpisodeMapRow> {
+  final String releaseId;
+  final String id;
+  final String mediaId;
+  final String episodeId;
+  final int? discNumber;
+  final int? sequenceNumber;
+  const TvReleaseEpisodeMapRow(
+      {required this.releaseId,
+      required this.id,
+      required this.mediaId,
+      required this.episodeId,
+      this.discNumber,
+      this.sequenceNumber});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['release_id'] = Variable<String>(releaseId);
+    map['id'] = Variable<String>(id);
+    map['media_id'] = Variable<String>(mediaId);
+    map['episode_id'] = Variable<String>(episodeId);
+    if (!nullToAbsent || discNumber != null) {
+      map['disc_number'] = Variable<int>(discNumber);
+    }
+    if (!nullToAbsent || sequenceNumber != null) {
+      map['sequence_number'] = Variable<int>(sequenceNumber);
+    }
+    return map;
+  }
+
+  TvReleaseEpisodeMapRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvReleaseEpisodeMapRowsCompanion(
+      releaseId: Value(releaseId),
+      id: Value(id),
+      mediaId: Value(mediaId),
+      episodeId: Value(episodeId),
+      discNumber: discNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(discNumber),
+      sequenceNumber: sequenceNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sequenceNumber),
+    );
+  }
+
+  factory TvReleaseEpisodeMapRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvReleaseEpisodeMapRow(
+      releaseId: serializer.fromJson<String>(json['releaseId']),
+      id: serializer.fromJson<String>(json['id']),
+      mediaId: serializer.fromJson<String>(json['mediaId']),
+      episodeId: serializer.fromJson<String>(json['episodeId']),
+      discNumber: serializer.fromJson<int?>(json['discNumber']),
+      sequenceNumber: serializer.fromJson<int?>(json['sequenceNumber']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'releaseId': serializer.toJson<String>(releaseId),
+      'id': serializer.toJson<String>(id),
+      'mediaId': serializer.toJson<String>(mediaId),
+      'episodeId': serializer.toJson<String>(episodeId),
+      'discNumber': serializer.toJson<int?>(discNumber),
+      'sequenceNumber': serializer.toJson<int?>(sequenceNumber),
+    };
+  }
+
+  TvReleaseEpisodeMapRow copyWith(
+          {String? releaseId,
+          String? id,
+          String? mediaId,
+          String? episodeId,
+          Value<int?> discNumber = const Value.absent(),
+          Value<int?> sequenceNumber = const Value.absent()}) =>
+      TvReleaseEpisodeMapRow(
+        releaseId: releaseId ?? this.releaseId,
+        id: id ?? this.id,
+        mediaId: mediaId ?? this.mediaId,
+        episodeId: episodeId ?? this.episodeId,
+        discNumber: discNumber.present ? discNumber.value : this.discNumber,
+        sequenceNumber:
+            sequenceNumber.present ? sequenceNumber.value : this.sequenceNumber,
+      );
+  TvReleaseEpisodeMapRow copyWithCompanion(
+      TvReleaseEpisodeMapRowsCompanion data) {
+    return TvReleaseEpisodeMapRow(
+      releaseId: data.releaseId.present ? data.releaseId.value : this.releaseId,
+      id: data.id.present ? data.id.value : this.id,
+      mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
+      episodeId: data.episodeId.present ? data.episodeId.value : this.episodeId,
+      discNumber:
+          data.discNumber.present ? data.discNumber.value : this.discNumber,
+      sequenceNumber: data.sequenceNumber.present
+          ? data.sequenceNumber.value
+          : this.sequenceNumber,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvReleaseEpisodeMapRow(')
+          ..write('releaseId: $releaseId, ')
+          ..write('id: $id, ')
+          ..write('mediaId: $mediaId, ')
+          ..write('episodeId: $episodeId, ')
+          ..write('discNumber: $discNumber, ')
+          ..write('sequenceNumber: $sequenceNumber')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      releaseId, id, mediaId, episodeId, discNumber, sequenceNumber);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvReleaseEpisodeMapRow &&
+          other.releaseId == this.releaseId &&
+          other.id == this.id &&
+          other.mediaId == this.mediaId &&
+          other.episodeId == this.episodeId &&
+          other.discNumber == this.discNumber &&
+          other.sequenceNumber == this.sequenceNumber);
+}
+
+class TvReleaseEpisodeMapRowsCompanion
+    extends UpdateCompanion<TvReleaseEpisodeMapRow> {
+  final Value<String> releaseId;
+  final Value<String> id;
+  final Value<String> mediaId;
+  final Value<String> episodeId;
+  final Value<int?> discNumber;
+  final Value<int?> sequenceNumber;
+  final Value<int> rowid;
+  const TvReleaseEpisodeMapRowsCompanion({
+    this.releaseId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.mediaId = const Value.absent(),
+    this.episodeId = const Value.absent(),
+    this.discNumber = const Value.absent(),
+    this.sequenceNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvReleaseEpisodeMapRowsCompanion.insert({
+    required String releaseId,
+    required String id,
+    required String mediaId,
+    required String episodeId,
+    this.discNumber = const Value.absent(),
+    this.sequenceNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : releaseId = Value(releaseId),
+        id = Value(id),
+        mediaId = Value(mediaId),
+        episodeId = Value(episodeId);
+  static Insertable<TvReleaseEpisodeMapRow> custom({
+    Expression<String>? releaseId,
+    Expression<String>? id,
+    Expression<String>? mediaId,
+    Expression<String>? episodeId,
+    Expression<int>? discNumber,
+    Expression<int>? sequenceNumber,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (releaseId != null) 'release_id': releaseId,
+      if (id != null) 'id': id,
+      if (mediaId != null) 'media_id': mediaId,
+      if (episodeId != null) 'episode_id': episodeId,
+      if (discNumber != null) 'disc_number': discNumber,
+      if (sequenceNumber != null) 'sequence_number': sequenceNumber,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvReleaseEpisodeMapRowsCompanion copyWith(
+      {Value<String>? releaseId,
+      Value<String>? id,
+      Value<String>? mediaId,
+      Value<String>? episodeId,
+      Value<int?>? discNumber,
+      Value<int?>? sequenceNumber,
+      Value<int>? rowid}) {
+    return TvReleaseEpisodeMapRowsCompanion(
+      releaseId: releaseId ?? this.releaseId,
+      id: id ?? this.id,
+      mediaId: mediaId ?? this.mediaId,
+      episodeId: episodeId ?? this.episodeId,
+      discNumber: discNumber ?? this.discNumber,
+      sequenceNumber: sequenceNumber ?? this.sequenceNumber,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (releaseId.present) {
+      map['release_id'] = Variable<String>(releaseId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (mediaId.present) {
+      map['media_id'] = Variable<String>(mediaId.value);
+    }
+    if (episodeId.present) {
+      map['episode_id'] = Variable<String>(episodeId.value);
+    }
+    if (discNumber.present) {
+      map['disc_number'] = Variable<int>(discNumber.value);
+    }
+    if (sequenceNumber.present) {
+      map['sequence_number'] = Variable<int>(sequenceNumber.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvReleaseEpisodeMapRowsCompanion(')
+          ..write('releaseId: $releaseId, ')
+          ..write('id: $id, ')
+          ..write('mediaId: $mediaId, ')
+          ..write('episodeId: $episodeId, ')
+          ..write('discNumber: $discNumber, ')
+          ..write('sequenceNumber: $sequenceNumber, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TvOwnedDetailsRowsTable extends TvOwnedDetailsRows
+    with TableInfo<$TvOwnedDetailsRowsTable, TvOwnedDetailsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvOwnedDetailsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _featuresMeta =
+      const VerificationMeta('features');
+  @override
+  late final GeneratedColumn<String> features = GeneratedColumn<String>(
+      'features', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _hdrFormatsJsonMeta =
+      const VerificationMeta('hdrFormatsJson');
+  @override
+  late final GeneratedColumn<String> hdrFormatsJson = GeneratedColumn<String>(
+      'hdr_formats_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _boxSetIdMeta =
+      const VerificationMeta('boxSetId');
+  @override
+  late final GeneratedColumn<String> boxSetId = GeneratedColumn<String>(
+      'box_set_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _boxSetNameMeta =
+      const VerificationMeta('boxSetName');
+  @override
+  late final GeneratedColumn<String> boxSetName = GeneratedColumn<String>(
+      'box_set_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _regionMeta = const VerificationMeta('region');
+  @override
+  late final GeneratedColumn<String> region = GeneratedColumn<String>(
+      'region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _packagingMeta =
+      const VerificationMeta('packaging');
+  @override
+  late final GeneratedColumn<String> packaging = GeneratedColumn<String>(
+      'packaging', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _distributorMeta =
+      const VerificationMeta('distributor');
+  @override
+  late final GeneratedColumn<String> distributor = GeneratedColumn<String>(
+      'distributor', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        ownedItemId,
+        features,
+        hdrFormatsJson,
+        boxSetId,
+        boxSetName,
+        region,
+        packaging,
+        distributor
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_owned_details_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvOwnedDetailsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('features')) {
+      context.handle(_featuresMeta,
+          features.isAcceptableOrUnknown(data['features']!, _featuresMeta));
+    }
+    if (data.containsKey('hdr_formats_json')) {
+      context.handle(
+          _hdrFormatsJsonMeta,
+          hdrFormatsJson.isAcceptableOrUnknown(
+              data['hdr_formats_json']!, _hdrFormatsJsonMeta));
+    }
+    if (data.containsKey('box_set_id')) {
+      context.handle(_boxSetIdMeta,
+          boxSetId.isAcceptableOrUnknown(data['box_set_id']!, _boxSetIdMeta));
+    }
+    if (data.containsKey('box_set_name')) {
+      context.handle(
+          _boxSetNameMeta,
+          boxSetName.isAcceptableOrUnknown(
+              data['box_set_name']!, _boxSetNameMeta));
+    }
+    if (data.containsKey('region')) {
+      context.handle(_regionMeta,
+          region.isAcceptableOrUnknown(data['region']!, _regionMeta));
+    }
+    if (data.containsKey('packaging')) {
+      context.handle(_packagingMeta,
+          packaging.isAcceptableOrUnknown(data['packaging']!, _packagingMeta));
+    }
+    if (data.containsKey('distributor')) {
+      context.handle(
+          _distributorMeta,
+          distributor.isAcceptableOrUnknown(
+              data['distributor']!, _distributorMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  @override
+  TvOwnedDetailsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvOwnedDetailsRow(
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      features: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}features']),
+      hdrFormatsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}hdr_formats_json'])!,
+      boxSetId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_id']),
+      boxSetName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}box_set_name']),
+      region: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}region']),
+      packaging: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}packaging']),
+      distributor: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}distributor']),
+    );
+  }
+
+  @override
+  $TvOwnedDetailsRowsTable createAlias(String alias) {
+    return $TvOwnedDetailsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvOwnedDetailsRow extends DataClass
+    implements Insertable<TvOwnedDetailsRow> {
+  final String ownedItemId;
+  final String? features;
+  final String hdrFormatsJson;
+  final String? boxSetId;
+  final String? boxSetName;
+  final String? region;
+  final String? packaging;
+  final String? distributor;
+  const TvOwnedDetailsRow(
+      {required this.ownedItemId,
+      this.features,
+      required this.hdrFormatsJson,
+      this.boxSetId,
+      this.boxSetName,
+      this.region,
+      this.packaging,
+      this.distributor});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || features != null) {
+      map['features'] = Variable<String>(features);
+    }
+    map['hdr_formats_json'] = Variable<String>(hdrFormatsJson);
+    if (!nullToAbsent || boxSetId != null) {
+      map['box_set_id'] = Variable<String>(boxSetId);
+    }
+    if (!nullToAbsent || boxSetName != null) {
+      map['box_set_name'] = Variable<String>(boxSetName);
+    }
+    if (!nullToAbsent || region != null) {
+      map['region'] = Variable<String>(region);
+    }
+    if (!nullToAbsent || packaging != null) {
+      map['packaging'] = Variable<String>(packaging);
+    }
+    if (!nullToAbsent || distributor != null) {
+      map['distributor'] = Variable<String>(distributor);
+    }
+    return map;
+  }
+
+  TvOwnedDetailsRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvOwnedDetailsRowsCompanion(
+      ownedItemId: Value(ownedItemId),
+      features: features == null && nullToAbsent
+          ? const Value.absent()
+          : Value(features),
+      hdrFormatsJson: Value(hdrFormatsJson),
+      boxSetId: boxSetId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetId),
+      boxSetName: boxSetName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxSetName),
+      region:
+          region == null && nullToAbsent ? const Value.absent() : Value(region),
+      packaging: packaging == null && nullToAbsent
+          ? const Value.absent()
+          : Value(packaging),
+      distributor: distributor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(distributor),
+    );
+  }
+
+  factory TvOwnedDetailsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvOwnedDetailsRow(
+      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      features: serializer.fromJson<String?>(json['features']),
+      hdrFormatsJson: serializer.fromJson<String>(json['hdrFormatsJson']),
+      boxSetId: serializer.fromJson<String?>(json['boxSetId']),
+      boxSetName: serializer.fromJson<String?>(json['boxSetName']),
+      region: serializer.fromJson<String?>(json['region']),
+      packaging: serializer.fromJson<String?>(json['packaging']),
+      distributor: serializer.fromJson<String?>(json['distributor']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'features': serializer.toJson<String?>(features),
+      'hdrFormatsJson': serializer.toJson<String>(hdrFormatsJson),
+      'boxSetId': serializer.toJson<String?>(boxSetId),
+      'boxSetName': serializer.toJson<String?>(boxSetName),
+      'region': serializer.toJson<String?>(region),
+      'packaging': serializer.toJson<String?>(packaging),
+      'distributor': serializer.toJson<String?>(distributor),
+    };
+  }
+
+  TvOwnedDetailsRow copyWith(
+          {String? ownedItemId,
+          Value<String?> features = const Value.absent(),
+          String? hdrFormatsJson,
+          Value<String?> boxSetId = const Value.absent(),
+          Value<String?> boxSetName = const Value.absent(),
+          Value<String?> region = const Value.absent(),
+          Value<String?> packaging = const Value.absent(),
+          Value<String?> distributor = const Value.absent()}) =>
+      TvOwnedDetailsRow(
+        ownedItemId: ownedItemId ?? this.ownedItemId,
+        features: features.present ? features.value : this.features,
+        hdrFormatsJson: hdrFormatsJson ?? this.hdrFormatsJson,
+        boxSetId: boxSetId.present ? boxSetId.value : this.boxSetId,
+        boxSetName: boxSetName.present ? boxSetName.value : this.boxSetName,
+        region: region.present ? region.value : this.region,
+        packaging: packaging.present ? packaging.value : this.packaging,
+        distributor: distributor.present ? distributor.value : this.distributor,
+      );
+  TvOwnedDetailsRow copyWithCompanion(TvOwnedDetailsRowsCompanion data) {
+    return TvOwnedDetailsRow(
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      features: data.features.present ? data.features.value : this.features,
+      hdrFormatsJson: data.hdrFormatsJson.present
+          ? data.hdrFormatsJson.value
+          : this.hdrFormatsJson,
+      boxSetId: data.boxSetId.present ? data.boxSetId.value : this.boxSetId,
+      boxSetName:
+          data.boxSetName.present ? data.boxSetName.value : this.boxSetName,
+      region: data.region.present ? data.region.value : this.region,
+      packaging: data.packaging.present ? data.packaging.value : this.packaging,
+      distributor:
+          data.distributor.present ? data.distributor.value : this.distributor,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvOwnedDetailsRow(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('features: $features, ')
+          ..write('hdrFormatsJson: $hdrFormatsJson, ')
+          ..write('boxSetId: $boxSetId, ')
+          ..write('boxSetName: $boxSetName, ')
+          ..write('region: $region, ')
+          ..write('packaging: $packaging, ')
+          ..write('distributor: $distributor')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ownedItemId, features, hdrFormatsJson,
+      boxSetId, boxSetName, region, packaging, distributor);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvOwnedDetailsRow &&
+          other.ownedItemId == this.ownedItemId &&
+          other.features == this.features &&
+          other.hdrFormatsJson == this.hdrFormatsJson &&
+          other.boxSetId == this.boxSetId &&
+          other.boxSetName == this.boxSetName &&
+          other.region == this.region &&
+          other.packaging == this.packaging &&
+          other.distributor == this.distributor);
+}
+
+class TvOwnedDetailsRowsCompanion extends UpdateCompanion<TvOwnedDetailsRow> {
+  final Value<String> ownedItemId;
+  final Value<String?> features;
+  final Value<String> hdrFormatsJson;
+  final Value<String?> boxSetId;
+  final Value<String?> boxSetName;
+  final Value<String?> region;
+  final Value<String?> packaging;
+  final Value<String?> distributor;
+  final Value<int> rowid;
+  const TvOwnedDetailsRowsCompanion({
+    this.ownedItemId = const Value.absent(),
+    this.features = const Value.absent(),
+    this.hdrFormatsJson = const Value.absent(),
+    this.boxSetId = const Value.absent(),
+    this.boxSetName = const Value.absent(),
+    this.region = const Value.absent(),
+    this.packaging = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvOwnedDetailsRowsCompanion.insert({
+    required String ownedItemId,
+    this.features = const Value.absent(),
+    this.hdrFormatsJson = const Value.absent(),
+    this.boxSetId = const Value.absent(),
+    this.boxSetName = const Value.absent(),
+    this.region = const Value.absent(),
+    this.packaging = const Value.absent(),
+    this.distributor = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : ownedItemId = Value(ownedItemId);
+  static Insertable<TvOwnedDetailsRow> custom({
+    Expression<String>? ownedItemId,
+    Expression<String>? features,
+    Expression<String>? hdrFormatsJson,
+    Expression<String>? boxSetId,
+    Expression<String>? boxSetName,
+    Expression<String>? region,
+    Expression<String>? packaging,
+    Expression<String>? distributor,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (features != null) 'features': features,
+      if (hdrFormatsJson != null) 'hdr_formats_json': hdrFormatsJson,
+      if (boxSetId != null) 'box_set_id': boxSetId,
+      if (boxSetName != null) 'box_set_name': boxSetName,
+      if (region != null) 'region': region,
+      if (packaging != null) 'packaging': packaging,
+      if (distributor != null) 'distributor': distributor,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvOwnedDetailsRowsCompanion copyWith(
+      {Value<String>? ownedItemId,
+      Value<String?>? features,
+      Value<String>? hdrFormatsJson,
+      Value<String?>? boxSetId,
+      Value<String?>? boxSetName,
+      Value<String?>? region,
+      Value<String?>? packaging,
+      Value<String?>? distributor,
+      Value<int>? rowid}) {
+    return TvOwnedDetailsRowsCompanion(
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      features: features ?? this.features,
+      hdrFormatsJson: hdrFormatsJson ?? this.hdrFormatsJson,
+      boxSetId: boxSetId ?? this.boxSetId,
+      boxSetName: boxSetName ?? this.boxSetName,
+      region: region ?? this.region,
+      packaging: packaging ?? this.packaging,
+      distributor: distributor ?? this.distributor,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (features.present) {
+      map['features'] = Variable<String>(features.value);
+    }
+    if (hdrFormatsJson.present) {
+      map['hdr_formats_json'] = Variable<String>(hdrFormatsJson.value);
+    }
+    if (boxSetId.present) {
+      map['box_set_id'] = Variable<String>(boxSetId.value);
+    }
+    if (boxSetName.present) {
+      map['box_set_name'] = Variable<String>(boxSetName.value);
+    }
+    if (region.present) {
+      map['region'] = Variable<String>(region.value);
+    }
+    if (packaging.present) {
+      map['packaging'] = Variable<String>(packaging.value);
+    }
+    if (distributor.present) {
+      map['distributor'] = Variable<String>(distributor.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvOwnedDetailsRowsCompanion(')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('features: $features, ')
+          ..write('hdrFormatsJson: $hdrFormatsJson, ')
+          ..write('boxSetId: $boxSetId, ')
+          ..write('boxSetName: $boxSetName, ')
+          ..write('region: $region, ')
+          ..write('packaging: $packaging, ')
+          ..write('distributor: $distributor, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -26275,6 +31016,16 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $MovieReleaseRowsTable(this);
   late final $MovieOwnedDetailsRowsTable movieOwnedDetailsRows =
       $MovieOwnedDetailsRowsTable(this);
+  late final $TvSeriesRowsTable tvSeriesRows = $TvSeriesRowsTable(this);
+  late final $TvSeasonRowsTable tvSeasonRows = $TvSeasonRowsTable(this);
+  late final $TvEpisodeRowsTable tvEpisodeRows = $TvEpisodeRowsTable(this);
+  late final $TvReleaseRowsTable tvReleaseRows = $TvReleaseRowsTable(this);
+  late final $TvReleaseMediaRowsTable tvReleaseMediaRows =
+      $TvReleaseMediaRowsTable(this);
+  late final $TvReleaseEpisodeMapRowsTable tvReleaseEpisodeMapRows =
+      $TvReleaseEpisodeMapRowsTable(this);
+  late final $TvOwnedDetailsRowsTable tvOwnedDetailsRows =
+      $TvOwnedDetailsRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -26320,7 +31071,14 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         boardGamePlaySessionsRows,
         movieMediaRows,
         movieReleaseRows,
-        movieOwnedDetailsRows
+        movieOwnedDetailsRows,
+        tvSeriesRows,
+        tvSeasonRows,
+        tvEpisodeRows,
+        tvReleaseRows,
+        tvReleaseMediaRows,
+        tvReleaseEpisodeMapRows,
+        tvOwnedDetailsRows
       ];
 }
 
@@ -38410,6 +43168,2154 @@ typedef $$MovieOwnedDetailsRowsTableProcessedTableManager
         ),
         MovieOwnedDetailsRow,
         PrefetchHooks Function()>;
+typedef $$TvSeriesRowsTableCreateCompanionBuilder = TvSeriesRowsCompanion
+    Function({
+  required String id,
+  required String title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> endDate,
+  Value<int?> episodeCount,
+  Value<String?> network,
+  Value<DateTime?> originalAirDate,
+  Value<String?> originalLanguage,
+  Value<int?> seasonCount,
+  Value<String?> status,
+  Value<String> contributionsJson,
+  Value<String> identifiersJson,
+  Value<String> characterAppearancesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$TvSeriesRowsTableUpdateCompanionBuilder = TvSeriesRowsCompanion
+    Function({
+  Value<String> id,
+  Value<String> title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<DateTime?> endDate,
+  Value<int?> episodeCount,
+  Value<String?> network,
+  Value<DateTime?> originalAirDate,
+  Value<String?> originalLanguage,
+  Value<int?> seasonCount,
+  Value<String?> status,
+  Value<String> contributionsJson,
+  Value<String> identifiersJson,
+  Value<String> characterAppearancesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$TvSeriesRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvSeriesRowsTable> {
+  $$TvSeriesRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get endDate => $composableBuilder(
+      column: $table.endDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get network => $composableBuilder(
+      column: $table.network, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get originalAirDate => $composableBuilder(
+      column: $table.originalAirDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonCount => $composableBuilder(
+      column: $table.seasonCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get characterAppearancesJson => $composableBuilder(
+      column: $table.characterAppearancesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$TvSeriesRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvSeriesRowsTable> {
+  $$TvSeriesRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get endDate => $composableBuilder(
+      column: $table.endDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get network => $composableBuilder(
+      column: $table.network, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get originalAirDate => $composableBuilder(
+      column: $table.originalAirDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonCount => $composableBuilder(
+      column: $table.seasonCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get characterAppearancesJson => $composableBuilder(
+      column: $table.characterAppearancesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvSeriesRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvSeriesRowsTable> {
+  $$TvSeriesRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get sortTitle =>
+      $composableBuilder(column: $table.sortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endDate =>
+      $composableBuilder(column: $table.endDate, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount, builder: (column) => column);
+
+  GeneratedColumn<String> get network =>
+      $composableBuilder(column: $table.network, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get originalAirDate => $composableBuilder(
+      column: $table.originalAirDate, builder: (column) => column);
+
+  GeneratedColumn<String> get originalLanguage => $composableBuilder(
+      column: $table.originalLanguage, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonCount => $composableBuilder(
+      column: $table.seasonCount, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get contributionsJson => $composableBuilder(
+      column: $table.contributionsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get identifiersJson => $composableBuilder(
+      column: $table.identifiersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get characterAppearancesJson => $composableBuilder(
+      column: $table.characterAppearancesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$TvSeriesRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvSeriesRowsTable,
+    TvSeriesRow,
+    $$TvSeriesRowsTableFilterComposer,
+    $$TvSeriesRowsTableOrderingComposer,
+    $$TvSeriesRowsTableAnnotationComposer,
+    $$TvSeriesRowsTableCreateCompanionBuilder,
+    $$TvSeriesRowsTableUpdateCompanionBuilder,
+    (
+      TvSeriesRow,
+      BaseReferences<_$LocalDatabase, $TvSeriesRowsTable, TvSeriesRow>
+    ),
+    TvSeriesRow,
+    PrefetchHooks Function()> {
+  $$TvSeriesRowsTableTableManager(_$LocalDatabase db, $TvSeriesRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvSeriesRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvSeriesRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvSeriesRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> endDate = const Value.absent(),
+            Value<int?> episodeCount = const Value.absent(),
+            Value<String?> network = const Value.absent(),
+            Value<DateTime?> originalAirDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<int?> seasonCount = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String> contributionsJson = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String> characterAppearancesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvSeriesRowsCompanion(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            endDate: endDate,
+            episodeCount: episodeCount,
+            network: network,
+            originalAirDate: originalAirDate,
+            originalLanguage: originalLanguage,
+            seasonCount: seasonCount,
+            status: status,
+            contributionsJson: contributionsJson,
+            identifiersJson: identifiersJson,
+            characterAppearancesJson: characterAppearancesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> endDate = const Value.absent(),
+            Value<int?> episodeCount = const Value.absent(),
+            Value<String?> network = const Value.absent(),
+            Value<DateTime?> originalAirDate = const Value.absent(),
+            Value<String?> originalLanguage = const Value.absent(),
+            Value<int?> seasonCount = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String> contributionsJson = const Value.absent(),
+            Value<String> identifiersJson = const Value.absent(),
+            Value<String> characterAppearancesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvSeriesRowsCompanion.insert(
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            endDate: endDate,
+            episodeCount: episodeCount,
+            network: network,
+            originalAirDate: originalAirDate,
+            originalLanguage: originalLanguage,
+            seasonCount: seasonCount,
+            status: status,
+            contributionsJson: contributionsJson,
+            identifiersJson: identifiersJson,
+            characterAppearancesJson: characterAppearancesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvSeriesRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvSeriesRowsTable,
+    TvSeriesRow,
+    $$TvSeriesRowsTableFilterComposer,
+    $$TvSeriesRowsTableOrderingComposer,
+    $$TvSeriesRowsTableAnnotationComposer,
+    $$TvSeriesRowsTableCreateCompanionBuilder,
+    $$TvSeriesRowsTableUpdateCompanionBuilder,
+    (
+      TvSeriesRow,
+      BaseReferences<_$LocalDatabase, $TvSeriesRowsTable, TvSeriesRow>
+    ),
+    TvSeriesRow,
+    PrefetchHooks Function()>;
+typedef $$TvSeasonRowsTableCreateCompanionBuilder = TvSeasonRowsCompanion
+    Function({
+  required String seriesId,
+  required String id,
+  Value<int?> seasonNumber,
+  Value<String?> title,
+  Value<String?> description,
+  Value<DateTime?> airDate,
+  Value<int?> episodeCount,
+  Value<String?> coverImageUrl,
+  Value<String?> coverImageKey,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$TvSeasonRowsTableUpdateCompanionBuilder = TvSeasonRowsCompanion
+    Function({
+  Value<String> seriesId,
+  Value<String> id,
+  Value<int?> seasonNumber,
+  Value<String?> title,
+  Value<String?> description,
+  Value<DateTime?> airDate,
+  Value<int?> episodeCount,
+  Value<String?> coverImageUrl,
+  Value<String?> coverImageKey,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$TvSeasonRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvSeasonRowsTable> {
+  $$TvSeasonRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get airDate => $composableBuilder(
+      column: $table.airDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$TvSeasonRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvSeasonRowsTable> {
+  $$TvSeasonRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get airDate => $composableBuilder(
+      column: $table.airDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvSeasonRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvSeasonRowsTable> {
+  $$TvSeasonRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get seriesId =>
+      $composableBuilder(column: $table.seriesId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get airDate =>
+      $composableBuilder(column: $table.airDate, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$TvSeasonRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvSeasonRowsTable,
+    TvSeasonRow,
+    $$TvSeasonRowsTableFilterComposer,
+    $$TvSeasonRowsTableOrderingComposer,
+    $$TvSeasonRowsTableAnnotationComposer,
+    $$TvSeasonRowsTableCreateCompanionBuilder,
+    $$TvSeasonRowsTableUpdateCompanionBuilder,
+    (
+      TvSeasonRow,
+      BaseReferences<_$LocalDatabase, $TvSeasonRowsTable, TvSeasonRow>
+    ),
+    TvSeasonRow,
+    PrefetchHooks Function()> {
+  $$TvSeasonRowsTableTableManager(_$LocalDatabase db, $TvSeasonRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvSeasonRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvSeasonRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvSeasonRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> seriesId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> airDate = const Value.absent(),
+            Value<int?> episodeCount = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvSeasonRowsCompanion(
+            seriesId: seriesId,
+            id: id,
+            seasonNumber: seasonNumber,
+            title: title,
+            description: description,
+            airDate: airDate,
+            episodeCount: episodeCount,
+            coverImageUrl: coverImageUrl,
+            coverImageKey: coverImageKey,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String seriesId,
+            required String id,
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> airDate = const Value.absent(),
+            Value<int?> episodeCount = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvSeasonRowsCompanion.insert(
+            seriesId: seriesId,
+            id: id,
+            seasonNumber: seasonNumber,
+            title: title,
+            description: description,
+            airDate: airDate,
+            episodeCount: episodeCount,
+            coverImageUrl: coverImageUrl,
+            coverImageKey: coverImageKey,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvSeasonRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvSeasonRowsTable,
+    TvSeasonRow,
+    $$TvSeasonRowsTableFilterComposer,
+    $$TvSeasonRowsTableOrderingComposer,
+    $$TvSeasonRowsTableAnnotationComposer,
+    $$TvSeasonRowsTableCreateCompanionBuilder,
+    $$TvSeasonRowsTableUpdateCompanionBuilder,
+    (
+      TvSeasonRow,
+      BaseReferences<_$LocalDatabase, $TvSeasonRowsTable, TvSeasonRow>
+    ),
+    TvSeasonRow,
+    PrefetchHooks Function()>;
+typedef $$TvEpisodeRowsTableCreateCompanionBuilder = TvEpisodeRowsCompanion
+    Function({
+  required String seriesId,
+  required String seasonId,
+  required String id,
+  Value<int?> seasonNumber,
+  Value<double?> episodeNumber,
+  Value<String?> title,
+  Value<String?> originalTitle,
+  Value<String?> description,
+  Value<DateTime?> airDate,
+  Value<int?> runtimeMinutes,
+  Value<String?> coverImageUrl,
+  Value<String?> coverImageKey,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$TvEpisodeRowsTableUpdateCompanionBuilder = TvEpisodeRowsCompanion
+    Function({
+  Value<String> seriesId,
+  Value<String> seasonId,
+  Value<String> id,
+  Value<int?> seasonNumber,
+  Value<double?> episodeNumber,
+  Value<String?> title,
+  Value<String?> originalTitle,
+  Value<String?> description,
+  Value<DateTime?> airDate,
+  Value<int?> runtimeMinutes,
+  Value<String?> coverImageUrl,
+  Value<String?> coverImageKey,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$TvEpisodeRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvEpisodeRowsTable> {
+  $$TvEpisodeRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seasonId => $composableBuilder(
+      column: $table.seasonId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalTitle => $composableBuilder(
+      column: $table.originalTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get airDate => $composableBuilder(
+      column: $table.airDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$TvEpisodeRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvEpisodeRowsTable> {
+  $$TvEpisodeRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seasonId => $composableBuilder(
+      column: $table.seasonId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get originalTitle => $composableBuilder(
+      column: $table.originalTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get airDate => $composableBuilder(
+      column: $table.airDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvEpisodeRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvEpisodeRowsTable> {
+  $$TvEpisodeRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get seriesId =>
+      $composableBuilder(column: $table.seriesId, builder: (column) => column);
+
+  GeneratedColumn<String> get seasonId =>
+      $composableBuilder(column: $table.seasonId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<double> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get originalTitle => $composableBuilder(
+      column: $table.originalTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get airDate =>
+      $composableBuilder(column: $table.airDate, builder: (column) => column);
+
+  GeneratedColumn<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$TvEpisodeRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvEpisodeRowsTable,
+    TvEpisodeRow,
+    $$TvEpisodeRowsTableFilterComposer,
+    $$TvEpisodeRowsTableOrderingComposer,
+    $$TvEpisodeRowsTableAnnotationComposer,
+    $$TvEpisodeRowsTableCreateCompanionBuilder,
+    $$TvEpisodeRowsTableUpdateCompanionBuilder,
+    (
+      TvEpisodeRow,
+      BaseReferences<_$LocalDatabase, $TvEpisodeRowsTable, TvEpisodeRow>
+    ),
+    TvEpisodeRow,
+    PrefetchHooks Function()> {
+  $$TvEpisodeRowsTableTableManager(
+      _$LocalDatabase db, $TvEpisodeRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvEpisodeRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvEpisodeRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvEpisodeRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> seriesId = const Value.absent(),
+            Value<String> seasonId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<double?> episodeNumber = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<String?> originalTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> airDate = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvEpisodeRowsCompanion(
+            seriesId: seriesId,
+            seasonId: seasonId,
+            id: id,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            title: title,
+            originalTitle: originalTitle,
+            description: description,
+            airDate: airDate,
+            runtimeMinutes: runtimeMinutes,
+            coverImageUrl: coverImageUrl,
+            coverImageKey: coverImageKey,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String seriesId,
+            required String seasonId,
+            required String id,
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<double?> episodeNumber = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<String?> originalTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> airDate = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvEpisodeRowsCompanion.insert(
+            seriesId: seriesId,
+            seasonId: seasonId,
+            id: id,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            title: title,
+            originalTitle: originalTitle,
+            description: description,
+            airDate: airDate,
+            runtimeMinutes: runtimeMinutes,
+            coverImageUrl: coverImageUrl,
+            coverImageKey: coverImageKey,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvEpisodeRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvEpisodeRowsTable,
+    TvEpisodeRow,
+    $$TvEpisodeRowsTableFilterComposer,
+    $$TvEpisodeRowsTableOrderingComposer,
+    $$TvEpisodeRowsTableAnnotationComposer,
+    $$TvEpisodeRowsTableCreateCompanionBuilder,
+    $$TvEpisodeRowsTableUpdateCompanionBuilder,
+    (
+      TvEpisodeRow,
+      BaseReferences<_$LocalDatabase, $TvEpisodeRowsTable, TvEpisodeRow>
+    ),
+    TvEpisodeRow,
+    PrefetchHooks Function()>;
+typedef $$TvReleaseRowsTableCreateCompanionBuilder = TvReleaseRowsCompanion
+    Function({
+  required String seriesId,
+  required String id,
+  required String title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<int?> mediaCount,
+  Value<String?> format,
+  Value<String?> regionCode,
+  Value<DateTime?> releaseDate,
+  Value<String?> publisher,
+  Value<String?> sku,
+  Value<String?> caseType,
+  Value<int?> episodeCount,
+  Value<int?> seasonCount,
+  Value<int?> runtimeMinutes,
+  Value<String> languageAudioJson,
+  Value<String> languageSubtitlesJson,
+  Value<String?> contentRating,
+  Value<String?> coverImageUrl,
+  Value<String?> coverImageKey,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$TvReleaseRowsTableUpdateCompanionBuilder = TvReleaseRowsCompanion
+    Function({
+  Value<String> seriesId,
+  Value<String> id,
+  Value<String> title,
+  Value<String?> sortTitle,
+  Value<String?> description,
+  Value<int?> mediaCount,
+  Value<String?> format,
+  Value<String?> regionCode,
+  Value<DateTime?> releaseDate,
+  Value<String?> publisher,
+  Value<String?> sku,
+  Value<String?> caseType,
+  Value<int?> episodeCount,
+  Value<int?> seasonCount,
+  Value<int?> runtimeMinutes,
+  Value<String> languageAudioJson,
+  Value<String> languageSubtitlesJson,
+  Value<String?> contentRating,
+  Value<String?> coverImageUrl,
+  Value<String?> coverImageKey,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$TvReleaseRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvReleaseRowsTable> {
+  $$TvReleaseRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get mediaCount => $composableBuilder(
+      column: $table.mediaCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get format => $composableBuilder(
+      column: $table.format, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get regionCode => $composableBuilder(
+      column: $table.regionCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sku => $composableBuilder(
+      column: $table.sku, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get caseType => $composableBuilder(
+      column: $table.caseType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonCount => $composableBuilder(
+      column: $table.seasonCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get languageAudioJson => $composableBuilder(
+      column: $table.languageAudioJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get languageSubtitlesJson => $composableBuilder(
+      column: $table.languageSubtitlesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contentRating => $composableBuilder(
+      column: $table.contentRating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$TvReleaseRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvReleaseRowsTable> {
+  $$TvReleaseRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get seriesId => $composableBuilder(
+      column: $table.seriesId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sortTitle => $composableBuilder(
+      column: $table.sortTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get mediaCount => $composableBuilder(
+      column: $table.mediaCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get format => $composableBuilder(
+      column: $table.format, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get regionCode => $composableBuilder(
+      column: $table.regionCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publisher => $composableBuilder(
+      column: $table.publisher, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sku => $composableBuilder(
+      column: $table.sku, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get caseType => $composableBuilder(
+      column: $table.caseType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonCount => $composableBuilder(
+      column: $table.seasonCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get languageAudioJson => $composableBuilder(
+      column: $table.languageAudioJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get languageSubtitlesJson => $composableBuilder(
+      column: $table.languageSubtitlesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contentRating => $composableBuilder(
+      column: $table.contentRating,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvReleaseRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvReleaseRowsTable> {
+  $$TvReleaseRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get seriesId =>
+      $composableBuilder(column: $table.seriesId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get sortTitle =>
+      $composableBuilder(column: $table.sortTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<int> get mediaCount => $composableBuilder(
+      column: $table.mediaCount, builder: (column) => column);
+
+  GeneratedColumn<String> get format =>
+      $composableBuilder(column: $table.format, builder: (column) => column);
+
+  GeneratedColumn<String> get regionCode => $composableBuilder(
+      column: $table.regionCode, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<String> get sku =>
+      $composableBuilder(column: $table.sku, builder: (column) => column);
+
+  GeneratedColumn<String> get caseType =>
+      $composableBuilder(column: $table.caseType, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonCount => $composableBuilder(
+      column: $table.seasonCount, builder: (column) => column);
+
+  GeneratedColumn<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get languageAudioJson => $composableBuilder(
+      column: $table.languageAudioJson, builder: (column) => column);
+
+  GeneratedColumn<String> get languageSubtitlesJson => $composableBuilder(
+      column: $table.languageSubtitlesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get contentRating => $composableBuilder(
+      column: $table.contentRating, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageUrl => $composableBuilder(
+      column: $table.coverImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImageKey => $composableBuilder(
+      column: $table.coverImageKey, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$TvReleaseRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvReleaseRowsTable,
+    TvReleaseRow,
+    $$TvReleaseRowsTableFilterComposer,
+    $$TvReleaseRowsTableOrderingComposer,
+    $$TvReleaseRowsTableAnnotationComposer,
+    $$TvReleaseRowsTableCreateCompanionBuilder,
+    $$TvReleaseRowsTableUpdateCompanionBuilder,
+    (
+      TvReleaseRow,
+      BaseReferences<_$LocalDatabase, $TvReleaseRowsTable, TvReleaseRow>
+    ),
+    TvReleaseRow,
+    PrefetchHooks Function()> {
+  $$TvReleaseRowsTableTableManager(
+      _$LocalDatabase db, $TvReleaseRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvReleaseRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvReleaseRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvReleaseRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> seriesId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<int?> mediaCount = const Value.absent(),
+            Value<String?> format = const Value.absent(),
+            Value<String?> regionCode = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> sku = const Value.absent(),
+            Value<String?> caseType = const Value.absent(),
+            Value<int?> episodeCount = const Value.absent(),
+            Value<int?> seasonCount = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String> languageAudioJson = const Value.absent(),
+            Value<String> languageSubtitlesJson = const Value.absent(),
+            Value<String?> contentRating = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvReleaseRowsCompanion(
+            seriesId: seriesId,
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            mediaCount: mediaCount,
+            format: format,
+            regionCode: regionCode,
+            releaseDate: releaseDate,
+            publisher: publisher,
+            sku: sku,
+            caseType: caseType,
+            episodeCount: episodeCount,
+            seasonCount: seasonCount,
+            runtimeMinutes: runtimeMinutes,
+            languageAudioJson: languageAudioJson,
+            languageSubtitlesJson: languageSubtitlesJson,
+            contentRating: contentRating,
+            coverImageUrl: coverImageUrl,
+            coverImageKey: coverImageKey,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String seriesId,
+            required String id,
+            required String title,
+            Value<String?> sortTitle = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<int?> mediaCount = const Value.absent(),
+            Value<String?> format = const Value.absent(),
+            Value<String?> regionCode = const Value.absent(),
+            Value<DateTime?> releaseDate = const Value.absent(),
+            Value<String?> publisher = const Value.absent(),
+            Value<String?> sku = const Value.absent(),
+            Value<String?> caseType = const Value.absent(),
+            Value<int?> episodeCount = const Value.absent(),
+            Value<int?> seasonCount = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String> languageAudioJson = const Value.absent(),
+            Value<String> languageSubtitlesJson = const Value.absent(),
+            Value<String?> contentRating = const Value.absent(),
+            Value<String?> coverImageUrl = const Value.absent(),
+            Value<String?> coverImageKey = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvReleaseRowsCompanion.insert(
+            seriesId: seriesId,
+            id: id,
+            title: title,
+            sortTitle: sortTitle,
+            description: description,
+            mediaCount: mediaCount,
+            format: format,
+            regionCode: regionCode,
+            releaseDate: releaseDate,
+            publisher: publisher,
+            sku: sku,
+            caseType: caseType,
+            episodeCount: episodeCount,
+            seasonCount: seasonCount,
+            runtimeMinutes: runtimeMinutes,
+            languageAudioJson: languageAudioJson,
+            languageSubtitlesJson: languageSubtitlesJson,
+            contentRating: contentRating,
+            coverImageUrl: coverImageUrl,
+            coverImageKey: coverImageKey,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvReleaseRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvReleaseRowsTable,
+    TvReleaseRow,
+    $$TvReleaseRowsTableFilterComposer,
+    $$TvReleaseRowsTableOrderingComposer,
+    $$TvReleaseRowsTableAnnotationComposer,
+    $$TvReleaseRowsTableCreateCompanionBuilder,
+    $$TvReleaseRowsTableUpdateCompanionBuilder,
+    (
+      TvReleaseRow,
+      BaseReferences<_$LocalDatabase, $TvReleaseRowsTable, TvReleaseRow>
+    ),
+    TvReleaseRow,
+    PrefetchHooks Function()>;
+typedef $$TvReleaseMediaRowsTableCreateCompanionBuilder
+    = TvReleaseMediaRowsCompanion Function({
+  required String releaseId,
+  required String id,
+  Value<int?> mediaNumber,
+  Value<String?> mediaType,
+  Value<String?> title,
+  Value<int?> episodeCount,
+  Value<int?> runtimeMinutes,
+  Value<String?> regionCode,
+  Value<String?> encoding,
+  Value<String?> aspectRatio,
+  Value<String?> color,
+  Value<String?> audioTracks,
+  Value<String?> subtitles,
+  Value<String?> layers,
+  Value<String?> frameRate,
+  Value<String?> bitDepth,
+  Value<String?> resolution,
+  Value<String?> hdrFormat,
+  Value<String> episodesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+typedef $$TvReleaseMediaRowsTableUpdateCompanionBuilder
+    = TvReleaseMediaRowsCompanion Function({
+  Value<String> releaseId,
+  Value<String> id,
+  Value<int?> mediaNumber,
+  Value<String?> mediaType,
+  Value<String?> title,
+  Value<int?> episodeCount,
+  Value<int?> runtimeMinutes,
+  Value<String?> regionCode,
+  Value<String?> encoding,
+  Value<String?> aspectRatio,
+  Value<String?> color,
+  Value<String?> audioTracks,
+  Value<String?> subtitles,
+  Value<String?> layers,
+  Value<String?> frameRate,
+  Value<String?> bitDepth,
+  Value<String?> resolution,
+  Value<String?> hdrFormat,
+  Value<String> episodesJson,
+  Value<String> rawPayloadJson,
+  Value<int> rowid,
+});
+
+class $$TvReleaseMediaRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvReleaseMediaRowsTable> {
+  $$TvReleaseMediaRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get mediaNumber => $composableBuilder(
+      column: $table.mediaNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaType => $composableBuilder(
+      column: $table.mediaType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get regionCode => $composableBuilder(
+      column: $table.regionCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get encoding => $composableBuilder(
+      column: $table.encoding, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get aspectRatio => $composableBuilder(
+      column: $table.aspectRatio, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get color => $composableBuilder(
+      column: $table.color, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get audioTracks => $composableBuilder(
+      column: $table.audioTracks, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subtitles => $composableBuilder(
+      column: $table.subtitles, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get layers => $composableBuilder(
+      column: $table.layers, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get frameRate => $composableBuilder(
+      column: $table.frameRate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bitDepth => $composableBuilder(
+      column: $table.bitDepth, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get resolution => $composableBuilder(
+      column: $table.resolution, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get hdrFormat => $composableBuilder(
+      column: $table.hdrFormat, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get episodesJson => $composableBuilder(
+      column: $table.episodesJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$TvReleaseMediaRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvReleaseMediaRowsTable> {
+  $$TvReleaseMediaRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get mediaNumber => $composableBuilder(
+      column: $table.mediaNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaType => $composableBuilder(
+      column: $table.mediaType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get regionCode => $composableBuilder(
+      column: $table.regionCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get encoding => $composableBuilder(
+      column: $table.encoding, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get aspectRatio => $composableBuilder(
+      column: $table.aspectRatio, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get color => $composableBuilder(
+      column: $table.color, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get audioTracks => $composableBuilder(
+      column: $table.audioTracks, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subtitles => $composableBuilder(
+      column: $table.subtitles, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get layers => $composableBuilder(
+      column: $table.layers, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get frameRate => $composableBuilder(
+      column: $table.frameRate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bitDepth => $composableBuilder(
+      column: $table.bitDepth, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get resolution => $composableBuilder(
+      column: $table.resolution, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get hdrFormat => $composableBuilder(
+      column: $table.hdrFormat, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get episodesJson => $composableBuilder(
+      column: $table.episodesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvReleaseMediaRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvReleaseMediaRowsTable> {
+  $$TvReleaseMediaRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get mediaNumber => $composableBuilder(
+      column: $table.mediaNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaType =>
+      $composableBuilder(column: $table.mediaType, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeCount => $composableBuilder(
+      column: $table.episodeCount, builder: (column) => column);
+
+  GeneratedColumn<int> get runtimeMinutes => $composableBuilder(
+      column: $table.runtimeMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get regionCode => $composableBuilder(
+      column: $table.regionCode, builder: (column) => column);
+
+  GeneratedColumn<String> get encoding =>
+      $composableBuilder(column: $table.encoding, builder: (column) => column);
+
+  GeneratedColumn<String> get aspectRatio => $composableBuilder(
+      column: $table.aspectRatio, builder: (column) => column);
+
+  GeneratedColumn<String> get color =>
+      $composableBuilder(column: $table.color, builder: (column) => column);
+
+  GeneratedColumn<String> get audioTracks => $composableBuilder(
+      column: $table.audioTracks, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitles =>
+      $composableBuilder(column: $table.subtitles, builder: (column) => column);
+
+  GeneratedColumn<String> get layers =>
+      $composableBuilder(column: $table.layers, builder: (column) => column);
+
+  GeneratedColumn<String> get frameRate =>
+      $composableBuilder(column: $table.frameRate, builder: (column) => column);
+
+  GeneratedColumn<String> get bitDepth =>
+      $composableBuilder(column: $table.bitDepth, builder: (column) => column);
+
+  GeneratedColumn<String> get resolution => $composableBuilder(
+      column: $table.resolution, builder: (column) => column);
+
+  GeneratedColumn<String> get hdrFormat =>
+      $composableBuilder(column: $table.hdrFormat, builder: (column) => column);
+
+  GeneratedColumn<String> get episodesJson => $composableBuilder(
+      column: $table.episodesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get rawPayloadJson => $composableBuilder(
+      column: $table.rawPayloadJson, builder: (column) => column);
+}
+
+class $$TvReleaseMediaRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvReleaseMediaRowsTable,
+    TvReleaseMediaRow,
+    $$TvReleaseMediaRowsTableFilterComposer,
+    $$TvReleaseMediaRowsTableOrderingComposer,
+    $$TvReleaseMediaRowsTableAnnotationComposer,
+    $$TvReleaseMediaRowsTableCreateCompanionBuilder,
+    $$TvReleaseMediaRowsTableUpdateCompanionBuilder,
+    (
+      TvReleaseMediaRow,
+      BaseReferences<_$LocalDatabase, $TvReleaseMediaRowsTable,
+          TvReleaseMediaRow>
+    ),
+    TvReleaseMediaRow,
+    PrefetchHooks Function()> {
+  $$TvReleaseMediaRowsTableTableManager(
+      _$LocalDatabase db, $TvReleaseMediaRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvReleaseMediaRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvReleaseMediaRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvReleaseMediaRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> releaseId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<int?> mediaNumber = const Value.absent(),
+            Value<String?> mediaType = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<int?> episodeCount = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> regionCode = const Value.absent(),
+            Value<String?> encoding = const Value.absent(),
+            Value<String?> aspectRatio = const Value.absent(),
+            Value<String?> color = const Value.absent(),
+            Value<String?> audioTracks = const Value.absent(),
+            Value<String?> subtitles = const Value.absent(),
+            Value<String?> layers = const Value.absent(),
+            Value<String?> frameRate = const Value.absent(),
+            Value<String?> bitDepth = const Value.absent(),
+            Value<String?> resolution = const Value.absent(),
+            Value<String?> hdrFormat = const Value.absent(),
+            Value<String> episodesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvReleaseMediaRowsCompanion(
+            releaseId: releaseId,
+            id: id,
+            mediaNumber: mediaNumber,
+            mediaType: mediaType,
+            title: title,
+            episodeCount: episodeCount,
+            runtimeMinutes: runtimeMinutes,
+            regionCode: regionCode,
+            encoding: encoding,
+            aspectRatio: aspectRatio,
+            color: color,
+            audioTracks: audioTracks,
+            subtitles: subtitles,
+            layers: layers,
+            frameRate: frameRate,
+            bitDepth: bitDepth,
+            resolution: resolution,
+            hdrFormat: hdrFormat,
+            episodesJson: episodesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String releaseId,
+            required String id,
+            Value<int?> mediaNumber = const Value.absent(),
+            Value<String?> mediaType = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<int?> episodeCount = const Value.absent(),
+            Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> regionCode = const Value.absent(),
+            Value<String?> encoding = const Value.absent(),
+            Value<String?> aspectRatio = const Value.absent(),
+            Value<String?> color = const Value.absent(),
+            Value<String?> audioTracks = const Value.absent(),
+            Value<String?> subtitles = const Value.absent(),
+            Value<String?> layers = const Value.absent(),
+            Value<String?> frameRate = const Value.absent(),
+            Value<String?> bitDepth = const Value.absent(),
+            Value<String?> resolution = const Value.absent(),
+            Value<String?> hdrFormat = const Value.absent(),
+            Value<String> episodesJson = const Value.absent(),
+            Value<String> rawPayloadJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvReleaseMediaRowsCompanion.insert(
+            releaseId: releaseId,
+            id: id,
+            mediaNumber: mediaNumber,
+            mediaType: mediaType,
+            title: title,
+            episodeCount: episodeCount,
+            runtimeMinutes: runtimeMinutes,
+            regionCode: regionCode,
+            encoding: encoding,
+            aspectRatio: aspectRatio,
+            color: color,
+            audioTracks: audioTracks,
+            subtitles: subtitles,
+            layers: layers,
+            frameRate: frameRate,
+            bitDepth: bitDepth,
+            resolution: resolution,
+            hdrFormat: hdrFormat,
+            episodesJson: episodesJson,
+            rawPayloadJson: rawPayloadJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvReleaseMediaRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvReleaseMediaRowsTable,
+    TvReleaseMediaRow,
+    $$TvReleaseMediaRowsTableFilterComposer,
+    $$TvReleaseMediaRowsTableOrderingComposer,
+    $$TvReleaseMediaRowsTableAnnotationComposer,
+    $$TvReleaseMediaRowsTableCreateCompanionBuilder,
+    $$TvReleaseMediaRowsTableUpdateCompanionBuilder,
+    (
+      TvReleaseMediaRow,
+      BaseReferences<_$LocalDatabase, $TvReleaseMediaRowsTable,
+          TvReleaseMediaRow>
+    ),
+    TvReleaseMediaRow,
+    PrefetchHooks Function()>;
+typedef $$TvReleaseEpisodeMapRowsTableCreateCompanionBuilder
+    = TvReleaseEpisodeMapRowsCompanion Function({
+  required String releaseId,
+  required String id,
+  required String mediaId,
+  required String episodeId,
+  Value<int?> discNumber,
+  Value<int?> sequenceNumber,
+  Value<int> rowid,
+});
+typedef $$TvReleaseEpisodeMapRowsTableUpdateCompanionBuilder
+    = TvReleaseEpisodeMapRowsCompanion Function({
+  Value<String> releaseId,
+  Value<String> id,
+  Value<String> mediaId,
+  Value<String> episodeId,
+  Value<int?> discNumber,
+  Value<int?> sequenceNumber,
+  Value<int> rowid,
+});
+
+class $$TvReleaseEpisodeMapRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvReleaseEpisodeMapRowsTable> {
+  $$TvReleaseEpisodeMapRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get episodeId => $composableBuilder(
+      column: $table.episodeId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get discNumber => $composableBuilder(
+      column: $table.discNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sequenceNumber => $composableBuilder(
+      column: $table.sequenceNumber,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$TvReleaseEpisodeMapRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvReleaseEpisodeMapRowsTable> {
+  $$TvReleaseEpisodeMapRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get releaseId => $composableBuilder(
+      column: $table.releaseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mediaId => $composableBuilder(
+      column: $table.mediaId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get episodeId => $composableBuilder(
+      column: $table.episodeId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get discNumber => $composableBuilder(
+      column: $table.discNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sequenceNumber => $composableBuilder(
+      column: $table.sequenceNumber,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvReleaseEpisodeMapRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvReleaseEpisodeMapRowsTable> {
+  $$TvReleaseEpisodeMapRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get releaseId =>
+      $composableBuilder(column: $table.releaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get mediaId =>
+      $composableBuilder(column: $table.mediaId, builder: (column) => column);
+
+  GeneratedColumn<String> get episodeId =>
+      $composableBuilder(column: $table.episodeId, builder: (column) => column);
+
+  GeneratedColumn<int> get discNumber => $composableBuilder(
+      column: $table.discNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get sequenceNumber => $composableBuilder(
+      column: $table.sequenceNumber, builder: (column) => column);
+}
+
+class $$TvReleaseEpisodeMapRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvReleaseEpisodeMapRowsTable,
+    TvReleaseEpisodeMapRow,
+    $$TvReleaseEpisodeMapRowsTableFilterComposer,
+    $$TvReleaseEpisodeMapRowsTableOrderingComposer,
+    $$TvReleaseEpisodeMapRowsTableAnnotationComposer,
+    $$TvReleaseEpisodeMapRowsTableCreateCompanionBuilder,
+    $$TvReleaseEpisodeMapRowsTableUpdateCompanionBuilder,
+    (
+      TvReleaseEpisodeMapRow,
+      BaseReferences<_$LocalDatabase, $TvReleaseEpisodeMapRowsTable,
+          TvReleaseEpisodeMapRow>
+    ),
+    TvReleaseEpisodeMapRow,
+    PrefetchHooks Function()> {
+  $$TvReleaseEpisodeMapRowsTableTableManager(
+      _$LocalDatabase db, $TvReleaseEpisodeMapRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvReleaseEpisodeMapRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvReleaseEpisodeMapRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvReleaseEpisodeMapRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> releaseId = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> mediaId = const Value.absent(),
+            Value<String> episodeId = const Value.absent(),
+            Value<int?> discNumber = const Value.absent(),
+            Value<int?> sequenceNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvReleaseEpisodeMapRowsCompanion(
+            releaseId: releaseId,
+            id: id,
+            mediaId: mediaId,
+            episodeId: episodeId,
+            discNumber: discNumber,
+            sequenceNumber: sequenceNumber,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String releaseId,
+            required String id,
+            required String mediaId,
+            required String episodeId,
+            Value<int?> discNumber = const Value.absent(),
+            Value<int?> sequenceNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvReleaseEpisodeMapRowsCompanion.insert(
+            releaseId: releaseId,
+            id: id,
+            mediaId: mediaId,
+            episodeId: episodeId,
+            discNumber: discNumber,
+            sequenceNumber: sequenceNumber,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvReleaseEpisodeMapRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $TvReleaseEpisodeMapRowsTable,
+        TvReleaseEpisodeMapRow,
+        $$TvReleaseEpisodeMapRowsTableFilterComposer,
+        $$TvReleaseEpisodeMapRowsTableOrderingComposer,
+        $$TvReleaseEpisodeMapRowsTableAnnotationComposer,
+        $$TvReleaseEpisodeMapRowsTableCreateCompanionBuilder,
+        $$TvReleaseEpisodeMapRowsTableUpdateCompanionBuilder,
+        (
+          TvReleaseEpisodeMapRow,
+          BaseReferences<_$LocalDatabase, $TvReleaseEpisodeMapRowsTable,
+              TvReleaseEpisodeMapRow>
+        ),
+        TvReleaseEpisodeMapRow,
+        PrefetchHooks Function()>;
+typedef $$TvOwnedDetailsRowsTableCreateCompanionBuilder
+    = TvOwnedDetailsRowsCompanion Function({
+  required String ownedItemId,
+  Value<String?> features,
+  Value<String> hdrFormatsJson,
+  Value<String?> boxSetId,
+  Value<String?> boxSetName,
+  Value<String?> region,
+  Value<String?> packaging,
+  Value<String?> distributor,
+  Value<int> rowid,
+});
+typedef $$TvOwnedDetailsRowsTableUpdateCompanionBuilder
+    = TvOwnedDetailsRowsCompanion Function({
+  Value<String> ownedItemId,
+  Value<String?> features,
+  Value<String> hdrFormatsJson,
+  Value<String?> boxSetId,
+  Value<String?> boxSetName,
+  Value<String?> region,
+  Value<String?> packaging,
+  Value<String?> distributor,
+  Value<int> rowid,
+});
+
+class $$TvOwnedDetailsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvOwnedDetailsRowsTable> {
+  $$TvOwnedDetailsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get features => $composableBuilder(
+      column: $table.features, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get hdrFormatsJson => $composableBuilder(
+      column: $table.hdrFormatsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetId => $composableBuilder(
+      column: $table.boxSetId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get packaging => $composableBuilder(
+      column: $table.packaging, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnFilters(column));
+}
+
+class $$TvOwnedDetailsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvOwnedDetailsRowsTable> {
+  $$TvOwnedDetailsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get features => $composableBuilder(
+      column: $table.features, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get hdrFormatsJson => $composableBuilder(
+      column: $table.hdrFormatsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetId => $composableBuilder(
+      column: $table.boxSetId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get packaging => $composableBuilder(
+      column: $table.packaging, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvOwnedDetailsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvOwnedDetailsRowsTable> {
+  $$TvOwnedDetailsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get features =>
+      $composableBuilder(column: $table.features, builder: (column) => column);
+
+  GeneratedColumn<String> get hdrFormatsJson => $composableBuilder(
+      column: $table.hdrFormatsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetId =>
+      $composableBuilder(column: $table.boxSetId, builder: (column) => column);
+
+  GeneratedColumn<String> get boxSetName => $composableBuilder(
+      column: $table.boxSetName, builder: (column) => column);
+
+  GeneratedColumn<String> get region =>
+      $composableBuilder(column: $table.region, builder: (column) => column);
+
+  GeneratedColumn<String> get packaging =>
+      $composableBuilder(column: $table.packaging, builder: (column) => column);
+
+  GeneratedColumn<String> get distributor => $composableBuilder(
+      column: $table.distributor, builder: (column) => column);
+}
+
+class $$TvOwnedDetailsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvOwnedDetailsRowsTable,
+    TvOwnedDetailsRow,
+    $$TvOwnedDetailsRowsTableFilterComposer,
+    $$TvOwnedDetailsRowsTableOrderingComposer,
+    $$TvOwnedDetailsRowsTableAnnotationComposer,
+    $$TvOwnedDetailsRowsTableCreateCompanionBuilder,
+    $$TvOwnedDetailsRowsTableUpdateCompanionBuilder,
+    (
+      TvOwnedDetailsRow,
+      BaseReferences<_$LocalDatabase, $TvOwnedDetailsRowsTable,
+          TvOwnedDetailsRow>
+    ),
+    TvOwnedDetailsRow,
+    PrefetchHooks Function()> {
+  $$TvOwnedDetailsRowsTableTableManager(
+      _$LocalDatabase db, $TvOwnedDetailsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvOwnedDetailsRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvOwnedDetailsRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvOwnedDetailsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> ownedItemId = const Value.absent(),
+            Value<String?> features = const Value.absent(),
+            Value<String> hdrFormatsJson = const Value.absent(),
+            Value<String?> boxSetId = const Value.absent(),
+            Value<String?> boxSetName = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<String?> packaging = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvOwnedDetailsRowsCompanion(
+            ownedItemId: ownedItemId,
+            features: features,
+            hdrFormatsJson: hdrFormatsJson,
+            boxSetId: boxSetId,
+            boxSetName: boxSetName,
+            region: region,
+            packaging: packaging,
+            distributor: distributor,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String ownedItemId,
+            Value<String?> features = const Value.absent(),
+            Value<String> hdrFormatsJson = const Value.absent(),
+            Value<String?> boxSetId = const Value.absent(),
+            Value<String?> boxSetName = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<String?> packaging = const Value.absent(),
+            Value<String?> distributor = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvOwnedDetailsRowsCompanion.insert(
+            ownedItemId: ownedItemId,
+            features: features,
+            hdrFormatsJson: hdrFormatsJson,
+            boxSetId: boxSetId,
+            boxSetName: boxSetName,
+            region: region,
+            packaging: packaging,
+            distributor: distributor,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvOwnedDetailsRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvOwnedDetailsRowsTable,
+    TvOwnedDetailsRow,
+    $$TvOwnedDetailsRowsTableFilterComposer,
+    $$TvOwnedDetailsRowsTableOrderingComposer,
+    $$TvOwnedDetailsRowsTableAnnotationComposer,
+    $$TvOwnedDetailsRowsTableCreateCompanionBuilder,
+    $$TvOwnedDetailsRowsTableUpdateCompanionBuilder,
+    (
+      TvOwnedDetailsRow,
+      BaseReferences<_$LocalDatabase, $TvOwnedDetailsRowsTable,
+          TvOwnedDetailsRow>
+    ),
+    TvOwnedDetailsRow,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -38505,4 +45411,19 @@ class $LocalDatabaseManager {
       $$MovieReleaseRowsTableTableManager(_db, _db.movieReleaseRows);
   $$MovieOwnedDetailsRowsTableTableManager get movieOwnedDetailsRows =>
       $$MovieOwnedDetailsRowsTableTableManager(_db, _db.movieOwnedDetailsRows);
+  $$TvSeriesRowsTableTableManager get tvSeriesRows =>
+      $$TvSeriesRowsTableTableManager(_db, _db.tvSeriesRows);
+  $$TvSeasonRowsTableTableManager get tvSeasonRows =>
+      $$TvSeasonRowsTableTableManager(_db, _db.tvSeasonRows);
+  $$TvEpisodeRowsTableTableManager get tvEpisodeRows =>
+      $$TvEpisodeRowsTableTableManager(_db, _db.tvEpisodeRows);
+  $$TvReleaseRowsTableTableManager get tvReleaseRows =>
+      $$TvReleaseRowsTableTableManager(_db, _db.tvReleaseRows);
+  $$TvReleaseMediaRowsTableTableManager get tvReleaseMediaRows =>
+      $$TvReleaseMediaRowsTableTableManager(_db, _db.tvReleaseMediaRows);
+  $$TvReleaseEpisodeMapRowsTableTableManager get tvReleaseEpisodeMapRows =>
+      $$TvReleaseEpisodeMapRowsTableTableManager(
+          _db, _db.tvReleaseEpisodeMapRows);
+  $$TvOwnedDetailsRowsTableTableManager get tvOwnedDetailsRows =>
+      $$TvOwnedDetailsRowsTableTableManager(_db, _db.tvOwnedDetailsRows);
 }

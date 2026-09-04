@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import 'tv_ids.dart';
+
 @immutable
 class TvContributor {
   const TvContributor({
@@ -104,6 +106,7 @@ class TvEpisode {
     this.runtimeMinutes,
     this.coverImageUrl,
     this.coverImageKey,
+    this.rawPayload = const <String, dynamic>{},
   });
 
   final String id;
@@ -118,6 +121,9 @@ class TvEpisode {
   final int? runtimeMinutes;
   final String? coverImageUrl;
   final String? coverImageKey;
+  final Map<String, dynamic> rawPayload;
+
+  TvEpisodeId get typedId => TvEpisodeId(id);
 
   factory TvEpisode.fromJson(Map<String, dynamic> json) {
     return TvEpisode(
@@ -134,10 +140,12 @@ class TvEpisode {
       runtimeMinutes: _int(json['runtime_minutes']),
       coverImageUrl: _text(json['cover_image_url'] ?? json['still_url']),
       coverImageKey: _text(json['cover_image_key']),
+      rawPayload: Map<String, dynamic>.from(json),
     );
   }
 
   Map<String, dynamic> toJson() => {
+        ...rawPayload,
         'id': id,
         'series_id': seriesId,
         'season_id': seasonId,
@@ -166,6 +174,7 @@ class TvSeason {
     this.coverImageUrl,
     this.coverImageKey,
     this.episodes = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   final String id;
@@ -178,6 +187,9 @@ class TvSeason {
   final String? coverImageUrl;
   final String? coverImageKey;
   final List<TvEpisode> episodes;
+  final Map<String, dynamic> rawPayload;
+
+  TvSeasonId get typedId => TvSeasonId(id);
 
   factory TvSeason.fromJson(Map<String, dynamic> json) {
     return TvSeason(
@@ -197,10 +209,12 @@ class TvSeason {
       episodes: _maps(json['episodes'])
           .map(TvEpisode.fromJson)
           .toList(growable: false),
+      rawPayload: Map<String, dynamic>.from(json),
     );
   }
 
   Map<String, dynamic> toJson() => {
+        ...rawPayload,
         'id': id,
         'series_id': seriesId,
         if (seasonNumber != null) 'season_number': seasonNumber,
@@ -237,6 +251,7 @@ class TvReleaseMedia {
     this.resolution,
     this.hdrFormat,
     this.episodes = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   final String id;
@@ -258,6 +273,9 @@ class TvReleaseMedia {
   final String? resolution;
   final String? hdrFormat;
   final List<TvEpisode> episodes;
+  final Map<String, dynamic> rawPayload;
+
+  TvReleaseMediaId get typedId => TvReleaseMediaId(id);
 
   factory TvReleaseMedia.fromJson(Map<String, dynamic> json) {
     return TvReleaseMedia(
@@ -282,10 +300,12 @@ class TvReleaseMedia {
       episodes: _maps(json['episodes'])
           .map(TvEpisode.fromJson)
           .toList(growable: false),
+      rawPayload: Map<String, dynamic>.from(json),
     );
   }
 
   Map<String, dynamic> toJson() => {
+        ...rawPayload,
         'id': id,
         'release_id': releaseId,
         if (mediaNumber != null) 'media_number': mediaNumber,
@@ -326,6 +346,8 @@ class TvReleaseEpisodeMap {
   final String episodeId;
   final int? discNumber;
   final int? sequenceNumber;
+
+  TvReleaseEpisodeMapId get typedId => TvReleaseEpisodeMapId(id);
 
   factory TvReleaseEpisodeMap.fromJson(Map<String, dynamic> json) {
     return TvReleaseEpisodeMap(
@@ -373,6 +395,7 @@ class TvRelease {
     this.coverImageKey,
     this.media = const [],
     this.episodeMappings = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   final String id;
@@ -397,6 +420,9 @@ class TvRelease {
   final String? coverImageKey;
   final List<TvReleaseMedia> media;
   final List<TvReleaseEpisodeMap> episodeMappings;
+  final Map<String, dynamic> rawPayload;
+
+  TvReleaseId get typedId => TvReleaseId(id);
 
   factory TvRelease.fromJson(Map<String, dynamic> json) {
     return TvRelease(
@@ -426,10 +452,12 @@ class TvRelease {
       episodeMappings: _maps(json['episode_mappings'] ?? json['episode_maps'])
           .map(TvReleaseEpisodeMap.fromJson)
           .toList(growable: false),
+      rawPayload: Map<String, dynamic>.from(json),
     );
   }
 
   Map<String, dynamic> toJson() => {
+        ...rawPayload,
         'id': id,
         'series_id': seriesId,
         'title': title,
@@ -480,6 +508,7 @@ class TvSeries {
     this.contributions = const [],
     this.identifiers = const [],
     this.characterAppearances = const [],
+    this.rawPayload = const <String, dynamic>{},
   });
 
   final String id;
@@ -500,6 +529,9 @@ class TvSeries {
   final List<TvContributor> contributions;
   final List<TvIdentifier> identifiers;
   final List<TvCharacterAppearance> characterAppearances;
+  final Map<String, dynamic> rawPayload;
+
+  TvSeriesId get typedId => TvSeriesId(id);
 
   factory TvSeries.fromJson(Map<String, dynamic> json) {
     return TvSeries(
@@ -536,10 +568,12 @@ class TvSeries {
       characterAppearances: _maps(json['character_appearances'])
           .map(TvCharacterAppearance.fromJson)
           .toList(growable: false),
+      rawPayload: Map<String, dynamic>.from(json),
     );
   }
 
   Map<String, dynamic> toJson() => {
+        ...rawPayload,
         'id': id,
         'kind': 'tv',
         'title': title,

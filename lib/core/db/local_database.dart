@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_loc
 import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
 
 part 'local_database.g.dart';
 
@@ -415,13 +416,20 @@ class ProviderItemLinksCache extends Table {
   MovieMediaRows,
   MovieReleaseRows,
   MovieOwnedDetailsRows,
+  TvSeriesRows,
+  TvSeasonRows,
+  TvEpisodeRows,
+  TvReleaseRows,
+  TvReleaseMediaRows,
+  TvReleaseEpisodeMapRows,
+  TvOwnedDetailsRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration {
@@ -478,6 +486,15 @@ class LocalDatabase extends _$LocalDatabase {
           await m.createTable(movieMediaRows);
           await m.createTable(movieReleaseRows);
           await m.createTable(movieOwnedDetailsRows);
+        }
+        if (from < 18) {
+          await m.createTable(tvSeriesRows);
+          await m.createTable(tvSeasonRows);
+          await m.createTable(tvEpisodeRows);
+          await m.createTable(tvReleaseRows);
+          await m.createTable(tvReleaseMediaRows);
+          await m.createTable(tvReleaseEpisodeMapRows);
+          await m.createTable(tvOwnedDetailsRows);
         } else {
           await _destructiveRebuild(m);
         }

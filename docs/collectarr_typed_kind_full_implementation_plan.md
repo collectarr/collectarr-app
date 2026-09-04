@@ -1602,6 +1602,14 @@ owned
 tracking
 ```
 
+### Status (2026-09-05)
+
+Complete. TV now has dedicated Drift tables for series, seasons, episodes,
+releases, release media, episode maps, and owned details. The typed repository
+hydrates and persists the complete nested graph transactionally, while the
+remote source supports cache population and fallback. Schema version 18 and
+its migration coverage are in place. Continue with PR55.
+
 ---
 
 ## PR 55 — TV workspace/hierarchy
