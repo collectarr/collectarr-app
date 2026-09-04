@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_dialog.dart';
@@ -317,12 +318,15 @@ Future<List<LibraryHierarchyNode>> _fetchMangaVolumes({
   String? provider,
   String? providerItemId,
 }) async {
-  final chapterRows = await api
-      .getMangaChapterRows(itemId)
+  final work = await api
+      .getMangaWorkDto(itemId)
       .timeout(const Duration(seconds: 60));
+  final manga = MangaCoreMapper.fromWorkDto(work);
   final hierarchy = MangaHierarchyMapper.fromChapterRows(
     seriesId: itemId,
-    rows: chapterRows,
+    rows: manga.chapters.whereType<Map<Object?, Object?>>().map(
+          (chapter) => Map<String, dynamic>.from(chapter),
+        ),
   );
   return MangaHierarchyMapper.toLibraryNodes(hierarchy);
 }

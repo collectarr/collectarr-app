@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -25,11 +24,7 @@ class LibraryEntry {
   LibraryMetadataItem? get catalogItem {
     final raw = _catalogItem;
     if (raw == null) return null;
-    if (raw is LibraryMetadataItem) return raw;
-    if (raw is CatalogItemDto) {
-      return LibraryMetadataTransportCodec.fromCatalogItem(raw);
-    }
-    return null;
+    return LibraryMetadataTransportCodec.fromUnknown(raw);
   }
 
   LibraryKindMetadataRuntime? get kindMetadata => catalogItem?.kindMetadata;

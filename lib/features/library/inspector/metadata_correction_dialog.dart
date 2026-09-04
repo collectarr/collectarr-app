@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -172,15 +172,10 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   String _initialFieldText(String key) {
-    final payload = widget.item is LibraryMetadataItem
-        ? (widget.item as LibraryMetadataItem).payload
-        : (widget.item as CatalogItem).toSyncPayload();
-    final title = widget.item is LibraryMetadataItem
-        ? (widget.item as LibraryMetadataItem).title
-        : (widget.item as CatalogItem).title;
-    final releaseYear = widget.item is LibraryMetadataItem
-        ? (widget.item as LibraryMetadataItem).releaseYear
-        : (widget.item as CatalogItem).releaseYear;
+    final item = _asLibraryMetadataItem(widget.item);
+    final payload = item.payload;
+    final title = item.title;
+    final releaseYear = item.releaseYear;
     return switch (key) {
       'title' => title,
       'item_number' =>
@@ -227,20 +222,20 @@ class _CorrectionField extends StatelessWidget {
 }
 
 Map<String, dynamic> _itemPayload(Object item) {
-  if (item is LibraryMetadataItem) return item.toSyncPayload();
-  if (item is CatalogItem) return item.toSyncPayload();
-  throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
+  return _asLibraryMetadataItem(item).toSyncPayload();
 }
 
 String _itemTitle(Object item) {
-  if (item is LibraryMetadataItem) return item.title;
-  if (item is CatalogItem) return item.title;
-  throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
+  return _asLibraryMetadataItem(item).title;
 }
 
 int? _itemReleaseYear(Object item) {
-  if (item is LibraryMetadataItem) return item.releaseYear;
-  if (item is CatalogItem) return item.releaseYear;
+  return _asLibraryMetadataItem(item).releaseYear;
+}
+
+LibraryMetadataItem _asLibraryMetadataItem(Object? item) {
+  final converted = LibraryMetadataTransportCodec.fromUnknown(item);
+  if (converted != null) return converted;
   throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
 }
 

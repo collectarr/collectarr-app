@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ Future<void> showReadingQueueDialog({
   required LocalDatabase db,
   required String mediaKind,
   required Iterable<OwnedItem> ownedItems,
-  required Map<String, CatalogItem> catalogItemsById,
+  required Map<String, dynamic> catalogItemsById,
   ValueChanged<String>? onSelectItem,
 }) {
   return showDialog<void>(
@@ -40,7 +41,7 @@ class _ReadingQueueDialog extends StatefulWidget {
   final LocalDatabase db;
   final String mediaKind;
   final List<OwnedItem> ownedItems;
-  final Map<String, CatalogItem> catalogItemsById;
+  final Map<String, dynamic> catalogItemsById;
   final ValueChanged<String>? onSelectItem;
 
   @override
@@ -77,7 +78,9 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       if (ownedItem == null) {
         continue;
       }
-      final catalogItem = widget.catalogItemsById[ownedItem.itemId];
+      final catalogItem = LibraryMetadataTransportCodec.fromUnknown(
+        widget.catalogItemsById[ownedItem.itemId],
+      );
       if (catalogItem == null || catalogItem.kind != widget.mediaKind) {
         continue;
       }
@@ -348,7 +351,7 @@ class _ReadingQueueDialogEntry {
   });
 
   final OwnedItem ownedItem;
-  final CatalogItem catalogItem;
+  final LibraryMetadataItem catalogItem;
 
   String get label {
     final payload = catalogItem.payload;

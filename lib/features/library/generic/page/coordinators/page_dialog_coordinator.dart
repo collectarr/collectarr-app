@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dar
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
@@ -260,9 +261,13 @@ class LibraryPageDialogCoordinator {
     final queuedOwnedItems = ownedItems
         .where((item) => !item.isDeleted && queueIds.contains(item.id))
         .toList(growable: false);
-    final catalogItemsById = await CatalogCacheRepository(db).findByIds(
+    final legacyCatalogItemsById = await CatalogCacheRepository(db).findByIds(
       queuedOwnedItems.map((item) => item.itemId),
     );
+    final catalogItemsById = {
+      for (final entry in legacyCatalogItemsById.entries)
+        entry.key: LibraryMetadataTransportCodec.fromCatalogItem(entry.value),
+    };
     if (!_page.mounted) {
       return;
     }

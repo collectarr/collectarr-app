@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -12,7 +11,6 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,12 +126,7 @@ class ShelfState {
         ShelfEntry(
           itemId: id,
           catalogItem: () {
-            final item = catalogItems[id];
-            if (item is LibraryMetadataItem) return item;
-            if (item is CatalogItemDto) {
-              return LibraryMetadataTransportCodec.fromCatalogItem(item);
-            }
-            return null;
+            return LibraryMetadataTransportCodec.fromUnknown(catalogItems[id]);
           }(),
           ownedItem: ownedByItemId[id],
           trackingEntry: trackingByItemId[id],

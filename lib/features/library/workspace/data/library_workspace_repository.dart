@@ -4,14 +4,15 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -146,9 +147,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
         shelfEntries.add(
           ShelfEntry(
             itemId: catalogData.id,
-            catalogItem: LibraryMetadataTransportCodec.fromCatalogItem(
-              _catalogFromCache(catalogData),
-            ),
+            catalogItem: _catalogFromCache(catalogData),
             ownedItem: ownedData == null
                 ? null
                 : _ownedFromCache(ownedData, catalogKind: catalogData.kind),
@@ -239,7 +238,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     return filtered;
   }
 
-  CatalogItem _catalogFromCache(CatalogCacheData row) {
+  LibraryMetadataItem _catalogFromCache(CatalogCacheData row) {
     final decoded = jsonDecode(row.payloadJson);
     if (decoded is! Map) {
       throw StateError('Invalid catalog cache payload for ${row.id}.');
@@ -247,7 +246,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     final payload = Map<String, dynamic>.from(decoded);
     payload['id'] ??= row.id;
     payload['kind'] ??= row.kind;
-    return CatalogItem.fromJson(payload);
+    return LibraryMetadataTransportCodec.fromMetadataMap(payload);
   }
 
   OwnedItem _ownedFromCache(
