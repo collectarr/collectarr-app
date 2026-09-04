@@ -1775,11 +1775,27 @@ MusicOwnedDetails
 
 Do not force Music into series/work/release assumptions from other kinds.
 
+### Status (2026-09-05)
+
+Complete. Music now has typed release, media, track, and identifier models with
+direct Core mapping, wrong-kind validation, nested media/track decoding, and a
+typed remote-source boundary. Legacy catalog names remain only as an explicit
+compatibility bridge. Focused Music mapping and round-trip tests pass. Continue
+with PR64.
+
 ---
 
 ## PR 64 — Music DB/repository
 
 Music-owned release/media/track schema.
+
+### Status (2026-09-05)
+
+Complete. Music has dedicated Drift release, media, track, and owned-details
+tables at schema 21, typed local mappers, transactional graph persistence,
+remote fallback/cache, and parent-ownership validation. Migration coverage
+preserves existing catalog cache data. Focused Music repository and database
+tests pass. Continue with PR65.
 
 ---
 
@@ -1795,6 +1811,14 @@ classical metadata
 etc.
 ```
 
+### Status (2026-09-05)
+
+Complete. Music workspace projection now hydrates a Music-owned typed release
+graph, including media and tracks, while retaining legacy catalog metadata only
+as a compatibility bridge. Music owns format, genre, media-type, credit-role,
+record-label, and country vocabularies. Focused workspace and vocabulary tests
+pass. Continue with PR66.
+
 ---
 
 ## PR 66 — Music Add/Edit
@@ -1809,6 +1833,13 @@ MusicOwnedEditSchema
 ```
 
 Do not depend on generic `supportsTrackSearch`.
+
+### Status (2026-09-05)
+
+Complete. Music exposes independent add, release-add, release-edit, media-edit,
+and owned-edit drafts/schemas with Music-specific fields and validation. The
+existing generic edit draft remains only for the current dialog bridge. Focused
+schema, validation, and typed round-trip tests pass. Continue with PR67.
 
 ---
 
