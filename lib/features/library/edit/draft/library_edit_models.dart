@@ -103,6 +103,8 @@ class LibraryPersonalEditSelection {
     this.layers,
     this.color,
     this.nrDiscs,
+    this.dustJacketPresent,
+    this.dustJacketCondition,
     this.collectionStatus,
     this.lastBagBoardDate,
     this.marketValueCents,
@@ -161,6 +163,8 @@ class LibraryPersonalEditSelection {
   final String? layers;
   final String? color;
   final int? nrDiscs;
+  final bool? dustJacketPresent;
+  final String? dustJacketCondition;
   final String? collectionStatus;
   final DateTime? lastBagBoardDate;
   final int? marketValueCents;
@@ -219,6 +223,8 @@ class LibraryPersonalEditSelection {
     String? layers,
     String? color,
     int? nrDiscs,
+    bool? dustJacketPresent,
+    String? dustJacketCondition,
     String? collectionStatus,
     DateTime? lastBagBoardDate,
     int? marketValueCents,
@@ -277,6 +283,8 @@ class LibraryPersonalEditSelection {
       layers: layers ?? this.layers,
       color: color ?? this.color,
       nrDiscs: nrDiscs ?? this.nrDiscs,
+      dustJacketPresent: dustJacketPresent ?? this.dustJacketPresent,
+      dustJacketCondition: dustJacketCondition ?? this.dustJacketCondition,
       collectionStatus: collectionStatus ?? this.collectionStatus,
       lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
       marketValueCents: marketValueCents ?? this.marketValueCents,

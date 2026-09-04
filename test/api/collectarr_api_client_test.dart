@@ -345,6 +345,16 @@ void main() {
         );
       });
 
+      test('does not expose Book editions through generic volume models',
+          () async {
+        final client = _createTestClient(_FakeApiInterceptor());
+
+        expect(
+          () => client.getItemVolumes('book-1', kind: 'book'),
+          throwsA(isA<StateError>()),
+        );
+      });
+
       test('uses typed edition creation route for books', () async {
         final interceptor = _FakeApiInterceptor();
         interceptor.onPost('/metadata/books/works/book-1/editions', {

@@ -43,6 +43,7 @@ void main() {
       'covers',
       'plot',
       'links',
+      'owned',
     ]);
     expect(releaseTabs.map((tab) => tab.id).toList(), [
       'details',

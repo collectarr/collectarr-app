@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/release/book_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
@@ -38,6 +40,8 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 
 import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_hierarchy_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/remote/book_core_mapper.dart';
 
 const _bookAuthorFilterId = LibraryAddFilterId('book.author');
 const _bookIsbnFilterId = LibraryAddFilterId('book.isbn');
@@ -184,6 +188,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   hierarchy: LibraryHierarchyCapability(
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     fetchChildrenCallback: _fetchBookVolumes,
+    childrenTitleBuilder: _bookChildrenTitle,
     supportsMediaReleaseSplit: true,
     mediaScopeGroupIds: _bookMediaGroupModes,
     releaseScopeGroupIds: _bookReleaseGroupModes,
@@ -267,6 +272,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildBookLibraryEditDialog,
+    mediaEditDialogBuilder: buildBookMediaLibraryEditDialog,
+    releaseEditDialogBuilder: buildBookReleaseLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(BookVocabularies.all),
     presentation: const LibraryEditPresentation(
       builder: BookLibraryMediaEditPresentationBuilder(),
@@ -294,8 +301,13 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
   String? provider,
   String? providerItemId,
 }) async {
-  return const [];
+  final work =
+      await api.getBookWorkDto(itemId).timeout(const Duration(seconds: 60));
+  final book = BookCoreMapper.fromWorkDto(work);
+  return BookHierarchyMapper.toLibraryNodes(book.editions);
 }
+
+String _bookChildrenTitle(int count) => 'Editions ($count)';
 
 Map<String, dynamic> _encodeBookMetadata(BookCatalogMetadata m) => m.toJson();
 

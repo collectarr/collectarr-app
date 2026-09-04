@@ -1362,6 +1362,16 @@ BookOwnedEditSchema
 
 Remove any Book Edition → generic Season compatibility.
 
+### Status (2026-09-04)
+
+Complete. Book now owns explicit Add, media edit, release edit, and owned
+edit schemas, with typed release hierarchy nodes and provider envelope
+validation. Book hierarchy loading uses `BookWorkDto` and never routes Book
+editions through the generic `Season` API; legacy volume loading remains
+explicitly scoped to its non-Book callers. Release metadata round-trips
+preserve identifiers, artwork, publication details, status, audio length, and
+variants.
+
 ---
 
 # PHASE 9 — Game

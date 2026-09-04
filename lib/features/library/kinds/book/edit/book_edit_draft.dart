@@ -21,6 +21,15 @@ class BookEditDraft extends KindEditDraft {
     required this.releaseYearController,
     required this.publisherController,
     required this.barcodeController,
+    required this.editionTitleController,
+    required this.variantController,
+    required this.formatController,
+    required this.languageController,
+    required this.countryController,
+    required this.authorsController,
+    required this.genresController,
+    required this.subjectsController,
+    required this.translatorsController,
   });
 
   String? signedBy;
@@ -32,6 +41,15 @@ class BookEditDraft extends KindEditDraft {
   final TextEditingController releaseYearController;
   final TextEditingController publisherController;
   final TextEditingController barcodeController;
+  final TextEditingController editionTitleController;
+  final TextEditingController variantController;
+  final TextEditingController formatController;
+  final TextEditingController languageController;
+  final TextEditingController countryController;
+  final TextEditingController authorsController;
+  final TextEditingController genresController;
+  final TextEditingController subjectsController;
+  final TextEditingController translatorsController;
 
   @override
   OwnedDetailsDraft toDetailsDraft() => BookOwnedDetailsDraft(
@@ -48,6 +66,15 @@ class BookEditDraft extends KindEditDraft {
     releaseYearController.dispose();
     publisherController.dispose();
     barcodeController.dispose();
+    editionTitleController.dispose();
+    variantController.dispose();
+    formatController.dispose();
+    languageController.dispose();
+    countryController.dispose();
+    authorsController.dispose();
+    genresController.dispose();
+    subjectsController.dispose();
+    translatorsController.dispose();
   }
 
   List<TrailerLink> _externalLinks = const [];
@@ -66,6 +93,11 @@ class BookEditDraft extends KindEditDraft {
     final impr = emptyToNull(imprintController.text);
     final pub = emptyToNull(publisherController.text);
     final barcode = emptyToNull(barcodeController.text);
+    final editionTitle = emptyToNull(editionTitleController.text);
+    final variant = emptyToNull(variantController.text);
+    final format = emptyToNull(formatController.text);
+    final language = emptyToNull(languageController.text);
+    final country = emptyToNull(countryController.text);
 
     final updatedPublishing = meta?.publishing != null
         ? meta!.publishing!.copyWith(
@@ -84,6 +116,20 @@ class BookEditDraft extends KindEditDraft {
     final updatedMetadata = meta?.copyWith(
           publisher: pub ?? meta.publisher,
           barcode: barcode ?? meta.barcode,
+          editionTitle: editionTitle ?? meta.editionTitle,
+          variant: variant ?? meta.variant,
+          physicalFormat: format ?? meta.physicalFormat,
+          physicalFormatLabel: format ?? meta.physicalFormatLabel,
+          language: language ?? meta.language,
+          country: country ?? meta.country,
+          authors: _splitValues(authorsController.text, fallback: meta.authors),
+          genres: _splitValues(genresController.text, fallback: meta.genres),
+          subjects:
+              _splitValues(subjectsController.text, fallback: meta.subjects),
+          translators: _splitValues(
+            translatorsController.text,
+            fallback: meta.translators,
+          ),
           originalPublicationDate: parseDate(releaseDateController.text) ??
               meta.originalPublicationDate,
           publishing: updatedPublishing != null && updatedPublishing.hasData
@@ -101,6 +147,8 @@ class BookEditDraft extends KindEditDraft {
       result = result.copyWith(
         personal: result.personal!.copyWith(
           signedBy: signedBy,
+          dustJacketPresent: dustJacketPresent,
+          dustJacketCondition: dustJacketCondition,
         ),
       );
     }
@@ -116,12 +164,11 @@ KindEditDraft createBookEditDraft({
 }) {
   final ownedDetails = ownedItem?.details;
   final book = ownedDetails is BookOwnedDetails ? ownedDetails : null;
-  final comic = ownedDetails is ComicOwnedDetails ? ownedDetails : null;
   final rawMetadata = item.kindMetadata;
   final BookCatalogMetadata? metadata =
       rawMetadata is BookCatalogMetadata ? rawMetadata : null;
   return BookEditDraft(
-    signedBy: book?.signedBy ?? comic?.signedBy,
+    signedBy: book?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,
     dustJacketCondition: book?.dustJacketCondition,
     pageCountController: textControllers.create(
@@ -145,5 +192,42 @@ KindEditDraft createBookEditDraft({
     releaseYearController: textControllers.create(
       text: metadata?.originalPublicationDate?.year.toString() ?? '',
     ),
+    editionTitleController: textControllers.create(
+      text: metadata?.editionTitle ?? '',
+    ),
+    variantController: textControllers.create(
+      text: metadata?.variant ?? '',
+    ),
+    formatController: textControllers.create(
+      text: metadata?.physicalFormatLabel ?? metadata?.physicalFormat ?? '',
+    ),
+    languageController: textControllers.create(
+      text: metadata?.language ?? '',
+    ),
+    countryController: textControllers.create(
+      text: metadata?.country ?? '',
+    ),
+    authorsController: textControllers.create(
+      text: metadata?.authors.join(', ') ?? '',
+    ),
+    genresController: textControllers.create(
+      text: metadata?.genres.join(', ') ?? '',
+    ),
+    subjectsController: textControllers.create(
+      text: metadata?.subjects.join(', ') ?? '',
+    ),
+    translatorsController: textControllers.create(
+      text: metadata?.translators.join(', ') ?? '',
+    ),
   );
+}
+
+List<String> _splitValues(String value, {required List<String> fallback}) {
+  final values = value
+      .split(RegExp(r'[,\r\n]+'))
+      .map((entry) => entry.trim())
+      .where((entry) => entry.isNotEmpty)
+      .toSet()
+      .toList();
+  return values.isEmpty ? fallback : values;
 }

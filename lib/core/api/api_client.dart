@@ -247,9 +247,14 @@ class ApiClient {
 
   Future<List<Season>> getItemVolumes(
     String itemId, {
-    String? kind,
+    required String kind,
   }) async {
-    final normalizedKind = kind?.trim().toLowerCase();
+    final normalizedKind = kind.trim().toLowerCase();
+    if (normalizedKind == 'book') {
+      throw StateError(
+        'Book hierarchy must be loaded through getBookWorkDto',
+      );
+    }
     final encodedId = Uri.encodeComponent(itemId);
     if (normalizedKind == 'manga') {
       final response = await _dio.get<Map<String, dynamic>>(
@@ -260,7 +265,7 @@ class ApiClient {
     final response = await _dio.get<Map<String, dynamic>>(
       '/metadata/books/works/$encodedId',
     );
-    return _volumesFromBookRaw(response.data?['editions']);
+    return _volumesFromLegacyRaw(response.data?['editions']);
   }
 
   Future<List<Map<String, dynamic>>> getMangaChapterRows(String itemId) async {
@@ -512,7 +517,7 @@ class ApiClient {
     );
   }
 
-  List<Season> _volumesFromBookRaw(dynamic raw) {
+  List<Season> _volumesFromLegacyRaw(dynamic raw) {
     if (raw is! List) {
       return const <Season>[];
     }

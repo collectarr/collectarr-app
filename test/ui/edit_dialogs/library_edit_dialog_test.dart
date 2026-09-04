@@ -924,6 +924,7 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-book-preserve-1',
       itemId: 'book-preserve-1',
+      kind: 'book',
       quantity: 1,
       signedBy: 'Isaac Asimov',
       ownerLabel: 'Andrei',

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/book_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
 List<String> _bookReleasePersonalSections(
@@ -137,13 +138,14 @@ class BookLibraryMediaEditPresentationBuilder
               label: 'Links',
             ),
           ],
+          customTabBuilder: buildBookCustomTabView,
         );
 
   @override
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   }) {
-    return const [
+    return [
       LibraryEditTabSpec(
         id: 'main',
         icon: Icons.menu_book,
@@ -186,6 +188,12 @@ class BookLibraryMediaEditPresentationBuilder
         label: 'Links',
         sectionIds: ['book_identifiers_links'],
       ),
+      if (context.isOwned)
+        const LibraryEditTabSpec(
+          id: 'owned',
+          icon: Icons.inventory_2,
+          label: 'Owned',
+        ),
     ];
   }
 

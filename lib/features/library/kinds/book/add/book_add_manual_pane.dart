@@ -5,13 +5,14 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/book/add/book_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,129 +130,39 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
                   LibraryFormSection(
                     title: 'Identity',
                     accent: request.accent,
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: request.titleController,
-                          decoration: const InputDecoration(
-                            labelText: 'Book Title',
-                            prefixIcon: Icon(Icons.book_outlined),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        LibraryResponsiveFormRow(
-                          children: [
-                            LibraryResponsiveFormItem(
-                              flex: 2,
-                              child: TextField(
-                                controller: draft.creatorsController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Authors',
-                                  prefixIcon: Icon(Icons.person_outline),
-                                ),
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.languageController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Language',
-                                  prefixIcon: Icon(Icons.language_outlined),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: draft.synopsisController,
-                          minLines: 2,
-                          maxLines: 4,
-                          decoration: const InputDecoration(
-                            labelText: 'Synopsis / Description',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(Icons.description_outlined),
-                          ),
-                        ),
-                      ],
+                    child: TextField(
+                      controller: request.titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Book Title',
+                        prefixIcon: Icon(Icons.book_outlined),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  LibraryFormSection(
-                    title: 'Edition & Publishing',
-                    accent: request.accent,
-                    child: Column(
-                      children: [
-                        LibraryResponsiveFormRow(
-                          children: [
-                            LibraryResponsiveFormItem(
-                              child: SingleValuePickField(
-                                controller: draft.publisherController,
-                                options: _publisherOptions,
-                                label: 'Publisher',
-                                onManage: () => _manageSingleValuePickList(
-                                  listName: BookVocabularyIds.publisher.value,
-                                  label: 'Publishers',
-                                ),
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.yearController,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  labelText: 'Year',
-                                  prefixIcon:
-                                      Icon(Icons.calendar_today_outlined),
-                                ),
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              child: TextField(
-                                controller: draft.editionTitleController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Edition Title',
-                                  prefixIcon: Icon(Icons.auto_stories_outlined),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        LibraryResponsiveFormRow(
-                          children: [
-                            LibraryResponsiveFormItem(
-                              flex: 2,
-                              child: TextField(
-                                controller: draft.barcodeController,
-                                decoration: const InputDecoration(
-                                  labelText: 'ISBN / Barcode',
-                                  prefixIcon: Icon(Icons.qr_code_2),
-                                ),
-                              ),
-                            ),
-                            LibraryResponsiveFormItem(
-                              flex: 2,
-                              child: SingleValuePickField(
-                                controller: draft.physicalFormatLabelController,
-                                options: _physicalFormatOptions,
-                                label: 'Format',
-                                onChanged: (_) {},
-                                onManage: () => _manageSingleValuePickList(
-                                  listName: BookVocabularyIds.format.value,
-                                  label: 'Physical Formats',
-                                  builtInValues: [
-                                    for (final format
-                                        in _currentPhysicalFormats())
-                                      format.label,
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                  AddSchemaRenderer<BookAddManualDraft>(
+                    schema: bookAddSchemaFor(
+                      publisherOptions: _publisherOptions.isEmpty
+                          ? BookVocabularies.publisher.builtIns
+                          : _publisherOptions,
+                      formatOptions: _physicalFormatOptions.isEmpty
+                          ? BookVocabularies.format.builtIns
+                          : _physicalFormatOptions,
+                      onManagePublisher: () => _manageSingleValuePickList(
+                        listName: BookVocabularyIds.publisher.value,
+                        label: 'Publishers',
+                      ),
+                      onManageFormat: () => _manageSingleValuePickList(
+                        listName: BookVocabularyIds.format.value,
+                        label: 'Physical Formats',
+                        builtInValues: [
+                          for (final format in _currentPhysicalFormats())
+                            format.label,
+                        ],
+                      ),
                     ),
+                    draft: draft,
+                    showFooter: false,
+                    onSubmit: (_) async {},
                   ),
                 ],
               ),

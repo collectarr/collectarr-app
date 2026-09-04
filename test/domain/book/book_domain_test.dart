@@ -125,8 +125,22 @@ void main() {
           title: 'Collector Hardcover',
           isbn: '9780544003415',
           format: 'Hardcover',
+          physicalFormatLabel: 'Collector hardcover',
+          binding: 'Sewn binding',
           publisher: 'Houghton Mifflin Harcourt',
+          distributor: 'Penguin Random House',
+          description: 'A collector release.',
+          editionStatement: '50th anniversary edition',
+          ageRating: '12+',
+          contributors: const [
+            {'name': 'Alan Lee', 'role': 'illustrator'},
+          ],
+          identifiers: const [
+            {'type': 'library_of_congress', 'value': '2004052341'},
+          ],
+          upc: '9780544003415',
           pageCount: 423,
+          dimensions: '203 x 132 mm',
           firstEdition: true,
           printing: '1st',
           numberLine: '1 2 3 4 5',
@@ -136,6 +150,19 @@ void main() {
           locControlNumber: '2004052341',
           dewey: '823.912',
           boxSetName: 'The Lord of the Rings 50th Anniversary Set',
+          coverImageKey: 'cover-ed-1',
+          coverImageUrl: 'https://example.com/cover.jpg',
+          thumbnailImageUrl: 'https://example.com/thumb.jpg',
+          audioLengthMinutes: 0,
+          releaseStatus: 'published',
+          variants: const [
+            BookVariantRef(
+              id: 'variant-1',
+              name: 'Signed cover',
+              barcode: 'variant-barcode',
+              isPrimary: true,
+            ),
+          ],
         ),
         const BookEditionMetadata(
           id: 'ed-audio',
@@ -163,12 +190,79 @@ void main() {
     expect(printEdition.firstEdition, isTrue);
     expect(printEdition.locClassification, 'PR6039.O32');
     expect(printEdition.isAudiobook, isFalse);
+    expect(printEdition.physicalFormatLabel, 'Collector hardcover');
+    expect(printEdition.distributor, 'Penguin Random House');
+    expect(printEdition.editionStatement, '50th anniversary edition');
+    final contributor =
+        printEdition.contributors.single as Map<String, dynamic>;
+    final identifier = printEdition.identifiers.single as Map<String, dynamic>;
+    expect(contributor['name'], 'Alan Lee');
+    expect(identifier['value'], '2004052341');
+    expect(printEdition.upc, '9780544003415');
+    expect(printEdition.dimensions, '203 x 132 mm');
+    expect(printEdition.coverImageUrl, 'https://example.com/cover.jpg');
+    expect(printEdition.releaseStatus, 'published');
+    expect(printEdition.variants.single.isPrimary, isTrue);
 
     final audioEdition = fromJson.editions.last;
     expect(audioEdition.isAudiobook, isTrue);
     expect(audioEdition.audiobook?.narrator, 'Andy Serkis');
     expect(audioEdition.audiobook?.durationMinutes, 1320);
     expect(audioEdition.audiobook?.isAbridged, isFalse);
+  });
+
+  test('BookEditionMetadata preserves a typed release edit', () {
+    final release = BookRelease(
+      id: 'edition-1',
+      title: 'Collector edition',
+      isbn: '9780000000001',
+      upc: '000000000001',
+      physicalFormat: 'hardcover',
+      physicalFormatLabel: 'Collector hardcover',
+      binding: 'Sewn binding',
+      publisher: 'Publisher',
+      distributor: 'Distributor',
+      description: 'Description',
+      editionStatement: 'Reissue',
+      ageRating: '12+',
+      contributors: const [
+        {'name': 'Author', 'role': 'author'},
+      ],
+      identifiers: const [
+        {'type': 'oclc', 'value': '123'},
+      ],
+      imprint: 'Imprint',
+      releaseDate: DateTime(2024, 2, 3),
+      region: 'US',
+      language: 'en',
+      pageCount: 400,
+      dimensions: '203 x 132 mm',
+      firstEdition: true,
+      coverImageKey: 'cover-key',
+      coverImageUrl: 'https://example.com/cover.jpg',
+      thumbnailImageUrl: 'https://example.com/thumb.jpg',
+      audioLengthMinutes: 60,
+      releaseStatus: 'published',
+      variants: const [
+        BookVariantRef(id: 'variant-1', name: 'Signed cover'),
+      ],
+    );
+
+    final edition = BookEditionMetadata.fromRelease(release);
+
+    expect(edition.id, release.id);
+    expect(edition.title, release.title);
+    expect(edition.format, release.physicalFormat);
+    expect(edition.physicalFormatLabel, release.physicalFormatLabel);
+    expect(edition.distributor, release.distributor);
+    expect(edition.editionStatement, release.editionStatement);
+    expect(edition.contributors, release.contributors);
+    expect(edition.identifiers, release.identifiers);
+    expect(edition.upc, release.upc);
+    expect(edition.coverImageUrl, release.coverImageUrl);
+    expect(edition.audioLengthMinutes, release.audioLengthMinutes);
+    expect(edition.releaseStatus, release.releaseStatus);
+    expect(edition.variants, release.variants);
   });
 
   test('BookOwnedDetails supports dust jacket and signature copy fields', () {

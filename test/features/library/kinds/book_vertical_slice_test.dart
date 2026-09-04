@@ -192,6 +192,28 @@ void main() {
       expect(meta.editions.first.firstEdition, isTrue);
     });
 
+    test('BookLibraryKindProviderMapper rejects a non-Book envelope', () {
+      const mapper = BookLibraryKindProviderMapper();
+      final envelope = NormalizedProviderEnvelopeV1(
+        provider: 'comicvine',
+        providerItemId: 'comic-1',
+        kind: 'comic',
+        normalized: const {'title': 'Wrong kind'},
+        images: const [],
+        provenance: ProviderProvenance(fetchedAt: ''),
+        attribution: const ProviderAttribution(required: false),
+      );
+
+      expect(
+        () => mapper.metadataItemFromEnvelope(envelope),
+        throwsA(isA<StateError>()),
+      );
+      expect(
+        () => mapper.catalogFromEnvelope(envelope),
+        throwsA(isA<StateError>()),
+      );
+    });
+
     test('BookCatalog and BookEntry round-trip and preserve all kind fields',
         () {
       final catalog = BookCatalog.fromJson({

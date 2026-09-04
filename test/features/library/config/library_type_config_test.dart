@@ -18,6 +18,8 @@ import 'package:collectarr_app/features/library/config/library_toolbar_config.da
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/release/book_release_edit_dialog.dart';
 
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
@@ -295,6 +297,34 @@ void main() {
           .allows(LibraryToolbarActionId.readingQueue),
       isFalse,
     );
+  });
+
+  test('book runtime registers typed add and edit hierarchy surfaces', () {
+    expect(
+      bookKindModule.edit.mediaEditDialogBuilder,
+      same(buildBookMediaLibraryEditDialog),
+    );
+    expect(
+      bookKindModule.edit.releaseEditDialogBuilder,
+      same(buildBookReleaseLibraryEditDialog),
+    );
+    expect(bookKindModule.hierarchy.childrenTitle(2), 'Editions (2)');
+
+    const context = LibraryEditPresentationContext(
+      isOwned: true,
+      isTrackingOnly: false,
+      hasTrackingContext: false,
+      hasWishlistContext: false,
+      isDigitalFormat: false,
+      hasPhysicalFormats: true,
+      hasEditionAnchors: true,
+      hasBundleReleaseAnchors: false,
+      hasCustomFields: false,
+    );
+    final tabs = bookKindModule.edit.presentation
+        .builderForScope(LibraryEditScope.media)
+        .buildTabs(context: context);
+    expect(tabs.map((tab) => tab.id), contains('owned'));
   });
 
   test('book and boardgame runtimes own their scoped browser options', () {

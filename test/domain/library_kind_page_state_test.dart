@@ -189,8 +189,7 @@ void main() {
     ]);
   });
 
-  testWidgets('book edit dialog resolves all-scope requests to media scope',
-      (tester) async {
+  testWidgets('book edit dialog preserves all-scope requests', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: SizedBox()));
     final context = tester.element(find.byType(SizedBox));
 
@@ -213,7 +212,7 @@ void main() {
       request,
     ) as LibraryEditRenderer;
 
-    expect(dialog.scope, LibraryEditScope.media);
+    expect(dialog.scope, LibraryEditScope.all);
   });
 
   test(

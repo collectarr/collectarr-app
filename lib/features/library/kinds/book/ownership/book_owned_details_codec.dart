@@ -25,5 +25,9 @@ class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
 
   @override
   OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
-      const BookOwnedDetailsDraft();
+      BookOwnedDetailsDraft(
+        signedBy: personal.signedBy,
+        dustJacketPresent: personal.dustJacketPresent ?? false,
+        dustJacketCondition: personal.dustJacketCondition,
+      );
 }
