@@ -1534,6 +1534,14 @@ MovieOwnedEditSchema
 
 No `VideoEditDraft`.
 
+### Status (2026-09-05)
+
+Complete. Movie now exposes an independent manual `MovieAddSchema`, typed
+media/release/owned edit drafts and schemas, Movie-owned release add state, and
+validation for identity, runtime, and dates. The new edit contracts preserve
+typed Movie models and do not depend on a shared video edit draft. Focused add
+and edit schema tests pass. Continue with PR52.
+
 ---
 
 ## PR 52 — Movie providers/stats/value
