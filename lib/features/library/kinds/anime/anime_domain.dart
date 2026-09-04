@@ -10,7 +10,16 @@ export 'package:collectarr_app/features/library/kinds/anime/domain/anime_trackin
 export 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
+export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
+export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
+export 'package:collectarr_app/features/library/kinds/anime/add/anime_release_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
+export 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_draft.dart';
+export 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_schema.dart';
+export 'package:collectarr_app/features/library/kinds/anime/edit/anime_owned_edit_draft.dart';
+export 'package:collectarr_app/features/library/kinds/anime/edit/anime_owned_edit_schema.dart';
+export 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_draft.dart';
+export 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_remote_source.dart';

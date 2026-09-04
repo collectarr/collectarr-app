@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/add/video_physical_release_draft.dart';
+import 'anime_release_add_draft.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
 final class AnimeAddDraft extends LibraryAddKindDraft {
   const AnimeAddDraft({
-    this.release = const VideoPhysicalReleaseDraft(),
+    this.release = const AnimeReleaseAddDraft(),
     String? features,
     List<String>? hdrFormats,
     String? boxSetId,
@@ -23,7 +23,7 @@ final class AnimeAddDraft extends LibraryAddKindDraft {
         _packaging = packaging,
         _distributor = distributor;
 
-  final VideoPhysicalReleaseDraft release;
+  final AnimeReleaseAddDraft release;
 
   final String? _features;
   final List<String>? _hdrFormats;
