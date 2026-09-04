@@ -23,6 +23,8 @@ export 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_e
 export 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_remote_source.dart';
+export 'package:collectarr_app/features/library/kinds/anime/data/providers/anilist/anime_anilist_integration.dart';
+export 'package:collectarr_app/features/library/kinds/anime/data/providers/anilist/anime_anilist_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
