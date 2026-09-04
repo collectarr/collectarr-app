@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/generic/transferable_field.dart'
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/release/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -38,6 +38,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
 
 const _animeSeriesFilterId = LibraryAddFilterId('anime.series');
 const _animeStudioFilterId = LibraryAddFilterId('anime.studio');
@@ -112,7 +113,7 @@ Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
 
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   presentation: animeLibraryMediaPresentation,
-  trackingProfile: videoTrackingProfile,
+  trackingProfile: animeTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const AnimeWorkspaceProjector(),
@@ -150,6 +151,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   transfer: LibraryTransferCapability(
     kindFields: _animeTransferableFields,
   ),
+  stats: const AnimeStatsCapability(),
   uiPolicy: const LibraryUiPolicy(
     wideDialog: true,
   ),
