@@ -1548,6 +1548,17 @@ and edit schema tests pass. Continue with PR52.
 
 Movie provider integration owned by Movie.
 
+### Status (2026-09-05)
+
+Complete. Movie provider mapping now validates the normalized kind and keeps
+provider image fallback deterministic while decoding into Movie-owned catalog
+metadata. Movie stats no longer contain TV season-gap semantics; they expose
+typed runtime, audience-rating, genre, director, and physical-format
+aggregations. Movie value semantics are registered through
+`MovieValueCapability`, covering owned market values and optional provider
+valuations preserved by the Movie domain models. Focused provider, stats, and
+value tests pass. Continue with PR53.
+
 ---
 
 # PHASE 12 — TV

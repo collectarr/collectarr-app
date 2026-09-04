@@ -137,6 +137,15 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   final List<CatalogEditionDto> editions;
   final Map<String, dynamic> rawPayload;
 
+  /// Optional provider valuation preserved at the provider boundary.
+  ///
+  /// Movie providers do not share a common valuation contract, so the value
+  /// remains an optional typed-domain projection of the normalized payload.
+  int? get providerValueCents =>
+      _movieIntValue(rawPayload['estimated_value_cents']) ??
+      _movieIntValue(rawPayload['market_value_cents']) ??
+      _movieIntValue(rawPayload['value_cents']);
+
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,
@@ -449,6 +458,12 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
       editions: rawEditions,
     );
   }
+}
+
+int? _movieIntValue(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString().trim() ?? '');
 }
 
 @immutable

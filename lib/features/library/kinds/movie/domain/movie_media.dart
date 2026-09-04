@@ -180,6 +180,10 @@ final class MovieMedia implements LibraryKindMetadataRuntime {
   String? get thumbnailImageUrl =>
       _textValue(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
   String? get barcode => _textValue(rawPayload['barcode']);
+  int? get providerValueCents =>
+      _intValue(rawPayload['estimated_value_cents']) ??
+      _intValue(rawPayload['market_value_cents']) ??
+      _intValue(rawPayload['value_cents']);
 
   @override
   Map<String, dynamic> toSyncPayload() => toJson();

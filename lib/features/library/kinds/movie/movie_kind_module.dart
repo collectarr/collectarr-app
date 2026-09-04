@@ -40,6 +40,7 @@ import 'package:collectarr_app/features/library/generic/transferable_field.dart'
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
+import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 
@@ -196,6 +197,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     kindFields: _movieTransferableFields,
   ),
   stats: const MovieStatsCapability(),
+  value: const MovieValueCapability(),
   add: StandardLibraryAddCapability<MovieAddDraft>(
     kind: CatalogMediaKind.movie,
     dialogLauncher: showMovieLibraryAddDialog,

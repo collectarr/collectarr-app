@@ -22,6 +22,8 @@ export 'package:collectarr_app/features/library/kinds/movie/edit/movie_release_e
 export 'package:collectarr_app/features/library/kinds/movie/edit/movie_owned_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/edit/movie_owned_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
+export 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
