@@ -1710,6 +1710,14 @@ Explicit Anime schemas.
 
 Do not reuse TV schemas.
 
+### Status (2026-09-05)
+
+Complete. Anime now exposes an independent typed add schema, release-add
+draft, media/release/owned edit drafts and schemas, plus Anime-owned physical
+format, region, packaging, distributor, and HDR vocabularies. The legacy
+generic edit draft remains only as the existing dialog bridge. Focused add,
+edit, contract, and round-trip tests pass. Continue with PR61.
+
 ---
 
 ## PR 61 — Anime providers
@@ -1727,6 +1735,14 @@ kinds/anime/data/providers/anilist/
 
 Manga maintains its own separate AniList mapper.
 
+### Status (2026-09-05)
+
+Complete. Anime has a kind-owned AniList mapper for native AniList models and
+normalized envelopes, an integration facade that forces the Anime query kind,
+provider image fallback, native title/credit/relation mapping, and explicit
+wrong-kind validation. Manga keeps its existing separate mapper. Focused
+provider mapping tests pass. Continue with PR62.
+
 ---
 
 ## PR 62 — Anime tracking/hierarchy/stats
@@ -1734,6 +1750,13 @@ Manga maintains its own separate AniList mapper.
 Anime-specific semantics.
 
 No generic Video behavior.
+
+### Status (2026-09-05)
+
+Complete. Anime now owns its tracking profile and collection statistics, with
+episode totals and Anime-specific genre, studio, format, and source-material
+facets. The Anime kind module no longer uses the shared generic video tracking
+profile. Focused tracking, stats, and Anime vertical-slice tests pass.
 
 ---
 
