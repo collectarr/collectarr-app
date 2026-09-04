@@ -1388,6 +1388,15 @@ GameOwnedDetails
 
 Core Work and Release stay separate.
 
+### Status (2026-09-04)
+
+Complete. Game now has typed media and release identifiers, distinct
+`GameMedia` and `GameRelease` models, direct mapping from `GameWorkDto` and
+`GameReleaseDto`, and separate remote fetches for works and releases. The
+legacy Game catalog mapper remains available while the typed Core boundary is
+introduced. Focused mapping, remote-source, round-trip, field-adoption, and
+wrong-kind tests pass. Continue with PR42.
+
 ---
 
 ## PR 42 — Game DB/repository
