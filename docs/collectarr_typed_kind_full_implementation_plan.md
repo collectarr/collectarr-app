@@ -1686,6 +1686,10 @@ AnimeTracking
 
 Do not import TV.
 
+### Status (2026-09-05)
+
+Complete. Anime now has independent typed media, episode, release, and tracking models with typed identifiers, direct Core `AnimeSeriesDto` mapping, nested contributor/character/identifier/episode decoding, release payload mapping, wrong-kind validation, and an injectable typed remote source. Anime domain exports and Core mapper boundaries are in place, and focused mapping, remote-source, tracking round-trip, and field-adoption tests pass. Continue with PR59.
+
 ---
 
 ## PR 59 — Anime DB/repository/workspace

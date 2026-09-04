@@ -1,6 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 VideoCatalogItem animeSeriesFromDto(CatalogItemDto dto) =>
@@ -8,3 +11,6 @@ VideoCatalogItem animeSeriesFromDto(CatalogItemDto dto) =>
 
 VideoCatalogItem animeSeriesFromMetadataItem(LibraryMetadataItem item) =>
     VideoCatalogMapper.mapMetadataItemToVideo(item);
+
+AnimeMedia animeMediaFromCoreDto(AnimeSeriesDto dto) =>
+    AnimeCoreMapper.fromSeriesDto(dto);
