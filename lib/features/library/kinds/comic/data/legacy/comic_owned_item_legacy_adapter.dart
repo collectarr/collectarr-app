@@ -53,6 +53,20 @@ final class ComicOwnedItemLegacyAdapter {
     );
   }
 
+  /// Returns a typed Comic copy only when the legacy value is actually Comic.
+  ///
+  /// Generic shelf/inspector capabilities can receive entries for other kinds
+  /// while the common persistence bridge is still active, so those callers
+  /// must not turn an unrelated owned item into a Comic value.
+  static ComicOwnedItem? tryFromLegacy(OwnedItem? item) {
+    if (item == null ||
+        item.catalogRef.mediaKind != CatalogMediaKind.comic ||
+        item.details is! ComicOwnedDetails) {
+      return null;
+    }
+    return fromLegacy(item);
+  }
+
   static OwnedItem<ComicOwnedDetails> toLegacy(ComicOwnedItem item) {
     return OwnedItem<ComicOwnedDetails>(
       id: item.id.value,

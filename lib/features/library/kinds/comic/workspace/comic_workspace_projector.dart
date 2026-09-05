@@ -30,9 +30,8 @@ final class ComicWorkspaceProjector
       metadata,
       id: catalog!.identity.id,
     );
-    final ownedItem = source.ownedItem == null
-        ? null
-        : ComicOwnedItemLegacyAdapter.fromLegacy(source.ownedItem!);
+    final ownedItem =
+        ComicOwnedItemLegacyAdapter.tryFromLegacy(source.ownedItem);
     return ComicWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),

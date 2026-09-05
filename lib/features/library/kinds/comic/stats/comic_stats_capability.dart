@@ -236,7 +236,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     if (owned == null) {
       return null;
     }
-    return ComicOwnedItemLegacyAdapter.fromLegacy(owned);
+    return ComicOwnedItemLegacyAdapter.tryFromLegacy(owned);
   }
 
   static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {

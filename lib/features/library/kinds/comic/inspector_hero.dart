@@ -3,8 +3,8 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -49,13 +49,14 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 id: rawCatalog.identity.id,
               )
             : null);
-    final ownedItem = request.ownedItem;
+    final ownedItem =
+        ComicOwnedItemLegacyAdapter.tryFromLegacy(request.ownedItem);
     final surface = palette.surface;
     final border =
         palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
-    final ownedItemId = resolveLibraryOwnedItemId(item, ownedItem);
+    final ownedItemId = resolveLibraryOwnedItemId(item, request.ownedItem);
     final localFront = ownedItemId == null
         ? null
         : ref
@@ -82,7 +83,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             ? '#${adapter!.itemNumber!.trim()}'
             : null) ??
         adapter?.referenceFormatLabel ??
-        libraryOwnedReferenceLabel(ownedItem,
+        libraryOwnedReferenceLabel(request.ownedItem,
             mediaType: item.source.catalogItem?.kind) ??
         request.type.identity.singularLabel.toUpperCase();
     final seriesLabel = comic?.series?.seriesTitle?.trim().isNotEmpty == true
@@ -123,7 +124,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             : 'Not owned';
     final synopsis = comic?.plotSummary?.trim();
     final plotDescription = comic?.plotDescription?.trim();
-    final comicDetails = ownedItem?.details as ComicOwnedDetails?;
+    final comicDetails = ownedItem?.details;
     final slabLabel = librarySlabMarkerLabel(
       comicDetails?.rawOrSlabbed,
       comicDetails?.gradingCompany,

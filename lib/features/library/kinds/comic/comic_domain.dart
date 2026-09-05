@@ -44,9 +44,8 @@ final class ComicPersonalOverlay {
   });
 
   factory ComicPersonalOverlay.fromShelf(ShelfEntry source) {
-    final ownedItem = source.ownedItem == null
-        ? null
-        : ComicOwnedItemLegacyAdapter.fromLegacy(source.ownedItem!);
+    final ownedItem =
+        ComicOwnedItemLegacyAdapter.tryFromLegacy(source.ownedItem);
     return ComicPersonalOverlay(
       ownedItem: ownedItem,
       trackingEntry: source.trackingEntry,

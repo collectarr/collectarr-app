@@ -68,6 +68,6 @@ class ComicValueCapability implements LibraryValueCapability {
     if (owned == null) {
       return null;
     }
-    return ComicOwnedItemLegacyAdapter.fromLegacy(owned);
+    return ComicOwnedItemLegacyAdapter.tryFromLegacy(owned);
   }
 }
