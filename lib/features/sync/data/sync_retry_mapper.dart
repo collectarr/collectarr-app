@@ -134,7 +134,10 @@ class SyncRetryMapper {
           entityType: change.entityType,
           entityId: episode.id,
           action: episode.isDeleted ? 'delete' : 'upsert',
-          payload: episode.toSyncPayload(),
+          payload: CustomEpisodesCacheRepository(
+            db,
+            codecs: collectarrCustomEpisodeCodecs,
+          ).toSyncPayload(episode),
           clientChangedAt: changedAt,
         );
       case 'location':

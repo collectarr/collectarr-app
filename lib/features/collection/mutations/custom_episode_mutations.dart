@@ -89,7 +89,7 @@ final class CustomEpisodeMutations {
       entityType: 'custom_episode',
       entityId: episode.id,
       action: action,
-      payload: episode.toSyncPayload(),
+      payload: customEpisodes.toSyncPayload(episode),
       clientChangedAt: now,
     );
   }

@@ -61,6 +61,59 @@ final class TvCustomEpisodeCodec implements CustomEpisodeCodec {
   }
 
   @override
+  Map<String, dynamic> toSyncPayload(CustomEpisode episode) {
+    _validateKind(episode);
+    return {
+      'catalog_ref': episode.seriesRef.toJson(),
+      'season_number': episode.seasonNumber,
+      'episode_number': episode.episodeNumber,
+      'title': episode.title,
+      if (episode.overview != null) 'overview': episode.overview,
+      if (episode.airDate != null) 'air_date': episode.airDate,
+      if (episode.runtimeMinutes != null)
+        'runtime_minutes': episode.runtimeMinutes,
+      if (episode.stillImageUrl != null)
+        'still_image_url': episode.stillImageUrl,
+      if (episode.localImagePath != null)
+        'local_image_path': episode.localImagePath,
+      if (episode.thumbnailImageUrl != null)
+        'thumbnail_image_url': episode.thumbnailImageUrl,
+    };
+  }
+
+  @override
+  CustomEpisode fromSyncPayload({
+    required Map<String, dynamic> payload,
+    required String id,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  }) {
+    final seriesRef = _seriesRefFromPayload(payload);
+    if (seriesRef.kind != kind) {
+      throw ArgumentError.value(
+        seriesRef.kind,
+        'payload.catalog_ref.kind',
+        'Expected TV custom episode',
+      );
+    }
+    return CustomEpisode(
+      id: id,
+      seriesRef: seriesRef,
+      seasonNumber: _requiredInt(payload['season_number'], 'season_number'),
+      episodeNumber: _requiredInt(payload['episode_number'], 'episode_number'),
+      title: _requiredString(payload['title'], 'title'),
+      overview: payload['overview'] as String?,
+      airDate: payload['air_date'] as String?,
+      runtimeMinutes: _optionalInt(payload['runtime_minutes']),
+      stillImageUrl: payload['still_image_url'] as String?,
+      localImagePath: payload['local_image_path'] as String?,
+      thumbnailImageUrl: payload['thumbnail_image_url'] as String?,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+  }
+
+  @override
   int compare(CustomEpisode left, CustomEpisode right) {
     final item = left.itemId.compareTo(right.itemId);
     if (item != 0) return item;
@@ -93,6 +146,24 @@ final class TvCustomEpisodeCodec implements CustomEpisodeCodec {
       deletedAt: row.deletedAt,
     );
   }
+
+  void _validateKind(CustomEpisode episode) {
+    if (episode.seriesRef.kind != kind) {
+      throw ArgumentError.value(
+        episode.seriesRef.kind,
+        'episode.seriesRef.kind',
+        'Expected TV custom episode',
+      );
+    }
+  }
+
+  CatalogEntityRef _seriesRefFromPayload(Map<String, dynamic> payload) {
+    final raw = payload['catalog_ref'];
+    if (raw is! Map) {
+      throw const FormatException('TV custom episode is missing catalog_ref');
+    }
+    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
+  }
 }
 
 DateTime? _parseDate(String? value) {
@@ -101,3 +172,20 @@ DateTime? _parseDate(String? value) {
 }
 
 String? _formatDate(DateTime? value) => value?.toIso8601String();
+
+String _requiredString(Object? value, String field) {
+  if (value is String && value.isNotEmpty) return value;
+  throw FormatException('TV custom episode has invalid $field');
+}
+
+int _requiredInt(Object? value, String field) {
+  final parsed = _optionalInt(value);
+  if (parsed != null) return parsed;
+  throw FormatException('TV custom episode has invalid $field');
+}
+
+int? _optionalInt(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString().trim() ?? '');
+}

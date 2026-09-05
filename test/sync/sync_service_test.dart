@@ -7,8 +7,10 @@ import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,6 +39,10 @@ void main() {
     final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final locations = await LocationRepository(db).getAll();
+    final customEpisode = await CustomEpisodesCacheRepository(
+      db,
+      codecs: collectarrCustomEpisodeCodecs,
+    ).findById('custom-tv-1');
     expect(client.lastPullSince, since);
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
@@ -51,6 +57,9 @@ void main() {
         'https://cdn.example/absolute-thumb.jpg');
     expect(locations.map((location) => location.id), ['room']);
     expect(locations.single.name, 'Office');
+    expect(customEpisode?.seasonNumber, 2);
+    expect(customEpisode?.episodeNumber, 4);
+    expect(customEpisode?.title, 'The Missing Cut');
   });
 
   test('sync removes rejected stale changes and applies server state',
@@ -257,6 +266,26 @@ class _FakeSyncClient extends CollectarrSyncClient {
             'source_type': 'physical',
             'status': 'Completed',
             'rating': 9,
+          },
+        },
+        {
+          'entity_type': 'custom_episode',
+          'entity_id': 'custom-tv-1',
+          'action': 'upsert',
+          'source_device_id': 'desktop',
+          'client_changed_at': '2026-05-12T08:12:00.000Z',
+          'changed_at': '2026-05-12T09:00:00.000Z',
+          'payload': {
+            'catalog_ref': {
+              'kind': 'tv',
+              'entity_type': 'work',
+              'id': 'tv-series-1',
+            },
+            'season_number': 2,
+            'episode_number': 4,
+            'title': 'The Missing Cut',
+            'overview': 'A locally authored episode',
+            'runtime_minutes': 47,
           },
         },
         {

@@ -17,6 +17,17 @@ abstract interface class CustomEpisodeCodec {
 
   Future<void> upsert(LocalDatabase db, CustomEpisode episode);
 
+  /// Serializes a custom episode for the provider sync boundary.
+  Map<String, dynamic> toSyncPayload(CustomEpisode episode);
+
+  /// Reconstructs a custom episode received from the provider sync boundary.
+  CustomEpisode fromSyncPayload({
+    required Map<String, dynamic> payload,
+    required String id,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  });
+
   int compare(CustomEpisode left, CustomEpisode right);
 
   int groupKey(CustomEpisode episode);

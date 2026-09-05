@@ -75,6 +75,11 @@ class CustomEpisodesCacheRepository {
     return upsert(episode.copyWith(deletedAt: now, updatedAt: now));
   }
 
+  Map<String, dynamic> toSyncPayload(CustomEpisode episode) {
+    return _codecs[episode.seriesRef.kind]?.toSyncPayload(episode) ??
+        episode.toSyncPayload();
+  }
+
   Future<void> _upsert(CustomEpisode episode) {
     final codec = _codecs[episode.seriesRef.kind];
     if (codec == null) {
