@@ -2566,6 +2566,14 @@ introducing shared semantic fields.
 
 Same for Add schemas.
 
+### Progress (2026-09-05)
+
+Added an Add manual-pane parity contract for all nine registered kinds across
+the three Library density presets. Each case builds the real kind-owned manual
+pane through `LibraryAddCapability`, supplies an in-memory database and
+fallback media catalog, and verifies the shared Add action boundary renders;
+provider/network access is explicitly excluded from the contract.
+
 ---
 
 # PHASE 22 — Provider Final Cleanup
