@@ -1,14 +1,10 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
-import 'package:collectarr_app/features/library/kinds/anime/barcode/anime_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/barcode/boardgame_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/book/barcode/book_isbn_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/comic/barcode/comic_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/game/barcode/game_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/manga/barcode/manga_identifier_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/movie/barcode/movie_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/music/barcode/music_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/tv/barcode/tv_barcode_resolver.dart';
+import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'barcode_contract.dart';
 
 void main() {
   const retailCode = ScannedCode(
@@ -27,28 +23,68 @@ void main() {
     symbology: ScannedCodeSymbology.unknown,
   );
 
-  test('all kind retail resolvers accept valid retail codes', () {
-    final resolvers = <String? Function(ScannedCode)>[
-      const AnimeBarcodeResolver().resolve,
-      const BoardGameBarcodeResolver().resolve,
-      const ComicBarcodeResolver().resolve,
-      const GameBarcodeResolver().resolve,
-      const MovieBarcodeResolver().resolve,
-      const MusicBarcodeResolver().resolve,
-      const TvBarcodeResolver().resolve,
-    ];
+  for (final resolver in libraryBarcodeResolvers) {
+    defineBarcodeResolverContract<LibraryBarcodeResolver, ScannedCode, String>(
+      name: resolver.kind.apiValue,
+      create: () => resolver,
+      normalize: (_, code) =>
+          ScannedCode.tryFromRaw(
+            code.rawValue,
+            symbology: code.symbology,
+          ) ??
+          code,
+      isSupported: (subject, code) => subject.resolve(code) != null,
+      resolve: (subject, code) => subject.resolve(code),
+      validCode: () => isbn13,
+      unsupportedCode: () => invalidCode,
+      isValidResult: (result) => result == isbn13.value,
+    );
+  }
 
-    for (final resolve in resolvers) {
-      expect(resolve(retailCode), retailCode.value);
-      expect(resolve(invalidCode), isNull);
-    }
+  test('all kind resolvers are registered with their owning kind', () {
+    final resolversByKind = {
+      for (final resolver in libraryBarcodeResolvers) resolver.kind: resolver,
+    };
+
+    expect(
+        resolversByKind.keys,
+        containsAll([
+          CatalogMediaKind.anime,
+          CatalogMediaKind.boardgame,
+          CatalogMediaKind.book,
+          CatalogMediaKind.comic,
+          CatalogMediaKind.game,
+          CatalogMediaKind.manga,
+          CatalogMediaKind.movie,
+          CatalogMediaKind.music,
+          CatalogMediaKind.tv,
+        ]));
+    expect(resolversByKind, hasLength(9));
+    expect(
+      resolversByKind[CatalogMediaKind.book]!.resolve(retailCode),
+      isNull,
+    );
+    expect(
+      resolversByKind[CatalogMediaKind.manga]!.resolve(retailCode),
+      retailCode.value,
+    );
   });
 
-  test('Book and Manga resolvers accept valid ISBN and reject invalid data',
-      () {
-    expect(const BookIsbnResolver().resolve(isbn13), isbn13.value);
-    expect(const MangaIdentifierResolver().resolve(isbn13), isbn13.value);
-    expect(const BookIsbnResolver().resolve(retailCode), isNull);
-    expect(const MangaIdentifierResolver().resolve(invalidCode), isNull);
+  test('barcode dispatch normalizes before invoking the owning resolver', () {
+    expect(
+      resolveLibraryBarcodeForKind(
+        CatalogMediaKind.comic,
+        '012-345-678-905',
+      ),
+      retailCode.value,
+    );
+    expect(
+      resolveLibraryBarcodeForKind(CatalogMediaKind.book, isbn13.rawValue),
+      isbn13.value,
+    );
+    expect(
+      resolveLibraryBarcodeForKind(CatalogMediaKind.unknown, retailCode.value),
+      isNull,
+    );
   });
 }

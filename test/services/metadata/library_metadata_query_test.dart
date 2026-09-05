@@ -31,10 +31,10 @@ void main() {
     final result = await lookupLibraryBarcode(
       api,
       comicKindModule,
-      '7619-411',
+      '012-345-678-905',
     );
 
-    expect(api.lastBarcode, '7619-411');
+    expect(api.lastBarcode, '012345678905');
     expect(api.lastBarcodeKind, 'comic');
     expect(result.id, 'comic-1');
   });

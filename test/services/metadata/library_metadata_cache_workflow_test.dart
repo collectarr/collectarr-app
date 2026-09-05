@@ -43,7 +43,7 @@ void main() {
       api: api,
       type: comicKindModule,
       catalog: LibraryCatalogRepository(db),
-      barcodes: const ['good-code', 'missing-code'],
+      barcodes: const ['012345678905', '000000000000'],
       onResult: seen.add,
     );
     final rows = await LibraryCatalogRepository(db).findAll();
@@ -52,10 +52,10 @@ void main() {
     expect(results.first.found, isTrue);
     expect(results.last.found, isFalse);
     expect(seen.map((result) => result.barcode), [
-      'good-code',
-      'missing-code',
+      '012345678905',
+      '000000000000',
     ]);
-    expect(rows.single.id, 'comic-good-code');
+    expect(rows.single.id, 'comic-012345678905');
   });
 
   test('search input detects blank requests', () {
@@ -94,7 +94,7 @@ class _FakeMetadataWorkflowApiClient extends ApiClient {
     String barcode, {
     String? kind,
   }) async {
-    if (barcode.contains('missing')) {
+    if (barcode == '000000000000') {
       throw Exception('missing barcode');
     }
     return {

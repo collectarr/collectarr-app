@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
@@ -49,9 +49,7 @@ Future<List<CatalogItem>> searchLibraryMetadata(
       limit: limit,
     ),
   );
-  return rows
-      .map(typedCatalogItemFromMap)
-      .toList(growable: false);
+  return rows.map(typedCatalogItemFromMap).toList(growable: false);
 }
 
 Future<CatalogItem> lookupLibraryBarcode(
@@ -59,9 +57,15 @@ Future<CatalogItem> lookupLibraryBarcode(
   LibraryKindRuntime type,
   String barcode,
 ) async {
+  final resolvedBarcode = resolveLibraryBarcodeForKind(type.kind, barcode);
+  if (resolvedBarcode == null) {
+    throw FormatException(
+      'Barcode is not supported for ${type.kind.apiValue}: $barcode',
+    );
+  }
   return typedCatalogItemFromMap(
     await api.lookupBarcode(
-      barcode,
+      resolvedBarcode,
       kind: type.kind.apiValue,
     ),
   );

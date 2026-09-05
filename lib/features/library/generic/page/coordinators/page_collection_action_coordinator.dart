@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/collection_actions.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
@@ -212,7 +213,21 @@ class LibraryPageCollectionActionCoordinator {
       ),
     );
     if (scannedCode != null && _page.mounted) {
-      await _showAddDialog(barcode: scannedCode.value);
+      final barcode = resolveLibraryBarcodeForKind(
+        _page.type.kind,
+        scannedCode.value,
+      );
+      if (barcode == null) {
+        ScaffoldMessenger.of(_page.context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'This code is not supported for ${_page.type.identity.pluralLabel.toLowerCase()}.',
+            ),
+          ),
+        );
+        return;
+      }
+      await _showAddDialog(barcode: barcode);
     }
   }
 

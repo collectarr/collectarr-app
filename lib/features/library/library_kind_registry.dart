@@ -4,17 +4,28 @@ import 'package:collectarr_app/features/library/actions/import_export_actions.da
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/anime/barcode/anime_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/barcode/boardgame_barcode_resolver.dart';
+import 'package:collectarr_app/features/library/kinds/book/barcode/book_isbn_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/game/barcode/game_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/manga/barcode/manga_identifier_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/movie/barcode/movie_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/music/barcode/music_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/comic/barcode/comic_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_collection_shelf_extension.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/tv/barcode/tv_barcode_resolver.dart';
+import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter/material.dart';
@@ -91,6 +102,40 @@ LibraryCalendarContributor? libraryCalendarContributorForKind(
   CatalogMediaKind kind,
 ) {
   return _calendarContributors[kind];
+}
+
+final Map<CatalogMediaKind, LibraryBarcodeResolver> _barcodeResolvers =
+    Map.unmodifiable({
+  CatalogMediaKind.anime: const AnimeBarcodeResolver(),
+  CatalogMediaKind.boardgame: const BoardGameBarcodeResolver(),
+  CatalogMediaKind.book: const BookIsbnResolver(),
+  CatalogMediaKind.comic: const ComicBarcodeResolver(),
+  CatalogMediaKind.game: const GameBarcodeResolver(),
+  CatalogMediaKind.manga: const MangaIdentifierResolver(),
+  CatalogMediaKind.movie: const MovieBarcodeResolver(),
+  CatalogMediaKind.music: const MusicBarcodeResolver(),
+  CatalogMediaKind.tv: const TvBarcodeResolver(),
+});
+
+Iterable<LibraryBarcodeResolver> get libraryBarcodeResolvers =>
+    _barcodeResolvers.values;
+
+LibraryBarcodeResolver? libraryBarcodeResolverForKind(CatalogMediaKind kind) =>
+    _barcodeResolvers[kind];
+
+/// Resolves a raw scanner/manual value through the owning kind.
+///
+/// The returned value is still only the identifier accepted by the boundary;
+/// generic callers do not inspect or infer its domain meaning.
+String? resolveLibraryBarcodeForKind(
+  CatalogMediaKind kind,
+  String rawValue,
+) {
+  final code = ScannedCode.tryFromRaw(rawValue);
+  if (code == null) {
+    return null;
+  }
+  return libraryBarcodeResolverForKind(kind)?.resolve(code);
 }
 
 /// Returns the kind-owned semantic CSV contribution for a serialization

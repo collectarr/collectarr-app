@@ -674,7 +674,7 @@ class LibraryAddSessionController
   }
 
   Future<void> lookupBarcode({String? barcode}) async {
-    final code = barcode?.trim().isNotEmpty == true
+    var code = barcode?.trim().isNotEmpty == true
         ? barcode!.trim()
         : state.search.barcode.trim();
     if (code.isEmpty) {
@@ -685,6 +685,20 @@ class LibraryAddSessionController
       );
       return;
     }
+
+    final resolvedBarcode = resolveLibraryBarcodeForKind(type.kind, code);
+    if (resolvedBarcode == null) {
+      state = state.copyWith(
+        mode: LibraryAddDialogMode.barcode,
+        search: state.search.copyWith(
+          barcode: code,
+          error:
+              'This code is not supported for ${type.identity.pluralLabel.toLowerCase()}.',
+        ),
+      );
+      return;
+    }
+    code = resolvedBarcode;
 
     final searchGeneration = state.search.coreSearchGeneration + 1;
     state = state.copyWith(
