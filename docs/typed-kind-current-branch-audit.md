@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `d804ef0e` (`refactor(pick-lists): move vocabulary contracts to canonical layer`)
+HEAD: `8b1a8204` (`feat(pick-lists): register kind vocabulary contributors explicitly`)
 
 ## Scope and evidence
 
@@ -94,7 +94,7 @@ Status meanings:
 | 62 | Kind-owned identifier resolvers | **PARTIAL** | All 9 applicable kinds now own resolver classes and Book/Manga validate ISBN checksums; provider/catalog lookup dispatch is still routed through generic compatibility services. |
 | 63 | Loans use `OwnedItemRef` | **PARTIAL** | Loan records now persist `owned_kind`, expose `OwnedItemRef`, and new Loan/inspector/bulk flows write it; legacy string ID compatibility and generic owned loading remain. |
 | 64 | Collapse duplicate pick-list infrastructure | **DONE** | Repository, options, editor, vocabulary contracts, and vocabulary repository now live under `features/pick_lists`; old Collection paths are export-only compatibility shims, and production imports use the canonical namespace. |
-| 65 | All concrete vocabularies stay kind-owned | **PARTIAL** | All kind-specific vocabulary definitions remain under their owning kind; universal condition/grade/owner-style definitions are still a transitional global surface and the registry still needs explicit contributor dispatch. |
+| 65 | All concrete vocabularies stay kind-owned | **PARTIAL** | All kind-specific vocabulary definitions remain under their owning kind and now enter the generic host through explicit contributors; universal condition/grade/owner-style definitions are still a transitional global surface. |
 | 66 | Separate personal imports from metadata imports | **PARTIAL** | Provider personal sync and import orchestration have typed pieces, while metadata import semantics still cross generic feature boundaries. |
 | 67 | Generic import infrastructure becomes orchestration-only | **PARTIAL** | Provider personal sync and import orchestration have typed pieces, while metadata import semantics still cross generic feature boundaries. |
 | 68 | Activity as projected events | **PARTIAL** | Projected activity/admin/settings infrastructure exists, but feature-specific semantic contributors are not fully separated. |
@@ -171,10 +171,11 @@ Status meanings:
 
 ## PR0 conclusion
 
-PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 added the structural action, import/export, and generic menu contracts. The owned read projections are now explicit as well; existing common Owned persistence/UI remains a compatibility bridge. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
+PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 added the structural action, import/export, and generic menu contracts. PR16 and PR63 made the owned read projections and loan references explicit. PR64 consolidated the generic pick-list/vocabulary infrastructure, and PR65 now uses explicit kind-owned vocabulary contributors; universal Owned vocabularies and the broader common Owned persistence/UI remain compatibility bridges. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
 
 ## Recommended next PR
 
 Current branch recommendation: `PR65 - Replace global semantic vocabulary definitions with explicit kind-owned contributors`.
+Next active implementation: `PR14 - Remove canonical common Owned domain` in incremental kind-owned slices.
 
 `PR11 — Migrate existing kind toolbar descriptors to typed action registries`, while shrinking the PR1 baseline in parallel with each migration.
