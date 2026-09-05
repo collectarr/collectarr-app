@@ -70,7 +70,7 @@ void main() {
     expect(dto.title, 'The Last Ronin');
     expect(dto.itemNumber, '1');
     expect(dto.publisher, 'IDW Publishing');
-    expect(dto.comic.publishing.imprint, 'IDW');
+    expect(dto.comic.publishing?.imprint, 'IDW');
   });
 
   test('ComicKindSchema exposes complete ComicOwnedDetails surface', () {

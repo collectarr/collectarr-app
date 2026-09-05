@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
@@ -69,16 +68,12 @@ ComicWorkspaceDto _createWorkspace() {
       publisher: 'Image Comics',
     ),
     personal: PersonalCopyProjection(),
-    comic: const ComicCatalogItem(
-      id: 'comic-1',
-      work: ComicWorkMetadata(
-        title: 'Saga',
-        characters: ['Alana', 'Marko'],
-        storyArcs: ['The Beginning'],
-        genres: ['Science Fiction'],
-      ),
-      publishing: ComicPublishingMetadata(publisher: 'Image Comics'),
-      releases: [],
+    comic: const ComicMedia(
+      title: 'Saga',
+      characters: ['Alana', 'Marko'],
+      storyArcs: ['The Beginning'],
+      genres: ['Science Fiction'],
+      publisher: 'Image Comics',
     ),
     metadata: const ComicMedia(
       title: 'Saga',

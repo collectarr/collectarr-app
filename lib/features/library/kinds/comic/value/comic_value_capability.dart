@@ -51,7 +51,7 @@ class ComicValueCapability implements LibraryValueCapability {
   int? resolveProviderValueCents(LibraryProjectionRuntime item) {
     if (item.dto case ComicWorkspaceDto dto) {
       return dto.metadata?.publishing?.coverPriceCents ??
-          dto.comic.publishing.coverPriceCents;
+          dto.comic.publishing?.coverPriceCents;
     }
     final catalog = item.source.catalogItem;
     final metadata = catalog?.kindMetadata;

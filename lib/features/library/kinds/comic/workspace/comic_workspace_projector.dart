@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -26,16 +25,12 @@ final class ComicWorkspaceProjector
     } else {
       throw StateError('Expected ComicCatalogMetadata for comic workspace');
     }
-    final comic = ComicCatalogMapper.mapMetadataToComic(
-      metadata,
-      id: catalog!.identity.id,
-    );
     final ownedItem =
         ComicOwnedItemLegacyAdapter.tryFromLegacy(source.ownedItem);
     return ComicWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
-      comic: comic,
+      comic: metadata,
       ownedItem: ownedItem,
       metadata: metadata,
     );
