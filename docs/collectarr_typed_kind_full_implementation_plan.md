@@ -2457,6 +2457,16 @@ Remove arbitrary Library `fontSize:` usages except explicit design-system except
 
 Use semantic roles.
 
+### Progress (2026-09-05)
+
+`LibraryTextTheme` now exposes semantic roles for dialog titles, detail titles,
+body/result text, metadata, captions, micro labels, and legacy chrome
+fallbacks. All hardcoded `fontSize:` usages were removed from the shared
+Library UI primitives, Add chrome, and Library detail surfaces; their original
+sizes remain centralized in the text-theme extension. Existing workspace and
+inspector-specific typography remains outside this pass as an explicit
+follow-up surface.
+
 ---
 
 ## PR 88 — Shared result table renderer

@@ -64,6 +64,7 @@ class _ActivityTimelineSectionState
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     final ownedItems = ref.watch(collectionProvider).maybeWhen(
           data: (items) =>
               items.where((i) => i.itemId == widget.itemId).toList(),
@@ -100,18 +101,19 @@ class _ActivityTimelineSectionState
           children: [
             Text(
               'Activity',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: widget.accent,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                  ),
+              style: theme.textTheme.libraryBody.copyWith(
+                color: widget.accent,
+                fontWeight: FontWeight.w900,
+              ),
             ),
             if (events.isEmpty)
               Padding(
                 padding: EdgeInsets.only(top: 8),
                 child: Text(
                   'No activity recorded yet.',
-                  style: TextStyle(color: palette.textMuted, fontSize: 12),
+                  style: theme.textTheme.libraryMeta.copyWith(
+                    color: palette.textMuted,
+                  ),
                 ),
               )
             else ...[
@@ -169,6 +171,7 @@ class _ActivityEventTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,36 +211,32 @@ class _ActivityEventTile extends StatelessWidget {
                 children: [
                   Text(
                     event.label,
-                    style: TextStyle(
+                    style: theme.textTheme.libraryBody.copyWith(
                       color: palette.textPrimary,
-                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${_fmtDate(event.timestamp)} · ${_fmtTime(event.timestamp)}',
-                    style: TextStyle(
+                    style: theme.textTheme.libraryCaption.copyWith(
                       color: palette.textMuted,
-                      fontSize: 11,
                     ),
                   ),
                   if (event.detail != null) ...[
                     const SizedBox(height: 2),
                     Text(
                       event.detail!,
-                      style: TextStyle(
+                      style: theme.textTheme.libraryMeta.copyWith(
                         color: accent.withValues(alpha: 0.8),
-                        fontSize: 12,
                       ),
                     ),
                   ],
                   if (event.secondaryDetail != null)
                     Text(
                       event.secondaryDetail!,
-                      style: TextStyle(
+                      style: theme.textTheme.libraryCaption.copyWith(
                         color: palette.textMuted,
-                        fontSize: 11,
                       ),
                     ),
                   if (event.rating != null)

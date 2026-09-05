@@ -72,6 +72,7 @@ class _LinkGroupSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     return LibraryDetailSection(
       title: title,
       accentColor: accent,
@@ -111,9 +112,8 @@ class _LinkGroupSection extends StatelessWidget {
                             link.url,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: theme.textTheme.libraryCaption.copyWith(
                               color: palette.textMuted,
-                              fontSize: 11,
                             ),
                           ),
                         ],
@@ -122,7 +122,9 @@ class _LinkGroupSection extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       link.kind,
-                      style: TextStyle(color: palette.textMuted, fontSize: 11),
+                      style: theme.textTheme.libraryCaption.copyWith(
+                        color: palette.textMuted,
+                      ),
                     ),
                   ],
                 ),

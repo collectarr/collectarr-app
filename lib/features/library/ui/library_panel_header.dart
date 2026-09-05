@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
+import 'package:collectarr_app/ui/theme/library_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class LibraryPanelHeader extends StatelessWidget {
@@ -84,11 +85,7 @@ class LibraryPanelHeader extends StatelessWidget {
                 color: fg,
                 fontWeight: FontWeight.w800,
               ) ??
-              TextStyle(
-                color: fg,
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-              ),
+              theme.textTheme.libraryChromeTitle.copyWith(color: fg),
           child: Row(
             children: [
               if (leading != null) ...[
@@ -137,22 +134,20 @@ class LibraryPanelHeader extends StatelessWidget {
           [titleText, if (countText != null) countText].join(' '),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: foregroundColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-          ),
+          style: Theme.of(context).textTheme.libraryChromeTitle.copyWith(
+                color: foregroundColor,
+                fontWeight: FontWeight.w800,
+              ),
         ),
         if (subtitleText != null && subtitleText.isNotEmpty)
           Text(
             subtitleText,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: foregroundColor.withValues(alpha: 0.82),
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(context).textTheme.libraryHeaderSubtitle.copyWith(
+                  color: foregroundColor.withValues(alpha: 0.82),
+                  fontWeight: FontWeight.w600,
+                ),
           ),
       ],
     );

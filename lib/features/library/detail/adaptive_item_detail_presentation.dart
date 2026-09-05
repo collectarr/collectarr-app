@@ -41,8 +41,10 @@ Future<void> showAdaptiveItemDetail({
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: Theme.of(pageContext)
+                    .textTheme
+                    .libraryDetailTitle
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -100,10 +102,10 @@ Future<void> showAdaptiveItemDetail({
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: Theme.of(sheetContext)
+                            .textTheme
+                            .libraryDetailTitle
+                            .copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
                     IconButton(

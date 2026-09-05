@@ -35,10 +35,9 @@ class LibraryExternalLinksSection extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              style: Theme.of(context).textTheme.libraryBody.copyWith(
                     color: accent,
                     fontWeight: FontWeight.w900,
-                    fontSize: 13,
                   ),
             ),
             const SizedBox(height: 8),
@@ -88,7 +87,9 @@ class _LinkRow extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               Uri.tryParse(link.url)?.host ?? '',
-              style: TextStyle(color: palette.textMuted, fontSize: 11),
+              style: Theme.of(context).textTheme.libraryCaption.copyWith(
+                    color: palette.textMuted,
+                  ),
             ),
           ],
         ),

@@ -56,6 +56,7 @@ class _TrailerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     final isYouTube =
         trailer.url.contains('youtube.com') || trailer.url.contains('youtu.be');
     return Padding(
@@ -79,17 +80,15 @@ class _TrailerTile extends StatelessWidget {
                   children: [
                     Text(
                       trailer.title ?? 'Trailer',
-                      style: const TextStyle(
+                      style: theme.textTheme.libraryBody.copyWith(
                         fontWeight: FontWeight.w700,
-                        fontSize: 13,
                       ),
                     ),
                     if (trailer.source != null)
                       Text(
                         trailer.source!,
-                        style: TextStyle(
+                        style: theme.textTheme.libraryCaption.copyWith(
                           color: palette.textMuted,
-                          fontSize: 11,
                         ),
                       ),
                   ],

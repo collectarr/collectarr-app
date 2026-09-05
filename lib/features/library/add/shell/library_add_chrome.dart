@@ -48,11 +48,9 @@ Widget buildLibraryAddHeader(
           Expanded(
             child: Text(
               title ?? 'Add ${request.type.identity.pluralLabel}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-              ),
+              style: Theme.of(context).textTheme.libraryDialogTitle.copyWith(
+                    color: Colors.white,
+                  ),
             ),
           ),
           LibrarySquareCloseButton(

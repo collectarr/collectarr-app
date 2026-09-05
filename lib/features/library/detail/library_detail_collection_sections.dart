@@ -334,11 +334,10 @@ class _DetailStarRating extends StatelessWidget {
       children: [
         Text(
           'Rating  ',
-          style: TextStyle(
-            color: appPalette(context).textMuted,
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-          ),
+          style: Theme.of(context).textTheme.libraryMeta.copyWith(
+                color: appPalette(context).textMuted,
+                fontWeight: FontWeight.w800,
+              ),
         ),
         for (var i = 0; i < starCount; i++)
           Icon(
@@ -349,11 +348,10 @@ class _DetailStarRating extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           '$rating/$maxRating',
-          style: TextStyle(
-            color: appPalette(context).textMuted,
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-          ),
+          style: Theme.of(context).textTheme.libraryMeta.copyWith(
+                color: appPalette(context).textMuted,
+                fontWeight: FontWeight.w700,
+              ),
         ),
       ],
     );
