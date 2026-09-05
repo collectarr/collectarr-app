@@ -1,26 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_derived_data_service.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_repository.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/remote/boardgame_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/remote/book_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/remote/game_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_catalog_repository_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 
 /// Reads and writes the kind-owned catalog graphs.
@@ -29,9 +12,16 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_l
 /// [CatalogItem] projection. No catalog payload is stored by this class; the
 /// typed kind repositories own the durable representation.
 final class LibraryCatalogRepository {
-  const LibraryCatalogRepository(this._db);
+  LibraryCatalogRepository(
+    this._db, {
+    Iterable<CatalogKindRepositoryCodec> codecs =
+        collectarrCatalogRepositoryCodecs,
+  }) : _codecs = {
+          for (final codec in codecs) codec.kind: codec,
+        };
 
   final LocalDatabase _db;
+  final Map<String, CatalogKindRepositoryCodec> _codecs;
 
   Future<void> upsertMetadataItems(List<CatalogItem> items) => upsertAll(items);
 
@@ -125,106 +115,15 @@ final class LibraryCatalogRepository {
   }
 
   Future<void> _upsertItem(CatalogItem item) async {
-    final payload = {
-      'id': item.id,
-      'kind': item.kind,
-      ...item.toSyncPayload(),
-    };
-    switch (item.mediaKind) {
-      case CatalogMediaKind.comic:
-        await ComicRepository(_db).updateMedia(
-          ComicCoreMapper.fromWorkDto(ComicWorkDto.fromJson(payload)),
-        );
-      case CatalogMediaKind.manga:
-        await MangaRepository(_db).updateMedia(
-          MangaCoreMapper.fromWorkDto(MangaWorkDto.fromJson(payload)),
-        );
-      case CatalogMediaKind.book:
-        await BookRepository(_db).updateMedia(
-          BookCoreMapper.fromWorkDto(BookWorkDto.fromJson(payload)),
-        );
-      case CatalogMediaKind.game:
-        await GameRepository(_db).updateMedia(
-          GameCoreMapper.fromWorkDto(GameWorkDto.fromJson(payload)),
-        );
-      case CatalogMediaKind.boardgame:
-        await BoardGameRepository(_db).updateMedia(
-          BoardGameCoreMapper.fromWorkDto(BoardGameWorkDto.fromJson(payload)),
-        );
-      case CatalogMediaKind.movie:
-        await MovieRepository(_db).updateMedia(
-          MovieCoreMapper.fromWorkDto(MovieWorkDto.fromJson(payload)),
-        );
-      case CatalogMediaKind.tv:
-        await TvRepository(_db).updateSeries(
-          TvCoreMapper.fromSeriesDto(TvSeriesDto.fromJson(payload)),
-        );
-      case CatalogMediaKind.anime:
-        await AnimeRepository(_db).updateMedia(
-          AnimeCoreMapper.fromSeriesDto(AnimeSeriesDto.fromJson(payload)),
-        );
-      case CatalogMediaKind.music:
-        await MusicRepository(_db).updateRelease(
-          MusicCoreMapper.fromReleaseDto(MusicReleaseDto.fromJson(payload)),
-        );
-      case CatalogMediaKind.unknown:
-        break;
-    }
+    await _codecs[item.kind.trim().toLowerCase()]?.upsert(_db, item);
   }
 
   Future<List<CatalogItem>> _allItems() async {
     final result = <CatalogItem>[];
-
-    for (final media in await ComicRepository(_db).search()) {
-      result.add(
-          _fromDomain('comic', media.id?.value, media.title, media.rawPayload));
-    }
-    for (final media in await MangaRepository(_db).search()) {
-      result.add(_fromDomain('manga', media.id, media.title, media.rawPayload));
-    }
-    for (final media in await BookRepository(_db).search()) {
-      result.add(
-          _fromDomain('book', media.id.value, media.title, media.rawPayload));
-    }
-    for (final media in await GameRepository(_db).search()) {
-      result.add(
-          _fromDomain('game', media.id.value, media.title, media.rawPayload));
-    }
-    for (final media in await BoardGameRepository(_db).search()) {
-      result.add(_fromDomain(
-          'boardgame', media.id.value, media.title, media.rawPayload));
-    }
-    for (final media in await MovieRepository(_db).search()) {
-      result.add(
-          _fromDomain('movie', media.id.value, media.title, media.rawPayload));
-    }
-    for (final media in await TvRepository(_db).search()) {
-      result.add(_fromDomain('tv', media.id, media.title, media.rawPayload));
-    }
-    for (final media in await AnimeRepository(_db).search()) {
-      result.add(
-          _fromDomain('anime', media.id.value, media.title, media.rawPayload));
-    }
-    for (final release in await MusicRepository(_db).search()) {
-      result.add(_fromDomain(
-          'music', release.id.value, release.title, release.rawPayload));
+    for (final codec in _codecs.values) {
+      result.addAll(await codec.list(_db));
     }
     return result;
-  }
-
-  CatalogItem _fromDomain(
-    String kind,
-    String? id,
-    String title,
-    Object? rawPayload,
-  ) {
-    final payload = rawPayload is Map
-        ? Map<String, dynamic>.from(rawPayload)
-        : <String, dynamic>{};
-    payload['id'] ??= id ?? '';
-    payload['kind'] ??= kind;
-    payload['title'] ??= title;
-    return typedCatalogItemFromMap(payload);
   }
 
   static String _compactBarcode(String value) {
