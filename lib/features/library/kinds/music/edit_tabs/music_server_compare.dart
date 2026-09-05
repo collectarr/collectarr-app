@@ -11,8 +11,8 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
     });
     try {
       final api = ref.read(apiClientProvider);
-      final snapshot =
-          musicReleaseFromDto(await api.getMusicReleaseDto(_item.id));
+      final snapshot = MusicCoreMapper.fromReleaseDto(
+          await api.getMusicReleaseDto(_item.id));
       if (!mounted) {
         return;
       }

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/music_legacy_mapper.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
@@ -48,7 +47,7 @@ void main() {
       ],
     });
 
-    final release = musicReleaseFromDto(dto);
+    final release = MusicCoreMapper.fromReleaseDto(dto);
 
     expect(release.title, 'The Wall');
     expect(release.artist, 'Pink Floyd');
