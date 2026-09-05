@@ -28,7 +28,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
-export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 
@@ -72,7 +72,7 @@ class LibraryEditDraft {
   final CommonMetadataDraft metadata;
   final PersonalStateDraft personal;
   final TrackingDraft tracking;
-  final KindEditDraft kindDetails;
+  final LibraryEditKindDraft kindDetails;
 
   Map<String, String?> customFieldEdits;
   List<ItemImageEdit> itemImageEdits;

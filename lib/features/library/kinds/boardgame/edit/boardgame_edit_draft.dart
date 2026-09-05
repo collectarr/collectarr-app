@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/models/library_kind_metadata_val
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
-class BoardGameEditDraft extends KindEditDraft {
+class BoardGameEditDraft extends LibraryEditKindDraft {
   BoardGameEditDraft({
     this.editionLanguage,
     this.editionRegion,
@@ -331,7 +331,7 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
   return cleaned;
 }
 
-KindEditDraft createBoardGameEditDraft({
+LibraryEditKindDraft createBoardGameEditDraft({
   required CatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,

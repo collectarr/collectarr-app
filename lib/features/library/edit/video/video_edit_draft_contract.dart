@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:flutter/material.dart';
 
-abstract class VideoKindEditDraft implements KindEditDraft {
+abstract class VideoEditDraftContract implements LibraryEditKindDraft {
   TextEditingController get audioTracksController;
   TextEditingController get subtitlesController;
   TextEditingController get layersController;

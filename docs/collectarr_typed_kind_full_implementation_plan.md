@@ -2341,6 +2341,16 @@ GameEditDraft in generic folder
 ...
 ```
 
+### Progress (2026-09-05)
+
+The old `KindEditDraft` name and its Generic implementation have been
+removed from the central draft folder. The lifecycle contract is now named
+`LibraryEditKindDraft` under `edit/contracts`, the Generic draft/factory live
+under the Generic kind, and the video capability contract lives beside the
+video Edit infrastructure. Every registered kind now supplies `createDraft`
+explicitly; the remaining lifecycle contract is intentionally kept as the
+typed registry boundary until the final capability-callback split.
+
 Every draft lives in owner kind.
 
 ---

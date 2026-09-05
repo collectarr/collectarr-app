@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -10,7 +10,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:flutter/material.dart';
 
-class BookEditDraft extends KindEditDraft {
+class BookEditDraft extends LibraryEditKindDraft {
   BookEditDraft({
     this.signedBy,
     this.dustJacketPresent = false,
@@ -156,7 +156,7 @@ class BookEditDraft extends KindEditDraft {
   }
 }
 
-KindEditDraft createBookEditDraft({
+LibraryEditKindDraft createBookEditDraft({
   required CatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,

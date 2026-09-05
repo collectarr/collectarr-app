@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -15,7 +16,7 @@ export 'package:collectarr_app/features/library/config/library_chrome_config.dar
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 
-typedef KindEditDraftFactory = KindEditDraft Function({
+typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required CatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
@@ -36,7 +37,7 @@ class LibraryEditCapability {
     this.grades = const [],
     this.defaultCondition,
     this.defaultGrade,
-    this.createDraft = createGenericEditDraft,
+    required this.createDraft,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -49,18 +50,18 @@ class LibraryEditCapability {
   final List<String> grades;
   final String? defaultCondition;
   final String? defaultGrade;
-  final KindEditDraftFactory createDraft;
+  final LibraryEditKindDraftFactory createDraft;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
 
-  OwnedDetailsDraft buildDetailsDraft(KindEditDraft kindDraft) =>
+  OwnedDetailsDraft buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
       kindDraft.toDetailsDraft();
 
   UpdateOwnedItemCommand buildUpdateCommand({
     required LibraryEditDraft session,
     required String ownedItemId,
-    required KindEditDraft kindDraft,
+    required LibraryEditKindDraft kindDraft,
   }) {
     final personal = session.personal;
     final tracking = session.tracking;

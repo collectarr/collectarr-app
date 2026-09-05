@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
-class MangaEditDraft extends KindEditDraft {
+class MangaEditDraft extends LibraryEditKindDraft {
   MangaEditDraft({
     this.rawOrSlabbed,
     this.signedBy,
@@ -212,7 +212,7 @@ class MangaEditDraft extends KindEditDraft {
   }
 }
 
-KindEditDraft createMangaEditDraft({
+LibraryEditKindDraft createMangaEditDraft({
   required CatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,

@@ -52,7 +52,7 @@ export 'package:collectarr_app/features/library/config/library_stats_capability.
 export 'package:collectarr_app/features/library/config/library_value_capability.dart';
 export 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 export 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
-export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 typedef CatalogMetadataDecoder = Object? Function(
@@ -745,8 +745,7 @@ class LibraryKindToolbarModule {
 }
 
 abstract interface class LibraryKindProviderMapper {
-  CatalogItem metadataItemFromEnvelope(
-      NormalizedProviderEnvelopeV1 envelope);
+  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope);
 
   Map<String, Object?> buildCorrections({
     required CatalogItem preview,

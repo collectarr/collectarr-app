@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/edit/draft/video_kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_release_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_disc_map_tab.dart';
@@ -24,8 +24,8 @@ Widget? buildVideoCustomTabView({
   required CatalogItem item,
   required VoidCallback markDirty,
 }) {
-  final videoEdit = (draft.kindDetails is VideoKindEditDraft)
-      ? (draft.kindDetails as VideoKindEditDraft).videoEdit
+  final videoEdit = (draft.kindDetails is VideoEditDraftContract)
+      ? (draft.kindDetails as VideoEditDraftContract).videoEdit
       : VideoEditController(item: item);
 
   return switch (tabId) {

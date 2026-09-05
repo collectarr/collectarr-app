@@ -431,6 +431,7 @@ class ComicFeature {}
       ),
       edit: LibraryEditCapability(
         presentation: genericKindModule.edit.presentation,
+        createDraft: genericKindModule.edit.createDraft,
       ),
       buildCardPresentation: (item, {required musicVertical}) =>
           const LibraryCardPresentation(),

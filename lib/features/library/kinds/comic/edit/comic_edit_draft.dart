@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 
 import 'comic_edit_controller.dart';
 
-class ComicEditDraft extends KindEditDraft {
+class ComicEditDraft extends LibraryEditKindDraft {
   ComicEditDraft({
     required this.rawOrSlabbedController,
     required this.gradingCompanyController,
@@ -84,7 +84,7 @@ class ComicEditDraft extends KindEditDraft {
   }
 }
 
-KindEditDraft createComicEditDraft({
+LibraryEditKindDraft createComicEditDraft({
   required CatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,

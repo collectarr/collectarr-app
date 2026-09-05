@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/edit/draft/video_kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_draft_contract.dart';
 import 'package:flutter/material.dart';
 
 class VideoEditEditionTab extends StatelessWidget {
@@ -19,8 +19,8 @@ class VideoEditEditionTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final videoEdit = (draft.kindDetails is VideoKindEditDraft)
-        ? (draft.kindDetails as VideoKindEditDraft).videoEdit
+    final videoEdit = (draft.kindDetails is VideoEditDraftContract)
+        ? (draft.kindDetails as VideoEditDraftContract).videoEdit
         : null;
 
     final editionTitleController =

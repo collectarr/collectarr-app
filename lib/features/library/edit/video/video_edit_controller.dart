@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
-import 'package:collectarr_app/features/library/edit/draft/video_kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_draft_contract.dart';
 
 class VideoEditController {
   VideoEditController({
@@ -260,9 +260,9 @@ class VideoEditController {
   List<TvReleaseMedia> tvReleaseMediaDraft = const <TvReleaseMedia>[];
   Map<String, int> tvEpisodeDiscAssignments = <String, int>{};
 
-  VideoKindEditDraft? get _videoDraft =>
-      draft?.kindDetails is VideoKindEditDraft
-          ? draft!.kindDetails as VideoKindEditDraft
+  VideoEditDraftContract? get _videoDraft =>
+      draft?.kindDetails is VideoEditDraftContract
+          ? draft!.kindDetails as VideoEditDraftContract
           : null;
   static final _dummyController = TextEditingController();
 
