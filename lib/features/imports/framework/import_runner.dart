@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
-import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 
@@ -35,21 +34,23 @@ typedef ImportApplier = Future<ImportRowOutcome> Function(
   ImportRunConfig config,
 );
 
-/// Provider-agnostic import pipeline backed by [ExternalStateEngine].
+/// Provider-agnostic import pipeline.
+///
+/// Matching, conflict detection, and mutation are supplied by the caller.
+/// This class only coordinates row processing and aggregates outcomes; it does
+/// not know catalog metadata, kind fields, or persistence details.
 class ImportRunner {
   const ImportRunner({
     required this.matcher,
     required this.applier,
     this.conflictDetector,
     this.unmatchedHandler,
-    this.engine = const ExternalStateEngine(),
   });
 
   final ImportMatcher matcher;
   final ImportApplier applier;
   final ImportConflictDetector? conflictDetector;
   final ImportUnmatchedHandler? unmatchedHandler;
-  final ExternalStateEngine engine;
 
   Future<ImportResult> runSource(
     ImportSource source,

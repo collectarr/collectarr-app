@@ -8,6 +8,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/imports/framework/import_models.dart';
+import 'package:collectarr_app/features/imports/framework/import_runner.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -381,93 +383,134 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final api = ref.read(apiClientProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
     final trackingMutations = ref.read(trackingMutationsProvider);
-    final matches = <_GenericImportMatch>[];
-
-    for (final entry in entries) {
-      final type = _resolvedTypeForEntry(entry);
-      if (type == null) {
-        matches.add(_GenericImportMatch(entry: entry, catalogItem: null));
-        continue;
-      }
-      final year = entry.startedAt?.year ?? entry.completedAt?.year;
-      final candidates = await searchLibraryMetadata(
-        api,
-        type,
-        query: entry.title ?? '',
-        year: year,
-        limit: 10,
-      );
-      matches.add(
-        _GenericImportMatch(
-          entry: entry,
-          catalogItem: _bestImportMatch(entry, candidates),
-        ),
-      );
-    }
-
-    final matchedCount =
-        matches.where((match) => match.catalogItem != null).length;
-    final unmatchedCount = matches.length - matchedCount;
     _updateJob(
       jobId,
       (j) => j.copyWith(
-        phase: ImportJobPhase.importing,
-        total: matches.length,
-        matched: matchedCount,
-        unmatched: unmatchedCount,
+        phase: ImportJobPhase.matching,
+        total: entries.length,
+        matched: 0,
+        unmatched: 0,
         processed: 0,
       ),
     );
 
+    final matchedItems = <String, CatalogItem>{};
+    var matchedCount = 0;
+    var unmatchedCount = 0;
     var importedCount = 0;
     var keptLocalCount = 0;
     var skippedCount = 0;
 
-    for (final match in matches) {
-      final item = match.catalogItem;
-      if (item != null) {
+    final runner = ImportRunner(
+      matcher: (entry) async {
+        final type = _resolvedTypeForEntry(entry);
+        CatalogItem? item;
+        if (type != null) {
+          final year = entry.startedAt?.year ?? entry.completedAt?.year;
+          final candidates = await searchLibraryMetadata(
+            api,
+            type,
+            query: entry.title ?? '',
+            year: year,
+            limit: 10,
+          );
+          item = _bestImportMatch(entry, candidates);
+        }
+
+        if (item == null) {
+          unmatchedCount++;
+          _updateJob(
+            jobId,
+            (j) => j.copyWith(unmatched: unmatchedCount),
+          );
+          return ImportMapping.unmatched(entry);
+        }
+
+        matchedItems[entry.remoteItemId] = item;
+        matchedCount++;
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(matched: matchedCount),
+        );
+        return ImportMapping.matched(entry, item.catalogRef);
+      },
+      applier: (mapping, config) async {
+        final item = matchedItems[mapping.entry.remoteItemId];
+        if (item == null) return ImportRowOutcome.skipped;
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(phase: ImportJobPhase.importing),
+        );
         await _applyEntry(
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           item: item,
-          entry: match.entry,
-          origin: origin,
+          entry: mapping.entry,
+          origin: config.origin,
         );
         await _linkImportedEntry(
           accountId: accountId,
           localEntityRef: item.catalogRef,
-          entry: match.entry,
+          entry: mapping.entry,
         );
-        importedCount += 1;
-      } else if (keepUnmatchedLocally) {
-        final localItem = _syntheticImportCatalogItem(provider, match.entry);
-        await _applyLocalOnlyEntry(
-          wishlistMutations: wishlistMutations,
-          trackingMutations: trackingMutations,
-          item: localItem,
-          entry: match.entry,
-          origin: origin,
+        importedCount++;
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(
+            phase: ImportJobPhase.importing,
+            processed: importedCount + keptLocalCount + skippedCount,
+            imported: importedCount,
+            keptLocal: keptLocalCount,
+            skipped: skippedCount,
+          ),
         );
-        await _linkImportedEntry(
-          accountId: accountId,
-          localEntityRef: localItem.catalogRef,
-          entry: match.entry,
+        return ImportRowOutcome.imported;
+      },
+      unmatchedHandler: (entry, config) async {
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(phase: ImportJobPhase.importing),
         );
-        keptLocalCount += 1;
-      } else {
-        skippedCount += 1;
-      }
+        if (keepUnmatchedLocally) {
+          final localItem = _syntheticImportCatalogItem(provider, entry);
+          await _applyLocalOnlyEntry(
+            wishlistMutations: wishlistMutations,
+            trackingMutations: trackingMutations,
+            item: localItem,
+            entry: entry,
+            origin: config.origin,
+          );
+          await _linkImportedEntry(
+            accountId: accountId,
+            localEntityRef: localItem.catalogRef,
+            entry: entry,
+          );
+          keptLocalCount++;
+        } else {
+          skippedCount++;
+        }
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(
+            phase: ImportJobPhase.importing,
+            processed: importedCount + keptLocalCount + skippedCount,
+            imported: importedCount,
+            keptLocal: keptLocalCount,
+            skipped: skippedCount,
+          ),
+        );
+      },
+    );
 
-      _updateJob(
-        jobId,
-        (j) => j.copyWith(
-          processed: importedCount + keptLocalCount + skippedCount,
-          imported: importedCount,
-          keptLocal: keptLocalCount,
-          skipped: skippedCount,
-        ),
-      );
-    }
+    final result = await runner.run(
+      entries,
+      ImportRunConfig(
+        provider: provider,
+        collectionLabel: '${provider.label} import',
+        sourceLabel: sourceLabel,
+        origin: origin,
+      ),
+    );
 
     await _historyStore.append(
       ProviderImportHistoryEntry(
@@ -483,7 +526,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           skippedCount,
         ),
         createdAt: DateTime.now().toUtc(),
-        rows: matches.length,
+        rows: result.rows,
         matched: matchedCount,
         unmatched: unmatchedCount,
         imported: importedCount,
@@ -496,7 +539,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       jobId,
       (j) => j.copyWith(
         phase: ImportJobPhase.done,
-        processed: matches.length,
+        processed: result.rows,
         imported: importedCount,
         keptLocal: keptLocalCount,
         skipped: skippedCount,
@@ -1125,15 +1168,3 @@ final importJobsProvider =
     NotifierProvider<ImportJobsNotifier, List<ImportJobState>>(
   ImportJobsNotifier.new,
 );
-
-class _GenericImportMatch {
-  const _GenericImportMatch({
-    required this.entry,
-    required this.catalogItem,
-  });
-
-  final ProviderPersonalEntry entry;
-  final CatalogItem? catalogItem;
-
-  ProviderPersonalEntry get row => entry;
-}

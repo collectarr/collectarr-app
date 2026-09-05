@@ -197,7 +197,6 @@ void main() {
     expect(diff.hasConflicts, isTrue);
 
     final runner = ImportRunner(
-      engine: engine,
       matcher: (e) async => ImportMapping.matched(
         e,
         _ref('anime-1'),
