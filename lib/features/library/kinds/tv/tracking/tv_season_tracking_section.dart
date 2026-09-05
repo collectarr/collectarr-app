@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_ident
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_episode_row.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_summary_card.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -67,8 +68,8 @@ class _VideoSeasonTrackingSectionState
             ) ??
             seasons.first;
         final watchedEpisodeKeys = trackedUnits
-            .whereType<VideoTrackingUnit>()
-            .where((unit) => unit.unitType == TrackingUnitType.episode)
+            .whereType<TvTrackingUnit>()
+            .where((unit) => unit.unitType == TvTrackingUnit.type)
             .map(_episodeKeyForUnit)
             .toSet();
         final watchedInSelectedSeason = selectedSeason.episodes
@@ -206,8 +207,8 @@ class _VideoSeasonTrackingSectionState
       }
     }
     final trackedEpisodes = trackedUnits
-        .whereType<VideoTrackingUnit>()
-        .where((unit) => unit.unitType == TrackingUnitType.episode)
+        .whereType<TvTrackingUnit>()
+        .where((unit) => unit.unitType == TvTrackingUnit.type)
         .toList(growable: false)
       ..sort((a, b) {
         final seasonCompare =
@@ -315,7 +316,7 @@ class _VideoSeasonTrackingSectionState
     return '$seasonNumber:$episodeNumber';
   }
 
-  String _episodeKeyForUnit(VideoTrackingUnit unit) {
+  String _episodeKeyForUnit(TvTrackingUnit unit) {
     return _episodeKey(unit.seasonNumber ?? 0, unit.episodeNumber ?? 0);
   }
 }

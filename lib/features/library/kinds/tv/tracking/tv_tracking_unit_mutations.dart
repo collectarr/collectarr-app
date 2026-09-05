@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 
 /// TV-owned episode progress mutations.
 ///
@@ -36,10 +37,9 @@ final class TvTrackingUnitMutations {
       action: () async {
         final existing = await trackingUnits.findById(unitId);
         if (resolvedIsCompleted) {
-          final unit = VideoTrackingUnit(
+          final unit = TvTrackingUnit(
             id: unitId,
             targetRef: seriesRef,
-            unitType: TrackingUnitType.episode,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             completedAt: now,

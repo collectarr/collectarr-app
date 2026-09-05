@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/dialogs/tv_custom_episode_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/widgets/tv_episode_row.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -370,9 +371,9 @@ bool _episodeWatched({
   required int seasonNumber,
   required int episodeNumber,
 }) {
-  final tracked = trackedUnits.whereType<VideoTrackingUnit>().any(
+  final tracked = trackedUnits.whereType<TvTrackingUnit>().any(
         (unit) =>
-            unit.unitType == TrackingUnitType.episode &&
+            unit.unitType == TvTrackingUnit.type &&
             unit.seasonNumber == seasonNumber &&
             unit.episodeNumber == episodeNumber &&
             !unit.isDeleted,

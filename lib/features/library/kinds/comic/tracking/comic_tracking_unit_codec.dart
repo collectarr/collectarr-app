@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
 import 'package:drift/drift.dart';
 
 final class ComicTrackingUnitCodec implements TrackingUnitCodec {
@@ -63,7 +64,6 @@ final class ComicTrackingUnitCodec implements TrackingUnitCodec {
       editionId: row.editionId,
       variantId: row.variantId,
       bundleReleaseId: row.bundleReleaseId,
-      unitType: row.unitType,
       issueNumber: typedCoordinates.issueNumber,
       completedAt: row.completedAt,
       updatedAt: row.updatedAt,

@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 CatalogEntityRef _ref() {
@@ -36,10 +37,9 @@ Episode _episode({
 }
 
 TrackingUnit _trackedEpisode(int seasonNumber, int episodeNumber, DateTime at) {
-  return VideoTrackingUnit(
+  return TvTrackingUnit(
     id: '$seasonNumber-$episodeNumber',
     targetRef: _ref(),
-    unitType: TrackingUnitType.episode,
     seasonNumber: seasonNumber,
     episodeNumber: episodeNumber,
     completedAt: at,

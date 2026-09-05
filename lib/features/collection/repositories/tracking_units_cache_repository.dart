@@ -122,7 +122,7 @@ class TrackingUnitsCacheRepository {
       editionId: Value(unit.editionId),
       variantId: Value(unit.variantId),
       bundleReleaseId: Value(unit.bundleReleaseId),
-      unitType: Value(unit.unitType.storageValue),
+      unitType: Value(unit.unitType),
       completedAt: Value(unit.completedAt),
       updatedAt: Value(unit.updatedAt),
       deletedAt: Value(unit.deletedAt),
@@ -161,11 +161,9 @@ class TrackingUnitsCacheRepository {
     TrackingUnitsCacheData row,
     Object? coordinates,
   ) {
-    final unitType =
-        trackingUnitTypeFromValue(row.unitType) ?? TrackingUnitType.episode;
     final targetRef = CatalogEntityRef(
       kind: row.kind,
-      entityType: _entityTypeForUnit(unitType),
+      entityType: CatalogEntityType.work,
       id: row.itemId,
     );
     final storageRow = TrackingUnitStorageRow(
@@ -176,7 +174,7 @@ class TrackingUnitsCacheRepository {
       editionId: row.editionId,
       variantId: row.variantId,
       bundleReleaseId: row.bundleReleaseId,
-      unitType: unitType,
+      unitType: row.unitType,
       completedAt: row.completedAt,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
@@ -197,20 +195,10 @@ class TrackingUnitsCacheRepository {
         );
   }
 
-  static CatalogEntityType _entityTypeForUnit(TrackingUnitType unitType) {
-    return switch (unitType) {
-      TrackingUnitType.episode => CatalogEntityType.episode,
-      TrackingUnitType.issue => CatalogEntityType.issue,
-      _ => CatalogEntityType.work,
-    };
-  }
-
   int _compareForDisplay(TrackingUnit a, TrackingUnit b) {
     final itemCompare = a.itemId.compareTo(b.itemId);
     if (itemCompare != 0) return itemCompare;
-    final typeCompare = a.unitType.storageValue.compareTo(
-      b.unitType.storageValue,
-    );
+    final typeCompare = a.unitType.compareTo(b.unitType);
     if (typeCompare != 0) return typeCompare;
     final coordinatesCompare =
         _codecs[a.targetRef.kind]?.compareCoordinates(a, b) ?? 0;

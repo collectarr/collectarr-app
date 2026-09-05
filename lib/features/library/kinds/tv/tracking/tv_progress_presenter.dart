@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
 
 class VideoProgressPresenter {
@@ -231,8 +232,8 @@ class VideoProgressPresenter {
     List<WatchSession> watchSessions,
   ) {
     final keys = <String>{};
-    for (final unit in trackedUnits.whereType<VideoTrackingUnit>()) {
-      if (unit.isDeleted || unit.unitType != TrackingUnitType.episode) {
+    for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
+      if (unit.isDeleted || unit.unitType != TvTrackingUnit.type) {
         continue;
       }
       final seasonNumber = unit.seasonNumber;
@@ -275,8 +276,8 @@ class VideoProgressPresenter {
       );
       map.putIfAbsent(key, () => <WatchSession>[]).add(session);
     }
-    for (final unit in trackedUnits.whereType<VideoTrackingUnit>()) {
-      if (unit.isDeleted || unit.unitType != TrackingUnitType.episode) {
+    for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
+      if (unit.isDeleted || unit.unitType != TvTrackingUnit.type) {
         continue;
       }
       final seasonNumber = unit.seasonNumber;
@@ -344,11 +345,11 @@ class VideoProgressPresenter {
     return latest;
   }
 
-  static VideoTrackingUnit? _latestWatchedTrackingUnit(
+  static TvTrackingUnit? _latestWatchedTrackingUnit(
       List<TrackingUnit> trackedUnits) {
-    VideoTrackingUnit? latest;
-    for (final unit in trackedUnits.whereType<VideoTrackingUnit>()) {
-      if (unit.isDeleted || unit.unitType != TrackingUnitType.episode) {
+    TvTrackingUnit? latest;
+    for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
+      if (unit.isDeleted || unit.unitType != TvTrackingUnit.type) {
         continue;
       }
       if (latest == null || unit.completedAt.isAfter(latest.completedAt)) {

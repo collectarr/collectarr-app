@@ -4,13 +4,15 @@ import 'dart:io';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,7 +28,7 @@ void main() {
     final completedAt = DateTime.utc(2026, 9, 5, 12);
 
     await repository.upsert(
-      VideoTrackingUnit(
+      TvTrackingUnit(
         id: 'episode-1',
         targetRef: const CatalogEntityRef(
           kind: 'tv',
@@ -48,9 +50,9 @@ void main() {
     expect(typed.episodeNumber, 4);
 
     final roundTrip = await repository.findById('episode-1');
-    expect(roundTrip, isA<VideoTrackingUnit>());
-    expect((roundTrip! as VideoTrackingUnit).seasonNumber, 2);
-    expect((roundTrip as VideoTrackingUnit).episodeNumber, 4);
+    expect(roundTrip, isA<TvTrackingUnit>());
+    expect((roundTrip! as TvTrackingUnit).seasonNumber, 2);
+    expect((roundTrip as TvTrackingUnit).episodeNumber, 4);
     expect(roundTrip.toSyncPayload(), containsPair('season_number', 2));
     expect(roundTrip.toSyncPayload(), containsPair('episode_number', 4));
     expect(roundTrip.toSyncPayload().containsKey('volume_number'), isFalse);
@@ -67,7 +69,7 @@ void main() {
     final now = DateTime.utc(2026, 9, 5);
 
     await repository.upsertAll([
-      ReadingTrackingUnit(
+      MangaTrackingUnit(
         id: 'chapter-1',
         targetRef: const CatalogEntityRef(
           kind: 'manga',
@@ -94,9 +96,9 @@ void main() {
 
     final manga = await repository.findById('chapter-1');
     final comic = await repository.findById('issue-1');
-    expect(manga, isA<ReadingTrackingUnit>());
-    expect((manga! as ReadingTrackingUnit).volumeNumber, 3);
-    expect((manga as ReadingTrackingUnit).chapterNumber, 18);
+    expect(manga, isA<MangaTrackingUnit>());
+    expect((manga! as MangaTrackingUnit).volumeNumber, 3);
+    expect((manga as MangaTrackingUnit).chapterNumber, 18);
     expect(comic, isA<ComicTrackingUnit>());
     expect((comic! as ComicTrackingUnit).issueNumber, '8A');
     expect(await db.select(db.mangaTrackingUnitRows).get(), hasLength(1));
@@ -169,9 +171,9 @@ void main() {
     );
     final unit = await repository.findById('legacy-episode');
 
-    expect(unit, isA<VideoTrackingUnit>());
-    expect((unit! as VideoTrackingUnit).seasonNumber, 4);
-    expect((unit as VideoTrackingUnit).episodeNumber, 7);
+    expect(unit, isA<TvTrackingUnit>());
+    expect((unit! as TvTrackingUnit).seasonNumber, 4);
+    expect((unit as TvTrackingUnit).episodeNumber, 7);
     expect((await db.select(db.trackingUnitsCache).getSingle()).kind, 'tv');
     expect(await db.select(db.tvTrackingUnitRows).get(), hasLength(1));
     final columns = await db

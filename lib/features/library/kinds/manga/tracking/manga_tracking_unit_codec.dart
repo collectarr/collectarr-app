@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
 import 'package:drift/drift.dart';
 
 final class MangaTrackingUnitCodec implements TrackingUnitCodec {
@@ -18,7 +19,7 @@ final class MangaTrackingUnitCodec implements TrackingUnitCodec {
 
   @override
   Future<void> writeCoordinates(LocalDatabase db, TrackingUnit unit) async {
-    if (unit case final ReadingTrackingUnit reading) {
+    if (unit case final MangaTrackingUnit reading) {
       await db.into(db.mangaTrackingUnitRows).insertOnConflictUpdate(
             MangaTrackingUnitRowsCompanion.insert(
               id: unit.id,
@@ -60,7 +61,7 @@ final class MangaTrackingUnitCodec implements TrackingUnitCodec {
     final typedCoordinates = coordinates is _MangaCoordinates
         ? coordinates
         : const _MangaCoordinates();
-    return ReadingTrackingUnit(
+    return MangaTrackingUnit(
       id: row.id,
       targetRef: row.targetRef,
       trackingEntryId: row.trackingEntryId,
@@ -68,7 +69,6 @@ final class MangaTrackingUnitCodec implements TrackingUnitCodec {
       editionId: row.editionId,
       variantId: row.variantId,
       bundleReleaseId: row.bundleReleaseId,
-      unitType: row.unitType,
       volumeNumber: typedCoordinates.volumeNumber,
       chapterNumber: typedCoordinates.chapterNumber,
       completedAt: row.completedAt,
@@ -79,7 +79,7 @@ final class MangaTrackingUnitCodec implements TrackingUnitCodec {
 
   @override
   int compareCoordinates(TrackingUnit left, TrackingUnit right) {
-    if (left is! ReadingTrackingUnit || right is! ReadingTrackingUnit) {
+    if (left is! MangaTrackingUnit || right is! MangaTrackingUnit) {
       return 0;
     }
     final volume = _compareNullableInt(left.volumeNumber, right.volumeNumber);

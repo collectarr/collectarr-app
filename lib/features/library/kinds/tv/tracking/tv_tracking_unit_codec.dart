@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:drift/drift.dart';
 
 final class TvTrackingUnitCodec implements TrackingUnitCodec {
@@ -17,7 +18,7 @@ final class TvTrackingUnitCodec implements TrackingUnitCodec {
 
   @override
   Future<void> writeCoordinates(LocalDatabase db, TrackingUnit unit) async {
-    if (unit case final VideoTrackingUnit video) {
+    if (unit case final TvTrackingUnit video) {
       await db.into(db.tvTrackingUnitRows).insertOnConflictUpdate(
             TvTrackingUnitRowsCompanion.insert(
               id: unit.id,
@@ -58,7 +59,7 @@ final class TvTrackingUnitCodec implements TrackingUnitCodec {
   ) {
     final typedCoordinates =
         coordinates is _TvCoordinates ? coordinates : const _TvCoordinates();
-    return VideoTrackingUnit(
+    return TvTrackingUnit(
       id: row.id,
       targetRef: row.targetRef,
       trackingEntryId: row.trackingEntryId,
@@ -66,7 +67,6 @@ final class TvTrackingUnitCodec implements TrackingUnitCodec {
       editionId: row.editionId,
       variantId: row.variantId,
       bundleReleaseId: row.bundleReleaseId,
-      unitType: row.unitType,
       seasonNumber: typedCoordinates.seasonNumber,
       episodeNumber: typedCoordinates.episodeNumber,
       completedAt: row.completedAt,
@@ -77,7 +77,7 @@ final class TvTrackingUnitCodec implements TrackingUnitCodec {
 
   @override
   int compareCoordinates(TrackingUnit left, TrackingUnit right) {
-    if (left is! VideoTrackingUnit || right is! VideoTrackingUnit) {
+    if (left is! TvTrackingUnit || right is! TvTrackingUnit) {
       return 0;
     }
     final season = _compareNullableInt(left.seasonNumber, right.seasonNumber);

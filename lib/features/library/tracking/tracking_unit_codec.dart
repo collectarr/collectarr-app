@@ -29,7 +29,7 @@ final class TrackingUnitStorageRow {
   final String? editionId;
   final String? variantId;
   final String? bundleReleaseId;
-  final TrackingUnitType unitType;
+  final String unitType;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
