@@ -1,357 +1,492 @@
-# Collectarr App — Full Typed-Kind Architecture Migration Plan
 
-## Final Architecture Invariants
+# Collectarr — Full Typed-Kind Vertical Architecture Implementation Plan
 
-### A. Kind ownership
+## 0. FINAL ARCHITECTURE INVARIANTS
 
-A kind owns **every representation of its domain data**:
+These rules override older architecture decisions.
 
-- generated Core DTO mapping
-- app domain models
-- media model
-- release/edition model when applicable
-- local Drift tables
-- local DB mapping
-- repositories
-- owned details
-- tracking details
-- fields
-- columns
-- sorts
-- groups
-- facets
-- vocabularies
-- Add
-- Media Edit
-- Release Edit
-- Owned Edit
-- hierarchy
-- provider metadata integrations
-- stats/value semantics
+### 0.1 A kind owns every representation of its domain
 
-### B. Never erase the type
+A kind owns:
 
-After dispatching to a concrete kind, never convert its domain object through:
+* Core DTO mapping
+* canonical app domain models
+* Media model
+* Release / Edition model where applicable
+* full Owned model
+* tracking/progress domain
+* local Drift schemas
+* local DB mappers
+* repositories
+* fields
+* columns
+* sorts
+* groups
+* facets
+* vocabularies
+* Add
+* Media Edit
+* Release Edit
+* Owned Edit
+* hierarchy
+* provider metadata integrations
+* calendar projection
+* barcode interpretation/resolution
+* metadata override semantics
+* import/export formats
+* kind-specific actions
+* stats
+* value semantics
 
-- `CatalogItemDto`
-- `LibraryMetadataItem`
-- `LibraryCatalogItemView`
-- `LibraryKindMetadataRuntime`
-- generic metadata `Map<String, dynamic>`
-- `dynamic`
+A developer inspecting `kinds/comic/` should be able to understand essentially everything that Comic means to Collectarr.
 
-Serialization may erase the type **only at real boundaries**:
+---
 
-- HTTP
-- DB
-- provider protocol
-- sync persistence
+## 0.2 After kind dispatch, never erase the type
 
-Immediately after reading from a boundary, decode into the concrete kind type.
+Allowed:
 
-### C. Minimal sharing
+```text
+route/search hit
+    ↓
+CatalogMediaKind.comic
+    ↓ dispatch
+Comic
+    ↓
+ComicMedia
+ComicRelease
+ComicOwnedItem
+ComicWorkspaceDto
+...
+```
 
-Prefer duplication between kinds.
+Forbidden after dispatch:
 
-Do **not** introduce domain abstractions merely because fields happen to share names.
+```text
+ComicMedia
+→ CatalogItemDto
+→ Map<String,dynamic>
+→ LibraryKindMetadataRuntime
+→ ComicMedia again
+```
 
-Allowed duplication examples:
+Type erasure is allowed only at actual serialization boundaries:
 
-- `Comic.publisher` and `Manga.publisher`
-- `Movie.region` and `TV.region`
-- `Anime.audioTracks` and `Movie.audioTracks`
-- `Comic.releaseDate` and `Game.releaseDate`
+```text
+HTTP
+DB
+provider protocol
+sync persistence
+```
 
-Do **not** create:
+Immediately after reading the boundary:
 
-- `CommonPublishingMetadata`
-- `CommonMediaMetadata`
-- `CommonReleaseMetadata`
-- `CommonSerialMetadata`
-- `PrintMediaMetadata`
-- `VideoMetadata`
-- `PublishingEditDraft`
-- `VideoEditDraft`
-- `SharedPublisherFields`
-- `SharedReleaseFields`
-- `DefaultMediaTabs`
-- `DefaultReleaseTabs`
-- `SharedVideoRepository`
-- `GenericCatalogItemV2`
-- `KindMetadataRuntimeV2`
+```text
+serialized data
+→ owning kind mapper
+→ typed kind domain
+```
 
-### D. Dependency rules
+---
 
-- `kinds/X` must **never** import `kinds/Y`.
-- `providers/**` must **never** import `library/kinds/**`.
-- provider-native models belong to providers.
-- Provider → Kind semantic mapping belongs to the target kind.
-- Kind → Provider write mapping also belongs to the kind.
-- generic personal sync mapping to `ProviderPersonalEntry` remains provider-owned.
+# 0.3 Full Owned ownership
 
-### E. Declarative Add/Edit
+There is NO canonical common `OwnedItem` domain object.
 
-Every kind explicitly declares:
+Each kind owns the complete model:
 
-- its Media Edit tabs
-- Media Edit sections
-- Media Edit fields
+```text
+ComicOwnedItem
+MangaOwnedItem
+BookOwnedItem
+GameOwnedItem
+BoardGameOwnedItem
+MovieOwnedItem
+TvOwnedItem
+AnimeOwnedItem
+MusicOwnedItem
+```
 
-Every release-capable kind explicitly declares:
+This includes fields that happen to repeat:
 
-- Release Edit tabs
-- Release Edit sections
-- Release Edit fields
+```text
+purchaseDate
+purchasePrice
+location
+owner
+quantity
+notes
+```
 
-Every kind explicitly declares its Add schema.
+Duplication is intentional.
 
-No global default production tabs.
-No global semantic section registry.
-No implicit publishing/video/media schemas.
+Generic code may use only structural representations such as:
 
-### F. Core evolution
+```text
+OwnedItemId
+OwnedItemRef
+OwnedItemSummary
+```
 
-Every generated Core DTO field must be explicitly classified by the owning kind as:
+Generic code must not read:
 
-- mapped
-- intentionally ignored
+```text
+condition
+grade
+region
+packaging
+grading
+signature
+keyComic
+completeness
+box/manual
+matrix/runout
+etc.
+```
 
-New Core fields may never silently enter the App without classification.
+---
 
-### G. Testing
+# 0.4 Full kind-owned persistence
 
-If behavior is promised by multiple kinds, it **must** be represented by a reusable typed contract test and run against **every applicable kind**.
-
-Testing generic behavior with one representative kind is insufficient.
-
-**Share tests more aggressively than production domain code.**
-
-### H. Execution
-
-Before implementing:
-
-- inspect current `main`
-- identify already-completed work
-- do not recreate it
+Each kind owns its complete Drift tables.
 
 Prefer:
 
-- DELETE
-- MOVE
-- DUPLICATE
-- SIMPLIFY
+```text
+ComicMediaRows
+ComicReleaseRows
+ComicOwnedItems
 
-over compatibility layers.
-
-After every PR run:
-
-```bash
-dart format --output=none --set-exit-if-changed .
-dart run build_runner build --delete-conflicting-outputs
-flutter analyze --fatal-warnings --fatal-infos
-flutter test
-dart run tool/check_library_kind_boundaries.dart
+GameMediaRows
+GameReleaseRows
+GameOwnedItems
 ```
 
-Also run any newly introduced contract/schema checkers.
+over:
 
-Report results and **STOP**.
-Do not automatically start the next PR.
+```text
+GenericOwnedItems
++ nullable fields for every possible kind
+```
+
+Even generic ownership columns may be duplicated between nine tables.
+
+`LocalDatabase` may enumerate kind table types as a composition root.
+
+It must not define their semantic columns.
 
 ---
 
-# Final Target Structure
+# 0.5 Minimal production sharing
 
-A mature kind should look approximately like:
+Prefer duplication.
 
-```text
-kinds/comic/
-
-  comic_kind.dart
-  comic_registration.dart
-
-  domain/
-    comic_media.dart
-    comic_release.dart
-    comic_owned_details.dart
-    comic_tracking.dart
-    comic_ids.dart
-
-  data/
-    remote/
-      comic_core_mapper.dart
-      comic_remote_source.dart
-
-    local/
-      comic_media_table.dart
-      comic_release_table.dart
-      comic_owned_details_table.dart
-      comic_tracking_tables.dart
-      comic_local_mapper.dart
-      comic_dao.dart
-
-    providers/
-      comicvine/
-        comic_comicvine_mapper.dart
-        comic_comicvine_integration.dart
-
-      metron/
-        comic_metron_mapper.dart
-        comic_metron_integration.dart
-
-    comic_repository.dart
-
-  workspace/
-    comic_workspace_dto.dart
-    comic_fields.dart
-    comic_columns.dart
-    comic_sorts.dart
-    comic_groups.dart
-    comic_facets.dart
-
-  vocabulary/
-    comic_vocabularies.dart
-
-  add/
-    comic_add_draft.dart
-    comic_add_schema.dart
-    comic_add_search.dart
-
-  edit/
-    media/
-      comic_media_edit_draft.dart
-      comic_media_edit_schema.dart
-      comic_media_edit_mapper.dart
-
-    release/
-      comic_release_edit_draft.dart
-      comic_release_edit_schema.dart
-      comic_release_edit_mapper.dart
-
-    owned/
-      comic_owned_edit_draft.dart
-      comic_owned_edit_schema.dart
-
-  hierarchy/
-    comic_hierarchy.dart
-
-  stats/
-    comic_stats.dart
-
-  value/
-    comic_value.dart
-```
-
-Not every kind needs every folder.
-
-**Absence of a module = capability absent.**
-
-No need for `supportsRelease = false` if a kind simply has no Release module.
-
----
-
-# PHASE 0 — Baseline and Safety Net
-
-## PR 0 — Architecture inventory
-
-### Objective
-
-Capture the exact architecture debt before migration.
-
-### Inventory
-
-Search current `main` for:
+Do NOT create:
 
 ```text
-CatalogItemDto
-CatalogItem
-CatalogKindCodec
+CommonMedia
+CommonPublishing
+CommonRelease
+CommonSerial
+CommonCollectible
+PrintMedia
+VideoMetadata
 
-LibraryKindMetadataRuntime
-LibraryKindMetadataDecoders
+CommonOwnedItem
+CommonOwnedDetails
 
-LibraryMetadataItem
-LibraryCatalogItemView
+VideoOwnedDetails
+SharedGradingDetails
+SharedSignatureDetails
 
-LibraryKindRuntime
-LibraryKindSpec
-
-Map<String, dynamic>
-dynamic
-
-OwnedItemDetails
-comicDetails
-mangaDetails
-movieDetails
-tvDetails
-animeDetails
-gameDetails
-
-KindEditDraft
-GenericEditDraft
 VideoEditDraft
+PublishingEditDraft
 
-LibrarySectionRegistry
-DefaultLibraryEditPresentationBuilder
+SharedPublisherFields
+SharedReleaseFields
 
-CatalogCache
-OwnedItemsCache
-TrackingEntriesCache
-TrackingUnitsCache
-WatchSessionsCache
+DefaultMediaTabs
+DefaultReleaseTabs
 
-NormalizedProviderEnvelope
+SharedVideoRepository
+
+GenericCatalogItemV2
+KindMetadataRuntimeV2
 ```
 
-### Produce
-
-```text
-docs/typed-kind-architecture-baseline.md
-```
-
-For every suspect:
-
-```text
-symbol
-file
-responsibility
-type-erasure?
-semantic leak?
-target owner
-target PR
-```
-
-### No architecture change
-
-This PR is audit-only unless current `main` already fails build/tests.
+A shared abstraction must represent identical semantics and lifecycle, not merely similar field names.
 
 ---
 
-## PR 1 — Introduce architecture checker baseline
+# 0.6 Cross-kind dependencies
 
-Extend the checker enough to record but not yet reject all future architecture rules.
-
-Add detection for:
+Forbidden:
 
 ```text
+kinds/comic → kinds/manga
+kinds/movie → kinds/tv
+kinds/anime → kinds/tv
+```
+
+No kind imports another kind.
+
+`kinds/_shared` is exceptional and should contain almost exclusively visual or genuinely technical primitives.
+
+---
+
+# 0.7 Provider ↔ Kind rule
+
+Provider owns:
+
+```text
+protocol
+HTTP
+authentication
+queries
+rate limits
+pagination
+provider-native DTOs
+provider-specific errors
+```
+
+Kind owns semantic mapping:
+
+```text
+provider-native metadata
+→ typed kind domain
+```
+
+and, when supported:
+
+```text
+typed kind domain
+→ provider-native metadata mutation
+```
+
+Dependency direction:
+
+```text
+providers/anilist
+       ↑
+       │
+kinds/anime/data/providers/anilist
+```
+
+Forbidden:
+
+```text
+providers/anilist
+→ AnimeMedia
+```
+
+---
+
+# 0.8 Personal provider sync exception
+
+Personal sync remains generic where it genuinely represents a common domain:
+
+```text
+AniList personal list DTO
+    ↓
+AniListSyncAdapter
+    ↓
+ProviderPersonalEntry
+    ↓
+ExternalStateEngine
+```
+
+This does not carry catalog metadata.
+
+---
+
+# 0.9 Feature-host rule
+
+Features outside `kinds/` own mechanisms and hosts.
+
+Kinds own semantic contributions.
+
+Examples:
+
+```text
+Collection owns:
+- action menu UI
+- file picker
+- import preview UI
+- export/download plumbing
+
+Comic owns:
+- Import CLZ CSV
+- Export Comic CSV
+- Export ComicInfo.xml
+- Comic matching rules
+```
+
+```text
+Calendar owns:
+- CalendarEvent model
+- calendar rendering
+- ICS generation
+
+TV owns:
+- how TV produces calendar events
+- episode titles
+- release events
+```
+
+---
+
+# 0.10 Shared contracts are encouraged when behavior is genuinely identical
+
+Share behavioral shape, not data shape.
+
+Good candidates:
+
+```text
+EditSchema<TModel, TDraft>
+AddSchema<TDraft>
+
+UiAction<TContext>
+
+ReadRepository<TId, TEntity>
+MutableRepository<TId, TEntity, TCreate, TUpdate>
+
+LibraryTable<T>
+HierarchyView<TNode>
+
+CalendarEventContributor<TContext>
+
+ExportAction<TContext>
+ImportAction<TContext, TPreview>
+
+SummaryProjector<TSource, TSummary>
+
+LibraryFieldDefinition<TDto, TValue>
+LibrarySortDefinition<TDto>
+LibraryGroupDefinition<TDto>
+LibraryFacetDefinition<TDto, TValue>
+
+VocabularyRepository
+
+OwnedItemRef
+OwnedItemSummary
+
+CatalogSearchHit
+ProviderSearchHit
+
+ScannedCode
+```
+
+Do not add an interface just because two classes have the same properties.
+
+Interfaces should model **behavior contracts**.
+
+---
+
+# 0.11 Core evolution rule
+
+For every Core DTO field consumed by App:
+
+```text
+MAPPED
+```
+
+or:
+
+```text
+INTENTIONALLY IGNORED + reason
+```
+
+A newly generated Core field must fail CI until the owning kind classifies it.
+
+---
+
+# 0.12 Testing rule
+
+If behavior is promised by multiple kinds:
+
+> create one reusable typed contract test and execute it against every applicable kind.
+
+Do not prove shared behavior with Comic only.
+
+Share tests more aggressively than production domain code.
+
+---
+
+# PHASE A — REBASELINE THE WORKING BRANCH
+
+## PR 0 — Branch delta audit
+
+Before changing code:
+
+```text
+checkout typed-kind-full-implementation-plan
+compare with main
+```
+
+Produce:
+
+```text
+docs/typed-kind-current-branch-audit.md
+```
+
+Classify every task in this plan:
+
+```text
+DONE
+PARTIAL
+NOT STARTED
+OBSOLETE
+```
+
+Do not recreate landed architecture.
+
+Also scan ALL:
+
+```text
+lib/**
+```
+
+not just:
+
+```text
+lib/features/library/**
+```
+
+for semantic leakage.
+
+---
+
+## PR 1 — Whole-repository semantic boundary checker baseline
+
+Extend checker scope from Library-only to all relevant App production code.
+
+Detect:
+
+```text
+generic → concrete kind imports
+
 cross-kind imports
-provider -> kind imports
 
-kind generated DTO imports outside matching kind
+provider → kind imports
 
-generic metadata Map usage
-dynamic catalog objects
+Core kind DTO imported outside owning kind integration
+
+dynamic catalog entities
+
+Map<String,dynamic> metadata reflection
+
+kind semantic fields outside kinds
 ```
 
-Initially allowlist existing migration debt.
+Use allowlists during migration.
 
-This gives us a shrinking allowlist.
+The allowlist must shrink every PR.
 
 ---
 
-# PHASE 1 — Test Architecture First
+# PHASE B — CONTRACT TEST FOUNDATION
 
-## PR 2 — Typed contract-test infrastructure
+## PR 2 — Typed reusable contract-test framework
 
 Create:
 
@@ -359,297 +494,406 @@ Create:
 test/contracts/
 ```
 
-with typed reusable suites.
-
-Initial contracts:
+Domains:
 
 ```text
-kind_identity_contract.dart
-
-core_mapping_contract.dart
-core_field_adoption_contract.dart
-
-repository_contract.dart
-persistence_contract.dart
-
-workspace_contract.dart
-fields_contract.dart
-sort_contract.dart
-group_contract.dart
-facet_contract.dart
-vocabulary_contract.dart
-
-add_contract.dart
-
-media_edit_contract.dart
-release_edit_contract.dart
-owned_edit_contract.dart
-
-provider_integration_contract.dart
-
-tracking_contract.dart
+core/
+repository/
+persistence/
+workspace/
+add/
+edit/
+owned/
+actions/
+provider/
+calendar/
+barcode/
+overrides/
+tracking/
 ```
 
-Contract helpers may be generic.
+Contracts are generic at compile time.
 
-Production domain must not change merely to accommodate the tests.
+Production code must not become more generic just to make tests reusable.
 
 ---
 
-## PR 3 — Core DTO field adoption checker
+## PR 3 — Core DTO adoption checker
 
-Implement test/tooling which compares generated DTO fields against explicit kind policy.
+Create test/tooling-only field policies.
 
-Example test-only configuration:
-
-```dart
-CoreDtoFieldPolicy(
-  dtoName: 'ComicWorkDto',
-
-  mapped: {
-    'id',
-    'title',
-    'publisher',
-    'issueNumber',
-  },
-
-  intentionallyIgnored: {
-    ignored(
-      'legacySlug',
-      reason: 'Core-only compatibility field',
-    ),
-  },
-);
-```
-
-If Core later adds:
+Example:
 
 ```text
-firstPrintingDate
+ComicWorkDto
+
+mapped:
+- id
+- title
+- publisher
+
+ignored:
+- legacy_slug
+  reason: ...
 ```
 
-the test must fail with something like:
-
-```text
-ComicWorkDto contains an unclassified field:
-firstPrintingDate
-
-Classify as:
-- mapped
-- intentionallyIgnored
-```
-
-### Important
-
-Policy stays test/tooling-only.
-
-Do not add another runtime abstraction for this.
+New generated fields fail CI until classified.
 
 ---
 
-## PR 4 — Meta-contract manifest
+## PR 4 — All-kind contract manifest
 
-Create a test manifest guaranteeing all nine kinds participate in mandatory contracts.
-
-Mandatory:
+Mandatory for all 9:
 
 ```text
+identity
 Core mapping
+Core field adoption
 repository
 media persistence
 workspace
-fields
+field definitions
 Add
 Media Edit
-identity
+Owned
 ```
 
-Optional contracts explicitly declared:
+Conditional:
 
 ```text
 Release
-Release Edit
-Release persistence
-Tracking
 Hierarchy
+Tracking
 Provider integration
+Calendar contribution
+Barcode resolver
+Import/export action
 ```
 
-This prevents accidentally testing shared behavior only against Comic.
+Explicit typed registrations only.
+
+Do not iterate erased `LibraryKindRuntime`s.
 
 ---
 
-# PHASE 2 — Tiny Dispatch Boundary
+# PHASE C — TINY GENERIC CONTRACTS
 
-## PR 5 — Introduce `LibraryKindRegistration`
+## PR 5 — Tiny `LibraryKindRegistration`
 
-Create a very small erased entry point:
+Reduce erased registration to navigation/dispatch entry points.
 
-```dart
-abstract interface class LibraryKindRegistration {
-  CatalogMediaKind get kind;
-  LibraryKindIdentity get identity;
-
-  Widget buildLibraryPage(...);
-
-  Widget buildAdd(...);
-
-  Future<void> openMediaEdit(...);
-
-  Future<void> openReleaseEdit(...);
-}
-```
-
-Do not migrate everything yet.
-
-Current runtime may remain temporarily behind compatibility.
-
----
-
-## PR 6 — Stop extending `LibraryKindRuntime`
-
-Mark the giant runtime surface as migration-only.
-
-No new methods such as:
+Target roughly:
 
 ```text
-columnValue()
-groupValue()
-sort()
-project()
-codec
-ownedDetailsDecoder
-providerMapper
+kind
+identity
+
+open library
+open Add
+open Media Edit
+open Release Edit
+open Owned Edit
+
+build applicable UI actions
 ```
 
-may be added.
+No erased access to:
 
-Start moving callers toward concrete kind modules.
+```text
+fields
+sort
+group
+facet
+metadata
+codec
+owned details
+repository internals
+```
 
 ---
 
-# PHASE 3 — Declarative Edit Infrastructure
+## PR 6 — Structural repository interfaces
 
-## PR 7 — Structural `EditSchema`
+Where lifecycle is genuinely identical, allow small generic interfaces such as:
 
-Create structural renderer models:
+```text
+ReadRepository<TId, TEntity>
+MutableRepository<TId, TEntity, TCreate, TUpdate>
+```
 
-```dart
+Do not require kinds to implement a huge universal repository.
+
+A kind may expose extra methods freely.
+
+Example:
+
+```text
+ComicRepository.findByIssueNumber()
+BookRepository.findByIsbn()
+```
+
+remain concrete.
+
+---
+
+# PHASE D — DECLARATIVE ADD / EDIT
+
+## PR 7 — Typed structural `EditSchema`
+
+Shared only:
+
+```text
 EditSchema<TModel, TDraft>
 EditTabSpec<TDraft>
 EditSectionSpec<TDraft>
 EditFieldSpec<TDraft>
 ```
 
-Shared field specs:
+Structural fields:
 
 ```text
-TextEditField
-NumberEditField
-DateEditField
-MoneyEditField
-ToggleEditField
-SelectEditField<T>
-VocabularyEditField<T>
-MultiVocabularyEditField<T>
-ImageEditField
-ReadOnlyEditField
-CustomEditField
+Text
+Number
+Date
+Money
+Toggle
+Select<T>
+Vocabulary<T>
+MultiVocabulary<T>
+Image
+ReadOnly
+Custom
 ```
-
-No media semantics.
 
 ---
 
-## PR 8 — Generic Edit renderer
+## PR 8 — Declarative Edit renderer
 
-Create one renderer capable of consuming any:
-
-```dart
-EditSchema<TModel, TDraft>
-```
-
-Renderer owns:
+Renderer owns HOW:
 
 ```text
-tabs UI
-sections UI
-field layout
+tabs
+layout
 validation display
-dirty state
+dirty handling
+responsive UI
 save/cancel
-responsive layout
 ```
 
-It does **not** own:
+Kind owns WHAT.
+
+---
+
+## PR 9 — Typed structural `AddSchema`
+
+Same model for Add.
+
+No generic publishing/video/serial sections.
+
+---
+
+## PR 10 — Declarative Add renderer
+
+No semantic fields.
+
+---
+
+# PHASE E — KIND-OWNED ACTION SYSTEM
+
+## PR 11 — Introduce typed `UiAction<TContext>`
+
+Structural interface only:
 
 ```text
-which tabs
-which fields
-which labels
-which vocabularies
+id
+label
+icon
+placement
+visibility/enabled state
+run(context)
+```
+
+Possible structural placement:
+
+```text
+toolbar
+itemMenu
+bulkMenu
+secondary
+```
+
+No action knows media semantics unless declared inside a kind.
+
+---
+
+## PR 12 — File import/export action contracts
+
+Introduce small generic mechanics:
+
+```text
+ExportArtifact
+filename
+mimeType
+bytes
+
+ImportPreview
+issues/conflicts/status
+```
+
+And typed contracts:
+
+```text
+ExportAction<TContext>
+ImportAction<TContext, TPreview>
+```
+
+Generic infrastructure owns:
+
+```text
+file picker
+save/share
+preview dialog
+progress
+error display
+```
+
+Kind owns:
+
+```text
+format
+headers
+serializer
+parser
+matching
+semantic validation
 ```
 
 ---
 
-## PR 9 — Structural `AddSchema`
+## PR 13 — Action menu host
 
-Equivalent:
+Create generic:
 
-```dart
-AddSchema<TDraft>
-AddSectionSpec<TDraft>
-AddFieldSpec<TDraft>
+```text
+ActionMenu<TContext>
 ```
 
-Reuse visual field primitives where sensible.
+It renders actions supplied by kind.
 
-Do not share semantic field definitions.
+Single-kind Library pages provide fully typed contexts.
+
+Mixed global Shelf only uses:
+
+```text
+OwnedItemRef
+CatalogEntityRef
+summary
+```
+
+and dispatches immediately to the appropriate kind.
 
 ---
 
-## PR 10 — Generic Add renderer
+# PHASE F — FULL OWNED ARCHITECTURE
 
-One renderer.
+## PR 14 — Remove canonical common Owned domain
 
-Kind declares content.
+Begin deletion of:
 
-Renderer declares visual grammar.
+```text
+OwnedItem as cross-kind domain aggregate
+OwnedItemDetails
+defaultForKind
+parseForKind
+
+comicDetails
+mangaDetails
+movieDetails
+...
+```
+
+Retain only structural:
+
+```text
+OwnedItemId
+OwnedItemRef
+OwnedItemSummary
+```
 
 ---
 
-# PHASE 4 — Comic Reference Implementation
+## PR 15 — Move tracking fields out of Owned
 
-Comic proves the architecture before migrating everything else.
+Remove concepts such as:
 
-## PR 11 — Comic domain split
+```text
+readStatus
+rating
+startedAt
+finishedAt
+```
 
-Introduce explicit:
+from generic Owned state.
+
+Move to typed:
+
+```text
+ComicReadingState
+MangaReadingState
+BookReadingState
+
+MovieWatchState
+TvWatchState
+AnimeWatchState
+
+GamePlayState
+```
+
+as applicable.
+
+---
+
+## PR 16 — Owned action/read projections
+
+Create lightweight cross-kind read projection if needed:
+
+```text
+OwnedItemSummary
+```
+
+Containing only what a global UI genuinely needs:
+
+```text
+ref
+title
+subtitle?
+image?
+ownerLabel?
+locationLabel?
+```
+
+Do not add `condition`, `grade`, etc. to summary merely for convenience.
+
+---
+
+# PHASE G — COMIC REFERENCE VERTICAL SLICE
+
+## PR 17 — Comic typed domain
+
+Canonical:
 
 ```text
 ComicMedia
 ComicRelease
-ComicOwnedDetails
-ComicTracking details as needed
-
-ComicMediaId
-ComicReleaseId
+ComicOwnedItem
+ComicReadingState
 ```
 
-Migrate existing `ComicCatalogMetadata` semantics toward `ComicMedia`.
-
-No generic catalog inheritance beyond truly structural interfaces.
+plus typed IDs.
 
 ---
 
-## PR 12 — Comic Core mapper
-
-Create:
-
-```text
-comic/data/remote/comic_core_mapper.dart
-comic/data/remote/comic_remote_source.dart
-```
+## PR 18 — Comic Core mapping
 
 Direct:
 
@@ -658,914 +902,360 @@ ComicWorkDto
 → ComicMedia
 ```
 
-No intermediate:
+No generic catalog envelope.
 
-```text
-CatalogItemDto
-Map payload
-LibraryKindMetadataRuntime
-```
-
-Add:
-
-```text
-Comic Core mapping contract
-Comic Core field adoption test
-```
+Run Core field adoption contract.
 
 ---
 
-## PR 13 — Comic local media/release schema
-
-Move Comic persistence schema under Comic.
-
-Create typed Drift tables.
-
-Possible:
-
-```text
-ComicMediaRows
-ComicReleaseRows
-```
-
-Nested arrays may still be JSON columns if that is the appropriate storage representation.
-
-Only Comic interprets them.
-
----
-
-## PR 14 — Comic local mapper + persistence contract
-
-Implement:
-
-```text
-ComicMedia ↔ ComicMediaRow
-ComicRelease ↔ ComicReleaseRow
-```
-
-Tests:
-
-```text
-minimal round trip
-full round trip
-nullable values
-lists
-unicode
-nested values
-```
-
----
-
-## PR 15 — Comic repository
-
-Create typed API:
-
-```dart
-Future<ComicMedia?> getMedia(...);
-Future<List<ComicMedia>> search(...);
-
-Future<List<ComicRelease>> releasesFor(...);
-Future<ComicRelease?> getRelease(...);
-
-Future<void> updateMedia(...);
-Future<void> updateRelease(...);
-```
-
-Hide remote/cache policy.
-
-No generic Catalog objects leave the repository.
-
----
-
-## PR 16 — Comic workspace typed
-
-Create/finish:
-
-```text
-ComicWorkspaceDto
-ComicWorkspaceProjector
-
-ComicFields
-ComicColumns
-ComicSorts
-ComicGroups
-ComicFacets
-```
-
-All operate on Comic types.
-
-Add all workspace contracts.
-
----
-
-## PR 17 — Comic vocabulary ownership
-
-Comic declares all concrete vocabularies.
-
-Examples:
-
-```text
-publisher
-imprint
-condition if kind-specific
-grade
-page quality
-key categories
-formats
-story arcs
-```
-
-No global Comic defaults.
-
-Add vocabulary contract.
-
----
-
-## PR 18 — Comic Add schema
-
-Create one readable:
-
-```text
-comic_add_schema.dart
-```
-
-Explicitly declares:
-
-```text
-sections
-fields
-ordering
-visibility
-vocabulary bindings
-validation
-```
-
-No generic publishing schema.
-
----
-
-## PR 19 — Comic Media Edit schema
-
-Create:
-
-```text
-comic/edit/media/
-```
-
-One schema file should make the form understandable without looking elsewhere.
-
-Explicit:
-
-```text
-tabs
-sections
-fields
-visibility
-validation
-```
-
-Add Media Edit contract.
-
----
-
-## PR 20 — Comic Release Edit schema
-
-If Comic release semantics are distinct, create:
-
-```text
-comic/edit/release/
-```
-
-Explicit release/edition/variant/identifier fields.
-
-Add Release + Release Edit contracts.
-
----
-
-## PR 21 — Comic Owned Edit
-
-Move grading/key/collector fields to:
-
-```text
-comic/edit/owned/
-```
-
-No generic:
-
-```text
-showsComicCollectorFields
-keyComicLabel
-```
-
-Add Owned Edit contract.
-
----
-
-## PR 22 — Comic hierarchy/stats/value typed
-
-Remove remaining Comic semantics from generic hierarchy/stats layers.
+## PR 19 — Comic local DB
 
 Comic owns:
 
 ```text
-series/issue hierarchy
-key-comic stats
-cover-price stats
-Comic-specific grouping
+ComicMediaRows
+ComicReleaseRows
+ComicOwnedItems
+ComicReadingRows
+```
+
+No base owned union table.
+
+---
+
+## PR 20 — Comic repository
+
+Typed repository only.
+
+No `CatalogItem`.
+
+---
+
+## PR 21 — Comic workspace
+
+Own:
+
+```text
+ComicWorkspaceDto
+fields
+columns
+sorts
+groups
+facets
+vocabularies
 ```
 
 ---
 
-# PHASE 5 — Provider/Kind Architecture
-
-## PR 23 — Provider dependency rules
-
-Enforce:
-
-```text
-providers/** -> kinds/**
-FORBIDDEN
-```
-
-Provider is allowed to know only:
-
-```text
-CatalogMediaKind identity
-provider-native DTOs
-provider protocol
-```
-
----
-
-## PR 24 — Provider-native metadata models
-
-For each existing provider, ensure native models remain provider-owned.
-
-Examples:
-
-```text
-AniListAnime
-AniListManga
-
-TmdbMovie
-TmdbTvSeries
-
-ComicVineIssue
-ComicVineVolume
-```
-
-No kind models imported.
-
----
-
-## PR 25 — Generic provider search hit becomes summary-only
-
-Canonical generic metadata search result:
-
-```dart
-ProviderSearchHit {
-  ProviderId providerId;
-  CatalogMediaKind kind;
-  String remoteId;
-
-  String title;
-  String? subtitle;
-  String? imageUrl;
-}
-```
-
-No full normalized god metadata envelope required for Add/search.
-
----
-
-## PR 26 — Comic provider integrations
-
-For each Comic metadata provider:
-
-```text
-comic/data/providers/<provider>/
-```
-
-Mapper:
-
-```text
-ProviderNativeComic
-→ ComicMedia / ComicRelease
-```
-
-Provider remains unaware of Comic.
-
-Add provider integration contract for every integration.
-
----
-
-## PR 27 — Kind-owned reverse provider mapping
-
-Where metadata writeback exists:
-
-```text
-ComicMedia
-→ ComicProviderWriteMapper
-→ Provider-native mutation input
-→ Provider client
-```
-
-Still owned by Comic.
-
-Provider never imports Comic.
-
-### Status (2026-09-03)
-
-Not applicable in the current checkout. Metadata providers expose only
-read-oriented `search` and `fetchItem` capabilities. The provider write APIs
-currently present are personal-list synchronization and Core ingest/admin
-operations; there is no provider metadata mutation endpoint or client
-capability to map into. Do not add a speculative reverse mapper. Resume this
-PR only when metadata writeback is introduced; until then, continue with PR 28
-and keep its personal-sync path separate from catalog metadata.
-
----
-
-## PR 28 — Personal provider sync explicitly separate
-
-Document and enforce:
-
-```text
-METADATA:
-provider-native DTO
-→ kind-owned mapper
-→ kind domain
-
-PERSONAL:
-provider list DTO
-→ provider-owned mapper
-→ ProviderPersonalEntry
-→ ExternalStateEngine
-```
-
-Do not mix catalog metadata into `ExternalStateEngine`.
-
-### Status (2026-09-03)
-
-Structurally present in the current checkout: provider personal-list mappers,
-file import capabilities, and `ExternalStateEngine` use
-`ProviderPersonalEntry`, while kind-owned metadata mapping remains separate.
-Durable account/link persistence is now backed by the shared Drift database,
-while provider credentials remain in secure storage. Sync-policy persistence
-and directional filtering, three-way conflict handling, and echo protection
-are covered by the AniList vertical slice. The importer framework and TMDB preview path now consume
-`ProviderPersonalEntry` end to end; the duplicate `ImportRow` representation
-and its conversion bridge are removed, and `MutationOrigin.fileImport` reaches
-the typed apply callback. Production import jobs now carry their origin through
-collection mutations, and file imports are prevented from writing back to
-external providers. TMDB account imports now persist a stable account identity
-and create links with the imported provider snapshot after local application.
-All supported file-import surfaces now offer explicit provider-account
-selection; imports without a selected account remain intentionally unlinked.
-Production collection mutations now read local tracking/wishlist state and
-push linked changes through the coordinator, while provider pulls apply back
-through the same typed mutation path. The PR remains open for the remaining
-provider personal-list integrations described in Phase 7. Continue from this
-PR; do not reopen PR27
-without a provider metadata writeback capability.
-
----
-
-# PHASE 6 — Owned State
-
-## PR 29 — `OwnedItem<TDetails>`
-
-Refactor:
-
-```dart
-OwnedItem<TDetails>
-```
-
-Universal fields only:
-
-```text
-identity
-quantity
-purchase info
-owner/location
-notes
-sale state if universal
-```
-
-Kind details:
-
-```text
-TDetails
-```
-
-Delete runtime helper getters:
-
-```text
-comicDetails
-mangaDetails
-movieDetails
-...
-```
-
-### Status (2026-09-03)
-
-The model now carries `TDetails extends OwnedItemDetails`, and its constructor,
-JSON factory, and `copyWith` preserve that concrete details type. Existing
-kind call sites now read and write their concrete `details` type, including
-shared collection, inspector, export, and video-like surfaces. The runtime
-per-kind detail getters and compatibility helpers have been removed. PR29 is
-complete; continue with PR30.
-
----
-
-## PR 30 — Base Owned DB cleanup
-
-Reduce generic ownership table to genuinely universal state.
-
-Review every column.
-
-Move:
-
-```text
-Comic grading
-key comic
-HDR
-video packaging
-game completeness
-etc.
-```
-
-out.
-
-### Status (2026-09-03)
-
-Complete. `OwnedItemsCache` now keeps only universal ownership state plus the
-persisted `kind` and opaque `detailsJson` payload. The v9-to-v10 migration
-preserves legacy Comic, video, and Game values, prefers `CatalogCache.kind`
-when it can identify the owned item, and falls back to legacy-column
-inference otherwise. Repository round-trip and malformed-payload fallback
-tests cover the new storage contract. Continue with PR31.
-
----
-
-## PR 31 — Comic owned details DB
-
-Create:
-
-```text
-ComicOwnedDetailsRows
-```
-
-### Status (2026-09-03)
-
-Complete for the typed persistence slice. `ComicOwnedDetailsRows` is registered
-in the local Drift database with typed scalar columns for all Comic-owned
-details, and `ComicLocalMapper` provides validated row conversions. Schema 11
-creates the table on v10 upgrades and preserves the v9-to-v11 migration path.
-Mapper, schema-registration, and migration tests cover populated/default rows,
-nullable values, UTC dates, identity validation, and existing cache
-preservation. `OwnedItemsCache.detailsJson` remains the canonical generic
-cache/sync representation; this PR does not dual-write or change generic
-repository authority. Continue with PR32.
-
-under Comic.
-
-Round-trip contract.
-
----
-
-# PHASE 7 — Manga
-
-## PR 32 — Manga domain + Core mapper
-
-Independent:
-
-```text
-MangaMedia
-MangaRelease/Edition if needed
-MangaOwnedDetails
-
-MangaWorkDto
-→ MangaMedia
-```
-
-Do not import Comic.
-
-Core adoption tests.
-
-### Status (2026-09-03)
-
-Complete. `MangaMedia` now owns the direct Core work projection, and
-`MangaCoreMapper` maps every `MangaWorkDto` field without passing through
-`CatalogItemDto`, Book semantics, or another kind module. `ApiMangaRemoteSource`
-provides the injectable Core fetch boundary. The compatibility Manga mapper
-now returns `MangaCatalog` instead of delegating to Book. Focused tests cover
-field mapping, kind validation, remote fetching, round-trip preservation, and
-explicit Core field adoption. Continue with PR33.
-
----
-
-## PR 33 — Manga local DB + repository
-
-Create Manga-owned:
-
-```text
-media tables
-release tables if required
-owned detail tables
-local mapper
-repository
-```
-
-Persistence contracts.
-
-### Status (2026-09-03)
-
-Complete. `MangaMediaRows` and `MangaOwnedDetailsRows` are registered as
-Manga-owned Drift tables in schema v12. `MangaLocalMapper` provides validated
-media and owned-details row conversions, preserving Manga lists as explicitly
-named JSON columns and owned fields as typed scalar columns. `MangaRepository`
-supports cache-first media reads, deterministic search, upserts, owned-details
-round-trips, and typed remote fallback. Focused schema, mapper, repository,
-and v10-to-v12 migration tests cover the persistence contract. Continue with
-PR34.
-
----
-
-## PR 34 — Manga workspace + vocabularies
-
-Independent:
-
-```text
-MangaWorkspaceDto
-MangaFields
-MangaColumns
-MangaSorts
-MangaGroups
-MangaFacets
-MangaVocabularies
-```
-
-Duplication with Comic is intentional.
-
-### Status (2026-09-03)
-
-Complete. Manga now has an explicit contract for its typed workspace registry:
-base and kind-specific fields are registered, columns/sorts/groups resolve to
-Manga IDs, defaults resolve to declared definitions, and the preference codec
-remains Manga-owned. Typed facet definitions cover publisher, genre, character,
-theme, and demographic; character intentionally returns no values until the
-workspace projection carries Manga media character appearances. Manga's five
-vocabularies are registered through the kind edit capability. Contract tests
-cover IDs, definitions, extracted values, facets, and vocabulary ownership.
-Continue with PR35.
-
----
-
-## PR 35 — Manga Add + Edit
-
-Create:
-
-```text
-MangaAddSchema
-MangaMediaEditSchema
-MangaReleaseEditSchema if applicable
-MangaOwnedEditSchema
-```
-
-### Status (2026-09-03)
-
-Complete. Manga now has typed Add, Media Edit, and Owned Edit schemas, with
-Manga-specific vocabularies and complete grading and collector-field
-transport. The media and ownership schemas use the generic schema renderer,
-and the Manga edit capability registers the media dialog plus the combined
-editor's custom Owned tab. Manga has no applicable Release Edit schema:
-`MangaMetadata.editions` is a catalog snapshot and there is no Manga-owned
-release model or release edit command to update. Contract tests cover schema
-shape, typed field bindings, validation, selection updates, and nested grading
-equality. Continue with PR36.
-
----
-
-## PR 36 — Manga hierarchy/providers/stats
-
-Manga-owned hierarchy:
-
-```text
-series
-volume
-chapter
-```
-
-No generic Season conversions.
-
-Manga provider integrations independent from Anime even for AniList.
-
-### Status (2026-09-04)
-
-Complete for the Manga hierarchy, provider, and stats slice. Manga hierarchy
-now owns typed series, volume, and chapter nodes, groups raw Manga chapter
-rows into ordered volumes, and maps them to generic UI nodes only at the
-presentation boundary. The Manga path uses a dedicated raw chapter API
-boundary and does not convert through the generic `Season` model. Manga's
-provider mapper now exposes typed `MangaMetadata` decoding and rejects
-non-Manga envelopes, so the shared AniList adapter remains independent from
-Anime semantics. Manga stats derive missing volumes directly from typed
-metadata rather than serialized payloads.
-
-Focused hierarchy/provider/stats tests and the existing Manga vertical slice
-tests pass. Full validation passed for `build_runner`, `flutter analyze
---fatal-warnings --fatal-infos`, `flutter test` (`+1523`, 5 skipped), and
-PR36-file format checks. The global format check still reports the existing
-unmodified `manga_repository.dart`; the architecture checker still reports
-the four pre-existing violations and existing complexity-budget findings.
-Continue with PR37.
-
----
-
-# PHASE 8 — Book
-
-## PR 37 — Book domain + Core mapper
-
-Create typed:
-
-```text
-BookMedia
-BookEdition/Release
-BookOwnedDetails
-```
-
-Direct Core DTO mapping.
-
-### Status (2026-09-04)
-
-Complete for the Book domain and Core mapper slice. Book now has typed media
-and release identifiers, a `BookMedia` domain model, typed release/edition
-fields, and direct mapping from `BookWorkDto` and `BookEditionDto`. The Book
-remote source fetches typed Core work DTOs, validates the Book kind boundary,
-and maps them without going through the generic `CatalogItemDto` transport
-model. Existing `BookCatalogItem` and `BookOwnedDetails` compatibility paths
-remain available for the later persistence and UI migration slices.
-
-Focused Book Core mapping tests cover work and edition field adoption, typed
-variants, wrong-kind rejection, remote-source mapping, and round-trip
-preservation. Continue with PR38.
-
----
-
-## PR 38 — Book DB + repository
-
-Kind-owned tables and persistence.
-
-### Status (2026-09-04)
-
-Complete for the Book persistence slice. Book now has kind-owned Drift tables
-for media, editions, and owned details, with schema migration v12 -> v13.
-Local mappers preserve typed work fields, edition fields, variants, and opaque
-transport lists/maps. `BookRepository` persists and reloads media with
-edition children, supports typed media/release lookup and deterministic
-search, caches typed remote fetches, and round-trips `BookOwnedDetails`.
-Focused mapper, repository, and database migration tests cover the new
-boundaries. Continue with PR39.
-
----
-
-## PR 39 — Book workspace/vocabularies
-
-Independent publishing fields.
-
-Do not share with Manga.
-
-### Status (2026-09-04)
-
-Complete. Book now exposes a complete kind-owned workspace registry with
-stable field, column, sort, and group IDs, typed facet definitions for authors,
-publishers, genres, formats, subjects, and translators, and external facet
-buckets for genre and subject. Book vocabulary IDs and definitions remain
-independent under the `book.*` namespace, including the condition vocabulary.
-Contract tests cover registry uniqueness, default resolution, typed facet
-extraction, external facet registration, and vocabulary ownership. Continue
-with PR40.
-
----
-
-## PR 40 — Book Add/Edit/providers/hierarchy
+## PR 22 — Comic Add/Edit
 
 Explicit:
 
 ```text
-BookAddSchema
-BookMediaEditSchema
-BookEditionEditSchema
-BookOwnedEditSchema
+ComicAddSchema
+
+ComicMediaEditSchema
+ComicReleaseEditSchema
+ComicOwnedEditSchema
 ```
 
-Remove any Book Edition → generic Season compatibility.
-
-### Status (2026-09-04)
-
-Complete. Book now owns explicit Add, media edit, release edit, and owned
-edit schemas, with typed release hierarchy nodes and provider envelope
-validation. Book hierarchy loading uses `BookWorkDto` and never routes Book
-editions through the generic `Season` API; legacy volume loading remains
-explicitly scoped to its non-Book callers. Release metadata round-trips
-preserve identifiers, artwork, publication details, status, audio length, and
-variants.
+One schema file per edit scope should visibly define all tabs/sections/fields in order.
 
 ---
 
-# PHASE 9 — Game
+## PR 23 — Comic collection actions
 
-## PR 41 — Game domain + Core mapping
+Move Comic semantic import/export out of Collection.
 
-Use distinct:
+Create kind-owned actions for applicable formats:
+
+```text
+Export Comic CSV
+Import Comic CSV
+Import CLZ Comic CSV
+Export ComicInfo.xml
+other Comic-specific XML
+```
+
+Move `ComicInfoXml` under Comic.
+
+No generic collection serializer imports Comic.
+
+---
+
+## PR 24 — Comic provider integrations
+
+Provider-native DTO → Comic domain mapping lives under:
+
+```text
+kinds/comic/data/providers/<provider>/
+```
+
+---
+
+## PR 25 — Comic calendar/barcode/override contributions
+
+Comic owns:
+
+```text
+ComicCalendarContributor
+ComicBarcodeResolver
+ComicMetadataOverrideSchema
+```
+
+if supported.
+
+No generic calendar knows Comic release semantics.
+
+No generic barcode lookup knows issue/barcode semantics.
+
+---
+
+## PR 26 — Comic reference contracts
+
+Run all applicable contracts:
+
+```text
+Core
+repository
+DB
+workspace
+Add
+Media Edit
+Release Edit
+Owned Edit
+actions
+provider
+calendar
+barcode
+overrides
+```
+
+---
+
+## PR 27 — Comic architectural gate
+
+Must prove:
+
+```text
+0 CatalogItem type erasure
+0 generic Owned model
+0 Comic semantics outside Comic except composition roots
+0 Comic provider mapping inside provider package
+```
+
+Do not migrate remaining kinds until this passes.
+
+---
+
+# PHASE H — MANGA
+
+## PR 28 — Manga data vertical
+
+Own independently:
+
+```text
+MangaMedia
+MangaRelease/Edition
+MangaOwnedItem
+MangaReadingState
+
+Core mapper
+DB
+repository
+workspace
+fields
+vocabularies
+```
+
+No Comic imports.
+
+---
+
+## PR 29 — Manga UX/integration vertical
+
+Own:
+
+```text
+Add
+Media Edit
+Release Edit
+Owned Edit
+
+hierarchy
+provider mappings
+actions/import/export
+calendar
+barcode identifiers if applicable
+overrides
+stats
+tests
+```
+
+AniList mapping is independent from Anime mapping.
+
+---
+
+# PHASE I — BOOK
+
+## PR 30 — Book data vertical
+
+Own:
+
+```text
+BookMedia
+BookEdition
+BookOwnedItem
+BookReadingState
+
+Core mapper
+DB
+repository
+workspace
+fields/vocabularies
+```
+
+---
+
+## PR 31 — Book UX/integration vertical
+
+Own:
+
+```text
+Add
+Media Edit
+Edition Edit
+Owned Edit
+
+Book ISBN resolver
+Book import/export
+calendar
+provider mappings
+hierarchy
+tests
+```
+
+No generic Book Edition → `Season`.
+
+---
+
+# PHASE J — GAME
+
+## PR 32 — Game data vertical
+
+Own:
 
 ```text
 GameMedia
 GameRelease
-GameOwnedDetails
+GameOwnedItem
+GamePlayState
 ```
 
-Core Work and Release stay separate.
-
-### Status (2026-09-04)
-
-Complete. Game now has typed media and release identifiers, distinct
-`GameMedia` and `GameRelease` models, direct mapping from `GameWorkDto` and
-`GameReleaseDto`, and separate remote fetches for works and releases. The
-legacy Game catalog mapper remains available while the typed Core boundary is
-introduced. Focused mapping, remote-source, round-trip, field-adoption, and
-wrong-kind tests pass. Continue with PR42.
+plus Core/DB/repository/workspace.
 
 ---
 
-## PR 42 — Game DB/repository
+## PR 33 — Game UX/integration vertical
 
-Separate media/release/owned tables.
-
-### Status (2026-09-04)
-
-Complete. Game persistence now owns separate media, release, and owned-details
-tables at schema version 14. Typed local mappers preserve Game metadata,
-release fields, list values, and raw payloads, while `GameRepository` provides
-transactional media-plus-release updates, deterministic search, release
-lookup/enumeration, owned-details persistence, and typed remote fallback with
-cache population. Focused mapper, repository, and migration tests pass.
-
----
-
-## PR 43 — Game workspace/vocabularies
-
-Game owns:
+Own:
 
 ```text
-platform
-region
-release format
-etc.
+Add
+Media Edit
+Release Edit
+Owned Edit
+
+platform/region vocabularies
+providers
+barcode/product code resolution
+calendar
+actions
+tests
 ```
 
 ---
 
-## PR 44 — Game Add + Media/Release/Owned Edit
+# PHASE K — BOARDGAME
 
-This is an important proof of Media vs Release schemas.
+## PR 34 — BoardGame data vertical
 
-Explicitly separate them.
-
-No generic release field set.
-
----
-
-## PR 45 — Game providers/tracking/stats
-
-Game-specific providers and progress semantics.
-
----
-
-# PHASE 10 — BoardGame
-
-## PR 46 — BoardGame domain + Core mapping
-
-Explicit:
+Own:
 
 ```text
 BoardGameMedia
 BoardGameEdition
-BoardGameOwnedDetails
+BoardGameOwnedItem
 ```
 
-Don't force Edition into another kind's Release semantics.
+Full DB/repository/workspace.
 
 ---
 
-## PR 47 — BoardGame DB/repository/workspace
+## PR 35 — BoardGame UX/integration vertical
 
-All BoardGame-owned.
-
----
-
-## PR 48 — BoardGame Add/Edit/providers/stats
-
-Create:
+Own:
 
 ```text
-BoardGameMediaEditSchema
-BoardGameEditionEditSchema
+Add
+Media Edit
+Edition Edit
+Owned Edit
+providers
+actions
+stats
+tests
 ```
 
-Independent from Game.
+Do not reuse Game domain models.
 
 ---
 
-# PHASE 11 — Movie
+# PHASE L — MOVIE
 
-## PR 49 — Movie domain + Core mapping
+## PR 36 — Movie data vertical
 
-Create independent:
+Own:
 
 ```text
 MovieMedia
 MovieRelease
-MovieOwnedDetails
-MovieTracking
+MovieOwnedItem
+MovieWatchState
 ```
 
-No shared Video domain model.
+plus DB/repository/workspace.
 
-### Status (2026-09-04)
-
-Complete. Movie now has independent typed media, release, release-media, and
-tracking models, typed identifiers, direct `MovieWorkDto` mapping, release
-payload mapping, and an injectable typed remote source. Core collections are
-decoded into Movie-owned value types rather than remaining as generic payloads.
-Focused mapping, remote-source, wrong-kind, round-trip, and field-adoption tests
-pass. Continue with PR50.
+Do not use shared Video domain.
 
 ---
 
-## PR 50 — Movie DB/repository/workspace
+## PR 37 — Movie UX/integration vertical
 
-Movie-owned tables.
-
-Duplicate video technical columns if needed.
-
-### Status (2026-09-05)
-
-Complete. Movie now has dedicated Drift media, release, and owned-details
-tables, typed local mappers, repository cache/remote fallback, schema migration
-to v17, and a typed `MovieMedia` workspace projection. Existing video workspace
-access remains as a compatibility bridge while Movie fields consume typed media
-where available. Focused Movie, workspace, repository, and database migration
-tests pass. Continue with PR51.
-
----
-
-## PR 51 — Movie Add/Edit
-
-Explicit:
+Own:
 
 ```text
-MovieAddSchema
-MovieMediaEditSchema
-MovieReleaseEditSchema
-MovieOwnedEditSchema
+Add
+Media Edit
+Release Edit
+Owned Edit
+
+providers
+calendar
+actions
+tracking
+tests
 ```
 
-No `VideoEditDraft`.
-
-### Status (2026-09-05)
-
-Complete. Movie now exposes an independent manual `MovieAddSchema`, typed
-media/release/owned edit drafts and schemas, Movie-owned release add state, and
-validation for identity, runtime, and dates. The new edit contracts preserve
-typed Movie models and do not depend on a shared video edit draft. Focused add
-and edit schema tests pass. Continue with PR52.
+Duplicate technical fields from TV/Anime where needed.
 
 ---
 
-## PR 52 — Movie providers/stats/value
+# PHASE M — TV
 
-Movie provider integration owned by Movie.
+## PR 38 — TV data vertical
 
-### Status (2026-09-05)
-
-Complete. Movie provider mapping now validates the normalized kind and keeps
-provider image fallback deterministic while decoding into Movie-owned catalog
-metadata. Movie stats no longer contain TV season-gap semantics; they expose
-typed runtime, audience-rating, genre, director, and physical-format
-aggregations. Movie value semantics are registered through
-`MovieValueCapability`, covering owned market values and optional provider
-valuations preserved by the Movie domain models. Focused provider, stats, and
-value tests pass. Continue with PR53.
-
----
-
-# PHASE 12 — TV
-
-## PR 53 — TV typed domain matching Core
-
-Use actual semantics:
+Own:
 
 ```text
 TvSeries
@@ -1573,106 +1263,39 @@ TvSeason
 TvEpisode
 TvRelease
 TvReleaseMedia
+TvOwnedItem
+TvWatchState
 ```
 
-No generic `Season`.
-
-### Status (2026-09-05)
-
-Complete. TV now exposes its own typed series, season, episode, release,
-release-media, episode-map, contributor, identifier, and character models.
-`TvCoreMapper` maps the generated Core DTO graph directly into those models,
-including nested seasons, releases, media, mappings, and typed credits. The
-legacy shared-video mapper remains isolated for the compatibility editor path.
-Focused Core mapping and TV vertical-slice tests pass. Continue with PR54.
+plus DB/repository.
 
 ---
 
-## PR 54 — TV DB/repository
+## PR 39 — TV UX/integration vertical
 
-TV-specific tables:
+Own:
 
 ```text
-series
-seasons
-episodes
-releases
-release media/maps
-owned
-tracking
-```
+workspace
+hierarchy
+Add
+Media Edit
+Release Edit
+Owned Edit
 
-### Status (2026-09-05)
-
-Complete. TV now has dedicated Drift tables for series, seasons, episodes,
-releases, release media, episode maps, and owned details. The typed repository
-hydrates and persists the complete nested graph transactionally, while the
-remote source supports cache population and fallback. Schema version 18 and
-its migration coverage are in place. Continue with PR55.
-
----
-
-## PR 55 — TV workspace/hierarchy
-
-TV owns Season/Episode hierarchy.
-
-Generic hierarchy renderer only renders typed nodes supplied to it.
-
-### Status (2026-09-05)
-
-Complete. TV workspace projections now carry a typed `TvSeries` graph through
-the TV-owned workspace mapper, while legacy catalog/video projections remain
-available as compatibility bridges. TV hierarchy loading maps Core seasons and
-episodes through TV-owned models before producing generic renderer nodes, and
-the shelf drilldown consumes `TvSeason`/`TvEpisode` internally. Focused
-workspace, hierarchy, and drilldown tests pass. Continue with PR56.
-
----
-
-## PR 56 — TV Add/Edit
-
-Explicit:
-
-```text
-TvAddSchema
-TvMediaEditSchema
-TvReleaseEditSchema
-TvOwnedEditSchema
-```
-
-### Status (2026-09-05)
-
-Complete. TV now exposes an independent typed add schema and release-add
-draft, plus media, release, and owned edit schemas backed by `TvSeries`,
-`TvRelease`, and `TvOwnedDetails`. Validation covers identity and date
-consistency, and the typed drafts preserve nested TV graphs and raw fields.
-The legacy generic edit draft remains available only for the existing dialog
-bridge. Focused Add/Edit contract and round-trip tests pass. Continue with
-PR57.
-
----
-
-## PR 57 — TV providers/tracking/watch sessions
-
-TV-owned:
-
-```text
-episode progress
+episode tracking
 watch sessions
-custom episodes if appropriate
+providers
+calendar
+actions
+tests
 ```
-
-No `_shared/video` persistence.
-
-### Status (2026-09-05)
-
-Complete. TV now has dedicated typed watch-session, episode-progress, and custom-episode models and Drift tables (schema 19), a typed tracking repository, provider envelope mapping with kind validation and image fallback, and a TV-owned tracking profile. Focused tracking/provider, migration, and repository tests pass. Continue with PR58.
 
 ---
 
-# PHASE 13 — Anime
+# PHASE N — ANIME
 
-## PR 58 — Anime domain/Core mapping
+## PR 40 — Anime data vertical
 
 Independent:
 
@@ -1680,434 +1303,734 @@ Independent:
 AnimeMedia
 AnimeEpisode
 AnimeRelease
-AnimeOwnedDetails
-AnimeTracking
+AnimeOwnedItem
+AnimeWatchState
 ```
 
-Do not import TV.
-
-### Status (2026-09-05)
-
-Complete. Anime now has independent typed media, episode, release, and tracking models with typed identifiers, direct Core `AnimeSeriesDto` mapping, nested contributor/character/identifier/episode decoding, release payload mapping, wrong-kind validation, and an injectable typed remote source. Anime domain exports and Core mapper boundaries are in place, and focused mapping, remote-source, tracking round-trip, and field-adoption tests pass. Continue with PR59.
+No TV imports.
 
 ---
 
-## PR 59 — Anime DB/repository/workspace
+## PR 41 — Anime UX/integration vertical
 
-Duplicate TV-like schema where appropriate.
-
-Intentional.
-
-### Status (2026-09-05)
-
-Complete. Anime now has dedicated Drift media, episode, release, owned-details, and tracking tables at schema 20, typed local mappers, repository cache/remote fallback, and migration coverage from v19. Workspace projections carry an Anime-owned `AnimeMedia` graph, hierarchy loading maps typed episodes into generic renderer nodes, and legacy metadata/video projections remain only as compatibility bridges. Focused Anime, workspace, hierarchy, repository, and database tests pass. Continue with PR60.
-
----
-
-## PR 60 — Anime Add/Edit
-
-Explicit Anime schemas.
-
-Do not reuse TV schemas.
-
-### Status (2026-09-05)
-
-Complete. Anime now exposes an independent typed add schema, release-add
-draft, media/release/owned edit drafts and schemas, plus Anime-owned physical
-format, region, packaging, distributor, and HDR vocabularies. The legacy
-generic edit draft remains only as the existing dialog bridge. Focused add,
-edit, contract, and round-trip tests pass. Continue with PR61.
-
----
-
-## PR 61 — Anime providers
-
-Example:
+Independent:
 
 ```text
-providers/anilist/
-    AniList native models
-
-kinds/anime/data/providers/anilist/
-    AnimeAniListMapper
-    AnimeAniListIntegration
+workspace
+hierarchy
+Add/Edit
+tracking
+providers
+calendar
+actions
+tests
 ```
 
-Manga maintains its own separate AniList mapper.
-
-### Status (2026-09-05)
-
-Complete. Anime has a kind-owned AniList mapper for native AniList models and
-normalized envelopes, an integration facade that forces the Anime query kind,
-provider image fallback, native title/credit/relation mapping, and explicit
-wrong-kind validation. Manga keeps its existing separate mapper. Focused
-provider mapping tests pass. Continue with PR62.
+AniList provider mapping stays Anime-owned.
 
 ---
 
-## PR 62 — Anime tracking/hierarchy/stats
+# PHASE O — MUSIC
 
-Anime-specific semantics.
+## PR 42 — Music data vertical
 
-No generic Video behavior.
-
-### Status (2026-09-05)
-
-Complete. Anime now owns its tracking profile and collection statistics, with
-episode totals and Anime-specific genre, studio, format, and source-material
-facets. The Anime kind module no longer uses the shared generic video tracking
-profile. Focused tracking, stats, and Anime vertical-slice tests pass.
-
----
-
-# PHASE 14 — Music
-
-## PR 63 — Music typed domain
-
-Preserve actual Core semantics:
+Preserve actual Music semantics:
 
 ```text
 MusicRelease
 MusicMedia
 MusicTrack
-MusicOwnedDetails
+MusicOwnedItem
 ```
 
-Do not force Music into series/work/release assumptions from other kinds.
-
-### Status (2026-09-05)
-
-Complete. Music now has typed release, media, track, and identifier models with
-direct Core mapping, wrong-kind validation, nested media/track decoding, and a
-typed remote-source boundary. Legacy catalog names remain only as an explicit
-compatibility bridge. Focused Music mapping and round-trip tests pass. Continue
-with PR64.
+plus DB/repository/workspace.
 
 ---
 
-## PR 64 — Music DB/repository
+## PR 43 — Music UX/integration vertical
 
-Music-owned release/media/track schema.
-
-### Status (2026-09-05)
-
-Complete. Music has dedicated Drift release, media, track, and owned-details
-tables at schema 21, typed local mappers, transactional graph persistence,
-remote fallback/cache, and parent-ownership validation. Migration coverage
-preserves existing catalog cache data. Focused Music repository and database
-tests pass. Continue with PR65.
-
----
-
-## PR 65 — Music workspace/vocabularies
-
-Music-owned:
+Own:
 
 ```text
-formats
-genres
-credits
-classical metadata
+Add
+Media/Edit scopes appropriate to Music
+Release Edit
+Owned Edit
+
+track hierarchy
+providers
+calendar if applicable
+actions
+stats
+tests
+```
+
+No generic `supportsTrackSearch`.
+
+---
+
+# PHASE P — COLLECTION FEATURE CLEANUP
+
+## PR 44 — Replace CollectionPage hardcoded actions
+
+Remove hardcoded:
+
+```text
+Import collection
+Export collection
+```
+
+that directly launch semantic collection formats.
+
+Global Shelf may expose:
+
+```text
+Import…
+Export…
+```
+
+only as orchestration.
+
+Selecting Import should choose:
+
+```text
+target kind
+→ that kind's available ImportActions
+```
+
+or dispatch from the source file where possible.
+
+---
+
+## PR 45 — Remove semantic global Shelf filters
+
+Current mixed shelf concepts such as:
+
+```text
+missingGrade
+```
+
+are not universal.
+
+Global Shelf may keep genuinely universal:
+
+```text
+All
+Owned
+Wishlist
+Overdue Loan
+Has Notes
+```
+
+Kind-specific library pages may contribute:
+
+```text
+Missing Grade
+Raw Copies
+Slabbed
+Incomplete
+Missing Manual
 etc.
 ```
 
-### Status (2026-09-05)
-
-Complete. Music workspace projection now hydrates a Music-owned typed release
-graph, including media and tracks, while retaining legacy catalog metadata only
-as a compatibility bridge. Music owns format, genre, media-type, credit-role,
-record-label, and country vocabularies. Focused workspace and vocabulary tests
-pass. Continue with PR66.
+through typed filter definitions.
 
 ---
 
-## PR 66 — Music Add/Edit
+## PR 46 — Split CSV mechanics from CSV semantics
 
-Explicit:
+Keep generic:
 
 ```text
-MusicAddSchema
-MusicMediaEditSchema if appropriate
-MusicReleaseEditSchema
-MusicOwnedEditSchema
+CsvReader
+CsvWriter
+CSV escaping
+row parsing mechanics
+file mechanics
+preview host
 ```
 
-Do not depend on generic `supportsTrackSearch`.
-
-### Status (2026-09-05)
-
-Complete. Music exposes independent add, release-add, release-edit, media-edit,
-and owned-edit drafts/schemas with Music-specific fields and validation. The
-existing generic edit draft remains only for the current dialog bridge. Focused
-schema, validation, and typed round-trip tests pass. Continue with PR67.
-
----
-
-## PR 67 — Music providers/tracking/stats
-
-Music-specific track/hierarchy/stats behavior.
-
-### Status (2026-09-05)
-
-Complete. Music now owns a typed MusicBrainz mapper and integration facade,
-release/media/track hierarchy projection, release/media/track tracking state,
-and collection statistics for tracks, media, artists, genres, formats, and
-labels. The Music module no longer uses the shared generic listening profile
-and loads children through the typed Core Music release graph. Focused provider,
-hierarchy, tracking, statistics, and vertical-slice tests pass. Continue with
-PR68.
-
----
-
-# PHASE 15 — Remove Legacy Hierarchy Abstractions
-
-## PR 68 — Delete generic `getItemVolumes()` style APIs
-
-Remove any APIs translating:
+Delete canonical union schema containing:
 
 ```text
-Manga Chapter → Season
-Book Edition → Season
-Volume → Season
+publisher
+issue
+variant
+grade
+key comic
+raw/slabbed
+grading company
+etc.
 ```
 
-Each kind calls its typed API directly.
-
-### Status (2026-09-05)
-
-Complete. The generic `ApiClient.getItemVolumes()` route and its legacy
-Season-producing adapters are gone. Comic hierarchy loading now consumes
-`ComicWorkDto` through the Comic mapper, while Manga shelf loading consumes
-`MangaWorkDto` and `MangaSeriesHierarchy`; the collection shelf no longer
-depends on generic Season/Episode models for Manga. Focused API, Comic, and
-Manga hierarchy tests pass. Continue with PR69.
-
----
-
-## PR 69 — Make hierarchy renderer type-generic, not domain-generic
-
-Allowed:
-
-```dart
-HierarchyView<TNode>
-```
-
-Not:
+Each kind owns:
 
 ```text
-Season
-Volume
-Episode
-Chapter
-Issue
+<Kind>CsvImportProfile
+<Kind>CsvExportProfile
 ```
-
-in generic models.
-
-Kinds define their nodes.
-
-### Status (2026-09-05)
-
-Complete. The shared hierarchy provider and renderer operate on
-`LibraryHierarchyNode` trees and never materialize Season, Volume, Episode,
-Chapter, or Issue domain objects. Kind-owned mappers produce the transport
-nodes at the boundary, while the generic UI only handles labels, children,
-actions, and presentation metadata. Continue with PR70.
 
 ---
 
-# PHASE 16 — Remove Catalog Type Erasure
+## PR 47 — Move CLZ semantics into relevant kinds
 
-## PR 70 — Remove `CatalogItemDto` from Library runtime
+CLZ mappings are domain integrations.
 
-All nine kinds should now map generated DTOs directly.
-
-Target:
+Example:
 
 ```text
-CatalogItemDto usages under Library/Collection business code = 0
+kinds/comic/integrations/clz/
 ```
 
-If API legacy code still needs it, quarantine it.
+If CLZ Book support is later needed:
 
-### Status (2026-09-05)
+```text
+kinds/book/integrations/clz/
+```
 
-Complete. Library and Collection runtime paths now convert legacy cache/API
-catalog DTOs through the explicit metadata transport codec and continue with
-`LibraryMetadataItem`; Collection mutations, the add-session hydration path,
-serial authority cache, shelf, workspace, and generic dialogs no longer refer
-to `CatalogItem` directly. The manga hierarchy callback was also moved to the
-typed Core work endpoint, removing the stale generic chapter-row API call.
-Legacy DTO construction remains isolated in the catalog cache and transport
-adapter boundaries for the subsequent wrapper removal PRs. Continue with PR71.
+Do not create one giant CLZ row model containing all media types.
 
 ---
 
-## PR 71 — Delete `LibraryKindMetadataRuntime`
+## PR 48 — Delete/rehome generic Collection XML
+
+Current `CollectionXml` must stop knowing any catalog semantics.
+
+Preferred:
+
+```text
+DELETE as canonical format
+```
+
+If backwards compatibility is required:
+
+```text
+legacy import adapter
+→ identifies kind
+→ delegates to kind importer
+```
+
+No production generic serializer reads payload keys or `comicDetails`.
+
+---
+
+## PR 49 — Move ComicInfo.xml into Comic
+
+`ComicInfo.xml` is explicitly Comic domain.
+
+Move its parser/serializer into:
+
+```text
+kinds/comic/integrations/comic_info/
+```
+
+CBZ archive/file mechanics may remain generic.
+
+---
+
+## PR 50 — Replace common owned collection commands
 
 Delete:
 
 ```text
+OwnedItemCommonDraft
+```
+
+and massive common command parameter sets.
+
+Prefer typed:
+
+```text
+CreateOwnedCommand<TDraft>
+UpdateOwnedCommand<TPatch>
+```
+
+or simply repository methods receiving:
+
+```text
+ComicOwnedCreate
+ComicOwnedPatch
+```
+
+Contracts may be shared.
+
+Fields may not.
+
+---
+
+# PHASE Q — CATALOG FEATURE REMOVAL
+
+## PR 51 — Delete `CatalogCacheDerivedDataService`
+
+Current generic service groups runtime metadata and feeds vocabularies/serial authority.
+
+Move any genuinely required derived capture into owning kind repositories/actions.
+
+No generic service imports kind `_shared` serial semantics.
+
+---
+
+## PR 52 — Remove generic `CatalogCacheRepository`
+
+Each kind now has typed persistence.
+
+Delete generic lookups like:
+
+```text
+findByBarcode
+findByTitleAndIssue
+```
+
+Kind examples:
+
+```text
+ComicRepository.findByBarcode(...)
+BookRepository.findByIsbn(...)
+```
+
+---
+
+## PR 53 — Delete catalog type-erasure stack
+
+Remove once last consumer migrated:
+
+```text
+CatalogItemDto from Library runtime
+CatalogKindCodec
+
 LibraryKindMetadataRuntime
 LibraryKindMetadataDecoders
-DefaultMapKindMetadata
-EmptyKindMetadata
-```
 
-No replacement V2.
-
-### Status (2026-09-05)
-
-Complete. The shared metadata runtime interface, global decoder container, and
-map fallback implementations are deleted. Concrete kind metadata/media models
-remain responsible for their own payload serialization; the transitional
-catalog view keeps only the boundary decoding needed until PR72 removes the
-remaining library wrappers. Continue with PR72.
-
----
-
-## PR 72 — Delete Library catalog wrappers
-
-Delete:
-
-```text
 LibraryMetadataItem
 LibraryCatalogItemView
 LibraryMetadataTransportCodec
 ```
 
-Replace callers with concrete kind types.
-
-### Status (2026-09-05)
-
-Complete. The three Library catalog wrappers are deleted. Library, Collection,
-add/edit, provider, cache, and import paths now use `CatalogItemDto` directly;
-the kind registry attaches concrete metadata only when a catalog boundary is
-hydrated, and `CatalogItemDto.copyWith` preserves that metadata through edits.
-Continue with PR73.
+Do not introduce replacements with `V2`.
 
 ---
 
-## PR 73 — Delete `CatalogKindCodec`
+# PHASE R — HIERARCHY CLEANUP
 
-Serialization is now local to actual boundaries:
+## PR 54 — Delete `shelfVolumesProvider`
+
+The current:
 
 ```text
-Core mapper
-local mapper
-provider mapper
-sync mapper
+List<Season>
+getItemVolumes()
 ```
 
-No global metadata codec registry.
+representation must disappear.
 
-### Status (2026-09-05)
-
-Complete. `CatalogKindCodec`, its default implementation, global registry, and
-all module registrations are deleted. Each kind now exposes its own metadata
-decoder callback through the kind module, while domain models keep their local
-`toJson` serialization for Core, provider, edit, and sync boundaries.
-Continue with PR74.
+Kinds directly expose typed hierarchy/repositories.
 
 ---
 
-## PR 74 — Delete generic catalog cache
+## PR 55 — Remove generic `Season`/Volume compatibility APIs
 
-Once all kinds have typed Drift schemas:
+No:
 
 ```text
-DELETE CatalogCache
-DELETE generic CatalogCacheRepository
+Manga Chapter → Season
+Book Edition → Season
 ```
 
-No canonical `id + kind + payloadJson` media store.
-
-### Status (2026-09-05)
-
-Complete. The generic `CatalogCache` table and `CatalogCacheRepository` are
-deleted from the active schema and runtime. Catalog reads and writes now go
-through `LibraryCatalogRepository`, which delegates to the nine typed kind
-repositories. Existing installations migrate legacy `catalog_cache` rows into
-typed tables before dropping the table; owned-item and tracking persistence no
-longer joins against it.
-Continue with PR75.
-
----
-
-# PHASE 17 — Tracking De-Generalization
-
-## PR 75 — Generic personal tracking base
-
-Decide what is genuinely universal:
-
-Potentially:
+Generic UI may use:
 
 ```text
-status
-rating
-startedAt
-completedAt
-notes
+HierarchyView<TNode>
 ```
 
-Nothing media-hierarchy-specific.
+but node types remain kind-owned.
 
 ---
 
-## PR 76 — Split tracking units into kinds
+# PHASE S — METADATA OVERRIDES
 
-Delete generic union fields:
+## PR 56 — Remove global item/edition/variant ontology
+
+Current override model assumes:
 
 ```text
-seasonNumber
-episodeNumber
-volumeNumber
-chapterNumber
-issueNumber
+item
+edition
+variant
+fieldPath
 ```
 
-Kind tables instead.
+outside kinds.
 
-### Status (2026-09-05)
+Replace domain semantics with typed owner definitions.
 
-Complete. `TrackingUnit` now contains only shared identity and lifecycle
-fields. TV/Anime, Book/Manga, and Comic coordinate data is persisted in
-kind-owned tables with a v23-to-v24 migration for existing rows.
-Continue with PR77.
-
----
-
-## PR 77 — TV/Anime watch storage split
-
-Move:
+Comic may define:
 
 ```text
-WatchSessions
-CustomEpisodes
+ComicOverrideTarget
+ComicOverrideFieldId<T>
 ```
 
-to actual owners.
+Game may define:
 
-Duplicate between TV/Anime if semantics differ.
+```text
+GameOverrideTarget
+GameOverrideFieldId<T>
+```
 
-### Status (2026-09-05)
-
-Complete. The generic watch-session and custom-episode tables are removed.
-TV uses its typed tables, Anime has dedicated typed tables, and v24-to-v25
-migration preserves legacy rows before dropping the generic tables.
-Continue with PR78.
+Their target structures need not match.
 
 ---
 
-# PHASE 18 — Reduce `_shared`
+## PR 57 — Keep only generic override storage/sync mechanics
 
-## PR 78 — Full `_shared` audit
+Generic persistence may store an opaque record such as:
 
-Every `kinds/_shared/**` file gets classified:
+```text
+kind
+targetKey
+fieldKey
+serialized original
+serialized override
+timestamp
+```
+
+Only the owning kind interprets `targetKey`, `fieldKey`, and value codec.
+
+If typed storage can be kept per kind, prefer that.
+
+---
+
+# PHASE T — CALENDAR
+
+## PR 58 — Generic calendar becomes event host only
+
+Keep:
+
+```text
+CalendarEvent
+calendar UI
+event sorting
+date ranges
+ICS serialization
+reminder plumbing
+```
+
+Remove catalog/release/watch semantic extraction from Calendar feature.
+
+---
+
+## PR 59 — Kind calendar contributors
+
+Allow structural contract:
+
+```text
+CalendarEventContributor<TContext>
+```
+
+Kinds implement as applicable:
+
+```text
+ComicCalendarContributor
+GameCalendarContributor
+TvCalendarContributor
+AnimeCalendarContributor
+...
+```
+
+Kind owns event titles and semantic dates.
+
+---
+
+## PR 60 — Universal calendar contributors
+
+Non-kind domains may independently contribute:
+
+```text
+Loans
+global reminders
+```
+
+without going through kinds.
+
+Calendar merges already-projected `CalendarEvent`s.
+
+---
+
+# PHASE U — BARCODE
+
+## PR 61 — Keep scanner generic
+
+Barcode scanning UI is genuinely reusable.
+
+It should return only:
+
+```text
+ScannedCode
+raw value
+symbology
+```
+
+No Comic/Book/Game behavior.
+
+---
+
+## PR 62 — Kind-owned identifier resolvers
+
+Kinds interpret scanned codes:
+
+```text
+ComicBarcodeResolver
+BookIsbnResolver
+GameBarcodeResolver
+MovieBarcodeResolver
+...
+```
+
+Reuse purely technical normalization/checksum code only when semantics are truly standardized.
+
+---
+
+# PHASE V — LOANS
+
+## PR 63 — Loans use `OwnedItemRef`
+
+Loans remain global because borrower/due-date behavior is genuinely cross-kind.
+
+They store/reference:
+
+```text
+OwnedItemRef(kind, id)
+```
+
+and render:
+
+```text
+OwnedItemSummary
+```
+
+Loan code never imports:
+
+```text
+ComicOwnedItem
+GameOwnedItem
+```
+
+or reads condition/grade/etc.
+
+---
+
+# PHASE W — PICK LISTS / VOCABULARIES
+
+## PR 64 — Collapse duplicate pick-list infrastructure
+
+Audit both old Collection pick-list paths and newer `features/pick_lists`.
+
+End with one generic mechanics layer:
+
+```text
+load/save
+merge
+rename/delete
+manage UI
+normalization mechanics
+```
+
+---
+
+## PR 65 — All concrete vocabularies stay kind-owned
+
+No global:
+
+```text
+publisher
+platform
+format
+region
+grade
+page quality
+story arc
+```
+
+definitions.
+
+If two kinds expose identical built-ins, duplicate them.
+
+---
+
+# PHASE X — IMPORT FRAMEWORK
+
+## PR 66 — Separate personal imports from metadata imports
+
+Generic personal-list import may remain around:
+
+```text
+ProviderPersonalEntry
+```
+
+Catalog metadata import belongs to kinds.
+
+---
+
+## PR 67 — Generic import infrastructure becomes orchestration-only
+
+Keep:
+
+```text
+file reading
+progress
+preview
+conflict UI
+transaction execution
+```
+
+Remove:
+
+```text
+publisher matching
+series+issue matching
+barcode interpretation
+kind metadata fields
+```
+
+Kinds provide typed parse/match/apply strategies.
+
+---
+
+# PHASE Y — ACTIVITY / ADMIN / SETTINGS AUDIT
+
+## PR 68 — Activity as projected events
+
+Activity may keep:
+
+```text
+ActivityEvent
+timeline UI
+filter UI
+```
+
+Kind-specific event construction/details belong to kind contributors.
+
+No generic activity code interprets kind metadata.
+
+---
+
+## PR 69 — Admin kind-specific screens/actions
+
+Audit `features/admin`.
+
+Generic admin shell stays.
+
+Move any:
+
+```text
+metadata field form
+kind ingest behavior
+kind proposal details
+kind-specific correction workflow
+```
+
+into relevant kinds or kind admin actions.
+
+---
+
+## PR 70 — Kind-specific settings contributions
+
+Generic settings infrastructure stays.
+
+Kind-specific:
+
+```text
+default grouping
+default sort
+provider defaults
+Add behavior
+Edit behavior
+```
+
+are declared by kind.
+
+Use a structural settings section contract if useful.
+
+Do not recreate a `LibraryTypeConfig`.
+
+---
+
+# PHASE Z — TRACKING
+
+## PR 71 — Define genuinely universal tracking infrastructure
+
+If needed, generic infrastructure may know lifecycle mechanics such as:
+
+```text
+timestamp
+sync status
+history/event storage
+```
+
+It must not know:
+
+```text
+season
+episode
+volume
+chapter
+issue
+```
+
+---
+
+## PR 72 — Full kind-owned tracking state
+
+Each applicable kind owns its tracking domain and DB.
+
+Examples:
+
+```text
+TvWatchState
+TvEpisodeProgress
+
+AnimeWatchState
+AnimeEpisodeProgress
+
+MangaReadingState
+MangaChapterProgress
+
+ComicReadingState
+
+BookReadingState
+
+GamePlayState
+```
+
+---
+
+## PR 73 — Move watch/custom episode storage
+
+TV and Anime own their own:
+
+```text
+watch sessions
+custom episode semantics
+```
+
+Duplicate where appropriate.
+
+---
+
+# PHASE AA — AGGRESSIVE `_shared` REDUCTION
+
+## PR 74 — Classify every `_shared` file
+
+Allowed classifications to remain shared:
 
 ```text
 VISUAL STRUCTURAL
 TECHNICAL PRIMITIVE
+```
+
+Move/duplicate:
+
+```text
 DOMAIN MODEL
 DOMAIN BEHAVIOR
 PERSISTENCE
@@ -2115,850 +2038,326 @@ EDIT
 FIELDS
 VOCABULARY
 HIERARCHY
-PROVIDER
+PROVIDER MAPPING
+TRACKING
 ```
-
-Only first two categories normally survive.
-
-### Status (2026-09-05)
-
-Complete. Every file under `lib/features/library/kinds/_shared/**` is listed
-and classified in `docs/collectarr_shared_kind_audit.md`. Domain, hierarchy,
-edit, field, provider, release, tracking, and persistence behavior is marked
-for de-sharing; only strictly owner-neutral visual/technical pieces may
-remain. Continue with PR79.
 
 ---
 
-## PR 79 — De-share Video
+## PR 75 — De-share Video
 
-Move/duplicate into Movie/TV/Anime:
+Movie/TV/Anime independently own:
 
 ```text
-domain models
-Edit
-Add
+HDR fields
+audio/subtitle fields
+release fields
+owned copy fields
+Edit schemas
 tracking
-detail
-inspector
-provider mappings
-persistence
-release logic
-hierarchy
-fields
-vocabularies
+provider integrations
+details/inspector composition
 ```
 
-Keep shared technical primitives only under very strict criteria.
-
-### Progress (2026-09-05)
-
-Video physical-media vocabulary is now owned by Movie, TV, and Anime. The
-kind registry only aggregates the compatibility list and selects the explicit
-kind fallback; the former `_shared/video/video_physical_media_formats.dart`
-has been removed.
-
-The TV workspace display-level and grouping enums are also now owned by TV;
-the former shared display-model file has been removed.
-
-The legacy TV episode/release model file has likewise moved under
-`tv/domain`; `_shared/video/domain` no longer owns domain models.
-
-Provider-kind filter UI has moved to the generic Add infrastructure; the
-video kind folder no longer owns this cross-kind Add chrome.
-
-Episodic tracking rules now live in TV and Anime tracking modules with
-owner-specific result types; the shared video tracking-rules facade is gone.
-
-The unused shared episodic tracking draft has also been removed.
-
-Movie's release shelf drilldown now lives under the Movie release module with
-Movie-specific model and widget names.
-
-The unused shared video workspace-progress surface has also been removed.
-
-Universal session history and watch-run summarization now live under
-`features/library/tracking`, outside the shared video kind tree.
-
-The seasons/episodes Add preview UI now lives under `features/library/add` and
-is consumed explicitly by Anime and TV.
-
-TV now owns its episodic progress presenter/summary, episode identity, season
-tracking section, progress row/card, and episode-rating surfaces; Movie and
-Anime no longer receive those TV-only sections from the generic video detail
-page.
-
-Upcoming-episode hierarchy UI is also now TV-owned under `tv/hierarchy`.
-
-The remaining Core-`Season` compatibility provider is now explicit under
-`tv/provider`; the typed `TvSeason` provider remains separate.
-
-Unused video Edit support and compatibility barrels have been removed; the
-custom-tab builder now imports concrete tab modules directly.
-
-The Add result policy shared by Movie, TV, and Anime now lives in generic Add
-infrastructure; `_shared/video` no longer owns Add behavior.
-
-The obsolete shared video inspector panel and its duplicate inspector builder
-have been removed. The title metadata section still used by the generic detail
-page now lives in generic detail infrastructure.
-
-TV-specific Edit episode tabs, dialog, and episode row/thumbnail widgets now
-live under `tv/edit`; the shared custom-tab dispatcher only composes them.
-
-External links are now a generic library detail component, shared by the
-active detail and edit surfaces without living under `_shared/video`.
-
-Metadata corrections are likewise generic detail infrastructure and no longer
-sit behind a video-kind compatibility barrel.
-
-The drilldown page state is now a generic kind hierarchy state rather than a
-video shared state; Movie and Anime reuse it through `library/generic`.
-
-The owner-neutral video presentation base now lives under library config
-presentation infrastructure as `LibraryVideoMediaPresentationBuilder`.
-
-The obsolete root video detail compatibility barrel has also been removed;
-remaining callers import the active detail implementation explicitly.
-
-The obsolete root release capability/source compatibility barrels are also
-gone; release consumers now reference their explicit release modules.
-
-The unused shared `VideoPhysicalReleaseDraft` has been removed; active Add
-flows already use their typed kind drafts.
-
-The serial presentation builder had only a Manga consumer and is now
-Manga-owned under `manga/presentation_builder.dart`; Comic keeps its own
-presentation builder.
-
-Serial authority persistence now lives under `catalog/serial`, while its
-owner-neutral picker/manager dialog lives under `library/serial`; the kind
-tree no longer hides either service in `_shared`.
-
-Comic-family grading/signature details and their Add drafts now live in
-explicit library model/Add model locations rather than the shared kind tree.
-
-The legacy kind Add bottom bar is now generic Add pane infrastructure and is
-consumed explicitly by the Comic and Movie shells.
-
-The common physical ownership contract and copy value now live as
-owner-neutral library models; Movie, TV, and Anime typed ownership models
-implement/use those models directly instead of importing kind-shared files.
-
-Owner-neutral video Edit controller support, draft contract, edit models,
-helpers, and standard tabs now live under `features/library/edit/video`; only
-TV episodic Edit surfaces remain under a kind module.
-
-The legacy video catalog compatibility models and mapper now live under
-`library/models/catalog`; kind workspace DTOs import that explicit model
-boundary instead of `_shared/video`.
-
-Video release source resolution and release projection capability now live
-under the explicit `features/library/release` subsystem; no release behavior
-remains under `_shared/video`.
-
-The mixed legacy video detail implementation now lives under
-`features/library/detail` as `LibraryVideoDetailPage` and
-`buildLibraryVideoDetailPage`; `_shared` is empty. Its TV-only sections are
-still guarded by the typed kind at runtime and can be split into the TV detail
-module in a follow-up without reintroducing a shared kind boundary.
+Even if copied almost verbatim.
 
 ---
 
-## PR 80 — De-share publishing/serial leftovers
+## PR 76 — De-share publishing/serial domains
 
-Any shared:
+Comic/Manga/Book independently own:
 
 ```text
-series
 publisher
-edition
+imprint
+series
 volume
-print media
+edition
+identifiers
 ```
 
-domain behavior gets duplicated/moved into actual kinds.
+No PrintMedia/Publishing abstraction.
 
 ---
 
-# PHASE 19 — Generic Edit Cleanup
+# PHASE AB — ACTIONS EVERYWHERE
 
-## PR 81 — Delete global Edit semantic defaults
+## PR 77 — Per-kind Library toolbar actions
 
-Delete:
-
-```text
-DefaultLibraryEditPresentationBuilder
-global production tabs
-global section defaults
-Comic/Game booleans
-generic grading/key labels
-```
-
-### Progress (2026-09-05)
-
-Complete for the current Edit presentation layer. The default presentation
-builder and its global tab/section fallbacks have been removed. Each active
-kind now provides an explicit presentation builder, including Generic and
-Anime, while the shared base keeps only the mechanics for selecting and
-ordering the kind-declared tabs. `LibraryEditCapability` requires that
-presentation explicitly, and the unused generic footer contract is gone.
-
----
-
-## PR 82 — Delete `LibrarySectionRegistry`
-
-No global registry containing:
-
-```text
-tv_episodes
-music_track_listing
-seriesHierarchy
-video_specs
-```
-
-### Progress (2026-09-05)
-
-Complete for the current implementation. The former registry only sorted edit
-tabs by their declarative priority, so it has been renamed to the technical
-`LibraryEditTabOrder` helper. Kind-specific section IDs remain declared by
-their own presentation builders; no global registry owns semantic sections.
-
-Kinds declare sections directly in schemas.
-
----
-
-## PR 83 — Delete central Edit draft hierarchy
-
-Delete remaining:
-
-```text
-KindEditDraft
-GenericEditDraft
-VideoEditDraft
-ComicEditDraft in generic folder
-GameEditDraft in generic folder
-...
-```
-
-### Progress (2026-09-05)
-
-The old `KindEditDraft` name and its Generic implementation have been
-removed from the central draft folder. The lifecycle contract is now named
-`LibraryEditKindDraft` under `edit/contracts`, the Generic draft/factory live
-under the Generic kind, and the video capability contract lives beside the
-video Edit infrastructure. Every registered kind now supplies `createDraft`
-explicitly; the remaining lifecycle contract is intentionally kept as the
-typed registry boundary until the final capability-callback split.
-
-Every draft lives in owner kind.
-
----
-
-# PHASE 20 — Generic Add Cleanup
-
-## PR 84 — Delete global semantic Add defaults
-
-No default media/publishing fields.
-
-Every Add field comes from kind's schema.
-
-### Progress (2026-09-05)
-
-The Add session no longer owns implicit `Near Mint`/`Ungraded` values. Those
-defaults are now required and declared by every registered kind's Edit/Add
-capability, then injected into the session through the active typed runtime.
-User prefill values still override the kind defaults. The general condition
-scale is now passed explicitly by the kinds that use it; the Add dialog no
-longer supplies a global condition fallback.
-
----
-
-## PR 85 — Split oversized Add dialog controller/layout
-
-Shared Add infrastructure may keep:
-
-```text
-dialog shell
-mode selection
-provider result host
-manual form host
-save lifecycle
-```
-
-Move controllers/state into smaller structural classes.
-
-No semantic fields.
-
-### Progress (2026-09-05)
-
-The unused aggregate `LibraryAddController` has been removed; the Add dialog
-now has one live session-controller boundary instead of a second facade over
-search/selection/preview state. Form option loading now lives in
-`LibraryAddFormOptionsController`, while the dialog shell's dimensions and
-results/preview pane constraints live in `LibraryAddDialogLayout`. Prefill
-orchestration remains dialog-local until a further extraction has a clear
-boundary.
-
----
-
-# PHASE 21 — UI Convergence
-
-Architecture is now clean; visual convergence can happen safely.
-
-## PR 86 — `LibraryMetrics`
-
-One source:
-
-```text
-fieldHeight
-buttonHeight
-iconButtonSize
-
-dialogHeaderHeight
-panelHeaderHeight
-
-tableRowHeight
-resultRowHeight
-
-panelPadding
-sectionPadding
-
-gapXs
-gapSm
-gapMd
-gapLg
-
-responsive breakpoints
-```
-
-Density:
-
-```text
-comfortable
-compact
-dense
-```
-
-### Progress (2026-09-05)
-
-`LibraryMetrics` now owns the shared Library density vocabulary, including
-control sizes, panel/table/result geometry, spacing, responsive breakpoints,
-and the existing table/search density scales. Panel chrome, workspace tables,
-the Add search pane, and video detail tiles consume the typed metrics instead
-of maintaining local density switches. The legacy chrome token file remains a
-compatibility export for the density scope.
-
----
-
-## PR 87 — Typography grammar
-
-Remove arbitrary Library `fontSize:` usages except explicit design-system exceptions.
-
-Use semantic roles.
-
-### Progress (2026-09-05)
-
-`LibraryTextTheme` now exposes semantic roles for dialog titles, detail titles,
-body/result text, metadata, captions, micro labels, and legacy chrome
-fallbacks. All hardcoded `fontSize:` usages were removed from the shared
-Library UI primitives, Add chrome, and Library detail surfaces; their original
-sizes remain centralized in the text-theme extension. Existing workspace and
-inspector-specific typography remains outside this pass as an explicit
-follow-up surface.
-
----
-
-## PR 88 — Shared result table renderer
-
-Create typed structural:
-
-```dart
-LibraryResultTable<T>
-LibraryResultColumn<T>
-LibraryResultRow<T>
-```
-
-Kinds provide columns.
+Each kind explicitly declares applicable top-level actions.
 
 Example Comic:
 
 ```text
-Series
-Issue
-Variant
-Publisher
+Import CLZ CSV
+Export CSV
+Export ComicInfo.xml
+Scan barcode
+Refresh from provider
 ```
 
-Manga separately:
+Game may declare different actions.
+
+---
+
+## PR 78 — Typed row/item actions
+
+Per-item dropdowns use typed action contexts inside the kind.
+
+Example:
 
 ```text
-Series
-Volume
-Publisher
-Language
+ComicItemActionContext
+GameItemActionContext
 ```
 
-Same appearance, different semantics.
-
-### Progress (2026-09-05)
-
-The shared result surface now has typed structural contracts:
-`LibraryResultColumn<T>` owns a semantic column and cell builder,
-`LibraryResultRow<T>` owns a typed item and interaction state, and
-`LibraryResultTable<T>` owns the common header, row, selection, density, and
-empty-state chrome. The former untyped item widget is now
-`LibraryResultItemRow`, keeping item-result presentation distinct from table
-row data. Kind-specific columns can be supplied without leaking kind semantics
-into the shared renderer.
+No universal context bloated with every possible field.
 
 ---
 
-## PR 89 — Shared selection controls
+## PR 79 — Typed bulk actions
 
-Standardize:
+Same approach for selections.
 
-```dart
-LibrarySelectField<T>
-LibraryVocabularyField<T>
-```
-
-No production semantic field subclasses in shared.
-
-### Progress (2026-09-05)
-
-Shared selection controls now live in
-`features/library/ui/primitives/library_selection_fields.dart`:
-`LibrarySelectField<T>` standardizes typed dropdown chrome and
-`LibraryVocabularyField` standardizes single- and multi-value vocabulary
-selection while receiving all values and callbacks from callers. The former
-edit-field-local vocabulary wrapper was moved to this boundary; the detail
-copy selector now consumes `LibrarySelectField<String>`.
-
----
-
-## PR 90 — Edit visual parity contract
-
-Add widget contract tests verifying every kind's declarative schema renders under:
+Structural contract can be:
 
 ```text
-desktop
-compact
-dense
+UiAction<List<T>>
 ```
 
-for all nine kinds.
+or specific typed selection context.
 
-Contract executed for every applicable kind.
-
-### Progress (2026-09-05)
-
-Added an edit visual parity contract covering all nine registered kinds, three
-presentation contexts (owned, tracking-only, and catalog/media), and all three
-Library density presets. Each matrix cell builds the kind-owned declarative
-tabs/state and renders the resulting tab sections through shared Library panel
-chrome; duplicate labels and kind-specific tab sets are accepted without
-introducing shared semantic fields.
+Kind owns semantics.
 
 ---
 
-## PR 91 — Add visual parity contract
+# PHASE AC — PROVIDER CLEANUP
 
-Same for Add schemas.
+## PR 80 — Provider search summary only
 
-### Progress (2026-09-05)
-
-Added an Add manual-pane parity contract for all nine registered kinds across
-the three Library density presets. Each case builds the real kind-owned manual
-pane through `LibraryAddCapability`, supplies an in-memory database and
-fallback media catalog, and verifies the shared Add action boundary renders;
-provider/network access is explicitly excluded from the contract.
-
----
-
-# PHASE 22 — Provider Final Cleanup
-
-## PR 92 — Remove normalized metadata god envelope
-
-If `NormalizedProviderEnvelopeV1` is no longer needed for actual metadata import, remove/quarantine.
-
-Do not replace with V2.
-
-Status: audited and retained at the provider-to-kind boundary. All ten metadata
-adapters produce it, Add consumes it during provider preview ingestion, and the
-kind-owned provider mappers consume it. There is no safe delete-only change in
-this PR; the next boundary is the shared provider-kind contract.
-
----
-
-## PR 93 — Provider metadata integration contracts
-
-Every provider-kind mapping runs shared contract:
+Generic provider discovery result:
 
 ```text
-native DTO maps successfully
-identity preserved
-title/required fields preserved
-no provider DTO escapes integration
-no kind model enters provider code
+ProviderSearchHit
+providerId
+kind
+remoteId
+title
+subtitle?
+image?
 ```
 
-Explicit invocations, e.g.:
+No full generic metadata envelope.
 
-Status: complete. Added a shared envelope precondition for provider identity,
-provider item identity, expected kind, and title. Added contract coverage for
-all 15 declared provider-kind pairs, including native adapter normalization,
-typed CatalogItem output, typed catalog output, and mismatched-kind rejection
-across all nine registered kinds.
+---
+
+## PR 81 — Kind-owned provider metadata resolution
+
+Selection flow:
 
 ```text
-Anime × AniList
-Manga × AniList
-Comic × ComicVine
-...
+ProviderSearchHit
+→ kind dispatch
+→ kind provider integration
+→ provider client/native DTO
+→ kind mapper
+→ typed domain
 ```
 
 ---
 
-## PR 95 — Sync policy parity
+## PR 82 — Remove normalized provider metadata god model
 
-Make `ProviderSyncPolicy` fields exactly match what `ExternalStateEngine` actually processes.
+If `NormalizedProviderEnvelopeV1` is no longer required for compatibility, delete it.
 
-Either implement fields or remove false capabilities.
-
-Status: complete. Removed the unbacked `wishlist` policy field and added a
-typed `ProviderHistorySnapshot` diff to `ExternalStateEngine`, matching the
-history merge behavior already used by the sync coordinator. Policy, pull/push,
-and persistence contract tests pass.
-
-Add contract tests per personal-sync provider.
+If temporarily required, quarantine and prevent new callers.
 
 ---
 
-# PHASE 23 — DB Composition Root
+## PR 83 — Personal sync cleanup
 
-## PR 96 — Final `LocalDatabase` reduction
-
-Final core DB file may enumerate tables:
+Canonical:
 
 ```text
-ComicMediaRows
-MangaMediaRows
-TvEpisodeRows
-...
+ProviderPersonalEntry
 ```
 
-because Drift requires composition.
+Delete:
 
-But column semantics live exclusively in kind files.
-
-Universal tables only remain in `core/db` when genuinely universal.
-
-Status: complete. Moved the 20 app-wide cache, queue, folder, location,
-authority, and provider-link table definitions into
-`lib/core/db/universal_local_tables.dart`. `LocalDatabase` now remains the
-Drift composition root and migration owner while still explicitly enumerating
-the nine kind table groups. Drift regeneration produced no schema changes.
+```text
+dynamic import entries
+duplicate ImportRow canonical state
+compatibility aliases
+```
 
 ---
 
-## PR 97 — DB schema ownership checker
+## PR 84 — Sync policy parity
+
+Every configured sync field must actually be handled by `ExternalStateEngine`.
+
+Either:
+
+```text
+implement
+```
+
+or:
+
+```text
+remove unsupported policy field
+```
+
+Contract tests per provider.
+
+---
+
+# PHASE AD — LOCAL DATABASE FINALIZATION
+
+## PR 85 — `LocalDatabase` becomes composition root
+
+Definitions for semantic tables live under kinds.
+
+Core DB may enumerate them for Drift generation.
+
+Universal tables remain only when genuinely universal:
+
+```text
+locations
+loans
+custom fields
+provider accounts
+provider links
+sync infrastructure
+```
+
+---
+
+## PR 86 — Kind DB ownership checker
 
 Enforce:
 
 ```text
-Comic table definitions
-→ only kinds/comic/data/local
+Comic table definition
+→ kinds/comic/data/local
 
-Manga tables
-→ only kinds/manga/data/local
-
-etc.
+Game table definition
+→ kinds/game/data/local
 ```
 
-Allow central Drift composition root to import them.
-
-Status: complete. Added an architecture test that scans all Drift table
-declarations, requires kind-specific tables under the owning
-`kinds/<kind>/data/local` module, requires `LocalDatabase` to compose each
-kind table explicitly, and limits `core/db` declarations to the 20 universal
-tables.
+Central DB file may import them only for composition.
 
 ---
 
-# PHASE 24 — Final Runtime Reduction
+# PHASE AE — RUNTIME DELETION
 
-## PR 98 — Delete giant `LibraryKindRuntime`
+## PR 87 — Delete giant `LibraryKindRuntime`
 
-Replace final consumers with tiny:
+After all users migrated:
 
 ```text
 LibraryKindRegistration
 ```
 
-The erased boundary ends immediately after dispatch.
+becomes the tiny erased boundary.
 
-Status: dispatch migration complete. Concrete registrations now capture each
-kind runtime at the composition root, page construction consumes only the
-registration boundary, and generic fallback pages use the same boundary. The
-remaining capability/configuration consumers are still migration-only runtime
-callers and remain outside the page-dispatch contract.
+No forwarding API for every field/capability.
 
 ---
 
-## PR 99 — Cross-kind search summary model
+## PR 88 — Cross-kind summaries only
 
-One legitimate erased model:
-
-```dart
-CatalogSearchHit {
-  CatalogEntityRef ref;
-  CatalogMediaKind kind;
-
-  String title;
-  String? subtitle;
-  String? imageUrl;
-}
-```
-
-Upon click:
+Legitimate erased/read models:
 
 ```text
-kind dispatch
-→ typed repository
+CatalogSearchHit
+OwnedItemRef
+OwnedItemSummary
+ProviderSearchHit
+CalendarEvent
+ActivityEvent
 ```
 
-No complete generic metadata.
+All are intentionally small projections.
 
-Status: complete. Added `CatalogSearchHit` as the compact cross-kind search
-summary with a `CatalogEntityRef`, typed kind, title, optional subtitle, and
-image URL. `ApiClient.searchHits` now decodes legacy search rows into this
-shape and rejects incomplete identities; the payload is deliberately not
-carried past the search boundary.
+Never expand them into canonical metadata models.
 
 ---
 
-# PHASE 25 — Final Architecture Checker
+# PHASE AF — UI CONSISTENCY
 
-## PR 100 — Hard enforce dependency rules
+## PR 89 — Library metrics system
 
-Reject:
+One visual source for:
 
 ```text
-kinds/X -> kinds/Y
-
-providers -> kinds
-
-generic Library -> concrete kind
-except approved composition roots
+field height
+button height
+row heights
+panel padding
+section padding
+gaps
+radii
+breakpoints
 ```
-
-Also generic Library cannot import `_shared` domain modules.
-
-Status: the registration boundary guard is in place. It rejects runtime types
-in the public registration interface, concrete-kind imports or kind switches in
-the page dispatcher, missing active-kind page registrations, and home callers
-that bypass registration dispatch.
 
 ---
 
-## PR 101 — Hard enforce type safety
+## PR 90 — Typography system
 
-Reject runtime use of:
-
-```text
-CatalogItemDto
-LibraryKindMetadataRuntime
-LibraryMetadataItem
-LibraryCatalogItemView
-
-dynamic catalog item
-Map<String,dynamic> metadata
-```
-
-Allow Maps only in explicit serialization/data-layer allowlists.
-
-Status: in progress. Feature-layer uses of the four named legacy runtime types
-are now rejected by the AST checker; catalog mappers and TMDB import use the
-canonical `CatalogItem` projection, and catalog-derived/vocabulary boundaries
-use `CatalogItem`/`Object?` instead of `dynamic`. Remaining generic metadata
-maps and serialization payloads are still explicit follow-up debt.
+Remove arbitrary Library hardcoded font sizes.
 
 ---
 
-## PR 102 — Hard enforce Core DTO ownership
-
-Example:
+## PR 91 — Shared generic result table
 
 ```text
-ComicWorkDto
+LibraryResultTable<T>
+LibraryResultColumn<T>
 ```
 
-only permitted in:
+Kinds define columns.
 
-```text
-generated API
-kinds/comic/data/remote
-Comic tests
-```
-
-Equivalent rule for all kind-specific Core DTOs.
-
-Status: complete. All generated Core DTO imports in kind code now live under
-`kinds/<kind>/data/remote`; TV legacy season reads consume TV-owned models, and
-the checker/test suite enforces the remote-adapter location.
+Shared UI defines presentation.
 
 ---
 
-## PR 103 — Hard enforce declarative Add/Edit ownership
+## PR 92 — Standard selection controls
 
-Concrete production:
+Shared:
 
 ```text
-EditSchema
-AddSchema
-FieldDefinition
-FacetDefinition
-GroupDefinition
-VocabularyDefinition
+LibrarySelectField<T>
+LibraryVocabularyField<T>
 ```
 
-must belong to relevant kind except generic class definitions/structural fixtures.
-
-Status: complete. The production declarations are already kind-owned; generic
-schema classes, renderers, factories, registries, universal vocabularies, and
-other structural consumers are explicitly allowlisted by an architecture test.
+No shared semantic fields.
 
 ---
 
-# PHASE 26 — Final Delete Pass
+## PR 93 — Shared action visuals
 
-## PR 104 — Delete-only architecture sweep
-
-Search:
+All kind actions use one:
 
 ```text
-CatalogItem
-CatalogKindCodec
-
-KindMetadataRuntime
-LibraryMetadataItem
-LibraryCatalogItemView
-
-KindEditDraft
-GenericEditDraft
-VideoEditDraft
-
-LibrarySectionRegistry
-DefaultLibraryEditPresentationBuilder
-
-plannedMedia
-
-compat
-legacy
-deprecated
-temporary
-fallback
-migration
+action menu
+toolbar action
+progress
+error
+confirmation
 ```
 
-Each survivor gets:
+visual grammar.
 
-```text
-DELETE
-```
-
-or explicit architectural justification.
-
-No new abstraction in this PR.
-
-Status: complete. Removed the unused workspace intent facade, obsolete
-dialog-scaffold and transferable-field aliases, the unused TV provider alias,
-and the dynamic TV shelf override coercion. The remaining `Season` adapter is
-still intentionally retained because tracking and inspector widgets consume
-the shared Core season shape; its Core DTO boundary is now fed by the typed TV
-provider.
+Action semantics remain kind-owned.
 
 ---
 
-# PHASE 27 — Core Evolution Contract for All Kinds
+# PHASE AG — ALL-KIND CONTRACT TESTING
 
-## PR 105 — All generated DTO policies complete
+## PR 94 — Mandatory contracts all 9 kinds
 
-Every generated DTO consumed by Library has:
-
-```text
-mapped fields
-intentionally ignored fields + reason
-```
-
-No unclassified fields.
-
-Include media and release DTOs.
-
-Examples:
-
-```text
-ComicWorkDto
-GameWorkDto
-GameReleaseDto
-TvSeriesDto
-TvEpisodeDto
-TvReleaseDto
-MusicTrackDto
-...
-```
-
-Status: complete. Added a generated-source discovery check and explicit field
-classification policies for all 19 typed Core DTOs, including media, track,
-episode, season, release, and release-map DTOs.
-
----
-
-## PR 106 — CI fails on unclassified Core field
-
-Wire checker into CI.
-
-Future workflow:
-
-```text
-Core adds field
-     ↓
-regenerate API
-     ↓
-CI fails in owner kind
-     ↓
-developer maps or ignores explicitly
-```
-
-This is desired behavior.
-
-Status: complete. The CI workflow now runs the complete generated DTO adoption
-contract after code generation and before analysis, so an unclassified Core
-field fails the pull request.
-
----
-
-# PHASE 28 — All-Kind Contract Matrix
-
-## PR 107 — Mandatory contracts across all nine kinds
-
-Explicitly run:
-
-```text
-identity
-Core mapping
-Core field adoption
-media repository
-media persistence
-workspace
-fields
-sort/group/facet structural validity
-Add
-Media Edit
-```
-
-for:
+Explicitly run against:
 
 ```text
 Comic
@@ -2972,250 +2371,456 @@ Anime
 Music
 ```
 
-Do not iterate erased runtime objects.
-
-Use explicit typed invocations.
-
-Status: complete. The mandatory manifest now covers identity, Core mapping,
-field adoption, repository, persistence, workspace, fields, sort, group,
-facet, vocabulary, Add, and Media Edit for all nine active kinds. A typed
-module matrix invokes each kind through its concrete
-`LibraryKindSpec<TWorkspace, TOwnedDetails>` signature and verifies the
-corresponding contract coverage files.
-
----
-
-## PR 108 — Release contracts
-
-Run for every release/edition-capable kind:
+Contracts:
 
 ```text
-release domain
-repository
-persistence
-Release Edit
+Core mapping
+Core field adoption
+
+media repository
+media persistence
+
+Owned repository
+Owned persistence
+
+workspace
+fields
+sort/group/facet consistency
+
+Add
+Media Edit
+Owned Edit
 ```
-
-The test manifest explicitly lists participants.
-
-Status: complete. The release matrix now runs typed release-domain and
-Release Edit contracts for Anime, BoardGame, Book, Comic, Game, Movie, Music,
-and TV. The manifest separately records release domain, repository,
-persistence, edit, and video-projection participants; Manga is intentionally
-excluded because it has no release entity/repository.
 
 ---
 
-## PR 109 — Tracking contracts
+## PR 95 — Release/Edition contracts
 
-Run shared tracking behavioral contracts against every tracking-capable kind.
+Run explicitly for every applicable kind.
+
+No erased runtime loop.
+
+---
+
+## PR 96 — Action contracts
+
+Every declared action must satisfy structural guarantees:
+
+```text
+unique action ID
+valid label
+visibility does not throw
+action can initialize
+correct file metadata for exports
+import preview works
+```
+
+Run for every action-owning kind.
+
+---
+
+## PR 97 — Calendar contracts
+
+Every calendar-capable kind:
+
+```text
+produces valid CalendarEvent
+stable event IDs
+correct kind reference
+does not expose domain object
+```
+
+---
+
+## PR 98 — Barcode contracts
+
+Every resolver:
+
+```text
+normalization
+unsupported input
+valid resolution
+ambiguous resolution
+```
+
+---
+
+## PR 99 — Metadata override contracts
+
+For each override-capable kind:
+
+```text
+field ID exists
+target is valid
+value encode/decode roundtrips
+original/override comparison works
+```
+
+---
+
+## PR 100 — Provider-kind contracts
+
+Every actual pair explicitly tested.
 
 Examples:
 
 ```text
-status persistence
-progress persistence
-round-trip
-reset
-completion semantics where structurally promised
+Anime × AniList
+Manga × AniList
+Comic × ComicVine
+Movie × TMDb
+TV × TMDb
+...
 ```
 
-Kind-specific semantics remain separate tests.
-
-Status: complete. Shared tracking-profile contracts and typed tracking-entry
-contracts now run for all nine active kinds, covering status vocabulary,
-storage normalization, progress ratios, persistence round-trips, completion
-timestamps/counts, and reset semantics.
-
 ---
 
-## PR 110 — Provider contracts
+# PHASE AH — KIND-SPECIFIC SEMANTIC TESTS
 
-Run generic provider-integration contracts against **every actual provider-kind pair**, not one provider.
-
-Status: complete. The provider mapping matrix covers every mapped provider-kind
-pair in the registry (including multi-kind AniList, ComicVine, Hardcover, and
-TMDb), and the manifest test prevents a pair from being added without a
-corresponding mapping contract. Ingest-only MyAnimeList remains outside this
-matrix because it has no metadata mapper.
-
----
-
-# PHASE 29 — Final Kind-Specific Tests
-
-## PR 111 — Comic semantic test suite
-
-Examples:
+## PR 101 — Comic semantics
 
 ```text
 issue ordering
 grading
 key comic
-story arc behavior
-variant logic
+variants
+story arcs
+ComicInfo/CLZ mapping
 ```
-
-Status: complete. Comic semantic coverage is present across issue grouping and
-ordering, grading/key details, story arcs, and variants in the Comic domain,
-hierarchy, mapper, repository, and edit tests.
 
 ---
 
-## PR 112 — Manga semantic tests
+## PR 102 — Manga semantics
 
 ```text
 volume/chapter ordering
-demographic/publication behavior
+publication
+Manga provider mappings
 ```
-
-Status: complete. Manga hierarchy and domain tests cover ordered
-volume/chapter projection plus demographic and publication metadata.
 
 ---
 
-## PR 113 — Book semantic tests
+## PR 103 — Book semantics
 
 ```text
-edition behavior
-ISBN/identifier semantics
+editions
+ISBN
+reading state
 ```
-
-Status: complete. Book mapper, domain, hierarchy, repository, local mapper,
-and edition-edit tests cover edition distinctions and ISBN/identifier fields.
 
 ---
 
-## PR 114 — Game semantic tests
+## PR 104 — Game semantics
 
 ```text
-release/platform
+releases
+platform
 completeness
 region
 ```
 
-Status: complete. Game mapper, release-edit, local persistence, repository,
-and owned-details tests cover platform/release, completeness, and region.
-
 ---
 
-## PR 115 — BoardGame semantic tests
+## PR 105 — BoardGame semantics
 
 ```text
-edition distinctions
-designers/mechanics/families
+editions
+components
+mechanics/designers
+owned completeness
 ```
-
-Status: complete. BoardGame mapper, catalog, owned-details, stats, and edit
-tests cover edition distinctions and designers/mechanics/families.
 
 ---
 
-## PR 116 — Movie semantic tests
+## PR 106 — Movie semantics
 
 ```text
-release/media semantics
+release/media mapping
+owned copy semantics
 ```
-
-Status: complete. Movie Core/domain, hierarchy, local persistence, repository,
-and Release Edit tests cover release/media and physical-edition semantics.
 
 ---
 
-## PR 117 — TV semantic tests
+## PR 107 — TV semantics
 
 ```text
 season/episode ordering
-release episode maps
+release-episode mapping
 watch sessions
+calendar
 ```
 
-Status: complete. TV domain, workspace hierarchy, local repository, release
-mapping, edit, and tracking-provider tests cover season/episode ordering,
-release episode maps, and watch sessions.
+---
+
+## PR 108 — Anime semantics
+
+Independent Anime behavior, not TV fixtures.
 
 ---
 
-## PR 118 — Anime semantic tests
-
-Independent from TV.
-
-Status: complete. Anime has independent domain, Core mapping, hierarchy,
-release-edit, repository, and tracking-rule coverage; no TV model is used for
-its release semantics.
-
----
-
-## PR 119 — Music semantic tests
+## PR 109 — Music semantics
 
 ```text
+release/media/track structure
 disc/track ordering
-track durations
-release/media structure
+durations
 classical metadata
+owned copy state
 ```
-
-Status: complete. Music Core/domain, MusicBrainz, workspace, hierarchy,
-repository, inspector, and edit tests cover disc/track ordering, durations,
-release/media structure, and classical fields.
 
 ---
 
-# PHASE 30 — Final Parity Audit
+# PHASE AI — HARD ARCHITECTURE ENFORCEMENT
 
-## PR 120 — Full nine-kind parity report
+## PR 110 — Cross-kind dependency enforcement
 
-Produce:
+Reject:
 
 ```text
-docs/typed-kind-parity-final.md
+kinds/X → kinds/Y
 ```
+
+---
+
+## PR 111 — Provider dependency enforcement
+
+Reject:
+
+```text
+providers/** → kinds/**
+```
+
+Allow provider imports only from owning kind integration folders.
+
+---
+
+## PR 112 — Core DTO ownership enforcement
+
+Example:
+
+```text
+ComicWorkDto
+```
+
+allowed only in:
+
+```text
+generated API
+kinds/comic/data/remote
+Comic tests
+```
+
+Equivalent for all generated kind DTOs.
+
+---
+
+## PR 113 — Type-erasure enforcement
+
+Reject production runtime usage of:
+
+```text
+CatalogItemDto
+LibraryMetadataItem
+LibraryKindMetadataRuntime
+
+dynamic catalog item
+Map<String,dynamic> semantic metadata
+```
+
+Allow Maps only in explicit serialization boundaries.
+
+---
+
+## PR 114 — Semantic action enforcement
+
+Generic collection/calendar/barcode/import UI cannot:
+
+```text
+import concrete kinds
+read semantic payload keys
+inspect kind-owned fields
+```
+
+---
+
+## PR 115 — DB ownership enforcement
+
+No kind-specific table columns outside the owning kind.
+
+---
+
+## PR 116 — Declarative Add/Edit ownership enforcement
+
+Concrete production:
+
+```text
+AddSchema
+EditSchema
+field definitions
+vocabulary definitions
+group/facet definitions
+```
+
+must reside in the owning kind.
+
+Shared code may define only structural types/renderers.
+
+---
+
+# PHASE AJ — DELETE-ONLY CLEANUP
+
+## PR 117 — Catalog deletions
+
+Remove remaining:
+
+```text
+CatalogItem
+CatalogKindCodec
+LibraryMetadataItem
+LibraryKindMetadataRuntime
+CatalogCache
+CatalogCacheRepository
+```
+
+as scheduled.
+
+---
+
+## PR 118 — Owned deletions
+
+Remove remaining:
+
+```text
+OwnedItem common domain
+OwnedItemDetails
+VideoLikeOwnedDetails
+shared grading/signature domain details
+kind cast getters
+OwnedItemCommonDraft
+```
+
+---
+
+## PR 119 — Edit/Add deletions
+
+Remove:
+
+```text
+KindEditDraft
+GenericEditDraft
+VideoEditDraft
+
+DefaultLibraryEditPresentationBuilder
+LibrarySectionRegistry
+
+global semantic Add defaults
+```
+
+---
+
+## PR 120 — Collection legacy deletions
+
+Delete/quarantine:
+
+```text
+CollectionCsv union schema
+CollectionXml semantic serializer
+generic CLZ assumptions
+generic series+issue matcher
+```
+
+---
+
+## PR 121 — Hierarchy/tracking deletions
+
+Delete:
+
+```text
+shelfVolumesProvider
+generic getItemVolumes
+generic Season used for non-season domains
+generic tracking unit union
+```
+
+---
+
+## PR 122 — Compatibility sweep
+
+Search:
+
+```text
+legacy
+compat
+deprecated
+temporary
+fallback
+planned
+migration
+```
+
+Every surviving compatibility layer needs written justification.
+
+No new abstractions in this PR.
+
+---
+
+# PHASE AK — FINAL PARITY AUDIT
+
+## PR 123 — Full vertical ownership matrix
 
 For every kind:
 
 ```text
-Core DTO mapping                PASS
-Core field policy               PASS
+Core mapper                         PASS
+Core field adoption                 PASS
 
-Media domain                    PASS
-Release domain                  PASS / N/A
-Owned details                   PASS
-Tracking domain                 PASS / N/A
+Media domain                        PASS
+Release/Edition domain              PASS / N/A
+Full Owned domain                   PASS
+Tracking domain                     PASS / N/A
 
-Media local DB                  PASS
-Release local DB                PASS / N/A
-Owned local DB                  PASS
-Tracking local DB               PASS / N/A
+Media DB                            PASS
+Release DB                          PASS / N/A
+Owned DB                            PASS
+Tracking DB                         PASS / N/A
 
-Repository                      PASS
+Repository                          PASS
 
-Workspace                       PASS
-Fields                          PASS
-Columns                         PASS
-Sorts                           PASS
-Groups                          PASS
-Facets                          PASS
-Vocabularies                    PASS
+Workspace                           PASS
+Fields                              PASS
+Columns                             PASS
+Sorts                               PASS
+Groups                              PASS
+Facets                              PASS
+Vocabularies                        PASS
 
-Add schema                      PASS
+Add schema                          PASS
 
-Media Edit schema               PASS
-Release Edit schema             PASS / N/A
-Owned Edit schema               PASS
+Media Edit schema                   PASS
+Release Edit schema                 PASS / N/A
+Owned Edit schema                   PASS
 
-Hierarchy                       PASS / N/A
+Hierarchy                           PASS / N/A
 
-Provider integrations           PASS
-Provider dependency direction   PASS
+Actions                             PASS
+Import/export                       PASS / N/A
 
-Stats                           PASS
-Value                           PASS / N/A
+Calendar contributor                PASS / N/A
+Barcode resolver                    PASS / N/A
+Override schema                     PASS / N/A
 
-Mandatory contracts             PASS
-Capability contracts            PASS
+Provider integrations               PASS
 
-No cross-kind imports           PASS
-No erased catalog metadata      PASS
-No false-common domain layer    PASS
+Stats                               PASS
+Value                               PASS / N/A
+
+Mandatory contracts                 PASS
+Capability contracts                PASS
+
+No cross-kind import                PASS
+No erased metadata                  PASS
+No common Owned domain              PASS
+No false-common domain abstraction  PASS
 ```
 
 Only:
@@ -3226,17 +2831,19 @@ FAIL
 N/A
 ```
 
-Status: complete. The final parity report is recorded in
-`docs/typed-kind-parity-final.md`; it reports PASS/N/A across the nine kinds
-and keeps the known erased-catalog-metadata debt as an explicit FAIL.
-
-No `partial`.
-
 ---
 
-## PR 121 — Final semantic-vacuum audit
+## PR 124 — Whole `lib/` semantic vacuum audit
 
-Outside kinds, classify every remaining occurrence of:
+Scan ALL:
+
+```text
+lib/**
+```
+
+not merely Library.
+
+Review occurrences of:
 
 ```text
 series
@@ -3248,219 +2855,226 @@ episode
 
 publisher
 imprint
+isbn
 barcode
-ISBN
 
-HDR
-track
-platform
 grade
-story arc
-character
+grading
+key comic
+
+hdr
+audio
+subtitle
+
+platform
+region
+
 creator
+character
+story arc
+track
 ```
 
-Semantic generic use must be zero.
-
-Structural/UI/help/test text can be justified.
-
-Status: complete as an audit. `docs/typed-kind-semantic-vacuum-audit.md`
-classifies the remaining vocabulary by boundary and records the shared
-Library compatibility bridge as an explicit FAIL carried into PR122.
-
----
-
-## PR 122 — Final deleted-code proof
-
-Verify zero production usage of:
+Outside kinds, every occurrence must be classified as:
 
 ```text
-CatalogItemDto
-LibraryMetadataItem
-LibraryCatalogItemView
-LibraryKindMetadataRuntime
-CatalogKindCodec
-
-GenericEditDraft
-KindEditDraft
-VideoEditDraft
-
-LibrarySectionRegistry
-DefaultLibraryEditPresentationBuilder
-
-CatalogCache
-generic TrackingUnits union
+structural infrastructure
+universal non-kind domain
+composition root
+documentation/UI text
+VIOLATION
 ```
 
-where those components were scheduled for removal.
-
-Status: complete. The executable proof in
-`test/architecture/final_deleted_code_proof_test.dart` reports zero
-production occurrences for the removed names and constrains the four
-intentionally retained migration bridges to explicit boundaries. The bridge
-debt remains visible and bounded for future narrowing.
+Zero unexplained violations.
 
 ---
 
-## PR 123 — Final documentation
+## PR 125 — Final documentation
 
 Create/update:
 
 ```text
 docs/architecture/kinds.md
+docs/architecture/actions.md
 docs/architecture/providers.md
 docs/architecture/local-persistence.md
+docs/architecture/owned-items.md
 docs/architecture/core-contract-evolution.md
 docs/architecture/testing-contracts.md
 ```
 
-The core architecture document should contain exactly these rules:
+---
+
+# WHAT SHOULD STAY GENERIC
+
+The goal is not zero reuse.
+
+The goal is zero false semantic ownership.
+
+Keep reusable infrastructure where semantics are genuinely identical.
+
+## UI
 
 ```text
-A kind owns every representation of its domain data.
-
-After kind dispatch, never erase the type.
-
-Provider owns protocol.
-Kind owns semantic provider mapping.
-
-Kinds never import other kinds.
-
-Prefer production duplication over false-common abstractions.
-
-Share behavioral contract tests across every applicable kind.
+LibraryTable<T>
+HierarchyView<T>
+Edit renderer
+Add renderer
+ActionMenu<T>
+Import preview
+dialog shells
+metrics
+typography
+select/vocabulary widgets
 ```
 
-Status: complete. The five final architecture documents now live under
-`docs/architecture/` and link the executable ownership, provider, persistence,
-Core adoption, and contract-test evidence.
-
----
-
-# Final Test Structure
-
-Recommended:
+## Structural domain refs/read models
 
 ```text
-test/
+CatalogMediaKind
+CatalogEntityRef
 
-  contracts/
+OwnedItemId
+OwnedItemRef
+OwnedItemSummary
 
-    core/
-      core_mapping_contract.dart
-      core_field_adoption_contract.dart
+CatalogSearchHit
+ProviderSearchHit
 
-    repository/
-      media_repository_contract.dart
-      release_repository_contract.dart
+CalendarEvent
+ActivityEvent
 
-    persistence/
-      media_persistence_contract.dart
-      release_persistence_contract.dart
-      owned_persistence_contract.dart
-
-    workspace/
-      workspace_contract.dart
-      fields_contract.dart
-      sorts_contract.dart
-      groups_contract.dart
-      facets_contract.dart
-
-    add/
-      add_contract.dart
-
-    edit/
-      media_edit_contract.dart
-      release_edit_contract.dart
-      owned_edit_contract.dart
-
-    provider/
-      provider_integration_contract.dart
-
-    tracking/
-      tracking_contract.dart
-
-  kinds/
-
-    comic/
-      fixtures/
-      comic_contracts_test.dart
-      comic_core_mapping_test.dart
-      comic_behavior_test.dart
-
-    manga/
-      ...
-
-    book/
-      ...
-
-    game/
-      ...
-
-    boardgame/
-      ...
-
-    movie/
-      ...
-
-    tv/
-      ...
-
-    anime/
-      ...
-
-    music/
-      ...
+ScannedCode
 ```
+
+## Infrastructure
+
+```text
+VocabularyRepository
+file picker
+CSV reader/writer mechanics
+XML mechanics
+CBZ/ZIP mechanics
+ICS writer
+barcode camera/scanner
+loan infrastructure
+provider personal sync
+```
+
+## Small behavioral contracts
+
+```text
+ReadRepository<TId,T>
+MutableRepository<...>
+
+EditSchema<TModel,TDraft>
+AddSchema<TDraft>
+
+UiAction<TContext>
+
+ImportAction<TContext,TPreview>
+ExportAction<TContext>
+
+CalendarEventContributor<TContext>
+
+SummaryProjector<T,TSummary>
+```
+
+The moment such a contract starts gaining:
+
+```text
+publisher
+series
+edition
+region
+grade
+season
+```
+
+it is no longer structural and must be moved back into kinds.
 
 ---
 
-# Contract Test Philosophy
+# ACTION ARCHITECTURE EXAMPLE
 
-The helper may be shared:
+Comic might expose:
 
-```dart
-void runMediaPersistenceContract<
-  TMedia,
-  TRepository
->(
-  MediaPersistenceFixture<TMedia, TRepository> fixture,
-) {
-  ...
-}
+```text
+ComicActions
+
+library:
+- Import CLZ CSV
+- Export CSV
+- Export ComicInfo.xml
+- Refresh Metadata
+
+item:
+- Scan/Replace Cover
+- Refresh From Provider
+- Open Series
+- Edit Media
+- Edit Release
+
+owned:
+- Edit Copy
+- Loan Copy
 ```
 
-But calls are explicit and typed:
+Game:
 
-```dart
-runMediaPersistenceContract(
-  ComicPersistenceFixture(),
-);
+```text
+GameActions
 
-runMediaPersistenceContract(
-  MangaPersistenceFixture(),
-);
+library:
+- Import provider list
+- Export Game collection CSV
 
-runMediaPersistenceContract(
-  MoviePersistenceFixture(),
-);
+item:
+- Refresh Metadata
+- Open Releases
+
+owned:
+- Edit Completeness
+- Edit Copy
 ```
 
-Not:
+Generic UI knows only:
 
-```dart
-for (final runtime in LibraryKindRegistry.all) {
-  runSomethingDynamic(runtime);
-}
+```text
+there is an action
+where it should be shown
+how to invoke it
 ```
 
-A little duplication in tests is valuable because it documents exactly which kinds promise the behavior.
+It does not know what "ComicInfo" or "Completeness" means.
 
 ---
 
-# Core Evolution Final Behavior
+# TEST PRINCIPLE
 
-Future example:
+If `UiAction<T>` claims:
+
+```text
+visibility
+enabled state
+execution/error behavior
+```
+
+are common, write one action contract and execute it against actions from every kind.
+
+If `EditSchema` claims tab/section IDs must be unique, run that test for all nine kinds.
+
+If repository behavior is common, run the repository contract for all nine kinds.
+
+Do not put the common fields into production merely to make those tests easy.
+
+The rule is:
+
+> Share behavior contracts and tests; duplicate domain data and semantics.
+
+---
+
+# CORE CHANGE EXAMPLE
 
 Core adds:
 
@@ -3468,217 +3082,128 @@ Core adds:
 ComicWork.firstPrintingDate
 ```
 
-Pipeline:
+After OpenAPI regeneration:
 
 ```text
-Core DB
-↓
-ComicWorkV1Response
-↓
-OpenAPI
-↓
 ComicWorkDto.firstPrintingDate
-↓
-CI
-↓
-FAIL:
+```
 
+CI fails:
+
+```text
 Unclassified ComicWorkDto field:
 firstPrintingDate
 ```
 
-Then developer chooses:
+Comic chooses:
 
 ```text
-mapped
+MAPPED
 ```
 
-and updates:
+and updates only what is needed:
 
 ```text
 ComicMedia
 ComicCoreMapper
-ComicMediaTable if cached
-ComicLocalMapper
-field/Edit UI if desired
+
+Comic DB if persisted
+Comic fields if displayed
+Comic Edit if editable
+Comic provider mapping if relevant
 tests
 ```
 
 or:
 
 ```text
-intentionallyIgnored(
-  reason: ...
-)
+INTENTIONALLY IGNORED
+reason: ...
 ```
 
-Nothing silently flows through a generic payload.
+No generic payload silently acquires the new field.
 
 ---
 
-# Provider Final Model
+# RECOMMENDED MILESTONES
 
-Metadata:
-
-```text
-AniList API
-    ↓
-AniListAnime
-    ↓
-AnimeAniListMapper
-    ↓
-AnimeMedia
-```
-
-Location:
+## Milestone 1
 
 ```text
-providers/anilist/
-  AniList API + native models
-
-kinds/anime/data/providers/anilist/
-  semantic mapping
+PR 0–16
 ```
 
-Manga separately:
+Audit, checker, tests, tiny contracts, Add/Edit infrastructure, actions, Owned architecture.
+
+Re-audit.
+
+## Milestone 2
 
 ```text
-kinds/manga/data/providers/anilist/
+PR 17–27
 ```
 
-No shared AniList Anime/Manga mapper.
+Comic complete reference implementation.
 
-Personal sync:
+Hard gate before continuing.
+
+## Milestone 3
 
 ```text
-AniListMediaListEntry
-       ↓
-AniListSyncAdapter
-       ↓
-ProviderPersonalEntry
-       ↓
-ExternalStateEngine
+PR 28–43
 ```
 
-That's intentionally generic because this is **personal state**, not media metadata.
+Remaining eight kinds.
+
+Re-audit specifically for accidental:
+
+```text
+CommonPublishing
+SharedVideo
+CommonOwned
+GenericRelease
+```
+
+abstractions.
+
+## Milestone 4
+
+```text
+PR 44–73
+```
+
+Collection, Catalog, hierarchy, overrides, calendar, barcode, loans, vocabularies, imports, admin/settings, tracking.
+
+This is the important new "outside Library" cleanup.
+
+## Milestone 5
+
+```text
+PR 74–93
+```
+
+De-share, actions, providers, DB, runtime, UI.
+
+## Milestone 6
+
+```text
+PR 94–125
+```
+
+Contracts across every kind, semantic tests, hard architecture enforcement, delete pass, parity audit, docs.
 
 ---
 
-# Local DB Final Model
-
-Central:
-
-```text
-core/db/
-```
-
-contains only:
-
-1. truly universal table definitions;
-2. Drift database composition root.
-
-Kind:
-
-```text
-kinds/comic/data/local/
-```
-
-owns Comic table definitions.
-
-```text
-kinds/tv/data/local/
-```
-
-owns TV table definitions.
-
-The composition root may list all of them:
-
-```dart
-@DriftDatabase(
-  tables: [
-    Locations,
-    ProviderAccounts,
-
-    ComicMediaRows,
-    ComicReleaseRows,
-
-    MangaMediaRows,
-
-    GameMediaRows,
-    GameReleaseRows,
-
-    TvSeriesRows,
-    TvEpisodeRows,
-    TvReleaseRows,
-
-    ...
-  ],
-)
-```
-
-That is not a semantic violation.
-
-It only composes schemas.
-
----
-
-# Recommended Milestone Boundaries
-
-Do not execute all 123 PRs without checkpoints.
-
-### Milestone 1 — PR 0–10
-
-Baseline + test infrastructure + tiny runtime + declarative Add/Edit infrastructure.
-
-### Milestone 2 — PR 11–31
-
-Comic complete vertical slice + provider architecture + typed ownership.
-
-**Major audit after this milestone.**
-
-If Comic still passes through `CatalogItem`, do not migrate the other kinds yet.
-
-### Milestone 3 — PR 32–67
-
-Manga → Music.
-
-**Second major audit.**
-
-Verify that duplication remained intentional and no new:
-
-```text
-CommonPublishing*
-Video*
-CommonRelease*
-SharedMedia*
-```
-
-domain layer appeared.
-
-### Milestone 4 — PR 68–85
-
-Hierarchy cleanup + complete removal of catalog type erasure + tracking + `_shared` + old Add/Edit architecture.
-
-### Milestone 5 — PR 86–99
-
-UI convergence + provider cleanup + DB composition + tiny final runtime.
-
-### Milestone 6 — PR 100–123
-
-Hard enforcement + all-kind contract testing + semantic suites + final docs/parity.
-
----
-
-# Gemini Report Format After Every PR
+# REPORT FORMAT AFTER EVERY PR
 
 ```text
 TASK:
 STATUS:
 
-Current main verified:
+Current branch verified:
 -
 
-Already solved before this task:
+Already completed before this PR:
 -
 
 Violations found:
@@ -3693,10 +3218,13 @@ Architecture changes:
 Typed domain changes:
 -
 
-Kind-specific code moved:
+Kind-owned code added/moved:
 -
 
 Code intentionally duplicated:
+-
+
+Generic contracts introduced/reused:
 -
 
 Generic code simplified:
@@ -3723,10 +3251,16 @@ Tests added:
 Contract tests executed:
 -
 
-Core schema adoption check:
+Core DTO adoption:
 PASS / FAIL / N/A
 
-Kind boundary checker:
+Cross-kind dependency check:
+PASS / FAIL
+
+Provider dependency check:
+PASS / FAIL
+
+Kind ownership checker:
 PASS / FAIL
 
 dart format:
@@ -3752,45 +3286,55 @@ STOP.
 
 ---
 
-# Absolute Definition of Done
+# ABSOLUTE DEFINITION OF DONE
 
-At the end, opening:
+When the migration is complete:
 
 ```text
 kinds/comic/
 ```
 
-must be enough to understand:
+contains everything required to understand Comic semantics.
 
-- how Comic arrives from Core;
-- Comic's canonical App domain model;
-- how it is stored locally;
-- its owned details;
-- its tracking;
-- which providers it supports and how they map;
-- its fields/columns/groups/facets;
-- its vocabularies;
-- its Add form;
-- its Media Edit tabs/sections/fields;
-- its Release Edit tabs/sections/fields;
-- its stats/value logic.
+The same applies to every kind.
 
-The same must be true for all other eight kinds.
-
-If Core gains a new field, CI must point directly to the owning kind and require it to be explicitly **mapped** or **intentionally ignored**.
-
-The final architecture should have:
+Outside kinds:
 
 ```text
-very little shared production domain code
-strong compile-time typing
-kind-owned persistence
-kind-owned provider semantic mapping
-declarative Add/Edit per kind
-shared UI infrastructure only
-shared contract tests across every applicable kind
+Collection
+Calendar
+Barcode
+Imports
+Loans
+Activity
+Admin
+Settings
+Providers
+Sync
 ```
 
-The guiding rule remains:
+know only mechanisms, orchestration, summaries and generic contracts.
 
-> **Share tests more aggressively than production domain code.**
+They do not know:
+
+```text
+Comic grading
+series/issue
+TV seasons
+Manga chapters
+Book ISBN semantics
+Game completeness
+Movie packaging
+Music tracks
+```
+
+unless the code in question is a kind-owned contribution.
+
+And the central invariant is:
+
+> **After kind dispatch, the type stays concrete.**
+
+Combined with:
+
+> **Share behavioral contracts and tests; duplicate domain semantics.**
+
