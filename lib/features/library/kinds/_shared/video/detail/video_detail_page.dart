@@ -21,7 +21,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/video_progre
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_upcoming_episodes_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/watch_history_section.dart';
+import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';

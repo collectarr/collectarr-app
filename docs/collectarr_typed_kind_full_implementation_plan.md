@@ -2177,6 +2177,9 @@ Movie-specific model and widget names.
 
 The unused shared video workspace-progress surface has also been removed.
 
+Universal session history and watch-run summarization now live under
+`features/library/tracking`, outside the shared video kind tree.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

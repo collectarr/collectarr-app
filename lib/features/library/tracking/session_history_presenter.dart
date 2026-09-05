@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/watch_session.dart';
 
-class VideoWatchRunSummary {
-  const VideoWatchRunSummary({
+class SessionHistorySummary {
+  const SessionHistorySummary({
     required this.sessionCount,
     required this.uniqueEpisodeCount,
     required this.rewatchCount,
@@ -15,24 +15,28 @@ class VideoWatchRunSummary {
   final DateTime? firstWatchedAt;
   final DateTime? lastWatchedAt;
 
-  String get label {
+  String label({
+    String nounSingular = 'watch',
+    String nounPlural = 'watches',
+  }) {
     if (sessionCount == 0) {
-      return 'No watches logged';
+      return 'No $nounPlural logged';
     }
+    final noun = sessionCount == 1 ? nounSingular : nounPlural;
     if (rewatchCount == 0) {
-      return '$sessionCount watches';
+      return '$sessionCount $noun';
     }
-    return '$sessionCount watches · $rewatchCount rewatches';
+    return '$sessionCount $noun · $rewatchCount rewatches';
   }
 }
 
-class VideoWatchRunPresenter {
-  const VideoWatchRunPresenter();
+class SessionHistoryPresenter {
+  const SessionHistoryPresenter();
 
-  VideoWatchRunSummary build(List<WatchSession> sessions) {
+  SessionHistorySummary build(List<WatchSession> sessions) {
     final active = sessions.where((session) => !session.isDeleted).toList();
     if (active.isEmpty) {
-      return const VideoWatchRunSummary(
+      return const SessionHistorySummary(
         sessionCount: 0,
         uniqueEpisodeCount: 0,
         rewatchCount: 0,
@@ -50,11 +54,17 @@ class VideoWatchRunPresenter {
         '${session.seasonNumber}:${session.episodeNumber}',
       );
     }
-    return VideoWatchRunSummary(
+    final episodeSessionCount = active
+        .where((session) =>
+            session.isEpisodeSession &&
+            session.seasonNumber != null &&
+            session.episodeNumber != null)
+        .length;
+    return SessionHistorySummary(
       sessionCount: active.length,
       uniqueEpisodeCount: uniqueEpisodeKeys.length,
-      rewatchCount:
-          (active.length - uniqueEpisodeKeys.length).clamp(0, active.length),
+      rewatchCount: (episodeSessionCount - uniqueEpisodeKeys.length)
+          .clamp(0, active.length),
       firstWatchedAt: active.first.watchedAt,
       lastWatchedAt: active.last.watchedAt,
     );

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_watch_run_presenter.dart';
+import 'package:collectarr_app/features/library/tracking/session_history_presenter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 WatchSession _session(int season, int episode, DateTime at) {
@@ -19,7 +19,7 @@ WatchSession _session(int season, int episode, DateTime at) {
 }
 
 void main() {
-  const presenter = VideoWatchRunPresenter();
+  const presenter = SessionHistoryPresenter();
 
   test('summarizes watch runs and rewatches', () {
     final summary = presenter.build([
@@ -31,6 +31,6 @@ void main() {
     expect(summary.sessionCount, 3);
     expect(summary.uniqueEpisodeCount, 2);
     expect(summary.rewatchCount, 1);
-    expect(summary.label, contains('rewatches'));
+    expect(summary.label(), contains('rewatches'));
   });
 }

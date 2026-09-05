@@ -7,7 +7,7 @@ import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_watch_run_presenter.dart';
+import 'package:collectarr_app/features/library/tracking/session_history_presenter.dart';
 
 /// Kind-appropriate labels for the per-item session history section.
 class SessionHistoryLabels {
@@ -120,7 +120,7 @@ class WatchHistorySection extends ConsumerWidget {
         ? ref.watch(watchSessionsByItemProvider)[itemId] ??
             const <WatchSession>[]
         : ref.watch(watchSessionsByCatalogRefProvider(catalogRef!));
-    final runSummary = const VideoWatchRunPresenter().build(sessions);
+    final runSummary = const SessionHistoryPresenter().build(sessions);
     final palette = appPalette(context);
     final resolvedTargets = _resolvedTargetOptions();
     return DecoratedBox(
@@ -167,11 +167,16 @@ class WatchHistorySection extends ConsumerWidget {
               )
             else ...[
               const SizedBox(height: 4),
-              Text(
-                runSummary.label,
-                style: TextStyle(color: palette.textMuted, fontSize: 12),
-              ),
-              const SizedBox(height: 8),
+              if (runSummary.rewatchCount > 0) ...[
+                Text(
+                  runSummary.label(
+                    nounSingular: labels.nounSingular,
+                    nounPlural: labels.nounPlural,
+                  ),
+                  style: TextStyle(color: palette.textMuted, fontSize: 12),
+                ),
+                const SizedBox(height: 8),
+              ],
               Text(
                 '${sessions.length} ${sessions.length == 1 ? labels.nounSingular : labels.nounPlural}',
                 style: TextStyle(color: palette.textMuted, fontSize: 12),

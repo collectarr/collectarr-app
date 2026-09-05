@@ -59,8 +59,6 @@ when their inputs are genuinely owner-neutral.
 | `video/tracking/video_progress_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime detail |
 | `video/tracking/video_progress_summary.dart` | DOMAIN MODEL | Move into TV/Anime tracking |
 | `video/tracking/video_season_tracking_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
-| `video/tracking/video_watch_run_presenter.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
-| `video/tracking/watch_history_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/video_add_preview_sections.dart` | EDIT | Move into kind add previews |
 | `video/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
 | `video/video_drilldown_library_page_state.dart` | HIERARCHY | Move into TV/Anime hierarchy |
@@ -81,8 +79,6 @@ when their inputs are genuinely owner-neutral.
 | `video/video_season_summary_card.dart` | VISUAL STRUCTURAL | Keep only after owner-neutral API review |
 | `video/video_season_tracking_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/video_upcoming_episodes_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime hierarchy |
-| `video/video_watch_run_presenter.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
-| `video/watch_history_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 
 ## Audit outcome
 
@@ -90,8 +86,9 @@ The shared directory contains no persistence or provider implementation that
 is safe to treat as universal merely because it is reused. The remaining
 shared candidates are small visual components and must expose owner-neutral
 inputs; all video domain, hierarchy, edit, field, provider, release, and
-tracking behavior is queued for PR79. Seven video boundaries have already moved
+tracking behavior is queued for PR79. Eight video boundaries have already moved
 out during PR79 progress: TV legacy models, TV display models, per-kind video
 physical formats, generic Add provider-kind filter chrome, and episodic
 tracking rules for TV/Anime. Movie's release shelf drilldown is also now
-Movie-owned; the unused workspace progress surface has been removed.
+Movie-owned; the unused workspace progress surface has been removed. Universal
+session history and its presenter now live under library tracking.
