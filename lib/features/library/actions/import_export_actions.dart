@@ -1,6 +1,6 @@
-import 'dart:typed_data';
-
 import 'ui_action.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// A completed file export returned by a kind-owned serializer.
 ///
@@ -16,6 +16,27 @@ final class ExportArtifact {
   final String filename;
   final String mimeType;
   final Uint8List bytes;
+}
+
+/// Text export prepared by a kind-owned integration for a generic preview
+/// host. The host may render and copy it without understanding its format.
+@immutable
+final class ExportPreviewArtifact {
+  const ExportPreviewArtifact({
+    required this.id,
+    required this.label,
+    required this.icon,
+    required this.filename,
+    required this.mimeType,
+    required this.content,
+  });
+
+  final String id;
+  final String label;
+  final IconData icon;
+  final String filename;
+  final String mimeType;
+  final String content;
 }
 
 enum ImportPreviewStatus {

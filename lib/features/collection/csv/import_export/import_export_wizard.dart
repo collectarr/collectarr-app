@@ -2,9 +2,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
+import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_primitives.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +17,14 @@ class ImportExportWizardDialog extends ConsumerStatefulWidget {
     this.initialIndex = 0,
     this.customFieldDefinitions = const [],
     this.customFieldValuesByItem = const {},
+    this.additionalExports = const [],
   });
 
   final List<ShelfEntry> entries;
   final int initialIndex;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
+  final List<ExportPreviewArtifact> additionalExports;
 
   @override
   ConsumerState<ImportExportWizardDialog> createState() =>
@@ -79,6 +79,7 @@ class _ImportExportWizardDialogState
                       entries: widget.entries,
                       customFieldDefinitions: widget.customFieldDefinitions,
                       customFieldValuesByItem: widget.customFieldValuesByItem,
+                      additionalExports: widget.additionalExports,
                     ),
                     _ImportWizardPane(
                       controller: _controller,
@@ -170,11 +171,13 @@ class _ExportWizardPane extends StatelessWidget {
     required this.entries,
     this.customFieldDefinitions = const [],
     this.customFieldValuesByItem = const {},
+    this.additionalExports = const [],
   });
 
   final List<ShelfEntry> entries;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
+  final List<ExportPreviewArtifact> additionalExports;
 
   @override
   Widget build(BuildContext context) {
@@ -189,14 +192,27 @@ class _ExportWizardPane extends StatelessWidget {
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
     );
+    final exports = <ExportPreviewArtifact>[
+      ExportPreviewArtifact(
+        id: 'collection.collectarr_csv',
+        label: 'Collectarr CSV',
+        icon: Icons.copy_all_outlined,
+        filename: 'collectarr.csv',
+        mimeType: 'text/csv',
+        content: collectarr,
+      ),
+      ExportPreviewArtifact(
+        id: 'collection.clz_csv',
+        label: 'CLZ-friendly CSV',
+        icon: Icons.table_view_outlined,
+        filename: 'collectarr-clz.csv',
+        mimeType: 'text/csv',
+        content: clz,
+      ),
+      ...additionalExports,
+    ];
     final owned = entries.where((entry) => entry.isOwned).length;
     final wishlist = entries.where((entry) => entry.isWishlisted).length;
-    final comicEntries = entries
-        .where((e) => e.catalogItem?.kind == 'comic' && e.catalogItem != null)
-        .toList();
-    final comicInfoXml = comicEntries.isEmpty
-        ? '<!-- No comics to export -->'
-        : _buildComicInfoBatch(comicEntries);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -211,32 +227,26 @@ class _ExportWizardPane extends StatelessWidget {
                 icon: Icons.inventory_2_outlined, label: '$owned owned'),
             _WizardStat(
                 icon: Icons.bookmark_border, label: '$wishlist wishlist'),
-            _WizardStat(
-                icon: Icons.style_outlined,
-                label: '${comicEntries.length} comics'),
           ],
         ),
         const SizedBox(height: 12),
         Expanded(
           child: DefaultTabController(
-            length: 3,
+            length: exports.length,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const TabBar(
+                TabBar(
                   tabs: [
-                    Tab(text: 'Collectarr CSV'),
-                    Tab(text: 'CLZ-friendly CSV'),
-                    Tab(text: 'ComicInfo.xml'),
+                    for (final export in exports) Tab(text: export.label),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Expanded(
                   child: TabBarView(
                     children: [
-                      _CsvPreview(text: collectarr),
-                      _CsvPreview(text: clz),
-                      _CsvPreview(text: comicInfoXml),
+                      for (final export in exports)
+                        _CsvPreview(text: export.content),
                     ],
                   ),
                 ),
@@ -249,23 +259,15 @@ class _ExportWizardPane extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            OutlinedButton.icon(
-              onPressed: () =>
-                  _copy(context, collectarr, 'Collectarr CSV copied'),
-              icon: const Icon(Icons.copy_all_outlined),
-              label: const Text('Copy Collectarr CSV'),
-            ),
-            OutlinedButton.icon(
-              onPressed: () => _copy(context, clz, 'CLZ-friendly CSV copied'),
-              icon: const Icon(Icons.table_view_outlined),
-              label: const Text('Copy CLZ-friendly CSV'),
-            ),
-            if (comicEntries.isNotEmpty)
+            for (final export in exports)
               OutlinedButton.icon(
-                onPressed: () =>
-                    _copy(context, comicInfoXml, 'ComicInfo.xml copied'),
-                icon: const Icon(Icons.code_outlined),
-                label: const Text('Copy ComicInfo.xml'),
+                onPressed: () => _copy(
+                  context,
+                  export.content,
+                  '${export.label} copied',
+                ),
+                icon: Icon(export.icon),
+                label: Text('Copy ${export.label}'),
               ),
           ],
         ),
@@ -277,26 +279,6 @@ class _ExportWizardPane extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     await Clipboard.setData(ClipboardData(text: value));
     messenger.showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  String _buildComicInfoBatch(List<ShelfEntry> comics) {
-    const xml = ComicInfoXml();
-    final buffer = StringBuffer();
-    for (var i = 0; i < comics.length; i++) {
-      final entry = comics[i];
-      final catalog = entry.catalogItem;
-      if (catalog == null) continue;
-      final comic = catalog.kindMetadata;
-      if (comic is! ComicMedia) continue;
-      final owned = ComicOwnedItemLegacyAdapter.tryFromLegacy(entry.ownedItem);
-      if (i > 0) {
-        buffer.writeln();
-        buffer.writeln('<!-- ─── next issue ─── -->');
-        buffer.writeln();
-      }
-      buffer.write(xml.serialize(comic, owned));
-    }
-    return buffer.toString();
   }
 }
 

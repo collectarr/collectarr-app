@@ -1,8 +1,37 @@
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/test_data_factories.dart';
+
 void main() {
+  test('ComicInfo export is contributed from a typed Comic boundary', () {
+    final previews = comicInfoExportPreviews([
+      ShelfEntry(
+        itemId: 'comic-1',
+        catalogItem: testCatalogItem(
+          id: 'comic-1',
+          kind: 'comic',
+          title: 'Amazing Fantasy',
+          itemNumber: '15',
+          publisher: 'Marvel Comics',
+          synopsis: 'A public synopsis',
+          releaseDate: DateTime.utc(1962, 8, 10),
+          releaseYear: 1962,
+        ),
+      ),
+    ]);
+
+    expect(previews, hasLength(1));
+    expect(previews.single.id, 'comic.comic_info_xml');
+    expect(previews.single.mimeType, 'application/xml');
+    expect(previews.single.content, contains('<Number>15</Number>'));
+    expect(previews.single.content,
+        contains('<Publisher>Marvel Comics</Publisher>'));
+  });
+
   test('ComicInfo XML serializes comic-owned metadata and personal state', () {
     final metadata = ComicCatalogMetadata(
       title: 'Amazing Fantasy',

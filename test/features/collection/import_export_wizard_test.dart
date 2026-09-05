@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,6 +39,16 @@ void main() {
                     quantity: 1,
                     updatedAt: DateTime.utc(2026, 5, 24),
                   ),
+                ),
+              ],
+              additionalExports: [
+                ExportPreviewArtifact(
+                  id: 'comic.comic_info_xml',
+                  label: 'ComicInfo.xml',
+                  icon: Icons.code_outlined,
+                  filename: 'comicinfo.xml',
+                  mimeType: 'application/xml',
+                  content: '<ComicInfo />',
                 ),
               ],
             ),
