@@ -22,6 +22,16 @@ Future<void> main() async {
         (await db.select(db.comicOwnedItemsRows).get()).length;
     final comicReadingCount =
         (await db.select(db.comicReadingRows).get()).length;
+    final typedGraphCounts = await devSeedTypedGraphCounts(db);
+    for (final entry in devSeedTypedGraphMinimumCounts.entries) {
+      final actual = typedGraphCounts[entry.key] ?? 0;
+      if (actual < entry.value) {
+        throw StateError(
+          'Seed verification failed for typed graph ${entry.key}: expected '
+          'at least ${entry.value}, found $actual',
+        );
+      }
+    }
 
     final seededCatalogCount =
         catalogRows.where((row) => row.id.startsWith('seed-')).length;
@@ -79,6 +89,7 @@ Future<void> main() async {
       'owned_items=${ownedRows.length} tracking_entries=${trackingRows.length} '
       'item_images_cache=$imageCount '
       'comic_owned_items=$comicOwnedCount comic_reading_rows=$comicReadingCount '
+      'typed_graph=${typedGraphCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'by_kind=${devSeedCatalogCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')}',
     );
   } finally {

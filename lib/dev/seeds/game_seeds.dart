@@ -6,6 +6,37 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
+CatalogItem enrichGameSeedItem(CatalogItem item) {
+  final platforms = item.payload['platforms'];
+  final primaryPlatform = platforms is List && platforms.isNotEmpty
+      ? platforms.first.toString()
+      : item.physicalFormat ?? 'PC';
+  final releases = [
+    for (final edition in seedEditionPayloads(item))
+      {
+        ...edition,
+        'id': edition['id']?.toString() ?? '${item.id}-release-01',
+        'kind': 'game',
+        'work_id': item.id,
+        'release_title': edition['title'] ?? item.editionTitle ?? item.title,
+        'platform': edition['platform'] ?? primaryPlatform,
+        'release_date': edition['release_date'] ??
+            item.releaseDate?.toUtc().toIso8601String(),
+        'region_code': edition['region_code'] ??
+            edition['region'] ??
+            item.payload['country'],
+        'format': edition['format'] ?? item.physicalFormat,
+        'publisher': edition['publisher'] ?? item.publisher,
+        'catalog_number': edition['catalog_number'] ?? 'SEED-${item.id}',
+        'release_status': edition['release_status'] ?? 'released',
+        'language': edition['language'] ?? item.payload['language'],
+        'barcode': edition['barcode'] ?? item.barcode,
+        'cover_image_url': edition['cover_image_url'] ?? item.coverImageUrl,
+      },
+  ];
+  return withSeedPayload(item, {'releases': releases});
+}
+
 List<CatalogItem> gameSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-game-01',

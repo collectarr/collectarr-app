@@ -6,6 +6,29 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
+CatalogItem enrichBookSeedItem(CatalogItem item) {
+  final editions = [
+    for (final edition in seedEditionPayloads(item))
+      {
+        ...edition,
+        'id': edition['id']?.toString() ?? '${item.id}-edition-01',
+        'kind': 'book',
+        'work_id': item.id,
+        'display_title': edition['title'] ?? item.editionTitle ?? item.title,
+        'format': edition['format'] ?? item.physicalFormat,
+        'binding': edition['binding'] ?? item.physicalFormat,
+        'publisher': edition['publisher'] ?? item.publisher,
+        'isbn': edition['isbn'] ?? item.barcode,
+        'language': edition['language'] ?? item.payload['language'],
+        'region': edition['region'] ?? item.payload['country'],
+        'publication_date': edition['release_date'] ??
+            item.releaseDate?.toUtc().toIso8601String(),
+        'page_count': item.payload['page_count'],
+      },
+  ];
+  return withSeedPayload(item, {'editions': editions});
+}
+
 List<CatalogItem> bookSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-book-01',

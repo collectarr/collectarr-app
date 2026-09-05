@@ -31,6 +31,41 @@ CatalogEntityRef seedCatalogRef(String itemId) {
   );
 }
 
+/// Rebuilds a transport fixture while preserving its common catalog fields.
+/// Kind seeders use this only to add their own Core graph fields.
+CatalogItem withSeedPayload(
+  CatalogItem item,
+  Map<String, dynamic> additions,
+) {
+  return CatalogItem.fromJson({
+    'id': item.id,
+    ...item.toSyncPayload(),
+    ...additions,
+  });
+}
+
+/// Returns the declared common editions, or one deterministic fallback edition
+/// so every kind fixture exercises its edition/release mapping path.
+List<Map<String, dynamic>> seedEditionPayloads(CatalogItem item) {
+  if (item.editions.isNotEmpty) {
+    return [for (final edition in item.editions) edition.toJson()];
+  }
+  return [
+    {
+      'id': '${item.id}-edition-01',
+      'title': item.editionTitle ?? item.title,
+      if (item.physicalFormat != null) 'format': item.physicalFormat,
+      if (item.publisher != null) 'publisher': item.publisher,
+      if (item.barcode != null) 'barcode': item.barcode,
+      if (item.payload['country'] != null) 'region': item.payload['country'],
+      if (item.payload['language'] != null)
+        'language': item.payload['language'],
+      if (item.releaseDate != null)
+        'release_date': item.releaseDate!.toIso8601String(),
+    },
+  ];
+}
+
 CatalogItem enrichSeedItem(CatalogItem item) {
   final payload = Map<String, dynamic>.from(item.toSyncPayload());
   payload.putIfAbsent('id', () => item.id);

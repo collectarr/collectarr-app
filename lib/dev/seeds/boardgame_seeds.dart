@@ -6,6 +6,32 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
+CatalogItem enrichBoardgameSeedItem(CatalogItem item) {
+  final editions = [
+    for (final edition in seedEditionPayloads(item))
+      {
+        ...edition,
+        'id': edition['id']?.toString() ?? '${item.id}-edition-01',
+        'kind': 'boardgame',
+        'work_id': item.id,
+        'edition_title': edition['title'] ?? item.editionTitle ?? item.title,
+        'format': edition['format'] ?? item.physicalFormat ?? 'Board Game',
+        'publisher': edition['publisher'] ?? item.publisher,
+        'barcode': edition['barcode'] ?? item.barcode,
+        'country': edition['country'] ?? item.payload['country'],
+        'language': edition['language'] ?? item.payload['language'],
+        'age_rating': edition['age_rating'] ?? item.payload['age_rating'],
+        'release_date': edition['release_date'] ??
+            item.releaseDate?.toUtc().toIso8601String(),
+        'release_status': edition['release_status'] ?? 'released',
+        'min_players': edition['min_players'] ?? 1,
+        'max_players': edition['max_players'] ?? 4,
+        'playing_time_minutes': edition['playing_time_minutes'] ?? 90,
+      },
+  ];
+  return withSeedPayload(item, {'editions': editions});
+}
+
 List<CatalogItem> boardgameSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-boardgame-01',

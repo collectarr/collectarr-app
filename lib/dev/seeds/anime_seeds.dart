@@ -6,6 +6,50 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
+CatalogItem enrichAnimeSeedItem(CatalogItem item) {
+  final episodes = [
+    for (var number = 1; number <= 2; number++)
+      {
+        'id': '${item.id}-episode-${number.toString().padLeft(2, '0')}',
+        'kind': 'anime',
+        'series_id': item.id,
+        'episode_number': number,
+        'title': '${item.title} — Episode $number',
+        'description': 'Seed episode $number for ${item.title}.',
+        'air_date': item.releaseDate
+            ?.add(Duration(days: number * 7))
+            .toUtc()
+            .toIso8601String(),
+        'runtime_minutes': item.payload['runtime_minutes'] ?? 24,
+        'cover_image_url': item.coverImageUrl,
+      },
+  ];
+  final releases = [
+    for (final edition in seedEditionPayloads(item))
+      {
+        ...edition,
+        'id': edition['id']?.toString() ?? '${item.id}-release-01',
+        'kind': 'anime',
+        'series_id': item.id,
+        'release_title': edition['title'] ?? item.editionTitle ?? item.title,
+        'format': edition['format'] ?? item.physicalFormat,
+        'language': edition['language'] ?? item.payload['language'],
+        'region_code': edition['region'] ?? item.payload['country'],
+        'release_date': edition['release_date'] ??
+            item.releaseDate?.toUtc().toIso8601String(),
+        'publisher': edition['publisher'] ?? item.publisher,
+        'barcode': edition['barcode'] ?? item.barcode,
+        'media_count': item.payload['nr_discs'] ?? 1,
+        'audio_tracks': [item.payload['audio_tracks'] ?? 'Japanese'],
+        'subtitles': [item.payload['subtitles'] ?? 'English'],
+      },
+  ];
+  return withSeedPayload(item, {
+    'episodes': episodes,
+    'releases': releases,
+  });
+}
+
 List<CatalogItem> animeSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-anime-01',

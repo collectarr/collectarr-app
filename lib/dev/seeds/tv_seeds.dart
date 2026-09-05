@@ -6,6 +6,83 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
+CatalogItem enrichTvSeedItem(CatalogItem item) {
+  final seasonId = '${item.id}-season-01';
+  final episodes = [
+    for (var number = 1; number <= 2; number++)
+      {
+        'id': '${item.id}-episode-${number.toString().padLeft(2, '0')}',
+        'series_id': item.id,
+        'season_id': seasonId,
+        'season_number': 1,
+        'episode_number': number,
+        'episode_title': '${item.title} — Episode $number',
+        'description': 'Seed episode $number for ${item.title}.',
+        'air_date': item.releaseDate
+            ?.add(Duration(days: number * 7))
+            .toUtc()
+            .toIso8601String(),
+        'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
+        'cover_image_url': item.coverImageUrl,
+      },
+  ];
+  final releaseId = '${item.id}-release-01';
+  final mediaId = '$releaseId-media-01';
+  final releases = [
+    {
+      'id': releaseId,
+      'kind': 'tv',
+      'series_id': item.id,
+      'title': item.editionTitle ?? '${item.title} Complete Series',
+      'format': item.physicalFormat,
+      'region_code': item.payload['country'],
+      'release_date': item.releaseDate?.toUtc().toIso8601String(),
+      'publisher': item.publisher,
+      'sku': item.barcode,
+      'episode_count': episodes.length,
+      'season_count': 1,
+      'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
+      'language_audio': [item.payload['audio_tracks'] ?? 'English'],
+      'language_subtitles': [item.payload['subtitles'] ?? 'English'],
+      'content_rating': item.payload['age_rating'],
+      'media': [
+        {
+          'id': mediaId,
+          'release_id': releaseId,
+          'media_number': 1,
+          'media_type': item.physicalFormat,
+          'title': item.title,
+          'episode_count': episodes.length,
+          'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
+          'region_code': item.payload['country'],
+          'color': item.payload['color'],
+          'audio_tracks': item.payload['audio_tracks'],
+          'subtitles': item.payload['subtitles'],
+          'layers': item.payload['layers'],
+          'episodes': episodes,
+        },
+      ],
+    },
+  ];
+  final enriched = withSeedPayload(item, {
+    'seasons': [
+      {
+        'id': seasonId,
+        'series_id': item.id,
+        'season_number': 1,
+        'title': 'Season 1',
+        'description': 'Seed season for ${item.title}.',
+        'air_date': item.releaseDate?.toUtc().toIso8601String(),
+        'episode_count': episodes.length,
+        'cover_image_url': item.coverImageUrl,
+        'episodes': episodes,
+      },
+    ],
+    'releases': releases,
+  });
+  return enriched;
+}
+
 List<CatalogItem> tvSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-tv-01',

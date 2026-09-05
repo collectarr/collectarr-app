@@ -6,6 +6,26 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
+CatalogItem enrichComicSeedItem(CatalogItem item) {
+  final issues = [
+    for (final edition in seedEditionPayloads(item))
+      {
+        ...edition,
+        'id': edition['id']?.toString() ?? '${item.id}-issue-01',
+        'kind': 'comic',
+        'work_id': item.id,
+        'title': edition['title'] ?? item.editionTitle ?? item.title,
+        'publisher': edition['publisher'] ?? item.publisher,
+        'imprint': edition['imprint'] ?? item.publisher,
+        'upc': edition['upc'] ?? item.barcode,
+        'release_date': edition['release_date'] ??
+            item.releaseDate?.toUtc().toIso8601String(),
+        'cover_image_url': edition['cover_image_url'] ?? item.coverImageUrl,
+      },
+  ];
+  return withSeedPayload(item, {'issues': issues});
+}
+
 List<CatalogItem> comicSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-comic-01',

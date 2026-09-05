@@ -33,6 +33,14 @@ void main() {
     await seedLocalDatabase(db);
 
     final catalogRows = await LibraryCatalogRepository(db).findAll();
+    final typedGraphCounts = await devSeedTypedGraphCounts(db);
+    for (final entry in devSeedTypedGraphMinimumCounts.entries) {
+      expect(
+        typedGraphCounts[entry.key],
+        greaterThanOrEqualTo(entry.value),
+        reason: 'Incomplete typed seed graph for ${entry.key}',
+      );
+    }
     const expectedCatalogCounts = devSeedCatalogCounts;
     for (final entry in expectedCatalogCounts.entries) {
       expect(_countKind(catalogRows, entry.key), entry.value,
@@ -209,9 +217,11 @@ void main() {
         (await LibraryCatalogRepository(db).findAll()).length;
     final imageCountAfterSecondSeed =
         (await db.select(db.itemImagesCache).get()).length;
+    final typedGraphCountsAfterSecondSeed = await devSeedTypedGraphCounts(db);
 
     expect(catalogCountAfterSecondSeed, catalogCountAfterFirstSeed);
     expect(imageCountAfterSecondSeed, imageCountAfterFirstSeed);
+    expect(typedGraphCountsAfterSecondSeed, typedGraphCounts);
   });
 }
 

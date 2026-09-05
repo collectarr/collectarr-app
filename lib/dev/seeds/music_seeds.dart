@@ -6,6 +6,73 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
+CatalogItem enrichMusicSeedItem(CatalogItem item) {
+  final music = item.payload['music'];
+  final musicPayload =
+      music is Map ? Map<String, dynamic>.from(music) : <String, dynamic>{};
+  final rawTracks = musicPayload['tracks'];
+  final mediaId = '${item.id}-media-01';
+  final tracks = rawTracks is List && rawTracks.isNotEmpty
+      ? [
+          for (var index = 0; index < rawTracks.length; index++)
+            _musicSeedTrack(rawTracks[index], item, mediaId, index),
+        ]
+      : [
+          _musicSeedTrack(
+            {'title': '${item.title} — Track 1', 'track_number': '1'},
+            item,
+            mediaId,
+            0,
+          ),
+        ];
+  final media = [
+    {
+      'id': mediaId,
+      'kind': 'music',
+      'release_id': item.id,
+      'media_number': 1,
+      'media_type': item.physicalFormat ?? 'Digital',
+      'title': item.editionTitle ?? item.title,
+      'track_count': tracks.length,
+      'tracks': tracks,
+      'media_condition': 'excellent',
+      'packaging': item.physicalFormatLabel,
+      'sound_type': 'stereo',
+      'spars': 'none',
+      'rpm': 33,
+      'vinyl_color': 'black',
+      'vinyl_weight': '180g',
+    },
+  ];
+  return withSeedPayload(item, {
+    'media': media,
+    'track_count': tracks.length,
+  });
+}
+
+Map<String, dynamic> _musicSeedTrack(
+  Object? raw,
+  CatalogItem item,
+  String mediaId,
+  int index,
+) {
+  final source =
+      raw is Map ? Map<String, dynamic>.from(raw) : const <String, dynamic>{};
+  final durationSeconds = source['duration_seconds'];
+  final trackNumber = (index + 1).toString().padLeft(2, '0');
+  return {
+    ...source,
+    'id': '$mediaId-track-$trackNumber',
+    'kind': 'music',
+    'media_id': mediaId,
+    'position': source['position'] ?? source['track_number'] ?? index + 1,
+    'title': source['title'] ?? '${item.title} — Track ${index + 1}',
+    if (durationSeconds is num) 'duration_ms': durationSeconds * 1000,
+    'composition': source['composition'] ?? item.title,
+    'instrument': source['instrument'] ?? 'ensemble',
+  };
+}
+
 List<CatalogItem> musicSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-music-01',

@@ -6,6 +6,70 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
+CatalogItem enrichMovieSeedItem(CatalogItem item) {
+  final releases = [
+    for (final edition in seedEditionPayloads(item))
+      {
+        ...edition,
+        'id': edition['id']?.toString() ?? '${item.id}-release-01',
+        'kind': 'movie',
+        'work_id': item.id,
+        'release_title': edition['title'] ?? item.editionTitle ?? item.title,
+        'format': edition['format'] ?? item.physicalFormat,
+        'language': edition['language'] ?? item.payload['language'],
+        'region': edition['region'] ?? item.payload['country'],
+        'release_date': edition['release_date'] ??
+            item.releaseDate?.toUtc().toIso8601String(),
+        'distributor': edition['distributor'] ?? item.publisher,
+        'media': _movieSeedMedia(item, edition),
+      },
+  ];
+  return withSeedPayload(item, {'releases': releases});
+}
+
+List<Map<String, dynamic>> _movieSeedMedia(
+  CatalogItem item,
+  Map<String, dynamic> edition,
+) {
+  final releaseId = edition['id']?.toString() ?? '${item.id}-release-01';
+  final discs = edition['discs'];
+  if (discs is List && discs.isNotEmpty) {
+    return [
+      for (var index = 0; index < discs.length; index++)
+        {
+          'id': '$releaseId-media-${index + 1}',
+          'release_id': releaseId,
+          'media_number': index + 1,
+          'media_type': item.physicalFormat,
+          'title': discs[index] is Map
+              ? (discs[index] as Map)['name']?.toString()
+              : 'Disc ${index + 1}',
+          'num_discs': 1,
+          'screen_ratio': item.payload['screen_ratio'],
+          'color': item.payload['color'],
+          'audio_tracks': item.payload['audio_tracks'],
+          'subtitles': item.payload['subtitles'],
+          'layers': item.payload['layers'],
+        },
+    ];
+  }
+  return [
+    {
+      'id': '$releaseId-media-01',
+      'release_id': releaseId,
+      'media_number': 1,
+      'media_type': item.physicalFormat,
+      'title': item.title,
+      'num_discs': item.payload['nr_discs'] ?? 1,
+      'screen_ratio': item.payload['screen_ratio'],
+      'color': item.payload['color'],
+      'audio_tracks': item.payload['audio_tracks'],
+      'subtitles': item.payload['subtitles'],
+      'layers': item.payload['layers'],
+    },
+  ];
+}
+
 List<CatalogItem> movieSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-movie-01',

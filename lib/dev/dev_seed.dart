@@ -63,6 +63,68 @@ const devSeedCatalogCounts = <String, int>{
   'comic': 15,
 };
 
+/// Minimum typed graph coverage expected from the fixture set.
+///
+/// Some fixtures intentionally contain multiple editions/tracks, so these
+/// are lower bounds rather than exact totals.
+const devSeedTypedGraphMinimumCounts = <String, int>{
+  'comic.media': 15,
+  'comic.release': 15,
+  'manga.media': 15,
+  'book.media': 15,
+  'book.release': 15,
+  'game.media': 15,
+  'game.release': 15,
+  'boardgame.media': 10,
+  'boardgame.edition': 10,
+  'movie.media': 15,
+  'movie.release': 15,
+  'tv.series': 15,
+  'tv.season': 15,
+  'tv.episode': 30,
+  'tv.release': 15,
+  'tv.release_media': 15,
+  'anime.media': 15,
+  'anime.episode': 30,
+  'anime.release': 15,
+  'music.release': 15,
+  'music.media': 15,
+  'music.track': 15,
+};
+
+/// Counts the typed catalog graph written by the development seed.
+///
+/// This is intentionally a composition-root helper: the seed verifier may
+/// enumerate kind tables, while runtime catalog code must continue to use the
+/// owning kind repository/codec instead of inspecting these tables.
+Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
+  return {
+    'comic.media': (await db.select(db.comicMediaRows).get()).length,
+    'comic.release': (await db.select(db.comicReleaseRows).get()).length,
+    'manga.media': (await db.select(db.mangaMediaRows).get()).length,
+    'book.media': (await db.select(db.bookMediaRows).get()).length,
+    'book.release': (await db.select(db.bookReleaseRows).get()).length,
+    'game.media': (await db.select(db.gameMediaRows).get()).length,
+    'game.release': (await db.select(db.gameReleaseRows).get()).length,
+    'boardgame.media': (await db.select(db.boardGameMediaRows).get()).length,
+    'boardgame.edition':
+        (await db.select(db.boardGameEditionRows).get()).length,
+    'movie.media': (await db.select(db.movieMediaRows).get()).length,
+    'movie.release': (await db.select(db.movieReleaseRows).get()).length,
+    'tv.series': (await db.select(db.tvSeriesRows).get()).length,
+    'tv.season': (await db.select(db.tvSeasonRows).get()).length,
+    'tv.episode': (await db.select(db.tvEpisodeRows).get()).length,
+    'tv.release': (await db.select(db.tvReleaseRows).get()).length,
+    'tv.release_media': (await db.select(db.tvReleaseMediaRows).get()).length,
+    'anime.media': (await db.select(db.animeMediaRows).get()).length,
+    'anime.episode': (await db.select(db.animeEpisodeRows).get()).length,
+    'anime.release': (await db.select(db.animeReleaseRows).get()).length,
+    'music.release': (await db.select(db.musicReleaseRows).get()).length,
+    'music.media': (await db.select(db.musicMediaRows).get()).length,
+    'music.track': (await db.select(db.musicTrackRows).get()).length,
+  };
+}
+
 /// Returns `true` if all typed local catalog graphs are empty.
 Future<bool> _isDatabaseEmpty(LocalDatabase db) async {
   return (await LibraryCatalogRepository(db).findAll()).isEmpty;
@@ -87,15 +149,17 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   // --- Catalog Items ---
   final allItems = <CatalogItem>[
-    ...movieSeedCatalogItems().map(enrichSeedItem),
-    ...tvSeedCatalogItems().map(enrichSeedItem),
-    ...animeSeedCatalogItems().map(enrichSeedItem),
-    ...mangaSeedCatalogItems().map(enrichSeedItem),
-    ...bookSeedCatalogItems().map(enrichSeedItem),
-    ...musicSeedCatalogItems().map(enrichSeedItem),
-    ...gameSeedCatalogItems().map(enrichSeedItem),
-    ...boardgameSeedCatalogItems().map(enrichSeedItem),
-    ...comicSeedCatalogItems().map(enrichSeedItem),
+    ...movieSeedCatalogItems().map(enrichSeedItem).map(enrichMovieSeedItem),
+    ...tvSeedCatalogItems().map(enrichSeedItem).map(enrichTvSeedItem),
+    ...animeSeedCatalogItems().map(enrichSeedItem).map(enrichAnimeSeedItem),
+    ...mangaSeedCatalogItems().map(enrichSeedItem).map(enrichMangaSeedItem),
+    ...bookSeedCatalogItems().map(enrichSeedItem).map(enrichBookSeedItem),
+    ...musicSeedCatalogItems().map(enrichSeedItem).map(enrichMusicSeedItem),
+    ...gameSeedCatalogItems().map(enrichSeedItem).map(enrichGameSeedItem),
+    ...boardgameSeedCatalogItems()
+        .map(enrichSeedItem)
+        .map(enrichBoardgameSeedItem),
+    ...comicSeedCatalogItems().map(enrichSeedItem).map(enrichComicSeedItem),
   ];
 
   final now = DateTime.now().toUtc();
@@ -164,7 +228,10 @@ void _validateSeedFixtures({
   final catalogById = <String, CatalogItem>{};
   for (final item in catalogItems) {
     if (item.id.trim().isEmpty || item.title.trim().isEmpty) {
-      throw StateError('Seed catalog item must have a non-empty id and title');
+      throw StateError(
+        'Seed catalog item must have a non-empty id and title '
+        '(id="${item.id}", kind="${item.kind}", title="${item.title}")',
+      );
     }
     if (!devSeedCatalogCounts.containsKey(item.kind)) {
       throw StateError(

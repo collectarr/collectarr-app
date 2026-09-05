@@ -6,6 +6,22 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
+CatalogItem enrichMangaSeedItem(CatalogItem item) {
+  return withSeedPayload(item, {
+    'chapters': [
+      {
+        'id': '${item.id}-chapter-01',
+        'kind': 'manga',
+        'series_id': item.id,
+        'volume_number': int.tryParse(item.itemNumber ?? '') ?? 1,
+        'chapter_number': 1,
+        'title': '${item.title} — Chapter 1',
+        'release_date': item.releaseDate?.toUtc().toIso8601String(),
+      },
+    ],
+  });
+}
+
 List<CatalogItem> mangaSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-manga-01',
