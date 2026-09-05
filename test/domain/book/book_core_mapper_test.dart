@@ -215,9 +215,7 @@ void main() {
           'releaseStatus',
           'upc',
         },
-        intentionallyIgnored: {
-          'kind': 'used to validate the typed Book DTO boundary',
-        },
+        intentionallyIgnored: {},
       ),
     );
   });

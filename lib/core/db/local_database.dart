@@ -194,7 +194,13 @@ class LocalDatabase extends _$LocalDatabase {
           await _migrateVideoPersonalRows(m);
         }
         if (from < 26) {
-          await m.addColumn(loansCache, loansCache.ownedKind);
+          if (await _hasTable(loansCache.actualTableName) &&
+              !await _hasColumn(
+                loansCache.actualTableName,
+                loansCache.ownedKind.name,
+              )) {
+            await m.addColumn(loansCache, loansCache.ownedKind);
+          }
           if (await _hasTable(ownedItemsCache.actualTableName)) {
             await customStatement('''
               UPDATE ${loansCache.actualTableName}
@@ -555,6 +561,13 @@ class LocalDatabase extends _$LocalDatabase {
       variables: [Variable.withString('table'), Variable.withString(tableName)],
     ).get();
     return rows.isNotEmpty;
+  }
+
+  Future<bool> _hasColumn(String tableName, String columnName) async {
+    final rows = await customSelect('PRAGMA table_info($tableName)').get();
+    return rows.any(
+      (row) => row.data['name']?.toString() == columnName,
+    );
   }
 
   String _legacyOwnedKind(

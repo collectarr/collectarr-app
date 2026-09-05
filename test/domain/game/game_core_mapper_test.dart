@@ -235,9 +235,7 @@ void main() {
           'barcodeValue',
           'coverImageUrlValue',
         },
-        intentionallyIgnored: {
-          'kind': 'used to validate the typed Game DTO boundary',
-        },
+        intentionallyIgnored: {},
       ),
     );
   });
