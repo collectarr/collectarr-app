@@ -322,14 +322,17 @@ class _ShelfEntryRow extends ConsumerStatefulWidget {
 class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
   bool _volumesExpanded = false;
 
-  bool get _isManga => widget.entry.catalogItem?.kind == 'manga';
-
   @override
   Widget build(BuildContext context) {
     final entry = widget.entry;
     final colorScheme = Theme.of(context).colorScheme;
     final owned = entry.ownedItem;
     final wishlist = entry.wishlistItem;
+    final kindShelfExtension = libraryShelfExtensionForEntry(
+      entry,
+      expanded: _volumesExpanded,
+      onToggle: () => setState(() => _volumesExpanded = !_volumesExpanded),
+    );
     return Material(
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(8),
@@ -441,200 +444,12 @@ class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
                 ),
               ],
             ),
-            if (_isManga) ...[
+            if (kindShelfExtension != null) ...[
               const SizedBox(height: 6),
-              _ShelfVolumesToggle(
-                expanded: _volumesExpanded,
-                onToggle: () =>
-                    setState(() => _volumesExpanded = !_volumesExpanded),
-              ),
+              kindShelfExtension,
             ],
-            if (_isManga && _volumesExpanded)
-              _ShelfVolumesPanel(itemId: entry.itemId),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ShelfVolumesToggle extends StatelessWidget {
-  const _ShelfVolumesToggle({
-    required this.expanded,
-    required this.onToggle,
-  });
-
-  final bool expanded;
-  final VoidCallback onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(4),
-      onTap: onToggle,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              expanded ? Icons.expand_less : Icons.expand_more,
-              size: 18,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              expanded ? 'Hide volumes' : 'Show volumes',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ShelfVolumesPanel extends ConsumerWidget {
-  const _ShelfVolumesPanel({required this.itemId});
-
-  final String itemId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final volumesAsync = ref.watch(
-      shelfMangaHierarchyProvider(
-        (itemId: itemId, canHydrateFromCore: true),
-      ),
-    );
-    return volumesAsync.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Center(
-            child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        )),
-      ),
-      error: (_, __) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text(
-          'Could not load volumes',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ),
-      data: (hierarchy) {
-        final volumes = hierarchy.volumes;
-        if (volumes.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              'No volumes available',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          );
-        }
-        return Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: volumes.map((v) => _ShelfVolumeTile(volume: v)).toList(),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _ShelfVolumeTile extends StatefulWidget {
-  const _ShelfVolumeTile({required this.volume});
-
-  final MangaVolumeHierarchyNode volume;
-
-  @override
-  State<_ShelfVolumeTile> createState() => _ShelfVolumeTileState();
-}
-
-class _ShelfVolumeTileState extends State<_ShelfVolumeTile> {
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final volume = widget.volume;
-    return Column(
-      children: [
-        ListTile(
-          dense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-          leading: const Icon(Icons.menu_book, size: 20),
-          title: Text(
-            volume.title ?? 'Volume ${volume.volumeNumber}',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          subtitle: Text(
-            [
-              if (volume.chapterCount != null)
-                '${volume.chapterCount} chapters',
-            ].join(' · '),
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          trailing: volume.chapters.isNotEmpty
-              ? Icon(
-                  _expanded ? Icons.expand_less : Icons.expand_more,
-                  size: 18,
-                )
-              : null,
-          onTap: volume.chapters.isNotEmpty
-              ? () => setState(() => _expanded = !_expanded)
-              : null,
-        ),
-        if (_expanded && volume.chapters.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(left: 40, right: 8, bottom: 4),
-            child: Column(
-              children: volume.chapters
-                  .map((ch) => _ShelfChapterRow(chapter: ch))
-                  .toList(),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _ShelfChapterRow extends StatelessWidget {
-  const _ShelfChapterRow({required this.chapter});
-
-  final MangaChapterHierarchyNode chapter;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 32,
-            child: Text(
-              'Ch. ${chapter.chapterNumber}',
-              style: Theme.of(context).textTheme.labelSmall,
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              chapter.title ?? 'Chapter ${chapter.chapterNumber}',
-              style: Theme.of(context).textTheme.bodySmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (chapter.pageCount != null)
-            Text(
-              '${chapter.pageCount}p',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-        ],
       ),
     );
   }

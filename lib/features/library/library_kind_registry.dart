@@ -4,8 +4,10 @@ import 'package:collectarr_app/features/library/actions/import_export_actions.da
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_collection_shelf_extension.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -63,6 +65,26 @@ LibraryCollectionCsvProjection? libraryCollectionCsvProjectionForKind(
   CatalogMediaKind kind,
 ) {
   return _collectionCsvProjections[kind];
+}
+
+/// Composition-root dispatch for kind-owned extensions on the mixed Shelf.
+///
+/// The Collection feature owns the slot and row lifecycle. It receives only a
+/// widget contribution and does not import Manga hierarchy types or provider
+/// code.
+Widget? libraryShelfExtensionForEntry(
+  ShelfEntry entry, {
+  required bool expanded,
+  required VoidCallback onToggle,
+}) {
+  return switch (catalogMediaKindFromValue(entry.catalogItem?.kind)) {
+    CatalogMediaKind.manga => MangaCollectionShelfExtension(
+        itemId: entry.itemId,
+        expanded: expanded,
+        onToggle: onToggle,
+      ),
+    _ => null,
+  };
 }
 
 final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {

@@ -7,8 +7,6 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/collection/shelf_volumes_provider.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
