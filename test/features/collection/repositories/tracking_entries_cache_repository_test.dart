@@ -35,6 +35,11 @@ void main() {
     expect(entry?.seasonNumber, 2);
     expect(entry?.episodeNumber, 4);
     expect(entry?.episodeRatings, {'2:4': 9});
+    expect(
+      repository.toSyncPayload(entry!),
+      containsPair('episode_ratings', {'2:4': 9}),
+    );
+    expect(repository.toSyncPayload(entry), containsPair('season_number', 2));
   });
 
   test('does not persist hierarchy coordinates for an unregistered kind',

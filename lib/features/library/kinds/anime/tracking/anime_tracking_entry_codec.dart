@@ -71,6 +71,24 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
   }
 
   @override
+  Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
+    if (entry.catalogRef.kind != kind) {
+      throw ArgumentError.value(
+        entry.catalogRef.kind,
+        'entry.catalogRef.kind',
+        'Expected Anime tracking entry',
+      );
+    }
+    return entry.toSyncPayload()
+      ..addAll({
+        'season_number': entry.seasonNumber,
+        'episode_number': entry.episodeNumber,
+        if (entry.episodeRatings.isNotEmpty)
+          'episode_ratings': entry.episodeRatings,
+      });
+  }
+
+  @override
   TrackingEntry fromStorageRow(
     TrackingEntryStorageRow row,
     Object? coordinates,

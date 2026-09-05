@@ -66,7 +66,10 @@ class SyncRetryMapper {
           entityType: change.entityType,
           entityId: item.id,
           action: item.isDeleted ? 'delete' : 'upsert',
-          payload: item.toSyncPayload(),
+          payload: TrackingEntriesCacheRepository(
+            db,
+            codecs: collectarrTrackingEntryCodecs,
+          ).toSyncPayload(item),
           clientChangedAt: changedAt,
         );
       case 'library_item_snapshot':

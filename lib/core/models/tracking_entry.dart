@@ -75,9 +75,6 @@ class TrackingEntry extends PersonalTrackingBase {
       'progress_total': progressTotal,
       'times_completed': timesCompleted,
       'notes': notes,
-      'season_number': seasonNumber,
-      'episode_number': episodeNumber,
-      if (episodeRatings.isNotEmpty) 'episode_ratings': episodeRatings,
     };
   }
 

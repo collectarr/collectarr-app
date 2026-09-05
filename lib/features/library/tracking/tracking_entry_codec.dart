@@ -66,6 +66,8 @@ abstract interface class TrackingEntryCodec {
 
   Future<void> writeCoordinates(LocalDatabase db, TrackingEntry entry);
 
+  Map<String, dynamic> toSyncPayload(TrackingEntry entry);
+
   TrackingEntry fromStorageRow(
     TrackingEntryStorageRow row,
     Object? coordinates,

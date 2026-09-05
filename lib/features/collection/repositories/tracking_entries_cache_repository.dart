@@ -97,6 +97,11 @@ class TrackingEntriesCacheRepository {
     return upsert(item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt));
   }
 
+  Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
+    return _codecs[entry.catalogRef.kind]?.toSyncPayload(entry) ??
+        entry.toSyncPayload();
+  }
+
   TrackingEntry _fromCache(
     TrackingEntriesCacheData row,
     Object? coordinates, {

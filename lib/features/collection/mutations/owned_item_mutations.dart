@@ -526,7 +526,7 @@ final class OwnedItemMutations {
       entityType: 'tracking_entry',
       entityId: entry.id,
       action: action,
-      payload: entry.toSyncPayload(),
+      payload: trackingEntries.toSyncPayload(entry),
       clientChangedAt: now,
     );
   }
