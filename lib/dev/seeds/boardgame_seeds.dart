@@ -14,6 +14,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         synopsis:
             'A cooperative dungeon-crawling board game with branching narrative and tactical combat.',
         publisher: 'Cephalofair Games',
+        barcode: '700300000013',
         releaseYear: 2017,
         releaseDate: DateTime.utc(2017, 4, 1),
         editionTitle: '2nd Printing',
@@ -41,6 +42,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         title: 'Gloomhaven: Jaws of the Lion',
         synopsis: 'A standalone prequel to Gloomhaven with simplified rules.',
         publisher: 'Cephalofair Games',
+        barcode: '700300000020',
         releaseYear: 2020,
         releaseDate: DateTime.utc(2020, 6, 18),
         sortKey: 'gloomhaven-0002',
@@ -60,6 +62,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         title: 'Wingspan',
         synopsis: 'A competitive bird-collection engine-building board game.',
         publisher: 'Stonemaier Games',
+        barcode: '700300000037',
         releaseYear: 2019,
         releaseDate: DateTime.utc(2019, 3, 8),
         ageRating: '10+',
@@ -80,6 +83,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         synopsis:
             'A cooperative game where players work together to stop global outbreaks.',
         publisher: 'Z-Man Games',
+        barcode: '700300000044',
         releaseYear: 2008,
         releaseDate: DateTime.utc(2008, 1, 1),
         sortKey: 'pandemic-0001',
@@ -96,6 +100,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         synopsis:
             'A legacy-style Pandemic where each game permanently alters the board.',
         publisher: 'Z-Man Games',
+        barcode: '700300000051',
         releaseYear: 2015,
         releaseDate: DateTime.utc(2015, 10, 8),
         sortKey: 'pandemic-0002',
@@ -117,6 +122,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         synopsis:
             'Corporations compete to terraform Mars by raising temperature, oxygen, and ocean coverage.',
         publisher: 'FryxGames',
+        barcode: '700300000068',
         releaseYear: 2016,
         releaseDate: DateTime.utc(2016, 10, 1),
         ageRating: '12+',
@@ -138,6 +144,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         synopsis:
             'Spirits of the land work together to drive off colonizing invaders.',
         publisher: 'Greater Than Games',
+        barcode: '700300000075',
         releaseYear: 2017,
         releaseDate: DateTime.utc(2017, 9, 22),
         sortKey: 'spirit-island-0001',
@@ -157,6 +164,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         synopsis:
             'An asymmetric war game where woodland factions battle for control of a vast forest.',
         publisher: 'Leder Games',
+        barcode: '700300000082',
         releaseYear: 2018,
         releaseDate: DateTime.utc(2018, 8, 1),
         ageRating: '10+',
@@ -184,6 +192,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         synopsis:
             'Build industries and networks in Birmingham during the industrial revolution.',
         publisher: 'Roxley Games',
+        barcode: '700300000099',
         releaseYear: 2018,
         releaseDate: DateTime.utc(2018, 12, 1),
         country: 'CA',
@@ -201,6 +210,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         synopsis:
             'An alternate-history 1920s strategy game featuring mechs and farming.',
         publisher: 'Stonemaier Games',
+        barcode: '700300000105',
         releaseYear: 2016,
         releaseDate: DateTime.utc(2016, 8, 18),
         ageRating: '14+',

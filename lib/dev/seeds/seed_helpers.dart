@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
 const String seedCoverImageData =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+XbL0AAAAASUVORK5CYII=';
@@ -239,6 +240,7 @@ void validateSeedCatalogQuality(Iterable<CatalogItem> items) {
     if (item.releaseDate == null) {
       issues.add('$prefix: release_date is required');
     }
+    _requireSeedBarcode(issues, prefix, item.kind, item.barcode);
     _requireTextList(
         issues, prefix, 'search_aliases', payload['search_aliases']);
     _requireTextList(issues, prefix, 'genres', payload['genres']);
@@ -292,6 +294,28 @@ void validateSeedCatalogQuality(Iterable<CatalogItem> items) {
       'Seed catalog quality validation failed:\n'
       '${issues.map((issue) => '- $issue').join('\n')}',
     );
+  }
+}
+
+void _requireSeedBarcode(
+  List<String> issues,
+  String prefix,
+  String kind,
+  String? barcode,
+) {
+  if (barcode == null || barcode.trim().isEmpty) {
+    issues.add('$prefix: barcode is required for the physical seed fixture');
+    return;
+  }
+  final value = barcode.trim();
+  final isComicSupplement = kind == 'comic' &&
+      value.length == 17 &&
+      isValidRetailBarcode(value.substring(0, 12)) &&
+      RegExp(r'^\d{5}$').hasMatch(value.substring(12));
+  if (!isValidRetailBarcode(value) &&
+      !isValidIsbn(value) &&
+      !isComicSupplement) {
+    issues.add('$prefix: barcode has an invalid checksum or format');
   }
 }
 

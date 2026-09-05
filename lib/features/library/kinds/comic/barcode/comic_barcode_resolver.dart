@@ -11,6 +11,18 @@ final class ComicBarcodeResolver implements LibraryBarcodeResolver {
 
   @override
   String? resolve(ScannedCode code) {
-    return isValidRetailBarcode(code.value) ? code.value : null;
+    if (isValidRetailBarcode(code.value)) {
+      return code.value;
+    }
+
+    // Comic UPCs may carry the five-digit issue/supplement add-on after the
+    // twelve-digit UPC-A value. The add-on is part of the scanned identifier,
+    // but only the UPC-A portion has a retail check digit.
+    if (code.value.length == 17 &&
+        isValidRetailBarcode(code.value.substring(0, 12)) &&
+        RegExp(r'^\d{5}$').hasMatch(code.value.substring(12))) {
+      return code.value;
+    }
+    return null;
   }
 }

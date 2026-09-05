@@ -4,6 +4,7 @@ import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,6 +45,19 @@ void main() {
             row.coverImageUrl?.trim().isNotEmpty == true &&
             row.thumbnailImageUrl?.trim().isNotEmpty == true),
         isTrue);
+    for (final row in catalogRows) {
+      final kind = catalogMediaKindFromApiValue(row.kind);
+      expect(kind, isNot(CatalogMediaKind.unknown),
+          reason: 'Seed row has an unknown kind: ${row.id}');
+      final barcode = row.barcode;
+      expect(barcode, isNotNull,
+          reason: 'Seed row is missing a barcode: ${row.id}');
+      expect(
+        resolveLibraryBarcodeForKind(kind, barcode!),
+        isNotNull,
+        reason: 'Seed barcode is not accepted by ${row.kind}: ${row.id}',
+      );
+    }
     final videoRows = catalogRows.where((row) =>
         row.kind == 'movie' || row.kind == 'tv' || row.kind == 'anime');
     expect(
