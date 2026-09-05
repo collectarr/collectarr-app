@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -18,7 +17,6 @@ import 'package:collectarr_app/features/collection/repositories/tracking_units_c
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
@@ -296,10 +294,11 @@ final class TrackingMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final itemId =
-        item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
-    final itemKind =
-        item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
+    final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+    if (metadataItem == null) {
+      throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
+    }
+    final itemId = metadataItem.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();
     final normalizedAnchorType = resolvePersonalItemAnchorType(
@@ -308,24 +307,12 @@ final class TrackingMutations {
       variantId: variantId,
       bundleReleaseId: bundleReleaseId,
     );
-    final catalogRef = item is CatalogItem
-        ? item.catalogRefForAnchor(
-            anchorType: normalizedAnchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
-          )
-        : CatalogEntityRef(
-            kind: itemKind,
-            entityType: normalizedAnchorType == 'edition'
-                ? CatalogEntityType.edition
-                : (normalizedAnchorType == 'variant'
-                    ? CatalogEntityType.release
-                    : (normalizedAnchorType == 'bundle_release'
-                        ? CatalogEntityType.bundleRelease
-                        : CatalogEntityType.work)),
-            id: variantId ?? editionId ?? bundleReleaseId ?? itemId,
-          );
+    final catalogRef = metadataItem.catalogRefForAnchor(
+      anchorType: normalizedAnchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
     await mutationRunner.run(
       origin: origin,
       localRef: catalogRef,

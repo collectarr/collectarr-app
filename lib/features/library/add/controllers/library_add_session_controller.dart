@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -923,13 +923,12 @@ class LibraryAddSessionController
           },
           sourceSelection: selected!,
         );
-        return CatalogItem.fromJson(raw);
+        return LibraryMetadataTransportCodec.fromMetadataMap(raw);
       });
 
       if (searchGen != state.search.coreSearchGeneration) return;
 
-      final hydratedItem =
-          LibraryMetadataTransportCodec.fromCatalogItem(hydrated);
+      final hydratedItem = hydrated;
       final mergedCoverImageUrl = hydratedItem.displayCoverUrl != null
           ? hydratedItem.coverImageUrl
           : selected.coverImageUrl;

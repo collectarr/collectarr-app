@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -329,8 +328,11 @@ final class OwnedItemMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final itemId =
-        item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
+    final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+    if (metadataItem == null) {
+      throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
+    }
+    final itemId = metadataItem.id;
     await mutationRunner.run(
       origin: origin,
       action: () async {
@@ -358,7 +360,12 @@ final class OwnedItemMutations {
       eventsToEmit: [
         for (final item in pendingItems)
           CatalogItemChanged(
-            item is LibraryMetadataItem ? item.id : (item as CatalogItem).id,
+            LibraryMetadataTransportCodec.fromUnknown(item)?.id ??
+                (throw ArgumentError.value(
+                  item,
+                  'item',
+                  'Unsupported catalog item type',
+                )),
           ),
       ],
     );
@@ -383,8 +390,17 @@ final class OwnedItemMutations {
 
   Future<int> promoteLocalOnlyItemToCatalog(
     String localItemId,
-    CatalogItem targetCatalogItem,
+    dynamic targetCatalogItem,
   ) async {
+    final targetMetadata =
+        LibraryMetadataTransportCodec.fromUnknown(targetCatalogItem);
+    if (targetMetadata == null) {
+      throw ArgumentError.value(
+        targetCatalogItem,
+        'targetCatalogItem',
+        'Unsupported catalog item type',
+      );
+    }
     final now = DateTime.now().toUtc();
     final wishlistEntries = await wishlist.findActiveByItemIds([localItemId]);
     final trackingList =
@@ -392,12 +408,12 @@ final class OwnedItemMutations {
 
     return await mutationRunner.run(
       action: () async {
-        await catalogCache.upsertAll([targetCatalogItem]);
+        await catalogCache.upsertAll([targetMetadata]);
         var count = 0;
 
         for (final item in wishlistEntries) {
           final updated = item.copyWith(
-            catalogRef: targetCatalogItem.catalogRefForAnchor(
+            catalogRef: targetMetadata.catalogRefForAnchor(
               anchorType: item.anchorType,
               editionId: item.editionId,
               variantId: item.variantId,
@@ -413,7 +429,7 @@ final class OwnedItemMutations {
 
         for (final item in trackingList) {
           final updated = item.copyWith(
-            catalogRef: targetCatalogItem.catalogRefForAnchor(
+            catalogRef: targetMetadata.catalogRefForAnchor(
               editionId: item.editionId,
               variantId: item.variantId,
               bundleReleaseId: item.bundleReleaseId,
@@ -428,11 +444,11 @@ final class OwnedItemMutations {
 
         await syncQueue.enqueue(
           SyncChange(
-            id: 'catalog_snapshot:${targetCatalogItem.id}:upsert:${now.millisecondsSinceEpoch}',
+            id: 'catalog_snapshot:${targetMetadata.id}:upsert:${now.millisecondsSinceEpoch}',
             entityType: 'library_item_snapshot',
-            entityId: targetCatalogItem.id,
+            entityId: targetMetadata.id,
             action: 'upsert',
-            payload: targetCatalogItem.toSyncPayload(),
+            payload: targetMetadata.toSyncPayload(),
             clientChangedAt: now,
           ),
         );
@@ -440,7 +456,7 @@ final class OwnedItemMutations {
         return count;
       },
       eventsToEmit: [
-        CatalogItemChanged(targetCatalogItem.id),
+        CatalogItemChanged(targetMetadata.id),
         for (final item in wishlistEntries) WishlistChanged(item.id),
         for (final item in trackingList) TrackingChanged(item.id),
       ],
@@ -451,15 +467,16 @@ final class OwnedItemMutations {
 
   CatalogEntityRef _catalogRefForItem(
     String itemId,
-    CatalogItem? item, {
+    dynamic item, {
     String? fallbackKind,
     String? anchorType,
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
   }) {
-    if (item != null) {
-      return item.catalogRefForAnchor(
+    final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+    if (metadataItem != null) {
+      return metadataItem.catalogRefForAnchor(
         anchorType: anchorType,
         editionId: editionId,
         variantId: variantId,
@@ -516,11 +533,12 @@ final class OwnedItemMutations {
   }
 
   SyncChange _syncChangeForCatalogItem(dynamic item, DateTime now) {
-    final itemId =
-        item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
-    final payload = item is LibraryMetadataItem
-        ? LibraryMetadataTransportCodec.toSyncPayload(item)
-        : (item as CatalogItem).toSyncPayload();
+    final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+    if (metadataItem == null) {
+      throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
+    }
+    final itemId = metadataItem.id;
+    final payload = LibraryMetadataTransportCodec.toSyncPayload(metadataItem);
     return SyncChange(
       id: 'catalog:$itemId:upsert:${now.millisecondsSinceEpoch}',
       entityType: 'catalog_item',

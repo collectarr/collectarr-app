@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
@@ -175,7 +175,7 @@ class SerialAuthorityRepository {
         );
   }
 
-  Future<void> captureCatalogItems(List<CatalogItem> items) async {
+  Future<void> captureCatalogItems(Iterable<dynamic> items) async {
     await _db.transaction(() async {
       await captureCatalogItemsWithoutTransaction(items);
     });
@@ -190,11 +190,12 @@ class SerialAuthorityRepository {
     final now = DateTime.now().toUtc();
     final candidates = <String, _SeriesCandidate>{};
     for (final item in list) {
-      final kind =
-          item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
-      final payload = item is LibraryMetadataItem
-          ? item.kindMetadata.toSyncPayload()
-          : (item as CatalogItem).toSyncPayload();
+      final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+      if (metadataItem == null) {
+        continue;
+      }
+      final kind = metadataItem.kind;
+      final payload = metadataItem.payload;
       final seriesPayload = payload['series'] as Map? ?? payload;
       final seriesTitle =
           (seriesPayload['series_title'] ?? seriesPayload['seriesTitle'])
@@ -451,7 +452,7 @@ class SerialAuthorityRepository {
   }
 
   bool _catalogMatchesSeries(
-    CatalogItem catalogItem,
+    LibraryMetadataItem catalogItem,
     SerialAuthorityCacheData registryRow,
   ) {
     final registryCoreSeriesId = _emptyToNull(registryRow.coreSeriesId);
@@ -469,7 +470,7 @@ class SerialAuthorityRepository {
         registryRow.normalizedTitle;
   }
 
-  CatalogItem _catalogFromCacheRow(CatalogCacheData row) {
+  LibraryMetadataItem _catalogFromCacheRow(CatalogCacheData row) {
     final decoded = jsonDecode(row.payloadJson);
     if (decoded is! Map) {
       throw StateError('Invalid catalog cache payload for ${row.id}.');
@@ -477,16 +478,16 @@ class SerialAuthorityRepository {
     final payload = Map<String, dynamic>.from(decoded);
     payload['id'] ??= row.id;
     payload['kind'] ??= row.kind;
-    return CatalogItem.fromJson(payload);
+    return LibraryMetadataTransportCodec.fromMetadataMap(payload);
   }
 
-  static Map<String, dynamic> _seriesPayload(CatalogItem item) {
+  static Map<String, dynamic> _seriesPayload(LibraryMetadataItem item) {
     final rawSeries = item.payload['series'];
     return rawSeries is Map ? Map<String, dynamic>.from(rawSeries) : const {};
   }
 
   static Map<String, dynamic> _catalogPayloadWithSeries(
-    CatalogItem item, {
+    LibraryMetadataItem item, {
     required String? seriesId,
     required String seriesTitle,
   }) {
