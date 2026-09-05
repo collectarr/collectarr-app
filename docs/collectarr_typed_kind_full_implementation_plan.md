@@ -1930,6 +1930,17 @@ CatalogItemDto usages under Library/Collection business code = 0
 
 If API legacy code still needs it, quarantine it.
 
+### Status (2026-09-05)
+
+Complete. Library and Collection runtime paths now convert legacy cache/API
+catalog DTOs through the explicit metadata transport codec and continue with
+`LibraryMetadataItem`; Collection mutations, the add-session hydration path,
+serial authority cache, shelf, workspace, and generic dialogs no longer refer
+to `CatalogItem` directly. The manga hierarchy callback was also moved to the
+typed Core work endpoint, removing the stale generic chapter-row API call.
+Legacy DTO construction remains isolated in the catalog cache and transport
+adapter boundaries for the subsequent wrapper removal PRs. Continue with PR71.
+
 ---
 
 ## PR 71 — Delete `LibraryKindMetadataRuntime`
