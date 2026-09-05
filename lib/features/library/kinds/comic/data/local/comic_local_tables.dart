@@ -68,6 +68,67 @@ class ComicReleaseRows extends Table {
   Set<Column> get primaryKey => {mediaId, id};
 }
 
+/// Complete Comic-owned copy state. Generic owned storage is retained only
+/// as a migration/read compatibility surface while kinds move to this table.
+class ComicOwnedItemsRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  DateTimeColumn get createdAt => dateTime().nullable()();
+  BoolColumn get isDigital => boolean().nullable()();
+  TextColumn get anchorType => text().nullable()();
+  TextColumn get editionId => text().nullable()();
+  TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
+  TextColumn get condition => text().nullable()();
+  TextColumn get grade => text().nullable()();
+  DateTimeColumn get purchaseDate => dateTime().nullable()();
+  IntColumn get pricePaidCents => integer().nullable()();
+  TextColumn get currency => text().nullable()();
+  TextColumn get personalNotes => text().nullable()();
+  IntColumn get quantity => integer().withDefault(const Constant(1))();
+  IntColumn get indexNumber => integer().nullable()();
+  TextColumn get tags => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+  DateTimeColumn get soldAt => dateTime().nullable()();
+  IntColumn get sellPriceCents => integer().nullable()();
+  TextColumn get soldTo => text().nullable()();
+  TextColumn get ownerUserId => text().nullable()();
+  TextColumn get ownerLabel => text().nullable()();
+  TextColumn get locationId => text().nullable()();
+  TextColumn get purchaseStore => text().nullable()();
+  TextColumn get collectionStatus => text().nullable()();
+  IntColumn get marketValueCents => integer().nullable()();
+  TextColumn get rawOrSlabbed => text().nullable()();
+  TextColumn get gradingCompany => text().nullable()();
+  TextColumn get graderNotes => text().nullable()();
+  TextColumn get labelType => text().nullable()();
+  TextColumn get customLabel => text().nullable()();
+  TextColumn get pageQuality => text().nullable()();
+  TextColumn get certificationNumber => text().nullable()();
+  TextColumn get signedBy => text().nullable()();
+  BoolColumn get keyComic => boolean().withDefault(const Constant(false))();
+  TextColumn get keyReason => text().nullable()();
+  TextColumn get keyCategory => text().nullable()();
+  TextColumn get keySeverity => text().nullable()();
+  IntColumn get coverPriceCents => integer().nullable()();
+  DateTimeColumn get lastBagBoardDate => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class ComicReadingRows extends Table {
+  TextColumn get ownedItemId => text()();
+  IntColumn get rating => integer().nullable()();
+  TextColumn get status => text().nullable()();
+  DateTimeColumn get startedAt => dateTime().nullable()();
+  DateTimeColumn get finishedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {ownedItemId};
+}
+
 class ComicOwnedDetailsRows extends Table {
   TextColumn get ownedItemId => text()();
   TextColumn get rawOrSlabbed => text().nullable()();

@@ -61,6 +61,13 @@ void main() {
         isTrue);
     expect(ownedRows.map((row) => row.id).toSet(), hasLength(130));
 
+    final comicOwnedRows = await db.select(db.comicOwnedItemsRows).get();
+    final comicReadingRows = await db.select(db.comicReadingRows).get();
+    expect(comicOwnedRows, hasLength(15));
+    expect(comicReadingRows, hasLength(15));
+    expect(comicOwnedRows.every((row) => row.itemId.startsWith('seed-comic-')),
+        isTrue);
+
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows

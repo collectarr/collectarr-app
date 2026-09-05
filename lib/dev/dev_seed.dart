@@ -25,6 +25,8 @@ import 'package:collectarr_app/dev/seeds/pick_list_seeds.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/tv_seeds.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
@@ -56,6 +58,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   if (!force && !await _isDatabaseEmpty(db)) return;
 
   final catalogRepo = LibraryCatalogRepository(db);
+  final comicOwnedRepo = ComicOwnedRepository(db);
   final ownedRepo = OwnedItemsCacheRepository(db);
   final trackingRepo = TrackingEntriesCacheRepository(db);
   final imagesRepo = ItemImagesCacheRepository(db);
@@ -93,6 +96,11 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     ...mangaSeedOwnedItems(now),
   ];
   await ownedRepo.upsertAll(ownedItems);
+  await comicOwnedRepo.upsertAll(
+    ownedItems
+        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.comic)
+        .map(ComicOwnedItemLegacyAdapter.fromLegacy),
+  );
 
   // --- Item Images (front/back + extras) ---
   await _seedItemImages(imagesRepo, ownedItems);
