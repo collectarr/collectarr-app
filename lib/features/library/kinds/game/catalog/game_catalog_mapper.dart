@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class GameCatalogMapper {
   static GameCatalogItem mapMetadataItemToGame(CatalogItem item) {
@@ -23,8 +22,7 @@ class GameCatalogMapper {
       genres: meta.genres,
     );
 
-    final editionsPayload =
-        item.kindMetadata.toSyncPayload()['editions'] as List?;
+    final editionsPayload = item.payload['editions'] as List?;
     final editions = editionsPayload != null
         ? editionsPayload
             .whereType<Map<String, dynamic>>()

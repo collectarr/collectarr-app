@@ -42,12 +42,12 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     entityType: CatalogEntityType.work,
     id: item.node.titleItemId,
   );
-  final rawEditions =
-      ((catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          const <CatalogEdition>[]);
+  final catalogPayload = catalogItem?.payload;
+  final rawEditions = ((catalogPayload?['editions'] as List?)
+          ?.whereType<Map<String, dynamic>>()
+          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+          .toList() ??
+      const <CatalogEdition>[]);
   final releaseOptions = [
     for (final edition in rawEditions)
       WatchHistoryTargetOption(
@@ -67,7 +67,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
 
   final tvLinks = (catalogItem?.kindMetadata is TvSeriesMetadata
           ? (catalogItem!.kindMetadata as TvSeriesMetadata).links
-          : (catalogItem?.kindMetadata.toSyncPayload()['trailer_urls'] as List?)
+          : (catalogPayload?['trailer_urls'] as List?)
               ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
               .toList()) ??

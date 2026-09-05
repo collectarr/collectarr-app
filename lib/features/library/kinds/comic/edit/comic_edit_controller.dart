@@ -208,6 +208,7 @@ class ComicEditController {
         : null;
 
     final updatedMeta = currentMeta.copyWith(
+      title: emptyToNull(seriesTitleController.text) ?? currentMeta.title,
       crossover: emptyToNull(crossoverController.text),
       storyArcs:
           parsedStoryArcs.isNotEmpty ? parsedStoryArcs : currentMeta.storyArcs,
