@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/imports/personal_lists/tv_episode_import_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/integrations/personal_lists/tv_episode_import_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

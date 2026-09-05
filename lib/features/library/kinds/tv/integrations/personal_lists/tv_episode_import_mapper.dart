@@ -1,3 +1,8 @@
+/// TV-owned semantic mapping for personal-list rows with episode coordinates.
+///
+/// File parsing and import orchestration stay in `features/imports`; this
+/// adapter only decides which TV hierarchy scope a row targets and how it is
+/// summarized for the import preview.
 class TvEpisodeImportRow {
   const TvEpisodeImportRow({
     required this.kind,
