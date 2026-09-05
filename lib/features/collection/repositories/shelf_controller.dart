@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,8 +33,10 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
       entry.key: typedCatalogItemFromCatalogItem(entry.value),
   };
   final locations = await LocationRepository(db).getAll();
-  final watchSessions =
-      await WatchSessionsCacheRepository(db).listActiveByItemIds(ids);
+  final watchSessions = await WatchSessionsCacheRepository(
+    db,
+    codecs: collectarrWatchSessionCodecs,
+  ).listActiveByItemIds(ids);
   final itemImagesByOwnedItem =
       await ItemImageRepository(db).listForOwnedItemIds(
     owned.map((item) => item.id),

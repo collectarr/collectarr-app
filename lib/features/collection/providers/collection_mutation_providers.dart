@@ -34,6 +34,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 
 final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));
@@ -69,7 +70,10 @@ final trackingUnitsCacheRepositoryProvider =
 
 final watchSessionsCacheRepositoryProvider =
     Provider<WatchSessionsCacheRepository>((ref) {
-  return WatchSessionsCacheRepository(ref.watch(localDatabaseProvider));
+  return WatchSessionsCacheRepository(
+    ref.watch(localDatabaseProvider),
+    codecs: collectarrWatchSessionCodecs,
+  );
 });
 
 final userMetadataOverridesCacheRepositoryProvider =

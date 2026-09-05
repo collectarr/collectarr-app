@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/collection/repositories/watch_sessions_c
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -160,7 +161,10 @@ final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
 
 final watchSessionsProvider = FutureProvider<List<WatchSession>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
-  final cache = WatchSessionsCacheRepository(db);
+  final cache = WatchSessionsCacheRepository(
+    db,
+    codecs: collectarrWatchSessionCodecs,
+  );
   return cache.listActive();
 });
 

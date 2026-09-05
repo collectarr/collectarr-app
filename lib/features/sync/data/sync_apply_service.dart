@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/drift.dart';
@@ -148,7 +149,10 @@ class SyncApplyService {
       await trackingEntries.upsertAll(tracking);
       await wishlistItems.upsertAll(wishlist);
       if (watchSessions.isNotEmpty) {
-        await WatchSessionsCacheRepository(db).upsertAll(watchSessions);
+        await WatchSessionsCacheRepository(
+          db,
+          codecs: collectarrWatchSessionCodecs,
+        ).upsertAll(watchSessions);
       }
       if (metadataOverrides.isNotEmpty) {
         await UserMetadataOverridesCacheRepository(db)

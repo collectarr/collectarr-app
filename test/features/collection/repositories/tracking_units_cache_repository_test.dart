@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_episodes_
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -187,7 +188,10 @@ void main() {
   test('routes watch sessions to the TV and Anime owner tables', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = WatchSessionsCacheRepository(db);
+    final repository = WatchSessionsCacheRepository(
+      db,
+      codecs: collectarrWatchSessionCodecs,
+    );
     final now = DateTime.utc(2026, 9, 5);
 
     await repository.upsertAll([
@@ -352,7 +356,10 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase(file));
     addTearDown(db.close);
-    final sessions = WatchSessionsCacheRepository(db);
+    final sessions = WatchSessionsCacheRepository(
+      db,
+      codecs: collectarrWatchSessionCodecs,
+    );
     final episodes = CustomEpisodesCacheRepository(
       db,
       codecs: collectarrCustomEpisodeCodecs,
