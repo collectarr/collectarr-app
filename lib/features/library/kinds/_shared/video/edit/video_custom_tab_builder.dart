@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/tv
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/tv_episode_disc_map_tab.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_tabs.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
 Widget? buildVideoCustomTabView({
@@ -15,7 +15,7 @@ Widget? buildVideoCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required LibraryMetadataItem item,
+  required CatalogItem item,
   required VoidCallback markDirty,
 }) {
   final videoEdit = (draft.kindDetails is VideoKindEditDraft)

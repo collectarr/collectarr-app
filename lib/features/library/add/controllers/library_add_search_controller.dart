@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +15,7 @@ class LibraryAddSearchController {
   final queryController = TextEditingController();
   final barcodeController = TextEditingController();
 
-  List<LibraryMetadataItem> results = const [];
+  List<CatalogItem> results = const [];
   List<ProviderCandidate> providerResults = const [];
   String? error;
   String selectedProvider;
@@ -29,7 +29,7 @@ class LibraryAddSearchController {
   int coreSearchGeneration = 0;
   int providerSearchGeneration = 0;
   Timer? autocompleteTimer;
-  List<LibraryMetadataItem> suggestions = const [];
+  List<CatalogItem> suggestions = const [];
   bool showSuggestions = false;
   final Map<LibraryAddFilterId, Object?> _advancedFilters;
 
@@ -110,11 +110,11 @@ class LibraryAddSearchState {
   final bool searchedProvider;
   final bool isScanningCover;
   final bool showAdvancedSearch;
-  final List<LibraryMetadataItem> results;
+  final List<CatalogItem> results;
   final List<ProviderCandidate> providerResults;
   final String selectedProvider;
   final Map<LibraryAddFilterId, Object?> advancedFilters;
-  final List<LibraryMetadataItem> suggestions;
+  final List<CatalogItem> suggestions;
   final bool showSuggestions;
   final String? error;
   final int coreSearchGeneration;
@@ -133,11 +133,11 @@ class LibraryAddSearchState {
     bool? searchedProvider,
     bool? isScanningCover,
     bool? showAdvancedSearch,
-    List<LibraryMetadataItem>? results,
+    List<CatalogItem>? results,
     List<ProviderCandidate>? providerResults,
     String? selectedProvider,
     Map<LibraryAddFilterId, Object?>? advancedFilters,
-    List<LibraryMetadataItem>? suggestions,
+    List<CatalogItem>? suggestions,
     bool? showSuggestions,
     String? error,
     bool clearError = false,

@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -37,11 +37,11 @@ class LibraryOwnedItemResolution {
   }
 }
 
-bool itemHasMissingCover(LibraryMetadataItem item) {
+bool itemHasMissingCover(CatalogItem item) {
   return item.coverImageUrl == null || item.coverImageUrl!.trim().isEmpty;
 }
 
-bool itemHasMissingDetails(LibraryMetadataItem item) {
+bool itemHasMissingDetails(CatalogItem item) {
   final payload = item.kindMetadata.toSyncPayload();
   final publisher = (payload['publisher'] ??
       (payload['publishing'] as Map?)?['original_publisher']) as String?;

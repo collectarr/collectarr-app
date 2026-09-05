@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/vide
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 export 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -117,7 +117,7 @@ class TvWorkspaceNode {
 // Extension for VideoCatalogMapper used in tv workspace builder
 // ---------------------------------------------------------------------------
 extension TvVideoCatalogMapperExt on VideoCatalogMapper {
-  static VideoCatalogItem fromTvMetadataItem(LibraryMetadataItem item) {
+  static VideoCatalogItem fromTvMetadataItem(CatalogItem item) {
     final metadata = item.kindMetadata;
     if (metadata is! TvSeriesMetadata) {
       throw ArgumentError.value(

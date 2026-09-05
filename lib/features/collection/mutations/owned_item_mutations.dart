@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -73,7 +73,7 @@ final class OwnedItemMutations {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
           await catalogCache.upsertMetadataItems([
-            LibraryMetadataTransportCodec.fromMetadataMap({
+            typedCatalogItemFromMap({
               'id': catalogRef.id,
               'kind': catalogRef.kind,
               'title': catalogRef.id,
@@ -328,7 +328,7 @@ final class OwnedItemMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+    final metadataItem = typedCatalogItemFromUnknown(item);
     if (metadataItem == null) {
       throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
     }
@@ -360,7 +360,7 @@ final class OwnedItemMutations {
       eventsToEmit: [
         for (final item in pendingItems)
           CatalogItemChanged(
-            LibraryMetadataTransportCodec.fromUnknown(item)?.id ??
+            typedCatalogItemFromUnknown(item)?.id ??
                 (throw ArgumentError.value(
                   item,
                   'item',
@@ -393,7 +393,7 @@ final class OwnedItemMutations {
     dynamic targetCatalogItem,
   ) async {
     final targetMetadata =
-        LibraryMetadataTransportCodec.fromUnknown(targetCatalogItem);
+        typedCatalogItemFromUnknown(targetCatalogItem);
     if (targetMetadata == null) {
       throw ArgumentError.value(
         targetCatalogItem,
@@ -474,7 +474,7 @@ final class OwnedItemMutations {
     String? variantId,
     String? bundleReleaseId,
   }) {
-    final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+    final metadataItem = typedCatalogItemFromUnknown(item);
     if (metadataItem != null) {
       return metadataItem.catalogRefForAnchor(
         anchorType: anchorType,
@@ -533,12 +533,12 @@ final class OwnedItemMutations {
   }
 
   SyncChange _syncChangeForCatalogItem(dynamic item, DateTime now) {
-    final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+    final metadataItem = typedCatalogItemFromUnknown(item);
     if (metadataItem == null) {
       throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
     }
     final itemId = metadataItem.id;
-    final payload = LibraryMetadataTransportCodec.toSyncPayload(metadataItem);
+    final payload = metadataItem.toSyncPayload();
     return SyncChange(
       id: 'catalog:$itemId:upsert:${now.millisecondsSinceEpoch}',
       entityType: 'catalog_item',

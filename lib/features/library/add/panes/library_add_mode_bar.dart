@@ -87,9 +87,9 @@ class LibraryAddModeBar extends StatefulWidget {
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
-  final List<LibraryMetadataItem> suggestions;
+  final List<CatalogItem> suggestions;
   final bool showSuggestions;
-  final ValueChanged<LibraryMetadataItem> onSelectSuggestion;
+  final ValueChanged<CatalogItem> onSelectSuggestion;
   final VoidCallback onDismissSuggestions;
   final bool canScanCover;
   final bool isScanningCover;
@@ -884,9 +884,9 @@ class _SuggestionDropdown extends StatelessWidget {
     required this.onDismiss,
   });
 
-  final List<LibraryMetadataItem> suggestions;
+  final List<CatalogItem> suggestions;
   final Color accent;
-  final ValueChanged<LibraryMetadataItem> onSelect;
+  final ValueChanged<CatalogItem> onSelect;
   final VoidCallback onDismiss;
 
   @override
@@ -925,7 +925,7 @@ class _SuggestionTile extends StatelessWidget {
     required this.onTap,
   });
 
-  final LibraryMetadataItem item;
+  final CatalogItem item;
   final Color accent;
   final VoidCallback onTap;
 

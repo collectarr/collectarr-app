@@ -57,7 +57,7 @@ class LibraryPageEditCoordinator {
     if (_s._isEditDialogInFlight) {
       return;
     }
-    final LibraryMetadataItem? catalogItem = item.source.catalogItem;
+    final CatalogItem? catalogItem = item.source.catalogItem;
     if (catalogItem == null) {
       return;
     }
@@ -72,7 +72,7 @@ class LibraryPageEditCoordinator {
     final cached = (await CatalogCacheRepository(db)
         .findByIds({catalogItem.id}))[catalogItem.id];
     final freshMetadataItem = cached != null
-        ? LibraryMetadataTransportCodec.fromCatalogItem(cached)
+        ? typedCatalogItemFromCatalogItem(cached)
         : catalogItem;
     final ownedItems = _s.ref.read(collectionProvider).maybeWhen(
           data: (value) => value,
@@ -260,7 +260,7 @@ class LibraryPageEditCoordinator {
     required OwnedItem? owned,
     required WishlistItem? wishlist,
     required TrackingEntry? activeTrackingEntry,
-    required LibraryMetadataItem catalogItem,
+    required CatalogItem catalogItem,
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,
   }) async {

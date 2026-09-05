@@ -7,7 +7,8 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadat
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -132,7 +133,7 @@ ShelfEntry _shelfEntry(
 ) {
   return ShelfEntry(
     itemId: 'item-1',
-    catalogItem: LibraryMetadataItem(
+    catalogItem: CatalogItem(
       identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
       kindMetadata: metadata,
     ),

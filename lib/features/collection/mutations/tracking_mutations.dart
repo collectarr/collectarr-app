@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
@@ -142,7 +142,7 @@ final class TrackingMutations {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
           await catalogCache.upsertMetadataItems([
-            LibraryMetadataTransportCodec.fromMetadataMap({
+            typedCatalogItemFromMap({
               'id': catalogRef.id,
               'kind': catalogRef.kind,
               'title': catalogRef.id,
@@ -294,7 +294,7 @@ final class TrackingMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+    final metadataItem = typedCatalogItemFromUnknown(item);
     if (metadataItem == null) {
       throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
     }

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 bool sameStringList(List<String>? a, List<String>? b) {
   final left = normalizeStringList(a);
@@ -149,11 +149,11 @@ List<Map<String, dynamic>> normalizeTracks(List<CatalogTrack>? values) {
   return normalized;
 }
 
-LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {
+CatalogItem metadataItemFromIngestResult(AdminMetadataItem item) {
   final primaryEdition = item.primaryEdition;
   final primaryVariant = item.primaryVariant;
   final releaseDate = primaryEdition?.releaseDate;
-  return LibraryMetadataTransportCodec.fromMetadataMap({
+  return typedCatalogItemFromMap({
         'id': item.id,
         'kind': item.kind,
         'title': item.title,

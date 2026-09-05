@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -8,7 +9,7 @@ void main() {
   test('music search result display formats album metadata', () {
     const builder = MusicLibraryMediaPresentationBuilder();
     final display = builder.buildSearchResultDisplay(
-      item: LibraryMetadataItem.fromMetadataMap({
+      item: typedCatalogItemFromMap({
         'id': 'music-search-1',
         'kind': 'music',
         'title': 'Kinesis - Deluxe Edition',
@@ -43,7 +44,7 @@ void main() {
       previewLabels: const LibraryMediaPreviewLabels(
         values: {'series': 'Artist', 'item_count': 'Releases'},
       ),
-      item: LibraryMetadataItem.fromMetadataMap({
+      item: typedCatalogItemFromMap({
         'id': 'music-1',
         'kind': 'music',
         'title': 'Kinesis',
@@ -120,7 +121,7 @@ void main() {
       previewLabels: const LibraryMediaPreviewLabels(
         values: {'series': 'Artist', 'item_count': 'Releases'},
       ),
-      item: LibraryMetadataItem.fromMetadataMap({
+      item: typedCatalogItemFromMap({
         'id': 'music-1',
         'kind': 'music',
         'title': 'Kinesis',

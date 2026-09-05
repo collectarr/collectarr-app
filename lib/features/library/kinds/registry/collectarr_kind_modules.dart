@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
@@ -44,6 +45,23 @@ Object? decodeLibraryKindMetadata(
     }
   }
   return Map<String, dynamic>.from(json);
+}
+
+CatalogItem typedCatalogItemFromCatalogItem(CatalogItem item) {
+  if (item.kindMetadata is! Map) return item;
+  return item.withKindMetadata(
+    decodeLibraryKindMetadata(item.mediaKind, item.payload),
+  );
+}
+
+CatalogItem typedCatalogItemFromMap(Map<String, dynamic> json) {
+  final item = CatalogItem.fromJson(json);
+  return typedCatalogItemFromCatalogItem(item);
+}
+
+CatalogItem? typedCatalogItemFromUnknown(Object? item) {
+  if (item is! CatalogItem) return null;
+  return typedCatalogItemFromCatalogItem(item);
 }
 
 LibraryKindRuntime? lookupLibraryKind(CatalogMediaKind kind) {

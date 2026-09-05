@@ -37,7 +37,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_
 import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
 
 const _animeSeriesFilterId = LibraryAddFilterId('anime.series');
@@ -309,7 +309,7 @@ String? _optionalAnimeText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _animeAddResultScope(LibraryMetadataItem item) {
+LibraryAddVideoResultScope _animeAddResultScope(CatalogItem item) {
   final metadata = item.kindMetadata;
   if (metadata is AnimeMetadata) {
     if (metadata.series?.seasonNumber != null) {
@@ -347,7 +347,7 @@ LibraryAddVideoResultScope _animeAddProviderResultScope(
   return LibraryAddVideoResultScope.media;
 }
 
-String _animeAddGroupTitle(LibraryMetadataItem item) {
+String _animeAddGroupTitle(CatalogItem item) {
   final metadata = item.kindMetadata;
   if (metadata is AnimeMetadata) {
     return metadata.seriesTitle?.trim() ??

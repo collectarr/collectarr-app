@@ -1,12 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('prefers catalog editions from core over local anchor synthesis', () {
-    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+    final catalogItem = typedCatalogItemFromMap({
       'id': 'movie-1',
       'kind': 'movie',
       'title': 'Blade Runner',
@@ -45,7 +46,7 @@ void main() {
   });
 
   test('keeps local release synthesis when video item has no editions', () {
-    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+    final catalogItem = typedCatalogItemFromMap({
       'id': 'tmdb-local:movie:2',
       'kind': 'movie',
       'title': 'Dune',
@@ -71,7 +72,7 @@ void main() {
 
   test('treats tv items as video library kinds for local release synthesis',
       () {
-    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+    final catalogItem = typedCatalogItemFromMap({
       'id': 'tmdb-local:tv:2',
       'kind': 'tv',
       'title': 'Severance',
@@ -97,7 +98,7 @@ void main() {
 
   test('does not synthesize title snapshot fallback for refreshed core items',
       () {
-    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+    final catalogItem = typedCatalogItemFromMap({
       'id': 'movie-3',
       'kind': 'movie',
       'title': 'Arrival',
@@ -109,7 +110,7 @@ void main() {
   });
 
   test('keeps title snapshot fallback for local synthetic video items', () {
-    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+    final catalogItem = typedCatalogItemFromMap({
       'id': 'tmdb-local:movie:4',
       'kind': 'movie',
       'title': 'Heat',

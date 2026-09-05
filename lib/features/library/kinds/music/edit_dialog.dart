@@ -24,7 +24,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_section_tab.dart';
@@ -176,7 +176,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   bool get _hasWishlistContext => widget.request.wishlistItem != null;
 
-  LibraryMetadataItem get _item => widget.request.item;
+  CatalogItem get _item => widget.request.item;
   Color get _accent => widget.request.accent;
 
   LibraryEditPresentationContext get _editPresentationContext {
@@ -1898,7 +1898,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       creators: _buildCreatorsForSubmit() ?? const [],
       links: _buildUpdatedLinks(),
     );
-    final updatedItem = LibraryMetadataItem(
+    final updatedItem = CatalogItem(
       identity: _item.identity,
       kindMetadata: fullCatalogItem,
     );

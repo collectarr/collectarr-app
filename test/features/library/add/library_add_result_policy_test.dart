@@ -3,17 +3,18 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('TV Add policy classifies and filters media scopes', () {
-    final series = LibraryMetadataItem.fromMetadataMap({
+    final series = typedCatalogItemFromMap({
       'id': 'tv-series',
       'kind': 'tv',
       'title': 'Example Show',
     });
-    final season = LibraryMetadataItem.fromMetadataMap({
+    final season = typedCatalogItemFromMap({
       'id': 'tv-season',
       'kind': 'tv',
       'title': 'Example Show',
@@ -22,7 +23,7 @@ void main() {
         'season_number': 1,
       },
     });
-    final release = LibraryMetadataItem.fromMetadataMap({
+    final release = typedCatalogItemFromMap({
       'id': 'tv-release',
       'kind': 'tv',
       'title': 'Example Show',
@@ -46,18 +47,18 @@ void main() {
   });
 
   test('TV Add policy keeps all scopes visible by default', () {
-    final series = LibraryMetadataItem.fromMetadataMap({
+    final series = typedCatalogItemFromMap({
       'id': 'tv-series',
       'kind': 'tv',
       'title': 'Example Show',
     });
-    final season = LibraryMetadataItem.fromMetadataMap({
+    final season = typedCatalogItemFromMap({
       'id': 'tv-season',
       'kind': 'tv',
       'title': 'Example Show',
       'series': {'season_number': 2},
     });
-    final release = LibraryMetadataItem.fromMetadataMap({
+    final release = typedCatalogItemFromMap({
       'id': 'tv-release',
       'kind': 'tv',
       'title': 'Example Show',
@@ -74,18 +75,18 @@ void main() {
   });
 
   test('Comic Add policy owns owned and variant visibility', () {
-    final owned = LibraryMetadataItem.fromMetadataMap({
+    final owned = typedCatalogItemFromMap({
       'id': 'comic-owned',
       'kind': 'comic',
       'title': 'Owned Comic',
     });
-    final variant = LibraryMetadataItem.fromMetadataMap({
+    final variant = typedCatalogItemFromMap({
       'id': 'comic-variant',
       'kind': 'comic',
       'title': 'Variant Comic',
       'variant': 'Foil',
     });
-    final regular = LibraryMetadataItem.fromMetadataMap({
+    final regular = typedCatalogItemFromMap({
       'id': 'comic-regular',
       'kind': 'comic',
       'title': 'Regular Comic',

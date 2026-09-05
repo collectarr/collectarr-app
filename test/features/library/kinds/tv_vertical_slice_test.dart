@@ -9,7 +9,8 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -88,7 +89,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'tv_1',
-        catalogItem: LibraryMetadataItem(
+        catalogItem: CatalogItem(
           identity: const LibraryItemIdentity(
             id: 'tv_1',
             mediaKind: CatalogMediaKind.tv,
@@ -234,7 +235,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'tv_breaking_bad',
-        catalogItem: LibraryMetadataItem(
+        catalogItem: CatalogItem(
           identity: const LibraryItemIdentity(
             id: 'tv_breaking_bad',
             mediaKind: CatalogMediaKind.tv,

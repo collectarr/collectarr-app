@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -57,7 +58,7 @@ void main() {
 ShelfEntry _entry(String id, BoardGameMetadata metadata) {
   return ShelfEntry(
     itemId: id,
-    catalogItem: LibraryMetadataItem(
+    catalogItem: CatalogItem(
       identity: LibraryItemIdentity(
         id: id,
         mediaKind: CatalogMediaKind.boardgame,

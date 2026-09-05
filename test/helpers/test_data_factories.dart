@@ -5,7 +5,8 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 
 /// Builds a [CatalogItem] with sensible defaults for testing.
@@ -333,7 +334,7 @@ ShelfEntry testShelfEntry({
       );
   return ShelfEntry(
     itemId: itemId,
-    catalogItem: LibraryMetadataItem.fromCatalogItem(resolvedCatalogItem),
+    catalogItem: typedCatalogItemFromCatalogItem(resolvedCatalogItem),
     ownedItem: ownedItem,
     locationPath: locationPath,
   );

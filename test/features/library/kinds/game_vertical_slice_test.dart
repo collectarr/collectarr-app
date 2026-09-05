@@ -11,7 +11,8 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_worksp
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -125,7 +126,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'game_1',
-        catalogItem: LibraryMetadataItem(
+        catalogItem: CatalogItem(
           identity: const LibraryItemIdentity(
             id: 'game_1',
             mediaKind: CatalogMediaKind.game,
@@ -291,7 +292,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'game_zelda_oot',
-        catalogItem: LibraryMetadataItem(
+        catalogItem: CatalogItem(
           identity: const LibraryItemIdentity(
             id: 'game_zelda_oot',
             mediaKind: CatalogMediaKind.game,

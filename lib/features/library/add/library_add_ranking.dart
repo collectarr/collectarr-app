@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 typedef LibraryAddMetadataSearchScore = int Function(
-  LibraryMetadataItem item,
+  CatalogItem item,
   LibraryAddSearchContext context,
 );
 
@@ -25,7 +25,7 @@ class LibraryAddSearchRankField {
   final LibraryAddFilterId id;
   final int exactWeight;
   final int containsWeight;
-  final Iterable<Object?> Function(LibraryMetadataItem item) metadataValues;
+  final Iterable<Object?> Function(CatalogItem item) metadataValues;
   final Iterable<Object?> Function(ProviderCandidate candidate) providerValues;
 }
 
@@ -40,8 +40,8 @@ class LibraryAddSearchRanking {
   final LibraryAddProviderSearchScore scoreProvider;
   final int Function(LibraryAddSearchContext context) maxScore;
 
-  List<LibraryMetadataItem> rankMetadata(
-    List<LibraryMetadataItem> items,
+  List<CatalogItem> rankMetadata(
+    List<CatalogItem> items,
     LibraryAddSearchContext context,
   ) {
     if (items.length < 2 || !context.hasAnyInput) {
@@ -61,7 +61,7 @@ class LibraryAddSearchRanking {
   }
 
   bool shouldSearchProviderForCoreResults(
-    List<LibraryMetadataItem> items,
+    List<CatalogItem> items,
     LibraryAddSearchContext context, {
     double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
   }) {
@@ -83,7 +83,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
   required List<LibraryAddSearchRankField> fields,
 }) {
   int scoreMetadata(
-    LibraryMetadataItem item,
+    CatalogItem item,
     LibraryAddSearchContext context,
   ) {
     var score = _scoreText(
@@ -210,8 +210,8 @@ String _normalize(Object? value) {
       '';
 }
 
-List<LibraryMetadataItem> filterAndRankLibraryMetadataItems(
-  List<LibraryMetadataItem> items,
+List<CatalogItem> filterAndRankCatalogItems(
+  List<CatalogItem> items,
   LibraryAddSearchRanking ranking,
   LibraryAddSearchContext context, {
   int minimumScore = 1,

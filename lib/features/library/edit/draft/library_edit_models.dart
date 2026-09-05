@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 // ---------------------------------------------------------------------------
 // Selection data classes returned by the edit dialog
@@ -23,7 +23,7 @@ class LibraryEditSelection {
     this.submitAction = LibraryEditSubmitAction.save,
   });
 
-  final LibraryMetadataItem item;
+  final CatalogItem item;
   final LibraryPersonalEditSelection? personal;
   final LibraryEditScope scope;
   final LibraryWishlistEditSelection? wishlist;
@@ -33,7 +33,7 @@ class LibraryEditSelection {
   final LibraryEditSubmitAction submitAction;
 
   LibraryEditSelection copyWith({
-    LibraryMetadataItem? item,
+    CatalogItem? item,
     LibraryPersonalEditSelection? personal,
     LibraryEditScope? scope,
     LibraryWishlistEditSelection? wishlist,

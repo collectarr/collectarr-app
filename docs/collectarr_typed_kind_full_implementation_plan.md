@@ -1978,6 +1978,14 @@ LibraryMetadataTransportCodec
 
 Replace callers with concrete kind types.
 
+### Status (2026-09-05)
+
+Complete. The three Library catalog wrappers are deleted. Library, Collection,
+add/edit, provider, cache, and import paths now use `CatalogItemDto` directly;
+the kind registry attaches concrete metadata only when a catalog boundary is
+hydrated, and `CatalogItemDto.copyWith` preserves that metadata through edits.
+Continue with PR73.
+
 ---
 
 ## PR 73 — Delete `CatalogKindCodec`

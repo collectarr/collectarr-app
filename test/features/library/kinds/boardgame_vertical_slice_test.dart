@@ -9,7 +9,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -84,7 +85,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'bg_1',
-        catalogItem: const LibraryMetadataItem(
+        catalogItem: CatalogItem(
           identity: LibraryItemIdentity(
             id: 'bg_1',
             mediaKind: CatalogMediaKind.boardgame,
@@ -226,7 +227,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'bg_brass_birmingham',
-        catalogItem: LibraryMetadataItem(
+        catalogItem: CatalogItem(
           identity: const LibraryItemIdentity(
             id: 'bg_brass_birmingham',
             mediaKind: CatalogMediaKind.boardgame,

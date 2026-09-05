@@ -7,8 +7,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_catalog_item_view.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
@@ -99,11 +97,23 @@ class MusicCatalogDetails {
 
 @immutable
 final class CatalogItemDto {
+  factory CatalogItemDto({
+    required LibraryItemIdentity identity,
+    required dynamic kindMetadata,
+  }) =>
+      CatalogItemDto._raw(
+        id: identity.id,
+        mediaKind: identity.mediaKind,
+        payload: const <String, dynamic>{},
+        kindMetadata: kindMetadata,
+      );
+
   factory CatalogItemDto.raw({
     required String id,
     required CatalogMediaKind mediaKind,
     required CatalogCommonDto common,
     Map<String, dynamic> payload = const <String, dynamic>{},
+    dynamic kindMetadata,
   }) {
     return CatalogItemDto._raw(
       id: id,
@@ -112,18 +122,48 @@ final class CatalogItemDto {
         ...common.toJson(),
         ...payload,
       },
+      kindMetadata: kindMetadata,
     );
   }
 
   const CatalogItemDto._raw({
     required this.id,
     required this.mediaKind,
-    required this.payload,
-  });
+    required Map<String, dynamic> payload,
+    dynamic kindMetadata,
+  })  : _payload = payload,
+        _kindMetadata = kindMetadata;
 
   final String id;
   final CatalogMediaKind mediaKind;
-  final Map<String, dynamic> payload;
+  final Map<String, dynamic> _payload;
+  final dynamic _kindMetadata;
+
+  Map<String, dynamic> get payload {
+    final metadata = _kindMetadata;
+    if (metadata is Map) {
+      return Map<String, dynamic>.from(metadata);
+    }
+    if (metadata != null) {
+      try {
+        final raw = (metadata as dynamic).toSyncPayload();
+        if (raw is Map) {
+          return {
+            ..._payload,
+            ...Map<String, dynamic>.from(raw),
+          };
+        }
+      } on Object {
+        // Unsupported metadata falls back to the transport payload.
+      }
+    }
+    return Map<String, dynamic>.from(_payload);
+  }
+
+  dynamic get kindMetadata => _kindMetadata ?? payload;
+
+  LibraryItemIdentity get identity =>
+      LibraryItemIdentity(id: id, mediaKind: mediaKind);
 
   CatalogCommonDto get common => CatalogCommonDto.fromJson(payload);
 
@@ -248,16 +288,91 @@ final class CatalogItemDto {
     );
   }
 
-  LibraryMetadataItem toLibraryMetadataItem() {
-    return LibraryMetadataItem(
-      identity: LibraryItemIdentity(
-        id: id,
-        mediaKind: mediaKind,
-      ),
-      kindMetadata: LibraryCatalogItemView.fromCatalogItem(this).kindMetadata,
+  CatalogItemDto copyWith({
+    LibraryItemIdentity? identity,
+    String? title,
+    Object? displayTitle = _unset,
+    Object? localizedTitle = _unset,
+    Object? originalTitle = _unset,
+    Object? titleExtension = _unset,
+    Object? searchAliases = _unset,
+    Object? sortKey = _unset,
+    Object? synopsis = _unset,
+    Object? coverImageUrl = _unset,
+    Object? thumbnailImageUrl = _unset,
+    Object? coverImageData = _unset,
+    Object? releaseDate = _unset,
+    Object? releaseYear = _unset,
+    List<CatalogEditionDto>? editions,
+    List<TrailerLinkDto>? trailerUrls,
+    Object? physicalFormat = _unset,
+    Object? physicalFormatLabel = _unset,
+    dynamic kindMetadata,
+  }) {
+    final json = <String, dynamic>{
+      ...payload,
+      ...common.toJson(),
+      'title': title ?? this.title,
+      if (!identical(displayTitle, _unset)) 'display_title': displayTitle,
+      if (!identical(localizedTitle, _unset)) 'localized_title': localizedTitle,
+      if (!identical(originalTitle, _unset)) 'original_title': originalTitle,
+      if (!identical(titleExtension, _unset)) 'title_extension': titleExtension,
+      if (!identical(searchAliases, _unset)) 'search_aliases': searchAliases,
+      if (!identical(sortKey, _unset)) 'sort_key': sortKey,
+      if (!identical(synopsis, _unset)) 'synopsis': synopsis,
+      if (!identical(coverImageUrl, _unset)) 'cover_image_url': coverImageUrl,
+      if (!identical(thumbnailImageUrl, _unset))
+        'thumbnail_image_url': thumbnailImageUrl,
+      if (!identical(coverImageData, _unset)) 'cover_image_data': coverImageData,
+      if (!identical(releaseDate, _unset))
+        'release_date': (releaseDate as DateTime?)?.toIso8601String(),
+      if (!identical(releaseYear, _unset)) 'release_year': releaseYear,
+      if (editions != null)
+        'editions': [for (final edition in editions) edition.toJson()],
+      if (trailerUrls != null)
+        'trailer_urls': [for (final link in trailerUrls) link.toJson()],
+      if (!identical(physicalFormat, _unset)) 'physical_format': physicalFormat,
+      if (!identical(physicalFormatLabel, _unset))
+        'physical_format_label': physicalFormatLabel,
+    };
+    final updatedIdentity = identity ?? this.identity;
+    final commonChanged =
+        title != null ||
+        !identical(displayTitle, _unset) ||
+        !identical(localizedTitle, _unset) ||
+        !identical(originalTitle, _unset) ||
+        !identical(titleExtension, _unset) ||
+        !identical(searchAliases, _unset) ||
+        !identical(sortKey, _unset) ||
+        !identical(synopsis, _unset) ||
+        !identical(coverImageUrl, _unset) ||
+        !identical(thumbnailImageUrl, _unset) ||
+        !identical(coverImageData, _unset) ||
+        !identical(releaseDate, _unset) ||
+        !identical(releaseYear, _unset) ||
+        editions != null ||
+        trailerUrls != null ||
+        !identical(physicalFormat, _unset) ||
+        !identical(physicalFormatLabel, _unset);
+    return CatalogItemDto._raw(
+      id: updatedIdentity.id,
+      mediaKind: updatedIdentity.mediaKind,
+      payload: json,
+      kindMetadata: kindMetadata ?? (commonChanged ? json : _kindMetadata),
+    );
+  }
+
+  CatalogItemDto withKindMetadata(dynamic kindMetadata) {
+    return CatalogItemDto._raw(
+      id: id,
+      mediaKind: mediaKind,
+      payload: _payload,
+      kindMetadata: kindMetadata,
     );
   }
 }
 
 typedef CatalogItem = CatalogItemDto;
 typedef TrailerLink = TrailerLinkDto;
+
+const _unset = Object();

@@ -42,7 +42,7 @@ import 'package:collectarr_app/features/library/generic/transferable_field.dart'
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 const _tvShowFilterId = LibraryAddFilterId('tv.show');
 const _tvNetworkFilterId = LibraryAddFilterId('tv.network');
@@ -321,7 +321,7 @@ String? _optionalTvText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _tvAddResultScope(LibraryMetadataItem item) {
+LibraryAddVideoResultScope _tvAddResultScope(CatalogItem item) {
   final metadata = item.kindMetadata;
   if (metadata is TvSeriesMetadata) {
     if (metadata.seasonNumber != null ||
@@ -359,7 +359,7 @@ LibraryAddVideoResultScope _tvAddProviderResultScope(
   return LibraryAddVideoResultScope.media;
 }
 
-String _tvAddGroupTitle(LibraryMetadataItem item) {
+String _tvAddGroupTitle(CatalogItem item) {
   final metadata = item.kindMetadata;
   if (metadata is TvSeriesMetadata) {
     return metadata.seriesTitle?.trim() ??

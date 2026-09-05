@@ -23,7 +23,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 
@@ -57,7 +57,7 @@ class LibraryEditDraft {
   final TextControllerGroup _textControllers;
 
   final LibraryKindRuntime type;
-  final LibraryMetadataItem item;
+  final CatalogItem item;
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
@@ -103,7 +103,7 @@ class LibraryEditDraft {
 
   factory LibraryEditDraft.fromItem({
     required LibraryKindRuntime type,
-    required LibraryMetadataItem item,
+    required CatalogItem item,
     OwnedItem? ownedItem,
     WishlistItem? wishlistItem,
     TrackingEntry? trackingEntry,
@@ -131,7 +131,7 @@ class LibraryEditDraft {
 
   factory LibraryEditDraft.fromFields({
     required LibraryKindRuntime type,
-    required LibraryMetadataItem item,
+    required CatalogItem item,
     required OwnedItem? ownedItem,
     required WishlistItem? wishlistItem,
     required TrackingEntry? trackingEntry,

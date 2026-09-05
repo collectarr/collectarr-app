@@ -11,7 +11,8 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_custom_ta
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -115,7 +116,7 @@ void main() {
   });
 
   testWidgets('Comic media editing uses the typed edit schema', (tester) async {
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'comic-media-editor',
         kind: 'comic',
@@ -151,7 +152,7 @@ void main() {
 
   testWidgets('Comic release editing uses the typed edit schema',
       (tester) async {
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'comic-release-editor',
         kind: 'comic',
@@ -194,7 +195,7 @@ void main() {
 
   testWidgets('Comic owned editing uses the typed edit schema tab',
       (tester) async {
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'comic-owned-editor',
         kind: 'comic',

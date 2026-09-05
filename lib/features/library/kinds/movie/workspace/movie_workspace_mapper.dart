@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 final class MovieWorkspaceMapper {
   const MovieWorkspaceMapper._();
 
-  static MovieMedia fromCatalogItem(LibraryMetadataItem item) {
+  static MovieMedia fromCatalogItem(CatalogItem item) {
     final payload = item.toSyncPayload();
     final video = payload['video'];
     final videoPayload = video is Map ? video : const <String, dynamic>{};

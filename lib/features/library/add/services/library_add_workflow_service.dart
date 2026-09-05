@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -29,7 +29,7 @@ import 'package:uuid/uuid.dart';
 class LibraryAddWorkflowService {
   const LibraryAddWorkflowService();
 
-  LibraryMetadataItem metadataItemFromPreview(
+  CatalogItem metadataItemFromPreview(
     AdminProviderPreview preview, {
     String? itemId,
   }) {
@@ -61,7 +61,7 @@ class LibraryAddWorkflowService {
     return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
   }
 
-  Future<LibraryMetadataItem> providerAddItemForCandidate({
+  Future<CatalogItem> providerAddItemForCandidate({
     required ApiClient? api,
     required ProviderCandidate candidate,
     required bool mounted,
@@ -93,7 +93,7 @@ class LibraryAddWorkflowService {
     required OwnedItemMutations ownedMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required Iterable<LibraryMetadataItem> items,
+    required Iterable<CatalogItem> items,
     required LibraryAddTarget target,
     LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
     LibraryAddDefaults defaults = const LibraryAddDefaults(),

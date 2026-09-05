@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -51,7 +51,7 @@ final class LibraryAddSessionState {
   final String? physicalFormatId;
   final bool isAdding;
 
-  LibraryMetadataItem? get selectedItem {
+  CatalogItem? get selectedItem {
     if (!selection.showCoreResults) return null;
     final id = selection.selectedResultId;
     if (id == null) return null;
@@ -85,11 +85,11 @@ final class LibraryAddSessionState {
     return preview.providerPreviewFor(candidate.localCatalogId);
   }
 
-  List<LibraryMetadataItem> visibleCoreResults(
+  List<CatalogItem> visibleCoreResults(
     LibraryAddResultPolicy policy, {
     required bool Function(String id) isOwnedCatalogItem,
   }) {
-    if (!selection.showCoreResults) return const <LibraryMetadataItem>[];
+    if (!selection.showCoreResults) return const <CatalogItem>[];
     final ownedIds = <String>{
       for (final item in search.results)
         if (isOwnedCatalogItem(item.id)) item.id,

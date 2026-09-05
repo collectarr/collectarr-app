@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 
@@ -155,7 +155,7 @@ class LibraryAddPreviewPaneRequest {
 
   final LibraryKindRuntime type;
   final Color accent;
-  final LibraryMetadataItem? item;
+  final CatalogItem? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
@@ -229,9 +229,9 @@ class LibraryAddModeBarRequest {
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
-  final List<LibraryMetadataItem> suggestions;
+  final List<CatalogItem> suggestions;
   final bool showSuggestions;
-  final ValueChanged<LibraryMetadataItem> onSelectSuggestion;
+  final ValueChanged<CatalogItem> onSelectSuggestion;
   final VoidCallback onDismissSuggestions;
   final bool canScanCover;
   final bool isScanningCover;
@@ -288,7 +288,7 @@ class LibraryAddSearchPaneRequest {
   final bool isBusy;
   final String? error;
   final Color accent;
-  final List<LibraryMetadataItem> results;
+  final List<CatalogItem> results;
   final List<ProviderCandidate> providerResults;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
@@ -298,7 +298,7 @@ class LibraryAddSearchPaneRequest {
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
   final Set<String> ownedCatalogItemIds;
-  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final String? Function(CatalogItem item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
@@ -351,7 +351,7 @@ class LibraryAddBottomBarRequest {
   final List<String> grades;
   final String? defaultTags;
   final Color accent;
-  final LibraryMetadataItem? selectedItem;
+  final CatalogItem? selectedItem;
   final ProviderCandidate? selectedCandidate;
   final LibraryQueuedProviderIngest? selectedQueuedIngest;
   final String providerLabel;

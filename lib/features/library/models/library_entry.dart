@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
 class LibraryEntry {
@@ -20,10 +20,10 @@ class LibraryEntry {
   final TrackingEntry? trackingEntry;
   final WishlistItem? wishlistItem;
 
-  LibraryMetadataItem? get catalogItem {
+  CatalogItem? get catalogItem {
     final raw = _catalogItem;
     if (raw == null) return null;
-    return LibraryMetadataTransportCodec.fromUnknown(raw);
+    return typedCatalogItemFromUnknown(raw);
   }
 
   dynamic get kindMetadata => catalogItem?.kindMetadata;

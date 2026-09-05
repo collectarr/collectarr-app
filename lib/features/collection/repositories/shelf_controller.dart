@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +29,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
   final libraryCatalogItems = {
     for (final entry in catalogItems.entries)
-      entry.key: LibraryMetadataTransportCodec.fromCatalogItem(entry.value),
+      entry.key: typedCatalogItemFromCatalogItem(entry.value),
   };
   final locations = await LocationRepository(db).getAll();
   final watchSessions =
@@ -126,7 +126,7 @@ class ShelfState {
         ShelfEntry(
           itemId: id,
           catalogItem: () {
-            return LibraryMetadataTransportCodec.fromUnknown(catalogItems[id]);
+            return typedCatalogItemFromUnknown(catalogItems[id]);
           }(),
           ownedItem: ownedByItemId[id],
           trackingEntry: trackingByItemId[id],

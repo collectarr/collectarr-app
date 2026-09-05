@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/config/library_transfer_capabili
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -742,12 +742,12 @@ class LibraryKindToolbarModule {
 }
 
 abstract interface class LibraryKindProviderMapper {
-  LibraryMetadataItem metadataItemFromEnvelope(
+  CatalogItem metadataItemFromEnvelope(
       NormalizedProviderEnvelopeV1 envelope);
 
   Map<String, Object?> buildCorrections({
-    required LibraryMetadataItem preview,
-    required LibraryMetadataItem edited,
+    required CatalogItem preview,
+    required CatalogItem edited,
   });
 }
 

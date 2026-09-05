@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -190,7 +190,7 @@ class SerialAuthorityRepository {
     final now = DateTime.now().toUtc();
     final candidates = <String, _SeriesCandidate>{};
     for (final item in list) {
-      final metadataItem = LibraryMetadataTransportCodec.fromUnknown(item);
+      final metadataItem = typedCatalogItemFromUnknown(item);
       if (metadataItem == null) {
         continue;
       }
@@ -452,7 +452,7 @@ class SerialAuthorityRepository {
   }
 
   bool _catalogMatchesSeries(
-    LibraryMetadataItem catalogItem,
+    CatalogItem catalogItem,
     SerialAuthorityCacheData registryRow,
   ) {
     final registryCoreSeriesId = _emptyToNull(registryRow.coreSeriesId);
@@ -470,7 +470,7 @@ class SerialAuthorityRepository {
         registryRow.normalizedTitle;
   }
 
-  LibraryMetadataItem _catalogFromCacheRow(CatalogCacheData row) {
+  CatalogItem _catalogFromCacheRow(CatalogCacheData row) {
     final decoded = jsonDecode(row.payloadJson);
     if (decoded is! Map) {
       throw StateError('Invalid catalog cache payload for ${row.id}.');
@@ -478,16 +478,16 @@ class SerialAuthorityRepository {
     final payload = Map<String, dynamic>.from(decoded);
     payload['id'] ??= row.id;
     payload['kind'] ??= row.kind;
-    return LibraryMetadataTransportCodec.fromMetadataMap(payload);
+    return typedCatalogItemFromMap(payload);
   }
 
-  static Map<String, dynamic> _seriesPayload(LibraryMetadataItem item) {
+  static Map<String, dynamic> _seriesPayload(CatalogItem item) {
     final rawSeries = item.payload['series'];
     return rawSeries is Map ? Map<String, dynamic>.from(rawSeries) : const {};
   }
 
   static Map<String, dynamic> _catalogPayloadWithSeries(
-    LibraryMetadataItem item, {
+    CatalogItem item, {
     required String? seriesId,
     required String seriesTitle,
   }) {

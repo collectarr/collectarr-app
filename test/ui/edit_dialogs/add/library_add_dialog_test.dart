@@ -23,7 +23,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -132,7 +133,7 @@ void main() {
   });
 
   test('book provider add merge preserves preview creators', () {
-    final ingested = LibraryMetadataItem.fromCatalogItem(
+    final ingested = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'book-item-1',
         kind: 'book',
@@ -143,7 +144,7 @@ void main() {
         ),
       ),
     );
-    final edited = LibraryMetadataItem.fromCatalogItem(
+    final edited = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'book-item-1',
         kind: 'book',

@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -12,7 +13,7 @@ void main() {
     final exported = csv.exportShelf([
       ShelfEntry(
         itemId: 'comic-1',
-        catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+        catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man, "Vol. 1"',
@@ -108,7 +109,7 @@ void main() {
       [
         ShelfEntry(
           itemId: 'book-1',
-          catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+          catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
             id: 'book-1',
             kind: 'book',
             title: 'Test Book',
@@ -158,7 +159,7 @@ void main() {
     final exported = CollectionCsv().exportClzFriendlyShelf([
       ShelfEntry(
         itemId: 'comic-1',
-        catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+        catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'The Amazing Spider-Man, Vol. 2',
@@ -195,7 +196,7 @@ void main() {
     final exported = CollectionCsv().exportClzFriendlyShelf([
       ShelfEntry(
         itemId: 'movie-1',
-        catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+        catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
           id: 'movie-1',
           kind: 'movie',
           title: 'Blade Runner',
@@ -451,7 +452,7 @@ void main() {
       [
         ShelfEntry(
           itemId: 'comic-1',
-          catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+          catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
@@ -515,7 +516,7 @@ void main() {
       [
         ShelfEntry(
           itemId: 'comic-1',
-          catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+          catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',

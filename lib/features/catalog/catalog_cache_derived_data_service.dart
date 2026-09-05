@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class CatalogCacheDerivedDataService {
   const CatalogCacheDerivedDataService(this._db);
@@ -18,9 +17,7 @@ final class CatalogCacheDerivedDataService {
     final byKind = <String, List<dynamic>>{};
     for (final item in list) {
       final kindMetadata = _kindMetadataFor(item);
-      final kind = item is LibraryMetadataItem
-          ? item.kind
-          : (item as CatalogItem).kind;
+      final kind = (item as CatalogItem).kind;
       byKind
           .putIfAbsent(
             kind,
@@ -58,10 +55,6 @@ final class CatalogCacheDerivedDataService {
   }
 
   static dynamic _kindMetadataFor(Object item) {
-    if (item is LibraryMetadataItem) {
-      return item.kindMetadata;
-    }
-    final catalogItem = item as CatalogItem;
-    return catalogItem.toLibraryMetadataItem().kindMetadata;
+    return (item as CatalogItem).kindMetadata;
   }
 }

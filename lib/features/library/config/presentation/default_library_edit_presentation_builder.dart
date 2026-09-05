@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/library_section_registry.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
 class DefaultLibraryEditPresentationBuilder
@@ -63,7 +63,7 @@ class DefaultLibraryEditPresentationBuilder
     required LibraryEditDraft draft,
     required Color accent,
     required LibraryEditScope scope,
-    required LibraryMetadataItem item,
+    required CatalogItem item,
     required VoidCallback markDirty,
   })? customTabBuilder;
 
@@ -74,7 +74,7 @@ class DefaultLibraryEditPresentationBuilder
     required LibraryEditDraft draft,
     required Color accent,
     required LibraryEditScope scope,
-    required LibraryMetadataItem item,
+    required CatalogItem item,
     required VoidCallback markDirty,
   }) {
     return customTabBuilder?.call(

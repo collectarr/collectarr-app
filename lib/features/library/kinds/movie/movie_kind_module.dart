@@ -26,7 +26,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
@@ -326,7 +326,7 @@ String? _optionalMovieText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _movieAddResultScope(LibraryMetadataItem item) {
+LibraryAddVideoResultScope _movieAddResultScope(CatalogItem item) {
   final metadata = item.kindMetadata;
   if (metadata is MovieCatalogMetadata &&
       [
@@ -355,7 +355,7 @@ LibraryAddVideoResultScope _movieAddProviderResultScope(
   return LibraryAddVideoResultScope.media;
 }
 
-String _movieAddGroupTitle(LibraryMetadataItem item) {
+String _movieAddGroupTitle(CatalogItem item) {
   final metadata = item.kindMetadata;
   if (metadata is MovieCatalogMetadata) {
     return metadata.seriesTitle?.trim() ??

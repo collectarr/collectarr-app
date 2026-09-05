@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
@@ -172,7 +172,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   String _initialFieldText(String key) {
-    final item = _asLibraryMetadataItem(widget.item);
+    final item = _asCatalogItem(widget.item);
     final payload = item.payload;
     final title = item.title;
     final releaseYear = item.releaseYear;
@@ -222,19 +222,19 @@ class _CorrectionField extends StatelessWidget {
 }
 
 Map<String, dynamic> _itemPayload(Object item) {
-  return _asLibraryMetadataItem(item).toSyncPayload();
+  return _asCatalogItem(item).toSyncPayload();
 }
 
 String _itemTitle(Object item) {
-  return _asLibraryMetadataItem(item).title;
+  return _asCatalogItem(item).title;
 }
 
 int? _itemReleaseYear(Object item) {
-  return _asLibraryMetadataItem(item).releaseYear;
+  return _asCatalogItem(item).releaseYear;
 }
 
-LibraryMetadataItem _asLibraryMetadataItem(Object? item) {
-  final converted = LibraryMetadataTransportCodec.fromUnknown(item);
+CatalogItem _asCatalogItem(Object? item) {
+  final converted = typedCatalogItemFromUnknown(item);
   if (converted != null) return converted;
   throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
 }

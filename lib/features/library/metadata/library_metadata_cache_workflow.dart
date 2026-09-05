@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 typedef LibraryBarcodeLookupResultCallback = void Function(
   LibraryBarcodeLookupResult result,
@@ -44,7 +44,7 @@ class LibraryMetadataSearchInput {
 class LibraryBarcodeLookupResult {
   const LibraryBarcodeLookupResult.found({
     required this.barcode,
-    required LibraryMetadataItem this.item,
+    required CatalogItem this.item,
   }) : error = null;
 
   const LibraryBarcodeLookupResult.missing({
@@ -53,13 +53,13 @@ class LibraryBarcodeLookupResult {
   }) : item = null;
 
   final String barcode;
-  final LibraryMetadataItem? item;
+  final CatalogItem? item;
   final Object? error;
 
   bool get found => item != null;
 }
 
-Future<List<LibraryMetadataItem>> searchAndCacheLibraryMetadata({
+Future<List<CatalogItem>> searchAndCacheLibraryMetadata({
   required ApiClient api,
   required LibraryKindRuntime type,
   required CatalogCacheRepository catalog,
@@ -88,7 +88,7 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   LibraryBarcodeLookupResultCallback? onResult,
 }) async {
   final results = <LibraryBarcodeLookupResult>[];
-  final foundItems = <LibraryMetadataItem>[];
+  final foundItems = <CatalogItem>[];
   for (final barcode in barcodes) {
     try {
       final item = await lookupLibraryBarcode(api, type, barcode);

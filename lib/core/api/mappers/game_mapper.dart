@@ -6,12 +6,10 @@ import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_
 import 'package:collectarr_app/features/library/kinds/game/data/remote/game_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 
 // ignore: avoid_unused_parameters
 GameCatalogItem gameWorkFromDto(CatalogItemDto dto) =>
-    GameCatalogMapper.mapMetadataItemToGame(
-        LibraryMetadataTransportCodec.fromCatalogItem(dto));
+    GameCatalogMapper.mapMetadataItemToGame(dto);
 
 // ignore: avoid_unused_parameters
 GameRelease gameReleaseFromDto(CatalogEdition edition) => GameRelease(

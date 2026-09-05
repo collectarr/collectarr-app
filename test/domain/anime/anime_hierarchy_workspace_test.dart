@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarc
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_mapper.dart';
-import 'package:collectarr_app/features/library/models/library_catalog_item_view.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -33,7 +34,7 @@ void main() {
   });
 
   test('workspace mapper exposes a typed AnimeMedia graph', () {
-    final item = LibraryCatalogItemView.fromMetadataMap({
+    final item = typedCatalogItemFromMap({
       'id': 'anime-2',
       'kind': 'anime',
       'title': 'Samurai Champloo',

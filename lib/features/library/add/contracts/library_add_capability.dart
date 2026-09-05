@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
@@ -89,7 +89,7 @@ class LibraryAddSearchCapability {
       kindSpecificPaneBuilder;
   final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
   final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
-  final LibraryAddMatchSummaryBuilder<LibraryMetadataItem>?
+  final LibraryAddMatchSummaryBuilder<CatalogItem>?
       coreMatchSummaryBuilder;
   final LibraryAddMatchSummaryBuilder<ProviderCandidate>?
       providerMatchSummaryBuilder;
@@ -135,7 +135,7 @@ class LibraryAddSearchCapability {
       coverScanFilterValuesBuilder?.call(result) ?? const {};
 
   String? coreMatchSummary(
-    LibraryMetadataItem item,
+    CatalogItem item,
     LibraryAddSearchContext context,
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
@@ -190,7 +190,7 @@ abstract interface class LibraryAddCapability<
   );
 
   AddOwnedItemCommand buildCommand(
-    LibraryMetadataItem item,
+    CatalogItem item,
     LibraryAddCommonDraft common,
     LibraryAddKindDraft draft,
   );
@@ -274,7 +274,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand buildCommand(
-    LibraryMetadataItem item,
+    CatalogItem item,
     LibraryAddCommonDraft common,
     LibraryAddKindDraft draft,
   ) {

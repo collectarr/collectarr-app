@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_derived_data_service.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:drift/drift.dart';
 
 /// Persists catalog envelopes locally without interpreting kind-owned data.
@@ -15,7 +15,7 @@ final class CatalogCacheRepository {
 
   final LocalDatabase _db;
 
-  Future<void> upsertMetadataItems(List<LibraryMetadataItem> items) {
+  Future<void> upsertMetadataItems(List<CatalogItem> items) {
     return upsertAll(items);
   }
 
@@ -134,15 +134,12 @@ final class CatalogCacheRepository {
 
   static CatalogItem _asCatalogItem(dynamic item) {
     if (item is CatalogItem) {
-      return item;
-    }
-    if (item is LibraryMetadataItem) {
-      return LibraryMetadataTransportCodec.toCatalogItem(item);
+      return typedCatalogItemFromCatalogItem(item);
     }
     throw ArgumentError.value(
       item,
       'item',
-      'Expected a catalog item or library metadata item.',
+      'Expected a catalog item.',
     );
   }
 

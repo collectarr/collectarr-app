@@ -7,12 +7,13 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_release
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_mapper.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('maps a Music catalog payload into a typed workspace release graph', () {
-    final item = LibraryMetadataItem(
+    final item = CatalogItem(
       identity: const LibraryItemIdentity(
         id: 'music-item-1',
         mediaKind: CatalogMediaKind.music,
@@ -45,7 +46,7 @@ void main() {
   });
 
   test('maps a selected catalog edition without imposing video semantics', () {
-    final item = LibraryMetadataItem(
+    final item = CatalogItem(
       identity: const LibraryItemIdentity(
         id: 'music-item-2',
         mediaKind: CatalogMediaKind.music,

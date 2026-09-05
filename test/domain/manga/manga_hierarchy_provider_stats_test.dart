@@ -9,7 +9,8 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadat
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -117,7 +118,7 @@ NormalizedProviderEnvelopeV1 _envelope({
 ShelfEntry _mangaEntry(String id, int volume, {bool owned = true}) {
   return ShelfEntry(
     itemId: id,
-    catalogItem: LibraryMetadataItem(
+    catalogItem: CatalogItem(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.manga),
       kindMetadata: MangaMetadata(
         title: 'Volume $volume',

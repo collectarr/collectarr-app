@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> showLibraryMetadataCompareDialog({
   required BuildContext context,
-  required LibraryMetadataItem localItem,
+  required CatalogItem localItem,
   required Color accent,
 }) async {
   await showDialog<void>(
@@ -32,7 +32,7 @@ class _LibraryMetadataCompareDialog extends ConsumerStatefulWidget {
     required this.accent,
   });
 
-  final LibraryMetadataItem localItem;
+  final CatalogItem localItem;
   final Color accent;
 
   @override
@@ -44,7 +44,7 @@ class _LibraryMetadataCompareDialogState
     extends ConsumerState<_LibraryMetadataCompareDialog> {
   bool _isLoading = false;
   String? _error;
-  LibraryMetadataItem? _serverItem;
+  CatalogItem? _serverItem;
 
   @override
   void initState() {
@@ -63,7 +63,7 @@ class _LibraryMetadataCompareDialogState
         kind: widget.localItem.kind,
         id: widget.localItem.id,
       );
-      final item = LibraryMetadataTransportCodec.fromMetadataMap({
+      final item = typedCatalogItemFromMap({
         ...dto.raw,
         'id': dto.id,
         'title': dto.title,
@@ -180,8 +180,8 @@ class _LibraryMetadataCompareDialogState
     return lines.isEmpty ? 'Disc #${value.discNumber}' : lines.join('\n');
   }
 
-  List<Map<String, dynamic>> _characterList(LibraryMetadataItem item) {
-    final payload = LibraryMetadataTransportCodec.toSyncPayload(item);
+  List<Map<String, dynamic>> _characterList(CatalogItem item) {
+    final payload = item.toSyncPayload();
     final details =
         (payload['character_details'] as List?)?.cast<Map<String, dynamic>>();
     if (details != null && details.isNotEmpty) {
@@ -198,9 +198,9 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _baseEntries(
-      LibraryMetadataItem local, LibraryMetadataItem server) {
-    final localP = LibraryMetadataTransportCodec.toSyncPayload(local);
-    final serverP = LibraryMetadataTransportCodec.toSyncPayload(server);
+      CatalogItem local, CatalogItem server) {
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
     return [
       MetadataDiffEntry(
         label: 'Title',
@@ -266,9 +266,9 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _comicEntries(
-      LibraryMetadataItem local, LibraryMetadataItem server) {
-    final localP = LibraryMetadataTransportCodec.toSyncPayload(local);
-    final serverP = LibraryMetadataTransportCodec.toSyncPayload(server);
+      CatalogItem local, CatalogItem server) {
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
     final localSeries = (localP['series'] as Map?) ?? localP;
     final serverSeries = (serverP['series'] as Map?) ?? serverP;
     final localPub = (localP['publishing'] as Map?) ?? localP;
@@ -319,9 +319,9 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _musicEntries(
-      LibraryMetadataItem local, LibraryMetadataItem server) {
-    final localP = LibraryMetadataTransportCodec.toSyncPayload(local);
-    final serverP = LibraryMetadataTransportCodec.toSyncPayload(server);
+      CatalogItem local, CatalogItem server) {
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
     final localSeries = (localP['series'] as Map?) ?? localP;
     final serverSeries = (serverP['series'] as Map?) ?? serverP;
     final localPub = (localP['publishing'] as Map?) ?? localP;
@@ -421,9 +421,9 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _creatorsEntries(
-      LibraryMetadataItem local, LibraryMetadataItem server) {
-    final localP = LibraryMetadataTransportCodec.toSyncPayload(local);
-    final serverP = LibraryMetadataTransportCodec.toSyncPayload(server);
+      CatalogItem local, CatalogItem server) {
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
     final localCreators =
         (localP['creators'] as List?)?.cast<Map<String, dynamic>>() ??
             const <Map<String, dynamic>>[];
@@ -444,8 +444,8 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _charactersEntries(
-    LibraryMetadataItem local,
-    LibraryMetadataItem server,
+    CatalogItem local,
+    CatalogItem server,
   ) {
     final localCharacters = _characterList(local);
     final serverCharacters = _characterList(server);
@@ -465,9 +465,9 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _discEntries(
-      LibraryMetadataItem local, LibraryMetadataItem server) {
-    final localP = LibraryMetadataTransportCodec.toSyncPayload(local);
-    final serverP = LibraryMetadataTransportCodec.toSyncPayload(server);
+      CatalogItem local, CatalogItem server) {
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
     final localMusic = (localP['music'] as Map?) ?? localP;
     final serverMusic = (serverP['music'] as Map?) ?? serverP;
     final localRawDiscs = (localMusic['discs'] as List?) ?? const [];

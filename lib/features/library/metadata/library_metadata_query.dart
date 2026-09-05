@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
   LibraryKindRuntime type, {
@@ -26,7 +26,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
   );
 }
 
-Future<List<LibraryMetadataItem>> searchLibraryMetadata(
+Future<List<CatalogItem>> searchLibraryMetadata(
   ApiClient api,
   LibraryKindRuntime type, {
   String? query,
@@ -50,16 +50,16 @@ Future<List<LibraryMetadataItem>> searchLibraryMetadata(
     ),
   );
   return rows
-      .map(LibraryMetadataTransportCodec.fromMetadataMap)
+      .map(typedCatalogItemFromMap)
       .toList(growable: false);
 }
 
-Future<LibraryMetadataItem> lookupLibraryBarcode(
+Future<CatalogItem> lookupLibraryBarcode(
   ApiClient api,
   LibraryKindRuntime type,
   String barcode,
 ) async {
-  return LibraryMetadataTransportCodec.fromMetadataMap(
+  return typedCatalogItemFromMap(
     await api.lookupBarcode(
       barcode,
       kind: type.kind.apiValue,

@@ -10,7 +10,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
@@ -440,7 +441,7 @@ class ComicFeature {}
 
     final entry = ShelfEntry(
       itemId: 'foo-1',
-      catalogItem: LibraryMetadataItem.fromMetadataMap({
+      catalogItem: typedCatalogItemFromMap({
         'id': 'foo-1',
         'kind': 'unknown',
         'title': 'Foo Item 1',

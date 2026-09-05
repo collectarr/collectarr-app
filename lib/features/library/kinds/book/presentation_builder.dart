@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/volumes_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -341,7 +341,7 @@ class BookLibraryMediaPresentationBuilder
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required LibraryMetadataItem? item,
+    required CatalogItem? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
@@ -688,7 +688,7 @@ class _BookAddPreviewTopFacts extends StatelessWidget {
 
 String? _bookSubtitleForSelection({
   required String title,
-  required LibraryMetadataItem? item,
+  required CatalogItem? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -723,7 +723,7 @@ String? _bookSubtitleForSelection({
 }
 
 String? _bookCreatorLineForSelection({
-  required LibraryMetadataItem? item,
+  required CatalogItem? item,
   required AdminProviderPreview? preview,
 }) {
   final preferred = <String>[];
@@ -772,7 +772,7 @@ bool _isPrimaryBookCreatorRole(String? role) {
 }
 
 String? _bookPublisherYearLineForSelection({
-  required LibraryMetadataItem? item,
+  required CatalogItem? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -792,7 +792,7 @@ String? _bookPublisherYearLineForSelection({
 }
 
 String? _bookFormatLanguageLineForSelection({
-  required LibraryMetadataItem? item,
+  required CatalogItem? item,
   required AdminProviderPreview? preview,
 }) {
   final meta = _bookMetadataItem(item);
@@ -812,7 +812,7 @@ String? _bookFormatLanguageLineForSelection({
 }
 
 String? _bookIsbnForSelection({
-  required LibraryMetadataItem? item,
+  required CatalogItem? item,
   required AdminProviderPreview? preview,
 }) {
   final meta = _bookMetadataItem(item);
@@ -821,7 +821,7 @@ String? _bookIsbnForSelection({
 }
 
 int? _bookPageCountForSelection({
-  required LibraryMetadataItem? item,
+  required CatalogItem? item,
   required AdminProviderPreview? preview,
 }) {
   return _bookMetadataItem(item)?.publishing?.pageCount ??
@@ -829,7 +829,7 @@ int? _bookPageCountForSelection({
 }
 
 List<String> _bookDiscoveryTagsForSelection({
-  required LibraryMetadataItem? item,
+  required CatalogItem? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -863,7 +863,7 @@ BookCatalogMetadata? _bookMetadata(LibraryProjectionRuntime item) {
   return metadata is BookCatalogMetadata ? metadata : null;
 }
 
-BookCatalogMetadata? _bookMetadataItem(LibraryMetadataItem? item) {
+BookCatalogMetadata? _bookMetadataItem(CatalogItem? item) {
   final metadata = item?.kindMetadata;
   return metadata is BookCatalogMetadata ? metadata : null;
 }

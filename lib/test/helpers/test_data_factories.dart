@@ -5,7 +5,8 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 
 CatalogItem testCatalogItem({
   String id = 'test-item-1',
@@ -312,7 +313,7 @@ ShelfEntry testShelfEntry({
       );
   return ShelfEntry(
     itemId: itemId,
-    catalogItem: LibraryMetadataItem.fromCatalogItem(resolvedCatalogItem),
+    catalogItem: typedCatalogItemFromCatalogItem(resolvedCatalogItem),
     ownedItem: ownedItem,
     wishlistItem: wishlistItem,
     trackingEntry: trackingEntry,

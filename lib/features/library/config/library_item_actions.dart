@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -144,7 +144,7 @@ class LibraryEditDialogRequest {
   });
 
   final LibraryKindRuntime type;
-  final LibraryMetadataItem item;
+  final CatalogItem item;
   final OwnedItem? ownedItem;
   final Color accent;
   final LibraryEditScope? scope;
@@ -164,7 +164,7 @@ class LibraryEditDialogRequest {
 
   LibraryEditDialogRequest copyWith({
     LibraryKindRuntime? type,
-    LibraryMetadataItem? item,
+    CatalogItem? item,
     OwnedItem? ownedItem,
     Color? accent,
     LibraryEditScope? scope,

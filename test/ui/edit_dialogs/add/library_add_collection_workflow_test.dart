@@ -7,7 +7,8 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -317,8 +318,8 @@ class _WorkflowFixture {
   }
 }
 
-LibraryMetadataItem _comic(String id) {
-  return LibraryMetadataItem.fromCatalogItem(
+CatalogItem _comic(String id) {
+  return typedCatalogItemFromCatalogItem(
     testCatalogItem(
       id: id,
       kind: 'comic',
@@ -331,8 +332,8 @@ LibraryMetadataItem _comic(String id) {
   );
 }
 
-LibraryMetadataItem _comicWithRelease(String id) {
-  return LibraryMetadataItem.fromCatalogItem(
+CatalogItem _comicWithRelease(String id) {
+  return typedCatalogItemFromCatalogItem(
     testCatalogItem(
       id: id,
       kind: 'comic',
@@ -359,8 +360,8 @@ LibraryMetadataItem _comicWithRelease(String id) {
   );
 }
 
-LibraryMetadataItem _digitalMovie(String id) {
-  return LibraryMetadataItem.fromCatalogItem(
+CatalogItem _digitalMovie(String id) {
+  return typedCatalogItemFromCatalogItem(
     testCatalogItem(
       id: id,
       kind: 'movie',
@@ -372,8 +373,8 @@ LibraryMetadataItem _digitalMovie(String id) {
   );
 }
 
-LibraryMetadataItem _comicWithMultipleReleases(String id) {
-  return LibraryMetadataItem.fromCatalogItem(
+CatalogItem _comicWithMultipleReleases(String id) {
+  return typedCatalogItemFromCatalogItem(
     testCatalogItem(
       id: id,
       kind: 'comic',

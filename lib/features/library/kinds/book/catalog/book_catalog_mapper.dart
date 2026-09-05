@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class BookCatalogMapper {
   const BookCatalogMapper._();
@@ -144,8 +144,8 @@ class BookCatalogMapper {
 
   /// Maps projected item directly to domain [BookCatalogItem].
 
-  /// Maps [LibraryMetadataItem] directly to domain [BookCatalogItem].
-  static BookCatalogItem mapMetadataItemToBook(LibraryMetadataItem item) {
+  /// Maps [CatalogItem] directly to domain [BookCatalogItem].
+  static BookCatalogItem mapMetadataItemToBook(CatalogItem item) {
     final rawMetadata = item.kindMetadata;
     final BookCatalogMetadata metadata;
     if (rawMetadata is BookCatalogMetadata) {

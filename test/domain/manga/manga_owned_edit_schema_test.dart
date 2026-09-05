@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/kinds/_shared/ownership/grading_
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/owned/manga_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/models/library_catalog_item_view.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -162,7 +163,7 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
   ) as MangaEditDraft;
 }
 
-LibraryCatalogItemView _mangaItem() => LibraryCatalogItemView(
+CatalogItem _mangaItem() => CatalogItem(
       identity: const LibraryItemIdentity(
         id: 'manga-1',
         mediaKind: CatalogMediaKind.manga,

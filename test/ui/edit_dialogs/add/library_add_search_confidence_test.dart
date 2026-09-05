@@ -3,7 +3,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -14,7 +15,7 @@ void main() {
         .ranking
         .shouldSearchProviderForCoreResults(
       [
-        LibraryMetadataItem.fromMetadataMap({
+        typedCatalogItemFromMap({
           'id': 'comic-423',
           'kind': 'comic',
           'title': 'Batman',
@@ -48,7 +49,7 @@ void main() {
         .ranking
         .shouldSearchProviderForCoreResults(
       [
-        LibraryMetadataItem.fromMetadataMap({
+        typedCatalogItemFromMap({
           'id': 'movie-1',
           'kind': 'movie',
           'title': 'Blade Runner 2049',

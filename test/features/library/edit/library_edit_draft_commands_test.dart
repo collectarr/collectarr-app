@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.da
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,7 +14,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('LibraryEditDraft creates AddOwnedItemCommand correctly', () {
-    final item = LibraryMetadataItem(
+    final item = CatalogItem(
       identity: const LibraryItemIdentity(
         id: 'comic-draft-1',
         mediaKind: CatalogMediaKind.comic,
@@ -59,7 +60,7 @@ void main() {
   });
 
   test('LibraryEditDraft creates UpdateOwnedItemCommand correctly', () {
-    final item = LibraryMetadataItem(
+    final item = CatalogItem(
       identity: const LibraryItemIdentity(
         id: 'comic-draft-2',
         mediaKind: CatalogMediaKind.comic,

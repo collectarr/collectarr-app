@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/game/contracts/game_contra
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 
 class GameLibraryKindProviderMapper
@@ -27,7 +27,7 @@ class GameLibraryKindProviderMapper
   }
 
   @override
-  LibraryMetadataItem metadataItemFromEnvelope(
+  CatalogItem metadataItemFromEnvelope(
       NormalizedProviderEnvelopeV1 envelope) {
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
@@ -41,7 +41,7 @@ class GameLibraryKindProviderMapper
       if (coverImageUrl != null) 'thumbnail_image_url': coverImageUrl,
     });
 
-    return LibraryMetadataItem(
+    return CatalogItem(
       identity: LibraryItemIdentity(
         id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.game,
@@ -52,8 +52,8 @@ class GameLibraryKindProviderMapper
 
   @override
   Map<String, Object?> buildCorrections({
-    required LibraryMetadataItem preview,
-    required LibraryMetadataItem edited,
+    required CatalogItem preview,
+    required CatalogItem edited,
   }) {
     final corrections = <String, Object?>{};
     if (edited.title != preview.title) corrections['title'] = edited.title;

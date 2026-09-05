@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-Map<String, dynamic> libraryKindMetadataPayload(LibraryMetadataItem item) {
+Map<String, dynamic> libraryKindMetadataPayload(CatalogItem item) {
   return item.payload;
 }
 
-DateTime? libraryKindReleaseDate(LibraryMetadataItem item) {
+DateTime? libraryKindReleaseDate(CatalogItem item) {
   final payload = libraryKindMetadataPayload(item);
   for (final key in const [
     'release_date',
@@ -29,7 +29,7 @@ DateTime? libraryKindReleaseDate(LibraryMetadataItem item) {
   return null;
 }
 
-int? libraryKindReleaseYear(LibraryMetadataItem item) {
+int? libraryKindReleaseYear(CatalogItem item) {
   final payload = libraryKindMetadataPayload(item);
   final explicitYear = payload['release_year'];
   if (explicitYear is int) {
@@ -41,7 +41,7 @@ int? libraryKindReleaseYear(LibraryMetadataItem item) {
   return libraryKindReleaseDate(item)?.year;
 }
 
-List<CatalogEditionDto> libraryKindEditions(LibraryMetadataItem item) {
+List<CatalogEditionDto> libraryKindEditions(CatalogItem item) {
   final rawEditions = libraryKindMetadataPayload(item)['editions'];
   if (rawEditions is! List) {
     return const [];
@@ -53,7 +53,7 @@ List<CatalogEditionDto> libraryKindEditions(LibraryMetadataItem item) {
   ];
 }
 
-String? libraryKindTitleExtension(LibraryMetadataItem item) {
+String? libraryKindTitleExtension(CatalogItem item) {
   final payload = libraryKindMetadataPayload(item);
   final value = payload['title_extension'] ?? payload['edition_title'];
   final text = value?.toString().trim();

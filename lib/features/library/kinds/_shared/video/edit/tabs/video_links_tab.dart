@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/edit/fields/library_edit_field_g
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_external_links_section.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,7 +16,7 @@ class VideoEditLinksTab extends ConsumerWidget {
     required this.videoEdit,
   });
 
-  final LibraryMetadataItem item;
+  final CatalogItem item;
   final Color accent;
   final VideoEditController videoEdit;
 

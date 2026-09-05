@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 /// Abstract domain interface for kind-specific edit drafts.
 abstract class KindEditDraft {
@@ -31,7 +31,7 @@ class GenericEditDraft extends KindEditDraft {
 }
 
 KindEditDraft createGenericEditDraft({
-  required LibraryMetadataItem item,
+  required CatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,

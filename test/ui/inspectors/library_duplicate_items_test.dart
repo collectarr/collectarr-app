@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -154,7 +155,7 @@ ShelfEntry _entry({
   final timestamp = DateTime.utc(2024, 1, 1);
   return ShelfEntry(
     itemId: itemId,
-    catalogItem: LibraryMetadataItem.fromMetadataMap({
+    catalogItem: typedCatalogItemFromMap({
       'id': itemId,
       'kind': 'comic',
       'title': title,

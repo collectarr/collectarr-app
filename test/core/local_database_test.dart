@@ -11,7 +11,8 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -1036,7 +1037,7 @@ void main() {
     final repo = CatalogCacheRepository(db);
 
     await repo.upsertMetadataItems([
-      LibraryMetadataItem.fromMetadataMap({
+      typedCatalogItemFromMap({
         'id': 'book-1',
         'kind': 'book',
         'title': 'The Fellowship of the Ring',
@@ -1072,7 +1073,7 @@ void main() {
     final repo = CatalogCacheRepository(db);
 
     await repo.upsertMetadataItems([
-      LibraryMetadataItem.fromMetadataMap({
+      typedCatalogItemFromMap({
         'id': 'album-1',
         'kind': 'music',
         'title': 'The Sacrament of Sin',

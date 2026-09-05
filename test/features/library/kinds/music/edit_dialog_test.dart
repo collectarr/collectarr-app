@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ void main() {
     addTearDown(db.close);
 
     final type = musicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'music-1',
         kind: 'music',
@@ -90,7 +91,7 @@ void main() {
     addTearDown(db.close);
 
     final type = musicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'music-vinyl',
         kind: 'music',

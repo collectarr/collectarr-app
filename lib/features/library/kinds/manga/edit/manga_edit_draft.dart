@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart'
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
@@ -213,7 +213,7 @@ class MangaEditDraft extends KindEditDraft {
 }
 
 KindEditDraft createMangaEditDraft({
-  required LibraryMetadataItem item,
+  required CatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,

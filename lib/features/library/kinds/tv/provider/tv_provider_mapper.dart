@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'tv_provider_typed_mapper.dart';
 
@@ -19,13 +19,13 @@ class TvLibraryKindProviderMapper
   }
 
   @override
-  LibraryMetadataItem metadataItemFromEnvelope(
+  CatalogItem metadataItemFromEnvelope(
       NormalizedProviderEnvelopeV1 envelope) {
     final tvMetadata = TvSeriesMetadata.fromJson(
       TvProviderTypedMapper.payloadFromEnvelope(envelope),
     );
 
-    return LibraryMetadataItem(
+    return CatalogItem(
       identity: LibraryItemIdentity(
         id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.tv,
@@ -36,8 +36,8 @@ class TvLibraryKindProviderMapper
 
   @override
   Map<String, Object?> buildCorrections({
-    required LibraryMetadataItem preview,
-    required LibraryMetadataItem edited,
+    required CatalogItem preview,
+    required CatalogItem edited,
   }) {
     final corrections = <String, Object?>{};
     if (edited.title != preview.title) corrections['title'] = edited.title;

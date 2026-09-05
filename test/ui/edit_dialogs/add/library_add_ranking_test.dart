@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -174,13 +175,13 @@ void main() {
     });
   });
 
-  group('filterAndRankLibraryMetadataItems', () {
+  group('filterAndRankCatalogItems', () {
     test('removes items below minimum score', () {
       final items = [
         _item(title: 'Exact Match'),
         _item(title: 'Completely Different Title'),
       ];
-      final result = filterAndRankLibraryMetadataItems(
+      final result = filterAndRankCatalogItems(
         items,
         _ranking,
         _context(query: 'Exact Match'),
@@ -191,7 +192,7 @@ void main() {
     });
 
     test('returns empty when no items meet threshold', () {
-      final result = filterAndRankLibraryMetadataItems(
+      final result = filterAndRankCatalogItems(
         [_item(title: 'Unrelated')],
         _ranking,
         _context(query: 'Saga'),
@@ -201,7 +202,7 @@ void main() {
     });
 
     test('returns original items when no input is given', () {
-      final result = filterAndRankLibraryMetadataItems(
+      final result = filterAndRankCatalogItems(
         [_item(title: 'A'), _item(title: 'B')],
         _ranking,
         _context(),
@@ -211,13 +212,13 @@ void main() {
   });
 }
 
-LibraryMetadataItem _item({
+CatalogItem _item({
   required String title,
   String? publisher,
   String? itemNumber,
   int? releaseYear,
 }) {
-  return LibraryMetadataItem.fromMetadataMap({
+  return typedCatalogItemFromMap({
     'id': 'test-${title.hashCode}',
     'kind': 'comic',
     'title': title,

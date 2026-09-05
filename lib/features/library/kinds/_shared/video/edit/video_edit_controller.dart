@@ -10,7 +10,7 @@ import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/domain/video_episode.dart';
@@ -127,7 +127,7 @@ class VideoEditController {
     return '';
   }
 
-  static String _resolveInitialEditionTitle(LibraryMetadataItem item) {
+  static String _resolveInitialEditionTitle(CatalogItem item) {
     final meta = item.kindMetadata;
     if (meta is MovieCatalogMetadata) {
       return meta.editionTitle ?? libraryKindTitleExtension(item) ?? '';
@@ -197,7 +197,7 @@ class VideoEditController {
     return '';
   }
 
-  static String _resolveInitialReleaseDate(LibraryMetadataItem item) {
+  static String _resolveInitialReleaseDate(CatalogItem item) {
     final meta = item.kindMetadata;
     final date = meta is MovieCatalogMetadata
         ? meta.releaseDate
@@ -209,7 +209,7 @@ class VideoEditController {
     return date == null ? '' : formatDate(date);
   }
 
-  static String _resolveInitialReleaseYear(LibraryMetadataItem item) {
+  static String _resolveInitialReleaseYear(CatalogItem item) {
     final meta = item.kindMetadata;
     if (meta is MovieCatalogMetadata && meta.releaseDate != null) {
       return meta.releaseDate!.year.toString();
@@ -228,7 +228,7 @@ class VideoEditController {
 
   final WidgetRef? ref;
   final LibraryKindRuntime? type;
-  final LibraryMetadataItem item;
+  final CatalogItem item;
   final LibraryEditDraft? draft;
   final List<Map<String, dynamic>> initialCreators;
   final int? initialDiscCount;

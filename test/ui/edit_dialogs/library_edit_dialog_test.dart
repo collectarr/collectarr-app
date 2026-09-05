@@ -14,7 +14,8 @@ import 'package:collectarr_app/features/library/config/generic_library_workspace
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
 import '../../helpers/test_constants.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
@@ -73,7 +74,7 @@ void main() {
       edit: genericKindModule.edit,
     );
 
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'movie-default-1',
         kind: 'movie',
@@ -158,7 +159,7 @@ void main() {
         );
 
     final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
       id: 'movie-1',
       kind: 'movie',
       title: 'Blade Runner',
@@ -305,7 +306,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
       id: 'movie-edition-1',
       kind: 'movie',
       title: 'Blade Runner',
@@ -407,7 +408,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'movie-publishing-1',
         kind: 'movie',
@@ -474,7 +475,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'movie-readonly-1',
         kind: 'movie',
@@ -576,7 +577,7 @@ void main() {
         );
 
     final type = comicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -811,7 +812,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'book-1',
         kind: 'book',
@@ -883,7 +884,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'book-preserve-1',
         kind: 'book',
@@ -1030,7 +1031,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'book-links-1',
         kind: 'book',
@@ -1106,7 +1107,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
       id: 'movie-tracked-1',
       kind: 'movie',
       title: 'Dune',
@@ -1197,7 +1198,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
       id: 'movie-bundle-1',
       kind: 'movie',
       title: 'Alien Anthology',
@@ -1294,7 +1295,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'movie-bundle-existing-1',
         kind: 'movie',
@@ -1373,7 +1374,7 @@ void main() {
         );
 
     final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'movie-digital-1',
         kind: 'movie',
@@ -1456,7 +1457,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
       id: 'movie-wishlist-1',
       kind: 'movie',
       title: 'Akira',
@@ -1570,7 +1571,7 @@ void main() {
           ),
         );
     final type = musicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'music-1',
         kind: 'music',
@@ -1695,7 +1696,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = gameKindModule;
-    final item = LibraryMetadataItem.fromMetadataMap(
+    final item = typedCatalogItemFromMap(
       {
         'id': 'game-1',
         'kind': 'game',
@@ -1771,7 +1772,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = gameKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'game-1',
         kind: 'game',
@@ -1838,7 +1839,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = boardGameKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final item = typedCatalogItemFromCatalogItem(
       testCatalogItem(
         id: 'bg-1',
         kind: 'boardgame',
@@ -1916,7 +1917,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryMetadataItem.fromCatalogItem(
+                      item: typedCatalogItemFromCatalogItem(
                         testCatalogItem(
                           id: 'comic-1',
                           kind: 'comic',

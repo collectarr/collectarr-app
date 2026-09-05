@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +78,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       if (ownedItem == null) {
         continue;
       }
-      final catalogItem = LibraryMetadataTransportCodec.fromUnknown(
+      final catalogItem = typedCatalogItemFromUnknown(
         widget.catalogItemsById[ownedItem.itemId],
       );
       if (catalogItem == null || catalogItem.kind != widget.mediaKind) {
@@ -351,7 +351,7 @@ class _ReadingQueueDialogEntry {
   });
 
   final OwnedItem ownedItem;
-  final LibraryMetadataItem catalogItem;
+  final CatalogItem catalogItem;
 
   String get label {
     final payload = catalogItem.payload;

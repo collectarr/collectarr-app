@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/foundation.dart';
 
 class LibraryAddPreviewController {
   final providerPreviews = <String, AdminProviderPreview>{};
-  final hydratedResults = <String, LibraryMetadataItem>{};
+  final hydratedResults = <String, CatalogItem>{};
   final bundleReleasesByItemId = <String, List<BundleReleaseSummary>>{};
   final bundleReleaseDetailsById = <String, BundleReleaseDetail>{};
   final queuedProviderIngests = <String, LibraryQueuedProviderIngest>{};
@@ -44,7 +44,7 @@ class LibraryAddPreviewController {
     queuedProviderIngests[candidateId] = ingest;
   }
 
-  LibraryMetadataItem? hydratedResultFor(String itemId) {
+  CatalogItem? hydratedResultFor(String itemId) {
     return hydratedResults[itemId];
   }
 
@@ -52,7 +52,7 @@ class LibraryAddPreviewController {
     return hydratedResults.containsKey(itemId);
   }
 
-  void setHydratedResult(String itemId, LibraryMetadataItem item) {
+  void setHydratedResult(String itemId, CatalogItem item) {
     hydratedResults[itemId] = item;
     pendingHydratedResultIds.remove(itemId);
   }
@@ -69,7 +69,7 @@ class LibraryAddPreviewController {
     return bundleReleasesByItemId[itemId];
   }
 
-  List<BundleReleaseSummary> bundleReleasesForItem(LibraryMetadataItem? item) {
+  List<BundleReleaseSummary> bundleReleasesForItem(CatalogItem? item) {
     if (item == null) {
       return const <BundleReleaseSummary>[];
     }
@@ -167,7 +167,7 @@ class LibraryAddPreviewState {
   const LibraryAddPreviewState.initial() : this();
 
   final Map<String, AdminProviderPreview> providerPreviews;
-  final Map<String, LibraryMetadataItem> hydratedResults;
+  final Map<String, CatalogItem> hydratedResults;
   final Map<String, List<BundleReleaseSummary>> bundleReleasesByItemId;
   final Map<String, BundleReleaseDetail> bundleReleaseDetailsById;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
@@ -186,7 +186,7 @@ class LibraryAddPreviewState {
   LibraryQueuedProviderIngest? queuedProviderIngestFor(String candidateId) =>
       queuedProviderIngests[candidateId];
 
-  LibraryMetadataItem? hydratedResultFor(String itemId) =>
+  CatalogItem? hydratedResultFor(String itemId) =>
       hydratedResults[itemId];
 
   bool hasHydratedResult(String itemId) => hydratedResults.containsKey(itemId);
@@ -197,7 +197,7 @@ class LibraryAddPreviewState {
   List<BundleReleaseSummary>? bundleReleasesFor(String itemId) =>
       bundleReleasesByItemId[itemId];
 
-  List<BundleReleaseSummary> bundleReleasesForItem(LibraryMetadataItem? item) {
+  List<BundleReleaseSummary> bundleReleasesForItem(CatalogItem? item) {
     if (item == null) return const <BundleReleaseSummary>[];
     return bundleReleasesByItemId[item.id] ?? const <BundleReleaseSummary>[];
   }
@@ -216,7 +216,7 @@ class LibraryAddPreviewState {
 
   LibraryAddPreviewState copyWith({
     Map<String, AdminProviderPreview>? providerPreviews,
-    Map<String, LibraryMetadataItem>? hydratedResults,
+    Map<String, CatalogItem>? hydratedResults,
     Map<String, List<BundleReleaseSummary>>? bundleReleasesByItemId,
     Map<String, BundleReleaseDetail>? bundleReleaseDetailsById,
     Map<String, LibraryQueuedProviderIngest>? queuedProviderIngests,

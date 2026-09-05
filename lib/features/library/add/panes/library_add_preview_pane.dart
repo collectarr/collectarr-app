@@ -62,7 +62,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   final Color accent;
   final bool isWideLayout;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
-  final LibraryMetadataItem? item;
+  final CatalogItem? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
@@ -486,7 +486,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
-  final LibraryMetadataItem item;
+  final CatalogItem item;
   final List<BundleReleaseSummary> bundleReleases;
   final String? selectedBundleReleaseId;
   final String? selectedEditionId;
@@ -519,7 +519,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
 }
 
 List<(String, String?)> libraryAddMetadataRowsForItem(
-  LibraryMetadataItem item,
+  CatalogItem item,
   LibraryKindRuntime type,
 ) =>
     _metadataRowsForItem(item, type);
@@ -738,7 +738,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
-  final LibraryMetadataItem item;
+  final CatalogItem item;
   final List<BundleReleaseSummary> bundleReleases;
   final String? selectedBundleReleaseId;
   final String? selectedEditionId;
@@ -1078,7 +1078,7 @@ String _editionSummaryForSelection(
 }
 
 CatalogEdition? previewEditionForItem(
-  LibraryMetadataItem item,
+  CatalogItem item,
   String? editionId,
 ) {
   final editions = libraryKindEditions(item);
@@ -1110,7 +1110,7 @@ CatalogVariant? selectedVariantForEdition(
   return null;
 }
 
-CatalogEdition? _previewPrimaryEditionForItem(LibraryMetadataItem item) {
+CatalogEdition? _previewPrimaryEditionForItem(CatalogItem item) {
   final editions = libraryKindEditions(item);
   if (editions.isEmpty) {
     return null;
@@ -1135,7 +1135,7 @@ CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
   return edition.variants.first;
 }
 
-Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
+Widget _buildPreviewFormatBadges(CatalogItem? item) {
   final editions =
       item == null ? const <CatalogEdition>[] : libraryKindEditions(item);
   if (editions.isEmpty) return const SizedBox.shrink();
@@ -1195,7 +1195,7 @@ List<(String, String?)> _metadataRowsForCandidate(
 }
 
 List<(String, String?)> _metadataRowsForItem(
-  LibraryMetadataItem item,
+  CatalogItem item,
   LibraryKindRuntime type,
 ) {
   final previewLabels = type.presentation.previewLabels;
@@ -1364,7 +1364,7 @@ List<(String, String?)> _metadataRowsForFullPreview(
 }
 
 List<_PreviewDiscoverySectionData> _discoverySections({
-  required LibraryMetadataItem? item,
+  required CatalogItem? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -1428,7 +1428,7 @@ class LibraryAddPreviewDiscoverySectionData {
 }
 
 List<LibraryAddPreviewDiscoverySectionData> libraryAddPreviewDiscoverySections({
-  required LibraryMetadataItem? item,
+  required CatalogItem? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {

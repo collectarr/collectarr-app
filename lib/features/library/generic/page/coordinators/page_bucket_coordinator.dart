@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class LibraryPageBucketCoordinator {
   const LibraryPageBucketCoordinator(this._page);
@@ -62,7 +62,7 @@ class LibraryPageBucketCoordinator {
       return 0;
     }
 
-    final catalogUpdates = <String, LibraryMetadataItem>{};
+    final catalogUpdates = <String, CatalogItem>{};
     final ownedUpdates = <String, UpdateOwnedItemCommand<OwnedDetailsDraft>>{};
     for (final item in projection.allItems) {
       if (genericBucketForItemGroup(item, _page.type, groupId) !=

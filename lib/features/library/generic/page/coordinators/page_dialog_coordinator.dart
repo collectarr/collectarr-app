@@ -23,7 +23,7 @@ import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dar
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
@@ -266,7 +266,7 @@ class LibraryPageDialogCoordinator {
     );
     final catalogItemsById = {
       for (final entry in legacyCatalogItemsById.entries)
-        entry.key: LibraryMetadataTransportCodec.fromCatalogItem(entry.value),
+        entry.key: typedCatalogItemFromCatalogItem(entry.value),
     };
     if (!_page.mounted) {
       return;

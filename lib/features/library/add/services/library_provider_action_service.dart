@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class LibraryProviderActionService {
   const LibraryProviderActionService();
@@ -33,7 +33,7 @@ class LibraryProviderActionService {
     required ApiClient api,
     required LibraryKindRuntime type,
     required ProviderCandidate candidate,
-    required LibraryMetadataItem proposalItem,
+    required CatalogItem proposalItem,
   }) {
     return createAndRecordLibraryMetadataProposal(
       api: api,
@@ -45,7 +45,7 @@ class LibraryProviderActionService {
       summary: proposalItem.synopsis ?? candidate.summary,
       imageUrl: proposalItem.displayCoverUrl,
       metadataPayload:
-          LibraryMetadataTransportCodec.toSyncPayload(proposalItem),
+          proposalItem.toSyncPayload(),
       source: 'Add ${type.identity.pluralLabel} provider result',
     );
   }

@@ -11,7 +11,8 @@ import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media
 import 'package:collectarr_app/features/library/kinds/book/edit/owned/book_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
-import 'package:collectarr_app/features/library/models/library_catalog_item_view.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -201,10 +202,10 @@ BookEditDraft _createMediaDraft(BookCatalogMetadata metadata) {
   ) as BookEditDraft;
 }
 
-LibraryCatalogItemView _bookItem([
+CatalogItem _bookItem([
   BookCatalogMetadata metadata = const BookCatalogMetadata(title: 'Book'),
 ]) {
-  return LibraryCatalogItemView(
+  return CatalogItem(
     identity: const LibraryItemIdentity(
       id: 'book-1',
       mediaKind: CatalogMediaKind.book,

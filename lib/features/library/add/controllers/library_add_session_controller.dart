@@ -33,8 +33,8 @@ import 'package:collectarr_app/features/library/add/services/provider_add_result
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
@@ -238,7 +238,7 @@ class LibraryAddSessionController
     }
   }
 
-  void selectSuggestion(LibraryMetadataItem item) {
+  void selectSuggestion(CatalogItem item) {
     state = state.copyWith(
       search: state.search.copyWith(
         query: item.title,
@@ -891,7 +891,7 @@ class LibraryAddSessionController
       return;
     }
 
-    LibraryMetadataItem? selected;
+    CatalogItem? selected;
     for (final item in state.search.results) {
       if (item.id == itemId) {
         selected = item;
@@ -908,12 +908,12 @@ class LibraryAddSessionController
     );
 
     try {
-      final LibraryMetadataItem hydrated = await api!
+      final CatalogItem hydrated = await api!
           .getTypedMetadataItem(
         kind: selected.kind,
         id: itemId,
       )
-          .then<LibraryMetadataItem>((dto) {
+          .then<CatalogItem>((dto) {
         final raw = mergeHydratedProviderAddResultRaw(
           raw: <String, dynamic>{
             ...dto.raw,
@@ -923,7 +923,7 @@ class LibraryAddSessionController
           },
           sourceSelection: selected!,
         );
-        return LibraryMetadataTransportCodec.fromMetadataMap(raw);
+        return typedCatalogItemFromMap(raw);
       });
 
       if (searchGen != state.search.coreSearchGeneration) return;
@@ -950,14 +950,14 @@ class LibraryAddSessionController
             selectedEditionsPayload.isNotEmpty)
           'editions': selectedEditionsPayload,
       };
-      final mergedItem = LibraryMetadataTransportCodec.fromMetadataMap({
+      final mergedItem = typedCatalogItemFromMap({
         'id': hydratedItem.id,
         'kind': hydratedItem.kind,
         ...mergedPayload,
       });
 
       final hydratedMap =
-          Map<String, LibraryMetadataItem>.from(state.preview.hydratedResults);
+          Map<String, CatalogItem>.from(state.preview.hydratedResults);
       hydratedMap[itemId] = mergedItem;
       final pendingUpdated =
           Set<String>.from(state.preview.pendingHydratedResultIds)
@@ -1226,7 +1226,7 @@ class LibraryAddSessionController
     );
   }
 
-  Future<bool> submitSelectedItem(LibraryMetadataItem item) async {
+  Future<bool> submitSelectedItem(CatalogItem item) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     state = state.copyWith(
       isAdding: true,
@@ -1318,8 +1318,8 @@ class LibraryAddSessionController
             providerOrchestrationService: providerOrchestrationService,
             providerMapper: type.providerMapper?.buildCorrections ??
                 ((
-                        {required LibraryMetadataItem edited,
-                        required LibraryMetadataItem preview}) =>
+                        {required CatalogItem edited,
+                        required CatalogItem preview}) =>
                     const <String, Object?>{}),
             visibleProviderResults: () => state.visibleProviderResults(
               type.add.resultPolicy,

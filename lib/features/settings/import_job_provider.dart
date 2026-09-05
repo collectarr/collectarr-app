@@ -8,8 +8,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
@@ -533,7 +533,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           limit: 10,
         ).then((items) => [
               for (final item in items)
-                LibraryMetadataTransportCodec.toCatalogItem(item),
+                item,
             ]);
       },
     );
@@ -948,8 +948,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     );
   }
 
-  LibraryMetadataItem? _bestImportMatch(
-      ProviderPersonalEntry entry, List<LibraryMetadataItem> candidates) {
+  CatalogItem? _bestImportMatch(
+      ProviderPersonalEntry entry, List<CatalogItem> candidates) {
     if (candidates.isEmpty) {
       return null;
     }
@@ -975,7 +975,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   Future<void> _applyEntry({
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required LibraryMetadataItem item,
+    required CatalogItem item,
     required ProviderPersonalEntry entry,
     required MutationOrigin origin,
   }) async {
@@ -1041,7 +1041,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     );
   }
 
-  LibraryMetadataItem _syntheticImportCatalogItem(
+  CatalogItem _syntheticImportCatalogItem(
     ProviderId provider,
     ProviderPersonalEntry entry,
   ) {
@@ -1049,7 +1049,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final sourceKey = entry.remoteItemId.trim().isEmpty
         ? title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
         : entry.remoteItemId.trim();
-    return LibraryMetadataTransportCodec.fromMetadataMap({
+    return typedCatalogItemFromMap({
       'id': '${provider.storageValue}-local:$sourceKey',
       'kind': entry.kind.apiValue,
       'title': title,
@@ -1135,7 +1135,7 @@ class _GenericImportMatch {
   });
 
   final ProviderPersonalEntry entry;
-  final LibraryMetadataItem? catalogItem;
+  final CatalogItem? catalogItem;
 
   ProviderPersonalEntry get row => entry;
 }

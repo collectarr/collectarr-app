@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_e
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/owned/boardgame_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
 const _boardGameTabs0 = LibraryEditTabSpec(
@@ -92,7 +92,7 @@ Widget? buildBoardGameCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required LibraryMetadataItem item,
+  required CatalogItem item,
   required VoidCallback markDirty,
 }) {
   if (tabId == 'owned') {

@@ -13,8 +13,8 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_cach
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
@@ -92,7 +92,7 @@ final class CollectionImportService {
 
       imported++;
       final catItem = catalogItems[row.itemId];
-      final metadataItem = LibraryMetadataTransportCodec.fromUnknown(catItem);
+      final metadataItem = typedCatalogItemFromUnknown(catItem);
       final catItemId = metadataItem?.id;
       final catItemKind = metadataItem?.kind;
       if (catItemId != null && !snapshotItemIds.contains(catItemId)) {
@@ -201,7 +201,7 @@ final class CollectionImportService {
         for (final item in wishlistDeletes) WishlistChanged(item.itemId),
         for (final catItem in importedCatalogItems)
           CatalogItemChanged(
-            LibraryMetadataTransportCodec.fromUnknown(catItem)?.id ??
+            typedCatalogItemFromUnknown(catItem)?.id ??
                 (throw ArgumentError.value(
                   catItem,
                   'item',
@@ -299,13 +299,13 @@ final class CollectionImportService {
     );
   }
 
-  LibraryMetadataItem? _catalogItemFromCsvRow(
+  CatalogItem? _catalogItemFromCsvRow(
     CollectionCsvRow row, {
     dynamic existing,
   }) {
-    final existingMetadata = LibraryMetadataTransportCodec.fromUnknown(existing);
+    final existingMetadata = typedCatalogItemFromUnknown(existing);
     if (existingMetadata != null) return existingMetadata;
-    return LibraryMetadataTransportCodec.fromMetadataMap({
+    return typedCatalogItemFromMap({
       'id': row.itemId,
       'kind': row.kind ?? CatalogMediaKind.unknown.apiValue,
       'title': row.title ?? row.itemId,

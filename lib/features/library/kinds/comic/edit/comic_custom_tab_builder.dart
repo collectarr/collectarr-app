@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
 import 'comic_edit_host_adapter.dart';
@@ -16,7 +16,7 @@ Widget? buildComicCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required LibraryMetadataItem item,
+  required CatalogItem item,
   required VoidCallback markDirty,
 }) {
   final metadata = item.kindMetadata;

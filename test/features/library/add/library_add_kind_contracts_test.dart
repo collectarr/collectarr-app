@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -89,7 +90,7 @@ void main() {
         );
         const common = LibraryAddCommonDraft(condition: 'Near Mint', rating: 9);
 
-        final metadataItem = LibraryMetadataItem.fromCatalogItem(item);
+        final metadataItem = typedCatalogItemFromCatalogItem(item);
         final command = addCap.buildCommand(metadataItem, common, initialDraft);
         expect(command.catalogRef.id, item.id);
         expect(command.common.condition, 'Near Mint');

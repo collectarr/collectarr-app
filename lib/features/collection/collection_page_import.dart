@@ -149,7 +149,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
   }
 
   Future<void> _resolveRow(CollectionCsvRow row) async {
-    final item = await showDialog<LibraryMetadataItem>(
+    final item = await showDialog<CatalogItem>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
         type: comicKindModule,
@@ -189,7 +189,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     try {
       final resolvedRows = [...preview.resolvedRows];
       final unresolvedRows = <CollectionCsvRow>[];
-      final resolvedItems = <LibraryMetadataItem>[];
+      final resolvedItems = <CatalogItem>[];
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
@@ -585,7 +585,7 @@ class _ResolveImportRowDialog extends ConsumerStatefulWidget {
 class _ResolveImportRowDialogState
     extends ConsumerState<_ResolveImportRowDialog> {
   late final TextEditingController _queryController;
-  var _results = const <LibraryMetadataItem>[];
+  var _results = const <CatalogItem>[];
   String? _error;
   bool _isSearching = false;
 
@@ -924,7 +924,7 @@ class _ImportProposalDraft {
 class _CatalogThumb extends StatelessWidget {
   const _CatalogThumb({required this.item});
 
-  final LibraryMetadataItem item;
+  final CatalogItem item;
 
   @override
   Widget build(BuildContext context) {
@@ -960,7 +960,7 @@ class _CatalogThumb extends StatelessWidget {
   }
 }
 
-String _catalogTitle(LibraryMetadataItem item) {
+String _catalogTitle(CatalogItem item) {
   final payload = item.kindMetadata.toSyncPayload();
   final pub = payload['publishing'] as Map?;
   final issue = (payload['item_number'] ?? pub?['issue_number'])?.toString();
@@ -970,7 +970,7 @@ String _catalogTitle(LibraryMetadataItem item) {
   return '${item.title} #$issue';
 }
 
-String _catalogSubtitle(LibraryMetadataItem item) {
+String _catalogSubtitle(CatalogItem item) {
   final payload = item.kindMetadata.toSyncPayload();
   final pub = payload['publishing'] as Map?;
   final variant = (payload['variant'] ?? pub?['variant'])?.toString();
@@ -999,7 +999,7 @@ String _friendlyImportError(Object error) {
   return 'Search failed: $error';
 }
 
-Future<List<LibraryMetadataItem>> _searchCoreForRow(
+Future<List<CatalogItem>> _searchCoreForRow(
   WidgetRef ref,
   LibraryKindRuntime type,
   CollectionCsvRow row, {
@@ -1029,9 +1029,9 @@ String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {
   return null;
 }
 
-LibraryMetadataItem? _confidentImportMatch(
+CatalogItem? _confidentImportMatch(
   CollectionCsvRow row,
-  List<LibraryMetadataItem> results,
+  List<CatalogItem> results,
 ) {
   if (results.isEmpty) {
     return null;

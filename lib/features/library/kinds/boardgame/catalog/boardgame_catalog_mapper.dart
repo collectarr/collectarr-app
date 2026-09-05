@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_release.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class BoardGameCatalogMapper {
   const BoardGameCatalogMapper._();
@@ -103,7 +103,7 @@ class BoardGameCatalogMapper {
   }
 
   static BoardGameCatalogItem mapMetadataItemToBoardGame(
-      LibraryMetadataItem item) {
+      CatalogItem item) {
     return mapDtoToBoardGame(CatalogItemDto.fromJson(item.toSyncPayload()));
   }
 

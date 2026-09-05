@@ -86,7 +86,7 @@ void main() {
       kind: 'comic',
       publisher: 'Image Comics',
       physicalFormatLabel: 'Hardcover',
-    ).toLibraryMetadataItem();
+    );
 
     await catalog.upsertMetadataItems([item]);
 

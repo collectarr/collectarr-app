@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class MusicCatalogMapper {
   const MusicCatalogMapper._();
@@ -86,7 +86,7 @@ class MusicCatalogMapper {
     );
   }
 
-  static MusicCatalogItem mapMetadataItemToMusic(LibraryMetadataItem item) {
+  static MusicCatalogItem mapMetadataItemToMusic(CatalogItem item) {
     final rawMetadata = item.kindMetadata;
     final MusicCatalogMetadata metadata;
     if (rawMetadata is MusicCatalogMetadata) {

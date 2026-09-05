@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 /// Builds the Anime-owned workspace graph from the catalog snapshot.
 ///
@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 final class AnimeWorkspaceMapper {
   const AnimeWorkspaceMapper._();
 
-  static AnimeMedia fromCatalogItem(LibraryMetadataItem item) {
+  static AnimeMedia fromCatalogItem(CatalogItem item) {
     final basePayload = Map<String, dynamic>.from(item.toSyncPayload());
     final metadata = item.kindMetadata;
     final payload = <String, dynamic>{

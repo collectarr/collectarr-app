@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 /// Builds the TV-owned workspace graph from the catalog snapshot.
 ///
@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 final class TvWorkspaceMapper {
   const TvWorkspaceMapper._();
 
-  static TvSeries fromCatalogItem(LibraryMetadataItem item) {
+  static TvSeries fromCatalogItem(CatalogItem item) {
     final basePayload = Map<String, dynamic>.from(item.toSyncPayload());
     final metadata = item.kindMetadata is TvSeriesMetadata
         ? item.kindMetadata as TvSeriesMetadata

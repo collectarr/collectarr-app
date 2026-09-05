@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-LibraryMetadataItem mergeProviderAddResult({
-  required LibraryMetadataItem ingested,
-  required LibraryMetadataItem edited,
+CatalogItem mergeProviderAddResult({
+  required CatalogItem ingested,
+  required CatalogItem edited,
 }) {
   return ingested.copyWith(
     title: edited.title,
@@ -22,9 +22,9 @@ LibraryMetadataItem mergeProviderAddResult({
   );
 }
 
-LibraryMetadataItem mergeResolvedProviderAddItem({
-  required LibraryMetadataItem fallback,
-  required LibraryMetadataItem fullItem,
+CatalogItem mergeResolvedProviderAddItem({
+  required CatalogItem fallback,
+  required CatalogItem fullItem,
 }) {
   return fullItem.displayCoverUrl != null
       ? fullItem
@@ -37,7 +37,7 @@ LibraryMetadataItem mergeResolvedProviderAddItem({
 
 Map<String, dynamic> mergeHydratedProviderAddResultRaw({
   required Map<String, dynamic> raw,
-  required LibraryMetadataItem sourceSelection,
+  required CatalogItem sourceSelection,
 }) {
   final payload = sourceSelection.kindMetadata.toSyncPayload();
   final merged = <String, dynamic>{
@@ -57,7 +57,7 @@ Future<void> applyProviderIngestCorrections({
   required String kind,
   required String itemId,
   required Map<String, Object?> corrections,
-  required LibraryMetadataItem edited,
+  required CatalogItem edited,
 }) {
   final payload = edited.kindMetadata.toSyncPayload();
   return api.adminUpdateCatalogItem(

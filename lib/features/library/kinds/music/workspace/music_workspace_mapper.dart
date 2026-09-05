@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 /// Converts the current catalog projection into the Music-owned workspace
 /// release graph.
@@ -13,7 +13,7 @@ final class MusicWorkspaceMapper {
   const MusicWorkspaceMapper._();
 
   static MusicRelease fromCatalogItem(
-    LibraryMetadataItem item, {
+    CatalogItem item, {
     String? releaseId,
     CatalogEdition? edition,
   }) {

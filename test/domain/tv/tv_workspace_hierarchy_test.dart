@@ -8,7 +8,8 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -42,7 +43,7 @@ void main() {
     );
     final source = ShelfEntry(
       itemId: 'tv-expanse',
-      catalogItem: LibraryMetadataItem(
+      catalogItem: CatalogItem(
         identity: const LibraryItemIdentity(
           id: 'tv-expanse',
           mediaKind: CatalogMediaKind.tv,

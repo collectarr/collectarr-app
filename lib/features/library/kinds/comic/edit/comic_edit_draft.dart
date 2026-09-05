@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/owned/comic_owned_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
 import 'comic_edit_controller.dart';
@@ -85,7 +85,7 @@ class ComicEditDraft extends KindEditDraft {
 }
 
 KindEditDraft createComicEditDraft({
-  required LibraryMetadataItem item,
+  required CatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,

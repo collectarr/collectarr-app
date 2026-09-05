@@ -4,12 +4,12 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/vide
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 VideoCatalogItem animeSeriesFromDto(CatalogItemDto dto) =>
     VideoCatalogMapper.mapDtoToVideo(dto);
 
-VideoCatalogItem animeSeriesFromMetadataItem(LibraryMetadataItem item) =>
+VideoCatalogItem animeSeriesFromMetadataItem(CatalogItem item) =>
     VideoCatalogMapper.mapMetadataItemToVideo(item);
 
 AnimeMedia animeMediaFromCoreDto(AnimeSeriesDto dto) =>
