@@ -2,31 +2,24 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
 class LibraryEntry {
   const LibraryEntry({
     required this.itemId,
-    dynamic catalogItem,
+    this.catalogItem,
     this.ownedItem,
     this.trackingEntry,
     this.wishlistItem,
-  }) : _catalogItem = catalogItem;
+  });
 
   final String itemId;
-  final dynamic _catalogItem;
+  final CatalogItem? catalogItem;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final WishlistItem? wishlistItem;
 
-  CatalogItem? get catalogItem {
-    final raw = _catalogItem;
-    if (raw == null) return null;
-    return typedCatalogItemFromUnknown(raw);
-  }
-
-  dynamic get kindMetadata => catalogItem?.kindMetadata;
+  Object? get kindMetadata => catalogItem?.kindMetadata;
 
   bool get isOwned => ownedItem != null;
   bool get isTracked => trackingEntry != null;
@@ -65,8 +58,7 @@ class LibraryEntry {
       final length = itemId.length < 8 ? itemId.length : 8;
       return 'Catalog item ${itemId.substring(0, length)}';
     }
-    final itemNumber =
-        item.kindMetadata.toSyncPayload()['item_number'] as String?;
+    final itemNumber = item.itemNumber;
     if (itemNumber == null || itemNumber.trim().isEmpty) {
       return item.resolvedDisplayTitle;
     }

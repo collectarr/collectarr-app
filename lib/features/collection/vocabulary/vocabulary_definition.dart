@@ -1,8 +1,8 @@
-﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
 import 'package:flutter/foundation.dart';
 
 abstract interface class VocabularyCatalogValueProjector {
-  Iterable<String?> call(dynamic metadata);
+  Iterable<String?> call(Object? metadata);
 }
 
 final class TypedVocabularyProjector<T>
@@ -12,7 +12,7 @@ final class TypedVocabularyProjector<T>
   final Iterable<String?> Function(T metadata) _project;
 
   @override
-  Iterable<String?> call(dynamic metadata) {
+  Iterable<String?> call(Object? metadata) {
     if (metadata is! T) {
       return const [];
     }

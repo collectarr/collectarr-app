@@ -2,12 +2,11 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class MusicCatalogMapper {
   const MusicCatalogMapper._();
 
-  static MusicCatalogItem mapDtoToMusic(CatalogItemDto dto) {
+  static MusicCatalogItem mapDtoToMusic(CatalogItem dto) {
     final payload = dto.toSyncPayload();
     final music = (payload['music'] as Map?) ?? payload;
     final creators =

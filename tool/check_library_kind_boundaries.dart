@@ -117,6 +117,13 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'physicalFormatLabel',
   };
 
+  static const _forbiddenRuntimeTypeNames = {
+    'CatalogItemDto',
+    'LibraryKindMetadataRuntime',
+    'LibraryMetadataItem',
+    'LibraryCatalogItemView',
+  };
+
   static const _genericMetadataMapAllowlist = {
     'lib/features/library/add/controllers/library_add_comparisons.dart',
     'lib/features/library/add/panes/library_add_preview_pane.dart',
@@ -318,6 +325,14 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitNamedType(NamedType node) {
+    if (_forbiddenRuntimeTypeNames.contains(node.name.lexeme) &&
+        _isForbiddenRuntimeTypeContext(relativePath)) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        '$relativePath:$line: Legacy erased runtime type "${node.name.lexeme}" must stay out of feature layers',
+      );
+    }
+
     if (_isGenericMetadataMap(node) &&
         !_genericMetadataMapAllowlist.contains(relativePath)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
@@ -526,6 +541,11 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   bool _isLibraryDataPath(String path) {
     return path.startsWith('lib/features/library/') ||
         path.startsWith('lib/features/collection/');
+  }
+
+  bool _isForbiddenRuntimeTypeContext(String path) {
+    return path.startsWith('lib/features/') ||
+        path.startsWith('lib/core/models/');
   }
 }
 

@@ -53,7 +53,7 @@ class VideoCatalogItem {
     this.trailerUrls = const [],
   });
 
-  static VideoCatalogItem fromDto(CatalogItemDto dto) =>
+  static VideoCatalogItem fromDto(CatalogItem dto) =>
       VideoCatalogMapper.mapDtoToVideo(dto);
 
   final String id;

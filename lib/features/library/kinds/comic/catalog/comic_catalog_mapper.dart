@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 class ComicCatalogMapper {
   const ComicCatalogMapper._();
 
-  static ComicCatalogItem mapDtoToComic(CatalogItemDto dto) {
+  static ComicCatalogItem mapDtoToComic(CatalogItem dto) {
     final payload = dto.toSyncPayload();
     final pub = (payload['publishing'] as Map?) ?? payload;
 

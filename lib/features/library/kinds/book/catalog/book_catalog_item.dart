@@ -103,7 +103,7 @@ class BookCatalogItem {
     required this.releases,
   });
 
-  static BookCatalogItem fromDto(CatalogItemDto dto) =>
+  static BookCatalogItem fromDto(CatalogItem dto) =>
       BookCatalogMapper.mapDtoToBook(dto);
 
   final String id;

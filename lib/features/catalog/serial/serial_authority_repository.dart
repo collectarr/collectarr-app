@@ -174,14 +174,14 @@ class SerialAuthorityRepository {
         );
   }
 
-  Future<void> captureCatalogItems(Iterable<dynamic> items) async {
+  Future<void> captureCatalogItems(Iterable<Object?> items) async {
     await _db.transaction(() async {
       await captureCatalogItemsWithoutTransaction(items);
     });
   }
 
   Future<void> captureCatalogItemsWithoutTransaction(
-      Iterable<dynamic> items) async {
+      Iterable<Object?> items) async {
     final list = items.toList(growable: false);
     if (list.isEmpty) {
       return;

@@ -13,11 +13,11 @@ final class LibraryCatalogDerivedDataService {
     final list = items.toList(growable: false);
     if (list.isEmpty) return;
 
-    final byKind = <String, List<dynamic>>{};
+    final byKind = <String, List<Object?>>{};
     for (final item in list) {
       final catalogItem = item as CatalogItem;
       byKind
-          .putIfAbsent(catalogItem.kind, () => <dynamic>[])
+          .putIfAbsent(catalogItem.kind, () => <Object?>[])
           .add(catalogItem.kindMetadata);
     }
 

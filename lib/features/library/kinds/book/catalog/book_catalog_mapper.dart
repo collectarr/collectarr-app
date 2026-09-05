@@ -3,13 +3,12 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class BookCatalogMapper {
   const BookCatalogMapper._();
 
-  /// Maps Core API / Cache transport DTO [CatalogItemDto] to domain [BookCatalogItem].
-  static BookCatalogItem mapDtoToBook(CatalogItemDto dto) {
+  /// Maps the catalog transport projection to domain [BookCatalogItem].
+  static BookCatalogItem mapDtoToBook(CatalogItem dto) {
     final payload = dto.toSyncPayload();
     final seriesDetails = (payload['series'] as Map?) ?? payload;
     final pub = (payload['publishing'] as Map?) ?? payload;

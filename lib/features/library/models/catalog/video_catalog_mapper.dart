@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/models/catalog/video_catalog_rel
 class VideoCatalogMapper {
   const VideoCatalogMapper._();
 
-  static VideoCatalogItem mapDtoToVideo(CatalogItemDto dto) {
+  static VideoCatalogItem mapDtoToVideo(CatalogItem dto) {
     final payload = dto.toSyncPayload();
     final v = (payload['video'] as Map?) ?? payload;
 
@@ -100,6 +100,6 @@ class VideoCatalogMapper {
   }
 
   static VideoCatalogItem mapMetadataItemToVideo(CatalogItem item) {
-    return mapDtoToVideo(CatalogItemDto.fromJson(item.toSyncPayload()));
+    return mapDtoToVideo(CatalogItem.fromJson(item.toSyncPayload()));
   }
 }

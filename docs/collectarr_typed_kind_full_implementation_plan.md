@@ -2778,6 +2778,12 @@ Map<String,dynamic> metadata
 
 Allow Maps only in explicit serialization/data-layer allowlists.
 
+Status: in progress. Feature-layer uses of the four named legacy runtime types
+are now rejected by the AST checker; catalog mappers and TMDB import use the
+canonical `CatalogItem` projection, and catalog-derived/vocabulary boundaries
+use `CatalogItem`/`Object?` instead of `dynamic`. Remaining generic metadata
+maps and serialization payloads are still explicit follow-up debt.
+
 ---
 
 ## PR 102 — Hard enforce Core DTO ownership

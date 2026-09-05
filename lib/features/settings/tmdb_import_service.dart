@@ -703,7 +703,7 @@ class TmdbImportService {
       releaseYear: item.releaseYear ?? entry.releaseYear,
       editions: item.editions,
     );
-    return CatalogItemDto.raw(
+    return CatalogItem.raw(
       id: item.id,
       mediaKind: item.mediaKind,
       common: common,
@@ -779,7 +779,7 @@ class TmdbImportService {
     return 'tmdb-local:${entry.mediaType.name}:${entry.tmdbId}';
   }
 
-  CatalogItemDto localSyntheticCatalogItem(TmdbImportEntry entry) {
+  CatalogItem localSyntheticCatalogItem(TmdbImportEntry entry) {
     final kind = entry.mediaType == TmdbMediaType.tv
         ? CatalogMediaKind.tv
         : CatalogMediaKind.movie;
@@ -799,7 +799,7 @@ class TmdbImportService {
       releaseDate: entry.releaseDate,
       releaseYear: entry.releaseYear,
     );
-    return CatalogItemDto.raw(
+    return CatalogItem.raw(
       id: localSyntheticItemId(entry),
       mediaKind: kind,
       common: common,
@@ -817,7 +817,7 @@ class TmdbImportService {
     return 'tmdb-local:${seriesEntry.mediaType.name}:${seriesEntry.tmdbId}:season:$seasonNumber';
   }
 
-  CatalogItemDto localSyntheticSeasonCatalogItem(
+  CatalogItem localSyntheticSeasonCatalogItem(
     TmdbImportEntry seriesEntry,
     TmdbImportEntry seasonEntry,
   ) {
@@ -841,7 +841,7 @@ class TmdbImportService {
       releaseDate: seasonEntry.releaseDate,
       releaseYear: seasonEntry.releaseYear,
     );
-    return CatalogItemDto.raw(
+    return CatalogItem.raw(
       id: localSyntheticSeasonItemId(seriesEntry, seasonEntry),
       mediaKind: CatalogMediaKind.tv,
       common: common,

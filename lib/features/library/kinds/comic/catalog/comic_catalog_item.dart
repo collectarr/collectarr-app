@@ -57,7 +57,7 @@ class ComicCatalogItem {
   final ComicPublishingMetadata publishing;
   final List<ComicRelease> releases;
 
-  static ComicCatalogItem fromDto(CatalogItemDto dto) =>
+  static ComicCatalogItem fromDto(CatalogItem dto) =>
       ComicCatalogMapper.mapDtoToComic(dto);
 
   ComicRelease? get primaryRelease => releases.isEmpty ? null : releases.first;
