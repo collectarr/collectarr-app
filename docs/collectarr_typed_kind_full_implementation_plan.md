@@ -2164,6 +2164,9 @@ the former shared display-model file has been removed.
 The legacy TV episode/release model file has likewise moved under
 `tv/domain`; `_shared/video/domain` no longer owns domain models.
 
+Provider-kind filter UI has moved to the generic Add infrastructure; the
+video kind folder no longer owns this cross-kind Add chrome.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
