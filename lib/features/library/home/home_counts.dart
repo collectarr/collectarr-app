@@ -29,7 +29,7 @@ final overdueLoanOwnedItemIdsProvider =
   final now = DateTime.now();
   return {
     for (final loan in loans)
-      if (loan.isOverdueAt(now)) loan.ownedItemId,
+      if (loan.isOverdueAt(now)) loan.ownedRef.id.value,
   };
 });
 

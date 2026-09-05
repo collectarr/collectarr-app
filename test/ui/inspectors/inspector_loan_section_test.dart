@@ -22,7 +22,10 @@ void main() {
     await LoanRepository(db).create(
       Loan(
         id: 'loan-1',
-        ownedItemId: 'owned-1',
+        ownedRef: const OwnedItemRef(
+          kind: CatalogMediaKind.book,
+          id: OwnedItemId('owned-1'),
+        ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2026, 5, 1),
         dueDate: DateTime.utc(2026, 5, 10),
@@ -54,7 +57,12 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await pumpUntilSettled(tester);
 
-    final loans = await LoanRepository(db).getLoansForItem('owned-1');
+    final loans = await LoanRepository(db).getLoansForItem(
+      const OwnedItemRef(
+        kind: CatalogMediaKind.book,
+        id: OwnedItemId('owned-1'),
+      ),
+    );
     expect(loans, hasLength(1));
     expect(loans.single.borrowerName, 'Alex');
     expect(find.text('Alex'), findsOneWidget);

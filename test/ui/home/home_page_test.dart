@@ -1,5 +1,8 @@
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -294,7 +297,10 @@ void main() {
     await LoanRepository(db).create(
       Loan(
         id: 'loan-overdue-1',
-        ownedItemId: owned.id,
+        ownedRef: OwnedItemRef(
+          kind: CatalogMediaKind.game,
+          id: OwnedItemId(owned.id),
+        ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2020, 1, 1),
         dueDate: DateTime.utc(2020, 1, 10),

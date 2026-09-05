@@ -2,6 +2,9 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
@@ -48,7 +51,10 @@ void main() {
     await loanRepo.create(
       Loan(
         id: 'loan-1',
-        ownedItemId: 'owned-1',
+        ownedRef: const OwnedItemRef(
+          kind: CatalogMediaKind.comic,
+          id: OwnedItemId('owned-1'),
+        ),
         catalogRef: const CatalogEntityRef(
             entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-1'),
         borrowerName: 'Alice',
@@ -103,7 +109,10 @@ void main() {
     await loanRepo.create(
       Loan(
         id: 'loan-2',
-        ownedItemId: 'owned-2',
+        ownedRef: const OwnedItemRef(
+          kind: CatalogMediaKind.comic,
+          id: OwnedItemId('owned-2'),
+        ),
         catalogRef: const CatalogEntityRef(
             entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-2'),
         borrowerName: 'Bob',

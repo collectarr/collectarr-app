@@ -14,7 +14,10 @@ void main() {
     test('isOverdueAt uses the provided clock', () {
       final loan = Loan(
         id: 'loan-1',
-        ownedItemId: 'owned-1',
+        ownedRef: const OwnedItemRef(
+          kind: CatalogMediaKind.book,
+          id: OwnedItemId('owned-1'),
+        ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2026, 5, 1),
         dueDate: DateTime.utc(2026, 5, 10),
@@ -28,7 +31,6 @@ void main() {
     test('exposes the structural owned reference without domain details', () {
       final loan = Loan(
         id: 'loan-1',
-        ownedItemId: 'owned-1',
         ownedRef: const OwnedItemRef(
           kind: CatalogMediaKind.book,
           id: OwnedItemId('owned-1'),
@@ -37,8 +39,8 @@ void main() {
         lentDate: DateTime.utc(2026, 5, 1),
       );
 
-      expect(loan.ownedItemReference.kind, CatalogMediaKind.book);
-      expect(loan.ownedItemReference.id, const OwnedItemId('owned-1'));
+      expect(loan.ownedRef.kind, CatalogMediaKind.book);
+      expect(loan.ownedRef.id, const OwnedItemId('owned-1'));
       expect(loan.toJson()['owned_ref'], {
         'kind': 'book',
         'id': 'owned-1',

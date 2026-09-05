@@ -53,7 +53,7 @@ final globalActivityProvider =
   };
   final loansByItem = <String, List<Loan>>{};
   for (final loan in loans) {
-    final itemId = ownedIdToItemId[loan.ownedItemId];
+    final itemId = ownedIdToItemId[loan.ownedRef.id.value];
     if (itemId == null) continue;
     loansByItem.putIfAbsent(itemId, () => <Loan>[]).add(loan);
   }

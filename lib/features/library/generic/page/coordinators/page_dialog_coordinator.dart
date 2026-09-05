@@ -500,7 +500,6 @@ class LibraryPageDialogCoordinator {
       await repo.create(
         Loan(
           id: const Uuid().v4(),
-          ownedItemId: ownedItem.id,
           ownedRef: OwnedItemRef(
             kind: ownedItem.catalogRef.mediaKind,
             id: OwnedItemId(ownedItem.id),

@@ -9,9 +9,9 @@ class LoanRepository {
   const LoanRepository(this._db);
   final LocalDatabase _db;
 
-  Future<List<Loan>> getLoansForItem(String ownedItemId) async {
+  Future<List<Loan>> getLoansForItem(OwnedItemRef ownedRef) async {
     final rows = await (_db.select(_db.loansCache)
-          ..where((t) => t.ownedItemId.equals(ownedItemId))
+          ..where((t) => t.ownedItemId.equals(ownedRef.id.value))
           ..orderBy([(t) => OrderingTerm.desc(t.lentDate)]))
         .get();
     return rows.map(_fromRow).toList();
@@ -36,8 +36,8 @@ class LoanRepository {
     await _db.into(_db.loansCache).insert(
           LoansCacheCompanion.insert(
             id: loan.id,
-            ownedItemId: loan.ownedItemId,
-            ownedKind: Value(loan.ownedRef?.kind.apiValue),
+            ownedItemId: loan.ownedRef.id.value,
+            ownedKind: Value(loan.ownedRef.kind.apiValue),
             borrowerName: loan.borrowerName,
             lentDate: loan.lentDate,
             dueDate: Value(loan.dueDate),
@@ -59,13 +59,10 @@ class LoanRepository {
   Loan _fromRow(LoansCacheData row) {
     return Loan(
       id: row.id,
-      ownedItemId: row.ownedItemId,
-      ownedRef: row.ownedKind == null
-          ? null
-          : OwnedItemRef(
-              kind: catalogMediaKindFromApiValue(row.ownedKind),
-              id: OwnedItemId(row.ownedItemId),
-            ),
+      ownedRef: OwnedItemRef(
+        kind: catalogMediaKindFromApiValue(row.ownedKind),
+        id: OwnedItemId(row.ownedItemId),
+      ),
       borrowerName: row.borrowerName,
       lentDate: row.lentDate,
       dueDate: row.dueDate,

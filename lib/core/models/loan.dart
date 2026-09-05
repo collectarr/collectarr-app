@@ -6,8 +6,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 class Loan {
   const Loan({
     required this.id,
-    required this.ownedItemId,
-    this.ownedRef,
+    required this.ownedRef,
     this.catalogRef,
     required this.borrowerName,
     required this.lentDate,
@@ -17,8 +16,10 @@ class Loan {
   });
 
   final String id;
-  final String ownedItemId;
-  final OwnedItemRef? ownedRef;
+
+  /// Structural reference to the lent copy. Loan code never interprets the
+  /// referenced kind's domain details.
+  final OwnedItemRef ownedRef;
   final CatalogEntityRef? catalogRef;
   final String borrowerName;
   final DateTime lentDate;
@@ -28,32 +29,27 @@ class Loan {
 
   bool get isActive => returnedDate == null;
 
-  /// Structural cross-kind reference used by generic hosts.
-  OwnedItemRef get ownedItemReference {
-    return ownedRef ??
-        OwnedItemRef(
-          kind: catalogRef?.mediaKind ?? CatalogMediaKind.unknown,
-          id: OwnedItemId(ownedItemId),
-        );
-  }
-
   bool isOverdueAt(DateTime now) {
     return isActive && dueDate != null && now.isAfter(dueDate!);
   }
 
   factory Loan.fromJson(Map<String, dynamic> json) {
+    final catalogRef = json['catalog_ref'] is Map<String, dynamic>
+        ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
+        : null;
+    final ownedItemId = _requiredString(json, 'owned_item_id');
+    final ownedRef = json['owned_ref'] is Map
+        ? OwnedItemRef.fromJson(
+            Map<String, Object?>.from(json['owned_ref'] as Map),
+          )
+        : OwnedItemRef(
+            kind: catalogRef?.mediaKind ?? CatalogMediaKind.unknown,
+            id: OwnedItemId(ownedItemId),
+          );
     return Loan(
       id: _requiredString(json, 'id'),
-      ownedItemId: _requiredString(json, 'owned_item_id'),
-      ownedRef: json['owned_ref'] is Map
-          ? OwnedItemRef.fromJson(
-              Map<String, Object?>.from(json['owned_ref'] as Map),
-            )
-          : null,
-      catalogRef: json['catalog_ref'] is Map<String, dynamic>
-          ? CatalogEntityRef.fromJson(
-              json['catalog_ref'] as Map<String, dynamic>)
-          : null,
+      ownedRef: ownedRef,
+      catalogRef: catalogRef,
       borrowerName: _requiredString(json, 'borrower_name'),
       lentDate: _requiredDate(json, 'lent_date'),
       dueDate: _optionalDate(json, 'due_date'),
@@ -88,8 +84,10 @@ class Loan {
 
   Map<String, dynamic> toJson() {
     return {
-      'owned_item_id': ownedItemId,
-      if (ownedRef != null) 'owned_ref': ownedRef!.toJson(),
+      // Keep owned_item_id for the existing API contract while making the
+      // structural reference the canonical in-app representation.
+      'owned_item_id': ownedRef.id.value,
+      'owned_ref': ownedRef.toJson(),
       if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       'borrower_name': borrowerName,
       'lent_date':
@@ -111,7 +109,6 @@ class Loan {
   }) {
     return Loan(
       id: id,
-      ownedItemId: ownedItemId,
       ownedRef: ownedRef ?? this.ownedRef,
       catalogRef: catalogRef ?? this.catalogRef,
       borrowerName: borrowerName ?? this.borrowerName,

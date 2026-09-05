@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -56,7 +58,14 @@ class _ActivityTimelineSectionState
     final repo = LoanRepository(db);
     final allLoans = <Loan>[];
     for (final ownedItemId in widget.ownedItemIds) {
-      allLoans.addAll(await repo.getLoansForItem(ownedItemId));
+      allLoans.addAll(
+        await repo.getLoansForItem(
+          OwnedItemRef(
+            kind: CatalogMediaKind.unknown,
+            id: OwnedItemId(ownedItemId),
+          ),
+        ),
+      );
     }
     if (mounted) setState(() => _loans = allLoans);
   }

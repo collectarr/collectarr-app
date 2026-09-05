@@ -16,7 +16,6 @@ void main() {
     await repository.create(
       Loan(
         id: 'loan-book-1',
-        ownedItemId: 'owned-book-1',
         ownedRef: const OwnedItemRef(
           kind: CatalogMediaKind.book,
           id: OwnedItemId('owned-book-1'),
@@ -28,7 +27,7 @@ void main() {
 
     final restored = (await repository.getAllLoans()).single;
 
-    expect(restored.ownedItemReference.kind, CatalogMediaKind.book);
-    expect(restored.ownedItemReference.id.value, 'owned-book-1');
+    expect(restored.ownedRef.kind, CatalogMediaKind.book);
+    expect(restored.ownedRef.id.value, 'owned-book-1');
   });
 }

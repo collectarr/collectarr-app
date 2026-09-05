@@ -45,7 +45,7 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
 
   Future<void> _load() async {
     final repo = LoanRepository(widget.db);
-    final loans = await repo.getLoansForItem(widget.ownedRef.id.value);
+    final loans = await repo.getLoansForItem(widget.ownedRef);
     if (mounted) {
       setState(() {
         _loans = loans;
@@ -403,7 +403,6 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
     if (name.isEmpty) return;
     final loan = Loan(
       id: const Uuid().v4(),
-      ownedItemId: widget.ownedRef.id.value,
       ownedRef: widget.ownedRef,
       borrowerName: name,
       lentDate: _lentDate,

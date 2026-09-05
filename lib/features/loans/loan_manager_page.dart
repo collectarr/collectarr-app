@@ -108,12 +108,12 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       if (query.isEmpty) {
         return true;
       }
-      final owned = _ownedById[loan.ownedItemId];
+      final owned = _ownedById[loan.ownedRef.id.value];
       final title =
           owned == null ? '' : _catalogById[owned.itemId]?.title ?? '';
       return loan.borrowerName.toLowerCase().contains(query) ||
           (loan.notes ?? '').toLowerCase().contains(query) ||
-          loan.ownedItemId.toLowerCase().contains(query) ||
+          loan.ownedRef.id.value.toLowerCase().contains(query) ||
           title.toLowerCase().contains(query);
     }).toList(growable: false);
     filtered.sort((a, b) {
@@ -212,7 +212,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       return;
     }
     final activeLoans = _loans
-        .where((loan) => loan.ownedItemId == ownedItem.id && loan.isActive)
+        .where(
+            (loan) => loan.ownedRef.id.value == ownedItem.id && loan.isActive)
         .toList();
     if (activeLoans.isEmpty) {
       showAppToast(context, 'No active loan found for that item.',
@@ -257,7 +258,6 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     await repo.create(
       Loan(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
-        ownedItemId: ownedItem.id,
         ownedRef: OwnedItemRef(
           kind: ownedItem.catalogRef.mediaKind,
           id: OwnedItemId(ownedItem.id),
@@ -359,14 +359,14 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   String _loanTitle(Loan loan) {
-    final owned = _ownedById[loan.ownedItemId];
+    final owned = _ownedById[loan.ownedRef.id.value];
     return owned == null
         ? 'Unknown item'
         : _catalogById[owned.itemId]?.title ?? owned.itemId;
   }
 
   String? _loanBarcode(Loan loan) {
-    final owned = _ownedById[loan.ownedItemId];
+    final owned = _ownedById[loan.ownedRef.id.value];
     if (owned == null) {
       return null;
     }

@@ -105,7 +105,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   };
 
   for (final loan in loans) {
-    final owned = ownedById[loan.ownedItemId];
+    final owned = ownedById[loan.ownedRef.id.value];
     final title = owned != null ? titleFor(owned.itemId) : 'Unknown item';
 
     if (loan.dueDate != null) {
@@ -115,7 +115,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
         title: title,
         eventId: 'loan-due:${loan.id}',
         subtitle: 'Loaned to ${loan.borrowerName}',
-        ownedItemId: loan.ownedItemId,
+        ownedItemId: loan.ownedRef.id.value,
         itemId: owned?.itemId,
       ));
     }
@@ -126,7 +126,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
         title: title,
         eventId: 'loan-return:${loan.id}',
         subtitle: 'Returned by ${loan.borrowerName}',
-        ownedItemId: loan.ownedItemId,
+        ownedItemId: loan.ownedRef.id.value,
         itemId: owned?.itemId,
       ));
     }
