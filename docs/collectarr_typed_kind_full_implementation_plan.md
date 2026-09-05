@@ -2654,6 +2654,12 @@ But column semantics live exclusively in kind files.
 
 Universal tables only remain in `core/db` when genuinely universal.
 
+Status: complete. Moved the 20 app-wide cache, queue, folder, location,
+authority, and provider-link table definitions into
+`lib/core/db/universal_local_tables.dart`. `LocalDatabase` now remains the
+Drift composition root and migration owner while still explicitly enumerating
+the nine kind table groups. Drift regeneration produced no schema changes.
+
 ---
 
 ## PR 97 — DB schema ownership checker
