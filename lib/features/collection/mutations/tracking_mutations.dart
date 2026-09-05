@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -274,7 +275,7 @@ final class TrackingMutations {
   }
 
   Future<void> addLocalOnlyTrackingEntry(
-    dynamic item, {
+    CatalogItem item, {
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -294,10 +295,7 @@ final class TrackingMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final metadataItem = typedCatalogItemFromUnknown(item);
-    if (metadataItem == null) {
-      throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
-    }
+    final metadataItem = typedCatalogItemFromCatalogItem(item);
     final itemId = metadataItem.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();

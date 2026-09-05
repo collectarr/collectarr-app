@@ -1053,7 +1053,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   Future<void> _applyLocalOnlyEntry({
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required dynamic item,
+    required CatalogItem item,
     required ProviderPersonalEntry entry,
     required MutationOrigin origin,
   }) async {

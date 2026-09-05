@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -116,7 +117,7 @@ final class WishlistMutations {
   }
 
   Future<void> addLocalOnlyWishlistItem(
-    dynamic item, {
+    CatalogItem item, {
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -125,10 +126,7 @@ final class WishlistMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final metadataItem = typedCatalogItemFromUnknown(item);
-    if (metadataItem == null) {
-      throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
-    }
+    final metadataItem = typedCatalogItemFromCatalogItem(item);
     final itemId = metadataItem.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
     final normalizedAnchorType = resolvePersonalItemAnchorType(
@@ -137,9 +135,7 @@ final class WishlistMutations {
       variantId: variantId,
       bundleReleaseId: bundleReleaseId,
     );
-    final localRef = _catalogRefForItem(
-      itemId,
-      item,
+    final localRef = metadataItem.catalogRefForAnchor(
       anchorType: normalizedAnchorType,
       editionId: editionId,
       variantId: variantId,
@@ -160,9 +156,7 @@ final class WishlistMutations {
         if (existing == null) {
           final wishlistItem = WishlistItem(
             id: idGenerator(),
-            catalogRef: _catalogRefForItem(
-              itemId,
-              item,
+            catalogRef: metadataItem.catalogRefForAnchor(
               anchorType: normalizedAnchorType,
               editionId: editionId,
               variantId: variantId,
@@ -355,16 +349,15 @@ final class WishlistMutations {
 
   CatalogEntityRef _catalogRefForItem(
     String itemId,
-    dynamic item, {
+    CatalogItem? item, {
     String? fallbackKind,
     String? anchorType,
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
   }) {
-    final metadataItem = typedCatalogItemFromUnknown(item);
-    if (metadataItem != null) {
-      return metadataItem.catalogRefForAnchor(
+    if (item != null) {
+      return item.catalogRefForAnchor(
         anchorType: anchorType,
         editionId: editionId,
         variantId: variantId,
