@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/vocabulary/universal_vocabularies.dart';
+import 'package:collectarr_app/features/pick_lists/models/universal_vocabularies.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
-export 'package:collectarr_app/features/collection/vocabulary/universal_vocabularies.dart';
+export 'package:collectarr_app/features/pick_lists/models/universal_vocabularies.dart';
 
 class PickListConditionGradeOptions {
   const PickListConditionGradeOptions({

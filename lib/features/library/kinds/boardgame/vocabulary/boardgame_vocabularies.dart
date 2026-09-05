@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
-import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 
 abstract final class BoardGameVocabularyIds {

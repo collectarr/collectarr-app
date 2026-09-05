@@ -24,7 +24,7 @@ import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/vocabulary/vocabulary_repository.dart';
+import 'package:collectarr_app/features/pick_lists/vocabulary_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
