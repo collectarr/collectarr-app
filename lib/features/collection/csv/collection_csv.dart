@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 
 class CollectionCsvRow {
   const CollectionCsvRow({
@@ -177,6 +178,8 @@ class CollectionCsvRow {
 }
 
 class CollectionCsv {
+  static const _comicImportProfile = ComicCollectionCsvImportProfile();
+
   static const header = [
     'item_id',
     'kind',
@@ -512,6 +515,10 @@ class CollectionCsv {
           index,
           row,
           cfColumns: cfColumns,
+          comic: _comicImportProfile.parseRow(
+            header: parsedHeader,
+            values: row,
+          ),
         ),
     ].where(_isMeaningfulRow).toList(growable: false);
   }
@@ -631,6 +638,7 @@ class CollectionCsv {
     Map<String, int> index,
     List<String> values, {
     Map<String, int> cfColumns = const {},
+    ComicCollectionCsvImportRow? comic,
   }) {
     final cfValues = <String, String?>{};
     for (final entry in cfColumns.entries) {
@@ -640,19 +648,24 @@ class CollectionCsv {
       }
     }
     return CollectionCsvRow(
-      itemId: _value(index, values, 'item_id'),
+      itemId: comic?.itemId ?? _value(index, values, 'item_id'),
       status: _normalizedStatus(_value(index, values, 'status')),
-      kind: _optionalValue(index, values, 'kind'),
-      title: _optionalValue(index, values, 'title'),
-      itemNumber: _optionalValue(index, values, 'item_number'),
-      variant: _optionalValue(index, values, 'variant'),
-      editionTitle: _optionalValue(index, values, 'edition_title'),
-      physicalFormat: _optionalValue(index, values, 'physical_format'),
-      physicalFormatLabel:
+      kind: comic?.kind ?? _optionalValue(index, values, 'kind'),
+      title: comic?.title ?? _optionalValue(index, values, 'title'),
+      itemNumber:
+          comic?.issueNumber ?? _optionalValue(index, values, 'item_number'),
+      variant:
+          comic?.variantDescription ?? _optionalValue(index, values, 'variant'),
+      editionTitle:
+          comic?.editionTitle ?? _optionalValue(index, values, 'edition_title'),
+      physicalFormat: comic?.physicalFormat ??
+          _optionalValue(index, values, 'physical_format'),
+      physicalFormatLabel: comic?.physicalFormatLabel ??
           _optionalValue(index, values, 'physical_format_label'),
-      publisher: _optionalValue(index, values, 'publisher'),
-      releaseDate: _parseDate(_value(index, values, 'release_date')),
-      barcode: _optionalValue(index, values, 'barcode'),
+      publisher: comic?.publisher ?? _optionalValue(index, values, 'publisher'),
+      releaseDate: comic?.releaseDate ??
+          _parseDate(_value(index, values, 'release_date')),
+      barcode: comic?.barcode ?? _optionalValue(index, values, 'barcode'),
       condition: _optionalValue(index, values, 'condition'),
       grade: _optionalValue(index, values, 'grade'),
       purchaseDate: _parseDate(_value(index, values, 'purchase_date')),
@@ -662,16 +675,22 @@ class CollectionCsv {
       quantity: int.tryParse(_value(index, values, 'quantity')),
       locationId: _optionalValue(index, values, 'location_id'),
       indexNumber: int.tryParse(_value(index, values, 'index_number')),
-      coverPriceCents: _moneyCents(_value(index, values, 'cover_price_cents')),
-      rawOrSlabbed: _optionalValue(index, values, 'raw_or_slabbed'),
-      gradingCompany: _optionalValue(index, values, 'grading_company'),
-      graderNotes: _optionalValue(index, values, 'grader_notes'),
-      signedBy: _optionalValue(index, values, 'signed_by'),
-      labelType: _optionalValue(index, values, 'label_type'),
-      certificationNumber:
+      coverPriceCents: comic?.coverPriceCents ??
+          _moneyCents(_value(index, values, 'cover_price_cents')),
+      rawOrSlabbed: comic?.rawOrSlabbed ??
+          _optionalValue(index, values, 'raw_or_slabbed'),
+      gradingCompany: comic?.gradingCompany ??
+          _optionalValue(index, values, 'grading_company'),
+      graderNotes:
+          comic?.graderNotes ?? _optionalValue(index, values, 'grader_notes'),
+      signedBy: comic?.signedBy ?? _optionalValue(index, values, 'signed_by'),
+      labelType:
+          comic?.labelType ?? _optionalValue(index, values, 'label_type'),
+      certificationNumber: comic?.certificationNumber ??
           _optionalValue(index, values, 'certification_number'),
-      keyComic: _boolValue(index, values, 'key_comic'),
-      keyReason: _optionalValue(index, values, 'key_reason'),
+      keyComic: comic?.keyComic ?? _boolValue(index, values, 'key_comic'),
+      keyReason:
+          comic?.keyReason ?? _optionalValue(index, values, 'key_reason'),
       rating: int.tryParse(_value(index, values, 'rating')),
       readStatus: _optionalValue(index, values, 'read_status'),
       startedAt: _parseDate(_value(index, values, 'started_at')),

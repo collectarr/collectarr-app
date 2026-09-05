@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 /// Comic's semantic contribution to the generic collection CSV host.
@@ -18,46 +19,8 @@ final class ComicCollectionCsvProjection
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  List<String> get clzFriendlyHeader => const [
-        'Collectarr Item ID',
-        'Media Type',
-        'Series',
-        'Issue',
-        'Variant Description',
-        'Edition Title',
-        'Physical Format',
-        'Physical Format Label',
-        'Publisher',
-        'Release Date',
-        'Barcode',
-        'Collection Status',
-        'Condition',
-        'Grade',
-        'Purchase Date',
-        'Purchase Price',
-        'Currency',
-        'Cover Price',
-        'Quantity',
-        'Location ID',
-        'Index',
-        'Raw / Slabbed',
-        'Grading Company',
-        'Grader Notes',
-        'Signed By',
-        'Label Type',
-        'Certification Number',
-        'Key Comic',
-        'Key Reason',
-        'Rating',
-        'Read It',
-        'Started',
-        'Finished',
-        'Tags',
-        'Notes',
-        'Sold Date',
-        'Sell Price',
-        'Sold To',
-      ];
+  List<String> get clzFriendlyHeader =>
+      ComicCollectionCsvImportProfile.clzFriendlyHeader;
 
   @override
   Map<String, List<String>> get columnAliases => _columnAliases;
@@ -132,22 +95,5 @@ final class ComicCollectionCsvProjection
         '${utc.day.toString().padLeft(2, '0')}';
   }
 
-  static const _columnAliases = <String, List<String>>{
-    'item_id': ['Core ComicID', 'ComicID', 'Core SeriesID'],
-    'item_number': ['Issue', 'Issue No.', 'Issue Number'],
-    'variant': ['Variant Description'],
-    'cover_price_cents': ['Cover Price'],
-    'raw_or_slabbed': ['Raw / Slabbed', 'Grade Status'],
-    'grading_company': ['Grading Company'],
-    'grader_notes': ['Grader Notes'],
-    'signed_by': ['Signed By'],
-    'label_type': ['Label Type'],
-    'certification_number': [
-      'Certification Number',
-      'Cert Number',
-      'Cert #',
-    ],
-    'key_comic': ['Key Comic'],
-    'key_reason': ['Key Reason'],
-  };
+  static const _columnAliases = ComicCollectionCsvImportProfile.columnAliases;
 }
