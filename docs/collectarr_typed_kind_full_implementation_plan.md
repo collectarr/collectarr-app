@@ -2158,6 +2158,9 @@ kind registry only aggregates the compatibility list and selects the explicit
 kind fallback; the former `_shared/video/video_physical_media_formats.dart`
 has been removed.
 
+The TV workspace display-level and grouping enums are also now owned by TV;
+the former shared display-model file has been removed.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

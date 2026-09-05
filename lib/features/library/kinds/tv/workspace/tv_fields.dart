@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_display_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
@@ -12,10 +12,10 @@ export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_preference_codec.dart';
 
 /// Default video display level for the TV kind (shows season-level by default).
-const tvDefaultVideoDisplayLevel = VideoDisplayLevel.season;
+const tvDefaultVideoDisplayLevel = TvDisplayLevel.season;
 
 /// Default video grouping for the TV kind (no grouping by default).
-const tvDefaultVideoGrouping = VideoGroupingDefault.none;
+const tvDefaultVideoGrouping = TvGroupingDefault.none;
 
 /// Single source of truth schema for TV kind fields.
 abstract final class TvKindSchema {
