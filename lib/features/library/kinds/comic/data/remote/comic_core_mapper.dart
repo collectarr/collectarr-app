@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -28,6 +28,16 @@ final class ComicCoreMapper {
       releases: _mapIssues(dto.issues),
       rawPayload: dto.toJson(),
     );
+  }
+
+  /// Maps a Core catalog search result at the generic transport boundary.
+  ///
+  /// The result is immediately converted to the canonical Comic model so
+  /// callers never need to reintroduce a generic catalog representation.
+  static ComicMedia fromCatalogItem(CatalogItem item) {
+    final payload = item.toSyncPayload();
+    payload['id'] = item.identity.id;
+    return ComicMedia.fromJson(payload);
   }
 
   static List<ComicCreatorCredit> _mapContributors(

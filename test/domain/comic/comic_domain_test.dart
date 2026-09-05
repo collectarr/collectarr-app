@@ -9,7 +9,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('ComicCatalogMapper maps dto to ComicCatalogItem', () {
+  test('Comic Core catalog results map to canonical ComicMedia', () {
     final dto = testCatalogItem(
       id: 'comic-work-1',
       title: 'Saga',
@@ -18,12 +18,12 @@ void main() {
       synopsis: 'A sprawling space opera.',
     );
 
-    final comic = ComicCatalogMapper.mapDtoToComic(dto);
+    final comic = ComicCoreMapper.fromCatalogItem(dto);
 
-    expect(comic.id, 'comic-work-1');
-    expect(comic.work.title, 'Saga');
-    expect(comic.work.issueNumber, '1');
-    expect(comic.publishing.publisher, 'Image Comics');
+    expect(comic.id, const ComicMediaId('comic-work-1'));
+    expect(comic.title, 'Saga');
+    expect(comic.issueNumber, '1');
+    expect(comic.publisher, 'Image Comics');
   });
 
   test('projects Comic item from shelf entry', () {
