@@ -24,10 +24,6 @@ when their inputs are genuinely owner-neutral.
 | `video/detail/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
 | `video/detail/video_external_links_section.dart` | EDIT | Split into kind detail flows |
 | `video/detail/video_metadata_corrections_section.dart` | DOMAIN BEHAVIOR | Move to kind metadata flows |
-| `video/edit/dialogs/tv_custom_episode_dialog.dart` | EDIT | Move to TV/Anime owner |
-| `video/edit/tabs/tv_episode_disc_map_tab.dart` | EDIT | Move to TV owner |
-| `video/edit/tabs/tv_episodes_tab.dart` | EDIT | Move to TV/Anime owner |
-| `video/edit/tabs/tv_release_media_tab.dart` | EDIT | Move to TV owner |
 | `video/edit/tabs/video_cast_tab.dart` | EDIT | Split into kind edit flows |
 | `video/edit/tabs/video_crew_tab.dart` | EDIT | Split into kind edit flows |
 | `video/edit/tabs/video_discs_tab.dart` | EDIT | Split into kind edit flows |
@@ -40,8 +36,6 @@ when their inputs are genuinely owner-neutral.
 | `video/edit/video_custom_tab_builder.dart` | EDIT | Move into kind edit composition |
 | `video/edit/video_edit_controller.dart` | DOMAIN BEHAVIOR | Split into kind controllers |
 | `video/edit/video_kind_edit_draft.dart` | DOMAIN MODEL | Replace with kind drafts |
-| `video/edit/widgets/tv_episode_row.dart` | VISUAL STRUCTURAL | Move/duplicate into TV/Anime |
-| `video/edit/widgets/tv_episode_thumbnail.dart` | VISUAL STRUCTURAL | Move/duplicate into TV/Anime |
 | `video/release/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
 | `video/release/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
 | `video/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |

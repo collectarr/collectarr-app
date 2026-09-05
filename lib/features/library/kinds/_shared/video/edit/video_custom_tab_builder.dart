@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_kind_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/tv_episodes_tab.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/tv_release_media_tab.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/tv_episode_disc_map_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_release_media_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_disc_map_tab.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_crew_tab.dart';

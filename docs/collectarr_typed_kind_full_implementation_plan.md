@@ -2203,6 +2203,9 @@ The obsolete shared video inspector panel and its duplicate inspector builder
 have been removed. The title metadata section still used by the generic detail
 page now lives in generic detail infrastructure.
 
+TV-specific Edit episode tabs, dialog, and episode row/thumbnail widgets now
+live under `tv/edit`; the shared custom-tab dispatcher only composes them.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
