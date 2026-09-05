@@ -2825,6 +2825,10 @@ VocabularyDefinition
 
 must belong to relevant kind except generic class definitions/structural fixtures.
 
+Status: complete. The production declarations are already kind-owned; generic
+schema classes, renderers, factories, registries, universal vocabularies, and
+other structural consumers are explicitly allowlisted by an architecture test.
+
 ---
 
 # PHASE 26 — Final Delete Pass
