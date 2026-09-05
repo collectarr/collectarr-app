@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart'
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -657,28 +657,28 @@ void main() {
 
   test('video physical formats are variants under movies', () {
     expect(
-      videoPhysicalMediaFormats.map((format) => format.id),
+      moviePhysicalMediaFormats.map((format) => format.id),
       ['dvd', 'blu-ray', '4k-uhd', 'vhs', 'laserdisc', 'digital'],
     );
     expect(
       physicalMediaFormatById(
         ' blu-ray ',
-        formats: videoPhysicalMediaFormats,
+        formats: moviePhysicalMediaFormats,
       )?.label,
       'Blu-ray',
     );
     expect(
-      physicalMediaFormatById('bluray', formats: videoPhysicalMediaFormats)
+      physicalMediaFormatById('bluray', formats: moviePhysicalMediaFormats)
           ?.label,
       'Blu-ray',
     );
     expect(
-      physicalMediaFormatById('4k blu-ray', formats: videoPhysicalMediaFormats)
+      physicalMediaFormatById('4k blu-ray', formats: moviePhysicalMediaFormats)
           ?.label,
       '4K UHD',
     );
     expect(
-      physicalMediaFormatById('digital', formats: videoPhysicalMediaFormats)
+      physicalMediaFormatById('digital', formats: moviePhysicalMediaFormats)
           ?.variantType,
       'digital',
     );

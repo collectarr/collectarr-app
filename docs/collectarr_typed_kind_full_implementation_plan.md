@@ -2151,6 +2151,13 @@ vocabularies
 
 Keep shared technical primitives only under very strict criteria.
 
+### Progress (2026-09-05)
+
+Video physical-media vocabulary is now owned by Movie, TV, and Anime. The
+kind registry only aggregates the compatibility list and selects the explicit
+kind fallback; the former `_shared/video/video_physical_media_formats.dart`
+has been removed.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

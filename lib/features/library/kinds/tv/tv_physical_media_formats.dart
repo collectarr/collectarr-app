@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 
-const videoPhysicalMediaFormats = [
+/// Physical and digital formats supported by the TV kind.
+const tvPhysicalMediaFormats = [
   PhysicalMediaFormat(
     id: 'dvd',
     label: 'DVD',

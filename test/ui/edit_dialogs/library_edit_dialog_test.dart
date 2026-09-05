@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
@@ -229,7 +229,7 @@ void main() {
                       ownedItem: ownedItem,
                       trackingEntry: trackingEntry,
                       accent: Colors.red,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -352,7 +352,7 @@ void main() {
                       item: item,
                       ownedItem: ownedItem,
                       accent: Colors.red,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -437,7 +437,7 @@ void main() {
                       item: item,
                       ownedItem: null,
                       accent: Colors.red,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -502,7 +502,7 @@ void main() {
                       item: item,
                       ownedItem: null,
                       accent: Colors.red,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -1155,7 +1155,7 @@ void main() {
                       ownedItem: null,
                       trackingEntry: trackingEntry,
                       accent: Colors.teal,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -1409,7 +1409,7 @@ void main() {
                       item: item,
                       ownedItem: ownedItem,
                       accent: Colors.teal,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
