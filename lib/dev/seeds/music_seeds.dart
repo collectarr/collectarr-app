@@ -1206,6 +1206,17 @@ List<OwnedItem> musicSeedOwnedItems(DateTime now) => [
           updatedAt: now,
           isDigital: false,
           condition: 'Mint',
+          details: MusicOwnedDetails(
+            storageDevice: 'Vinyl shelf',
+            storageSlot: 'M-${itemId.substring(itemId.length - 2)}',
+            lastCleanedDate: DateTime.utc(2024, 4, 20),
+            matrixRunouts: [
+              MusicMatrixRunout(
+                side: 'A',
+                runoutText: 'SEED-${itemId.toUpperCase()}-A',
+              ),
+            ],
+          ),
           purchaseDate: DateTime.utc(2022, 4, 20),
           pricePaidCents: 3499,
           currency: 'USD',

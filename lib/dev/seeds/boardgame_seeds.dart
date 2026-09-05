@@ -265,6 +265,18 @@ List<OwnedItem> boardgameSeedOwnedItems(DateTime now) => [
           updatedAt: now,
           isDigital: false,
           condition: i.isEven ? 'Near Mint' : 'Very Good',
+          details: BoardgameOwnedDetails(
+            editionLanguage: 'English',
+            editionRegion: 'US',
+            componentCondition: i.isEven ? 'Near Mint' : 'Very Good',
+            componentCompleteness:
+                i == 1 ? 'Complete' : 'Complete with inserts',
+            missingPiecesNotes: i == 1 ? null : 'No missing components',
+            isSleeved: i.isOdd,
+            hasCustomInsert: i == 1,
+            hasPaintedMiniatures: i <= 4,
+            storageNotes: i == 1 ? 'Dedicated board-game cabinet' : null,
+          ),
           purchaseDate: DateTime.utc(2017 + i, i % 12 + 1, 1),
           pricePaidCents: i == 1 ? 14000 : 4500 + (i * 250),
           currency: 'USD',

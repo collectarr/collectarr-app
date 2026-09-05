@@ -653,6 +653,11 @@ List<OwnedItem> bookSeedOwnedItems(DateTime now) => [
           updatedAt: now,
           isDigital: false,
           condition: 'Near Mint',
+          details: const BookOwnedDetails(
+            signedBy: 'Facsimile author signature',
+            dustJacketPresent: true,
+            dustJacketCondition: 'Fine',
+          ),
           purchaseDate: DateTime.utc(2021, 10, 1),
           pricePaidCents: 2499,
           currency: 'USD',

@@ -921,6 +921,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 9,
         readStatus: 'completed',
         purchaseStore: 'Amazon',
+        details: const MovieOwnedDetails(
+          features: 'Theatrical and extended cuts',
+          hdrFormats: ['HDR10'],
+          region: 'Region Free',
+          packaging: 'Keep Case',
+          distributor: 'Warner Bros.',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -937,6 +944,14 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 10,
         readStatus: 'completed',
         purchaseStore: 'Zavvi',
+        details: const MovieOwnedDetails(
+          features: '10th anniversary commentary and deleted scenes',
+          hdrFormats: ['Dolby Vision'],
+          boxSetName: 'Anniversary Collector Edition',
+          region: 'Region B',
+          packaging: 'Slipcase',
+          distributor: 'Lionsgate',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -954,6 +969,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 10,
         readStatus: 'completed',
         purchaseStore: 'Target',
+        details: const MovieOwnedDetails(
+          features: 'Original score isolated track',
+          hdrFormats: ['Dolby Vision', 'HDR10'],
+          region: 'Region A',
+          packaging: 'Keep Case',
+          distributor: 'Warner Bros.',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -970,6 +992,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 9,
         readStatus: 'completed',
         purchaseStore: 'Barnes & Noble',
+        details: const MovieOwnedDetails(
+          features: 'Final Cut with Dolby Atmos mix',
+          hdrFormats: ['HDR10'],
+          region: 'Region A',
+          packaging: 'Digipak',
+          distributor: 'Paramount Pictures',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -986,6 +1015,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 10,
         readStatus: 'completed',
         purchaseStore: 'Zavvi',
+        details: const MovieOwnedDetails(
+          features: 'Embossed steelbook and art cards',
+          hdrFormats: ['Dolby Vision'],
+          region: 'Region B',
+          packaging: 'Steelbook',
+          distributor: 'Warner Bros.',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -1025,6 +1061,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 9,
         readStatus: 'completed',
         purchaseStore: 'Best Buy',
+        details: const MovieOwnedDetails(
+          features: 'Theatrical and alternate cuts',
+          hdrFormats: ['HDR10'],
+          region: 'Region A',
+          packaging: 'Keep Case',
+          distributor: 'The Criterion Collection',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -1063,6 +1106,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 10,
         readStatus: 'completed',
         purchaseStore: 'Amazon',
+        details: const MovieOwnedDetails(
+          features: 'Original theatrical poster and booklet',
+          hdrFormats: ['HDR10'],
+          region: 'Region A',
+          packaging: 'Steelbook',
+          distributor: 'GKIDS',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -1079,6 +1129,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 9,
         readStatus: 'completed',
         purchaseStore: 'Best Buy',
+        details: const MovieOwnedDetails(
+          features: 'Dolby Vision reference transfer',
+          hdrFormats: ['Dolby Vision'],
+          region: 'Region Free',
+          packaging: 'Keep Case',
+          distributor: 'Universal Pictures',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -1095,6 +1152,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 10,
         readStatus: 'completed',
         purchaseStore: 'Walmart',
+        details: const MovieOwnedDetails(
+          features: 'Day-one preorder bonus disc',
+          hdrFormats: ['HDR10'],
+          region: 'Region A',
+          packaging: 'Steelbook',
+          distributor: 'Sony Pictures Home Entertainment',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -1111,6 +1175,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 10,
         readStatus: 'completed',
         purchaseStore: 'Target',
+        details: const MovieOwnedDetails(
+          features: 'Three-disc special features set',
+          hdrFormats: ['HDR10'],
+          region: 'Region A',
+          packaging: 'Digipak',
+          distributor: '20th Century Studios',
+        ),
         collectionStatus: 'collected',
       ),
       OwnedItem(
@@ -1128,6 +1199,13 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         rating: 10,
         readStatus: 'completed',
         purchaseStore: 'Sony Pictures Store',
+        details: const MovieOwnedDetails(
+          features: 'Art cards and animated shorts',
+          hdrFormats: ['Dolby Vision'],
+          region: 'Region Free',
+          packaging: 'Collector box',
+          distributor: 'Sony Pictures Home Entertainment',
+        ),
         collectionStatus: 'collected',
       ),
     ];

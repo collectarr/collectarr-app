@@ -27,6 +27,14 @@ import 'package:collectarr_app/dev/seeds/tv_seeds.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
@@ -92,6 +100,23 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'music.track': 15,
 };
 
+/// Minimum rows expected in each kind-owned physical-copy details table.
+///
+/// Comic owns its complete copy graph, so its count is measured from the
+/// typed Comic owned table. The other kinds are still being migrated from the
+/// common ownership cache and currently persist their typed details separately.
+const devSeedTypedOwnedMinimumCounts = <String, int>{
+  'comic.owned': 15,
+  'manga.owned': 15,
+  'book.owned': 15,
+  'game.owned': 15,
+  'boardgame.owned': 10,
+  'movie.owned': 15,
+  'tv.owned': 15,
+  'anime.owned': 15,
+  'music.owned': 15,
+};
+
 /// Counts the typed catalog graph written by the development seed.
 ///
 /// This is intentionally a composition-root helper: the seed verifier may
@@ -122,6 +147,22 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'music.release': (await db.select(db.musicReleaseRows).get()).length,
     'music.media': (await db.select(db.musicMediaRows).get()).length,
     'music.track': (await db.select(db.musicTrackRows).get()).length,
+  };
+}
+
+/// Counts kind-owned ownership rows written by the development seed.
+Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
+  return {
+    'comic.owned': (await db.select(db.comicOwnedItemsRows).get()).length,
+    'manga.owned': (await db.select(db.mangaOwnedDetailsRows).get()).length,
+    'book.owned': (await db.select(db.bookOwnedDetailsRows).get()).length,
+    'game.owned': (await db.select(db.gameOwnedDetailsRows).get()).length,
+    'boardgame.owned':
+        (await db.select(db.boardGameOwnedDetailsRows).get()).length,
+    'movie.owned': (await db.select(db.movieOwnedDetailsRows).get()).length,
+    'tv.owned': (await db.select(db.tvOwnedDetailsRows).get()).length,
+    'anime.owned': (await db.select(db.animeOwnedDetailsRows).get()).length,
+    'music.owned': (await db.select(db.musicOwnedDetailsRows).get()).length,
   };
 }
 
@@ -202,6 +243,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);
   await ownedRepo.upsertAll(ownedItems);
+  await _seedKindOwnedDetails(db, ownedItems);
   await comicOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.comic)
@@ -218,6 +260,69 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   // --- Custom Fields ---
   await seedCustomFields(customFieldRepo);
+}
+
+Future<void> _seedKindOwnedDetails(
+  LocalDatabase db,
+  Iterable<OwnedItem> items,
+) async {
+  final anime = AnimeRepository(db);
+  final boardgame = BoardGameRepository(db);
+  final book = BookRepository(db);
+  final game = GameRepository(db);
+  final manga = MangaRepository(db);
+  final movie = MovieRepository(db);
+  final music = MusicRepository(db);
+  final tv = TvRepository(db);
+
+  for (final item in items) {
+    switch (item.catalogRef.mediaKind) {
+      case CatalogMediaKind.anime:
+        final details = item.details;
+        if (details is AnimeOwnedDetails) {
+          await anime.updateOwnedDetails(item.id, details);
+        }
+      case CatalogMediaKind.boardgame:
+        final details = item.details;
+        if (details is BoardgameOwnedDetails) {
+          await boardgame.updateOwnedDetails(item.id, details);
+        }
+      case CatalogMediaKind.book:
+        final details = item.details;
+        if (details is BookOwnedDetails) {
+          await book.updateOwnedDetails(item.id, details);
+        }
+      case CatalogMediaKind.game:
+        final details = item.details;
+        if (details is GameOwnedDetails) {
+          await game.updateOwnedDetails(item.id, details);
+        }
+      case CatalogMediaKind.manga:
+        final details = item.details;
+        if (details is MangaOwnedDetails) {
+          await manga.updateOwnedDetails(item.id, details);
+        }
+      case CatalogMediaKind.movie:
+        final details = item.details;
+        if (details is MovieOwnedDetails) {
+          await movie.updateOwnedDetails(item.id, details);
+        }
+      case CatalogMediaKind.music:
+        final details = item.details;
+        if (details is MusicOwnedDetails) {
+          await music.updateOwnedDetails(item.id, details);
+        }
+      case CatalogMediaKind.tv:
+        final details = item.details;
+        if (details is TvOwnedDetails) {
+          await tv.updateOwnedDetails(item.id, details);
+        }
+      case CatalogMediaKind.comic || CatalogMediaKind.unknown:
+        // Comic's typed owned repository persists its complete details graph
+        // below; unknown kinds are rejected by the fixture validator.
+        break;
+    }
+  }
 }
 
 void _validateSeedFixtures({
