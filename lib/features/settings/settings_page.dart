@@ -40,6 +40,7 @@ import 'package:collectarr_app/features/library/metadata/metadata_proposal_store
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/providers/ui/external_services_page.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -625,6 +626,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   onPressed: () => showPickListManagerDialog(
                     context: context,
                     db: ref.read(localDatabaseProvider),
+                    registry: defaultPickListRegistry,
                   ),
                   icon: const Icon(Icons.tune),
                   label: const Text('Manage pick lists'),

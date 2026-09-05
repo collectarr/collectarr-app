@@ -1,11 +1,12 @@
 import 'package:collectarr_app/features/pick_lists/models/pick_list_scope.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('registry exposes built-in definitions for active kinds', () {
-    final registry = PickListRegistry();
+    final registry = defaultPickListRegistry;
     for (final kind in const [
       'comic',
       'manga',
@@ -22,7 +23,7 @@ void main() {
   });
 
   test('registry resolves built-in fields and custom field lists', () {
-    final registry = PickListRegistry();
+    final registry = defaultPickListRegistry;
     final condition = registry.definitionForField(
       fieldKey: 'conditions',
       mediaKind: 'comic',
@@ -39,7 +40,7 @@ void main() {
   });
 
   test('kind definitions come from owned vocabulary modules', () {
-    final registry = PickListRegistry();
+    final registry = defaultPickListRegistry;
     final comicDefinitions = registry.definitionsForKind('comic');
 
     expect(
@@ -63,7 +64,7 @@ void main() {
   });
 
   test('registry definitions do not duplicate list/scope pairs per kind', () {
-    final registry = PickListRegistry();
+    final registry = defaultPickListRegistry;
     for (final kind in const [
       'comic',
       'manga',

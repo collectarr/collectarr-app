@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,10 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           home: Scaffold(
-            body: PickListManagerPage(db: db),
+            body: PickListManagerPage(
+              db: db,
+              registry: defaultPickListRegistry,
+            ),
           ),
         ),
       ),

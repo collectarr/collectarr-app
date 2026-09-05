@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 Future<void> showPickListManagerDialog({
   required BuildContext context,
   required LocalDatabase db,
+  required PickListRegistry registry,
 }) {
   return showDialog<void>(
     context: context,
@@ -25,7 +26,7 @@ Future<void> showPickListManagerDialog({
       content: SizedBox(
         width: 1240,
         height: 760,
-        child: PickListManagerPage(db: db),
+        child: PickListManagerPage(db: db, registry: registry),
       ),
       actions: [
         TextButton(
@@ -38,9 +39,14 @@ Future<void> showPickListManagerDialog({
 }
 
 class PickListManagerPage extends StatefulWidget {
-  const PickListManagerPage({super.key, required this.db});
+  const PickListManagerPage({
+    super.key,
+    required this.db,
+    required this.registry,
+  });
 
   final LocalDatabase db;
+  final PickListRegistry registry;
 
   @override
   State<PickListManagerPage> createState() => _PickListManagerPageState();
@@ -48,7 +54,7 @@ class PickListManagerPage extends StatefulWidget {
 
 class _PickListManagerPageState extends State<PickListManagerPage> {
   final _searchController = TextEditingController();
-  final _registry = PickListRegistry();
+  late final PickListRegistry _registry;
   late final PickListRepository _repo = PickListRepository(widget.db);
   late final CustomFieldRepository _customFieldRepo =
       CustomFieldRepository(widget.db);
@@ -64,6 +70,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   @override
   void initState() {
     super.initState();
+    _registry = widget.registry;
     _searchController.addListener(_reload);
     _load();
   }

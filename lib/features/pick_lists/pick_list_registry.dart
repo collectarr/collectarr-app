@@ -1,11 +1,15 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 import 'models/pick_list_definition.dart';
 import 'models/pick_list_scope.dart';
+import 'pick_list_definition_contributor.dart';
 
 class PickListRegistry {
-  const PickListRegistry();
+  const PickListRegistry({
+    this.contributors = const [],
+  });
+
+  final Iterable<PickListDefinitionContributor> contributors;
 
   static const _universalDefinitions = <PickListDefinition>[
     PickListDefinition(
@@ -76,17 +80,19 @@ class PickListRegistry {
   List<PickListDefinition> definitionsForKind(String? mediaKind) {
     final definitions = <PickListDefinition>[..._universalDefinitions];
     if (mediaKind == null || mediaKind.trim().isEmpty) {
-      for (final runtime in defaultLibraryKindRegistry.allRuntimes) {
-        definitions.addAll(_definitionsForRuntime(runtime));
+      for (final contributor in contributors) {
+        definitions.addAll(contributor.definitions);
       }
       return definitions;
     }
 
     final kind = catalogMediaKindFromApiValue(mediaKind);
     if (!kind.isUnknown) {
-      definitions.addAll(
-        _definitionsForRuntime(libraryKindRuntimeForKind(kind)),
-      );
+      for (final contributor in contributors) {
+        if (contributor.kind == kind) {
+          definitions.addAll(contributor.definitions);
+        }
+      }
     }
     return definitions;
   }
@@ -120,21 +126,5 @@ class PickListRegistry {
       );
     }
     return null;
-  }
-
-  List<PickListDefinition> _definitionsForRuntime(
-    LibraryKindRuntime runtime,
-  ) {
-    final vocabularies = runtime.edit.vocabularies;
-    if (vocabularies == null) {
-      return const [];
-    }
-    return [
-      for (final vocabulary in vocabularies.definitions)
-        PickListDefinition.fromVocabulary(
-          vocabulary: vocabulary,
-          mediaKind: runtime.kind.apiValue,
-        ),
-    ];
   }
 }
