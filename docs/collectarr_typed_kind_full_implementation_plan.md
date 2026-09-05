@@ -2369,8 +2369,8 @@ The Add session no longer owns implicit `Near Mint`/`Ungraded` values. Those
 defaults are now required and declared by every registered kind's Edit/Add
 capability, then injected into the session through the active typed runtime.
 User prefill values still override the kind defaults. The general condition
-scale remains an explicit vocabulary fallback for kinds without a specialized
-condition vocabulary and is the next Add semantic cleanup target.
+scale is now passed explicitly by the kinds that use it; the Add dialog no
+longer supplies a global condition fallback.
 
 ---
 

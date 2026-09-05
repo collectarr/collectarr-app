@@ -431,6 +431,7 @@ class ComicFeature {}
       ),
       edit: LibraryEditCapability(
         presentation: genericKindModule.edit.presentation,
+        conditions: genericKindModule.edit.conditions,
         defaultCondition: genericKindModule.edit.defaultCondition,
         defaultGrade: genericKindModule.edit.defaultGrade,
         createDraft: genericKindModule.edit.createDraft,

@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_dr
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/kinds/generic/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/generic/edit/generic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
@@ -58,6 +59,7 @@ final genericKindModule =
   ),
   edit: LibraryEditCapability(
     presentation: genericLibraryEditPresentation,
+    conditions: kGeneralConditions,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createGenericEditDraft,

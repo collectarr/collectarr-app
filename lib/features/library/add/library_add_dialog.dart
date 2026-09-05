@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
@@ -172,8 +171,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _controller.addListener(_onControllerStateChanged);
 
     final editCap = widget.type.edit;
-    _conditionOptions =
-        editCap.conditions.isNotEmpty ? editCap.conditions : kGeneralConditions;
+    _conditionOptions = editCap.conditions;
     _gradeOptions = editCap.grades;
     _loadAvailableLocations();
     _loadPickListOptions();
@@ -264,9 +262,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         editCap.vocabularies?.definitionForSuffix('condition');
     final gradeDefinition = editCap.vocabularies?.definitionForSuffix('grade');
     final builtInConditions = conditionDefinition == null
-        ? (editCap.conditions.isNotEmpty
-            ? editCap.conditions
-            : kGeneralConditions)
+        ? editCap.conditions
         : [for (final value in conditionDefinition.builtIns) value.toString()];
     final builtInGrades = gradeDefinition == null
         ? editCap.grades
