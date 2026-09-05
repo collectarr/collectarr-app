@@ -13,10 +13,27 @@ import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calen
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
+  test('calendar registry has a release contributor for every catalog kind',
+      () {
+    final registeredKinds = libraryCalendarContributors
+        .map((contributor) => contributor.kind)
+        .toSet();
+
+    expect(
+      registeredKinds,
+      containsAll(
+        CatalogMediaKind.values.where(
+          (kind) => kind != CatalogMediaKind.unknown,
+        ),
+      ),
+    );
+  });
+
   test('typed release contributors map their own catalog semantics', () {
     final contributors = <LibraryCalendarContributor>[
       const BoardGameCalendarContributor(),

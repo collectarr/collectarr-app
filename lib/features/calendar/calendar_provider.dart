@@ -41,27 +41,6 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
     events.addAll(contributor.contribute(calendarContext));
   }
 
-  final contributedReleaseItemIds = {
-    for (final event in events)
-      if (event.kind == CalendarEventKind.releaseDate && event.itemId != null)
-        event.itemId,
-  };
-
-  // --- Release dates from catalog ---
-  for (final entry in catalogById.entries) {
-    final item = entry.value;
-    if (item.releaseDate != null &&
-        !contributedReleaseItemIds.contains(entry.key)) {
-      events.add(CalendarEvent(
-        kind: CalendarEventKind.releaseDate,
-        date: item.releaseDate!,
-        title: item.title,
-        eventId: 'catalog-release:${item.mediaKind.apiValue}:${entry.key}',
-        itemId: entry.key,
-      ));
-    }
-  }
-
   // --- Owned item events ---
   for (final item in ownedItems) {
     if (item.isDeleted) continue;
