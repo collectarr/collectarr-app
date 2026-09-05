@@ -36,6 +36,7 @@ export 'domain/models/provider_descriptor.dart';
 export 'domain/models/provider_id.dart';
 export 'domain/models/provider_exception.dart';
 export 'domain/models/provider_image_ref.dart';
+export 'domain/models/provider_history_snapshot.dart';
 export 'domain/models/provider_provenance.dart';
 export 'domain/models/provider_search_result.dart';
 export 'domain/models/provider_search_hit.dart';

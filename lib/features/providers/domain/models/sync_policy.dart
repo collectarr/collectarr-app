@@ -12,7 +12,6 @@ enum SyncField {
   rating,
   progress,
   history,
-  wishlist,
 }
 
 @immutable
@@ -22,14 +21,12 @@ final class ProviderSyncPolicy {
     this.rating = SyncDirection.bidirectional,
     this.progress = SyncDirection.bidirectional,
     this.history = SyncDirection.pullOnly,
-    this.wishlist = SyncDirection.bidirectional,
   });
 
   final SyncDirection status;
   final SyncDirection rating;
   final SyncDirection progress;
   final SyncDirection history;
-  final SyncDirection wishlist;
 
   SyncDirection directionFor(SyncField field) {
     return switch (field) {
@@ -37,7 +34,6 @@ final class ProviderSyncPolicy {
       SyncField.rating => rating,
       SyncField.progress => progress,
       SyncField.history => history,
-      SyncField.wishlist => wishlist,
     };
   }
 
@@ -58,7 +54,6 @@ final class ProviderSyncPolicy {
         'rating': rating.name,
         'progress': progress.name,
         'history': history.name,
-        'wishlist': wishlist.name,
       };
 
   factory ProviderSyncPolicy.fromJson(Map<String, dynamic> json) {
@@ -71,8 +66,6 @@ final class ProviderSyncPolicy {
           SyncDirection.bidirectional,
       history: SyncDirection.values.asNameMap()[json['history']] ??
           SyncDirection.pullOnly,
-      wishlist: SyncDirection.values.asNameMap()[json['wishlist']] ??
-          SyncDirection.bidirectional,
     );
   }
 }

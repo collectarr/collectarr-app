@@ -2626,6 +2626,11 @@ Make `ProviderSyncPolicy` fields exactly match what `ExternalStateEngine` actual
 
 Either implement fields or remove false capabilities.
 
+Status: complete. Removed the unbacked `wishlist` policy field and added a
+typed `ProviderHistorySnapshot` diff to `ExternalStateEngine`, matching the
+history merge behavior already used by the sync coordinator. Policy, pull/push,
+and persistence contract tests pass.
+
 Add contract tests per personal-sync provider.
 
 ---

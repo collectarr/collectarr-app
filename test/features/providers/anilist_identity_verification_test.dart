@@ -87,7 +87,6 @@ void main() {
           rating: SyncDirection.pushOnly,
           progress: SyncDirection.disabled,
           history: SyncDirection.pullOnly,
-          wishlist: SyncDirection.disabled,
         ),
       );
 
@@ -97,7 +96,6 @@ void main() {
       expect(restored.syncPolicy.rating, SyncDirection.pushOnly);
       expect(restored.syncPolicy.progress, SyncDirection.disabled);
       expect(restored.syncPolicy.history, SyncDirection.pullOnly);
-      expect(restored.syncPolicy.wishlist, SyncDirection.disabled);
     });
 
     test('readPersonalList distinguishes mediaId vs listEntryId', () async {

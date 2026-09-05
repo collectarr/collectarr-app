@@ -289,7 +289,6 @@ void main() {
         rating: SyncDirection.pushOnly,
         progress: SyncDirection.disabled,
         history: SyncDirection.disabled,
-        wishlist: SyncDirection.disabled,
       );
       const account = ProviderAccount(
         id: 'acc-policy',
