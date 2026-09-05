@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_group_mode_categories.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:flutter/material.dart';
@@ -34,15 +34,12 @@ class ComicLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final rawMetadata = item.source.catalogItem?.kindMetadata;
-    final ComicCatalogMetadata metadata;
-    if (rawMetadata is ComicCatalogMetadata) {
-      metadata = rawMetadata;
-    } else if (rawMetadata != null) {
-      metadata = ComicCatalogMetadata.fromJson(item.source.catalogItem!.payload);
-    } else {
-      throw StateError('Expected ComicCatalogMetadata for comic presentation');
+    final workspace = item.dto;
+    if (workspace is! ComicWorkspaceDto) {
+      throw StateError('Expected ComicWorkspaceDto for comic presentation');
     }
+    final dto = workspace;
+    final metadata = dto.metadata ?? dto.comic;
     final series = metadata.series;
     final publishing = metadata.publishing;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
@@ -180,9 +177,12 @@ class ComicLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final rawMetadata = item.source.catalogItem?.kindMetadata;
-    final synopsis =
-        rawMetadata is ComicCatalogMetadata ? rawMetadata.synopsis : null;
+    final workspace = item.dto;
+    if (workspace is! ComicWorkspaceDto) {
+      return const [];
+    }
+    final dto = workspace;
+    final synopsis = (dto.metadata ?? dto.comic).synopsis;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }
