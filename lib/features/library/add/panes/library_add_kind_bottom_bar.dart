@@ -17,7 +17,7 @@ ButtonStyle _kindOutlinedButtonStyle(Color accent) {
   );
 }
 
-Widget buildKindAddBottomBar(
+Widget buildLibraryAddKindBottomBar(
   BuildContext context,
   LibraryAddBottomBarRequest request,
 ) {

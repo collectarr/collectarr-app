@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/add/library_add_result_badge.dar
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/add/add_bottom_bar.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -324,7 +324,7 @@ Widget buildMovieAddBottomBar(
   BuildContext context,
   LibraryAddBottomBarRequest request,
 ) {
-  return buildKindAddBottomBar(context, request);
+  return buildLibraryAddKindBottomBar(context, request);
 }
 
 class _MovieSearchGridEntry {

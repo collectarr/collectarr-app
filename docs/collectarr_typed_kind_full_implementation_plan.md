@@ -2238,6 +2238,9 @@ tree no longer hides either service in `_shared`.
 Comic-family grading/signature details and their Add drafts now live in
 explicit library model/Add model locations rather than the shared kind tree.
 
+The legacy kind Add bottom bar is now generic Add pane infrastructure and is
+consumed explicitly by the Comic and Movie shells.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

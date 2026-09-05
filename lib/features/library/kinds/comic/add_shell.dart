@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalo
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/add/add_bottom_bar.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_add_search_options_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
@@ -48,7 +48,7 @@ Widget buildComicAddBottomBar(
   BuildContext context,
   LibraryAddBottomBarRequest request,
 ) {
-  return buildKindAddBottomBar(context, request);
+  return buildLibraryAddKindBottomBar(context, request);
 }
 
 // Reduced widths to avoid horizontal overflow in various test viewports
