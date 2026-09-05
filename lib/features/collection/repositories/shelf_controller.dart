@@ -54,8 +54,8 @@ class ShelfState {
   const ShelfState({
     required this.entries,
     required this.ownedCount,
-    required this.wishlistCount,
     required this.missingGradeCount,
+    required this.wishlistCount,
     required this.pricedCount,
     required this.totalPaidCents,
     required this.primaryCurrency,
@@ -150,9 +150,9 @@ class ShelfState {
     return ShelfState(
       entries: entries,
       ownedCount: ownedByItemId.length,
-      wishlistCount: wishlistByItemId.length,
       missingGradeCount:
           ownedByItemId.values.where((item) => item.grade == null).length,
+      wishlistCount: wishlistByItemId.length,
       pricedCount: pricedOwned.length,
       totalPaidCents: hasMixedCurrencies
           ? null
@@ -204,8 +204,11 @@ class ShelfState {
 
   final List<ShelfEntry> entries;
   final int ownedCount;
-  final int wishlistCount;
+
+  /// Compatibility aggregate for the Stats dashboard. Do not expose this as
+  /// a universal Shelf filter; migrate the calculation to kind contributors.
   final int missingGradeCount;
+  final int wishlistCount;
   final int pricedCount;
   final int? totalPaidCents;
   final String? primaryCurrency;

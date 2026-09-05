@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
@@ -78,13 +77,11 @@ void main() {
     expect(find.text('Shelf'), findsOneWidget);
     expect(find.text('Owned'), findsWidgets);
     expect(find.text('Quantity'), findsOneWidget);
-    expect(find.text('Key comics'), findsOneWidget);
     expect(find.text('2'), findsWidgets);
     expect(find.text('Wishlist'), findsWidgets);
     expect(find.text('USD 12.99'), findsWidgets);
     expect(find.text('Read status'), findsOneWidget);
     expect(find.text('Locations'), findsOneWidget);
-    expect(find.text('Top series'), findsOneWidget);
     expect(find.text('Completed: 1'), findsOneWidget);
     expect(find.text('Box 6: 1'), findsOneWidget);
     expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);

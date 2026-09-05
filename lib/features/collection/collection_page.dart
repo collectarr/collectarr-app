@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
@@ -32,7 +31,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 part 'collection_page_import.dart';
 part 'collection_page_shelf.dart';
 
-enum _ShelfFilter { all, owned, wishlist, overdue, missingGrade, notes }
+enum _ShelfFilter { all, owned, wishlist, overdue, notes }
 
 class CollectionPage extends ConsumerStatefulWidget {
   const CollectionPage({
@@ -154,8 +153,6 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       _ShelfFilter.overdue => entries
           .where((entry) => overdueOwnedItemIds.contains(entry.ownedItem?.id))
           .toList(growable: false),
-      _ShelfFilter.missingGrade =>
-        entries.where((entry) => entry.isMissingGrade).toList(growable: false),
       _ShelfFilter.notes =>
         entries.where((entry) => entry.hasNotes).toList(growable: false),
     };

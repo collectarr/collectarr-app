@@ -35,16 +35,6 @@ class _ShelfHeader extends StatelessWidget {
         value: state.wishlistCount.toString(),
       ),
       _ShelfStatCard(
-        icon: Icons.key_outlined,
-        label: 'Key comics',
-        value: ComicStatsCapability.countKeyComics(state.entries).toString(),
-      ),
-      _ShelfStatCard(
-        icon: Icons.verified_outlined,
-        label: 'Missing grade',
-        value: state.missingGradeCount.toString(),
-      ),
-      _ShelfStatCard(
         icon: Icons.payments_outlined,
         label: 'Paid',
         value: _totalPaidLabel(state),
@@ -121,14 +111,6 @@ class _ShelfHeader extends StatelessWidget {
                   value: _ShelfFilter.overdue,
                   icon: Icon(Icons.warning_amber_rounded),
                   label: Text('Overdue', key: ValueKey('shelf-filter-overdue')),
-                ),
-                ButtonSegment(
-                  value: _ShelfFilter.missingGrade,
-                  icon: Icon(Icons.rule_outlined),
-                  label: Text(
-                    'Missing grade',
-                    key: ValueKey('shelf-filter-missing-grade'),
-                  ),
                 ),
                 ButtonSegment(
                   value: _ShelfFilter.notes,
@@ -211,11 +193,6 @@ class _ShelfDistributionPanel extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _DistributionGroup(title: 'Grades', values: state.gradeCounts),
-            _DistributionGroup(
-              title: 'Conditions',
-              values: state.conditionCounts,
-            ),
             _DistributionGroup(
               title: 'Read status',
               values: state.readStatusCounts,
@@ -223,11 +200,6 @@ class _ShelfDistributionPanel extends StatelessWidget {
             _DistributionGroup(
               title: 'Locations',
               values: state.locationCounts,
-            ),
-            _DistributionGroup(
-              title: 'Top series',
-              values: state.seriesCounts,
-              maxItems: 6,
             ),
           ],
         ),
@@ -240,12 +212,10 @@ class _DistributionGroup extends StatelessWidget {
   const _DistributionGroup({
     required this.title,
     required this.values,
-    this.maxItems,
   });
 
   final String title;
   final Map<String, int> values;
-  final int? maxItems;
 
   @override
   Widget build(BuildContext context) {
@@ -257,9 +227,6 @@ class _DistributionGroup extends StatelessWidget {
         }
         return a.key.toLowerCase().compareTo(b.key.toLowerCase());
       });
-    final visible = maxItems == null
-        ? sorted
-        : sorted.take(maxItems!).toList(growable: false);
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 220),
       child: Column(
@@ -275,7 +242,7 @@ class _DistributionGroup extends StatelessWidget {
               if (values.isEmpty)
                 const Chip(label: Text('None'))
               else
-                for (final entry in visible)
+                for (final entry in sorted)
                   Chip(label: Text('${entry.key}: ${entry.value}')),
             ],
           ),
@@ -395,19 +362,15 @@ class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
                         runSpacing: 6,
                         children: [
                           if (entry.isOwned)
-                            _ShelfChip(
+                            const _ShelfChip(
                               icon: Icons.inventory_2,
-                              label: owned?.condition ?? 'Owned',
+                              label: 'Owned',
                             ),
                           if (entry.isWishlisted)
                             const _ShelfChip(
                               icon: Icons.star,
                               label: 'Wishlist',
                             ),
-                          _ShelfChip(
-                            icon: Icons.verified_outlined,
-                            label: owned?.grade ?? 'Ungraded',
-                          ),
                           if (owned?.pricePaidCents != null &&
                               owned?.currency != null)
                             _ShelfChip(

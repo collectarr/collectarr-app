@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
@@ -240,8 +241,11 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {
-    final metadata = entry.catalogItem?.kindMetadata;
-    return metadata is ComicCatalogMetadata ? metadata : null;
+    final catalog = entry.catalogItem;
+    if (catalog == null || catalog.kind != 'comic') {
+      return null;
+    }
+    return ComicCoreMapper.fromCatalogItem(catalog);
   }
 }
 
