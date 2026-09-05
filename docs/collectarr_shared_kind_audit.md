@@ -8,10 +8,6 @@ when their inputs are genuinely owner-neutral.
 | File | Classification | PR79 disposition |
 | --- | --- | --- |
 | `add/add_bottom_bar.dart` | EDIT | Move to the owning add flow |
-| `add/grading_draft.dart` | DOMAIN MODEL | Move to comic/manga/book owners |
-| `add/signature_draft.dart` | DOMAIN MODEL | Move to the owning kind |
-| `ownership/grading_details.dart` | DOMAIN MODEL | Move to comic/manga/book owners |
-| `ownership/signature_details.dart` | DOMAIN MODEL | Move to the owning kind |
 | `ownership/video_like_owned_details.dart` | DOMAIN MODEL | Replace with kind-owned details |
 | `ownership/video_physical_copy_details.dart` | DOMAIN MODEL | Move/duplicate into video owners |
 | `video/catalog/video_catalog_item.dart` | DOMAIN MODEL | Move/duplicate into movie/TV/anime |

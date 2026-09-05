@@ -3,8 +3,8 @@ export 'comic_add_schema.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/add/grading_draft.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/add/signature_draft.dart';
+import 'package:collectarr_app/features/library/add/models/grading_draft.dart';
+import 'package:collectarr_app/features/library/add/models/signature_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_key_draft.dart';
 import 'package:flutter/foundation.dart';
 

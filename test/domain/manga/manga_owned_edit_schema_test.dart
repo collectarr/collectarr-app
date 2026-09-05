@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/grading_details.dart';
+import 'package:collectarr_app/features/library/models/grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/owned/manga_owned_edit_schema.dart';

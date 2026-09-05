@@ -2235,6 +2235,9 @@ Serial authority persistence now lives under `catalog/serial`, while its
 owner-neutral picker/manager dialog lives under `library/serial`; the kind
 tree no longer hides either service in `_shared`.
 
+Comic-family grading/signature details and their Add drafts now live in
+explicit library model/Add model locations rather than the shared kind tree.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

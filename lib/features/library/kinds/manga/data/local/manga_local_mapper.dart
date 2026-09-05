@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/grading_details.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/signature_details.dart';
+import 'package:collectarr_app/features/library/models/grading_details.dart';
+import 'package:collectarr_app/features/library/models/signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:drift/drift.dart';

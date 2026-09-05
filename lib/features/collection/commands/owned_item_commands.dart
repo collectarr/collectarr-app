@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/grading_details.dart';
+import 'package:collectarr_app/features/library/models/grading_details.dart';
 import 'package:flutter/foundation.dart';
 
 /// Represents a tri-state patch operation: unchanged, set new value, or clear value.
