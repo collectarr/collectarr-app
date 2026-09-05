@@ -133,7 +133,6 @@ class _InspectorPersonalDetailsEditorState
   late final TextEditingController _currencyController;
   late final TextEditingController _notesController;
   late final TextEditingController _purchaseStoreController;
-  late final TextEditingController _boxSetNameController;
   DateTime? _purchaseDate;
   String? _priceError;
   List<StorageLocation> _availableLocations = const [];
@@ -147,7 +146,6 @@ class _InspectorPersonalDetailsEditorState
     _currencyController = TextEditingController();
     _notesController = TextEditingController();
     _purchaseStoreController = TextEditingController();
-    _boxSetNameController = TextEditingController();
     _syncFromItem(widget.ownedItem);
     unawaited(_loadAvailableLocations());
   }
@@ -167,7 +165,6 @@ class _InspectorPersonalDetailsEditorState
     _currencyController.dispose();
     _notesController.dispose();
     _purchaseStoreController.dispose();
-    _boxSetNameController.dispose();
     super.dispose();
   }
 
@@ -291,18 +288,6 @@ class _InspectorPersonalDetailsEditorState
             ),
           ),
         ),
-        _InspectorEditorRow(
-          label: 'Box set',
-          child: TextField(
-            controller: _boxSetNameController,
-            decoration: const InputDecoration(
-              hintText: 'Box set name',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.inventory_2_outlined),
-              isDense: true,
-            ),
-          ),
-        ),
         if (_priceError != null) ...[
           _InspectorEditorRow(
             label: 'Error',
@@ -335,11 +320,6 @@ class _InspectorPersonalDetailsEditorState
     _currencyController.text = item.currency ?? 'USD';
     _notesController.text = item.personalNotes ?? '';
     _purchaseStoreController.text = item.purchaseStore ?? '';
-    final details = item.details;
-    final videoDetails = details is LibraryPhysicalOwnedDetails
-        ? details as LibraryPhysicalOwnedDetails
-        : null;
-    _boxSetNameController.text = videoDetails?.boxSetName ?? '';
     _selectedLocationId = item.locationId;
     _locationChanged = false;
   }
@@ -405,22 +385,6 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    final details = widget.ownedItem.details;
-    final video = details is LibraryPhysicalOwnedDetails
-        ? details as LibraryPhysicalOwnedDetails
-        : null;
-    OwnedDetailsDraft? detailsDraft;
-    if (_emptyToNull(_boxSetNameController.text) != null && video != null) {
-      detailsDraft = MovieOwnedDetailsDraft(
-        features: video.features,
-        hdrFormats: video.hdrFormats,
-        boxSetName: _emptyToNull(_boxSetNameController.text),
-        region: video.region,
-        packaging: video.packaging,
-        distributor: video.distributor,
-      );
-    }
-
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           UpdateOwnedItemCommand(
             ownedItemId: widget.ownedItem.id,
@@ -432,9 +396,6 @@ class _InspectorPersonalDetailsEditorState
                 Patch.set(_emptyToNull(_purchaseStoreController.text)),
             locationId: _locationChanged
                 ? Patch.set(_selectedLocationId)
-                : const Patch.unchanged(),
-            details: detailsDraft != null
-                ? Patch.set(detailsDraft)
                 : const Patch.unchanged(),
           ),
         );

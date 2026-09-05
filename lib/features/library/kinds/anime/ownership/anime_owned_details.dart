@@ -1,15 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/models/library_physical_owned_details.dart';
-import 'package:collectarr_app/features/library/models/library_physical_copy_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_physical_copy_details.dart';
 
 const Object _animeDetailsUnset = Object();
 
 @immutable
-class AnimeOwnedDetails extends OwnedItemDetails
-    with LibraryPhysicalOwnedDetails {
+class AnimeOwnedDetails extends OwnedItemDetails {
   const AnimeOwnedDetails({
-    this.physical = const LibraryPhysicalCopyDetails(),
+    this.physical = const AnimePhysicalCopyDetails(),
     String? features,
     List<String>? hdrFormats,
     String? boxSetId,
@@ -25,7 +23,7 @@ class AnimeOwnedDetails extends OwnedItemDetails
         _packaging = packaging,
         _distributor = distributor;
 
-  final LibraryPhysicalCopyDetails physical;
+  final AnimePhysicalCopyDetails physical;
 
   final String? _features;
   final List<String>? _hdrFormats;
@@ -35,19 +33,12 @@ class AnimeOwnedDetails extends OwnedItemDetails
   final String? _packaging;
   final String? _distributor;
 
-  @override
   String? get features => _features ?? physical.features;
-  @override
   List<String> get hdrFormats => _hdrFormats ?? physical.hdrFormats;
-  @override
   String? get boxSetId => _boxSetId ?? physical.boxSetId;
-  @override
   String? get boxSetName => _boxSetName ?? physical.boxSetName;
-  @override
   String? get region => _region ?? physical.region;
-  @override
   String? get packaging => _packaging ?? physical.packaging;
-  @override
   String? get distributor => _distributor ?? physical.distributor;
 
   @override
@@ -63,7 +54,7 @@ class AnimeOwnedDetails extends OwnedItemDetails
 
   factory AnimeOwnedDetails.fromJson(Map<String, dynamic> json) {
     return AnimeOwnedDetails(
-      physical: LibraryPhysicalCopyDetails.fromJson(json),
+      physical: AnimePhysicalCopyDetails.fromJson(json),
     );
   }
 
@@ -75,7 +66,7 @@ class AnimeOwnedDetails extends OwnedItemDetails
     Object? region = _animeDetailsUnset,
     Object? packaging = _animeDetailsUnset,
     Object? distributor = _animeDetailsUnset,
-    LibraryPhysicalCopyDetails? physical,
+    AnimePhysicalCopyDetails? physical,
   }) {
     return AnimeOwnedDetails(
       features: identical(features, _animeDetailsUnset)

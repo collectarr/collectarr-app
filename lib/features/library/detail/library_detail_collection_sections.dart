@@ -41,9 +41,6 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             : <OwnedItem>[ownedItem!];
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final details = ownedItem?.details;
-    final ownedVideoDetails = details is LibraryPhysicalOwnedDetails
-        ? details as LibraryPhysicalOwnedDetails
-        : null;
     final ownedComicDetails = details is ComicOwnedDetails ? details : null;
     final ownedMusicDetails = details is MusicOwnedDetails ? details : null;
     final paid = formatMoney(
@@ -147,34 +144,14 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             LibraryDetailField(
                 label: 'Rating', value: trackingRating?.toString() ?? '-'),
             LibraryDetailField(
-                label: 'Features',
-                value: genericLibraryDash(ownedVideoDetails?.features)),
-            LibraryDetailField(
-                label: 'HDR Formats',
-                value: (ownedVideoDetails?.hdrFormats.isNotEmpty ?? false)
-                    ? ownedVideoDetails!.hdrFormats.join(', ')
-                    : '-'),
-            LibraryDetailField(
                 label: 'Purchase Store',
                 value: genericLibraryDash(ownedItem?.purchaseStore)),
-            LibraryDetailField(
-                label: 'Box Set',
-                value: genericLibraryDash(ownedVideoDetails?.boxSetName)),
             LibraryDetailField(
                 label: 'Storage Device',
                 value: genericLibraryDash(ownedMusicDetails?.storageDevice)),
             LibraryDetailField(
                 label: 'Storage Slot',
                 value: genericLibraryDash(ownedMusicDetails?.storageSlot)),
-            LibraryDetailField(
-                label: 'Region',
-                value: genericLibraryDash(ownedVideoDetails?.region)),
-            LibraryDetailField(
-                label: 'Packaging',
-                value: genericLibraryDash(ownedVideoDetails?.packaging)),
-            LibraryDetailField(
-                label: 'Distributor',
-                value: genericLibraryDash(ownedVideoDetails?.distributor)),
           ],
         ),
         if (trackingRating != null && trackingRating > 0) ...[

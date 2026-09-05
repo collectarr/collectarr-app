@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 
 export 'package:collectarr_app/core/models/money.dart';
 export 'package:collectarr_app/core/models/owned_item_details.dart';
-export 'package:collectarr_app/features/library/models/library_physical_owned_details.dart';
 
 const Object _ownedItemUnset = Object();
 

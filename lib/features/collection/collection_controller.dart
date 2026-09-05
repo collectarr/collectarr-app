@@ -99,7 +99,8 @@ final trackingUnitsByCatalogRefProvider =
 });
 
 int _compareTrackingUnits(TrackingUnit a, TrackingUnit b) {
-  final typeCompare = a.unitType.storageValue.compareTo(b.unitType.storageValue);
+  final typeCompare =
+      a.unitType.storageValue.compareTo(b.unitType.storageValue);
   if (typeCompare != 0) {
     return typeCompare;
   }
@@ -249,29 +250,6 @@ final customEpisodesByCatalogRefProvider =
         (ref, catalogRef) async {
   final db = ref.watch(localDatabaseProvider);
   return CustomEpisodesCacheRepository(db).listByItemIdGrouped(catalogRef.id);
-});
-
-/// Groups owned items by box set name for summary display.
-final boxSetGroupsProvider = Provider<Map<String, List<OwnedItem>>>((ref) {
-  final collection = ref.watch(collectionProvider);
-  return collection.maybeWhen(
-    data: (items) {
-      final grouped = <String, List<OwnedItem>>{};
-      for (final item in items) {
-        if (item.isDeleted) continue;
-        final details = item.details;
-        final videoDetails = details is LibraryPhysicalOwnedDetails
-            ? details as LibraryPhysicalOwnedDetails
-            : null;
-        final name = videoDetails?.boxSetName;
-        if (name != null && name.isNotEmpty) {
-          grouped.putIfAbsent(name, () => <OwnedItem>[]).add(item);
-        }
-      }
-      return grouped;
-    },
-    orElse: () => const <String, List<OwnedItem>>{},
-  );
 });
 
 final wishlistProvider = FutureProvider<List<WishlistItem>>((ref) async {

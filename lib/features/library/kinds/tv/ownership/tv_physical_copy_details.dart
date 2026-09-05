@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class LibraryPhysicalCopyDetails {
-  const LibraryPhysicalCopyDetails({
+final class TvPhysicalCopyDetails {
+  const TvPhysicalCopyDetails({
     this.features,
     this.hdrFormats = const <String>[],
     this.boxSetId,
@@ -20,18 +20,8 @@ class LibraryPhysicalCopyDetails {
   final String? packaging;
   final String? distributor;
 
-  Map<String, dynamic> toJson() => {
-        if (features != null) 'features': features,
-        if (hdrFormats.isNotEmpty) 'hdr_formats': hdrFormats,
-        if (boxSetId != null) 'box_set_id': boxSetId,
-        if (boxSetName != null) 'box_set_name': boxSetName,
-        if (region != null) 'region': region,
-        if (packaging != null) 'packaging': packaging,
-        if (distributor != null) 'distributor': distributor,
-      };
-
-  factory LibraryPhysicalCopyDetails.fromJson(Map<String, dynamic> json) {
-    return LibraryPhysicalCopyDetails(
+  factory TvPhysicalCopyDetails.fromJson(Map<String, dynamic> json) {
+    return TvPhysicalCopyDetails(
       features: json['features'] as String?,
       hdrFormats: (json['hdr_formats'] as List<dynamic>?)
               ?.whereType<String>()
@@ -45,31 +35,10 @@ class LibraryPhysicalCopyDetails {
     );
   }
 
-  LibraryPhysicalCopyDetails copyWith({
-    String? features,
-    List<String>? hdrFormats,
-    String? boxSetId,
-    String? boxSetName,
-    String? region,
-    String? packaging,
-    String? distributor,
-  }) {
-    return LibraryPhysicalCopyDetails(
-      features: features ?? this.features,
-      hdrFormats: hdrFormats ?? this.hdrFormats,
-      boxSetId: boxSetId ?? this.boxSetId,
-      boxSetName: boxSetName ?? this.boxSetName,
-      region: region ?? this.region,
-      packaging: packaging ?? this.packaging,
-      distributor: distributor ?? this.distributor,
-    );
-  }
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LibraryPhysicalCopyDetails &&
-          runtimeType == other.runtimeType &&
+      other is TvPhysicalCopyDetails &&
           features == other.features &&
           listEquals(hdrFormats, other.hdrFormats) &&
           boxSetId == other.boxSetId &&
