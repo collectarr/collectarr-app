@@ -284,7 +284,15 @@ class _MetadataProposalTile extends StatelessWidget {
             if ((proposal.metadataPayload ?? const <String, dynamic>{})
                 .isNotEmpty) ...[
               const SizedBox(height: 8),
-              _ProposalPayloadPreview(payload: proposal.metadataPayload!),
+              _ProposalPayloadPreview(
+                kind: catalogMediaKindFromValue(
+                  _inferProposalKind(
+                    proposal.provider,
+                    proposal.metadataPayload,
+                  ),
+                ),
+                payload: proposal.metadataPayload!,
+              ),
             ],
             if (proposal.isPending) ...[
               const SizedBox(height: 12),
@@ -340,21 +348,22 @@ class _MetadataProposalTile extends StatelessWidget {
 }
 
 class _ProposalPayloadPreview extends StatelessWidget {
-  const _ProposalPayloadPreview({required this.payload});
+  const _ProposalPayloadPreview({
+    required this.kind,
+    required this.payload,
+  });
 
+  final CatalogMediaKind kind;
   final Map<String, dynamic> payload;
 
   @override
   Widget build(BuildContext context) {
-    final genres = _payloadStringList(payload['genres']);
-    final platforms = _payloadStringList(payload['platforms']);
-    final tracks = _payloadTrackRows(payload['tracks']);
-    final links = _payloadLinkRows(payload['external_links']);
+    final fields = libraryAdminContributorForKind(kind)?.proposalFields ??
+        const <LibraryAdminProposalField>[];
     final badges = <String>[
-      if (genres.isNotEmpty) 'Genres: ${genres.take(3).join(', ')}',
-      if (platforms.isNotEmpty) 'Platforms: ${platforms.take(3).join(', ')}',
-      if (tracks.isNotEmpty) '${tracks.length} tracks',
-      if (links.isNotEmpty) '${links.length} external links',
+      for (final field in fields)
+        if (field.read(payload).trim().isNotEmpty)
+          '${field.label}: ${field.read(payload).trim()}',
     ];
     if (badges.isEmpty) {
       return const SizedBox.shrink();
@@ -404,12 +413,6 @@ class _ProposalMetadataEditDialogState
   late final TextEditingController _titleController;
   late final TextEditingController _summaryController;
   late final TextEditingController _imageUrlController;
-  late final TextEditingController _itemNumberController;
-  late final TextEditingController _subtitleController;
-  late final TextEditingController _publisherController;
-  late final TextEditingController _synopsisController;
-  late final TextEditingController _genresController;
-  late final TextEditingController _externalLinksController;
   late final TextEditingController _payloadController;
   late CatalogMediaKind _catalogKind;
   late Map<String, TextEditingController> _kindFieldControllers;
@@ -432,30 +435,7 @@ class _ProposalMetadataEditDialogState
     _titleController = TextEditingController(text: proposal.title ?? '');
     _summaryController = TextEditingController(text: proposal.summary ?? '');
     _imageUrlController = TextEditingController(text: proposal.imageUrl ?? '');
-    _itemNumberController =
-        TextEditingController(text: payload['item_number']?.toString() ?? '');
-    _subtitleController =
-        TextEditingController(text: payload['subtitle']?.toString() ?? '');
-    _publisherController =
-        TextEditingController(text: payload['publisher']?.toString() ?? '');
-    _synopsisController =
-        TextEditingController(text: payload['synopsis']?.toString() ?? '');
-    _genresController = TextEditingController(
-      text: _payloadStringList(payload['genres']).join(', '),
-    );
     _kindFieldControllers = _createKindFieldControllers(_catalogKind, payload);
-    _externalLinksController = TextEditingController(
-      text: _payloadLinkRows(payload['external_links'])
-          .map(
-            (link) => [
-              link['label']?.toString() ?? '',
-              link['url']?.toString() ?? '',
-              link['kind']?.toString() ?? '',
-              link['description']?.toString() ?? '',
-            ].join(' | '),
-          )
-          .join('\n'),
-    );
     _payloadController = TextEditingController(
       text: const JsonEncoder.withIndent('  ').convert(payload),
     );
@@ -468,13 +448,7 @@ class _ProposalMetadataEditDialogState
     _titleController.dispose();
     _summaryController.dispose();
     _imageUrlController.dispose();
-    _itemNumberController.dispose();
-    _subtitleController.dispose();
-    _publisherController.dispose();
-    _synopsisController.dispose();
-    _genresController.dispose();
     _disposeKindFieldControllers();
-    _externalLinksController.dispose();
     _payloadController.dispose();
     super.dispose();
   }
@@ -521,6 +495,27 @@ class _ProposalMetadataEditDialogState
     );
   }
 
+  LibraryAdminProposalPayload? _payloadForKindSwitch() {
+    final rawPayload = _payloadController.text.trim();
+    try {
+      final decoded =
+          rawPayload.isEmpty ? <String, dynamic>{} : jsonDecode(rawPayload);
+      if (decoded is! Map) {
+        throw const FormatException('Metadata payload must be a JSON object.');
+      }
+      final payload = LibraryAdminProposalPayload.from(decoded);
+      for (final field in _adminProposalFields) {
+        field.write(payload, _kindFieldControllers[field.key]!.text);
+      }
+      return payload;
+    } on FormatException catch (error) {
+      setState(() {
+        _errorMessage = error.message;
+      });
+      return null;
+    }
+  }
+
   void _save() {
     final query = _queryController.text.trim();
     if (query.isEmpty) {
@@ -546,15 +541,6 @@ class _ProposalMetadataEditDialogState
       return;
     }
     _setPayloadTextValue(payload, 'kind', _kind);
-    _setPayloadTextValue(payload, 'item_number', _itemNumberController.text);
-    _setPayloadTextValue(payload, 'subtitle', _subtitleController.text);
-    _setPayloadTextValue(payload, 'publisher', _publisherController.text);
-    _setPayloadTextValue(payload, 'synopsis', _synopsisController.text);
-    _setPayloadListValue(
-      payload,
-      'genres',
-      _splitCommaSeparated(_genresController.text),
-    );
     for (final contributor in libraryAdminContributors) {
       if (contributor.kind == _catalogKind) {
         continue;
@@ -573,19 +559,6 @@ class _ProposalMetadataEditDialogState
       });
       return;
     }
-    final linksParse =
-        _parseExternalLinkLinesStrict(_externalLinksController.text);
-    if (linksParse.error != null) {
-      setState(() {
-        _errorMessage = linksParse.error;
-      });
-      return;
-    }
-    _setPayloadListValue(
-      payload,
-      'external_links',
-      linksParse.rows,
-    );
     setState(() {
       _errorMessage = null;
     });
@@ -642,12 +615,16 @@ class _ProposalMetadataEditDialogState
                         if (value == null || value == _kind) {
                           return;
                         }
+                        final payload = _payloadForKindSwitch();
+                        if (payload == null) {
+                          return;
+                        }
                         _disposeKindFieldControllers();
                         setState(() {
                           _kind = value;
                           _catalogKind = catalogMediaKindFromValue(value);
-                          _kindFieldControllers =
-                              _createKindFieldControllers(_catalogKind, {});
+                          _kindFieldControllers = _createKindFieldControllers(
+                              _catalogKind, payload);
                         });
                       },
                     ),
@@ -682,36 +659,6 @@ class _ProposalMetadataEditDialogState
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 220,
-                    child: TextFormField(
-                      controller: _itemNumberController,
-                      decoration: const InputDecoration(
-                        labelText: 'Item number',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 320,
-                    child: TextFormField(
-                      controller: _subtitleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Subtitle',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 320,
-                    child: TextFormField(
-                      controller: _publisherController,
-                      decoration: const InputDecoration(
-                        labelText: 'Publisher',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -727,45 +674,14 @@ class _ProposalMetadataEditDialogState
               ),
               const SizedBox(height: 10),
               TextFormField(
-                controller: _synopsisController,
-                minLines: 2,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Synopsis',
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
                 controller: _imageUrlController,
                 decoration: const InputDecoration(
                   labelText: 'Image URL',
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _genresController,
-                decoration: const InputDecoration(
-                  labelText: 'Genres (comma separated)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
               for (final field in _adminProposalFields)
                 _kindProposalField(field),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _externalLinksController,
-                minLines: 2,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText:
-                      'External links (label | url | kind | description)',
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-              ),
               const SizedBox(height: 10),
               SwitchListTile.adaptive(
                 value: _showRawPayload,
@@ -1692,79 +1608,6 @@ List<Map<String, dynamic>> _payloadTrackRows(Object? value) {
   ];
 }
 
-List<Map<String, dynamic>> _payloadLinkRows(Object? value) {
-  if (value is! List) {
-    return const [];
-  }
-  return [
-    for (final row in value)
-      if (row is Map<String, dynamic> &&
-          _emptyToNull(row['url']?.toString() ?? '') != null)
-        row,
-  ];
-}
-
-List<String> _splitCommaSeparated(String value) {
-  return [
-    for (final row in value.split(','))
-      if (row.trim().isNotEmpty) row.trim(),
-  ];
-}
-
-class _LinesParseResult {
-  const _LinesParseResult({
-    required this.rows,
-    this.error,
-  });
-
-  final List<Map<String, dynamic>> rows;
-  final String? error;
-}
-
-_LinesParseResult _parseExternalLinkLinesStrict(String value) {
-  final rows = <Map<String, dynamic>>[];
-  final lines = value.split('\n');
-  for (var index = 0; index < lines.length; index++) {
-    final rawLine = lines[index];
-    final line = rawLine.trim();
-    if (line.isEmpty) {
-      continue;
-    }
-    final columns =
-        line.split('|').map((row) => row.trim()).toList(growable: false);
-    final label = columns.length > 1 ? columns[0] : '';
-    final url = columns.length > 1 ? columns[1] : columns[0];
-    final kind = columns.length > 2 ? columns[2] : '';
-    final description = columns.length > 3 ? columns[3] : '';
-    if (url.isEmpty) {
-      return _LinesParseResult(
-        rows: const [],
-        error: 'External links line ${index + 1} is invalid: URL is required',
-      );
-    }
-    final uri = Uri.tryParse(url);
-    final scheme = uri?.scheme.toLowerCase();
-    final isWebUrl = uri != null &&
-        uri.hasScheme &&
-        (scheme == 'http' || scheme == 'https') &&
-        (uri.host.isNotEmpty);
-    if (!isWebUrl) {
-      return _LinesParseResult(
-        rows: const [],
-        error:
-            'External links line ${index + 1} has invalid URL "$url" (use full http/https URL)',
-      );
-    }
-    rows.add({
-      if (label.isNotEmpty) 'label': label,
-      'url': url,
-      if (kind.isNotEmpty) 'kind': kind,
-      if (description.isNotEmpty) 'description': description,
-    });
-  }
-  return _LinesParseResult(rows: rows);
-}
-
 void _setPayloadTextValue(
     Map<String, dynamic> payload, String key, String value) {
   final normalized = _emptyToNull(value);
@@ -1773,15 +1616,6 @@ void _setPayloadTextValue(
     return;
   }
   payload[key] = normalized;
-}
-
-void _setPayloadListValue(
-    Map<String, dynamic> payload, String key, List<dynamic> value) {
-  if (value.isEmpty) {
-    payload.remove(key);
-    return;
-  }
-  payload[key] = value;
 }
 
 String _adminErrorMessage(Object error) {

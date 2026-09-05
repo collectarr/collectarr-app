@@ -9,5 +9,20 @@ class BoardGameAdminContributor implements LibraryAdminContributor {
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
-  List<LibraryAdminProposalField> get proposalFields => const [];
+  List<LibraryAdminProposalField> get proposalFields => [
+        adminTextProposalField(key: 'item_number', label: 'Item number'),
+        adminTextProposalField(key: 'subtitle', label: 'Subtitle'),
+        adminTextProposalField(key: 'publisher', label: 'Publisher'),
+        adminTextProposalField(
+          key: 'synopsis',
+          label: 'Synopsis',
+          minLines: 2,
+          maxLines: 3,
+        ),
+        adminStringListProposalField(
+          key: 'genres',
+          label: 'Genres (comma separated)',
+        ),
+        adminExternalLinksProposalField(),
+      ];
 }

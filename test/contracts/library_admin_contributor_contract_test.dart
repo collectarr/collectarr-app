@@ -26,7 +26,8 @@ void main() {
 
   test('Game owns the platform proposal payload codec', () {
     final contributor = libraryAdminContributorForKind(CatalogMediaKind.game)!;
-    final field = contributor.proposalFields.single;
+    final field = contributor.proposalFields
+        .singleWhere((field) => field.key == 'platforms');
     final payload = <String, dynamic>{
       'platforms': ['Switch'],
     };
@@ -38,7 +39,8 @@ void main() {
 
   test('Music owns the track proposal payload codec and validation', () {
     final contributor = libraryAdminContributorForKind(CatalogMediaKind.music)!;
-    final field = contributor.proposalFields.single;
+    final field = contributor.proposalFields
+        .singleWhere((field) => field.key == 'tracks');
     final payload = <String, dynamic>{
       'tracks': [
         {
