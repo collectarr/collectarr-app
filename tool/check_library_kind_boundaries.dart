@@ -92,6 +92,30 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   };
 
   static const _forbiddenContextualMemberNames = {
+    // Domain vocabulary that must not be interpreted by a generic feature
+    // after kind dispatch.  Provider protocol models and kind-owned files are
+    // excluded by the path checks below.
+    'series',
+    'issue',
+    'issueNumber',
+    'volume',
+    'chapter',
+    'season',
+    'episode',
+    'publisher',
+    'imprint',
+    'isbn',
+    'barcode',
+    'grade',
+    'grading',
+    'hdr',
+    'audio',
+    'subtitle',
+    'platform',
+    'region',
+    'creator',
+    'character',
+    'track',
     'storyArc',
     'storyArcs',
     'comicGrade',
@@ -212,6 +236,11 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   };
 
   static const _generatedDtoAllowlist = {
+    // Generated protocol clients and their direct HTTP facade are transport
+    // boundaries. They are not application kind mappers.
+    'lib/core/api/api_client.dart',
+    'lib/core/api/api_client_admin.dart',
+    'lib/core/api/generated/collectarr_api.client.dart',
     'lib/features/library/kinds/comic/data/remote/comic_core_mapper.dart',
     'lib/features/library/kinds/manga/data/remote/manga_core_mapper.dart',
     'lib/features/library/kinds/book/data/remote/book_core_mapper.dart',
@@ -254,10 +283,14 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   }
 
   bool _isStrictGenericContext(String path) {
-    return path.startsWith('lib/features/library/generic/') ||
-        path.startsWith('lib/features/library/stats/') ||
-        path.startsWith('lib/features/library/value/') ||
-        path.startsWith('lib/features/library/export/');
+    if (path.startsWith('lib/features/library/kinds/') ||
+        path.startsWith('lib/features/providers/') ||
+        path.startsWith('lib/core/api/generated/')) {
+      return false;
+    }
+    return path.startsWith('lib/features/') ||
+        path.startsWith('lib/core/models/') ||
+        path.startsWith('lib/core/api/mappers/');
   }
 
   @override
@@ -292,7 +325,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     }
 
     if (_isGeneratedCoreDtoPath(importedRelativePath) &&
-        _isKindSourcePath(relativePath) &&
         !_generatedDtoAllowlist.contains(relativePath)) {
       violations.add(
         '$relativePath:$lineNumber: Generated Core DTO import must stay inside the owning kind module ($uriString)',
@@ -455,6 +487,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitMethodDeclaration(MethodDeclaration node) {
+    _checkDeclaredSemanticName(node.name.lexeme, node.offset);
     final startLine = lineInfo.getLocation(node.offset).lineNumber;
     final endLine = lineInfo.getLocation(node.end).lineNumber;
     final methodLength = endLine - startLine + 1;
@@ -465,6 +498,25 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     }
     _checkParameters(node.parameters, node.name.lexeme, startLine);
     super.visitMethodDeclaration(node);
+  }
+
+  @override
+  void visitVariableDeclaration(VariableDeclaration node) {
+    if (node.parent?.parent is FieldDeclaration) {
+      _checkDeclaredSemanticName(node.name.lexeme, node.offset);
+    }
+    super.visitVariableDeclaration(node);
+  }
+
+  void _checkDeclaredSemanticName(String name, int offset) {
+    if (!_isStrictGenericContext(relativePath) ||
+        !_forbiddenContextualMemberNames.contains(name)) {
+      return;
+    }
+    final line = lineInfo.getLocation(offset).lineNumber;
+    violations.add(
+      '$relativePath:$line: Forbidden contextual semantic declaration "$name" in generic library code',
+    );
   }
 
   @override
@@ -505,8 +557,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   }
 
   bool _isGenericMetadataMap(NamedType node) {
-    if (node.name.lexeme != 'Map' ||
-        !relativePath.startsWith('lib/features/library/')) {
+    if (node.name.lexeme != 'Map' || !_isProductionBoundaryPath(relativePath)) {
       return false;
     }
     final arguments = node.typeArguments?.arguments;
@@ -517,17 +568,20 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         (valueType != 'dynamic' && valueType != 'Object?')) {
       return false;
     }
-    return relativePath.startsWith('lib/features/library/add/') ||
-        relativePath.startsWith('lib/features/library/edit/') ||
-        relativePath.startsWith('lib/features/library/generic/') ||
-        relativePath.startsWith('lib/features/library/metadata/') ||
-        relativePath.startsWith('lib/features/library/config/');
+    final lineNumber = lineInfo.getLocation(node.offset).lineNumber;
+    final lines = sourceContent?.split('\n');
+    final declarationSource = lines != null && lineNumber <= lines.length
+        ? lines[lineNumber - 1]
+        : node.toSource();
+    return RegExp(
+      r'\b(metadata|catalog|payload|semantic|details|owned|release|item)\b',
+      caseSensitive: false,
+    ).hasMatch(declarationSource);
   }
 
   bool _isDynamicCatalogType(NamedType node) {
     if (node.name.lexeme != 'dynamic' ||
-        (!_isLibraryDataPath(relativePath) &&
-            !relativePath.startsWith('lib/features/catalog/'))) {
+        !_isProductionBoundaryPath(relativePath)) {
       return false;
     }
     final lineNumber = lineInfo.getLocation(node.offset).lineNumber;
@@ -547,8 +601,19 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   }
 
   bool _isForbiddenRuntimeTypeContext(String path) {
-    return path.startsWith('lib/features/') ||
-        path.startsWith('lib/core/models/');
+    return _isProductionBoundaryPath(path) ||
+        path.startsWith('lib/core/models/') ||
+        path.startsWith('lib/core/api/mappers/');
+  }
+
+  bool _isProductionBoundaryPath(String path) {
+    return path.startsWith('lib/features/') &&
+            !path.startsWith('lib/features/library/kinds/') &&
+            !path.startsWith('lib/features/providers/') ||
+        path.startsWith('lib/core/models/') ||
+        path.startsWith('lib/core/api/mappers/') ||
+        path.startsWith('lib/core/routing/') ||
+        path.startsWith('lib/core/settings/');
   }
 }
 
@@ -564,7 +629,8 @@ void main(List<String> arguments) {
 
   for (final file in files) {
     final relativePath = p.relative(file, from: repoRoot).replaceAll('\\', '/');
-    if (relativePath.endsWith('.g.dart') ||
+    if (_isGeneratedSourcePath(relativePath) ||
+        relativePath.endsWith('.g.dart') ||
         relativePath.endsWith('.freezed.dart') ||
         relativePath.endsWith('.drift.dart')) {
       continue;
@@ -636,14 +702,24 @@ Iterable<String> _dartFilesUnder(Directory root) sync* {
 }
 
 bool isBoundaryFile(String relativePath) {
-  if (!relativePath.startsWith('lib/features/library/')) {
+  if (!relativePath.startsWith('lib/')) {
     return false;
   }
-  if (relativePath.startsWith('lib/features/library/kinds/')) {
+  if (relativePath.startsWith('lib/test/') ||
+      relativePath.startsWith('lib/dev/') ||
+      relativePath.startsWith('lib/features/library/kinds/') ||
+      relativePath.startsWith('lib/core/api/generated/') ||
+      _compositionRoots.contains(relativePath)) {
     return false;
   }
   return true;
 }
+
+const _compositionRoots = {
+  'lib/core/db/local_database.dart',
+  'lib/core/routing/app_router.dart',
+  'lib/features/library/library_kind_registry.dart',
+};
 
 bool isAllowedKindImport(String sourceKind, String importedKind) {
   return false;
@@ -661,6 +737,13 @@ bool _isKindSourcePath(String relativePath) {
 bool _isGeneratedCoreDtoPath(String relativePath) {
   return relativePath.startsWith('lib/core/api/generated/') &&
       relativePath.endsWith('.models.dart');
+}
+
+bool _isGeneratedSourcePath(String relativePath) {
+  return relativePath.startsWith('lib/core/api/generated/') &&
+      (relativePath.endsWith('.client.dart') ||
+          relativePath.endsWith('.models.dart') ||
+          relativePath.endsWith('.enums.dart'));
 }
 
 String? _kindNameForPath(String relativePath) {

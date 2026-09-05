@@ -362,6 +362,84 @@ dynamic catalogItem;
     );
   });
 
+  test(
+      'whole-repository boundary checker rejects kind imports from feature hosts',
+      () {
+    const testCode = '''
+import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
+
+class CalendarHost {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/calendar/calendar_host.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Forbidden import of kind-specific module')),
+    );
+  });
+
+  test(
+      'whole-repository boundary checker rejects Core DTOs from generic mappers',
+      () {
+    const testCode = '''
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+
+class GenericMapper {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/core/api/mappers/generic_mapper.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Generated Core DTO import must stay inside')),
+    );
+  });
+
+  test('whole-repository boundary checker rejects semantic fields in settings',
+      () {
+    const testCode = '''
+class SettingsMetadata {
+  String? get isbn => null;
+}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/settings/settings_metadata.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Forbidden contextual semantic declaration "isbn"')),
+    );
+  });
+
+  test('composition roots may wire kind modules', () {
+    const testCode = '''
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_media.dart';
+
+class DatabaseCompositionRoot {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/core/db/local_database.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(visitor.visitor.violations, isEmpty);
+  });
+
   test('architecture boundary checker rejects legacy erased runtime types', () {
     const testCode = '''
 CatalogItemDto item;

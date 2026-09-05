@@ -12,7 +12,7 @@ This is the PR0 rebaseline for the new Full Typed-Kind Vertical Architecture pla
 Evidence checked:
 
 - `git log main..HEAD`: 902 changed paths across the branch, with the prior typed-kind work and the seed refresh commit.
-- `tool/check_library_kind_boundaries.dart`: baseline currently reports 98 AST architecture violations; complexity output is informational.
+- `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 635 AST architecture violations; its 392 complexity warnings are informational.
 - `test/contracts/**`, `test/architecture/**`, and `test/dev/dev_seed_test.dart`: full suite passed with `1819 passed, 5 skipped`.
 - Existing audits: `docs/typed-kind-parity-final.md`, `docs/typed-kind-semantic-vacuum-audit.md`, `docs/outside-kinds-generic-audit.md`, and `docs/collectarr_shared_kind_audit.md`.
 - Seed coverage: 15 catalog entries for each kind except BoardGame (10), matching owned/tracking fixtures and expanded pick-list vocabulary.
@@ -160,7 +160,7 @@ Status meanings:
 
 | Gate | Status | Evidence |
 |---|---|---|
-| Full `lib/**` semantic checker baseline | FAIL | Current checker exits 1 with 98 AST violations; its rules still center on Library boundaries and named migration allowlists. |
+| Full `lib/**` semantic checker baseline | FAIL | Current checker exits 1 with 635 AST violations; complexity output is informational and the migration allowlist remains explicit/shrinkable. |
 | Core DTO field adoption | PASS | Generated DTO policy and CI checks are present; dev seed/core tests pass. |
 | Nine-kind mandatory typed contracts | PASS | Explicit all-kind manifest and matrix tests are present and passing. |
 | No cross-kind imports | FAIL | Baseline includes a Game → Music import violation and generic Library → TV imports. |
@@ -171,8 +171,8 @@ Status meanings:
 
 ## PR0 conclusion
 
-PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. The next implementation task is PR1: extend the semantic boundary checker from the Library-focused boundary model to the whole relevant production `lib/**` surface, keep an explicit migration baseline, and make the allowlist shrinkable.
+PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is now implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. Its current failing baseline is 635 AST violations and must shrink in subsequent PRs.
 
 ## Recommended next PR
 
-`PR1 — Whole-repository semantic boundary checker baseline`.
+`PR2 — Typed reusable contract-test framework`, while shrinking the PR1 baseline in parallel with each migration.
