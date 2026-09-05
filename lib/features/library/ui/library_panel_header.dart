@@ -61,15 +61,13 @@ class LibraryPanelHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final bg = backgroundColor ?? theme.colorScheme.primary;
     final fg = foregroundColor ?? Colors.white;
+    final metrics = density.metrics;
     final resolvedPadding = padding ??
         EdgeInsets.symmetric(
-          horizontal: kLibraryPanelHorizontalPadding,
-          vertical: density == LibraryDensity.comfortable ? 6 : 4,
+          horizontal: metrics.panelPadding,
+          vertical: metrics.panelHeaderVerticalPadding,
         );
-    final resolvedMinHeight = minHeight ??
-        (density == LibraryDensity.comfortable
-            ? kLibraryPanelHeaderMinHeight
-            : kLibraryPanelHeaderCompactMinHeight);
+    final resolvedMinHeight = minHeight ?? metrics.panelHeaderHeight;
     return Container(
       constraints: BoxConstraints(minHeight: resolvedMinHeight),
       padding: resolvedPadding,

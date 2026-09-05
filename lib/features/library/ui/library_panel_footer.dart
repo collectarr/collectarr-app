@@ -21,10 +21,11 @@ class LibraryPanelFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final metrics = density.metrics;
     final resolvedPadding = padding ??
         EdgeInsets.symmetric(
-          horizontal: kLibraryPanelHorizontalPadding,
-          vertical: density == LibraryDensity.comfortable ? 6 : 4,
+          horizontal: metrics.panelPadding,
+          vertical: metrics.footerVerticalPadding,
         );
     return Container(
       width: double.infinity,
