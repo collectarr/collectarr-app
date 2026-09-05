@@ -2227,6 +2227,10 @@ gone; release consumers now reference their explicit release modules.
 The unused shared `VideoPhysicalReleaseDraft` has been removed; active Add
 flows already use their typed kind drafts.
 
+The serial presentation builder had only a Manga consumer and is now
+Manga-owned under `manga/presentation_builder.dart`; Comic keeps its own
+presentation builder.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

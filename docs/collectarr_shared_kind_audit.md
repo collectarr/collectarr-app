@@ -16,7 +16,6 @@ when their inputs are genuinely owner-neutral.
 | `ownership/video_physical_copy_details.dart` | DOMAIN MODEL | Move/duplicate into video owners |
 | `serial/authority/serial_authority_dialog.dart` | EDIT | Move to serial-capable owners |
 | `serial/authority/serial_authority_repository.dart` | PERSISTENCE | Move behind typed serial owners |
-| `serial/serial_library_media_presentation_builder.dart` | DOMAIN BEHAVIOR | Move to kind presentation |
 | `video/catalog/video_catalog_item.dart` | DOMAIN MODEL | Move/duplicate into movie/TV/anime |
 | `video/catalog/video_catalog_mapper.dart` | DOMAIN BEHAVIOR | Move provider mapping into owners |
 | `video/catalog/video_catalog_release.dart` | DOMAIN MODEL | Move to video kind owners |

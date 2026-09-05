@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/serial_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/manga/presentation_builder.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
@@ -16,20 +16,14 @@ const mangaMetadataLabels = LibraryMetadataLabels(
   },
 );
 
-class MangaLibraryMediaPresentationBuilder
-    extends SerialLibraryMediaPresentationBuilder {
-  const MangaLibraryMediaPresentationBuilder()
-      : super(
-          showSummary: true,
-          metadataLabels: mangaMetadataLabels,
-          itemNumberLabel: 'Chapter / Vol.',
-          publisherLabel: 'Publisher / Studio / Creator',
-          variantLabel: 'Edition / Variant / Format',
-          barcodeLabel: 'Barcode / UPC / ISBN',
-        );
-}
-
-const mangaLibraryMediaBuilder = MangaLibraryMediaPresentationBuilder();
+const mangaLibraryMediaBuilder = MangaLibraryMediaPresentationBuilder(
+  showSummary: true,
+  metadataLabels: mangaMetadataLabels,
+  itemNumberLabel: 'Chapter / Vol.',
+  publisherLabel: 'Publisher / Studio / Creator',
+  variantLabel: 'Edition / Variant / Format',
+  barcodeLabel: 'Barcode / UPC / ISBN',
+);
 
 const mangaPreviewLabels = LibraryMediaPreviewLabels(
   values: {

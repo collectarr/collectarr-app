@@ -9,9 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 
-class SerialLibraryMediaPresentationBuilder
+class MangaLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
-  const SerialLibraryMediaPresentationBuilder({
+  const MangaLibraryMediaPresentationBuilder({
     this.showSummary = false,
     this.metadataLabels = const LibraryMetadataLabels(),
     this.itemNumberLabel = 'Number',
