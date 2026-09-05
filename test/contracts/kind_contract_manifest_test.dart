@@ -14,6 +14,7 @@ void main() {
 
   test('every mandatory contract includes every active kind', () {
     const expectedMandatory = {
+      'coreFieldAdoption',
       'coreMapping',
       'repository',
       'mediaPersistence',
@@ -26,6 +27,7 @@ void main() {
       'add',
       'mediaEdit',
       'identity',
+      'owned',
     };
 
     expect(

@@ -29,6 +29,7 @@ final class KindContractManifest {
 const kindContractManifest = KindContractManifest(
   activeKinds: activeTypedKinds,
   mandatoryParticipants: {
+    'coreFieldAdoption': activeTypedKinds,
     'coreMapping': activeTypedKinds,
     'repository': activeTypedKinds,
     'mediaPersistence': activeTypedKinds,
@@ -41,6 +42,7 @@ const kindContractManifest = KindContractManifest(
     'add': activeTypedKinds,
     'mediaEdit': activeTypedKinds,
     'identity': activeTypedKinds,
+    'owned': activeTypedKinds,
   },
   optionalParticipants: {
     'release': {
