@@ -83,6 +83,11 @@ class WatchSessionsCacheRepository {
     return codec.upsert(_db, session);
   }
 
+  Map<String, dynamic> toSyncPayload(WatchSession session) {
+    return _codecs[session.targetRef.kind]?.toSyncPayload(session) ??
+        session.toSyncPayload();
+  }
+
   static int _compareSessions(WatchSession left, WatchSession right) {
     return right.watchedAt.compareTo(left.watchedAt);
   }

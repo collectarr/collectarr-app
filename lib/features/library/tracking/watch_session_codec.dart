@@ -16,4 +16,18 @@ abstract interface class WatchSessionCodec {
   Future<WatchSession?> findById(LocalDatabase db, String id);
 
   Future<void> upsert(LocalDatabase db, WatchSession session);
+
+  /// Serializes a watch session for the provider sync boundary.
+  ///
+  /// The host supplies lifecycle and transport plumbing; the owning kind
+  /// decides whether the payload contains hierarchy coordinates.
+  Map<String, dynamic> toSyncPayload(WatchSession session);
+
+  /// Reconstructs a session received from the provider sync boundary.
+  WatchSession fromSyncPayload({
+    required Map<String, dynamic> payload,
+    required String id,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  });
 }

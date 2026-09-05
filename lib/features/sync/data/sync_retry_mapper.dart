@@ -99,7 +99,10 @@ class SyncRetryMapper {
           entityType: change.entityType,
           entityId: session.id,
           action: session.isDeleted ? 'delete' : 'upsert',
-          payload: session.toSyncPayload(),
+          payload: WatchSessionsCacheRepository(
+            db,
+            codecs: collectarrWatchSessionCodecs,
+          ).toSyncPayload(session),
           clientChangedAt: changedAt,
         );
       case 'metadata_override':

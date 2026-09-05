@@ -65,6 +65,47 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
         );
   }
 
+  @override
+  Map<String, dynamic> toSyncPayload(WatchSession session) {
+    _validateKind(session);
+    return session.toSyncPayload()
+      ..addAll({
+        'season_number': session.seasonNumber,
+        'episode_number': session.episodeNumber,
+      });
+  }
+
+  @override
+  WatchSession fromSyncPayload({
+    required Map<String, dynamic> payload,
+    required String id,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  }) {
+    final targetRef = _targetRefFromPayload(payload);
+    if (targetRef.kind != kind) {
+      throw ArgumentError.value(
+        targetRef.kind,
+        'payload.catalog_ref.kind',
+        'Expected TV watch session',
+      );
+    }
+    return WatchSession(
+      id: id,
+      targetRef: targetRef,
+      trackingEntryId: payload['tracking_entry_id'] as String?,
+      seasonNumber: _int(payload['season_number']),
+      episodeNumber: _int(payload['episode_number']),
+      sourceType: payload['source_type'] as String?,
+      seenWhere: payload['seen_where'] as String?,
+      watchedAt: DateTime.parse(payload['watched_at'] as String),
+      rating: _int(payload['rating']),
+      notes: payload['notes'] as String?,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+  }
+
   WatchSession _fromRow(TvWatchSessionRow row) {
     return WatchSession(
       id: row.id,
@@ -104,4 +145,28 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
       id: itemId,
     );
   }
+
+  void _validateKind(WatchSession session) {
+    if (session.targetRef.kind != kind) {
+      throw ArgumentError.value(
+        session.targetRef.kind,
+        'session.targetRef.kind',
+        'Expected TV watch session',
+      );
+    }
+  }
+
+  CatalogEntityRef _targetRefFromPayload(Map<String, dynamic> payload) {
+    final raw = payload['target_ref'] ?? payload['catalog_ref'];
+    if (raw is! Map) {
+      throw const FormatException('TV watch session is missing catalog_ref');
+    }
+    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
+  }
+}
+
+int? _int(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString().trim() ?? '');
 }

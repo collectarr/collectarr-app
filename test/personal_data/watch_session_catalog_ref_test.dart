@@ -30,8 +30,6 @@ void main() {
     expect(session.toSyncPayload(), {
       'catalog_ref': ref.toJson(),
       'tracking_entry_id': 'track-1',
-      'season_number': 1,
-      'episode_number': 3,
       'source_type': 'physical',
       'watched_at': watchedAt.toUtc().toIso8601String(),
       'seen_where': 'Blu-ray player',

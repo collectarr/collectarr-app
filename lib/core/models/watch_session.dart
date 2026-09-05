@@ -41,11 +41,12 @@ class WatchSession {
   String? get sourceTypeApiValue => sourceType?.apiValue;
 
   Map<String, dynamic> toSyncPayload() {
+    // Hierarchy coordinates are owned by TV/Anime watch-session codecs. This
+    // common fallback intentionally carries only lifecycle fields so an
+    // unregistered kind cannot leak video semantics through the host.
     return {
       'catalog_ref': targetRef.toJson(),
       'tracking_entry_id': trackingEntryId,
-      'season_number': seasonNumber,
-      'episode_number': episodeNumber,
       'source_type': sourceTypeApiValue,
       'watched_at': watchedAt.toUtc().toIso8601String(),
       'seen_where': seenWhere,

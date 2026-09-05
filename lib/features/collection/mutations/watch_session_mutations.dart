@@ -87,7 +87,7 @@ final class WatchSessionMutations {
       entityType: 'watch_session',
       entityId: session.id,
       action: action,
-      payload: session.toSyncPayload(),
+      payload: watchSessions.toSyncPayload(session),
       clientChangedAt: now,
     );
   }
