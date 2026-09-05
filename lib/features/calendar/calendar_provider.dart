@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -78,17 +80,28 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
     }
   }
 
-  // --- Watch sessions ---
+  final calendarContext = LibraryCalendarContext(
+    watchSessions: watchSessions,
+    titleForItem: titleFor,
+  );
+  for (final contributor in libraryCalendarContributors) {
+    events.addAll(contributor.contribute(calendarContext));
+  }
+
+  // --- Watch sessions without a kind contributor ---
+  // The generic host preserves the event but intentionally does not inspect
+  // episode coordinates. TV and Anime already projected their own sessions
+  // above.
   for (final session in watchSessions) {
-    if (session.isDeleted) continue;
-    final title = titleFor(session.itemId);
-    final epStr = session.isEpisodeSession
-        ? ' S${session.seasonNumber}E${session.episodeNumber}'
-        : '';
+    if (session.isDeleted ||
+        libraryCalendarContributorForKind(session.targetRef.mediaKind) !=
+            null) {
+      continue;
+    }
     events.add(CalendarEvent(
       kind: CalendarEventKind.watched,
       date: session.watchedAt,
-      title: '$title$epStr',
+      title: titleFor(session.itemId),
       itemId: session.itemId,
     ));
   }

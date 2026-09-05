@@ -1,10 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
+import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_collection_shelf_extension.dart';
+import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +63,21 @@ final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
 
 Iterable<LibraryCollectionCsvProjection> get libraryCollectionCsvProjections =>
     _collectionCsvProjections.values;
+
+final Map<CatalogMediaKind, LibraryCalendarContributor> _calendarContributors =
+    Map.unmodifiable({
+  CatalogMediaKind.tv: const TvCalendarContributor(),
+  CatalogMediaKind.anime: const AnimeCalendarContributor(),
+});
+
+Iterable<LibraryCalendarContributor> get libraryCalendarContributors =>
+    _calendarContributors.values;
+
+LibraryCalendarContributor? libraryCalendarContributorForKind(
+  CatalogMediaKind kind,
+) {
+  return _calendarContributors[kind];
+}
 
 /// Returns the kind-owned semantic CSV contribution for a serialization
 /// boundary. The generic Collection feature receives cells only; it never
