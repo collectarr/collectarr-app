@@ -558,6 +558,10 @@ class CollectionCsv {
 
   List<String> _clzFriendlyHeaderForKind(String kind) {
     final mediaKind = catalogMediaKindFromValue(kind);
+    final projection = libraryCollectionCsvProjectionForKind(mediaKind);
+    if (projection?.clzFriendlyHeader case final header?) {
+      return header;
+    }
     final module = defaultLibraryKindRegistry.tryGet(mediaKind);
     if (module == null) {
       return clzFriendlyHeader;
@@ -921,10 +925,9 @@ class CollectionCsv {
     return normalized;
   }
 
-  static const _columnAliases = {
+  static const Map<String, List<String>> _columnAliases = {
     'item_id': [
       'Collectarr Item ID',
-      'Core SeriesID',
     ],
     'kind': ['Media Type', 'Kind', 'Type', 'Library', 'Media Kind'],
     'title': ['Series', 'Show', 'Release', 'Full Title'],
@@ -937,7 +940,6 @@ class CollectionCsv {
     ],
     'variant': [
       'Variant',
-      'Variant Description',
       'Format / Edition',
       'Platform / Edition',
       'Edition / Binding',
@@ -989,8 +991,6 @@ class CollectionCsv {
     'quantity': ['Quantity', 'Qty'],
     'location_id': ['Location ID', 'Location Id'],
     'index_number': ['Index', 'Index Number'],
-    'cover_price_cents': ['Cover Price'],
-    'signed_by': ['Signed By'],
     'rating': ['Rating'],
     'read_status': ['Read It', 'Read Status', 'Read'],
     'tags': ['Tags'],

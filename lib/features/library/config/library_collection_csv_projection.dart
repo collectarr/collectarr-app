@@ -10,6 +10,13 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 abstract interface class LibraryCollectionCsvProjection {
   CatalogMediaKind get kind;
 
+  /// The complete CLZ-compatible header for a single-kind export.
+  ///
+  /// A null value means that the generic host should keep its transitional
+  /// header. The header is a wire-format concern, so owning it here keeps
+  /// kind-specific labels and columns out of Collection.
+  List<String>? get clzFriendlyHeader;
+
   /// Aliases contributed by the kind's external CSV integrations.
   ///
   /// Keys are canonical wire-column names. Values are human-facing or
