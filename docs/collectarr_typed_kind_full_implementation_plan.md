@@ -1956,6 +1956,14 @@ EmptyKindMetadata
 
 No replacement V2.
 
+### Status (2026-09-05)
+
+Complete. The shared metadata runtime interface, global decoder container, and
+map fallback implementations are deleted. Concrete kind metadata/media models
+remain responsible for their own payload serialization; the transitional
+catalog view keeps only the boundary decoding needed until PR72 removes the
+remaining library wrappers. Continue with PR72.
+
 ---
 
 ## PR 72 — Delete Library catalog wrappers
