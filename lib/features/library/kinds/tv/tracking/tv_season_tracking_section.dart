@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/providers/video_seasons_provider.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_episode_row.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/providers/video_seasons_provider.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart';
 import 'package:collectarr_app/features/library/widgets/episode_rating_grid.dart';
 import 'package:collectarr_app/features/library/widgets/episode_rating_picker.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';

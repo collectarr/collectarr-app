@@ -45,7 +45,6 @@ when their inputs are genuinely owner-neutral.
 | `video/edit/widgets/tv_episode_row.dart` | VISUAL STRUCTURAL | Move/duplicate into TV/Anime |
 | `video/edit/widgets/tv_episode_thumbnail.dart` | VISUAL STRUCTURAL | Move/duplicate into TV/Anime |
 | `video/library_add_video_result_policy.dart` | EDIT | Move result policy into kind add flows |
-| `video/providers/video_seasons_provider.dart` | PROVIDER | Move provider mapping into TV/Anime |
 | `video/release/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
 | `video/release/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
 | `video/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
@@ -72,4 +71,5 @@ Movie-owned; the unused workspace progress surface has been removed. Universal
 session history and its presenter now live under library tracking. The Add
 seasons/episodes preview is also now part of generic Add infrastructure. TV
 now owns episodic progress, identity, row/card, season-tracking, rating, and
-upcoming-episode surfaces.
+upcoming-episode surfaces. The TV season provider compatibility layer is now
+TV-owned as well.

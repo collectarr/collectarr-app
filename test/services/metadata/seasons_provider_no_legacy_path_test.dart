@@ -6,7 +6,7 @@ void main() {
   test('seasons provider uses typed tv reads instead of legacy item seasons',
       () async {
     final content = await File(
-      'lib/features/library/kinds/_shared/video/providers/video_seasons_provider.dart',
+      'lib/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart',
     ).readAsString();
 
     expect(content, contains('tvSeriesSeasonsProvider'));

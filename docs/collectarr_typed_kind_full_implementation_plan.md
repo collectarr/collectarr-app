@@ -2190,6 +2190,9 @@ page.
 
 Upcoming-episode hierarchy UI is also now TV-owned under `tv/hierarchy`.
 
+The remaining Core-`Season` compatibility provider is now explicit under
+`tv/provider`; the typed `TvSeason` provider remains separate.
+
 Unused video Edit support and compatibility barrels have been removed; the
 custom-tab builder now imports concrete tab modules directly.
 
