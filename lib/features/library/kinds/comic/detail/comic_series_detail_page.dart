@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_relation_strip.dart';
@@ -73,7 +72,8 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ownedItemIds = ref.watch(collectionByCatalogItemProvider);
+    final ownedItemIds =
+        ref.watch(collectionByCatalogItemProvider).keys.toSet();
     final series = data.series;
     final description = series['description']?.toString();
     final itemCount =
@@ -181,7 +181,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
               Builder(builder: (context) {
                 final ownedCount = data.items.where((item) {
                   final id = item['id']?.toString();
-                  return id != null && ownedItemIds.containsKey(id);
+                  return id != null && ownedItemIds.contains(id);
                 }).length;
                 return Text(
                   '$ownedCount / ${data.items.length} owned',
@@ -251,7 +251,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
           for (final item in data.items)
             _ComicSeriesItemTile(
               item: item,
-              isOwned: ownedItemIds.containsKey(item['id']?.toString()),
+              isOwned: ownedItemIds.contains(item['id']?.toString()),
             ),
       ],
     );
@@ -358,7 +358,7 @@ final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 
 List<int> _computeMissingIssues(
   List<dynamic> items,
-  Map<String, OwnedItem> ownedItemIds,
+  Set<String> ownedItemIds,
 ) {
   final ownedNumbers = <int>{};
   final allNumbers = <int>{};
@@ -371,7 +371,7 @@ List<int> _computeMissingIssues(
     if (number == null) continue;
     allNumbers.add(number);
     final id = item['id']?.toString();
-    if (id != null && ownedItemIds.containsKey(id)) {
+    if (id != null && ownedItemIds.contains(id)) {
       ownedNumbers.add(number);
     }
   }
