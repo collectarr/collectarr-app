@@ -540,11 +540,7 @@ class _SearchResultsGrid extends StatelessWidget {
     final palette = appPalette(context);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
-    final densityScale = switch (density) {
-      LibraryDensity.comfortable => 1.0,
-      LibraryDensity.compact => 0.9,
-      LibraryDensity.dense => 0.82,
-    };
+    final densityScale = density.metrics.searchScale;
     return GridView.builder(
       padding: EdgeInsets.all(12 * densityScale),
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
@@ -938,11 +934,7 @@ class SearchResultTile extends StatelessWidget {
     final palette = appPalette(context);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
-    final densityScale = switch (density) {
-      LibraryDensity.comfortable => 1.0,
-      LibraryDensity.compact => 0.9,
-      LibraryDensity.dense => 0.82,
-    };
+    final densityScale = density.metrics.searchScale;
     final summary = matchSummary?.call(item);
     final resultDisplay =
         type.presentation.builder.buildSearchResultDisplay(item: item);
@@ -1150,11 +1142,7 @@ class ProviderCandidateTile extends StatelessWidget {
     final palette = appPalette(context);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
-    final densityScale = switch (density) {
-      LibraryDensity.comfortable => 1.0,
-      LibraryDensity.compact => 0.9,
-      LibraryDensity.dense => 0.82,
-    };
+    final densityScale = density.metrics.searchScale;
     final summary = matchSummary?.call(candidate);
     final subtitle = [
       providerLabel,

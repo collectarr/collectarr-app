@@ -712,11 +712,7 @@ class _TvReleaseTile extends StatelessWidget {
     final palette = appPalette(context);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
-    final tilePadding = switch (density) {
-      LibraryDensity.comfortable => const EdgeInsets.all(12),
-      LibraryDensity.compact => const EdgeInsets.all(10),
-      LibraryDensity.dense => const EdgeInsets.all(8),
-    };
+    final tilePadding = density.metrics.panelInsets;
     return Material(
       color: selected ? accent.withValues(alpha: 0.16) : palette.panel,
       borderRadius: BorderRadius.circular(16),
@@ -797,11 +793,7 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
     final palette = appPalette(context);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
-    final tilePadding = switch (density) {
-      LibraryDensity.comfortable => const EdgeInsets.all(12),
-      LibraryDensity.compact => const EdgeInsets.all(10),
-      LibraryDensity.dense => const EdgeInsets.all(8),
-    };
+    final tilePadding = density.metrics.panelInsets;
     final selectedMedia = release.media.isEmpty
         ? null
         : release.media.firstWhere(

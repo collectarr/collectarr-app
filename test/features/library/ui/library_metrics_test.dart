@@ -9,6 +9,7 @@ void main() {
       expect(metrics.fieldHeight, 34);
       expect(metrics.buttonHeight, 36);
       expect(metrics.iconButtonSize, 32);
+      expect(metrics.searchScale, 1);
       expect(metrics.panelHeaderHeight, 46);
       expect(metrics.tableRowHeight, 38);
       expect(metrics.resultRowHeight, 72);
@@ -27,6 +28,7 @@ void main() {
       expect(dense.tableRowHeight, lessThan(compact.tableRowHeight));
       expect(dense.panelPadding, lessThan(compact.panelPadding));
       expect(dense.gapMd, lessThan(compact.gapMd));
+      expect(dense.searchScale, 0.82);
     });
 
     test('retains the existing table margin scaling rules', () {

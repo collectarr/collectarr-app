@@ -2440,6 +2440,15 @@ compact
 dense
 ```
 
+### Progress (2026-09-05)
+
+`LibraryMetrics` now owns the shared Library density vocabulary, including
+control sizes, panel/table/result geometry, spacing, responsive breakpoints,
+and the existing table/search density scales. Panel chrome, workspace tables,
+the Add search pane, and video detail tiles consume the typed metrics instead
+of maintaining local density switches. The legacy chrome token file remains a
+compatibility export for the density scope.
+
 ---
 
 ## PR 87 — Typography grammar

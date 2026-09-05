@@ -14,6 +14,7 @@ class LibraryMetrics {
     required this.fieldHeight,
     required this.buttonHeight,
     required this.iconButtonSize,
+    required this.searchScale,
     required this.dialogHeaderHeight,
     required this.panelHeaderHeight,
     required this.panelHeaderVerticalPadding,
@@ -38,6 +39,7 @@ class LibraryMetrics {
           fieldHeight: 34,
           buttonHeight: 36,
           iconButtonSize: 32,
+          searchScale: 1.0,
           dialogHeaderHeight: 46,
           panelHeaderHeight: 46,
           panelHeaderVerticalPadding: 6,
@@ -62,6 +64,7 @@ class LibraryMetrics {
           fieldHeight: 32,
           buttonHeight: 34,
           iconButtonSize: 30,
+          searchScale: 0.9,
           dialogHeaderHeight: 42,
           panelHeaderHeight: 42,
           panelHeaderVerticalPadding: 4,
@@ -86,6 +89,7 @@ class LibraryMetrics {
           fieldHeight: 30,
           buttonHeight: 32,
           iconButtonSize: 28,
+          searchScale: 0.82,
           dialogHeaderHeight: 42,
           panelHeaderHeight: 42,
           panelHeaderVerticalPadding: 4,
@@ -108,6 +112,7 @@ class LibraryMetrics {
   final double fieldHeight;
   final double buttonHeight;
   final double iconButtonSize;
+  final double searchScale;
   final double dialogHeaderHeight;
   final double panelHeaderHeight;
   final double panelHeaderVerticalPadding;
