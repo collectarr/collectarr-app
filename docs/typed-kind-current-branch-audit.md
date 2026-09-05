@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `c21ec98a` (`refactor(loans): persist owned item references`)
+HEAD: `d804ef0e` (`refactor(pick-lists): move vocabulary contracts to canonical layer`)
 
 ## Scope and evidence
 
@@ -13,7 +13,7 @@ Evidence checked:
 
 - `git log main..HEAD`: 902 changed paths across the branch, with the prior typed-kind work and the seed refresh commit.
 - `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 635 AST architecture violations; its 392 complexity warnings are informational.
-- `test/contracts/**`, `test/architecture/**`, and `test/dev/dev_seed_test.dart`: full suite passed with `1819 passed, 5 skipped`.
+- `test/contracts/**`, `test/architecture/**`, and `test/dev/dev_seed_test.dart`: full suite passed at `ce0d071b` with `1840 passed, 5 skipped`; the post-relocation focused suite passed `29` tests.
 - Existing audits: `docs/typed-kind-parity-final.md`, `docs/typed-kind-semantic-vacuum-audit.md`, `docs/outside-kinds-generic-audit.md`, and `docs/collectarr_shared_kind_audit.md`.
 - Seed coverage: 15 catalog entries for each kind except BoardGame (10), matching owned/tracking fixtures and expanded pick-list vocabulary.
 
@@ -93,8 +93,8 @@ Status meanings:
 | 61 | Keep scanner generic | **DONE** | Scanner UI and platform mechanics now return the generic `ScannedCode` projection with raw value, normalized value, and symbology. |
 | 62 | Kind-owned identifier resolvers | **PARTIAL** | All 9 applicable kinds now own resolver classes and Book/Manga validate ISBN checksums; provider/catalog lookup dispatch is still routed through generic compatibility services. |
 | 63 | Loans use `OwnedItemRef` | **PARTIAL** | Loan records now persist `owned_kind`, expose `OwnedItemRef`, and new Loan/inspector/bulk flows write it; legacy string ID compatibility and generic owned loading remain. |
-| 64 | Collapse duplicate pick-list infrastructure | **PARTIAL** | Pick-list infrastructure and typed vocabularies exist, but the old/new paths and global semantic definitions still need consolidation. |
-| 65 | All concrete vocabularies stay kind-owned | **PARTIAL** | Pick-list infrastructure and typed vocabularies exist, but the old/new paths and global semantic definitions still need consolidation. |
+| 64 | Collapse duplicate pick-list infrastructure | **DONE** | Repository, options, editor, vocabulary contracts, and vocabulary repository now live under `features/pick_lists`; old Collection paths are export-only compatibility shims, and production imports use the canonical namespace. |
+| 65 | All concrete vocabularies stay kind-owned | **PARTIAL** | All kind-specific vocabulary definitions remain under their owning kind; universal condition/grade/owner-style definitions are still a transitional global surface and the registry still needs explicit contributor dispatch. |
 | 66 | Separate personal imports from metadata imports | **PARTIAL** | Provider personal sync and import orchestration have typed pieces, while metadata import semantics still cross generic feature boundaries. |
 | 67 | Generic import infrastructure becomes orchestration-only | **PARTIAL** | Provider personal sync and import orchestration have typed pieces, while metadata import semantics still cross generic feature boundaries. |
 | 68 | Activity as projected events | **PARTIAL** | Projected activity/admin/settings infrastructure exists, but feature-specific semantic contributors are not fully separated. |
@@ -174,5 +174,7 @@ Status meanings:
 PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 added the structural action, import/export, and generic menu contracts. The owned read projections are now explicit as well; existing common Owned persistence/UI remains a compatibility bridge. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
 
 ## Recommended next PR
+
+Current branch recommendation: `PR65 - Replace global semantic vocabulary definitions with explicit kind-owned contributors`.
 
 `PR11 — Migrate existing kind toolbar descriptors to typed action registries`, while shrinking the PR1 baseline in parallel with each migration.
