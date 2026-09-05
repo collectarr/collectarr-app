@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:collectarr_app/features/library/actions/ui_action.dart';
+import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 
 import 'actions/import_export_contract.dart';
 import 'actions/ui_action_contract.dart';
@@ -239,19 +240,15 @@ class FixtureDto {
   defineExportActionContract<_FixtureAction, String>(
     name: 'fixture',
     create: _FixtureAction.new,
-    export: (_, __) => ExportArtifactContractFixture(
-      filename: 'fixture.json',
-      mimeType: 'application/json',
-      bytes: Uint8List.fromList(const [123, 125]),
-    ),
+    export: (action, context) => action.export(context),
     createContext: () => 'context',
   );
 
-  defineImportActionContract<_FixtureAction, String, _FixtureImportPreview>(
+  defineImportActionContract<_FixtureAction, String, ImportPreview>(
     name: 'fixture',
     create: _FixtureAction.new,
-    preview: (_, __) => const _FixtureImportPreview(issues: []),
-    issues: (preview) => preview.issues,
+    preview: (action, context) => action.previewImport(context),
+    issues: (preview) => preview.issues.map((issue) => issue.message),
     createContext: () => 'context',
   );
 
@@ -302,7 +299,11 @@ class FixtureDto {
   );
 }
 
-final class _FixtureAction implements UiAction<String> {
+final class _FixtureAction
+    implements
+        UiAction<String>,
+        ExportAction<String>,
+        ImportAction<String, ImportPreview> {
   const _FixtureAction();
 
   @override
@@ -325,12 +326,23 @@ final class _FixtureAction implements UiAction<String> {
 
   @override
   void run(String context) {}
-}
 
-final class _FixtureImportPreview {
-  const _FixtureImportPreview({required this.issues});
+  @override
+  Future<ExportArtifact> export(String context) async {
+    return ExportArtifact(
+      filename: 'fixture.json',
+      mimeType: 'application/json',
+      bytes: Uint8List.fromList(const [123, 125]),
+    );
+  }
 
-  final List<String> issues;
+  @override
+  Future<ImportPreview> previewImport(String context) async {
+    return const ImportPreview();
+  }
+
+  @override
+  Future<void> applyImport(String context, ImportPreview preview) async {}
 }
 
 final class _FixtureCalendarContributor {

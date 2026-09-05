@@ -1,24 +1,12 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import '../contract_test_helpers.dart';
-
-final class ExportArtifactContractFixture {
-  const ExportArtifactContractFixture({
-    required this.filename,
-    required this.mimeType,
-    required this.bytes,
-  });
-
-  final String filename;
-  final String mimeType;
-  final Uint8List bytes;
-}
 
 void defineExportActionContract<TAction, TContext>({
   required String name,
   required TAction Function() create,
-  required FutureOr<ExportArtifactContractFixture> Function(
+  required FutureOr<ExportArtifact> Function(
     TAction action,
     TContext context,
   ) export,
