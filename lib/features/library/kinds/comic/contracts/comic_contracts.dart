@@ -4,7 +4,9 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
@@ -319,21 +321,22 @@ final class ComicCatalog {
 final class ComicEntry {
   const ComicEntry({
     required this.catalog,
-    this.ownedDetails,
+    this.ownedItem,
     this.trackingEntry,
     this.wishlistItem,
     this.customFields = const {},
   });
 
   final ComicCatalog catalog;
-  final ComicOwnedDetails? ownedDetails;
+  final ComicOwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;
 
   String get id => catalog.id;
   String get title => catalog.title;
-  bool get isOwned => ownedDetails != null;
+  ComicOwnedDetails? get ownedDetails => ownedItem?.details;
+  bool get isOwned => ownedItem != null;
   bool get isWishlisted => wishlistItem != null;
 
   factory ComicEntry.fromShelf(ShelfEntry shelf) {
@@ -349,7 +352,9 @@ final class ComicEntry {
 
     return ComicEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.details as ComicOwnedDetails?,
+      ownedItem: shelf.ownedItem == null
+          ? null
+          : ComicOwnedItemLegacyAdapter.fromLegacy(shelf.ownedItem!),
       trackingEntry: shelf.trackingEntry,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},
