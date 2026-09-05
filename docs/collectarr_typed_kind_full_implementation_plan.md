@@ -2212,6 +2212,12 @@ active detail and edit surfaces without living under `_shared/video`.
 Metadata corrections are likewise generic detail infrastructure and no longer
 sit behind a video-kind compatibility barrel.
 
+The drilldown page state is now a generic kind hierarchy state rather than a
+video shared state; Movie and Anime reuse it through `library/generic`.
+
+The obsolete root video detail compatibility barrel has also been removed;
+remaining callers import the active detail implementation explicitly.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

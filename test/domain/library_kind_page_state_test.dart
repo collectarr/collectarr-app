@@ -1,6 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
@@ -22,7 +20,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_page
 import 'package:collectarr_app/features/library/kinds/tv/page.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_drilldown_library_page_state.dart';
+import 'package:collectarr_app/features/library/generic/kind_drilldown_library_page_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -135,7 +133,7 @@ void main() {
                 accent: Colors.blue,
                 routeUri: Uri(path: '/movies'))
             .createState(),
-        isA<VideoDrilldownLibraryPageState>());
+        isA<KindDrilldownLibraryPageState>());
     expect(
         TvLibraryPage(
                 type: tvKindModule,
@@ -151,7 +149,7 @@ void main() {
                 accent: Colors.blue,
                 routeUri: Uri(path: '/anime'))
             .createState(),
-        isA<VideoDrilldownLibraryPageState>());
+        isA<KindDrilldownLibraryPageState>());
   });
 
   test('reading queue visibility is now kind-owned in toolbar actions', () {

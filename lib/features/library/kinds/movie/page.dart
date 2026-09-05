@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/generic/page.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_drilldown_library_page_state.dart';
+import 'package:collectarr_app/features/library/generic/kind_drilldown_library_page_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MovieLibraryPage extends GenericLibraryPage {
@@ -16,4 +16,4 @@ class MovieLibraryPage extends GenericLibraryPage {
   ConsumerState<GenericLibraryPage> createState() => MovieLibraryPageState();
 }
 
-class MovieLibraryPageState extends VideoDrilldownLibraryPageState {}
+class MovieLibraryPageState extends KindDrilldownLibraryPageState {}

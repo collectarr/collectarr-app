@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
-class VideoDrilldownLibraryPageState extends GenericLibraryPageState {
+class KindDrilldownLibraryPageState extends GenericLibraryPageState {
   @override
   bool canOpenItemDetailDrilldown(LibraryProjectionItem item) {
     return canOpenKindDrilldown(widget.type, item);
