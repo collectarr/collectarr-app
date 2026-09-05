@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/collection/cbz/comic_info_xml.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/xml/collection_xml.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_primitives.dart';
 import 'package:flutter/material.dart';
@@ -300,8 +301,8 @@ class _ExportWizardPane extends StatelessWidget {
       final catalog = entry.catalogItem;
       if (catalog == null) continue;
       final comic = catalog.kindMetadata;
-      if (comic is! ComicCatalogMetadata) continue;
-      final owned = entry.ownedItem;
+      if (comic is! ComicMedia) continue;
+      final owned = ComicOwnedItemLegacyAdapter.tryFromLegacy(entry.ownedItem);
       if (i > 0) {
         buffer.writeln();
         buffer.writeln('<!-- ─── next issue ─── -->');

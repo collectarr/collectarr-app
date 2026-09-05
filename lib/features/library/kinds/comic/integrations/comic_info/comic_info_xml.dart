@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:xml/xml.dart';
 
 /// Serializes and deserializes ComicInfo.xml (ComicRack/Kavita/Komga standard).
 class ComicInfoXml {
   const ComicInfoXml();
 
-  /// Build a ComicInfo.xml string from catalog + owned data.
-  String serialize(ComicCatalogMetadata catalog, [OwnedItem? owned]) {
+  /// Builds ComicInfo.xml from the typed Comic media and owned copy.
+  String serialize(ComicMedia comic, [ComicOwnedItem? owned]) {
     final builder = XmlBuilder();
     builder.processing('xml', 'version="1.0" encoding="utf-8"');
     builder.element('ComicInfo', nest: () {
@@ -21,36 +21,36 @@ class ComicInfoXml {
         'http://www.w3.org/2001/XMLSchema',
       );
 
-      _optionalElement(builder, 'Title', catalog.title);
+      _optionalElement(builder, 'Title', comic.title);
       _optionalElement(
         builder,
         'Series',
-        catalog.seriesTitle ?? catalog.title,
+        comic.seriesTitle ?? comic.title,
       );
-      _optionalElement(builder, 'Number', catalog.issueNumber);
-      if (catalog.series?.volumeNumber != null) {
+      _optionalElement(builder, 'Number', comic.issueNumber);
+      if (comic.series?.volumeNumber != null) {
         _optionalElement(
           builder,
           'Volume',
-          catalog.series!.volumeNumber.toString(),
+          comic.series!.volumeNumber.toString(),
         );
       }
-      _optionalElement(builder, 'Summary', catalog.synopsis);
-      if (catalog.releaseDate != null) {
-        _optionalElement(builder, 'Year', catalog.releaseDate!.year.toString());
-        _optionalElement(
-            builder, 'Month', catalog.releaseDate!.month.toString());
-        _optionalElement(builder, 'Day', catalog.releaseDate!.day.toString());
+      _optionalElement(builder, 'Summary', comic.synopsis);
+      if (comic.releaseDate != null) {
+        _optionalElement(builder, 'Year', comic.releaseDate!.year.toString());
+        _optionalElement(builder, 'Month', comic.releaseDate!.month.toString());
+        _optionalElement(builder, 'Day', comic.releaseDate!.day.toString());
       }
-      _optionalElement(builder, 'Publisher', catalog.publisher);
-      _optionalElement(builder, 'Format', catalog.physicalFormatLabel);
+      _optionalElement(builder, 'Publisher', comic.publisher);
+      _optionalElement(builder, 'Format', comic.physicalFormatLabel);
 
-      // Collection-specific fields from OwnedItem
+      // Personal fields from the typed Comic owned copy.
       if (owned != null) {
         _optionalElement(builder, 'Notes', owned.personalNotes);
-        if (owned.rating != null && owned.rating! > 0) {
+        if (owned.reading.rating != null && owned.reading.rating! > 0) {
           // ComicInfo uses 0-5 scale; our rating is 0-10, map accordingly
-          final comicInfoRating = (owned.rating! / 2).round().clamp(0, 5);
+          final comicInfoRating =
+              (owned.reading.rating! / 2).round().clamp(0, 5);
           _optionalElement(
               builder, 'CommunityRating', comicInfoRating.toStringAsFixed(1));
         }

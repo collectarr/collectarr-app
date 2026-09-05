@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/collection/cbz/comic_info_xml.dart';
+import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
