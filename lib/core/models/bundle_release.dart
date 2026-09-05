@@ -1,4 +1,4 @@
-import 'comic_detail.dart';
+import 'provider_link.dart';
 
 class BundleReleaseContentSummary {
   const BundleReleaseContentSummary({
@@ -284,7 +284,7 @@ class BundleReleaseDetail extends BundleReleaseSummary {
     super.volumeName,
   });
   final String? franchiseId;
-  final List<ComicProviderLink> providerLinks;
+  final List<ProviderLink> providerLinks;
   final List<BundleReleaseMember> members;
 
   factory BundleReleaseDetail.fromJson(Map<String, dynamic> json) {
@@ -315,7 +315,7 @@ class BundleReleaseDetail extends BundleReleaseSummary {
       franchiseId: json['franchise_id'] as String?,
       providerLinks: (json['provider_links'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
-          .map(ComicProviderLink.fromJson)
+          .map(ProviderLink.fromJson)
           .toList(growable: false),
       members: (json['members'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
