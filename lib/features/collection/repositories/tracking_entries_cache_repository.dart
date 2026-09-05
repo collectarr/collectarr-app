@@ -19,13 +19,8 @@ class TrackingEntriesCacheRepository {
           ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]))
         .get();
     if (rows.isEmpty) return const [];
-    final itemIds = rows.map((r) => r.itemId).toSet();
-    final catalogRows = await (_db.select(_db.catalogCache)
-          ..where((c) => c.id.isIn(itemIds)))
-        .get();
-    final kindByItemId = {for (final c in catalogRows) c.id: c.kind};
     return rows
-        .map((r) => _fromCache(r, catalogKind: kindByItemId[r.itemId]))
+        .map((r) => _fromCache(r, catalogKind: r.kind))
         .toList(growable: false);
   }
 
@@ -35,11 +30,7 @@ class TrackingEntriesCacheRepository {
           ..limit(1))
         .getSingleOrNull();
     if (row == null) return null;
-    final catalogRow = await (_db.select(_db.catalogCache)
-          ..where((c) => c.id.equals(row.itemId))
-          ..limit(1))
-        .getSingleOrNull();
-    return _fromCache(row, catalogKind: catalogRow?.kind);
+    return _fromCache(row, catalogKind: row.kind);
   }
 
   Future<List<TrackingEntry>> findActiveByItemIds(
@@ -57,13 +48,8 @@ class TrackingEntriesCacheRepository {
               (row) => row.itemId.isIn(batch) & row.deletedAt.isNull(),
             ))
           .get();
-      final batchItemIds = rows.map((r) => r.itemId).toSet();
-      final catalogRows = await (_db.select(_db.catalogCache)
-            ..where((c) => c.id.isIn(batchItemIds)))
-          .get();
-      final kindByItemId = {for (final c in catalogRows) c.id: c.kind};
       items.addAll(
-        rows.map((r) => _fromCache(r, catalogKind: kindByItemId[r.itemId])),
+        rows.map((r) => _fromCache(r, catalogKind: r.kind)),
       );
     }
     return items;
@@ -128,6 +114,7 @@ class TrackingEntriesCacheRepository {
     return TrackingEntriesCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
+      kind: Value(item.catalogRef.kind),
       ownedItemId: Value(item.ownedItemId),
       editionId: Value(item.editionId),
       variantId: Value(item.variantId),

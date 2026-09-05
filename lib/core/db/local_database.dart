@@ -141,6 +141,7 @@ class WishlistItemsCache extends Table {
 class TrackingEntriesCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  TextColumn get kind => text().withDefault(const Constant('unknown'))();
   TextColumn get ownedItemId => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
@@ -443,7 +444,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   @override
   MigrationStrategy get migration {
@@ -527,6 +528,17 @@ class LocalDatabase extends _$LocalDatabase {
           await m.createTable(musicMediaRows);
           await m.createTable(musicTrackRows);
           await m.createTable(musicOwnedDetailsRows);
+        }
+        if (from < 22) {
+          final columns = await customSelect(
+            'PRAGMA table_info(${trackingEntriesCache.actualTableName})',
+          ).get();
+          final hasKind = columns.any(
+            (column) => column.data['name']?.toString() == 'kind',
+          );
+          if (!hasKind) {
+            await m.addColumn(trackingEntriesCache, trackingEntriesCache.kind);
+          }
         }
       },
       beforeOpen: (details) async {
