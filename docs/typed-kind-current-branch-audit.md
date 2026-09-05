@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `eed057f2` (`feat(comic): persist typed owned copies`)
+HEAD: `810f59b0` (`refactor(comic): use owned id projections in series detail`)
 
 ## Scope and evidence
 
@@ -11,9 +11,9 @@ This is the PR0 rebaseline for the new Full Typed-Kind Vertical Architecture pla
 
 Evidence checked:
 
-- `git log main..HEAD`: 902 changed paths across the branch, with the prior typed-kind work and the seed refresh commit.
-- `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 635 AST architecture violations; its 392 complexity warnings are informational.
-- `test/contracts/**`, `test/architecture/**`, and `test/dev/dev_seed_test.dart`: full suite passed at `ce0d071b` with `1840 passed, 5 skipped`; the post-relocation focused suite passed `29` tests.
+- `git diff --name-only main..HEAD`: 985 changed paths across the branch, including the seed refresh and the Comic typed-owned migration.
+- `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 635 AST architecture violations; its 394 complexity warnings are informational.
+- `test/contracts/**`, `test/architecture/**`, `test/dev/dev_seed_test.dart`, and the Comic domain suite: the prior full suite passed at `ce0d071b` with `1840 passed, 5 skipped`; the current Comic suite and seed verification also pass.
 - Existing audits: `docs/typed-kind-parity-final.md`, `docs/typed-kind-semantic-vacuum-audit.md`, `docs/outside-kinds-generic-audit.md`, and `docs/collectarr_shared_kind_audit.md`.
 - Seed coverage: 15 catalog entries for each kind except BoardGame (10), matching owned/tracking fixtures and expanded pick-list vocabulary.
 
@@ -50,12 +50,12 @@ Status meanings:
 | 18 | Comic Core mapping | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
 | 19 | Comic local DB | **PARTIAL** | Comic now owns complete ComicOwnedItemsRows and ComicReadingRows with v26 backfill coverage; the common OwnedItemsCache and legacy details table remain during migration. |
 | 20 | Comic repository | **DONE** | ComicRepository and ComicOwnedRepository expose typed media/release/owned operations; generic catalog/collection callers remain outside the kind as explicit compatibility bridges. |
-| 21 | Comic workspace | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
-| 22 | Comic Add/Edit | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
+| 21 | Comic workspace | **PARTIAL** | `ComicWorkspaceDto.ownedItem`, projector, Comic fields, columns, value, stats, cards, and inspector projections now consume `ComicOwnedItem`; common workspace projections and global request bridges remain. |
+| 22 | Comic Add/Edit | **PARTIAL** | Typed Comic schemas exist; the edit draft and transfer semantics now consume `ComicOwnedItem` behind one local legacy adapter, while generic edit requests and common renderer bridges remain. |
 | 23 | Comic collection actions | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
 | 24 | Comic provider integrations | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
-| 25 | Comic calendar/barcode/override contributions | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
-| 26 | Comic reference contracts | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
+| 25 | Comic calendar/barcode/override contributions | **PARTIAL** | Comic owns a typed barcode resolver; calendar and override contributor/schema work is not complete, while Comic UI owned projections are now typed. |
+| 26 | Comic reference contracts | **PARTIAL** | Comic domain, local DB, workspace, edit, seed, and provider tests pass; the reference contract set is not yet fully isolated from common persistence/runtime bridges. |
 | 27 | Comic architectural gate | **FAIL** | The reference gate is not green: the checker reports erased metadata and generic Comic semantics outside the owning vertical. |
 | 28 | Manga data vertical | **PARTIAL** | All remaining kinds have substantial typed slices and tests, but the stricter full-owned/no-erasure definition is not met. |
 | 29 | Manga UX/integration vertical | **PARTIAL** | All remaining kinds have substantial typed slices and tests, but the stricter full-owned/no-erasure definition is not met. |
@@ -171,7 +171,7 @@ Status meanings:
 
 ## PR0 conclusion
 
-PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 added the structural action, import/export, and generic menu contracts. PR16 and PR63 made the owned read projections and loan references explicit. PR64 consolidated the generic pick-list/vocabulary infrastructure, and PR65 now uses explicit kind-owned vocabulary contributors; universal Owned vocabularies and the broader common Owned persistence/UI remain compatibility bridges. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
+PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 added the structural action, import/export, and generic menu contracts. PR16 and PR63 made the owned read projections and loan references explicit. PR64 consolidated the generic pick-list/vocabulary infrastructure, and PR65 now uses explicit kind-owned vocabulary contributors; universal Owned vocabularies and the broader common Owned persistence/UI remain compatibility bridges. The seed entry point now validates catalog/owned/tracking coverage before writes. Comic now has typed owned persistence plus typed workspace, value, stats, inspector, edit, transfer, and series-detail consumers behind explicit compatibility edges. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
 
 ## Recommended next PR
 
