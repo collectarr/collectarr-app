@@ -1,8 +1,13 @@
 import 'add_contract.dart';
+import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'actions/import_export_contract.dart';
+import 'actions/ui_action_contract.dart';
+import 'barcode/barcode_contract.dart';
+import 'calendar/calendar_contract.dart';
 import 'core_field_adoption_contract.dart';
 import 'core_mapping_contract.dart';
 import 'facet_contract.dart';
@@ -11,6 +16,7 @@ import 'group_contract.dart';
 import 'kind_identity_contract.dart';
 import 'media_edit_contract.dart';
 import 'owned_edit_contract.dart';
+import 'overrides/override_contract.dart';
 import 'persistence_contract.dart';
 import 'provider_integration_contract.dart';
 import 'release_edit_contract.dart';
@@ -197,4 +203,121 @@ class FixtureDto {
     state: (_) => 'active',
     progress: (_) => 0,
   );
+
+  defineUiActionContract<_FixtureAction, String>(
+    name: 'fixture',
+    create: _FixtureAction.new,
+    id: (action) => action.id,
+    label: (action) => action.label,
+    isVisible: (_, __) => true,
+    isEnabled: (_, __) => true,
+    run: (_, __) {},
+    createContext: () => 'context',
+  );
+
+  defineExportActionContract<_FixtureAction, String>(
+    name: 'fixture',
+    create: _FixtureAction.new,
+    export: (_, __) => ExportArtifactContractFixture(
+      filename: 'fixture.json',
+      mimeType: 'application/json',
+      bytes: Uint8List.fromList(const [123, 125]),
+    ),
+    createContext: () => 'context',
+  );
+
+  defineImportActionContract<_FixtureAction, String, _FixtureImportPreview>(
+    name: 'fixture',
+    create: _FixtureAction.new,
+    preview: (_, __) => const _FixtureImportPreview(issues: []),
+    issues: (preview) => preview.issues,
+    createContext: () => 'context',
+  );
+
+  defineCalendarContributorContract<_FixtureCalendarContributor, String,
+      _FixtureCalendarEvent>(
+    name: 'fixture',
+    create: _FixtureCalendarContributor.new,
+    project: (_, __) => [
+      _FixtureCalendarEvent(
+        id: 'event-1',
+        title: 'Fixture event',
+        kindReference: 'fixture:1',
+        startsAt: DateTime.utc(2026, 1, 1),
+        endsAt: DateTime.utc(2026, 1, 1, 1),
+      ),
+    ],
+    id: (event) => event.id,
+    title: (event) => event.title,
+    kindReference: (event) => event.kindReference,
+    startsAt: (event) => event.startsAt,
+    endsAt: (event) => event.endsAt,
+    createContext: () => 'context',
+  );
+
+  defineBarcodeResolverContract<_FixtureBarcodeResolver, String, String>(
+    name: 'fixture',
+    create: _FixtureBarcodeResolver.new,
+    normalize: (_, code) => code.trim(),
+    isSupported: (_, code) => RegExp(r'^\d{10}$').hasMatch(code),
+    resolve: (_, code) => RegExp(r'^\d{10}$').hasMatch(code) ? code : null,
+    validCode: () => '1234567890',
+    unsupportedCode: () => 'not-a-code',
+    isValidResult: (result) => result == '1234567890',
+  );
+
+  defineMetadataOverrideContract<_FixtureOverrideSchema, String, String,
+      String>(
+    name: 'fixture',
+    create: _FixtureOverrideSchema.new,
+    target: (_) => 'fixture:1',
+    field: (_) => 'title',
+    fieldId: (field) => field,
+    value: () => 'Override title',
+    encode: (_, value) => value,
+    decode: (_, payload) => payload! as String,
+    isValidTarget: (_, target) => target.startsWith('fixture:'),
+    equals: (left, right) => left == right,
+  );
+}
+
+final class _FixtureAction {
+  const _FixtureAction();
+
+  String get id => 'fixture.action';
+  String get label => 'Fixture action';
+}
+
+final class _FixtureImportPreview {
+  const _FixtureImportPreview({required this.issues});
+
+  final List<String> issues;
+}
+
+final class _FixtureCalendarContributor {
+  const _FixtureCalendarContributor();
+}
+
+final class _FixtureCalendarEvent {
+  const _FixtureCalendarEvent({
+    required this.id,
+    required this.title,
+    required this.kindReference,
+    required this.startsAt,
+    required this.endsAt,
+  });
+
+  final String id;
+  final String title;
+  final String kindReference;
+  final DateTime startsAt;
+  final DateTime endsAt;
+}
+
+final class _FixtureBarcodeResolver {
+  const _FixtureBarcodeResolver();
+}
+
+final class _FixtureOverrideSchema {
+  const _FixtureOverrideSchema();
 }
