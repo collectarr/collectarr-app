@@ -15,12 +15,26 @@ final class CoreFieldAdoptionPolicy {
   final Map<String, String> intentionallyIgnored;
 
   void validate(Iterable<String> actualFields) {
+    final actual = actualFields.toSet();
     final classified = {...mapped, ...intentionallyIgnored.keys};
-    final unclassified =
-        actualFields.where((field) => !classified.contains(field)).toSet();
+    final unclassified = actual.difference(classified);
+    final unknown = classified.difference(actual);
     expectContract(
       unclassified.isEmpty,
       '$dtoName contains unclassified fields: ${unclassified.join(', ')}',
+    );
+    expectContract(
+      unknown.isEmpty,
+      '$dtoName policy classifies fields that do not exist: ${unknown.join(', ')}',
+    );
+    final missingReasons = intentionallyIgnored.entries
+        .where((entry) => entry.value.trim().isEmpty)
+        .map((entry) => entry.key)
+        .toSet();
+    expectContract(
+      missingReasons.isEmpty,
+      '$dtoName intentionally ignored fields need reasons: '
+      '${missingReasons.join(', ')}',
     );
     expectContract(
       mapped.intersection(intentionallyIgnored.keys.toSet()).isEmpty,

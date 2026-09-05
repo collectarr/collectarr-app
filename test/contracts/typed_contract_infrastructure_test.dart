@@ -100,6 +100,24 @@ class FixtureDto {
     );
   });
 
+  test('Core field adoption rejects a stale policy field', () {
+    expect(
+      () => validateCoreDtoFieldAdoption(
+        source: '''
+class FixtureDto {
+  final String id;
+}
+''',
+        policy: CoreFieldAdoptionPolicy(
+          dtoName: 'FixtureDto',
+          mapped: {'id', 'removedField'},
+          intentionallyIgnored: const {},
+        ),
+      ),
+      throwsA(anything),
+    );
+  });
+
   final repositoryData = <String, int>{};
   defineRepositoryContract<int, String>(
     name: 'fixture',

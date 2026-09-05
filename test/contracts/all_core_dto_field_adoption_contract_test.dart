@@ -52,7 +52,6 @@ List<CoreFieldAdoptionPolicy> _policies() => [
             'coverImageKey coverImageUrlValue description displayTitle '
             'editionStatement format isbn identifiers imprint language pageCount '
             'publicationDate publisher region releaseStatus upc',
-        ignored: _kindReason('Book'),
       ),
       _policy(
         'GameWorkDto',
@@ -66,7 +65,6 @@ List<CoreFieldAdoptionPolicy> _policies() => [
         'id workId releaseTitle platform releaseDateValue regionCode format '
             'publisher catalogNumber releaseStatus language barcodeValue '
             'coverImageUrlValue',
-        ignored: _kindReason('Game'),
       ),
       _policy(
         'BoardGameWorkDto',
@@ -81,7 +79,6 @@ List<CoreFieldAdoptionPolicy> _policies() => [
             'catalogNumber country coverImageUrlValue description editionTitle '
             'format language maxPlayers minAge minPlayers playingTimeMinutes '
             'publisher releaseDateValue releaseStatus',
-        ignored: _kindReason('BoardGame'),
       ),
       _policy(
         'MusicReleaseDto',
