@@ -602,26 +602,15 @@ class _ShelfVolumeTileState extends State<_ShelfVolumeTile> {
         ListTile(
           dense: true,
           contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-          leading: volume.posterUrl != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: CachedNetworkImage(
-                    imageUrl: volume.posterUrl!,
-                    width: 32,
-                    height: 48,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              : const Icon(Icons.menu_book, size: 20),
+          leading: const Icon(Icons.menu_book, size: 20),
           title: Text(
-            volume.title,
+            volume.title ?? 'Volume ${volume.volumeNumber}',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           subtitle: Text(
             [
               if (volume.chapterCount != null)
                 '${volume.chapterCount} chapters',
-              if (volume.airDate != null) volume.airDate!,
             ].join(' · '),
             style: Theme.of(context).textTheme.bodySmall,
           ),
@@ -671,7 +660,7 @@ class _ShelfChapterRow extends StatelessWidget {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              chapter.title,
+              chapter.title ?? 'Chapter ${chapter.chapterNumber}',
               style: Theme.of(context).textTheme.bodySmall,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
