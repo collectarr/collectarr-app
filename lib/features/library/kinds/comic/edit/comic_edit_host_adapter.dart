@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
@@ -22,7 +22,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   ComicEditHostAdapter({
     required this.context,
     required this.draft,
-    required this.catalogItem,
+    required this.media,
     required this.accent,
     required this.scope,
     required this.markDirty,
@@ -30,7 +30,7 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   final BuildContext context;
   final LibraryEditDraft draft;
-  final ComicCatalogItem catalogItem;
+  final ComicMedia media;
   final Color accent;
   final LibraryEditScope scope;
   final VoidCallback markDirty;
@@ -52,7 +52,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   LibraryKindRuntime get comicLibraryType => draft.type;
 
   @override
-  ComicCatalogItem get comicCatalogItem => catalogItem;
+  ComicMedia get comicMedia => media;
 
   @override
   List<ItemImage> get comicItemImages => draft.itemImages;

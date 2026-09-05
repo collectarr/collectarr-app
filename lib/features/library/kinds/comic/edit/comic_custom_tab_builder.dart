@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -23,14 +23,13 @@ Widget? buildComicCustomTabView({
   if (metadata is! ComicCatalogMetadata) {
     throw StateError('Expected ComicCatalogMetadata for comic edit tabs');
   }
-  final catalogItem = ComicCatalogMapper.mapMetadataToComic(
-    metadata,
-    id: item.identity.id,
-  );
+  final media = metadata.id?.value == item.identity.id
+      ? metadata
+      : metadata.copyWith(id: ComicMediaId(item.identity.id));
   final host = ComicEditHostAdapter(
     context: context,
     draft: draft,
-    catalogItem: catalogItem,
+    media: media,
     accent: accent,
     scope: scope,
     markDirty: markDirty,

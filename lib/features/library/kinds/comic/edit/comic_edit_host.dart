@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,7 +11,7 @@ abstract class ComicEditHost {
   ProviderContainer get comicRef;
   Color get comicAccent;
   LibraryKindRuntime get comicLibraryType;
-  ComicCatalogItem get comicCatalogItem;
+  ComicMedia get comicMedia;
   List<ItemImage> get comicItemImages;
   LibraryEditPresentationState get comicEditPresentation;
 
