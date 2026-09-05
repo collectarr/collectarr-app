@@ -41,8 +41,6 @@ when their inputs are genuinely owner-neutral.
 | `video/edit/tabs/video_specs_tab.dart` | EDIT | Split by kind edit flows |
 | `video/edit/video_custom_tab_builder.dart` | EDIT | Move into kind edit composition |
 | `video/edit/video_edit_controller.dart` | DOMAIN BEHAVIOR | Split into kind controllers |
-| `video/edit/video_edit_models.dart` | DOMAIN MODEL | Split into kind edit models |
-| `video/edit/video_edit_tabs.dart` | EDIT | Split into kind tab declarations |
 | `video/edit/video_kind_edit_draft.dart` | DOMAIN MODEL | Replace with kind drafts |
 | `video/edit/widgets/tv_episode_row.dart` | VISUAL STRUCTURAL | Move/duplicate into TV/Anime |
 | `video/edit/widgets/tv_episode_thumbnail.dart` | VISUAL STRUCTURAL | Move/duplicate into TV/Anime |
@@ -61,7 +59,6 @@ when their inputs are genuinely owner-neutral.
 | `video/tracking/video_season_tracking_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
 | `video/video_drilldown_library_page_state.dart` | HIERARCHY | Move into TV/Anime hierarchy |
-| `video/video_edit_support.dart` | EDIT | Keep only owner-neutral primitives |
 | `video/video_episode_identity.dart` | DOMAIN MODEL | Move into TV/Anime domain |
 | `video/video_episode_rating_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/video_episode_row.dart` | VISUAL STRUCTURAL | Keep only if owner-neutral; otherwise duplicate |

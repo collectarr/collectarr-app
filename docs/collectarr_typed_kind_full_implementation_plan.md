@@ -2183,6 +2183,9 @@ Universal session history and watch-run summarization now live under
 The seasons/episodes Add preview UI now lives under `features/library/add` and
 is consumed explicitly by Anime and TV.
 
+Unused video Edit support and compatibility barrels have been removed; the
+custom-tab builder now imports concrete tab modules directly.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

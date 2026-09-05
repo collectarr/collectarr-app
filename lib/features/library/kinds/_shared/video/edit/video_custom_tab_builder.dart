@@ -5,7 +5,13 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/tv
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/tv_release_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/tv_episode_disc_map_tab.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_tabs.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_cast_tab.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_crew_tab.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_discs_tab.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_edition_tab.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_links_tab.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_media_tab.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_specs_tab.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
