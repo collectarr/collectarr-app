@@ -49,7 +49,8 @@ final class CollectionImportService {
     final resolvedRows = [...preview.resolvedRows, ...preview.conflictRows];
     if (resolvedRows.isEmpty) return 0;
 
-    final catalogItems = Map<String, dynamic>.from(await catalogCache.findByIds(
+    final catalogItems =
+        Map<String, CatalogItem>.from(await catalogCache.findByIds(
       resolvedRows.map((row) => row.itemId),
     ));
     final importedCatalogItems = <CatalogItem>[];
@@ -91,7 +92,8 @@ final class CollectionImportService {
 
       imported++;
       final catItem = catalogItems[row.itemId];
-      final metadataItem = typedCatalogItemFromUnknown(catItem);
+      final metadataItem =
+          catItem == null ? null : typedCatalogItemFromCatalogItem(catItem);
       final catItemId = metadataItem?.id;
       final catItemKind = metadataItem?.kind;
       if (catItemId != null && !snapshotItemIds.contains(catItemId)) {
@@ -199,14 +201,7 @@ final class CollectionImportService {
         for (final item in wishlistUpserts) WishlistChanged(item.itemId),
         for (final item in wishlistDeletes) WishlistChanged(item.itemId),
         for (final catItem in importedCatalogItems)
-          CatalogItemChanged(
-            typedCatalogItemFromUnknown(catItem)?.id ??
-                (throw ArgumentError.value(
-                  catItem,
-                  'item',
-                  'Unsupported catalog item type',
-                )),
-          ),
+          CatalogItemChanged(catItem.id),
       ],
     );
 
@@ -300,10 +295,11 @@ final class CollectionImportService {
 
   CatalogItem? _catalogItemFromCsvRow(
     CollectionCsvRow row, {
-    dynamic existing,
+    CatalogItem? existing,
   }) {
-    final existingMetadata = typedCatalogItemFromUnknown(existing);
-    if (existingMetadata != null) return existingMetadata;
+    if (existing != null) {
+      return typedCatalogItemFromCatalogItem(existing);
+    }
     return typedCatalogItemFromMap({
       'id': row.itemId,
       'kind': row.kind ?? CatalogMediaKind.unknown.apiValue,

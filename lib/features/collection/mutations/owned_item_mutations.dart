@@ -377,16 +377,9 @@ final class OwnedItemMutations {
 
   Future<int> promoteLocalOnlyItemToCatalog(
     String localItemId,
-    dynamic targetCatalogItem,
+    CatalogItem targetCatalogItem,
   ) async {
-    final targetMetadata = typedCatalogItemFromUnknown(targetCatalogItem);
-    if (targetMetadata == null) {
-      throw ArgumentError.value(
-        targetCatalogItem,
-        'targetCatalogItem',
-        'Unsupported catalog item type',
-      );
-    }
+    final targetMetadata = typedCatalogItemFromCatalogItem(targetCatalogItem);
     final now = DateTime.now().toUtc();
     final wishlistEntries = await wishlist.findActiveByItemIds([localItemId]);
     final trackingList =
@@ -453,16 +446,15 @@ final class OwnedItemMutations {
 
   CatalogEntityRef _catalogRefForItem(
     String itemId,
-    dynamic item, {
+    CatalogItem? item, {
     String? fallbackKind,
     String? anchorType,
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
   }) {
-    final metadataItem = typedCatalogItemFromUnknown(item);
-    if (metadataItem != null) {
-      return metadataItem.catalogRefForAnchor(
+    if (item != null) {
+      return item.catalogRefForAnchor(
         anchorType: anchorType,
         editionId: editionId,
         variantId: variantId,
