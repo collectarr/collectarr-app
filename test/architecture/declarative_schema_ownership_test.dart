@@ -20,6 +20,10 @@ void main() {
       'lib/features/collection/vocabulary/vocabulary_definition.dart',
       'lib/features/collection/vocabulary/vocabulary_repository.dart',
       'lib/features/pick_lists/models/pick_list_definition.dart',
+      'lib/features/pick_lists/models/universal_vocabularies.dart',
+      'lib/features/pick_lists/models/vocabulary_definition.dart',
+      'lib/features/pick_lists/pick_list_definition_contributor.dart',
+      'lib/features/pick_lists/vocabulary_repository.dart',
       'lib/features/library/generic/projection.dart',
       'lib/features/library/kinds/registry/library_kind_module.dart',
     };

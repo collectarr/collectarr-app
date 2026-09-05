@@ -362,10 +362,15 @@ LibraryProjectionRuntime testProjectionItem({
     locationPath: locationPath,
   );
   final node = LibraryTitleNodeRef(titleItemId: resolvedId);
-  final dto = const GenericWorkspaceProjector().projectTitle(
-    source: shelf,
-    node: node,
-  );
+  final dto = kind == 'comic'
+      ? lookupLibraryKind(CatalogMediaKind.comic)!.projector.projectTitle(
+            source: shelf,
+            node: node,
+          )
+      : const GenericWorkspaceProjector().projectTitle(
+          source: shelf,
+          node: node,
+        );
   return LibraryProjectionItem(
     source: shelf,
     node: node,
