@@ -3294,6 +3294,12 @@ generic TrackingUnits union
 
 where those components were scheduled for removal.
 
+Status: complete. The executable proof in
+`test/architecture/final_deleted_code_proof_test.dart` reports zero
+production occurrences for the removed names and constrains the four
+intentionally retained migration bridges to explicit boundaries. The bridge
+debt remains visible and bounded for future narrowing.
+
 ---
 
 ## PR 123 — Final documentation
