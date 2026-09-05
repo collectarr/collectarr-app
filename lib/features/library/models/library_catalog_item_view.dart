@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 
 final class LibraryCatalogItemView {
   const LibraryCatalogItemView({
     required LibraryItemIdentity identity,
-    required LibraryKindMetadataRuntime kindMetadata,
+    required dynamic kindMetadata,
   })  : _identity = identity,
         _kindMetadata = kindMetadata;
 
@@ -17,14 +17,14 @@ final class LibraryCatalogItemView {
   );
 
   final LibraryItemIdentity _identity;
-  final LibraryKindMetadataRuntime _kindMetadata;
+  final dynamic _kindMetadata;
 
   LibraryItemIdentity get identity => _identity;
   String get id => _identity.id;
   CatalogMediaKind get mediaKind => _identity.mediaKind;
   String get kind => _identity.kind;
   CatalogCommonDto get common => CatalogCommonDto.fromJson(payload);
-  LibraryKindMetadataRuntime get kindMetadata => _kindMetadata;
+  dynamic get kindMetadata => _kindMetadata;
 
   String get title => common.title;
   String? get displayTitle => common.displayTitle;
@@ -48,18 +48,31 @@ final class LibraryCatalogItemView {
   String? get physicalFormatLabel => _valueFromPayload('physical_format_label');
   String get resolvedDisplayTitle => common.resolvedDisplayTitle;
   String? get displayCoverUrl => common.displayCoverUrl;
-  Map<String, dynamic> get payload => kindMetadata.toSyncPayload();
+  Map<String, dynamic> get payload {
+    if (_kindMetadata is Map) {
+      return Map<String, dynamic>.from(_kindMetadata as Map);
+    }
+    if (_kindMetadata == null) return const <String, dynamic>{};
+    try {
+      final raw = (_kindMetadata as dynamic).toSyncPayload();
+      if (raw is Map) return Map<String, dynamic>.from(raw);
+    } on Object {
+      // Unsupported legacy values are treated as empty metadata.
+    }
+    return const <String, dynamic>{};
+  }
 
   String? _valueFromPayload(String key) {
-    return (_kindMetadata.toSyncPayload()[key] ?? '').toString().trim().isEmpty
+    final value = payload[key];
+    return (value ?? '').toString().trim().isEmpty
         ? null
-        : _kindMetadata.toSyncPayload()[key]?.toString();
+        : value?.toString();
   }
 
   factory LibraryCatalogItemView.fromCatalogItem(CatalogItem item) {
     return LibraryCatalogItemView._raw(
       LibraryItemIdentity(id: item.id, mediaKind: item.mediaKind),
-      LibraryKindMetadataDecoders.decode(item.mediaKind, item.toSyncPayload()),
+      decodeLibraryKindMetadata(item.mediaKind, item.toSyncPayload()),
     );
   }
 
@@ -67,7 +80,7 @@ final class LibraryCatalogItemView {
     final item = CatalogItemDto.fromJson(json);
     return LibraryCatalogItemView._raw(
       LibraryItemIdentity(id: item.id, mediaKind: item.mediaKind),
-      LibraryKindMetadataDecoders.decode(item.mediaKind, json),
+      decodeLibraryKindMetadata(item.mediaKind, json),
     );
   }
 
@@ -153,7 +166,7 @@ final class LibraryCatalogItemView {
     List<TrailerLinkDto>? trailerUrls,
     Object? physicalFormat = _unset,
     Object? physicalFormatLabel = _unset,
-    LibraryKindMetadataRuntime? kindMetadata,
+    dynamic kindMetadata,
   }) {
     final json = <String, dynamic>{
       ...payload,
@@ -185,7 +198,7 @@ final class LibraryCatalogItemView {
     final updatedIdentity = identity ?? _identity;
     return LibraryCatalogItemView._raw(
       updatedIdentity,
-      kindMetadata ?? LibraryKindMetadataDecoders.decode(mediaKind, json),
+      kindMetadata ?? decodeLibraryKindMetadata(mediaKind, json),
     );
   }
 }

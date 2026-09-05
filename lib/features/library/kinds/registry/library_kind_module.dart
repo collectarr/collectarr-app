@@ -1,9 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 
 export 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
-export 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -86,7 +84,7 @@ abstract interface class LibraryKindRuntime {
   LibraryKindToolbarModule? get toolbar;
   LibraryKindProviderMapper? get providerMapper;
   LibraryFacetModule? get facets;
-  CatalogKindCodec<LibraryKindMetadataRuntime>? get catalogCodec;
+  CatalogKindCodec<Object?>? get catalogCodec;
   List<LibrarySearchTarget> get searchTargetOptions;
 
   LibraryWorkspaceViewProfile get viewProfile;
@@ -238,7 +236,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
 
   final OwnedDetailsCodec<TDetails> ownedDetailsCodec;
   @override
-  final CatalogKindCodec<LibraryKindMetadataRuntime>? catalogCodec;
+  final CatalogKindCodec<Object?>? catalogCodec;
   @override
   final LibraryKindIdentity identity;
 

@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -294,7 +293,7 @@ class BookEditionMetadata {
 typedef BookMetadata = BookCatalogMetadata;
 
 @immutable
-class BookCatalogMetadata implements LibraryKindMetadataRuntime {
+class BookCatalogMetadata {
   const BookCatalogMetadata({
     required this.title,
     this.subtitle,
@@ -334,10 +333,8 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
     this.rawPayload = const <String, dynamic>{},
   });
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.book;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;

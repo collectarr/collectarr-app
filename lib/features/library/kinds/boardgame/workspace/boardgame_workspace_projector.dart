@@ -66,6 +66,6 @@ final class BoardGameWorkspaceProjector
     }
     return metadata == null
         ? null
-        : BoardGameMetadata.fromJson(metadata.toSyncPayload());
+        : BoardGameMetadata.fromJson(source.catalogItem!.payload);
   }
 }

@@ -1,11 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-final class GameMedia implements LibraryKindMetadataRuntime {
+final class GameMedia {
   const GameMedia({
     required this.id,
     required this.title,
@@ -42,7 +41,6 @@ final class GameMedia implements LibraryKindMetadataRuntime {
   final List<GameRelease> releases;
   final Map<String, dynamic> rawPayload;
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.game;
 
   String? get synopsis => description;
@@ -52,7 +50,6 @@ final class GameMedia implements LibraryKindMetadataRuntime {
       _textValue(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
   String? get barcode => _textValue(rawPayload['barcode']);
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   Map<String, dynamic> toJson() => {

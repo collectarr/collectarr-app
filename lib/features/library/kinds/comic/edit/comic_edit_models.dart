@@ -190,7 +190,7 @@ LibraryEditSelection applyComicSelectionEdits(
   final current = selection.item.kindMetadata is ComicCatalogMetadata
       ? selection.item.kindMetadata as ComicCatalogMetadata
       : ComicCatalogMetadata.fromJson(
-          selection.item.kindMetadata.toSyncPayload());
+          selection.item.payload);
 
   final existingTrailerLinks = current.links.where((l) => l.isTrailerLink);
   final newComicLinks = <ComicLink>[

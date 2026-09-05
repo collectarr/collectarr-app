@@ -290,7 +290,7 @@ MusicCatalogMetadata? _musicMetadataItem(LibraryMetadataItem? item) {
   if (item == null) return null;
   final metadata = item.kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
-  return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
+  return MusicCatalogMetadata.fromJson(item.payload);
 }
 
 String _stripTrailingMusicDescriptor(String title, String? descriptor) {

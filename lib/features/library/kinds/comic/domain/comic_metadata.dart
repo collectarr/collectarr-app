@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 enum ComicKeyEventType {
@@ -74,7 +73,7 @@ typedef ComicMetadata = ComicMedia;
 typedef ComicCatalogMetadata = ComicMedia;
 
 @immutable
-class ComicMedia implements LibraryKindMetadataRuntime {
+class ComicMedia {
   const ComicMedia({
     this.id,
     required this.title,
@@ -122,10 +121,8 @@ class ComicMedia implements LibraryKindMetadataRuntime {
     this.rawPayload = const <String, dynamic>{},
   });
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.comic;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;

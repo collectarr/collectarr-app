@@ -11,7 +11,7 @@ class GameCatalogMapper {
     if (rawMetadata is GameCatalogMetadata) {
       meta = rawMetadata;
     } else {
-      meta = GameCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
+      meta = GameCatalogMetadata.fromJson(item.payload);
     }
 
     final work = GameWorkMetadata(

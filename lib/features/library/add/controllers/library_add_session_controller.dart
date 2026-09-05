@@ -908,12 +908,12 @@ class LibraryAddSessionController
     );
 
     try {
-      final hydrated = await api!
+      final LibraryMetadataItem hydrated = await api!
           .getTypedMetadataItem(
         kind: selected.kind,
         id: itemId,
       )
-          .then((dto) {
+          .then<LibraryMetadataItem>((dto) {
         final raw = mergeHydratedProviderAddResultRaw(
           raw: <String, dynamic>{
             ...dto.raw,
@@ -935,10 +935,10 @@ class LibraryAddSessionController
       final mergedThumbnailImageUrl = hydratedItem.displayCoverUrl != null
           ? hydratedItem.thumbnailImageUrl
           : selected.thumbnailImageUrl ?? selected.coverImageUrl;
-      final hydratedPayload = hydratedItem.kindMetadata.toSyncPayload();
+      final hydratedPayload = hydratedItem.payload;
       final hydratedEditionsPayload = hydratedPayload['editions'] as List?;
       final selectedEditionsPayload =
-          selected.kindMetadata.toSyncPayload()['editions'] as List?;
+          selected.payload['editions'] as List?;
       final mergedPayload = {
         ...hydratedPayload,
         if (mergedCoverImageUrl != null) 'cover_image_url': mergedCoverImageUrl,
@@ -950,13 +950,11 @@ class LibraryAddSessionController
             selectedEditionsPayload.isNotEmpty)
           'editions': selectedEditionsPayload,
       };
-      final mergedItem = LibraryMetadataItem(
-        identity: hydratedItem.identity,
-        kindMetadata: LibraryKindMetadataDecoders.decode(
-          hydratedItem.mediaKind,
-          mergedPayload,
-        ),
-      );
+      final mergedItem = LibraryMetadataTransportCodec.fromMetadataMap({
+        'id': hydratedItem.id,
+        'kind': hydratedItem.kind,
+        ...mergedPayload,
+      });
 
       final hydratedMap =
           Map<String, LibraryMetadataItem>.from(state.preview.hydratedResults);

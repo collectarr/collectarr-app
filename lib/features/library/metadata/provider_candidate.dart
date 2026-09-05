@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 
@@ -87,15 +86,7 @@ class ProviderCandidate {
   }
 
   LibraryMetadataItem placeholderItem() {
-    final mediaKind = catalogMediaKindFromApiValue(kind);
-    return LibraryMetadataItem(
-      identity: LibraryItemIdentity(
-        id: localCatalogId,
-        mediaKind: mediaKind,
-      ),
-      kindMetadata: LibraryKindMetadataDecoders.decode(
-        mediaKind,
-        {
+    return LibraryMetadataTransportCodec.fromMetadataMap({
           'id': localCatalogId,
           'kind': kind,
           'title': title,
@@ -107,9 +98,7 @@ class ProviderCandidate {
           'publisher': publisher,
           if (series != null) 'series_title': series!.seriesTitle,
           if (series != null) 'volume_start_year': series!.volumeStartYear,
-        },
-      ),
-    );
+        });
   }
 
   bool get isStub {

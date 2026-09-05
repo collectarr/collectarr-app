@@ -151,7 +151,7 @@ class BookCatalogMapper {
     if (rawMetadata is BookCatalogMetadata) {
       metadata = rawMetadata;
     } else {
-      metadata = BookCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
+      metadata = BookCatalogMetadata.fromJson(item.payload);
     }
 
     final seriesDetails = metadata.series;

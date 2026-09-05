@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
 class LibraryEntry {
@@ -27,7 +26,7 @@ class LibraryEntry {
     return LibraryMetadataTransportCodec.fromUnknown(raw);
   }
 
-  LibraryKindMetadataRuntime? get kindMetadata => catalogItem?.kindMetadata;
+  dynamic get kindMetadata => catalogItem?.kindMetadata;
 
   bool get isOwned => ownedItem != null;
   bool get isTracked => trackingEntry != null;

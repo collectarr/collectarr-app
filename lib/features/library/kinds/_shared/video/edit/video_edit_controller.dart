@@ -389,7 +389,7 @@ class VideoEditController {
             ? meta.links
             : (meta is AnimeMetadata ? meta.links : const <TrailerLink>[]));
     final updatedLinks = buildUpdatedTrailerUrls(existingLinks);
-    final LibraryKindMetadataRuntime updatedMetadata;
+    final dynamic updatedMetadata;
     if (meta is MovieCatalogMetadata) {
       updatedMetadata = meta.copyWith(
         runtimeMinutes: int.tryParse(runtimeController.text),

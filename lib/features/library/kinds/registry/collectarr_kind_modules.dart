@@ -34,22 +34,16 @@ final List<LibraryKindRuntime> collectarrKindModules = [
   musicKindModule,
 ];
 
-final bool _kindDecodersInitialized = _initDecoders();
-
-bool _initDecoders() {
-  LibraryKindMetadataDecoders.registerGlobalDecoder((mediaKind, json) {
-    for (final module in collectarrKindModules) {
-      if (module.kind == mediaKind && module.catalogCodec != null) {
-        return module.catalogCodec!.decode(json);
-      }
+Object? decodeLibraryKindMetadata(
+  CatalogMediaKind mediaKind,
+  Map<String, dynamic> json,
+) {
+  for (final module in collectarrKindModules) {
+    if (module.kind == mediaKind && module.catalogCodec != null) {
+      return module.catalogCodec!.decode(json);
     }
-    return DefaultMapKindMetadata(mediaKind, json);
-  });
-  return true;
-}
-
-void ensureLibraryKindDecodersInitialized() {
-  final _ = _kindDecodersInitialized;
+  }
+  return Map<String, dynamic>.from(json);
 }
 
 LibraryKindRuntime? lookupLibraryKind(CatalogMediaKind kind) {

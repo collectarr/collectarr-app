@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 Map<String, dynamic> libraryKindMetadataPayload(LibraryMetadataItem item) {
-  return item.kindMetadata.toSyncPayload();
+  return item.payload;
 }
 
 DateTime? libraryKindReleaseDate(LibraryMetadataItem item) {

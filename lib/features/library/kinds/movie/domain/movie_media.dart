@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 import 'movie_ids.dart';
@@ -132,7 +131,7 @@ final class MovieIdentifier {
 }
 
 @immutable
-final class MovieMedia implements LibraryKindMetadataRuntime {
+final class MovieMedia {
   const MovieMedia({
     required this.id,
     required this.title,
@@ -171,7 +170,6 @@ final class MovieMedia implements LibraryKindMetadataRuntime {
   final List<MovieTrailerLink> trailerUrls;
   final Map<String, dynamic> rawPayload;
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.movie;
 
   String? get synopsis => description;
@@ -185,7 +183,6 @@ final class MovieMedia implements LibraryKindMetadataRuntime {
       _intValue(rawPayload['market_value_cents']) ??
       _intValue(rawPayload['value_cents']);
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   factory MovieMedia.fromJson(Map<String, dynamic> json) {

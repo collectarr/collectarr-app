@@ -1,9 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-final class MangaMedia implements LibraryKindMetadataRuntime {
+final class MangaMedia {
   const MangaMedia({
     required this.id,
     required this.title,
@@ -38,12 +37,10 @@ final class MangaMedia implements LibraryKindMetadataRuntime {
   final List<dynamic> series;
   final Map<String, dynamic> rawPayload;
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.manga;
 
   String? get synopsis => description;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   Map<String, dynamic> toJson() => {

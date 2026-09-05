@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -190,7 +189,7 @@ class TvPhysicalReleaseMetadata {
 typedef TvMetadata = TvSeriesMetadata;
 
 @immutable
-class TvSeriesMetadata implements LibraryKindMetadataRuntime {
+class TvSeriesMetadata {
   const TvSeriesMetadata({
     required this.title,
     this.originalTitle,
@@ -234,10 +233,8 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
     this.rawPayload = const <String, dynamic>{},
   });
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.tv;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;

@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -27,19 +27,13 @@ class LibraryProviderOrchestrationService {
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
     );
-    return LibraryMetadataItem(
-      identity: LibraryItemIdentity(
-        id: id,
-        mediaKind: mediaKind,
-      ),
-      kindMetadata: LibraryKindMetadataDecoders.decode(mediaKind, {
+    return LibraryMetadataTransportCodec.fromMetadataMap({
         'id': id,
         'kind': mediaKind.apiValue,
         'title': candidate.title,
         'synopsis': candidate.summary,
         'cover_image_url': candidate.imageUrl,
-      }),
-    );
+      });
   }
 
   Future<void> applyIngestCorrections({

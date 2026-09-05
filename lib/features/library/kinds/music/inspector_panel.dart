@@ -25,7 +25,7 @@ MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
   final metadata = item.source.catalogItem?.kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
   if (metadata != null) {
-    return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
+    return MusicCatalogMetadata.fromJson(item.source.catalogItem!.payload);
   }
   return null;
 }

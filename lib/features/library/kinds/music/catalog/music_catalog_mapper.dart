@@ -92,7 +92,7 @@ class MusicCatalogMapper {
     if (rawMetadata is MusicCatalogMetadata) {
       metadata = rawMetadata;
     } else {
-      metadata = MusicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
+      metadata = MusicCatalogMetadata.fromJson(item.payload);
     }
     final music = metadata.music;
     final List<MusicCatalogRelease> releases;

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 enum AnimeFormat {
@@ -135,7 +134,7 @@ class AnimeRelation {
 }
 
 @immutable
-class AnimeMetadata implements LibraryKindMetadataRuntime {
+class AnimeMetadata {
   const AnimeMetadata({
     this.title = '',
     this.nativeTitle,
@@ -174,10 +173,8 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
     this.rawPayload = const <String, dynamic>{},
   });
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.anime;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;

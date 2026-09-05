@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 bool sameStringList(List<String>? a, List<String>? b) {
@@ -154,15 +153,7 @@ LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {
   final primaryEdition = item.primaryEdition;
   final primaryVariant = item.primaryVariant;
   final releaseDate = primaryEdition?.releaseDate;
-  final mediaKind = catalogMediaKindFromApiValue(item.kind);
-  return LibraryMetadataItem(
-    identity: LibraryItemIdentity(
-      id: item.id,
-      mediaKind: mediaKind,
-    ),
-    kindMetadata: LibraryKindMetadataDecoders.decode(
-      mediaKind,
-      {
+  return LibraryMetadataTransportCodec.fromMetadataMap({
         'id': item.id,
         'kind': item.kind,
         'title': item.title,
@@ -180,7 +171,5 @@ LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {
         'barcode': primaryVariant?.barcode ?? item.barcode,
         'variant': primaryVariant?.name,
         if (item.series != null) 'series_title': item.series!.seriesTitle,
-      },
-    ),
-  );
+      });
 }

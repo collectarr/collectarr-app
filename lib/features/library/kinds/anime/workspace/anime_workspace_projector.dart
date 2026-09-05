@@ -22,7 +22,7 @@ final class AnimeWorkspaceProjector
     final km = source.catalogItem?.kindMetadata;
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
-        : (km != null ? AnimeMetadata.fromJson(km.toSyncPayload()) : null);
+        : (km != null ? AnimeMetadata.fromJson(source.catalogItem!.payload) : null);
     return AnimeWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
@@ -44,7 +44,7 @@ final class AnimeWorkspaceProjector
     final km = source.catalogItem?.kindMetadata;
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
-        : (km != null ? AnimeMetadata.fromJson(km.toSyncPayload()) : null);
+        : (km != null ? AnimeMetadata.fromJson(source.catalogItem!.payload) : null);
     return AnimeWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
@@ -65,7 +65,7 @@ final class AnimeWorkspaceProjector
     final km = source.catalogItem?.kindMetadata;
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
-        : (km != null ? AnimeMetadata.fromJson(km.toSyncPayload()) : null);
+        : (km != null ? AnimeMetadata.fromJson(source.catalogItem!.payload) : null);
     return AnimeWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),

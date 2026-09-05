@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
+import 'package:collectarr_app/features/library/models/library_catalog_item_view.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/foundation.dart';
 
@@ -254,8 +254,7 @@ final class CatalogItemDto {
         id: id,
         mediaKind: mediaKind,
       ),
-      kindMetadata:
-          LibraryKindMetadataDecoders.decode(mediaKind, toSyncPayload()),
+      kindMetadata: LibraryCatalogItemView.fromCatalogItem(this).kindMetadata,
     );
   }
 }

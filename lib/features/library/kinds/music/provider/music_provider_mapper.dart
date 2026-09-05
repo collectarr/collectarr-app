@@ -60,8 +60,8 @@ class MusicLibraryKindProviderMapper
     if (edited.synopsis != preview.synopsis) {
       corrections['synopsis'] = edited.synopsis;
     }
-    final previewPayload = preview.kindMetadata.toSyncPayload();
-    final editedPayload = edited.kindMetadata.toSyncPayload();
+    final previewPayload = preview.payload;
+    final editedPayload = edited.payload;
     for (final entry in editedPayload.entries) {
       if (previewPayload[entry.key] != entry.value) {
         corrections[entry.key] = entry.value;

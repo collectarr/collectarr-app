@@ -57,7 +57,7 @@ void main() {
         .candidatesForEntry(
           _shelfEntry(
             CatalogMediaKind.game,
-            const EmptyKindMetadata(CatalogMediaKind.game),
+            const Object(),
           ),
         )
         .toList();
@@ -128,7 +128,7 @@ Iterable<String?> _comicPublisher(ComicCatalogMetadata metadata) => [
 
 ShelfEntry _shelfEntry(
   CatalogMediaKind kind,
-  LibraryKindMetadataRuntime metadata,
+  Object? metadata,
 ) {
   return ShelfEntry(
     itemId: 'item-1',

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 
 abstract interface class LibraryLinkedMetadataCapability {
   const LibraryLinkedMetadataCapability();
@@ -18,7 +17,7 @@ class DefaultLibraryLinkedMetadataCapability
 }
 
 class TypedLibraryLinkedMetadataCapability<
-        TMetadata extends LibraryKindMetadataRuntime>
+        TMetadata>
     extends LibraryLinkedMetadataCapability {
   const TypedLibraryLinkedMetadataCapability(this._metadataValues);
 

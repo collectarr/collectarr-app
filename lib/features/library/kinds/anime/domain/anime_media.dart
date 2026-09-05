@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 import 'anime_episode.dart';
@@ -108,7 +107,7 @@ final class AnimeIdentifier {
 }
 
 @immutable
-final class AnimeMedia implements LibraryKindMetadataRuntime {
+final class AnimeMedia {
   const AnimeMedia({
     required this.id,
     required this.title,
@@ -145,7 +144,6 @@ final class AnimeMedia implements LibraryKindMetadataRuntime {
   final List<AnimeRelease> releases;
   final Map<String, dynamic> rawPayload;
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.anime;
 
   String? get synopsis => description;
@@ -155,7 +153,6 @@ final class AnimeMedia implements LibraryKindMetadataRuntime {
       _textValue(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
   String? get barcode => _textValue(rawPayload['barcode']);
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   factory AnimeMedia.fromJson(Map<String, dynamic> json) {

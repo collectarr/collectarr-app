@@ -1,19 +1,18 @@
 ﻿import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 abstract interface class VocabularyCatalogValueProjector {
-  Iterable<String?> call(LibraryKindMetadataRuntime metadata);
+  Iterable<String?> call(dynamic metadata);
 }
 
-final class TypedVocabularyProjector<T extends LibraryKindMetadataRuntime>
+final class TypedVocabularyProjector<T>
     implements VocabularyCatalogValueProjector {
   const TypedVocabularyProjector(this._project);
 
   final Iterable<String?> Function(T metadata) _project;
 
   @override
-  Iterable<String?> call(LibraryKindMetadataRuntime metadata) {
+  Iterable<String?> call(dynamic metadata) {
     if (metadata is! T) {
       return const [];
     }

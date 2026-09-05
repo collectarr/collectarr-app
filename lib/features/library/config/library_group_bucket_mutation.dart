@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
+import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 typedef LibraryGroupBucketValueMutator = LibraryMetadataItem? Function(
@@ -23,7 +23,7 @@ LibraryGroupBucketValueMutator libraryStringBucketValueMutator(
 }) {
   return (item, currentLabel, {String? replacement}) {
     final payload = Map<String, dynamic>.from(
-      item.kindMetadata.toSyncPayload(),
+      item.payload,
     );
     final keys = <String>{payloadKey, ...mirrorKeys};
     if (nestedValueKey != null) {
@@ -69,7 +69,7 @@ LibraryGroupBucketValueMutator libraryStringListBucketValueMutator(
 }) {
   return (item, currentLabel, {String? replacement}) {
     final payload = Map<String, dynamic>.from(
-      item.kindMetadata.toSyncPayload(),
+      item.payload,
     );
     final rawValues = payload[payloadKey];
     final current = currentLabel.trim();
@@ -142,10 +142,11 @@ LibraryMetadataItem _libraryMetadataItemWithPayload(
   LibraryMetadataItem item,
   Map<String, dynamic> payload,
 ) {
-  return LibraryMetadataItem(
-    identity: item.identity,
-    kindMetadata: LibraryKindMetadataDecoders.decode(item.mediaKind, payload),
-  );
+  return LibraryMetadataTransportCodec.fromMetadataMap({
+    'id': item.id,
+    'kind': item.kind,
+    ...payload,
+  });
 }
 
 LibraryOwnedGroupBucketValueMutator libraryOwnedConditionBucketValueMutator() {

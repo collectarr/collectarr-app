@@ -39,7 +39,7 @@ class ComicLibraryMediaPresentationBuilder
     if (rawMetadata is ComicCatalogMetadata) {
       metadata = rawMetadata;
     } else if (rawMetadata != null) {
-      metadata = ComicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
+      metadata = ComicCatalogMetadata.fromJson(item.source.catalogItem!.payload);
     } else {
       throw StateError('Expected ComicCatalogMetadata for comic presentation');
     }

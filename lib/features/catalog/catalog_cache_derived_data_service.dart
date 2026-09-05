@@ -15,13 +15,16 @@ final class CatalogCacheDerivedDataService {
     if (list.isEmpty) {
       return;
     }
-    final byKind = <String, List<LibraryKindMetadataRuntime>>{};
+    final byKind = <String, List<dynamic>>{};
     for (final item in list) {
       final kindMetadata = _kindMetadataFor(item);
+      final kind = item is LibraryMetadataItem
+          ? item.kind
+          : (item as CatalogItem).kind;
       byKind
           .putIfAbsent(
-            kindMetadata.mediaKind.apiValue,
-            () => <LibraryKindMetadataRuntime>[],
+            kind,
+            () => <dynamic>[],
           )
           .add(kindMetadata);
     }
@@ -54,14 +57,11 @@ final class CatalogCacheDerivedDataService {
     });
   }
 
-  static LibraryKindMetadataRuntime _kindMetadataFor(Object item) {
+  static dynamic _kindMetadataFor(Object item) {
     if (item is LibraryMetadataItem) {
       return item.kindMetadata;
     }
     final catalogItem = item as CatalogItem;
-    return LibraryKindMetadataDecoders.decode(
-      catalogItem.mediaKind,
-      catalogItem.payload,
-    );
+    return catalogItem.toLibraryMetadataItem().kindMetadata;
   }
 }

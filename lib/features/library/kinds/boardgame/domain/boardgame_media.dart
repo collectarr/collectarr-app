@@ -1,12 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 import 'boardgame_edition.dart';
 import 'boardgame_ids.dart';
 
 @immutable
-final class BoardGameMedia implements LibraryKindMetadataRuntime {
+final class BoardGameMedia {
   const BoardGameMedia({
     required this.id,
     required this.title,
@@ -49,7 +48,6 @@ final class BoardGameMedia implements LibraryKindMetadataRuntime {
   final List<BoardGameEdition> editions;
   final Map<String, dynamic> rawPayload;
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.boardgame;
 
   String? get synopsis => description;
@@ -59,7 +57,6 @@ final class BoardGameMedia implements LibraryKindMetadataRuntime {
       _textValue(rawPayload['thumbnail_image_url']) ?? coverImageUrl;
   String? get barcode => _textValue(rawPayload['barcode']);
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   Map<String, dynamic> toJson() => {

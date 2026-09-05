@@ -1,11 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 typedef BoardGameCatalogMetadata = BoardGameMetadata;
 
 @immutable
-class BoardGameMetadata implements LibraryKindMetadataRuntime {
+class BoardGameMetadata {
   const BoardGameMetadata({
     required this.title,
     this.originalTitle,
@@ -45,10 +44,8 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
     this.rawPayload = const <String, dynamic>{},
   });
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.boardgame;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;

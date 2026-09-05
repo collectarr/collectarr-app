@@ -91,7 +91,7 @@ void main() {
 
       expect(projector, isNotNull);
       expect(
-          projector!(const EmptyKindMetadata(CatalogMediaKind.game)), isEmpty);
+          projector!(const Object()), isEmpty);
       expect(
         projector(
           const ComicCatalogMetadata(
