@@ -3331,6 +3331,10 @@ Prefer production duplication over false-common abstractions.
 Share behavioral contract tests across every applicable kind.
 ```
 
+Status: complete. The five final architecture documents now live under
+`docs/architecture/` and link the executable ownership, provider, persistence,
+Core adoption, and contract-test evidence.
+
 ---
 
 # Final Test Structure
