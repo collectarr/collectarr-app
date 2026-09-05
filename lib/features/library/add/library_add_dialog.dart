@@ -235,15 +235,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Future<void> _loadPrefillDefaults() async {
     final defaults = await PrefillDefaults.load();
     if (!mounted) return;
-    if (defaults.condition?.trim().isNotEmpty == true) {
-      _controller.setDefaultCondition(defaults.condition!.trim());
-    }
-    if (defaults.grade?.trim().isNotEmpty == true) {
-      _controller.setDefaultGrade(defaults.grade!.trim());
-    }
-    if (defaults.readStatus != null) {
-      _controller.setDefaultReadStatus(defaults.readStatus);
-    }
     if (defaults.tags != null) {
       _controller.setDefaultTags(defaults.tags);
     }

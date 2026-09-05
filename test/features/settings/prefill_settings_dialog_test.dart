@@ -15,6 +15,20 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  test('ignores legacy kind-owned prefill keys', () async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.prefill.condition': 'Very Fine',
+      'collectarr.prefill.grade': '9.6',
+      'collectarr.prefill.read_status': 'read',
+      'collectarr.prefill.tags': 'favorite',
+    });
+
+    final defaults = await PrefillDefaults.load();
+
+    expect(defaults.locationId, isNull);
+    expect(defaults.tags, 'favorite');
+  });
+
   testWidgets('prefill settings dialog saves structured location ids',
       (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());

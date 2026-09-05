@@ -11,28 +11,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _prefsPrefix = 'collectarr.prefill.';
 
+/// Defaults that are genuinely universal to collection actions.
+///
+/// Condition, grade, and reading/watch state are intentionally absent. They
+/// belong to the owning kind/tracking domain and must not be configured by a
+/// global Settings model. Older preference keys with those names are ignored
+/// when loading.
 class PrefillDefaults {
   const PrefillDefaults({
-    this.condition,
-    this.grade,
     this.locationId,
-    this.readStatus,
     this.tags,
   });
 
-  final String? condition;
-  final String? grade;
   final String? locationId;
-  final String? readStatus;
   final String? tags;
 
   static Future<PrefillDefaults> load() async {
     final prefs = await SharedPreferences.getInstance();
     return PrefillDefaults(
-      condition: prefs.getString('${_prefsPrefix}condition'),
-      grade: prefs.getString('${_prefsPrefix}grade'),
       locationId: prefs.getString('${_prefsPrefix}location_id'),
-      readStatus: prefs.getString('${_prefsPrefix}read_status'),
       tags: prefs.getString('${_prefsPrefix}tags'),
     );
   }
@@ -47,10 +44,7 @@ class PrefillDefaults {
       }
     }
 
-    await set('condition', condition);
-    await set('grade', grade);
     await set('location_id', locationId);
-    await set('read_status', readStatus);
     await set('tags', tags);
   }
 }
@@ -66,20 +60,10 @@ class PrefillSettingsDialog extends ConsumerStatefulWidget {
 }
 
 class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
-  final _conditionController = TextEditingController();
-  final _gradeController = TextEditingController();
   final _tagsController = TextEditingController();
-  String? _readStatus;
   bool _loaded = false;
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
-
-  static const _readStatusOptions = [
-    null,
-    'unread',
-    'reading',
-    'read',
-  ];
 
   @override
   void initState() {
@@ -89,8 +73,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
 
   @override
   void dispose() {
-    _conditionController.dispose();
-    _gradeController.dispose();
     _tagsController.dispose();
     super.dispose();
   }
@@ -100,10 +82,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     final locations = await ref.read(allLocationsProvider.future);
     if (!mounted) return;
     setState(() {
-      _conditionController.text = defaults.condition ?? '';
-      _gradeController.text = defaults.grade ?? '';
       _tagsController.text = defaults.tags ?? '';
-      _readStatus = defaults.readStatus;
       _availableLocations = locations;
       _selectedLocationId = defaults.locationId;
       _loaded = true;
@@ -147,14 +126,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _textField('Condition', _conditionController,
-                        hint: 'e.g. Near Mint, Very Good'),
-                    const SizedBox(height: 10),
-                    _textField('Grade', _gradeController, hint: 'e.g. 9.6, A+'),
-                    const SizedBox(height: 10),
                     _locationField(),
-                    const SizedBox(height: 10),
-                    _readStatusField(),
                     const SizedBox(height: 10),
                     _textField('Tags', _tagsController,
                         hint: 'Comma-separated tags'),
@@ -176,11 +148,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       trailing: TextButton(
         onPressed: () {
           setState(() {
-            _conditionController.clear();
-            _gradeController.clear();
             _selectedLocationId = null;
             _tagsController.clear();
-            _readStatus = null;
           });
         },
         child: const Text(
@@ -323,51 +292,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     );
   }
 
-  Widget _readStatusField() {
-    return Row(
-      children: [
-        SizedBox(
-          width: 100,
-          child: Text(
-            'Read Status',
-            style:
-                TextStyle(fontSize: 13, color: appPalette(context).textMuted),
-          ),
-        ),
-        Expanded(
-          child: Container(
-            height: 34,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: appPalette(context).panelRaised,
-              borderRadius: kAppMenuBorderRadius,
-              border: Border.all(color: appPalette(context).divider),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String?>(
-                value: _readStatus,
-                isExpanded: true,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                style: TextStyle(
-                    fontSize: 13,
-                    color: Theme.of(context).colorScheme.onSurface),
-                icon: const Icon(Icons.expand_more, size: 16),
-                items: _readStatusOptions
-                    .map((s) => DropdownMenuItem(
-                          value: s,
-                          child: Text(s ?? '(none)'),
-                        ))
-                    .toList(),
-                onChanged: (value) => setState(() => _readStatus = value),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _footer() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
@@ -387,14 +311,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
             accent: widget.accent,
             onPressed: () async {
               final defaults = PrefillDefaults(
-                condition: _conditionController.text.isEmpty
-                    ? null
-                    : _conditionController.text,
-                grade: _gradeController.text.isEmpty
-                    ? null
-                    : _gradeController.text,
                 locationId: _selectedLocationId,
-                readStatus: _readStatus,
                 tags:
                     _tagsController.text.isEmpty ? null : _tagsController.text,
               );

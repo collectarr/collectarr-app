@@ -242,7 +242,8 @@ void main() {
     );
   });
 
-  testWidgets('generic add dialog applies persisted prefill defaults',
+  testWidgets(
+      'generic add dialog keeps kind defaults and applies universal prefill defaults',
       (tester) async {
     SharedPreferences.setMockInitialValues({
       'collectarr.prefill.condition': 'Very Fine',
@@ -289,8 +290,8 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(find.text('Very Fine'), findsOneWidget);
-    expect(find.text('9.6'), findsOneWidget);
+    expect(find.text('Very Fine'), findsNothing);
+    expect(find.text('9.6'), findsNothing);
     expect(find.text('Short Box 1'), findsOneWidget);
   });
 
