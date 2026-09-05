@@ -29,9 +29,7 @@ final class LibraryCatalogRepository {
     Iterable<CatalogItem> items, {
     bool captureDerivedData = true,
   }) async {
-    final catalogItems = [
-      for (final item in items) typedCatalogItemFromCatalogItem(item),
-    ];
+    final catalogItems = items.toList(growable: false);
     if (catalogItems.isEmpty) return;
 
     for (final item in catalogItems) {
@@ -41,7 +39,9 @@ final class LibraryCatalogRepository {
       await LibraryCatalogDerivedDataService(
         _db,
         contributors: defaultPickListDefinitionContributors,
-      ).capture(catalogItems);
+      ).capture([
+        for (final item in catalogItems) typedCatalogItemFromCatalogItem(item),
+      ]);
     }
   }
 

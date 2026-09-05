@@ -30,6 +30,7 @@ final class BoardGameCoreMapper {
       expansions: List<String>.from(dto.expansions),
       rankings: List<String>.from(dto.rankings),
       searchAliases: List<String>.from(dto.searchAliases),
+      editions: _mapEditions(dto.raw['editions']),
       rawPayload: dto.toJson(),
     );
   }
@@ -73,6 +74,17 @@ final class BoardGameCoreMapper {
         'Expected a boardgame Core DTO for $dtoType, got $rawKind',
       );
     }
+  }
+
+  static List<BoardGameEdition> _mapEditions(Object? value) {
+    if (value is! Iterable) return const <BoardGameEdition>[];
+    return [
+      for (final entry in value)
+        if (entry is Map)
+          fromEditionDto(
+            BoardGameEditionDto.fromJson(Map<String, dynamic>.from(entry)),
+          ),
+    ];
   }
 
   static String? _textValue(Object? value) {
