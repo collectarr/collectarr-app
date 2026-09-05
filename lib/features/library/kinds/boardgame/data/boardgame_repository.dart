@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/local/boardgame_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/remote/boardgame_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
@@ -7,12 +8,16 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:drift/drift.dart';
 
-final class BoardGameRepository {
+final class BoardGameRepository
+    implements ReadRepository<BoardGameMediaId, BoardGameMedia> {
   BoardGameRepository(this._db, {BoardGameRemoteSource? remote})
       : _remote = remote;
 
   final LocalDatabase _db;
   final BoardGameRemoteSource? _remote;
+
+  @override
+  Future<BoardGameMedia?> findById(BoardGameMediaId id) => getMedia(id);
 
   Future<BoardGameMedia?> getMedia(BoardGameMediaId id) async {
     final row = await (_db.select(_db.boardGameMediaRows)

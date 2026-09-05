@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
@@ -7,11 +8,15 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_release
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:drift/drift.dart';
 
-final class MovieRepository {
+final class MovieRepository
+    implements ReadRepository<MovieMediaId, MovieMedia> {
   MovieRepository(this._db, {MovieRemoteSource? remote}) : _remote = remote;
 
   final LocalDatabase _db;
   final MovieRemoteSource? _remote;
+
+  @override
+  Future<MovieMedia?> findById(MovieMediaId id) => getMedia(id);
 
   Future<MovieMedia?> getMedia(MovieMediaId id) async {
     final row = await (_db.select(_db.movieMediaRows)

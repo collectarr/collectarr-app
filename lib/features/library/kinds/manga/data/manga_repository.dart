@@ -1,15 +1,19 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:drift/drift.dart';
 
-final class MangaRepository {
+final class MangaRepository implements ReadRepository<String, MangaMedia> {
   MangaRepository(this._db, {MangaRemoteSource? remote}) : _remote = remote;
 
   final LocalDatabase _db;
   final MangaRemoteSource? _remote;
+
+  @override
+  Future<MangaMedia?> findById(String id) => getMedia(id);
 
   Future<MangaMedia?> getMedia(String id) async {
     final row = await (_db.select(_db.mangaMediaRows)
@@ -30,8 +34,7 @@ final class MangaRepository {
     if (normalizedQuery.isNotEmpty) {
       final pattern = '%$normalizedQuery%';
       select.where(
-        (table) =>
-            table.title.like(pattern) | table.sortTitle.like(pattern),
+        (table) => table.title.like(pattern) | table.sortTitle.like(pattern),
       );
     }
     select.orderBy([
@@ -61,9 +64,7 @@ final class MangaRepository {
     String ownedItemId,
     MangaOwnedDetails details,
   ) {
-    return _db
-        .into(_db.mangaOwnedDetailsRows)
-        .insertOnConflictUpdate(
+    return _db.into(_db.mangaOwnedDetailsRows).insertOnConflictUpdate(
           MangaLocalMapper.toOwnedDetailsRow(ownedItemId, details),
         );
   }

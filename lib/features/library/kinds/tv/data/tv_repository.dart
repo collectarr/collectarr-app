@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
@@ -6,11 +7,14 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:drift/drift.dart';
 
-final class TvRepository {
+final class TvRepository implements ReadRepository<TvSeriesId, TvSeries> {
   TvRepository(this._db, {TvRemoteSource? remote}) : _remote = remote;
 
   final LocalDatabase _db;
   final TvRemoteSource? _remote;
+
+  @override
+  Future<TvSeries?> findById(TvSeriesId id) => getSeries(id);
 
   Future<TvSeries?> getSeries(TvSeriesId id) async {
     final row = await (_db.select(_db.tvSeriesRows)

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/local/book_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/remote/book_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
@@ -7,11 +8,14 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dar
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:drift/drift.dart';
 
-final class BookRepository {
+final class BookRepository implements ReadRepository<BookMediaId, BookMedia> {
   BookRepository(this._db, {BookRemoteSource? remote}) : _remote = remote;
 
   final LocalDatabase _db;
   final BookRemoteSource? _remote;
+
+  @override
+  Future<BookMedia?> findById(BookMediaId id) => getMedia(id);
 
   Future<BookMedia?> getMedia(BookMediaId id) async {
     final row = await (_db.select(_db.bookMediaRows)

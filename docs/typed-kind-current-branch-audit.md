@@ -35,7 +35,7 @@ Status meanings:
 | 3 | Core DTO adoption checker | **DONE** | Generated-field policies and explicit all-kind contract registrations are present and covered by tests/CI. |
 | 4 | All-kind contract manifest | **DONE** | Generated-field policies and explicit all-kind contract registrations are present and covered by tests/CI. |
 | 5 | Tiny `LibraryKindRegistration` | **PARTIAL** | A registration boundary exists, but the runtime still exposes erased capability/field surfaces. |
-| 6 | Structural repository interfaces | **NOT STARTED** | No small repository contract has replaced the remaining kind/runtime repository surfaces. |
+| 6 | Structural repository interfaces | **PARTIAL** | `ReadRepository<TId, TEntity>` now covers all 9 typed media roots with concrete IDs/entities; create/update/delete remain kind-specific by design. |
 | 7 | Typed structural `EditSchema` | **DONE** | Structural typed schemas and shared renderers exist and are exercised by contract tests. |
 | 8 | Declarative Edit renderer | **DONE** | Structural typed schemas and shared renderers exist and are exercised by contract tests. |
 | 9 | Typed structural `AddSchema` | **DONE** | Structural typed schemas and shared renderers exist and are exercised by contract tests. |

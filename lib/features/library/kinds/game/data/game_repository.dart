@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/remote/game_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
@@ -7,11 +8,14 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_release.d
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:drift/drift.dart';
 
-final class GameRepository {
+final class GameRepository implements ReadRepository<GameMediaId, GameMedia> {
   GameRepository(this._db, {GameRemoteSource? remote}) : _remote = remote;
 
   final LocalDatabase _db;
   final GameRemoteSource? _remote;
+
+  @override
+  Future<GameMedia?> findById(GameMediaId id) => getMedia(id);
 
   Future<GameMedia?> getMedia(GameMediaId id) async {
     final row = await (_db.select(_db.gameMediaRows)

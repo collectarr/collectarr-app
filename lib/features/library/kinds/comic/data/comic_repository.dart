@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -6,11 +7,15 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
 import 'package:drift/drift.dart';
 
-final class ComicRepository {
+final class ComicRepository
+    implements ReadRepository<ComicMediaId, ComicMedia> {
   ComicRepository(this._db, {ComicRemoteSource? remote}) : _remote = remote;
 
   final LocalDatabase _db;
   final ComicRemoteSource? _remote;
+
+  @override
+  Future<ComicMedia?> findById(ComicMediaId id) => getMedia(id);
 
   Future<ComicMedia?> getMedia(ComicMediaId id) async {
     final row = await (_db.select(_db.comicMediaRows)

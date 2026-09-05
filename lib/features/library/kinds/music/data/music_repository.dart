@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
@@ -8,11 +9,15 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_track.d
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:drift/drift.dart';
 
-final class MusicRepository {
+final class MusicRepository
+    implements ReadRepository<MusicReleaseId, MusicRelease> {
   MusicRepository(this._db, {MusicRemoteSource? remote}) : _remote = remote;
 
   final LocalDatabase _db;
   final MusicRemoteSource? _remote;
+
+  @override
+  Future<MusicRelease?> findById(MusicReleaseId id) => getRelease(id);
 
   Future<MusicRelease?> getRelease(MusicReleaseId id) async {
     final row = await (_db.select(_db.musicReleaseRows)

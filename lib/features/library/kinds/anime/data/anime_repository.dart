@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_episode.dart';
@@ -9,11 +10,15 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_trackin
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:drift/drift.dart';
 
-final class AnimeRepository {
+final class AnimeRepository
+    implements ReadRepository<AnimeMediaId, AnimeMedia> {
   AnimeRepository(this._db, {AnimeRemoteSource? remote}) : _remote = remote;
 
   final LocalDatabase _db;
   final AnimeRemoteSource? _remote;
+
+  @override
+  Future<AnimeMedia?> findById(AnimeMediaId id) => getMedia(id);
 
   Future<AnimeMedia?> getMedia(AnimeMediaId id) async {
     final row = await (_db.select(_db.animeMediaRows)
