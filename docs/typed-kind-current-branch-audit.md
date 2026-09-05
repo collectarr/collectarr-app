@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `370ecc85` (`feat(actions): add generic typed action menu`)
+HEAD: `54210618` (`feat(core): add typed owned item projections`)
 
 ## Scope and evidence
 
@@ -45,7 +45,7 @@ Status meanings:
 | 13 | Action menu host | **PARTIAL** | Generic `ActionMenu<TContext>` now renders typed actions by placement and state; existing Library menus and kind toolbar descriptors still need migration to this host. |
 | 14 | Remove canonical common Owned domain | **PARTIAL** | Structural refs and typed tracking pieces exist, but common Owned/TrackingUnit compatibility remains. |
 | 15 | Move tracking fields out of Owned | **PARTIAL** | Structural refs and typed tracking pieces exist, but common Owned/TrackingUnit compatibility remains. |
-| 16 | Owned action/read projections | **DONE** | Cross-kind read projections/refs exist and are used as the intended small summary boundary. |
+| 16 | Owned action/read projections | **DONE** | `OwnedItemRef` and `OwnedItemSummary` now exist as explicit small cross-kind projections; domain-specific owned details remain outside the projection. |
 | 17 | Comic typed domain | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
 | 18 | Comic Core mapping | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
 | 19 | Comic local DB | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
@@ -171,7 +171,7 @@ Status meanings:
 
 ## PR0 conclusion
 
-PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 now add the structural action, import/export, and generic menu contracts. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
+PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 added the structural action, import/export, and generic menu contracts. The owned read projections are now explicit as well; existing common Owned persistence/UI remains a compatibility bridge. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
 
 ## Recommended next PR
 
