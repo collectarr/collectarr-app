@@ -7,6 +7,35 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('TV codec reconstructs hierarchy coordinates from sync payload', () {
+    final codec = collectarrTrackingEntryCodecs.singleWhere(
+      (candidate) => candidate.kind == 'tv',
+    );
+    final updatedAt = DateTime.utc(2026, 9, 6, 12);
+    final entry = TrackingEntry(
+      id: 'tv-sync-1',
+      catalogRef: const CatalogEntityRef(
+        kind: 'tv',
+        entityType: CatalogEntityType.work,
+        id: 'tv-1',
+      ),
+      seasonNumber: 3,
+      episodeNumber: 7,
+      episodeRatings: const {'3:7': 10},
+      updatedAt: updatedAt,
+    );
+
+    final restored = codec.fromSyncPayload(
+      payload: codec.toSyncPayload(entry),
+      id: entry.id,
+      updatedAt: updatedAt,
+    );
+    expect(restored.catalogRef.entityType, CatalogEntityType.episode);
+    expect(restored.seasonNumber, 3);
+    expect(restored.episodeNumber, 7);
+    expect(restored.episodeRatings, {'3:7': 10});
+  });
+
   test('round-trips TV tracking coordinates through the TV codec', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);

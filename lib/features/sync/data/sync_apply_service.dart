@@ -21,7 +21,9 @@ import 'package:collectarr_app/features/collection/repositories/user_metadata_ov
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/drift.dart';
@@ -280,6 +282,23 @@ class SyncApplyService {
     final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
     if (type != 'tracking_entry') {
       throw FormatException('Expected tracking_entry entity, got $type');
+    }
+    final rawRef = payload['target_ref'] ?? payload['catalog_ref'];
+    final kind = rawRef is Map ? rawRef['kind']?.toString() : null;
+    final codec = kind == null
+        ? null
+        : collectarrTrackingEntryCodecs.cast<TrackingEntryCodec?>().firstWhere(
+              (candidate) => candidate?.kind == kind,
+              orElse: () => null,
+            );
+    if (codec != null) {
+      return codec.fromSyncPayload(
+        payload: payload,
+        id: entity['entity_id'] as String,
+        updatedAt: DateTime.parse(entity['client_changed_at'] as String),
+        deletedAt:
+            deletedAt == null ? null : DateTime.parse(deletedAt as String),
+      );
     }
     return TrackingEntry.fromJson({
       ...payload,

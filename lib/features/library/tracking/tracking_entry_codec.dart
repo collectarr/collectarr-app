@@ -68,6 +68,17 @@ abstract interface class TrackingEntryCodec {
 
   Map<String, dynamic> toSyncPayload(TrackingEntry entry);
 
+  /// Reconstructs a tracking entry received from the provider sync boundary.
+  ///
+  /// Kind-specific coordinates are parsed by the owning codec rather than by
+  /// the shared model's transport factory.
+  TrackingEntry fromSyncPayload({
+    required Map<String, dynamic> payload,
+    required String id,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  });
+
   TrackingEntry fromStorageRow(
     TrackingEntryStorageRow row,
     Object? coordinates,

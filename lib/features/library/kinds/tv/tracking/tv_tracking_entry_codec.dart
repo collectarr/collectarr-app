@@ -88,6 +88,49 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
   }
 
   @override
+  TrackingEntry fromSyncPayload({
+    required Map<String, dynamic> payload,
+    required String id,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  }) {
+    final catalogRef = _catalogRefFromPayload(payload);
+    if (catalogRef.kind != kind) {
+      throw ArgumentError.value(
+        catalogRef.kind,
+        'payload.catalog_ref.kind',
+        'Expected TV tracking entry',
+      );
+    }
+    final seasonNumber = _int(payload['season_number']);
+    final episodeNumber = _int(payload['episode_number']);
+    return TrackingEntry(
+      id: id,
+      catalogRef: seasonNumber != null || episodeNumber != null
+          ? catalogRef.copyWith(entityType: CatalogEntityType.episode)
+          : catalogRef,
+      ownedItemId: payload['owned_item_id'] as String?,
+      editionId: payload['edition_id'] as String?,
+      variantId: payload['variant_id'] as String?,
+      bundleReleaseId: payload['bundle_release_id'] as String?,
+      sourceType: payload['source_type'] as String?,
+      status: payload['status'] as String?,
+      rating: _int(payload['rating']),
+      startedAt: _date(payload['started_at']),
+      finishedAt: _date(payload['finished_at']),
+      progressCurrent: _int(payload['progress_current']),
+      progressTotal: _int(payload['progress_total']),
+      timesCompleted: _int(payload['times_completed']),
+      notes: payload['notes'] as String?,
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+  }
+
+  @override
   TrackingEntry fromStorageRow(
     TrackingEntryStorageRow row,
     Object? coordinates,
@@ -119,6 +162,14 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
+  }
+
+  CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
+    final raw = payload['catalog_ref'];
+    if (raw is! Map) {
+      throw const FormatException('TV tracking entry is missing catalog_ref');
+    }
+    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
 }
 
@@ -153,6 +204,26 @@ Map<String, int> _decodeEpisodeRatings(String? raw) {
   }
   return const {};
 }
+
+Map<String, int> _decodeEpisodeRatingsValue(Object? raw) {
+  if (raw is Map) {
+    return {
+      for (final entry in raw.entries)
+        if (entry.key is String && entry.value is num)
+          entry.key as String: (entry.value as num).toInt(),
+    };
+  }
+  return _decodeEpisodeRatings(raw?.toString());
+}
+
+int? _int(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString().trim() ?? '');
+}
+
+DateTime? _date(Object? value) =>
+    value == null ? null : DateTime.tryParse(value.toString());
 
 String? _encodeEpisodeRatings(Map<String, int> ratings) {
   return ratings.isEmpty ? null : jsonEncode(ratings);
