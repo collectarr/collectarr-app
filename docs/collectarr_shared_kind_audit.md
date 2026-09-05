@@ -11,18 +11,6 @@ when their inputs are genuinely owner-neutral.
 | `video/catalog/video_catalog_mapper.dart` | DOMAIN BEHAVIOR | Move provider mapping into owners |
 | `video/catalog/video_catalog_release.dart` | DOMAIN MODEL | Move to video kind owners |
 | `video/detail/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
-| `video/edit/tabs/video_cast_tab.dart` | EDIT | Split into kind edit flows |
-| `video/edit/tabs/video_crew_tab.dart` | EDIT | Split into kind edit flows |
-| `video/edit/tabs/video_discs_tab.dart` | EDIT | Split into kind edit flows |
-| `video/edit/tabs/video_edit_models.dart` | DOMAIN MODEL | Split by kind edit schemas |
-| `video/edit/tabs/video_edit_tab_helpers.dart` | EDIT | Keep only owner-neutral helpers |
-| `video/edit/tabs/video_edition_tab.dart` | EDIT | Split by kind release semantics |
-| `video/edit/tabs/video_links_tab.dart` | EDIT | Split by kind edit flows |
-| `video/edit/tabs/video_media_tab.dart` | EDIT | Split by kind edit flows |
-| `video/edit/tabs/video_specs_tab.dart` | EDIT | Split by kind edit flows |
-| `video/edit/video_custom_tab_builder.dart` | EDIT | Move into kind edit composition |
-| `video/edit/video_edit_controller.dart` | DOMAIN BEHAVIOR | Split into kind controllers |
-| `video/edit/video_kind_edit_draft.dart` | DOMAIN MODEL | Replace with kind drafts |
 | `video/release/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
 | `video/release/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
 

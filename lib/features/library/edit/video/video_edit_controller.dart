@@ -18,8 +18,8 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'tabs/video_edit_models.dart';
-import 'video_kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
+import 'package:collectarr_app/features/library/edit/draft/video_kind_edit_draft.dart';
 
 class VideoEditController {
   VideoEditController({

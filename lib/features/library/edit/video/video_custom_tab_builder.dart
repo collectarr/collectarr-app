@@ -1,17 +1,17 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/video_kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_release_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_disc_map_tab.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_cast_tab.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_crew_tab.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_discs_tab.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_edition_tab.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_media_tab.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/tabs/video_specs_tab.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/edit/video/tabs/video_cast_tab.dart';
+import 'package:collectarr_app/features/library/edit/video/tabs/video_crew_tab.dart';
+import 'package:collectarr_app/features/library/edit/video/tabs/video_discs_tab.dart';
+import 'package:collectarr_app/features/library/edit/video/tabs/video_edition_tab.dart';
+import 'package:collectarr_app/features/library/edit/video/tabs/video_links_tab.dart';
+import 'package:collectarr_app/features/library/edit/video/tabs/video_media_tab.dart';
+import 'package:collectarr_app/features/library/edit/video/tabs/video_specs_tab.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 

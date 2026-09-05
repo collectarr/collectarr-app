@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:flutter/material.dart';
 
 class VideoEditMediaTab extends StatelessWidget {

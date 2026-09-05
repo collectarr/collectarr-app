@@ -2245,6 +2245,10 @@ The common physical ownership contract and copy value now live as
 owner-neutral library models; Movie, TV, and Anime typed ownership models
 implement/use those models directly instead of importing kind-shared files.
 
+Owner-neutral video Edit controller support, draft contract, edit models,
+helpers, and standard tabs now live under `features/library/edit/video`; only
+TV episodic Edit surfaces remain under a kind module.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

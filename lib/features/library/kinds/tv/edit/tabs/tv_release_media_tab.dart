@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
