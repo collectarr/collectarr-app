@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class ComicWorkspaceDto extends WorkspaceDtoAdapter {
@@ -7,6 +8,7 @@ final class ComicWorkspaceDto extends WorkspaceDtoAdapter {
     required this.common,
     required this.personal,
     required this.comic,
+    this.ownedItem,
     this.metadata,
   });
 
@@ -15,6 +17,7 @@ final class ComicWorkspaceDto extends WorkspaceDtoAdapter {
   @override
   final PersonalCopyProjection personal;
   final ComicCatalogItem comic;
+  final ComicOwnedItem? ownedItem;
   final ComicCatalogMetadata? metadata;
 
   // Domain convenience getters

@@ -138,6 +138,10 @@ void main() {
       );
 
       expect(dto.metadata?.title, 'Amazing Fantasy #15');
+      expect(dto.ownedItem?.id.value, 'owned_1');
+      expect(dto.ownedItem?.condition, '9.8');
+      expect(dto.ownedItem?.details.keyComic, isTrue);
+      expect(dto.ownedItem?.details.gradingCompany, 'CGC');
       expect(dto.writer, 'Stan Lee');
       expect(dto.artist, 'Steve Ditko');
       expect(dto.coverArtist, 'Jack Kirby');
