@@ -7,4 +7,6 @@ export 'library_info_panel.dart';
 export 'library_loading_state.dart';
 export 'library_panel_header.dart';
 export 'library_responsive_form_row.dart';
+export 'library_result_item_row.dart';
 export 'library_result_row.dart';
+export 'library_result_table.dart';

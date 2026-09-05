@@ -307,7 +307,7 @@ void main() {
 
       await tester.pumpWidget(
         _wrap(
-          LibraryResultRow(
+          LibraryResultItemRow(
             title: 'Batman: Year One',
             subtitle: 'DC Comics (1987)',
             leading: const Icon(Icons.menu_book),

@@ -2501,6 +2501,17 @@ Language
 
 Same appearance, different semantics.
 
+### Progress (2026-09-05)
+
+The shared result surface now has typed structural contracts:
+`LibraryResultColumn<T>` owns a semantic column and cell builder,
+`LibraryResultRow<T>` owns a typed item and interaction state, and
+`LibraryResultTable<T>` owns the common header, row, selection, density, and
+empty-state chrome. The former untyped item widget is now
+`LibraryResultItemRow`, keeping item-result presentation distinct from table
+row data. Kind-specific columns can be supplied without leaking kind semantics
+into the shared renderer.
+
 ---
 
 ## PR 89 — Shared selection controls
