@@ -10,6 +10,18 @@ abstract interface class PickListDefinitionContributor {
   CatalogMediaKind get kind;
 
   Iterable<PickListDefinition> get definitions;
+
+  /// Projects catalog metadata into values that the generic pick-list store
+  /// may capture. The contributor owns the metadata interpretation.
+  Iterable<PickListCatalogValues> catalogValues(Iterable<Object?> metadata);
+}
+
+/// Structural output of a kind-owned catalog vocabulary projection.
+final class PickListCatalogValues {
+  const PickListCatalogValues({required this.listName, required this.values});
+
+  final String listName;
+  final Iterable<String?> values;
 }
 
 final class VocabularyPickListDefinitionContributor
@@ -32,4 +44,21 @@ final class VocabularyPickListDefinitionContributor
             mediaKind: kind.apiValue,
           ),
       ];
+
+  @override
+  Iterable<PickListCatalogValues> catalogValues(
+    Iterable<Object?> metadata,
+  ) sync* {
+    final metadataList = metadata.toList(growable: false);
+    for (final vocabulary in vocabularies) {
+      final valuesFrom = vocabulary.valuesFrom;
+      if (valuesFrom == null) continue;
+
+      final values = <String?>[];
+      for (final item in metadataList) {
+        values.addAll(valuesFrom(item));
+      }
+      yield PickListCatalogValues(listName: vocabulary.key, values: values);
+    }
+  }
 }

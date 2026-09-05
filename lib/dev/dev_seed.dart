@@ -1,8 +1,8 @@
 /// Development seed data for the local database.
 ///
-/// Populates CatalogCache, OwnedItemsCache, TrackingEntriesCache,
-/// PickListValues, SerialAuthority, CustomFieldDefinitions/Values
-/// with ~10 entries per library kind, all fields maximally populated.
+/// Populates the typed local catalog projections, OwnedItemsCache,
+/// TrackingEntriesCache, PickListValues, SerialAuthority, and
+/// CustomFieldDefinitions/Values with rich entries for every library kind.
 ///
 /// Usage: call `seedLocalDatabase(db)` from main.dart or a debug menu.
 /// Safe to call multiple times – uses deterministic IDs (idempotent via upsert).
@@ -28,7 +28,7 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 
 export 'package:collectarr_app/dev/seeds/anime_seeds.dart';

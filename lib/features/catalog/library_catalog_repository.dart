@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/remote/music_co
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 
 /// Reads and writes the kind-owned catalog graphs.
 ///
@@ -48,7 +49,10 @@ final class LibraryCatalogRepository {
       await _upsertItem(item);
     }
     if (captureDerivedData) {
-      await LibraryCatalogDerivedDataService(_db).capture(catalogItems);
+      await LibraryCatalogDerivedDataService(
+        _db,
+        contributors: defaultPickListDefinitionContributors,
+      ).capture(catalogItems);
     }
   }
 

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
 Future<void> seedPickLists(PickListRepository repo) async {
   await repo.setValues('conditions', [

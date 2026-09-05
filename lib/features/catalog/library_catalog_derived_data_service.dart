@@ -1,46 +1,42 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
 final class LibraryCatalogDerivedDataService {
-  const LibraryCatalogDerivedDataService(this._db);
+  const LibraryCatalogDerivedDataService(
+    this._db, {
+    required this.contributors,
+  });
 
   final LocalDatabase _db;
+  final Iterable<PickListDefinitionContributor> contributors;
 
-  Future<void> capture(Iterable<Object> items) async {
+  Future<void> capture(Iterable<CatalogItem> items) async {
     final list = items.toList(growable: false);
     if (list.isEmpty) return;
 
-    final byKind = <String, List<Object?>>{};
+    final byKind = <CatalogMediaKind, List<Object?>>{};
     for (final item in list) {
-      final catalogItem = item as CatalogItem;
       byKind
-          .putIfAbsent(catalogItem.kind, () => <Object?>[])
-          .add(catalogItem.kindMetadata);
+          .putIfAbsent(item.mediaKind, () => <Object?>[])
+          .add(item.kindMetadata);
     }
 
     final pickLists = PickListRepository(_db);
     final serialAuthority = SerialAuthorityRepository(_db);
     await _db.transaction(() async {
       for (final entry in byKind.entries) {
-        final runtime = libraryKindRuntimeForKind(
-          catalogMediaKindFromApiValue(entry.key),
-        );
-        final definitions = runtime.edit.vocabularies?.definitions ?? const [];
-        for (final definition in definitions) {
-          final valuesFrom = definition.valuesFrom;
-          if (valuesFrom == null) continue;
-          final values = <String?>[];
-          for (final metadata in entry.value) {
-            values.addAll(valuesFrom(metadata));
+        for (final contributor in contributors) {
+          if (contributor.kind != entry.key) continue;
+          for (final projected in contributor.catalogValues(entry.value)) {
+            await pickLists.captureValuesWithoutTransaction(
+              projected.listName,
+              projected.values,
+              mediaKind: entry.key.apiValue,
+            );
           }
-          await pickLists.captureValuesWithoutTransaction(
-            definition.key,
-            values,
-            mediaKind: entry.key,
-          );
         }
       }
       await serialAuthority.captureCatalogItemsWithoutTransaction(list);
