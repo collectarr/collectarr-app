@@ -2196,6 +2196,9 @@ The remaining Core-`Season` compatibility provider is now explicit under
 Unused video Edit support and compatibility barrels have been removed; the
 custom-tab builder now imports concrete tab modules directly.
 
+The Add result policy shared by Movie, TV, and Anime now lives in generic Add
+infrastructure; `_shared/video` no longer owns Add behavior.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

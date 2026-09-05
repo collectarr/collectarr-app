@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
+import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';

@@ -37,7 +37,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_kind_filters.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/library_add_video_result_policy.dart';
+import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
