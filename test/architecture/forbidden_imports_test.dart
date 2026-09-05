@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/config/generic_library_media_pre
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -560,7 +561,7 @@ class ComicFeature {}
       inspector: const LibraryInspectorCapability(),
       transfer: const LibraryTransferCapability(),
       presentation: genericLibraryMediaPresentation,
-      trackingProfile: readingTrackingProfile,
+      trackingProfile: bookTrackingProfile,
       add: StandardLibraryAddCapability<GenericAddDraft>(
         kind: CatalogMediaKind.unknown,
         initialDraftBuilder: GenericAddDraft.new,

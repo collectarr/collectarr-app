@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/generic_library_media_pre
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/generic/tracking/generic_tracking_profile.dart';
 import 'package:collectarr_app/features/library/runtime/runtime_catalog_library_type_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -62,7 +63,7 @@ void main() {
     );
     expect(runtime.identity.icon, Icons.category_outlined);
     expect(runtime.identity.accent, kLibraryFallbackAccent);
-    expect(runtime.trackingProfile.name, readingTrackingProfile.name);
+    expect(runtime.trackingProfile.name, genericTrackingProfile.name);
     expect(runtime.metadata.providers.single.id, 'podindex');
     expect(
         runtime.metadata.providers.single

@@ -1,8 +1,9 @@
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart'
+    show MediaTrackingStatus;
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
-const tvTrackingProfile = MediaTrackingProfile(
-  name: 'TV',
+const genericTrackingProfile = MediaTrackingProfile(
+  name: 'Reading',
   options: [
     MediaTrackingOption(
       status: MediaTrackingStatus.none,
@@ -11,18 +12,18 @@ const tvTrackingProfile = MediaTrackingProfile(
     ),
     MediaTrackingOption(
       status: MediaTrackingStatus.planned,
-      label: 'Plan to watch',
-      storageValue: 'Plan to watch',
+      label: 'Plan to read',
+      storageValue: 'Plan to read',
     ),
     MediaTrackingOption(
       status: MediaTrackingStatus.inProgress,
-      label: 'Watching',
-      storageValue: 'Watching',
+      label: 'Reading',
+      storageValue: 'Reading',
     ),
     MediaTrackingOption(
       status: MediaTrackingStatus.completed,
-      label: 'Watched',
-      storageValue: 'Watched',
+      label: 'Read',
+      storageValue: 'Read',
     ),
     MediaTrackingOption(
       status: MediaTrackingStatus.paused,
@@ -36,9 +37,8 @@ const tvTrackingProfile = MediaTrackingProfile(
     ),
     MediaTrackingOption(
       status: MediaTrackingStatus.repeating,
-      label: 'Rewatching',
-      storageValue: 'Rewatching',
+      label: 'Rereading',
+      storageValue: 'Rereading',
     ),
   ],
-  supportsEpisodeCoordinates: true,
 );

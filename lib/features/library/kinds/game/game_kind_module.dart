@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/game/inspector_panel.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';

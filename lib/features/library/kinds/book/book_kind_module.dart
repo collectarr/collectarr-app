@@ -24,7 +24,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
@@ -157,7 +157,7 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
 
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   presentation: bookLibraryMediaPresentation,
-  trackingProfile: readingTrackingProfile,
+  trackingProfile: bookTrackingProfile,
   projector: const BookWorkspaceProjector(),
   ownedDetailsCodec: const BookOwnedDetailsCodec(),
   fields: bookLibraryKindSchema.toRegistry(),

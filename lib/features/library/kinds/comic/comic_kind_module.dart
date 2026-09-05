@@ -41,7 +41,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_bu
 import 'package:collectarr_app/features/library/kinds/comic/relations/comic_relation_capability.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
 
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';

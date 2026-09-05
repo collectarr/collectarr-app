@@ -12,14 +12,21 @@ class MediaTrackingOption {
   final String storageValue;
 }
 
+/// Structural tracking vocabulary supplied by each owning kind.
 class MediaTrackingProfile {
   const MediaTrackingProfile({
     required this.name,
     required this.options,
+    this.supportsEpisodeCoordinates = false,
   });
 
   final String name;
   final List<MediaTrackingOption> options;
+
+  /// A compatibility presentation capability for the current editor host.
+  /// TV/Anime profiles opt in; the owning kind remains responsible for the
+  /// actual season/episode state and persistence.
+  final bool supportsEpisodeCoordinates;
 
   String? normalizeStorageValue(String? value) {
     final status = mediaTrackingStatusFromString(value);
@@ -31,208 +38,3 @@ class MediaTrackingProfile {
     return null;
   }
 }
-
-const comicTrackingProfile = MediaTrackingProfile(
-  name: 'Comics',
-  options: [
-    MediaTrackingOption(
-      status: MediaTrackingStatus.none,
-      label: 'Not tracked',
-      storageValue: '',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.planned,
-      label: 'Plan to read',
-      storageValue: 'Plan to read',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.inProgress,
-      label: 'Reading',
-      storageValue: 'Reading',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.completed,
-      label: 'Read',
-      storageValue: 'Read',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.paused,
-      label: 'On hold',
-      storageValue: 'On hold',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.dropped,
-      label: 'Dropped',
-      storageValue: 'Dropped',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.repeating,
-      label: 'Rereading',
-      storageValue: 'Rereading',
-    ),
-  ],
-);
-
-const gameTrackingProfile = MediaTrackingProfile(
-  name: 'Games',
-  options: [
-    MediaTrackingOption(
-      status: MediaTrackingStatus.none,
-      label: 'Not tracked',
-      storageValue: '',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.planned,
-      label: 'Backlog',
-      storageValue: 'Backlog',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.inProgress,
-      label: 'Playing',
-      storageValue: 'Playing',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.completed,
-      label: 'Completed',
-      storageValue: 'Completed',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.paused,
-      label: 'On hold',
-      storageValue: 'On hold',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.dropped,
-      label: 'Dropped',
-      storageValue: 'Dropped',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.repeating,
-      label: 'Replaying',
-      storageValue: 'Replaying',
-    ),
-  ],
-);
-
-const readingTrackingProfile = MediaTrackingProfile(
-  name: 'Reading',
-  options: [
-    MediaTrackingOption(
-      status: MediaTrackingStatus.none,
-      label: 'Not tracked',
-      storageValue: '',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.planned,
-      label: 'Plan to read',
-      storageValue: 'Plan to read',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.inProgress,
-      label: 'Reading',
-      storageValue: 'Reading',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.completed,
-      label: 'Read',
-      storageValue: 'Read',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.paused,
-      label: 'On hold',
-      storageValue: 'On hold',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.dropped,
-      label: 'Dropped',
-      storageValue: 'Dropped',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.repeating,
-      label: 'Rereading',
-      storageValue: 'Rereading',
-    ),
-  ],
-);
-
-const videoTrackingProfile = MediaTrackingProfile(
-  name: 'Video',
-  options: [
-    MediaTrackingOption(
-      status: MediaTrackingStatus.none,
-      label: 'Not tracked',
-      storageValue: '',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.planned,
-      label: 'Plan to watch',
-      storageValue: 'Plan to watch',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.inProgress,
-      label: 'Watching',
-      storageValue: 'Watching',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.completed,
-      label: 'Watched',
-      storageValue: 'Watched',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.paused,
-      label: 'On hold',
-      storageValue: 'On hold',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.dropped,
-      label: 'Dropped',
-      storageValue: 'Dropped',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.repeating,
-      label: 'Rewatching',
-      storageValue: 'Rewatching',
-    ),
-  ],
-);
-
-const listeningTrackingProfile = MediaTrackingProfile(
-  name: 'Listening',
-  options: [
-    MediaTrackingOption(
-      status: MediaTrackingStatus.none,
-      label: 'Not tracked',
-      storageValue: '',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.planned,
-      label: 'Want to listen',
-      storageValue: 'Want to listen',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.inProgress,
-      label: 'Listening',
-      storageValue: 'Listening',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.completed,
-      label: 'Listened',
-      storageValue: 'Listened',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.paused,
-      label: 'On hold',
-      storageValue: 'On hold',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.dropped,
-      label: 'Dropped',
-      storageValue: 'Dropped',
-    ),
-    MediaTrackingOption(
-      status: MediaTrackingStatus.repeating,
-      label: 'On repeat',
-      storageValue: 'On repeat',
-    ),
-  ],
-);

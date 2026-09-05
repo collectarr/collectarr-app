@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
@@ -151,7 +151,7 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
 
 final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   presentation: mangaLibraryMediaPresentation,
-  trackingProfile: comicTrackingProfile,
+  trackingProfile: mangaTrackingProfile,
   projector: const MangaWorkspaceProjector(),
   ownedDetailsCodec: const MangaOwnedDetailsCodec(),
   fields: mangaLibraryKindSchema.toRegistry(),

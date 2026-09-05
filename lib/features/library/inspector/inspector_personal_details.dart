@@ -459,7 +459,7 @@ class _InspectorTrackingDetailsEditorState
   String? _selectedVariantId;
 
   bool get _showsEpisodeFields {
-    return widget.profile.name == videoTrackingProfile.name ||
+    return widget.profile.supportsEpisodeCoordinates ||
         _seasonNumberController.text.trim().isNotEmpty ||
         _episodeNumberController.text.trim().isNotEmpty ||
         widget.trackingEntry.seasonNumber != null ||

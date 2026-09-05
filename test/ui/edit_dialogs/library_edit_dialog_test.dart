@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -69,7 +70,7 @@ void main() {
       inspector: genericKindModule.inspector,
       transfer: genericKindModule.transfer,
       presentation: genericLibraryMediaPresentation,
-      trackingProfile: readingTrackingProfile,
+      trackingProfile: bookTrackingProfile,
       add: genericKindModule.add,
       edit: genericKindModule.edit,
     );

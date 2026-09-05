@@ -30,6 +30,8 @@ import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
@@ -122,7 +124,7 @@ void main() {
       ),
       isTrue,
     );
-    expect(mangaKindModule.trackingProfile, comicTrackingProfile);
+    expect(mangaKindModule.trackingProfile, mangaTrackingProfile);
     expect(mangaKindModule.presentation, mangaLibraryMediaPresentation);
     expect(mangaKindModule.edit.editDialogBuilder, isNotNull);
     expect(mangaKindModule.edit.mediaEditDialogBuilder,

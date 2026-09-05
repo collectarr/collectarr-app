@@ -1,8 +1,9 @@
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart'
+    show MediaTrackingStatus;
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
-const tvTrackingProfile = MediaTrackingProfile(
-  name: 'TV',
+const movieTrackingProfile = MediaTrackingProfile(
+  name: 'Movies',
   options: [
     MediaTrackingOption(
       status: MediaTrackingStatus.none,

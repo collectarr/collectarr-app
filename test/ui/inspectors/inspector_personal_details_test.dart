@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -132,7 +133,7 @@ void main() {
                 startedAt: DateTime.utc(2026, 5, 20),
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
-              profile: videoTrackingProfile,
+              profile: movieTrackingProfile,
               editions: const [
                 CatalogEdition(
                   id: 'edition-stream',

@@ -1,4 +1,7 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -15,7 +18,7 @@ void main() {
     expect(gameTrackingProfile.normalizeStorageValue('planned'), 'Backlog');
     expect(gameTrackingProfile.normalizeStorageValue('playing'), 'Playing');
     expect(
-        videoTrackingProfile.normalizeStorageValue('planned'), 'Plan to watch');
-    expect(videoTrackingProfile.normalizeStorageValue('watched'), 'Watched');
+        movieTrackingProfile.normalizeStorageValue('planned'), 'Plan to watch');
+    expect(movieTrackingProfile.normalizeStorageValue('watched'), 'Watched');
   });
 }

@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draf
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/release/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
@@ -151,7 +151,7 @@ Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
 
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   presentation: moviesLibraryMediaPresentation,
-  trackingProfile: videoTrackingProfile,
+  trackingProfile: movieTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const MovieWorkspaceProjector(),

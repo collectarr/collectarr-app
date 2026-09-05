@@ -23,7 +23,6 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
@@ -427,8 +426,7 @@ class LibraryEditDraft {
         itemImageEdits: itemImageEdits,
       );
 
-  bool get showsEpisodeTrackingFields =>
-      type.trackingProfile.name == videoTrackingProfile.name;
+  bool get showsEpisodeTrackingFields => type.kind.isVideoLibraryKind;
 
   void setExternalLinks(List<TrailerLinkDto> links) {
     kindDetails.setExternalLinks(links);
