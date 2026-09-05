@@ -3,7 +3,7 @@
 Audit date: 2026-09-06
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `71ab518b` (`refactor(tracking): delegate custom episodes to kinds`)
+HEAD: `fc6fe6f2` (`refactor(tracking): move TV episode mutations into TV`)
 
 ## Scope and evidence
 
@@ -11,14 +11,14 @@ This is the PR0 rebaseline for the new Full Typed-Kind Vertical Architecture pla
 
 Evidence checked:
 
-- `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, de-shared video ownership details, explicit personal-list import boundaries, kind-owned Activity projections, kind-owned Admin proposal fields, concrete tracking profiles for every registered kind, kind-owned tracking-unit persistence codecs, and kind-owned TV/Anime custom-episode codecs.
+- `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, de-shared video ownership details, explicit personal-list import boundaries, kind-owned Activity projections, kind-owned Admin proposal fields, concrete tracking profiles for every registered kind, kind-owned tracking-unit persistence codecs, kind-owned TV/Anime custom-episode/watch-session codecs, and TV-owned episode completion mutations.
 - `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 532 AST architecture violations; its 392 complexity warnings are informational.
 - `test/contracts/**`, `test/architecture/**`, `test/dev/dev_seed_test.dart`, the Comic domain suite, the Collection/Shelf/Stats suites, and the Movie/TV/Anime vertical suites: focused suites pass; the full suite passed at 1878 tests with 5 skipped before the latest tracking-only change, and the post-change tracking/config/UI suite passes at 91 tests with warnings only.
 - Barcode contracts execute against all 9 registered kind resolvers; the Add and metadata lookup paths dispatch normalized identifiers through the owning resolver before the API boundary.
 - Loan domain/repository consumers now use `OwnedItemRef` canonically; the legacy API `owned_item_id` remains only at the JSON/Drift boundary.
 - All checked-in physical seed fixtures now provide a resolver-compatible barcode; the seed quality guard verifies retail/ISBN checksums and the Comic UPC-A supplement format, and the dev seed test verifies persisted rows through kind dispatch.
 - Personal-list file parsers now live under `features/imports/personal_lists`; provider connectors expose `PersonalListFileImportCapability`, distinct from catalog metadata import flows.
-- The generic import runner is callback-only orchestration; personal import matching/application is supplied by the host, and Activity watch-session projections dispatch TV/Anime episode semantics through kind-owned contributors with a generic coordinate-free fallback. Concrete tracking vocabularies now live under each owning kind; Manga no longer reuses Comic's profile, generic tracking keeps only structural profile behavior, tracking-unit coordinate persistence/projection is dispatched through explicit kind-owned codecs, and custom-episode persistence/grouping is dispatched through TV/Anime codecs.
+- The generic import runner is callback-only orchestration; personal import matching/application is supplied by the host, and Activity watch-session projections dispatch TV/Anime episode semantics through kind-owned contributors with a generic coordinate-free fallback. Concrete tracking vocabularies now live under each owning kind; Manga no longer reuses Comic's profile, generic tracking keeps only structural profile behavior, tracking-unit coordinate persistence/projection is dispatched through explicit kind-owned codecs, custom-episode/watch-session persistence is dispatched through TV/Anime codecs, and TV episode completion mutations are TV-owned.
 - Existing audits: `docs/typed-kind-parity-final.md`, `docs/typed-kind-semantic-vacuum-audit.md`, `docs/outside-kinds-generic-audit.md`, and `docs/collectarr_shared_kind_audit.md`.
 - Seed coverage: 15 catalog entries for each kind except BoardGame (10), matching owned/tracking fixtures and expanded pick-list vocabulary.
 
@@ -107,7 +107,7 @@ Status meanings:
 | 70 | Kind-specific settings contributions | **PARTIAL** | Global `PrefillDefaults` now contains only universal location/tags; legacy condition/grade/read-status keys are ignored, while broader kind-specific settings contributions remain. |
 | 71 | Define genuinely universal tracking infrastructure | **PARTIAL** | Generic `MediaTrackingProfile` now contains only structural options, normalization, and presentation capability; tracking-unit storage is orchestration-only through a codec contract, while generic TrackingEntry compatibility and universal lifecycle mechanics still remain. |
 | 72 | Full kind-owned tracking state | **PARTIAL** | All 9 registered kinds now own their concrete tracking vocabulary/profile, and TV/Anime/Book/Manga/Comic own their tracking-unit coordinate persistence/projection codecs; typed tracking state/storage is still incomplete outside existing TV/Anime/Comic slices. |
-| 73 | Move watch/custom episode storage | **PARTIAL** | Custom-episode persistence, sorting, and grouping now dispatch through kind-owned TV/Anime codecs; generic WatchSession storage and tracking compatibility remain. |
+| 73 | Move watch/custom episode storage | **PARTIAL** | Custom-episode and watch-session persistence, sorting, and grouping now dispatch through kind-owned TV/Anime codecs, and TV episode completion mutations are TV-owned; generic WatchSession storage/model compatibility remains. |
 | 74 | Classify every `_shared` file | **PARTIAL** | The shared-kind audit exists, but the new allowed classification is stricter than the current _shared contents. |
 | 75 | De-share Video | **PARTIAL** | Movie, TV, and Anime now own independent physical-copy detail models; generic Collection/Detail/Inspector code no longer reads shared video semantics. Shared video edit/catalog/tracking compatibility remains. |
 | 76 | De-share publishing/serial domains | **NOT STARTED** | Shared video and publishing/serial semantic abstractions still exist or remain in compatibility locations. |
