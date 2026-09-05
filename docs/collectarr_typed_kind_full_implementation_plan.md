@@ -2698,6 +2698,12 @@ LibraryKindRegistration
 
 The erased boundary ends immediately after dispatch.
 
+Status: dispatch migration complete. Concrete registrations now capture each
+kind runtime at the composition root, page construction consumes only the
+registration boundary, and generic fallback pages use the same boundary. The
+remaining capability/configuration consumers are still migration-only runtime
+callers and remain outside the page-dispatch contract.
+
 ---
 
 ## PR 99 — Cross-kind search summary model
@@ -2748,6 +2754,11 @@ except approved composition roots
 ```
 
 Also generic Library cannot import `_shared` domain modules.
+
+Status: the registration boundary guard is in place. It rejects runtime types
+in the public registration interface, concrete-kind imports or kind switches in
+the page dispatcher, missing active-kind page registrations, and home callers
+that bypass registration dispatch.
 
 ---
 
