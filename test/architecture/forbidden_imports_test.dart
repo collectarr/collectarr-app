@@ -112,6 +112,34 @@ class TestStats {}
     );
   });
 
+  test('architecture boundary checker allows structural owned projections', () {
+    final repoRoot = Directory.current.path;
+    const testCode = '''
+class OwnedItemSummary {
+  final String? subtitle;
+  const OwnedItemSummary(this.subtitle);
+}
+''';
+    final relativePath = 'lib/core/models/owned_item_projection.dart';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(repoRoot, relativePath),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(repoRoot, relativePath),
+      relativePath: relativePath,
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile(relativePath),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: repoRoot,
+      sourceContent: testCode,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isEmpty);
+  });
+
   test(
       'architecture boundary checker rejects value importing concrete comic metadata',
       () {

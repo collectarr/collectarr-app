@@ -254,6 +254,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/kinds/_shared/video/providers/video_seasons_provider.dart',
   };
 
+  static const _structuralProjectionAllowlist = {
+    'lib/core/models/owned_item_projection.dart',
+  };
+
   @override
   void visitPropertyAccess(PropertyAccess node) {
     if (_isStrictGenericContext(relativePath)) {
@@ -510,6 +514,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   void _checkDeclaredSemanticName(String name, int offset) {
     if (!_isStrictGenericContext(relativePath) ||
+        _structuralProjectionAllowlist.contains(relativePath) ||
         !_forbiddenContextualMemberNames.contains(name)) {
       return;
     }
@@ -593,11 +598,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       r'\b(catalog|metadata|payload|item)[A-Za-z0-9_]*\b',
       caseSensitive: false,
     ).hasMatch(declarationSource);
-  }
-
-  bool _isLibraryDataPath(String path) {
-    return path.startsWith('lib/features/library/') ||
-        path.startsWith('lib/features/collection/');
   }
 
   bool _isForbiddenRuntimeTypeContext(String path) {
@@ -727,11 +727,6 @@ bool isAllowedKindImport(String sourceKind, String importedKind) {
 
 bool _isProviderPath(String relativePath) {
   return relativePath.startsWith('lib/features/providers/');
-}
-
-bool _isKindSourcePath(String relativePath) {
-  return relativePath.startsWith('lib/features/library/kinds/') &&
-      !relativePath.startsWith(_registryRoot);
 }
 
 bool _isGeneratedCoreDtoPath(String relativePath) {
