@@ -42,6 +42,16 @@ Future<void> main() async {
         );
       }
     }
+    final typedTrackingCounts = await devSeedTypedTrackingCounts(db);
+    for (final entry in devSeedTypedTrackingMinimumCounts.entries) {
+      final actual = typedTrackingCounts[entry.key] ?? 0;
+      if (actual < entry.value) {
+        throw StateError(
+          'Seed verification failed for typed tracking ${entry.key}: '
+          'expected at least ${entry.value}, found $actual',
+        );
+      }
+    }
 
     final seededCatalogCount =
         catalogRows.where((row) => row.id.startsWith('seed-')).length;
@@ -101,6 +111,7 @@ Future<void> main() async {
       'comic_owned_items=$comicOwnedCount comic_reading_rows=$comicReadingCount '
       'typed_graph=${typedGraphCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'typed_owned=${typedOwnedCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
+      'typed_tracking=${typedTrackingCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'by_kind=${devSeedCatalogCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')}',
     );
   } finally {

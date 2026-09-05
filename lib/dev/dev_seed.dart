@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/dev/seeds/anime_seeds.dart';
 import 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
 import 'package:collectarr_app/dev/seeds/book_seeds.dart';
@@ -35,6 +36,11 @@ import 'package:collectarr_app/features/library/kinds/manga/data/manga_repositor
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
@@ -117,6 +123,12 @@ const devSeedTypedOwnedMinimumCounts = <String, int>{
   'music.owned': 15,
 };
 
+/// Minimum typed tracking rows expected from episodic fixtures.
+const devSeedTypedTrackingMinimumCounts = <String, int>{
+  'tv.episode_progress': 30,
+  'anime.tracking': 30,
+};
+
 /// Counts the typed catalog graph written by the development seed.
 ///
 /// This is intentionally a composition-root helper: the seed verifier may
@@ -163,6 +175,15 @@ Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
     'tv.owned': (await db.select(db.tvOwnedDetailsRows).get()).length,
     'anime.owned': (await db.select(db.animeOwnedDetailsRows).get()).length,
     'music.owned': (await db.select(db.musicOwnedDetailsRows).get()).length,
+  };
+}
+
+/// Counts kind-owned tracking rows written by the development seed.
+Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
+  return {
+    'tv.episode_progress':
+        (await db.select(db.tvEpisodeProgressRows).get()).length,
+    'anime.tracking': (await db.select(db.animeTrackingRows).get()).length,
   };
 }
 
@@ -244,6 +265,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   await catalogRepo.upsertAll(allItems);
   await ownedRepo.upsertAll(ownedItems);
   await _seedKindOwnedDetails(db, ownedItems);
+  await _seedKindTracking(db, allItems, now);
   await comicOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.comic)
@@ -320,6 +342,81 @@ Future<void> _seedKindOwnedDetails(
       case CatalogMediaKind.comic || CatalogMediaKind.unknown:
         // Comic's typed owned repository persists its complete details graph
         // below; unknown kinds are rejected by the fixture validator.
+        break;
+    }
+  }
+}
+
+Future<void> _seedKindTracking(
+  LocalDatabase db,
+  Iterable<CatalogItem> items,
+  DateTime now,
+) async {
+  final tvRepository = TvRepository(db);
+  final tvTrackingRepository = TvTrackingRepository(db);
+  final animeRepository = AnimeRepository(db);
+
+  for (final item in items) {
+    switch (item.catalogRef.mediaKind) {
+      case CatalogMediaKind.tv:
+        final seriesId = TvSeriesId(item.id);
+        final seasons = await tvRepository.seasonsFor(seriesId);
+        for (final season in seasons) {
+          for (final episode in season.episodes) {
+            final completed = episode.episodeNumber == 1;
+            await tvTrackingRepository.upsertEpisodeProgress(
+              TvEpisodeProgress(
+                seriesId: seriesId,
+                seasonId: TvSeasonId(season.id),
+                episodeId: TvEpisodeId(episode.id),
+                seasonNumber: season.seasonNumber,
+                episodeNumber: episode.episodeNumber,
+                watchedCount: completed ? 2 : 1,
+                completed: completed,
+                lastWatchedAt: now.subtract(
+                  Duration(days: episode.episodeNumber?.toInt() ?? 0),
+                ),
+                rating: completed ? 9 : null,
+                notes: completed ? 'Seed episode replay history.' : null,
+                updatedAt: now,
+              ),
+            );
+          }
+        }
+      case CatalogMediaKind.anime:
+        final mediaId = AnimeMediaId(item.id);
+        final episodes = await animeRepository.episodesFor(mediaId);
+        for (final episode in episodes) {
+          final completed = episode.episodeNumber == 1;
+          await animeRepository.updateTracking(
+            AnimeTracking(
+              id: 'seed-anime-tracking-${item.id}-${episode.id.value}',
+              mediaId: mediaId,
+              episodeId: episode.id,
+              status: completed ? 'Completed' : 'In progress',
+              sourceType: TrackingSourceType.physical,
+              rating: completed ? 9 : null,
+              notes: completed ? 'Seed episode replay history.' : null,
+              startedAt: now.subtract(const Duration(days: 30)),
+              finishedAt: completed ? now : null,
+              progressCurrent: completed ? 1 : 0,
+              progressTotal: 1,
+              timesCompleted: completed ? 2 : 0,
+              seasonNumber: 1,
+              episodeNumber: episode.episodeNumber,
+              episodeRatings: completed ? {episode.id.value: 9} : const {},
+              updatedAt: now,
+            ),
+          );
+        }
+      case CatalogMediaKind.comic ||
+            CatalogMediaKind.manga ||
+            CatalogMediaKind.book ||
+            CatalogMediaKind.game ||
+            CatalogMediaKind.boardgame ||
+            CatalogMediaKind.movie ||
+            CatalogMediaKind.music ||
+            CatalogMediaKind.unknown:
         break;
     }
   }
