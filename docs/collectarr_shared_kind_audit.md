@@ -23,8 +23,6 @@ when their inputs are genuinely owner-neutral.
 | `video/catalog/video_catalog_release.dart` | DOMAIN MODEL | Move to video kind owners |
 | `video/detail/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
 | `video/detail/video_external_links_section.dart` | EDIT | Split into kind detail flows |
-| `video/detail/video_inspector_panel.dart` | EDIT | Split into kind inspector flows |
-| `video/detail/video_inspector_sections.dart` | FIELDS | Split into kind-owned fields |
 | `video/detail/video_metadata_corrections_section.dart` | DOMAIN BEHAVIOR | Move to kind metadata flows |
 | `video/edit/dialogs/tv_custom_episode_dialog.dart` | EDIT | Move to TV/Anime owner |
 | `video/edit/tabs/tv_episode_disc_map_tab.dart` | EDIT | Move to TV owner |
@@ -49,8 +47,6 @@ when their inputs are genuinely owner-neutral.
 | `video/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
 | `video/video_drilldown_library_page_state.dart` | HIERARCHY | Move into TV/Anime hierarchy |
 | `video/video_external_links_section.dart` | EDIT | Split into kind detail flows |
-| `video/video_inspector_panel.dart` | EDIT | Split into kind inspector flows |
-| `video/video_inspector_sections.dart` | FIELDS | Split into kind-owned fields |
 | `video/video_library_media_presentation_builder.dart` | DOMAIN BEHAVIOR | Move into kind presentation |
 | `video/video_metadata_corrections_section.dart` | DOMAIN BEHAVIOR | Move into kind metadata flows |
 | `video/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |

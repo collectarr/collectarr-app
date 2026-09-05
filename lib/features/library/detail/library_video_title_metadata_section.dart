@@ -1,18 +1,16 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
-class InspectorVideoTitleMetadataSection extends StatelessWidget {
-  const InspectorVideoTitleMetadataSection({
+class LibraryVideoTitleMetadataSection extends StatelessWidget {
+  const LibraryVideoTitleMetadataSection({
     super.key,
     required this.type,
     required this.item,
@@ -171,23 +169,4 @@ Widget _buildEditionFormatBadges(LibraryProjectionRuntime item) {
     padding: const EdgeInsets.only(top: 8),
     child: Wrap(spacing: 4, runSpacing: 4, children: badges),
   );
-}
-
-List<LibraryDetailSectionSpec> buildVideoInspectorSections(
-  LibraryInspectorRequest request,
-) {
-  return [
-    LibraryDetailSectionSpec(
-      slot: LibraryDetailSectionSlot.identity,
-      title: 'Title metadata',
-      children: [
-        InspectorVideoTitleMetadataSection(
-          type: request.type,
-          item: request.item,
-          ownedReleaseCount: 1,
-          onFilterByValue: request.onFilterByValue,
-        ),
-      ],
-    ),
-  ];
 }

@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_user_links
 import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_inspector_sections.dart';
+import 'package:collectarr_app/features/library/detail/library_video_title_metadata_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_source.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
@@ -302,7 +302,7 @@ class _VideoLibraryDetailPageState
               isOwned: request.item.source.isOwned,
             ),
             const SizedBox(height: 16),
-            InspectorVideoTitleMetadataSection(
+            LibraryVideoTitleMetadataSection(
               type: request.type,
               item: request.item,
               ownedReleaseCount: releases

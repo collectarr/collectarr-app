@@ -2199,6 +2199,10 @@ custom-tab builder now imports concrete tab modules directly.
 The Add result policy shared by Movie, TV, and Anime now lives in generic Add
 infrastructure; `_shared/video` no longer owns Add behavior.
 
+The obsolete shared video inspector panel and its duplicate inspector builder
+have been removed. The title metadata section still used by the generic detail
+page now lives in generic detail infrastructure.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
