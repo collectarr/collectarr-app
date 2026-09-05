@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/test_data_factories.dart';
@@ -105,5 +107,44 @@ void main() {
       ),
       contains('Hardcover'),
     );
+  });
+
+  test('upsertAll preserves the complete typed TV graph payload', () async {
+    await catalog.upsertAll([
+      testCatalogItem(
+        id: 'tv-graph-1',
+        kind: 'tv',
+        title: 'Typed Graph Fixture',
+        payload: {
+          'seasons': [
+            {
+              'id': 'tv-graph-1-season-1',
+              'series_id': 'tv-graph-1',
+              'season_number': 1,
+              'title': 'Season One',
+              'episodes': [
+                {
+                  'id': 'tv-graph-1-episode-1',
+                  'series_id': 'tv-graph-1',
+                  'season_id': 'tv-graph-1-season-1',
+                  'season_number': 1,
+                  'episode_number': 1,
+                  'episode_title': 'Pilot',
+                },
+              ],
+            },
+          ],
+        },
+      ),
+    ]);
+
+    final seasons = await TvRepository(db).seasonsFor(
+      const TvSeriesId('tv-graph-1'),
+    );
+    expect(seasons, hasLength(1));
+    expect(seasons.single.id, 'tv-graph-1-season-1');
+    expect(seasons.single.episodes, hasLength(1));
+    expect(seasons.single.episodes.single.id, 'tv-graph-1-episode-1');
+    expect(seasons.single.episodes.single.title, 'Pilot');
   });
 }
