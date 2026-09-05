@@ -5,13 +5,51 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
+  test('typed release contributors map their own catalog semantics', () {
+    final contributors = <LibraryCalendarContributor>[
+      const BoardGameCalendarContributor(),
+      const GameCalendarContributor(),
+      const MangaCalendarContributor(),
+      const MovieCalendarContributor(),
+      const MusicCalendarContributor(),
+    ];
+
+    for (final contributor in contributors) {
+      final item = testCatalogItem(
+        id: '${contributor.kind.apiValue}-item',
+        kind: contributor.kind.apiValue,
+        title: '${contributor.kind.apiValue} title',
+        releaseDate: DateTime.utc(2020, 1, 2),
+      );
+      final events = contributor
+          .contribute(
+            LibraryCalendarContext(
+              catalogItems: [item],
+              watchSessions: const [],
+              titleForItem: (itemId) => itemId,
+            ),
+          )
+          .toList();
+
+      expect(events, hasLength(1), reason: contributor.kind.apiValue);
+      expect(events.single.kind, CalendarEventKind.releaseDate);
+      expect(events.single.itemId, item.id);
+      expect(events.single.date, DateTime.utc(2020, 1, 2));
+    }
+  });
+
   test('Book calendar contributor owns edition release mapping', () {
     final item = testCatalogItem(
       id: 'book-item',

@@ -4,6 +4,11 @@ import 'package:collectarr_app/features/library/actions/import_export_actions.da
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
@@ -68,10 +73,15 @@ Iterable<LibraryCollectionCsvProjection> get libraryCollectionCsvProjections =>
 
 final Map<CatalogMediaKind, LibraryCalendarContributor> _calendarContributors =
     Map.unmodifiable({
+  CatalogMediaKind.anime: const AnimeCalendarContributor(),
+  CatalogMediaKind.boardgame: const BoardGameCalendarContributor(),
   CatalogMediaKind.book: const BookCalendarContributor(),
   CatalogMediaKind.comic: const ComicCalendarContributor(),
+  CatalogMediaKind.game: const GameCalendarContributor(),
+  CatalogMediaKind.manga: const MangaCalendarContributor(),
+  CatalogMediaKind.movie: const MovieCalendarContributor(),
+  CatalogMediaKind.music: const MusicCalendarContributor(),
   CatalogMediaKind.tv: const TvCalendarContributor(),
-  CatalogMediaKind.anime: const AnimeCalendarContributor(),
 });
 
 Iterable<LibraryCalendarContributor> get libraryCalendarContributors =>
