@@ -264,7 +264,7 @@ final class ComicOwnedItem {
           catalogRef.kind == other.catalogRef.kind &&
           catalogRef.entityType == other.catalogRef.entityType &&
           catalogRef.id == other.catalogRef.id &&
-          createdAt == other.createdAt &&
+          _sameInstant(createdAt, other.createdAt) &&
           isDigital == other.isDigital &&
           anchor?.apiValue == other.anchor?.apiValue &&
           anchor?.editionId == other.anchor?.editionId &&
@@ -272,16 +272,16 @@ final class ComicOwnedItem {
           anchor?.bundleReleaseId == other.anchor?.bundleReleaseId &&
           condition == other.condition &&
           grade == other.grade &&
-          purchaseDate == other.purchaseDate &&
+          _sameInstant(purchaseDate, other.purchaseDate) &&
           pricePaidCents == other.pricePaidCents &&
           currency == other.currency &&
           personalNotes == other.personalNotes &&
           quantity == other.quantity &&
           indexNumber == other.indexNumber &&
           tags == other.tags &&
-          updatedAt == other.updatedAt &&
-          deletedAt == other.deletedAt &&
-          soldAt == other.soldAt &&
+          _sameInstant(updatedAt, other.updatedAt) &&
+          _sameInstant(deletedAt, other.deletedAt) &&
+          _sameInstant(soldAt, other.soldAt) &&
           sellPriceCents == other.sellPriceCents &&
           soldTo == other.soldTo &&
           ownerUserId == other.ownerUserId &&
@@ -299,7 +299,7 @@ final class ComicOwnedItem {
         catalogRef.kind,
         catalogRef.entityType,
         catalogRef.id,
-        createdAt,
+        createdAt?.toUtc(),
         isDigital,
         anchor?.apiValue,
         anchor?.editionId,
@@ -307,16 +307,16 @@ final class ComicOwnedItem {
         anchor?.bundleReleaseId,
         condition,
         grade,
-        purchaseDate,
+        purchaseDate?.toUtc(),
         pricePaidCents,
         currency,
         personalNotes,
         quantity,
         indexNumber,
         tags,
-        updatedAt,
-        deletedAt,
-        soldAt,
+        updatedAt.toUtc(),
+        deletedAt?.toUtc(),
+        soldAt?.toUtc(),
         sellPriceCents,
         soldTo,
         ownerUserId,
@@ -335,4 +335,8 @@ const Object _ownedUnset = Object();
 DateTime? _date(Object? value) {
   if (value is! String || value.trim().isEmpty) return null;
   return DateTime.tryParse(value);
+}
+
+bool _sameInstant(DateTime? first, DateTime? second) {
+  return first?.toUtc() == second?.toUtc();
 }

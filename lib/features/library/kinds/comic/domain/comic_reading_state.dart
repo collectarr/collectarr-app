@@ -61,11 +61,16 @@ final class ComicReadingState {
       other is ComicReadingState &&
           rating == other.rating &&
           status == other.status &&
-          startedAt == other.startedAt &&
-          finishedAt == other.finishedAt;
+          _sameInstant(startedAt, other.startedAt) &&
+          _sameInstant(finishedAt, other.finishedAt);
 
   @override
-  int get hashCode => Object.hash(rating, status, startedAt, finishedAt);
+  int get hashCode => Object.hash(
+        rating,
+        status,
+        startedAt?.toUtc(),
+        finishedAt?.toUtc(),
+      );
 }
 
 const Object _readingUnset = Object();
@@ -73,4 +78,8 @@ const Object _readingUnset = Object();
 DateTime? _parseDate(Object? value) {
   if (value is! String || value.trim().isEmpty) return null;
   return DateTime.tryParse(value);
+}
+
+bool _sameInstant(DateTime? first, DateTime? second) {
+  return first?.toUtc() == second?.toUtc();
 }
