@@ -2167,6 +2167,9 @@ The legacy TV episode/release model file has likewise moved under
 Provider-kind filter UI has moved to the generic Add infrastructure; the
 video kind folder no longer owns this cross-kind Add chrome.
 
+Episodic tracking rules now live in TV and Anime tracking modules with
+owner-specific result types; the shared video tracking-rules facade is gone.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

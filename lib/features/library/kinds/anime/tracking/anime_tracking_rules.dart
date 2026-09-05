@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
-class VideoTrackingRuleResult {
-  const VideoTrackingRuleResult({
+/// Anime-specific status transition derived from released episode progress.
+class AnimeTrackingRuleResult {
+  const AnimeTrackingRuleResult({
     required this.status,
     required this.statusLabel,
     required this.shouldMarkCompleted,
@@ -14,13 +15,13 @@ class VideoTrackingRuleResult {
   final bool shouldMarkCaughtUp;
 }
 
-VideoTrackingRuleResult deriveVideoTrackingRuleResult({
+AnimeTrackingRuleResult deriveAnimeTrackingRuleResult({
   required int releasedEpisodes,
   required int watchedEpisodes,
   required bool hasUnairedEpisodes,
 }) {
   if (releasedEpisodes <= 0) {
-    return const VideoTrackingRuleResult(
+    return const AnimeTrackingRuleResult(
       status: MediaTrackingStatus.none,
       statusLabel: 'Not tracked',
       shouldMarkCompleted: false,
@@ -28,7 +29,7 @@ VideoTrackingRuleResult deriveVideoTrackingRuleResult({
     );
   }
   if (watchedEpisodes <= 0) {
-    return const VideoTrackingRuleResult(
+    return const AnimeTrackingRuleResult(
       status: MediaTrackingStatus.planned,
       statusLabel: 'Plan to watch',
       shouldMarkCompleted: false,
@@ -36,7 +37,7 @@ VideoTrackingRuleResult deriveVideoTrackingRuleResult({
     );
   }
   if (watchedEpisodes >= releasedEpisodes && hasUnairedEpisodes) {
-    return const VideoTrackingRuleResult(
+    return const AnimeTrackingRuleResult(
       status: MediaTrackingStatus.completed,
       statusLabel: 'Caught up',
       shouldMarkCompleted: false,
@@ -44,14 +45,14 @@ VideoTrackingRuleResult deriveVideoTrackingRuleResult({
     );
   }
   if (watchedEpisodes >= releasedEpisodes) {
-    return const VideoTrackingRuleResult(
+    return const AnimeTrackingRuleResult(
       status: MediaTrackingStatus.completed,
       statusLabel: 'Watched',
       shouldMarkCompleted: true,
       shouldMarkCaughtUp: false,
     );
   }
-  return const VideoTrackingRuleResult(
+  return const AnimeTrackingRuleResult(
     status: MediaTrackingStatus.inProgress,
     statusLabel: 'Watching',
     shouldMarkCompleted: false,
