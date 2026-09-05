@@ -20,7 +20,11 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await PickListRepository(db).addValue('conditions', 'Near Mint');
+    await PickListRepository(db).addValue(
+      'comic.condition',
+      'Near Mint',
+      mediaKind: 'comic',
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -44,6 +48,6 @@ void main() {
 
     expect(find.text('Add value'), findsOneWidget);
     expect(find.text('Near Mint'), findsOneWidget);
-    expect(find.text('Global'), findsWidgets);
+    expect(find.text('comic'), findsWidgets);
   });
 }

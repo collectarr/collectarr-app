@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 
 abstract final class AnimeVocabularyIds {
+  static const condition = VocabularyId<String>('anime.condition');
   static const demographic = VocabularyId<String>('anime.demographic');
   static const format = VocabularyId<String>('anime.format');
   static const studio = VocabularyId<String>('anime.studio');
@@ -15,6 +16,19 @@ abstract final class AnimeVocabularyIds {
 }
 
 abstract final class AnimeVocabularies {
+  static const condition = VocabularyDefinition<String>(
+    id: AnimeVocabularyIds.condition,
+    label: 'Condition',
+    builtIns: [
+      'Mint',
+      'Near Mint',
+      'Very Good',
+      'Good',
+      'Fair',
+      'Poor',
+    ],
+  );
+
   static const demographic = VocabularyDefinition<String>(
     id: AnimeVocabularyIds.demographic,
     label: 'Demographic',
@@ -147,6 +161,7 @@ abstract final class AnimeVocabularies {
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
+    condition,
     demographic,
     format,
     studio,

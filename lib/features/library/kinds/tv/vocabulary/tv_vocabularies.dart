@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 abstract final class TvVocabularyIds {
+  static const condition = VocabularyId<String>('tv.condition');
   static const physicalFormat = VocabularyId<String>('tv.physical_format');
   static const region = VocabularyId<String>('tv.region');
   static const packaging = VocabularyId<String>('tv.packaging');
@@ -14,6 +15,19 @@ abstract final class TvVocabularyIds {
 }
 
 abstract final class TvVocabularies {
+  static const condition = VocabularyDefinition<String>(
+    id: TvVocabularyIds.condition,
+    label: 'Condition',
+    builtIns: [
+      'Mint',
+      'Near Mint',
+      'Very Good',
+      'Good',
+      'Fair',
+      'Poor',
+    ],
+  );
+
   static const physicalFormat = VocabularyDefinition<String>(
     id: TvVocabularyIds.physicalFormat,
     label: 'Format',
@@ -141,6 +155,7 @@ abstract final class TvVocabularies {
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
+    condition,
     physicalFormat,
     region,
     packaging,

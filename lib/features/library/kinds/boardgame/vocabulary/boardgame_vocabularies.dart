@@ -3,12 +3,26 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 
 abstract final class BoardGameVocabularyIds {
+  static const condition = VocabularyId<String>('boardgame.condition');
   static const publisher = VocabularyId<String>('boardgame.publisher');
   static const format = VocabularyId<String>('boardgame.format');
   static const category = VocabularyId<String>('boardgame.category');
 }
 
 abstract final class BoardGameVocabularies {
+  static const condition = VocabularyDefinition<String>(
+    id: BoardGameVocabularyIds.condition,
+    label: 'Condition',
+    builtIns: [
+      'Mint',
+      'Near Mint',
+      'Very Good',
+      'Good',
+      'Fair',
+      'Poor',
+    ],
+  );
+
   static const publisher = VocabularyDefinition<String>(
     id: BoardGameVocabularyIds.publisher,
     label: 'Publisher',
@@ -65,6 +79,7 @@ abstract final class BoardGameVocabularies {
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
+    condition,
     publisher,
     format,
     category,

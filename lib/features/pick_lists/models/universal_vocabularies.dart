@@ -3,8 +3,6 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 
 abstract final class UniversalVocabularyIds {
   static const tags = VocabularyId<String>('tags');
-  static const condition = VocabularyId<String>('conditions');
-  static const grade = VocabularyId<String>('grades');
   static const owners = VocabularyId<String>('owners');
   static const collectionStatus = VocabularyId<String>('collection_status');
   static const purchaseStore = VocabularyId<String>('purchase_store');
@@ -17,16 +15,6 @@ abstract final class UniversalVocabularies {
     id: UniversalVocabularyIds.tags,
     label: 'Tags',
     multiValue: true,
-  );
-
-  static const condition = VocabularyDefinition<String>(
-    id: UniversalVocabularyIds.condition,
-    label: 'Condition',
-  );
-
-  static const grade = VocabularyDefinition<String>(
-    id: UniversalVocabularyIds.grade,
-    label: 'Grade',
   );
 
   static const owners = VocabularyDefinition<String>(
@@ -56,8 +44,6 @@ abstract final class UniversalVocabularies {
 
   static const all = <VocabularyDefinition<dynamic>>[
     tags,
-    condition,
-    grade,
     owners,
     collectionStatus,
     purchaseStore,

@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 
 abstract final class MusicVocabularyIds {
+  static const condition = VocabularyId<String>('music.condition');
   static const format = VocabularyId<String>('music.format');
   static const packaging = VocabularyId<String>('music.packaging');
   static const recordLabel = VocabularyId<String>('music.record_label');
@@ -13,6 +14,20 @@ abstract final class MusicVocabularyIds {
 }
 
 abstract final class MusicVocabularies {
+  static const condition = VocabularyDefinition<String>(
+    id: MusicVocabularyIds.condition,
+    label: 'Condition',
+    builtIns: [
+      'Mint',
+      'Near Mint',
+      'Excellent',
+      'Very Good',
+      'Good',
+      'Fair',
+      'Poor',
+    ],
+  );
+
   static const format = VocabularyDefinition<String>(
     id: MusicVocabularyIds.format,
     label: 'Format',
@@ -131,6 +146,7 @@ abstract final class MusicVocabularies {
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
+    condition,
     format,
     packaging,
     recordLabel,

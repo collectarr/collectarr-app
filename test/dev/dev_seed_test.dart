@@ -109,12 +109,34 @@ void main() {
         isTrue);
 
     final pickLists = PickListRepository(db);
-    expect(await pickLists.getValues('physical_formats'), contains('Tankobon'));
-    expect(await pickLists.getValues('countries'), contains('KR'));
-    expect(await pickLists.getValues('languages'), contains('ko'));
-    expect(await pickLists.getValues('genres'), contains('progressive rock'));
-    expect(await pickLists.getValues('genres'), contains('dungeon crawl'));
-    expect(await pickLists.getValues('genres'), contains('souls-like'));
+    expect(
+      await pickLists.getValues('manga.format', mediaKind: 'manga'),
+      contains('Tankobon (Standard)'),
+    );
+    expect(
+      await pickLists.getValues('music.country', mediaKind: 'music'),
+      contains('GB'),
+    );
+    expect(
+      await pickLists.getValues('book.language', mediaKind: 'book'),
+      contains('Japanese'),
+    );
+    expect(
+      await pickLists.getValues('music.genre', mediaKind: 'music'),
+      contains('rock'),
+    );
+    expect(
+      await pickLists.getValues('boardgame.category', mediaKind: 'boardgame'),
+      contains('Strategy'),
+    );
+    expect(
+      await pickLists.getValues('game.platform', mediaKind: 'game'),
+      contains('Nintendo Switch'),
+    );
+    expect(
+      await pickLists.getValues('comic.story_arc', mediaKind: 'comic'),
+      contains('Chapter One'),
+    );
 
     final customFields = CustomFieldRepository(db);
     final definitions = await customFields.listDefinitions();

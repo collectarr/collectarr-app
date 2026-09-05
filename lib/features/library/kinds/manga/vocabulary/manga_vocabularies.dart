@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
 abstract final class MangaVocabularyIds {
+  static const condition = VocabularyId<String>('manga.condition');
   static const publisher = VocabularyId<String>('manga.publisher');
   static const imprint = VocabularyId<String>('manga.imprint');
   static const demographic = VocabularyId<String>('manga.demographic');
@@ -11,6 +12,19 @@ abstract final class MangaVocabularyIds {
 }
 
 abstract final class MangaVocabularies {
+  static const condition = VocabularyDefinition<String>(
+    id: MangaVocabularyIds.condition,
+    label: 'Condition',
+    builtIns: [
+      'Mint',
+      'Near Mint',
+      'Very Good',
+      'Good',
+      'Fair',
+      'Poor',
+    ],
+  );
+
   static const publisher = VocabularyDefinition<String>(
     id: MangaVocabularyIds.publisher,
     label: 'Publisher',
@@ -88,6 +102,7 @@ abstract final class MangaVocabularies {
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
+    condition,
     publisher,
     imprint,
     demographic,

@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 
 abstract final class MovieVocabularyIds {
+  static const condition = VocabularyId<String>('movie.condition');
   static const physicalFormat = VocabularyId<String>('movie.physical_format');
   static const region = VocabularyId<String>('movie.region');
   static const packaging = VocabularyId<String>('movie.packaging');
@@ -14,6 +15,19 @@ abstract final class MovieVocabularyIds {
 }
 
 abstract final class MovieVocabularies {
+  static const condition = VocabularyDefinition<String>(
+    id: MovieVocabularyIds.condition,
+    label: 'Condition',
+    builtIns: [
+      'Mint',
+      'Near Mint',
+      'Very Good',
+      'Good',
+      'Fair',
+      'Poor',
+    ],
+  );
+
   static const physicalFormat = VocabularyDefinition<String>(
     id: MovieVocabularyIds.physicalFormat,
     label: 'Format',
@@ -160,6 +174,7 @@ abstract final class MovieVocabularies {
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
+    condition,
     physicalFormat,
     region,
     packaging,

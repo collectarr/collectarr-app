@@ -291,15 +291,17 @@ class LibraryPageDialogCoordinator {
     final editCapability = _page.type.edit;
     final definition =
         editCapability.vocabularies?.definitionForSuffix('condition');
+    if (definition == null) {
+      return;
+    }
     await showPickListEditorDialog(
       context: _page.context,
       db: db,
-      listName: definition?.key ?? UniversalVocabularies.condition.key,
+      listName: definition.key,
       label: 'Condition',
       mediaKind: _page.type.kind.apiValue,
       builtInValues:
-          definition?.builtIns.map((value) => value.toString()).toList() ??
-              editCapability.conditions,
+          definition.builtIns.map((value) => value.toString()).toList(),
     );
     if (_page.mounted) {
       _page.rebuild(() {});
@@ -311,15 +313,17 @@ class LibraryPageDialogCoordinator {
     final editCapability = _page.type.edit;
     final definition =
         editCapability.vocabularies?.definitionForSuffix('grade');
+    if (definition == null) {
+      return;
+    }
     await showPickListEditorDialog(
       context: _page.context,
       db: db,
-      listName: definition?.key ?? UniversalVocabularies.grade.key,
+      listName: definition.key,
       label: 'Grade',
       mediaKind: _page.type.kind.apiValue,
       builtInValues:
-          definition?.builtIns.map((value) => value.toString()).toList() ??
-              editCapability.grades,
+          definition.builtIns.map((value) => value.toString()).toList(),
     );
     if (_page.mounted) {
       _page.rebuild(() {});

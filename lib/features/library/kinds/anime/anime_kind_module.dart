@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_presentation_builder.dart';
@@ -224,7 +223,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   edit: LibraryEditCapability(
     editDialogBuilder: buildAnimeLibraryEditDialog,
     presentation: animeLibraryEditPresentation,
-    conditions: kGeneralConditions,
+    conditions: AnimeVocabularies.condition.builtIns,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),

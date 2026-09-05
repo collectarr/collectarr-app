@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
@@ -233,7 +232,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     editDialogBuilder: buildTvLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
     presentation: tvLibraryEditPresentation,
-    conditions: kGeneralConditions,
+    conditions: TvVocabularies.condition.builtIns,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createTvEditDraft,

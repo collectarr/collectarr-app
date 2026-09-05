@@ -89,11 +89,13 @@ Future<PickListConditionGradeOptions> loadConditionGradePickListOptions(
   String? selectedGrade,
 }) async {
   final repo = PickListRepository(db);
-  final conditionKey = conditionListName ?? UniversalVocabularies.condition.key;
-  final gradeKey = gradeListName ?? UniversalVocabularies.grade.key;
   final results = await Future.wait([
-    repo.getValues(conditionKey, mediaKind: mediaKind),
-    repo.getValues(gradeKey, mediaKind: mediaKind),
+    conditionListName == null
+        ? Future.value(const <String>[])
+        : repo.getValues(conditionListName, mediaKind: mediaKind),
+    gradeListName == null
+        ? Future.value(const <String>[])
+        : repo.getValues(gradeListName, mediaKind: mediaKind),
   ]);
   return PickListConditionGradeOptions(
     conditions: mergePickListValues(

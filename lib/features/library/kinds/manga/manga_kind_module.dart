@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
@@ -270,7 +269,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     editDialogBuilder: buildMangaLibraryEditDialog,
     mediaEditDialogBuilder: buildMangaMediaLibraryEditDialog,
     presentation: mangaLibraryEditPresentation,
-    conditions: kGeneralConditions,
+    conditions: MangaVocabularies.condition.builtIns,
     vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',

@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 
@@ -163,7 +162,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     editDialogBuilder: buildMusicLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
     presentation: musicLibraryEditPresentation,
-    conditions: kGeneralConditions,
+    conditions: MusicVocabularies.condition.builtIns,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createMusicEditDraft,
