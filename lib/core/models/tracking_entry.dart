@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
 const Object _trackingUnset = Object();
 
-class TrackingEntry {
+class TrackingEntry extends PersonalTrackingBase {
   TrackingEntry({
     required this.id,
     required this.catalogRef,
@@ -14,21 +15,27 @@ class TrackingEntry {
     this.bundleReleaseId,
     Object? sourceType,
     Object? status,
-    this.rating,
-    this.startedAt,
-    this.finishedAt,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
     this.progressCurrent,
     this.progressTotal,
     this.timesCompleted,
-    this.notes,
+    String? notes,
     this.seasonNumber,
     this.episodeNumber,
     Map<String, int>? episodeRatings,
     required this.updatedAt,
     this.deletedAt,
   })  : sourceType = trackingSourceTypeFromValue(sourceType),
-        status = mediaTrackingStatusFromValue(status),
-        episodeRatings = episodeRatings ?? const {};
+        episodeRatings = episodeRatings ?? const {},
+        super(
+          status: status,
+          rating: rating,
+          startedAt: startedAt,
+          completedAt: finishedAt,
+          notes: notes,
+        );
 
   final String id;
   final CatalogEntityRef catalogRef;
@@ -37,27 +44,22 @@ class TrackingEntry {
   final String? variantId;
   final String? bundleReleaseId;
   final TrackingSourceType? sourceType;
-  final MediaTrackingStatus? status;
-  final int? rating;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
   final int? progressCurrent;
   final int? progressTotal;
   final int? timesCompleted;
-  final String? notes;
   final int? seasonNumber;
   final int? episodeNumber;
   final Map<String, int> episodeRatings;
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
+  DateTime? get finishedAt => completedAt;
+
   String get itemId => catalogRef.id;
 
   TrackingSourceType? get trackingSource => sourceType;
 
   String? get sourceTypeApiValue => sourceType?.apiValue;
-
-  String? get statusStorageValue => mediaTrackingStatusToStorageValue(status);
 
   bool get isDeleted => deletedAt != null;
 
