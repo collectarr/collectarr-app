@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_search.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/comic_transferable_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/media/comic_media_edit_dialog.dart';
@@ -47,8 +48,6 @@ import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_ca
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
-import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
 const _comicSeriesFilterId = LibraryAddFilterId('comic.series');
@@ -80,102 +79,6 @@ const _comicTransferableFieldKeys = <String>[
   'keyReason',
   'keyComic',
   'coverPriceCents',
-];
-
-final _comicTransferableFields = <TransferableField>[
-  TransferableField(
-    key: 'rawOrSlabbed',
-    label: 'Raw / Slabbed',
-    icon: Icons.layers_outlined,
-    type: TransferableFieldType.text,
-    read: (item) => (item.details as ComicOwnedDetails?)?.rawOrSlabbed,
-    write: (item, value) {
-      final details =
-          item.details as ComicOwnedDetails? ?? const ComicOwnedDetails();
-      return item.copyWith(details: details.copyWith(rawOrSlabbed: value));
-    },
-  ),
-  TransferableField(
-    key: 'gradingCompany',
-    label: 'Grading company',
-    icon: Icons.verified_outlined,
-    type: TransferableFieldType.text,
-    read: (item) => (item.details as ComicOwnedDetails?)?.gradingCompany,
-    write: (item, value) {
-      final details =
-          item.details as ComicOwnedDetails? ?? const ComicOwnedDetails();
-      return item.copyWith(details: details.copyWith(gradingCompany: value));
-    },
-  ),
-  TransferableField(
-    key: 'graderNotes',
-    label: 'Grader notes',
-    icon: Icons.note_outlined,
-    type: TransferableFieldType.text,
-    read: (item) => (item.details as ComicOwnedDetails?)?.graderNotes,
-    write: (item, value) {
-      final details =
-          item.details as ComicOwnedDetails? ?? const ComicOwnedDetails();
-      return item.copyWith(details: details.copyWith(graderNotes: value));
-    },
-  ),
-  TransferableField(
-    key: 'signedBy',
-    label: 'Signed by',
-    icon: Icons.draw_outlined,
-    type: TransferableFieldType.text,
-    read: (item) => (item.details as ComicOwnedDetails?)?.signedBy,
-    write: (item, value) {
-      final details =
-          item.details as ComicOwnedDetails? ?? const ComicOwnedDetails();
-      return item.copyWith(details: details.copyWith(signedBy: value));
-    },
-  ),
-  TransferableField(
-    key: 'keyReason',
-    label: 'Key reason',
-    icon: Icons.vpn_key_outlined,
-    type: TransferableFieldType.text,
-    read: (item) => (item.details as ComicOwnedDetails?)?.keyReason,
-    write: (item, value) {
-      final details =
-          item.details as ComicOwnedDetails? ?? const ComicOwnedDetails();
-      return item.copyWith(details: details.copyWith(keyReason: value));
-    },
-  ),
-  TransferableField(
-    key: 'keyComic',
-    label: 'Key issue',
-    icon: Icons.vpn_key,
-    type: TransferableFieldType.boolean,
-    read: (item) => ((item.details as ComicOwnedDetails?)?.keyComic == true)
-        ? 'true'
-        : null,
-    write: (item, value) {
-      final details =
-          item.details as ComicOwnedDetails? ?? const ComicOwnedDetails();
-      return item.copyWith(
-          details: details.copyWith(keyComic: value == 'true'));
-    },
-  ),
-  TransferableField(
-    key: 'coverPriceCents',
-    label: 'Cover price',
-    icon: Icons.price_check,
-    type: TransferableFieldType.integer,
-    scope: LibraryEditScope.release,
-    read: (item) =>
-        (item.details as ComicOwnedDetails?)?.coverPriceCents?.toString(),
-    write: (item, value) {
-      final details =
-          item.details as ComicOwnedDetails? ?? const ComicOwnedDetails();
-      return item.copyWith(
-        details: details.copyWith(
-          coverPriceCents: value != null ? int.tryParse(value) : null,
-        ),
-      );
-    },
-  ),
 ];
 
 Iterable<String?> _comicLinkedMetadataValues(ComicCatalogMetadata metadata) => [
@@ -244,7 +147,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   relations: comicRelationCapability,
   transfer: LibraryTransferCapability(
     transferableFieldKeys: _comicTransferableFieldKeys,
-    kindFields: _comicTransferableFields,
+    kindFields: legacyComicTransferableFields,
   ),
   stats: const ComicStatsCapability(),
   value: const ComicValueCapability(),
