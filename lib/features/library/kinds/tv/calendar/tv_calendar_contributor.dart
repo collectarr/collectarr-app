@@ -23,6 +23,7 @@ final class TvCalendarContributor implements LibraryCalendarContributor {
           kind: CalendarEventKind.releaseDate,
           date: date,
           title: '${series.title} — ${release.title}',
+          eventId: 'tv-release:${release.id}',
           itemId: item.id,
         );
       }
@@ -39,6 +40,7 @@ final class TvCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.watched,
         date: session.watchedAt,
         title: '${context.titleForItem(session.itemId)}$episodeLabel',
+        eventId: 'watch:${session.id}',
         itemId: session.itemId,
       );
     }

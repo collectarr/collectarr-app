@@ -56,6 +56,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
         kind: CalendarEventKind.releaseDate,
         date: item.releaseDate!,
         title: item.title,
+        eventId: 'catalog-release:${item.mediaKind.apiValue}:${entry.key}',
         itemId: entry.key,
       ));
     }
@@ -71,6 +72,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
         kind: CalendarEventKind.purchased,
         date: item.purchaseDate!,
         title: title,
+        eventId: 'owned-purchased:${item.id}',
         subtitle: item.purchaseStore,
         itemId: item.itemId,
         ownedItemId: item.id,
@@ -81,6 +83,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
         kind: CalendarEventKind.started,
         date: item.startedAt!,
         title: title,
+        eventId: 'owned-started:${item.id}',
         itemId: item.itemId,
         ownedItemId: item.id,
       ));
@@ -90,6 +93,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
         kind: CalendarEventKind.finished,
         date: item.finishedAt!,
         title: title,
+        eventId: 'owned-finished:${item.id}',
         itemId: item.itemId,
         ownedItemId: item.id,
       ));
@@ -110,6 +114,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
       kind: CalendarEventKind.watched,
       date: session.watchedAt,
       title: titleFor(session.itemId),
+      eventId: 'watch:${session.id}',
       itemId: session.itemId,
     ));
   }
@@ -129,6 +134,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
         kind: CalendarEventKind.loanDue,
         date: loan.dueDate!,
         title: title,
+        eventId: 'loan-due:${loan.id}',
         subtitle: 'Loaned to ${loan.borrowerName}',
         ownedItemId: loan.ownedItemId,
         itemId: owned?.itemId,
@@ -139,6 +145,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
         kind: CalendarEventKind.loanReturn,
         date: loan.returnedDate!,
         title: title,
+        eventId: 'loan-return:${loan.id}',
         subtitle: 'Returned by ${loan.borrowerName}',
         ownedItemId: loan.ownedItemId,
         itemId: owned?.itemId,

@@ -22,6 +22,7 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.releaseDate,
         date: date,
         title: release.title,
+        eventId: 'music-release:${release.id.value}',
         itemId: item.id,
       );
     }

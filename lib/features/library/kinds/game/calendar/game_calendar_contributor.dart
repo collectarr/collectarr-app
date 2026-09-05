@@ -22,6 +22,7 @@ final class GameCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.releaseDate,
         date: date,
         title: game.title,
+        eventId: 'game-release:${game.primaryRelease?.id ?? item.id}',
         itemId: item.id,
       );
     }

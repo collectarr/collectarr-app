@@ -17,6 +17,7 @@ class CalendarEvent {
     required this.kind,
     required this.date,
     required this.title,
+    this.eventId,
     this.subtitle,
     this.itemId,
     this.ownedItemId,
@@ -25,6 +26,10 @@ class CalendarEvent {
   final CalendarEventKind kind;
   final DateTime date;
   final String title;
+
+  /// Stable identity for synchronization/export. Older callers may omit it;
+  /// serialization hosts then use their compatibility identity strategy.
+  final String? eventId;
   final String? subtitle;
 
   /// Catalog item ID, if applicable.

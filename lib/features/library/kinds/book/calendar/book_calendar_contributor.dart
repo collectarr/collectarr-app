@@ -22,6 +22,7 @@ final class BookCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.releaseDate,
         date: date,
         title: book.title,
+        eventId: 'book-release:${book.primaryRelease?.id ?? item.id}',
         itemId: item.id,
       );
     }

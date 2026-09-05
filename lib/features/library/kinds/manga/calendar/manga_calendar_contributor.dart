@@ -30,6 +30,7 @@ final class MangaCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.releaseDate,
         date: date,
         title: manga.title,
+        eventId: 'manga-release:${manga.id}',
         itemId: item.id,
       );
     }

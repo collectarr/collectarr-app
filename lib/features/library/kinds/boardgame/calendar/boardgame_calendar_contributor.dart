@@ -22,6 +22,7 @@ final class BoardGameCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.releaseDate,
         date: date,
         title: boardGame.title,
+        eventId: 'boardgame-release:${boardGame.primaryRelease?.id ?? item.id}',
         itemId: item.id,
       );
     }

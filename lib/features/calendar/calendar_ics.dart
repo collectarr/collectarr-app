@@ -80,6 +80,10 @@ String _formatUtcTimestamp(DateTime utc) {
 }
 
 String _uidFor(CalendarEvent event) {
+  final explicitId = event.eventId?.trim();
+  if (explicitId != null && explicitId.isNotEmpty) {
+    return '$explicitId@collectarr';
+  }
   final id = event.itemId ?? event.ownedItemId ?? 'na';
   final slug = event.title
       .toLowerCase()

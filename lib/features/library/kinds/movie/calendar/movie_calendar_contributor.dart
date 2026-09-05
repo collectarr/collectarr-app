@@ -22,6 +22,7 @@ final class MovieCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.releaseDate,
         date: date,
         title: movie.title,
+        eventId: 'movie-release:${movie.primaryRelease?.id.value ?? item.id}',
         itemId: item.id,
       );
     }

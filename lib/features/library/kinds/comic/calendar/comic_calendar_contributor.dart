@@ -22,6 +22,7 @@ final class ComicCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.releaseDate,
         date: date,
         title: comic.title,
+        eventId: 'comic-release:${item.id}',
         itemId: item.id,
       );
     }

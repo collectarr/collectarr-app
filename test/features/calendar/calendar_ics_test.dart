@@ -31,6 +31,7 @@ void main() {
           kind: CalendarEventKind.finished,
           date: DateTime(2026, 5, 14),
           title: 'Dune',
+          eventId: 'owned-finished:movie-9',
           itemId: 'movie-9',
         ),
       ],
@@ -42,7 +43,7 @@ void main() {
     expect(ics, contains('DTSTART;VALUE=DATE:20260514\r\n'));
     expect(ics, contains('DTSTAMP:20260624T190530Z\r\n'));
     expect(ics, contains('SUMMARY:Finished: Dune\r\n'));
-    expect(ics, contains('UID:finished-20260514-movie-9-dune@collectarr\r\n'));
+    expect(ics, contains('UID:owned-finished:movie-9@collectarr\r\n'));
   });
 
   test('escapes special characters and includes the subtitle', () {

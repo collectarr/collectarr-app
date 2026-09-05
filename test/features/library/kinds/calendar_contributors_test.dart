@@ -45,6 +45,8 @@ void main() {
 
       expect(events, hasLength(1), reason: contributor.kind.apiValue);
       expect(events.single.kind, CalendarEventKind.releaseDate);
+      expect(
+          events.single.eventId, startsWith('${contributor.kind.apiValue}-'));
       expect(events.single.itemId, item.id);
       expect(events.single.date, DateTime.utc(2020, 1, 2));
     }
@@ -69,6 +71,7 @@ void main() {
 
     expect(events, hasLength(1));
     expect(events.single.kind, CalendarEventKind.releaseDate);
+    expect(events.single.eventId, 'book-release:book-item-release');
     expect(events.single.itemId, 'book-item');
     expect(events.single.title, 'The Hobbit');
     expect(events.single.date, DateTime.utc(1937, 9, 21));
@@ -93,6 +96,7 @@ void main() {
 
     expect(events, hasLength(1));
     expect(events.single.kind, CalendarEventKind.releaseDate);
+    expect(events.single.eventId, 'comic-release:comic-item');
     expect(events.single.itemId, 'comic-item');
     expect(events.single.title, 'Amazing Spider-Man');
     expect(events.single.date, DateTime.utc(1963, 3, 1));
@@ -113,6 +117,7 @@ void main() {
 
     expect(events, hasLength(1));
     expect(events.single.kind, CalendarEventKind.watched);
+    expect(events.single.eventId, 'watch:tv-session');
     expect(events.single.title, 'Title for tv-item S2E3');
   });
 
@@ -133,6 +138,7 @@ void main() {
     expect(events, hasLength(2));
     expect(events[0].title, 'Title for anime-item S1E4');
     expect(events[1].title, 'Title for anime-item');
+    expect(events[0].eventId, 'watch:anime-session');
   });
 }
 
@@ -142,7 +148,7 @@ WatchSession _session(
   int? episode,
 }) {
   return WatchSession(
-    id: '$kind-session',
+    id: '${kind.apiValue}-session',
     targetRef: CatalogEntityRef(
       kind: kind.apiValue,
       entityType: CatalogEntityType.episode,

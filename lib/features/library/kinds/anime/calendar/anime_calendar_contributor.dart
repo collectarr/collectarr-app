@@ -24,6 +24,7 @@ final class AnimeCalendarContributor implements LibraryCalendarContributor {
           kind: CalendarEventKind.releaseDate,
           date: date,
           title: '${anime.title} — ${release.title}',
+          eventId: 'anime-release:${release.id.value}',
           itemId: item.id,
         );
       }
@@ -40,6 +41,7 @@ final class AnimeCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.watched,
         date: session.watchedAt,
         title: '${context.titleForItem(session.itemId)}$episodeLabel',
+        eventId: 'watch:${session.id}',
         itemId: session.itemId,
       );
     }
