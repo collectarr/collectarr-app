@@ -2120,6 +2120,14 @@ PROVIDER
 
 Only first two categories normally survive.
 
+### Status (2026-09-05)
+
+Complete. Every file under `lib/features/library/kinds/_shared/**` is listed
+and classified in `docs/collectarr_shared_kind_audit.md`. Domain, hierarchy,
+edit, field, provider, release, tracking, and persistence behavior is marked
+for de-sharing; only strictly owner-neutral visual/technical pieces may
+remain. Continue with PR79.
+
 ---
 
 ## PR 79 — De-share Video
