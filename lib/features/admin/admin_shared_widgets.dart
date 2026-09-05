@@ -409,10 +409,10 @@ class _ProposalMetadataEditDialogState
   late final TextEditingController _publisherController;
   late final TextEditingController _synopsisController;
   late final TextEditingController _genresController;
-  late final TextEditingController _platformsController;
-  late final TextEditingController _tracksController;
   late final TextEditingController _externalLinksController;
   late final TextEditingController _payloadController;
+  late CatalogMediaKind _catalogKind;
+  late Map<String, TextEditingController> _kindFieldControllers;
   late String _kind;
   var _showRawPayload = false;
   String? _errorMessage;
@@ -425,6 +425,7 @@ class _ProposalMetadataEditDialogState
       proposal.metadataPayload ?? const <String, dynamic>{},
     );
     _kind = _inferProposalKind(proposal.provider, payload);
+    _catalogKind = catalogMediaKindFromValue(_kind);
     _queryController = TextEditingController(text: proposal.query);
     _providerItemIdController =
         TextEditingController(text: proposal.providerItemId ?? '');
@@ -442,22 +443,7 @@ class _ProposalMetadataEditDialogState
     _genresController = TextEditingController(
       text: _payloadStringList(payload['genres']).join(', '),
     );
-    _platformsController = TextEditingController(
-      text: _payloadStringList(payload['platforms']).join(', '),
-    );
-    _tracksController = TextEditingController(
-      text: _payloadTrackRows(payload['tracks'])
-          .map(
-            (track) => [
-              track['title']?.toString() ?? '',
-              track['artist']?.toString() ?? '',
-              track['disc_number']?.toString() ?? '',
-              track['position']?.toString() ?? '',
-              track['duration_seconds']?.toString() ?? '',
-            ].join(' | '),
-          )
-          .join('\n'),
-    );
+    _kindFieldControllers = _createKindFieldControllers(_catalogKind, payload);
     _externalLinksController = TextEditingController(
       text: _payloadLinkRows(payload['external_links'])
           .map(
@@ -487,11 +473,52 @@ class _ProposalMetadataEditDialogState
     _publisherController.dispose();
     _synopsisController.dispose();
     _genresController.dispose();
-    _platformsController.dispose();
-    _tracksController.dispose();
+    _disposeKindFieldControllers();
     _externalLinksController.dispose();
     _payloadController.dispose();
     super.dispose();
+  }
+
+  LibraryAdminContributor? get _adminContributor =>
+      libraryAdminContributorForKind(_catalogKind);
+
+  List<LibraryAdminProposalField> get _adminProposalFields =>
+      _adminContributor?.proposalFields ?? const [];
+
+  Map<String, TextEditingController> _createKindFieldControllers(
+    CatalogMediaKind kind,
+    LibraryAdminProposalPayload payload,
+  ) {
+    final contributor = libraryAdminContributorForKind(kind);
+    if (contributor == null) {
+      return <String, TextEditingController>{};
+    }
+    return {
+      for (final field in contributor.proposalFields)
+        field.key: TextEditingController(text: field.read(payload)),
+    };
+  }
+
+  void _disposeKindFieldControllers() {
+    for (final controller in _kindFieldControllers.values) {
+      controller.dispose();
+    }
+  }
+
+  Widget _kindProposalField(LibraryAdminProposalField field) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: TextFormField(
+        controller: _kindFieldControllers[field.key],
+        minLines: field.minLines,
+        maxLines: field.maxLines,
+        decoration: InputDecoration(
+          labelText: field.label,
+          border: const OutlineInputBorder(),
+          alignLabelWithHint: field.minLines > 1,
+        ),
+      ),
+    );
   }
 
   void _save() {
@@ -528,30 +555,23 @@ class _ProposalMetadataEditDialogState
       'genres',
       _splitCommaSeparated(_genresController.text),
     );
-    if (_kind == 'game') {
-      _setPayloadListValue(
-        payload,
-        'platforms',
-        _splitCommaSeparated(_platformsController.text),
-      );
-    } else {
-      payload.remove('platforms');
-    }
-    if (_kind == 'music') {
-      final tracksParse = _parseTrackLinesStrict(_tracksController.text);
-      if (tracksParse.error != null) {
-        setState(() {
-          _errorMessage = tracksParse.error;
-        });
-        return;
+    for (final contributor in libraryAdminContributors) {
+      if (contributor.kind == _catalogKind) {
+        continue;
       }
-      _setPayloadListValue(
-        payload,
-        'tracks',
-        tracksParse.rows,
-      );
-    } else {
-      payload.remove('tracks');
+      for (final field in contributor.proposalFields) {
+        payload.remove(field.key);
+      }
+    }
+    try {
+      for (final field in _adminProposalFields) {
+        field.write(payload, _kindFieldControllers[field.key]!.text);
+      }
+    } on FormatException catch (error) {
+      setState(() {
+        _errorMessage = error.message;
+      });
+      return;
     }
     final linksParse =
         _parseExternalLinkLinesStrict(_externalLinksController.text);
@@ -622,8 +642,12 @@ class _ProposalMetadataEditDialogState
                         if (value == null || value == _kind) {
                           return;
                         }
+                        _disposeKindFieldControllers();
                         setState(() {
                           _kind = value;
+                          _catalogKind = catalogMediaKindFromValue(value);
+                          _kindFieldControllers =
+                              _createKindFieldControllers(_catalogKind, {});
                         });
                       },
                     ),
@@ -728,30 +752,8 @@ class _ProposalMetadataEditDialogState
                   border: OutlineInputBorder(),
                 ),
               ),
-              if (_kind == 'game') ...[
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _platformsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Platforms (comma separated)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-              if (_kind == 'music') ...[
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _tracksController,
-                  minLines: 2,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    labelText:
-                        'Tracks (title | artist | disc | pos | duration)',
-                    border: OutlineInputBorder(),
-                    alignLabelWithHint: true,
-                  ),
-                ),
-              ],
+              for (final field in _adminProposalFields)
+                _kindProposalField(field),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _externalLinksController,
@@ -1717,73 +1719,6 @@ class _LinesParseResult {
 
   final List<Map<String, dynamic>> rows;
   final String? error;
-}
-
-_LinesParseResult _parseTrackLinesStrict(String value) {
-  final rows = <Map<String, dynamic>>[];
-  final lines = value.split('\n');
-  for (var index = 0; index < lines.length; index++) {
-    final rawLine = lines[index];
-    final line = rawLine.trim();
-    if (line.isEmpty) {
-      continue;
-    }
-    final columns =
-        line.split('|').map((row) => row.trim()).toList(growable: false);
-    final title = columns.isNotEmpty ? columns[0] : '';
-    if (title.isEmpty) {
-      return _LinesParseResult(
-        rows: const [],
-        error:
-            'Tracks line ${index + 1} is invalid: title is required before "|"',
-      );
-    }
-    final track = <String, dynamic>{'title': title};
-    if (columns.length > 1 && columns[1].isNotEmpty) {
-      track['artist'] = columns[1];
-    }
-    if (columns.length > 2) {
-      final disc = int.tryParse(columns[2]);
-      if (columns[2].isNotEmpty) {
-        if (disc == null) {
-          return _LinesParseResult(
-            rows: const [],
-            error:
-                'Tracks line ${index + 1} has invalid disc number "${columns[2]}"',
-          );
-        }
-        track['disc_number'] = disc;
-      }
-    }
-    if (columns.length > 3) {
-      final position = int.tryParse(columns[3]);
-      if (columns[3].isNotEmpty) {
-        if (position == null) {
-          return _LinesParseResult(
-            rows: const [],
-            error:
-                'Tracks line ${index + 1} has invalid position "${columns[3]}"',
-          );
-        }
-        track['position'] = position;
-      }
-    }
-    if (columns.length > 4) {
-      final duration = int.tryParse(columns[4]);
-      if (columns[4].isNotEmpty) {
-        if (duration == null) {
-          return _LinesParseResult(
-            rows: const [],
-            error:
-                'Tracks line ${index + 1} has invalid duration "${columns[4]}"',
-          );
-        }
-        track['duration_seconds'] = duration;
-      }
-    }
-    rows.add(track);
-  }
-  return _LinesParseResult(rows: rows);
 }
 
 _LinesParseResult _parseExternalLinkLinesStrict(String value) {

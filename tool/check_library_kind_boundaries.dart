@@ -156,6 +156,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/add/services/provider_add_result_merge.dart',
     'lib/features/library/config/generic_library_media_presentation.dart',
     'lib/features/library/config/library_entry_helpers.dart',
+    // Admin proposal payloads are an explicit provider serialization boundary;
+    // the owning kind supplies the field codec through this structural contract.
+    'lib/features/library/config/library_admin_contributor.dart',
     'lib/features/library/config/library_group_bucket_mutation.dart',
     'lib/features/library/config/library_page_utilities.dart',
     'lib/features/library/config/owned_details_codec.dart',
@@ -185,6 +188,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/add/services/library_add_workflow_service.dart',
     'lib/features/library/config/library_entry_helpers.dart',
     'lib/features/library/config/library_group_bucket_mutation.dart',
+    // The proposal field codecs cross the serialized provider payload boundary.
+    'lib/features/library/config/library_admin_contributor.dart',
     'lib/features/library/detail/library_detail_hero.dart',
     'lib/features/library/detail/story_arc_detail_page.dart',
     'lib/features/library/generic/library_route_state.dart',

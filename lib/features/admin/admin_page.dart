@@ -17,6 +17,8 @@ import 'package:collectarr_app/features/library/metadata/metadata_correction_for
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/state/api_provider.dart';

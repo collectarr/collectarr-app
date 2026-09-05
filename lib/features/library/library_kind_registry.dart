@@ -5,29 +5,39 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/activity/anime_activity_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/anime/admin/anime_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/barcode/anime_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/admin/boardgame_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/barcode/boardgame_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/book/barcode/book_isbn_resolver.dart';
+import 'package:collectarr_app/features/library/kinds/book/admin/book_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/game/admin/game_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/barcode/game_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/manga/admin/manga_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/barcode/manga_identifier_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/movie/admin/movie_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/barcode/movie_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/music/admin/music_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/barcode/music_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/comic/admin/comic_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/barcode/comic_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_collection_shelf_extension.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/activity/tv_activity_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/tv/admin/tv_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/barcode/tv_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
@@ -122,6 +132,28 @@ LibraryActivityContributor? libraryActivityContributorForKind(
   CatalogMediaKind kind,
 ) {
   return _activityContributors[kind];
+}
+
+final Map<CatalogMediaKind, LibraryAdminContributor> _adminContributors =
+    Map.unmodifiable({
+  CatalogMediaKind.anime: const AnimeAdminContributor(),
+  CatalogMediaKind.boardgame: const BoardGameAdminContributor(),
+  CatalogMediaKind.book: const BookAdminContributor(),
+  CatalogMediaKind.comic: const ComicAdminContributor(),
+  CatalogMediaKind.game: const GameAdminContributor(),
+  CatalogMediaKind.manga: const MangaAdminContributor(),
+  CatalogMediaKind.movie: const MovieAdminContributor(),
+  CatalogMediaKind.music: const MusicAdminContributor(),
+  CatalogMediaKind.tv: const TvAdminContributor(),
+});
+
+Iterable<LibraryAdminContributor> get libraryAdminContributors =>
+    _adminContributors.values;
+
+LibraryAdminContributor? libraryAdminContributorForKind(
+  CatalogMediaKind kind,
+) {
+  return _adminContributors[kind];
 }
 
 /// Projects watch sessions through their owning kind. Sessions for kinds
