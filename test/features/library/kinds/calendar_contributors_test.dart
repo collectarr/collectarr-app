@@ -5,12 +5,37 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
+  test('Book calendar contributor owns edition release mapping', () {
+    final item = testCatalogItem(
+      id: 'book-item',
+      kind: 'book',
+      title: 'The Hobbit',
+      releaseDate: DateTime.utc(1937, 9, 21),
+    );
+    final events = const BookCalendarContributor()
+        .contribute(
+          LibraryCalendarContext(
+            catalogItems: [item],
+            watchSessions: const [],
+            titleForItem: (itemId) => itemId,
+          ),
+        )
+        .toList();
+
+    expect(events, hasLength(1));
+    expect(events.single.kind, CalendarEventKind.releaseDate);
+    expect(events.single.itemId, 'book-item');
+    expect(events.single.title, 'The Hobbit');
+    expect(events.single.date, DateTime.utc(1937, 9, 21));
+  });
+
   test('Comic calendar contributor owns release-date mapping', () {
     final item = testCatalogItem(
       id: 'comic-item',
