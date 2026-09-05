@@ -2170,6 +2170,8 @@ video kind folder no longer owns this cross-kind Add chrome.
 Episodic tracking rules now live in TV and Anime tracking modules with
 owner-specific result types; the shared video tracking-rules facade is gone.
 
+The unused shared episodic tracking draft has also been removed.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

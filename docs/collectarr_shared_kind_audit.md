@@ -56,7 +56,6 @@ when their inputs are genuinely owner-neutral.
 | `video/release/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
 | `video/release/video_season_summary_card.dart` | VISUAL STRUCTURAL | Keep only after owner-neutral API review |
 | `video/release/video_shelf_drilldown.dart` | HIERARCHY | Move into TV/Anime hierarchy |
-| `video/tracking/episodic_tracking_draft.dart` | DOMAIN MODEL | Move into TV/Anime tracking |
 | `video/tracking/video_progress_presenter.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/tracking/video_progress_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime detail |
 | `video/tracking/video_progress_summary.dart` | DOMAIN MODEL | Move into TV/Anime tracking |
