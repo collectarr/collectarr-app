@@ -702,7 +702,7 @@ List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
 ComicCatalogMetadata? _comicMetadata(LibraryProjectionRuntime item) {
   final dto = item.dto;
   if (dto is ComicWorkspaceDto) {
-    return dto.metadata ?? dto.comic;
+    return dto.comic;
   }
   return null;
 }

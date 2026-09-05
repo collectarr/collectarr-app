@@ -17,7 +17,7 @@ LibraryRelationTarget? _comicRelationTargetFor(
   if (dto is! ComicWorkspaceDto) {
     return null;
   }
-  final metadata = dto.metadata ?? dto.comic;
+  final metadata = dto.comic;
   final series = metadata.series;
   final id = series?.seriesId?.trim();
   final title = series?.seriesTitle?.trim();

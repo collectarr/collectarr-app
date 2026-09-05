@@ -7,10 +7,8 @@ import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provi
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -137,7 +135,7 @@ void main() {
         node: node,
       );
 
-      expect(dto.metadata?.title, 'Amazing Fantasy #15');
+      expect(dto.comic.title, 'Amazing Fantasy #15');
       expect(dto.ownedItem?.id.value, 'owned_1');
       expect(dto.ownedItem?.condition, '9.8');
       expect(dto.ownedItem?.details.keyComic, isTrue);

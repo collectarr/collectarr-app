@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:flutter/material.dart';
 
 final class ComicReleaseEditDraft {

@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boa
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';

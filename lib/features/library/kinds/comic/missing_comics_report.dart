@@ -72,7 +72,7 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
     if (dto is! ComicWorkspaceDto) {
       continue;
     }
-    final metadata = dto.metadata ?? dto.comic;
+    final metadata = dto.comic;
     final issueNumber = _issueNumber(metadata.issueNumber);
     if (issueNumber == null) {
       continue;

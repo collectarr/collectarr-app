@@ -73,14 +73,9 @@ ComicWorkspaceDto _createWorkspace() {
       characters: ['Alana', 'Marko'],
       storyArcs: ['The Beginning'],
       genres: ['Science Fiction'],
-      publisher: 'Image Comics',
-    ),
-    metadata: const ComicMedia(
-      title: 'Saga',
-      publisher: 'Image Comics',
-      genres: ['Science Fiction'],
       writers: ['Brian K. Vaughan'],
       artists: ['Fiona Staples'],
+      publisher: 'Image Comics',
     ),
   );
 }

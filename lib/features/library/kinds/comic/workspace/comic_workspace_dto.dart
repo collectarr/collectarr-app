@@ -8,7 +8,6 @@ final class ComicWorkspaceDto extends WorkspaceDtoAdapter {
     required this.personal,
     required this.comic,
     this.ownedItem,
-    this.metadata,
   });
 
   @override
@@ -17,16 +16,13 @@ final class ComicWorkspaceDto extends WorkspaceDtoAdapter {
   final PersonalCopyProjection personal;
   final ComicMedia comic;
   final ComicOwnedItem? ownedItem;
-  final ComicCatalogMetadata? metadata;
 
   // Domain convenience getters
-  String? get writer => metadata?.writers.firstOrNull;
-  String? get artist => metadata?.artists.firstOrNull;
-  String? get coverArtist => metadata?.coverArtists.firstOrNull;
-  String? get imprint =>
-      metadata?.imprint ?? comic.imprint ?? comic.publishing?.imprint;
+  String? get writer => comic.writers.firstOrNull;
+  String? get artist => comic.artists.firstOrNull;
+  String? get coverArtist => comic.coverArtists.firstOrNull;
+  String? get imprint => comic.imprint ?? comic.publishing?.imprint;
   @override
-  String? get variant => metadata?.variant ?? comic.variant;
-  int? get pageCount =>
-      metadata?.pageCount ?? comic.pageCount ?? comic.publishing?.pageCount;
+  String? get variant => comic.variant;
+  int? get pageCount => comic.pageCount ?? comic.publishing?.pageCount;
 }

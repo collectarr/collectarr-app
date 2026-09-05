@@ -39,7 +39,7 @@ class ComicLibraryMediaPresentationBuilder
       throw StateError('Expected ComicWorkspaceDto for comic presentation');
     }
     final dto = workspace;
-    final metadata = dto.metadata ?? dto.comic;
+    final metadata = dto.comic;
     final series = metadata.series;
     final publishing = metadata.publishing;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
@@ -182,7 +182,7 @@ class ComicLibraryMediaPresentationBuilder
       return const [];
     }
     final dto = workspace;
-    final synopsis = (dto.metadata ?? dto.comic).synopsis;
+    final synopsis = dto.comic.synopsis;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }

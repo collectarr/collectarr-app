@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_loc
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:drift/drift.dart';
 
 final class ComicRepository

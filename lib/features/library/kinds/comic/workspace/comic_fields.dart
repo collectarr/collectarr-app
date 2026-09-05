@@ -305,7 +305,7 @@ final comicLibraryFacetDefinitions =
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
     id: ComicFacetIds.genre,
     label: 'Genre',
-    extractValues: (dto) => dto.metadata?.genres ?? const <String>[],
+    extractValues: (dto) => dto.comic.genres,
   ),
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
     id: ComicFacetIds.character,
@@ -320,12 +320,12 @@ final comicLibraryFacetDefinitions =
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
     id: ComicFacetIds.writer,
     label: 'Writer',
-    extractValues: (dto) => dto.metadata?.writers ?? const <String>[],
+    extractValues: (dto) => dto.comic.writers,
   ),
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
     id: ComicFacetIds.artist,
     label: 'Artist',
-    extractValues: (dto) => dto.metadata?.artists ?? const <String>[],
+    extractValues: (dto) => dto.comic.artists,
   ),
 ];
 

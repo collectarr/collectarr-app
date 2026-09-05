@@ -32,7 +32,6 @@ final class ComicWorkspaceProjector
       personal: PersonalCopyProjection.fromShelf(source),
       comic: metadata,
       ownedItem: ownedItem,
-      metadata: metadata,
     );
   }
 
