@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_cach
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/drift.dart';
@@ -154,7 +155,10 @@ class SyncApplyService {
             .upsertAll(metadataOverrides);
       }
       if (customEpisodes.isNotEmpty) {
-        await CustomEpisodesCacheRepository(db).upsertAll(customEpisodes);
+        await CustomEpisodesCacheRepository(
+          db,
+          codecs: collectarrCustomEpisodeCodecs,
+        ).upsertAll(customEpisodes);
       }
       if (pickListUpserts.isNotEmpty || pickListDeletes.isNotEmpty) {
         await _applyPickListValues(pickListUpserts, pickListDeletes);

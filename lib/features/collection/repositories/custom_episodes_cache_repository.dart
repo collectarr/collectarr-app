@@ -1,29 +1,28 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:drift/drift.dart';
+import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 
-/// Compatibility facade over the TV and Anime-owned custom-episode tables.
+/// Compatibility facade over kind-owned custom-episode tables.
+///
+/// This class only aggregates codec results and owns transaction mechanics.
+/// TV/Anime coordinates and Drift table mappings live in their codecs.
 class CustomEpisodesCacheRepository {
-  CustomEpisodesCacheRepository(this._db);
+  CustomEpisodesCacheRepository(
+    this._db, {
+    required Iterable<CustomEpisodeCodec> codecs,
+  }) : _codecs = {
+          for (final codec in codecs) codec.kind: codec,
+        };
 
   final LocalDatabase _db;
+  final Map<String, CustomEpisodeCodec> _codecs;
 
   Future<List<CustomEpisode>> listByItemId(String itemId) async {
-    final tvRows = await (_db.select(_db.tvCustomEpisodeRows)
-          ..where(
-            (row) => row.seriesId.equals(itemId) & row.deletedAt.isNull(),
-          ))
-        .get();
-    final animeRows = await (_db.select(_db.animeCustomEpisodeRows)
-          ..where(
-            (row) => row.seriesId.equals(itemId) & row.deletedAt.isNull(),
-          ))
-        .get();
-    final episodes = [
-      ...tvRows.map(_fromTvRow),
-      ...animeRows.map(_fromAnimeRow),
-    ]..sort(_compareEpisodes);
+    final episodes = <CustomEpisode>[];
+    for (final codec in _codecs.values) {
+      episodes.addAll(await codec.listActive(_db, itemId: itemId));
+    }
+    episodes.sort(_compareEpisodes);
     return episodes;
   }
 
@@ -33,7 +32,9 @@ class CustomEpisodesCacheRepository {
     final episodes = await listByItemId(itemId);
     final grouped = <int, List<CustomEpisode>>{};
     for (final episode in episodes) {
-      grouped.putIfAbsent(episode.seasonNumber, () => <CustomEpisode>[]).add(
+      final codec = _codecs[episode.seriesRef.kind];
+      if (codec == null) continue;
+      grouped.putIfAbsent(codec.groupKey(episode), () => <CustomEpisode>[]).add(
             episode,
           );
     }
@@ -41,28 +42,20 @@ class CustomEpisodesCacheRepository {
   }
 
   Future<List<CustomEpisode>> listActive() async {
-    final tvRows = await (_db.select(_db.tvCustomEpisodeRows)
-          ..where((row) => row.deletedAt.isNull()))
-        .get();
-    final animeRows = await (_db.select(_db.animeCustomEpisodeRows)
-          ..where((row) => row.deletedAt.isNull()))
-        .get();
-    final episodes = [
-      ...tvRows.map(_fromTvRow),
-      ...animeRows.map(_fromAnimeRow),
-    ]..sort(_compareEpisodes);
+    final episodes = <CustomEpisode>[];
+    for (final codec in _codecs.values) {
+      episodes.addAll(await codec.listActive(_db));
+    }
+    episodes.sort(_compareEpisodes);
     return episodes;
   }
 
   Future<CustomEpisode?> findById(String id) async {
-    final tvRow = await (_db.select(_db.tvCustomEpisodeRows)
-          ..where((row) => row.id.equals(id)))
-        .getSingleOrNull();
-    if (tvRow != null) return _fromTvRow(tvRow);
-    final animeRow = await (_db.select(_db.animeCustomEpisodeRows)
-          ..where((row) => row.id.equals(id)))
-        .getSingleOrNull();
-    return animeRow == null ? null : _fromAnimeRow(animeRow);
+    for (final codec in _codecs.values) {
+      final episode = await codec.findById(_db, id);
+      if (episode != null) return episode;
+    }
+    return null;
   }
 
   Future<void> upsert(CustomEpisode episode) async {
@@ -83,108 +76,24 @@ class CustomEpisodesCacheRepository {
   }
 
   Future<void> _upsert(CustomEpisode episode) {
-    if (episode.seriesRef.kind == 'anime') {
-      return _db
-          .into(_db.animeCustomEpisodeRows)
-          .insertOnConflictUpdate(_toAnimeCompanion(episode));
+    final codec = _codecs[episode.seriesRef.kind];
+    if (codec == null) {
+      throw ArgumentError.value(
+        episode.seriesRef.kind,
+        'episode.seriesRef.kind',
+        'No custom episode codec is registered for this kind',
+      );
     }
-    return _db
-        .into(_db.tvCustomEpisodeRows)
-        .insertOnConflictUpdate(_toTvCompanion(episode));
+    return codec.upsert(_db, episode);
   }
 
-  AnimeCustomEpisodeRowsCompanion _toAnimeCompanion(CustomEpisode episode) {
-    return AnimeCustomEpisodeRowsCompanion.insert(
-      id: episode.id,
-      seriesId: episode.itemId,
-      seasonNumber: episode.seasonNumber,
-      episodeNumber: episode.episodeNumber,
-      title: episode.title,
-      description: Value(episode.overview),
-      airDate: Value(_parseDate(episode.airDate)),
-      runtimeMinutes: Value(episode.runtimeMinutes),
-      stillImageUrl: Value(episode.stillImageUrl),
-      localImagePath: Value(episode.localImagePath),
-      thumbnailImageUrl: Value(episode.thumbnailImageUrl),
-      updatedAt: episode.updatedAt,
-      deletedAt: Value(episode.deletedAt),
-    );
-  }
-
-  TvCustomEpisodeRowsCompanion _toTvCompanion(CustomEpisode episode) {
-    return TvCustomEpisodeRowsCompanion.insert(
-      id: episode.id,
-      seriesId: episode.itemId,
-      seasonNumber: episode.seasonNumber,
-      episodeNumber: episode.episodeNumber,
-      title: episode.title,
-      description: Value(episode.overview),
-      airDate: Value(_parseDate(episode.airDate)),
-      runtimeMinutes: Value(episode.runtimeMinutes),
-      stillImageUrl: Value(episode.stillImageUrl),
-      localImagePath: Value(episode.localImagePath),
-      thumbnailImageUrl: Value(episode.thumbnailImageUrl),
-      updatedAt: episode.updatedAt,
-      deletedAt: Value(episode.deletedAt),
-    );
-  }
-
-  CustomEpisode _fromTvRow(TvCustomEpisodeRow row) {
-    return CustomEpisode(
-      id: row.id,
-      seriesRef: CatalogEntityRef(
-        kind: 'tv',
-        entityType: CatalogEntityType.work,
-        id: row.seriesId,
-      ),
-      seasonNumber: row.seasonNumber,
-      episodeNumber: row.episodeNumber,
-      title: row.title,
-      overview: row.description,
-      airDate: _formatDate(row.airDate),
-      runtimeMinutes: row.runtimeMinutes,
-      stillImageUrl: row.stillImageUrl,
-      localImagePath: row.localImagePath,
-      thumbnailImageUrl: row.thumbnailImageUrl,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
-    );
-  }
-
-  CustomEpisode _fromAnimeRow(AnimeCustomEpisodeRow row) {
-    return CustomEpisode(
-      id: row.id,
-      seriesRef: CatalogEntityRef(
-        kind: 'anime',
-        entityType: CatalogEntityType.work,
-        id: row.seriesId,
-      ),
-      seasonNumber: row.seasonNumber,
-      episodeNumber: row.episodeNumber,
-      title: row.title,
-      overview: row.description,
-      airDate: _formatDate(row.airDate),
-      runtimeMinutes: row.runtimeMinutes,
-      stillImageUrl: row.stillImageUrl,
-      localImagePath: row.localImagePath,
-      thumbnailImageUrl: row.thumbnailImageUrl,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
-    );
-  }
-
-  static int _compareEpisodes(CustomEpisode a, CustomEpisode b) {
-    final item = a.itemId.compareTo(b.itemId);
+  int _compareEpisodes(CustomEpisode left, CustomEpisode right) {
+    final leftCodec = _codecs[left.seriesRef.kind];
+    if (leftCodec != null && left.seriesRef.kind == right.seriesRef.kind) {
+      return leftCodec.compare(left, right);
+    }
+    final item = left.itemId.compareTo(right.itemId);
     if (item != 0) return item;
-    final season = a.seasonNumber.compareTo(b.seasonNumber);
-    if (season != 0) return season;
-    return a.episodeNumber.compareTo(b.episodeNumber);
+    return left.id.compareTo(right.id);
   }
 }
-
-DateTime? _parseDate(String? value) {
-  if (value == null || value.trim().isEmpty) return null;
-  return DateTime.tryParse(value);
-}
-
-String? _formatDate(DateTime? value) => value?.toIso8601String();

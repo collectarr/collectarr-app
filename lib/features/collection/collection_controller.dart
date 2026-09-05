@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/collection/repositories/user_metadata_ov
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -246,14 +247,20 @@ final customEpisodesByItemProvider =
     FutureProvider.family<Map<int, List<CustomEpisode>>, String>(
         (ref, itemId) async {
   final db = ref.watch(localDatabaseProvider);
-  return CustomEpisodesCacheRepository(db).listByItemIdGrouped(itemId);
+  return CustomEpisodesCacheRepository(
+    db,
+    codecs: collectarrCustomEpisodeCodecs,
+  ).listByItemIdGrouped(itemId);
 });
 
 final customEpisodesByCatalogRefProvider =
     FutureProvider.family<Map<int, List<CustomEpisode>>, CatalogEntityRef>(
         (ref, catalogRef) async {
   final db = ref.watch(localDatabaseProvider);
-  return CustomEpisodesCacheRepository(db).listByItemIdGrouped(catalogRef.id);
+  return CustomEpisodesCacheRepository(
+    db,
+    codecs: collectarrCustomEpisodeCodecs,
+  ).listByItemIdGrouped(catalogRef.id);
 });
 
 final wishlistProvider = FutureProvider<List<WishlistItem>>((ref) async {
