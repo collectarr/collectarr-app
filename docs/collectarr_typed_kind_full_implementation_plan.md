@@ -2180,6 +2180,9 @@ The unused shared video workspace-progress surface has also been removed.
 Universal session history and watch-run summarization now live under
 `features/library/tracking`, outside the shared video kind tree.
 
+The seasons/episodes Add preview UI now lives under `features/library/add` and
+is consumed explicitly by Anime and TV.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
