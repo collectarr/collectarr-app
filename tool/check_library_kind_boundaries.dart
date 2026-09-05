@@ -164,6 +164,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/config/owned_details_codec.dart',
     'lib/features/library/config/presentation/library_metadata_presentation.dart',
     'lib/features/library/edit/draft/library_edit_draft.dart',
+    // These contracts cross the explicit sync serialization boundary; the
+    // owning TV/Anime codecs interpret the payload, not the generic host.
+    'lib/features/library/tracking/tracking_entry_codec.dart',
+    'lib/features/library/tracking/watch_session_codec.dart',
     'lib/features/library/generic/library_sort_preset_store.dart',
     'lib/features/library/generic/page/coordinators/page_cover_coordinator.dart',
     'lib/features/library/metadata/library_metadata_compare_dialog.dart',
@@ -190,6 +194,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/config/library_group_bucket_mutation.dart',
     // The proposal field codecs cross the serialized provider payload boundary.
     'lib/features/library/config/library_admin_contributor.dart',
+    // Explicit sync serialization contracts; concrete codecs own payload
+    // interpretation after the generic host dispatches by kind.
+    'lib/features/library/tracking/tracking_entry_codec.dart',
+    'lib/features/library/tracking/watch_session_codec.dart',
     'lib/features/library/detail/library_detail_hero.dart',
     'lib/features/library/detail/story_arc_detail_page.dart',
     'lib/features/library/generic/library_route_state.dart',
