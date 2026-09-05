@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/models/grading_details.dart';
-import 'package:collectarr_app/features/library/models/signature_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:drift/drift.dart';
@@ -87,7 +87,7 @@ final class MangaLocalMapper {
     MangaOwnedDetailsRow row,
   ) {
     return MangaOwnedDetails(
-      grading: GradingDetails(
+      grading: MangaGradingDetails(
         rawOrSlabbed: row.rawOrSlabbed,
         gradingCompany: row.gradingCompany,
         graderNotes: row.graderNotes,
@@ -96,7 +96,7 @@ final class MangaLocalMapper {
         pageQuality: row.pageQuality,
         certificationNumber: row.certificationNumber,
       ),
-      signature: SignatureDetails(signedBy: row.signedBy),
+      signature: MangaSignatureDetails(signedBy: row.signedBy),
       obiStripPresent: row.obiStripPresent,
       slipcoverPresent: row.slipcoverPresent,
       dustJacketPresent: row.dustJacketPresent,

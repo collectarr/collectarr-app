@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/models/grading_details.dart';
-import 'package:collectarr_app/features/library/models/signature_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_preservation_details.dart';
 
 const Object _comicDetailsUnset = Object();
@@ -9,8 +9,8 @@ const Object _comicDetailsUnset = Object();
 @immutable
 class ComicOwnedDetails extends OwnedItemDetails {
   const ComicOwnedDetails({
-    this.grading = const GradingDetails(),
-    this.signature = const SignatureDetails(),
+    this.grading = const ComicGradingDetails(),
+    this.signature = const ComicSignatureDetails(),
     this.preservation = const ComicPreservationDetails(),
     String? rawOrSlabbed,
     String? gradingCompany,
@@ -41,8 +41,8 @@ class ComicOwnedDetails extends OwnedItemDetails {
         _coverPriceCents = coverPriceCents,
         _lastBagBoardDate = lastBagBoardDate;
 
-  final GradingDetails grading;
-  final SignatureDetails signature;
+  final ComicGradingDetails grading;
+  final ComicSignatureDetails signature;
   final ComicPreservationDetails preservation;
 
   final String? _rawOrSlabbed;
@@ -101,8 +101,8 @@ class ComicOwnedDetails extends OwnedItemDetails {
       };
 
   factory ComicOwnedDetails.fromJson(Map<String, dynamic> json) {
-    final grading = GradingDetails.fromJson(json);
-    final signature = SignatureDetails.fromJson(json);
+    final grading = ComicGradingDetails.fromJson(json);
+    final signature = ComicSignatureDetails.fromJson(json);
     final preservation = ComicPreservationDetails.fromJson(json);
     return ComicOwnedDetails(
       grading: grading,
@@ -126,8 +126,8 @@ class ComicOwnedDetails extends OwnedItemDetails {
     Object? keySeverity = _comicDetailsUnset,
     Object? coverPriceCents = _comicDetailsUnset,
     Object? lastBagBoardDate = _comicDetailsUnset,
-    GradingDetails? grading,
-    SignatureDetails? signature,
+    ComicGradingDetails? grading,
+    ComicSignatureDetails? signature,
     ComicPreservationDetails? preservation,
   }) {
     return ComicOwnedDetails(

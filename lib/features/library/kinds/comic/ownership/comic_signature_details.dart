@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class SignatureDetails {
-  const SignatureDetails({
+class ComicSignatureDetails {
+  const ComicSignatureDetails({
     this.signedBy,
   });
 
@@ -12,16 +12,16 @@ class SignatureDetails {
         if (signedBy != null) 'signed_by': signedBy,
       };
 
-  factory SignatureDetails.fromJson(Map<String, dynamic> json) {
-    return SignatureDetails(
+  factory ComicSignatureDetails.fromJson(Map<String, dynamic> json) {
+    return ComicSignatureDetails(
       signedBy: json['signed_by'] as String?,
     );
   }
 
-  SignatureDetails copyWith({
+  ComicSignatureDetails copyWith({
     String? signedBy,
   }) {
-    return SignatureDetails(
+    return ComicSignatureDetails(
       signedBy: signedBy ?? this.signedBy,
     );
   }
@@ -29,7 +29,7 @@ class SignatureDetails {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SignatureDetails &&
+      other is ComicSignatureDetails &&
           runtimeType == other.runtimeType &&
           signedBy == other.signedBy;
 

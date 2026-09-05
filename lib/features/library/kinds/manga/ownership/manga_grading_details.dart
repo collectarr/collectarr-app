@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class GradingDetails {
-  const GradingDetails({
+final class MangaGradingDetails {
+  const MangaGradingDetails({
     this.rawOrSlabbed,
     this.gradingCompany,
     this.graderNotes,
@@ -34,8 +34,8 @@ class GradingDetails {
           'certification_number': certificationNumber,
       };
 
-  factory GradingDetails.fromJson(Map<String, dynamic> json) {
-    return GradingDetails(
+  factory MangaGradingDetails.fromJson(Map<String, dynamic> json) {
+    return MangaGradingDetails(
       rawOrSlabbed: json['raw_or_slabbed'] as String?,
       gradingCompany: json['grading_company'] as String?,
       graderNotes: json['grader_notes'] as String?,
@@ -46,31 +46,10 @@ class GradingDetails {
     );
   }
 
-  GradingDetails copyWith({
-    String? rawOrSlabbed,
-    String? gradingCompany,
-    String? graderNotes,
-    String? labelType,
-    String? customLabel,
-    String? pageQuality,
-    String? certificationNumber,
-  }) {
-    return GradingDetails(
-      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
-      gradingCompany: gradingCompany ?? this.gradingCompany,
-      graderNotes: graderNotes ?? this.graderNotes,
-      labelType: labelType ?? this.labelType,
-      customLabel: customLabel ?? this.customLabel,
-      pageQuality: pageQuality ?? this.pageQuality,
-      certificationNumber: certificationNumber ?? this.certificationNumber,
-    );
-  }
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GradingDetails &&
-          runtimeType == other.runtimeType &&
+      other is MangaGradingDetails &&
           rawOrSlabbed == other.rawOrSlabbed &&
           gradingCompany == other.gradingCompany &&
           graderNotes == other.graderNotes &&

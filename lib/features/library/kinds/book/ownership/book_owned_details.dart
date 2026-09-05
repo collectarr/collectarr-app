@@ -1,19 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/models/signature_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_signature_details.dart';
 
 const Object _bookDetailsUnset = Object();
 
 @immutable
 class BookOwnedDetails extends OwnedItemDetails {
   const BookOwnedDetails({
-    this.signature = const SignatureDetails(),
+    this.signature = const BookSignatureDetails(),
     String? signedBy,
     this.dustJacketPresent = false,
     this.dustJacketCondition,
   }) : _signedBy = signedBy;
 
-  final SignatureDetails signature;
+  final BookSignatureDetails signature;
   final String? _signedBy;
   final bool dustJacketPresent;
   final String? dustJacketCondition;
@@ -30,14 +30,14 @@ class BookOwnedDetails extends OwnedItemDetails {
 
   factory BookOwnedDetails.fromJson(Map<String, dynamic> json) =>
       BookOwnedDetails(
-        signature: SignatureDetails.fromJson(json),
+        signature: BookSignatureDetails.fromJson(json),
         dustJacketPresent: json['dust_jacket_present'] as bool? ?? false,
         dustJacketCondition: json['dust_jacket_condition'] as String?,
       );
 
   BookOwnedDetails copyWith({
     Object? signedBy = _bookDetailsUnset,
-    SignatureDetails? signature,
+    BookSignatureDetails? signature,
     bool? dustJacketPresent,
     String? dustJacketCondition,
   }) {

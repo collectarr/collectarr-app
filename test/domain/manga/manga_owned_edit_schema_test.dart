@@ -1,15 +1,13 @@
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/models/grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/owned/manga_owned_edit_schema.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,7 +15,7 @@ import '../../contracts/owned_edit_contract.dart';
 
 void main() {
   final details = MangaOwnedDetails(
-    grading: const GradingDetails(
+    grading: const MangaGradingDetails(
       rawOrSlabbed: 'Slabbed',
       gradingCompany: 'CGC',
       graderNotes: 'Clean and centered',
@@ -88,11 +86,11 @@ void main() {
   test('compares nested Manga grading details', () {
     expect(
       MangaOwnedDetails(
-        grading: const GradingDetails(labelType: 'Signature Series'),
+        grading: const MangaGradingDetails(labelType: 'Signature Series'),
       ),
       isNot(
         MangaOwnedDetails(
-          grading: const GradingDetails(labelType: 'Qualified'),
+          grading: const MangaGradingDetails(labelType: 'Qualified'),
         ),
       ),
     );

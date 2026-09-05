@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/models/grading_details.dart';
-import 'package:collectarr_app/features/library/models/signature_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
@@ -68,7 +68,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     const details = MangaOwnedDetails(
-      grading: GradingDetails(
+      grading: MangaGradingDetails(
         rawOrSlabbed: 'Slabbed',
         gradingCompany: 'MGC',
         graderNotes: 'Excellent condition',
@@ -77,7 +77,7 @@ void main() {
         pageQuality: 'White pages',
         certificationNumber: 'MGC-12345',
       ),
-      signature: SignatureDetails(signedBy: 'Takehiko Inoue'),
+      signature: MangaSignatureDetails(signedBy: 'Takehiko Inoue'),
       obiStripPresent: true,
       slipcoverPresent: true,
       dustJacketPresent: true,
