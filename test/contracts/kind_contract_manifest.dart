@@ -43,10 +43,32 @@ const kindContractManifest = KindContractManifest(
   optionalParticipants: {
     'release': {
       CatalogMediaKind.anime,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.book,
+      CatalogMediaKind.comic,
+      CatalogMediaKind.game,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.music,
+      CatalogMediaKind.tv,
+    },
+    'releaseRepository': {
+      CatalogMediaKind.anime,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.book,
+      CatalogMediaKind.comic,
+      CatalogMediaKind.game,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.music,
+      CatalogMediaKind.tv,
+    },
+    'releaseProjection': {
+      CatalogMediaKind.anime,
       CatalogMediaKind.movie,
       CatalogMediaKind.tv,
     },
     'releaseEdit': {
+      CatalogMediaKind.anime,
+      CatalogMediaKind.boardgame,
       CatalogMediaKind.book,
       CatalogMediaKind.comic,
       CatalogMediaKind.game,
@@ -55,6 +77,8 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.tv,
     },
     'releasePersistence': {
+      CatalogMediaKind.anime,
+      CatalogMediaKind.boardgame,
       CatalogMediaKind.book,
       CatalogMediaKind.comic,
       CatalogMediaKind.game,

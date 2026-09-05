@@ -44,6 +44,8 @@ void main() {
   test('optional contracts declare only known kind participants', () {
     const expectedOptional = {
       'release',
+      'releaseRepository',
+      'releaseProjection',
       'releaseEdit',
       'releasePersistence',
       'tracking',
@@ -62,5 +64,44 @@ void main() {
         reason: '${entry.key} contains an unknown kind',
       );
     }
+  });
+
+  test('release manifest names every typed release participant', () {
+    const releaseKinds = {
+      CatalogMediaKind.anime,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.book,
+      CatalogMediaKind.comic,
+      CatalogMediaKind.game,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.music,
+      CatalogMediaKind.tv,
+    };
+    const videoReleaseKinds = {
+      CatalogMediaKind.anime,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.tv,
+    };
+
+    expect(
+      kindContractManifest.optionalParticipants['release'],
+      equals(releaseKinds),
+    );
+    expect(
+      kindContractManifest.optionalParticipants['releaseRepository'],
+      equals(releaseKinds),
+    );
+    expect(
+      kindContractManifest.optionalParticipants['releasePersistence'],
+      equals(releaseKinds),
+    );
+    expect(
+      kindContractManifest.optionalParticipants['releaseEdit'],
+      equals(releaseKinds),
+    );
+    expect(
+      kindContractManifest.optionalParticipants['releaseProjection'],
+      equals(videoReleaseKinds),
+    );
   });
 }

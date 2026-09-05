@@ -2998,6 +2998,12 @@ Release Edit
 
 The test manifest explicitly lists participants.
 
+Status: complete. The release matrix now runs typed release-domain and
+Release Edit contracts for Anime, BoardGame, Book, Comic, Game, Movie, Music,
+and TV. The manifest separately records release domain, repository,
+persistence, edit, and video-projection participants; Manga is intentionally
+excluded because it has no release entity/repository.
+
 ---
 
 ## PR 109 — Tracking contracts
