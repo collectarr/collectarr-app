@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/owned/comic_owned_edit_draft.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -90,7 +91,7 @@ LibraryEditKindDraft createComicEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final comic = ownedItem?.details as ComicOwnedDetails?;
+  final comic = ComicOwnedItemLegacyAdapter.tryFromLegacy(ownedItem)?.details;
   final ownedEdit = ComicOwnedEditDraft.fromDetails(
     comic ?? const ComicOwnedDetails(),
   );

@@ -5,7 +5,9 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -94,6 +96,8 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
   final storyArcs = catalogItem?.storyArcs ?? const <String>[];
   final characters = catalogItem?.characters ?? const <String>[];
   final creators = catalogItem?.creators ?? const <Map<String, dynamic>>[];
+  final ownedItem =
+      ComicOwnedItemLegacyAdapter.tryFromLegacy(request.ownedItem);
 
   return [
     _ComicInspectorTab(
@@ -160,14 +164,13 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
                       _valueFacts(item, request.ownedItem, request.ownedCopies))
             ],
           ),
-          if (request.ownedItem != null) ...[
+          if (ownedItem != null) ...[
             const SizedBox(height: 8),
             LibraryDetailSection(
               title: 'Collector',
               accentColor: request.accent,
               children: [
-                LibraryDetailFieldTable(
-                    fields: _collectorFacts(request.ownedItem))
+                LibraryDetailFieldTable(fields: _collectorFacts(ownedItem))
               ],
             ),
           ],
@@ -232,13 +235,12 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
       builder: (context, ref) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_noteFacts(request.item, request.ownedItem).isNotEmpty)
+          if (_noteFacts(ownedItem).isNotEmpty)
             LibraryDetailSection(
               title: 'Notes',
               accentColor: request.accent,
               children: [
-                LibraryDetailFieldTable(
-                    fields: _noteFacts(request.item, request.ownedItem))
+                LibraryDetailFieldTable(fields: _noteFacts(ownedItem))
               ],
             ),
           if (_linkFacts(request.item).isNotEmpty) ...[
@@ -531,29 +533,29 @@ List<LibraryDetailField> _seriesFacts(LibraryProjectionRuntime item) {
   return rows;
 }
 
-List<LibraryDetailField> _collectorFacts(OwnedItem? ownedItem) {
+List<LibraryDetailField> _collectorFacts(ComicOwnedItem? ownedItem) {
   if (ownedItem == null) {
     return const [];
   }
   final rows = <LibraryDetailField>[];
-  final comic = ownedItem.details as ComicOwnedDetails?;
-  if (comic?.rawOrSlabbed?.trim().isNotEmpty == true) {
+  final comic = ownedItem.details;
+  if (comic.rawOrSlabbed?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Raw / Slabbed', value: comic!.rawOrSlabbed!.trim()));
+        label: 'Raw / Slabbed', value: comic.rawOrSlabbed!.trim()));
   }
-  if (comic?.gradingCompany?.trim().isNotEmpty == true) {
+  if (comic.gradingCompany?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Grading Co.', value: comic!.gradingCompany!.trim()));
+        label: 'Grading Co.', value: comic.gradingCompany!.trim()));
   }
-  if (comic?.certificationNumber?.trim().isNotEmpty == true) {
+  if (comic.certificationNumber?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Certification', value: comic!.certificationNumber!.trim()));
+        label: 'Certification', value: comic.certificationNumber!.trim()));
   }
-  if (comic?.keyComic == true) {
+  if (comic.keyComic) {
     rows.add(LibraryDetailField(
         label: 'Key',
-        value: comic?.keyReason?.trim().isNotEmpty == true
-            ? comic!.keyReason!.trim()
+        value: comic.keyReason?.trim().isNotEmpty == true
+            ? comic.keyReason!.trim()
             : 'Yes'));
   }
   return rows;
@@ -572,9 +574,8 @@ List<LibraryDetailField> _valueFacts(
   final snapshot = LibraryValueSnapshot.fromItem(
     item,
     ownedItem: ownedItem,
-    providerName: item.source.ownedItem?.marketValueCents != null
-        ? 'Provider snapshot'
-        : null,
+    providerName:
+        ownedItem.marketValueCents != null ? 'Provider snapshot' : null,
   );
 
   final rows = <LibraryDetailField>[];
@@ -680,8 +681,7 @@ String? _inspectorValueCurrency(
 }
 
 List<LibraryDetailField> _noteFacts(
-  LibraryProjectionRuntime item,
-  OwnedItem? ownedItem,
+  ComicOwnedItem? ownedItem,
 ) {
   final rows = <LibraryDetailField>[];
   final personalNotes = ownedItem?.personalNotes?.trim();
