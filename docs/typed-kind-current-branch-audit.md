@@ -3,7 +3,7 @@
 Audit date: 2026-09-06
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `8d2cce92` (`refactor(music): remove legacy DTO mapper`)
+HEAD: `998b6a46` (`refactor(tv): remove legacy hierarchy models`)
 
 ## Scope and evidence
 
@@ -11,7 +11,7 @@ This is the PR0 rebaseline for the new Full Typed-Kind Vertical Architecture pla
 
 Evidence checked:
 
-- `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, de-shared video ownership details, explicit personal-list import boundaries, kind-owned Activity projections, kind-owned Admin proposal fields, concrete tracking profiles for every registered kind, kind-owned concrete tracking-unit models and persistence codecs, kind-owned TV/Anime tracking-entry coordinate and sync codecs, kind-owned TV/Anime tracking-entry sync parsing, kind-owned TV/Anime custom-episode/watch-session codecs, kind-owned TV/Anime watch-session sync codecs, and TV-owned episode completion mutations.
+- `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, de-shared video ownership details, explicit personal-list import boundaries, kind-owned Activity projections, kind-owned Admin proposal fields, concrete tracking profiles for every registered kind, kind-owned concrete tracking-unit models and persistence codecs, kind-owned TV/Anime tracking-entry coordinate and sync codecs, kind-owned TV/Anime tracking-entry sync parsing, kind-owned TV/Anime custom-episode/watch-session codecs, kind-owned TV/Anime watch-session sync codecs, TV-owned episode completion mutations, and the TV typed hierarchy migration.
 - `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 502 AST architecture violations; its 392 complexity warnings are informational.
 - `test/contracts/**`, `test/architecture/**`, `test/dev/dev_seed_test.dart`, the Comic domain suite, the Collection/Shelf/Stats suites, and the Movie/TV/Anime vertical suites: focused suites pass; the full suite passed at 1878 tests with 5 skipped before the latest tracking-only change, and the post-change tracking/config/UI suite passes at 91 tests with warnings only.
 - Barcode contracts execute against all 9 registered kind resolvers; the Add and metadata lookup paths dispatch normalized identifiers through the owning resolver before the API boundary.
@@ -89,7 +89,7 @@ Status meanings:
 | 52 | Remove generic `CatalogCacheRepository` | **PARTIAL** | `LibraryCatalogRepository` now delegates typed persistence and projection loading through nine kind-owned codecs; generic lookup compatibility and the facade remain. |
 | 53 | Delete catalog type-erasure stack | **PARTIAL** | Several erased names were deleted, including unused Anime/Book/Game/Movie legacy mappers and the Music DTO alias mapper; CatalogItem transport/interoperability and generic metadata bridges remain. |
 | 54 | Delete `shelfVolumesProvider` | **DONE** | The generic provider was deleted; Manga now owns hierarchy hydration and the Shelf volume/chapter extension, while Collection receives only a structural widget contribution. |
-| 55 | Remove generic `Season`/Volume compatibility APIs | **PARTIAL** | Typed hierarchy work exists, but legacy shelf volume/Season compatibility files are still present. |
+| 55 | Remove generic `Season`/Volume compatibility APIs | **PARTIAL** | TV no longer exposes its legacy hierarchy models/provider or `ApiClient.getTvSeriesSeasons`; generic `Season` remains in unrelated compatibility/UI surfaces and Manga/Book hierarchy cleanup is still pending. |
 | 56 | Remove global item/edition/variant ontology | **NOT STARTED** | No owning-kind override schema/storage interpretation has replaced the global ontology. |
 | 57 | Keep only generic override storage/sync mechanics | **NOT STARTED** | No owning-kind override schema/storage interpretation has replaced the global ontology. |
 | 58 | Generic calendar becomes event host only | **PARTIAL** | Release projection now leaves the host through registered contributors for all 9 kinds; generic owned/tracking lifecycle events and fallback watch handling remain. |
@@ -180,9 +180,11 @@ PR0 is complete as a refreshed rebaseline. The branch has substantial prior type
 
 ## Recommended next PR
 
-Latest verification after typed seed coverage, AniList boundary cleanup, and legacy mapper deletion: the checker reports 502 AST violations and 392 informational complexity warnings.
+Latest verification after typed seed coverage, AniList boundary cleanup, legacy mapper deletion, and TV hierarchy migration: the checker reports 502 AST violations and 392 informational complexity warnings.
 
 Since the previous audit text, TV/Anime tracking-entry sync reconstruction and watch-session sync reconstruction/serialization have also moved behind their kind codecs; the common fallback now serializes only lifecycle fields.
+
+The latest TV cleanup removes the legacy TV DTO mapper, hierarchy models, generic season provider facade, and the `ApiClient` season conversion helper. TV detail/edit/progress paths now consume `TvCoreMapper`, `tv_models.dart`, and typed TV season providers directly; the generic rating grid keeps only structural selector callbacks.
 
 Current branch recommendation: `PR71 continuation - reduce generic tracking state`.
 Next active implementation: `PR71 continuation - move canonical tracking mutations/state behind kind-owned typed adapters while preserving generic timestamps, history, and sync mechanics.
