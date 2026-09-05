@@ -1,15 +1,13 @@
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -40,15 +38,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final palette = appPalette(context);
     final item = request.item;
     final dto = item.dto;
-    final rawCatalog = item.source.catalogItem;
-    final ComicCatalogItem? comic = rawCatalog is ComicCatalogItem
-        ? rawCatalog as ComicCatalogItem
-        : (rawCatalog?.kindMetadata is ComicCatalogMetadata
-            ? ComicCatalogMapper.mapMetadataToComic(
-                rawCatalog!.kindMetadata as ComicCatalogMetadata,
-                id: rawCatalog.identity.id,
-              )
-            : null);
+    final comic = dto is ComicWorkspaceDto ? dto.comic : null;
     final ownedItem =
         ComicOwnedItemLegacyAdapter.tryFromLegacy(request.ownedItem);
     final surface = palette.surface;
@@ -91,8 +81,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         : adapter?.seriesTitle?.trim().isNotEmpty == true
             ? adapter!.seriesTitle!.trim()
             : null;
-    final editionLabel = comic?.publishing.subtitle?.trim().isNotEmpty == true
-        ? comic!.publishing.subtitle!.trim()
+    final editionLabel = comic?.publishing?.subtitle?.trim().isNotEmpty == true
+        ? comic!.publishing!.subtitle!.trim()
         : adapter?.referenceFormatLabel?.trim().isNotEmpty == true
             ? adapter!.referenceFormatLabel!.trim()
             : adapter?.variant?.trim().isNotEmpty == true
@@ -107,8 +97,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final publisherLabel = [
       if (adapter?.publisher?.trim().isNotEmpty == true)
         adapter!.publisher!.trim(),
-      if (comic?.publishing.imprint?.trim().isNotEmpty == true)
-        comic!.publishing.imprint!.trim(),
+      if (comic?.publishing?.imprint?.trim().isNotEmpty == true)
+        comic!.publishing!.imprint!.trim(),
     ].join(' / ');
     final subtitleParts = <String>[
       if (comic?.crossover?.trim().isNotEmpty == true) comic!.crossover!.trim(),
@@ -122,8 +112,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         : item.source.isWishlisted
             ? 'Wishlist'
             : 'Not owned';
-    final synopsis = comic?.plotSummary?.trim();
-    final plotDescription = comic?.plotDescription?.trim();
+    final synopsis = comic?.synopsis?.trim();
+    const String? plotDescription = null;
     final comicDetails = ownedItem?.details;
     final slabLabel = librarySlabMarkerLabel(
       comicDetails?.rawOrSlabbed,
@@ -189,7 +179,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                       itemNumber: adapter?.itemNumber,
                       imageUrl: back
                           ? null
-                          : (dto.coverImageUrl ?? comic?.displayCoverUrl),
+                          : (dto.coverImageUrl ??
+                              comic?.releases.firstOrNull?.coverImageUrl),
                       localBytes: back ? localBack : localFront,
                       ownedItemId: back ? null : ownedItemId,
                       accentColor: request.accent,

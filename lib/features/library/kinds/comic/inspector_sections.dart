@@ -2,12 +2,11 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -82,15 +81,9 @@ class _ComicInspectorTab {
 
 List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
   final item = request.item;
-  final rawCatalog = item.source.catalogItem;
-  final ComicCatalogItem? catalogItem = rawCatalog is ComicCatalogItem
-      ? rawCatalog as ComicCatalogItem
-      : (rawCatalog?.kindMetadata is ComicCatalogMetadata
-          ? ComicCatalogMapper.mapMetadataToComic(
-              rawCatalog!.kindMetadata as ComicCatalogMetadata,
-              id: rawCatalog.identity.id,
-            )
-          : null);
+  final catalogItem = item.dto is ComicWorkspaceDto
+      ? (item.dto as ComicWorkspaceDto).comic
+      : null;
   final synopsis = catalogItem?.synopsis?.trim();
   final genres = catalogItem?.genres ?? const <String>[];
   final storyArcs = catalogItem?.storyArcs ?? const <String>[];
@@ -482,9 +475,7 @@ final _comicSeriesItemsProvider =
 List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final rawMetadata = item.source.catalogItem?.kindMetadata;
-  final publishing =
-      rawMetadata is ComicCatalogMetadata ? rawMetadata.publishing : null;
+  final publishing = _comicMetadata(item)?.publishing;
   final rows = <LibraryDetailField>[];
   if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
@@ -506,9 +497,7 @@ List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
 }
 
 List<LibraryDetailField> _seriesFacts(LibraryProjectionRuntime item) {
-  final rawMetadata = item.source.catalogItem?.kindMetadata;
-  final series =
-      rawMetadata is ComicCatalogMetadata ? rawMetadata.series : null;
+  final series = _comicMetadata(item)?.series;
   final rows = <LibraryDetailField>[];
   if (series?.seriesTitle?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
@@ -711,8 +700,11 @@ List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
 }
 
 ComicCatalogMetadata? _comicMetadata(LibraryProjectionRuntime item) {
-  final metadata = item.source.catalogItem?.kindMetadata;
-  return metadata is ComicCatalogMetadata ? metadata : null;
+  final dto = item.dto;
+  if (dto is ComicWorkspaceDto) {
+    return dto.metadata ?? dto.comic;
+  }
+  return null;
 }
 
 List<ComicLink> _comicLinks(LibraryProjectionRuntime item) =>
