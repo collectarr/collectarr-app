@@ -2184,7 +2184,7 @@ The seasons/episodes Add preview UI now lives under `features/library/add` and
 is consumed explicitly by Anime and TV.
 
 TV now owns its episodic progress presenter/summary, episode identity, season
-tracking section, and progress row/card surfaces; Movie and Anime no longer
+tracking section, progress row/card, and episode-rating surfaces; Movie and Anime no longer
 receive those TV-only sections from the generic video detail page.
 
 Unused video Edit support and compatibility barrels have been removed; the

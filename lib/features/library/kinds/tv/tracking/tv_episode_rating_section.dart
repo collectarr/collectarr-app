@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/providers/video_seasons_provider.dart';
 import 'package:collectarr_app/features/library/widgets/episode_rating_grid.dart';
 import 'package:collectarr_app/features/library/widgets/episode_rating_picker.dart';
@@ -9,27 +8,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Inspector section showing a heatmap grid of per-episode ratings.
-class VideoEpisodeRatingSection extends ConsumerWidget {
-  const VideoEpisodeRatingSection({
+class TvEpisodeRatingSection extends ConsumerWidget {
+  const TvEpisodeRatingSection({
     super.key,
     required this.itemId,
-    required this.kind,
     required this.accent,
     required this.trackingEntry,
     required this.onEpisodeRatingsChanged,
   });
 
   final String itemId;
-  final String kind;
   final Color accent;
   final TrackingEntry? trackingEntry;
   final ValueChanged<Map<String, int>> onEpisodeRatingsChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = kind.trim().toLowerCase() == 'tv'
-        ? ref.watch(tvSeasonsBySeriesRefProvider(itemId))
-        : AsyncValue<List<Season>>.data(<Season>[]);
+    final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
     final ratings = trackingEntry?.episodeRatings ?? const {};
 
     return seasonsAsync.when(
@@ -107,23 +102,19 @@ class VideoEpisodeRatingSection extends ConsumerWidget {
 }
 
 /// Read-only version for the inspector detail page.
-class VideoEpisodeRatingDisplaySection extends ConsumerWidget {
-  const VideoEpisodeRatingDisplaySection({
+class TvEpisodeRatingDisplaySection extends ConsumerWidget {
+  const TvEpisodeRatingDisplaySection({
     super.key,
     required this.itemId,
-    required this.kind,
     required this.accent,
   });
 
   final String itemId;
-  final String kind;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = kind.trim().toLowerCase() == 'tv'
-        ? ref.watch(tvSeasonsBySeriesRefProvider(itemId))
-        : AsyncValue<List<Season>>.data(<Season>[]);
+    final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogItemProvider)[itemId] ??
             const <TrackingEntry>[];

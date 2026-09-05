@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/episodes/video_episode_rating_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';
 import 'package:flutter/material.dart';
 
@@ -27,9 +27,8 @@ class InspectorEpisodeGridSection extends StatelessWidget {
           accent: accent,
         ),
         const SizedBox(height: 8),
-        VideoEpisodeRatingDisplaySection(
+        TvEpisodeRatingDisplaySection(
           itemId: itemId,
-          kind: kind,
           accent: accent,
         ),
       ],
