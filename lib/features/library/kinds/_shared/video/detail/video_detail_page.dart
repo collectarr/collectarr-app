@@ -17,8 +17,8 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/video_inspec
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_source.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_progress_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_season_tracking_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
@@ -317,21 +317,23 @@ class _VideoLibraryDetailPageState
                 accent: request.accent,
               ),
             if (_isTvKind) const SizedBox(height: 16),
-            VideoSeasonTrackingSection(
-              seriesRef: CatalogEntityRef(
+            if (_isTvKind)
+              VideoSeasonTrackingSection(
+                seriesRef: CatalogEntityRef(
+                  kind: request.type.kind.apiValue,
+                  entityType: CatalogEntityType.work,
+                  id: request.item.source.itemId,
+                ),
                 kind: request.type.kind.apiValue,
-                entityType: CatalogEntityType.work,
-                id: request.item.source.itemId,
+                accent: request.accent,
               ),
-              kind: request.type.kind.apiValue,
-              accent: request.accent,
-            ),
-            const SizedBox(height: 16),
-            VideoEpisodeRatingDisplaySection(
-              itemId: request.item.source.itemId,
-              kind: request.type.kind.apiValue,
-              accent: request.accent,
-            ),
+            if (_isTvKind) const SizedBox(height: 16),
+            if (_isTvKind)
+              VideoEpisodeRatingDisplaySection(
+                itemId: request.item.source.itemId,
+                kind: request.type.kind.apiValue,
+                accent: request.accent,
+              ),
             const SizedBox(height: 16),
             if (_isTvKind)
               VideoExternalLinksSection(

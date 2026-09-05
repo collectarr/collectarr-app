@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/episodes/video_episode_rating_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/tracking/video_season_tracking_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';
 import 'package:flutter/material.dart';
 
 class InspectorEpisodeGridSection extends StatelessWidget {

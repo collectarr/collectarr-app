@@ -44,36 +44,22 @@ when their inputs are genuinely owner-neutral.
 | `video/edit/video_kind_edit_draft.dart` | DOMAIN MODEL | Replace with kind drafts |
 | `video/edit/widgets/tv_episode_row.dart` | VISUAL STRUCTURAL | Move/duplicate into TV/Anime |
 | `video/edit/widgets/tv_episode_thumbnail.dart` | VISUAL STRUCTURAL | Move/duplicate into TV/Anime |
-| `video/episodes/video_episode_identity.dart` | DOMAIN MODEL | Move into TV/Anime domain |
 | `video/episodes/video_episode_rating_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
-| `video/episodes/video_episode_row.dart` | VISUAL STRUCTURAL | Keep only if owner-neutral; otherwise duplicate |
 | `video/episodes/video_upcoming_episodes_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime hierarchy |
 | `video/library_add_video_result_policy.dart` | EDIT | Move result policy into kind add flows |
 | `video/providers/video_seasons_provider.dart` | PROVIDER | Move provider mapping into TV/Anime |
 | `video/release/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
 | `video/release/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
-| `video/release/video_season_summary_card.dart` | VISUAL STRUCTURAL | Keep only after owner-neutral API review |
-| `video/tracking/video_progress_presenter.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
-| `video/tracking/video_progress_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime detail |
-| `video/tracking/video_progress_summary.dart` | DOMAIN MODEL | Move into TV/Anime tracking |
-| `video/tracking/video_season_tracking_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
 | `video/video_drilldown_library_page_state.dart` | HIERARCHY | Move into TV/Anime hierarchy |
-| `video/video_episode_identity.dart` | DOMAIN MODEL | Move into TV/Anime domain |
 | `video/video_episode_rating_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
-| `video/video_episode_row.dart` | VISUAL STRUCTURAL | Keep only if owner-neutral; otherwise duplicate |
 | `video/video_external_links_section.dart` | EDIT | Split into kind detail flows |
 | `video/video_inspector_panel.dart` | EDIT | Split into kind inspector flows |
 | `video/video_inspector_sections.dart` | FIELDS | Split into kind-owned fields |
 | `video/video_library_media_presentation_builder.dart` | DOMAIN BEHAVIOR | Move into kind presentation |
 | `video/video_metadata_corrections_section.dart` | DOMAIN BEHAVIOR | Move into kind metadata flows |
-| `video/video_progress_presenter.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
-| `video/video_progress_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime detail |
-| `video/video_progress_summary.dart` | DOMAIN MODEL | Move into TV/Anime tracking |
 | `video/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
 | `video/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
-| `video/video_season_summary_card.dart` | VISUAL STRUCTURAL | Keep only after owner-neutral API review |
-| `video/video_season_tracking_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/video_upcoming_episodes_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime hierarchy |
 
 ## Audit outcome
@@ -82,10 +68,11 @@ The shared directory contains no persistence or provider implementation that
 is safe to treat as universal merely because it is reused. The remaining
 shared candidates are small visual components and must expose owner-neutral
 inputs; all video domain, hierarchy, edit, field, provider, release, and
-tracking behavior is queued for PR79. Nine video boundaries have already moved
+tracking behavior is queued for PR79. Ten video boundaries have already moved
 out during PR79 progress: TV legacy models, TV display models, per-kind video
 physical formats, generic Add provider-kind filter chrome, and episodic
 tracking rules for TV/Anime. Movie's release shelf drilldown is also now
 Movie-owned; the unused workspace progress surface has been removed. Universal
 session history and its presenter now live under library tracking. The Add
-seasons/episodes preview is also now part of generic Add infrastructure.
+seasons/episodes preview is also now part of generic Add infrastructure. TV
+now owns episodic progress, identity, row/card, and season-tracking surfaces.

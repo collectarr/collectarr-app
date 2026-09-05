@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_progress_summary.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_episode_identity.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
 
 class VideoProgressSummary {
   const VideoProgressSummary({

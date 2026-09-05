@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/inspector/sections/metadata_fact
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_progress_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
