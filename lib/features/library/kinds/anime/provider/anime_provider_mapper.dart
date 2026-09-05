@@ -12,7 +12,10 @@ class AnimeLibraryKindProviderMapper
 
   @override
   AnimeCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    _validateAnimeEnvelope(envelope);
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.anime,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
@@ -28,9 +31,11 @@ class AnimeLibraryKindProviderMapper
   }
 
   @override
-  CatalogItem metadataItemFromEnvelope(
-      NormalizedProviderEnvelopeV1 envelope) {
-    _validateAnimeEnvelope(envelope);
+  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.anime,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
@@ -70,13 +75,5 @@ class AnimeLibraryKindProviderMapper
       }
     }
     return corrections;
-  }
-
-  void _validateAnimeEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    if (envelope.kind.trim().toLowerCase() != CatalogMediaKind.anime.apiValue) {
-      throw StateError(
-        'Anime provider integration received ${envelope.kind} data',
-      );
-    }
   }
 }

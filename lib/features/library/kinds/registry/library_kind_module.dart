@@ -54,6 +54,7 @@ export 'package:collectarr_app/features/library/config/library_relation_capabili
 export 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
+export 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 
 typedef CatalogMetadataDecoder = Object? Function(
   Map<String, dynamic> payload,

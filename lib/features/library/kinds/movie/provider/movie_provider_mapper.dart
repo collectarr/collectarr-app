@@ -12,7 +12,10 @@ class MovieLibraryKindProviderMapper
 
   @override
   MovieCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    _validateMovieEnvelope(envelope);
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.movie,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
@@ -28,9 +31,11 @@ class MovieLibraryKindProviderMapper
   }
 
   @override
-  CatalogItem metadataItemFromEnvelope(
-      NormalizedProviderEnvelopeV1 envelope) {
-    _validateMovieEnvelope(envelope);
+  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.movie,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
@@ -70,13 +75,5 @@ class MovieLibraryKindProviderMapper
       }
     }
     return corrections;
-  }
-
-  void _validateMovieEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    if (envelope.kind.trim().toLowerCase() != CatalogMediaKind.movie.apiValue) {
-      throw StateError(
-        'Movie provider integration received ${envelope.kind} data',
-      );
-    }
   }
 }

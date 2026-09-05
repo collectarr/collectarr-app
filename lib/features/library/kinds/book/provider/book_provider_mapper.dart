@@ -12,7 +12,10 @@ class BookLibraryKindProviderMapper
 
   @override
   BookCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    _validateBookEnvelope(envelope);
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.book,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
@@ -28,9 +31,11 @@ class BookLibraryKindProviderMapper
   }
 
   @override
-  CatalogItem metadataItemFromEnvelope(
-      NormalizedProviderEnvelopeV1 envelope) {
-    _validateBookEnvelope(envelope);
+  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.book,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
@@ -69,13 +74,5 @@ class BookLibraryKindProviderMapper
       }
     }
     return corrections;
-  }
-
-  void _validateBookEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    if (envelope.kind.trim().toLowerCase() != CatalogMediaKind.book.apiValue) {
-      throw StateError(
-        'Book provider integration received ${envelope.kind} data',
-      );
-    }
   }
 }

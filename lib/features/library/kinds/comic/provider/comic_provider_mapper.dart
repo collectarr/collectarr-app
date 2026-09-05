@@ -12,6 +12,10 @@ class ComicLibraryKindProviderMapper
 
   @override
   ComicCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.comic,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
@@ -27,8 +31,11 @@ class ComicLibraryKindProviderMapper
   }
 
   @override
-  CatalogItem metadataItemFromEnvelope(
-      NormalizedProviderEnvelopeV1 envelope) {
+  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.comic,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??

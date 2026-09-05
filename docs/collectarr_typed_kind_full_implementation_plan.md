@@ -2584,6 +2584,11 @@ If `NormalizedProviderEnvelopeV1` is no longer needed for actual metadata import
 
 Do not replace with V2.
 
+Status: audited and retained at the provider-to-kind boundary. All ten metadata
+adapters produce it, Add consumes it during provider preview ingestion, and the
+kind-owned provider mappers consume it. There is no safe delete-only change in
+this PR; the next boundary is the shared provider-kind contract.
+
 ---
 
 ## PR 93 — Provider metadata integration contracts
@@ -2599,6 +2604,12 @@ no kind model enters provider code
 ```
 
 Explicit invocations, e.g.:
+
+Status: complete. Added a shared envelope precondition for provider identity,
+provider item identity, expected kind, and title. Added contract coverage for
+all 15 declared provider-kind pairs, including native adapter normalization,
+typed CatalogItem output, typed catalog output, and mismatched-kind rejection
+across all nine registered kinds.
 
 ```text
 Anime × AniList

@@ -11,7 +11,10 @@ class MangaLibraryKindProviderMapper
   const MangaLibraryKindProviderMapper();
 
   MangaMetadata metadataFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    _validateMangaEnvelope(envelope);
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.manga,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
@@ -27,7 +30,10 @@ class MangaLibraryKindProviderMapper
 
   @override
   MangaCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    _validateMangaEnvelope(envelope);
+    validateLibraryKindProviderEnvelope(
+      envelope: envelope,
+      expectedKind: CatalogMediaKind.manga,
+    );
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
@@ -43,8 +49,7 @@ class MangaLibraryKindProviderMapper
   }
 
   @override
-  CatalogItem metadataItemFromEnvelope(
-      NormalizedProviderEnvelopeV1 envelope) {
+  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
     return CatalogItem(
       identity: LibraryItemIdentity(
         id: envelope.providerItemId,
@@ -72,13 +77,5 @@ class MangaLibraryKindProviderMapper
       }
     }
     return corrections;
-  }
-
-  void _validateMangaEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    if (envelope.kind.trim().toLowerCase() != CatalogMediaKind.manga.apiValue) {
-      throw StateError(
-        'Manga provider integration received ${envelope.kind} data',
-      );
-    }
   }
 }
