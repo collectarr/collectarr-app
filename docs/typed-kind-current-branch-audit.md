@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `8393020b` (`chore(settings): remove stale kind imports`)
+HEAD: `12616356` (`refactor(calendar): move comic release events into comic`)
 
 ## Scope and evidence
 
@@ -12,8 +12,8 @@ This is the PR0 rebaseline for the new Full Typed-Kind Vertical Architecture pla
 Evidence checked:
 
 - `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, and de-shared video ownership details.
-- `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 543 AST architecture violations; its 392 complexity warnings are informational.
-- `test/contracts/**`, `test/architecture/**`, `test/dev/dev_seed_test.dart`, the Comic domain suite, the Collection/Shelf/Stats suites, and the Movie/TV/Anime vertical suites: focused suites pass; the full suite passes at 1851 tests with 5 skipped.
+- `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 541 AST architecture violations; its 392 complexity warnings are informational.
+- `test/contracts/**`, `test/architecture/**`, `test/dev/dev_seed_test.dart`, the Comic domain suite, the Collection/Shelf/Stats suites, and the Movie/TV/Anime vertical suites: focused suites pass; the full suite passes at 1855 tests with 5 skipped.
 - Existing audits: `docs/typed-kind-parity-final.md`, `docs/typed-kind-semantic-vacuum-audit.md`, `docs/outside-kinds-generic-audit.md`, and `docs/collectarr_shared_kind_audit.md`.
 - Seed coverage: 15 catalog entries for each kind except BoardGame (10), matching owned/tracking fixtures and expanded pick-list vocabulary.
 
@@ -76,7 +76,7 @@ Status meanings:
 | 44 | Replace CollectionPage hardcoded actions | **PARTIAL** | Collection still owns the Import/Export host controls, but ComicInfo is now supplied as a kind-owned structural export artifact instead of a generic semantic serializer. |
 | 45 | Remove semantic global Shelf filters | **PARTIAL** | Global Shelf no longer exposes Missing grade, Key comics, grade/series distributions, or condition/grade row semantics; compatibility aggregates remain for the Stats dashboard. |
 | 46 | Split CSV mechanics from CSV semantics | **PARTIAL** | Generic CSV reader/writer mechanics now live in one collection infrastructure module and are used by Collection CSV, TMDB import, and share export; the canonical semantic union row and generic matching remain. |
-| 47 | Move CLZ semantics into relevant kinds | **PARTIAL** | Comic CSV catalog/owned export semantics now live under Comic, but CLZ parsing, aliases, and import mapping remain in the generic Collection path. |
+| 47 | Move CLZ semantics into relevant kinds | **PARTIAL** | Comic CSV layout, aliases, typed parsing, and catalog/owned export semantics now live under Comic; the generic `CollectionCsvRow` mutation adapter and remaining multi-kind host are still compatibility code. |
 | 48 | Delete/rehome generic Collection XML | **DONE** | The generic semantic CollectionXml format was deleted; the wizard now exposes Collectarr CSV, CLZ CSV, and kind-contributed exports. |
 | 49 | Move ComicInfo.xml into Comic | **DONE** | ComicInfo XML parser/serializer and the export projection now live under Comic; Collection receives only structural export artifacts. |
 | 50 | Replace common owned collection commands | **PARTIAL** | ComicInfo export crosses through an explicit Comic owned adapter, but Collection CSV/CLZ commands still use the common Owned command surface. |
@@ -87,8 +87,8 @@ Status meanings:
 | 55 | Remove generic `Season`/Volume compatibility APIs | **PARTIAL** | Typed hierarchy work exists, but legacy shelf volume/Season compatibility files are still present. |
 | 56 | Remove global item/edition/variant ontology | **NOT STARTED** | No owning-kind override schema/storage interpretation has replaced the global ontology. |
 | 57 | Keep only generic override storage/sync mechanics | **NOT STARTED** | No owning-kind override schema/storage interpretation has replaced the global ontology. |
-| 58 | Generic calendar becomes event host only | **NOT STARTED** | Calendar remains a host with catalog semantics still represented by generic/legacy paths; contributors are not complete. |
-| 59 | Kind calendar contributors | **NOT STARTED** | Calendar remains a host with catalog semantics still represented by generic/legacy paths; contributors are not complete. |
+| 58 | Generic calendar becomes event host only | **PARTIAL** | Episode and Comic release projection now leave the host through contributors; generic release fallback and generic owned/tracking event extraction remain. |
+| 59 | Kind calendar contributors | **PARTIAL** | Comic, TV, and Anime contributors are registered and tested; remaining applicable kind release/tracking contributions are not complete. |
 | 60 | Universal calendar contributors | **NOT STARTED** | Calendar remains a host with catalog semantics still represented by generic/legacy paths; contributors are not complete. |
 | 61 | Keep scanner generic | **DONE** | Scanner UI and platform mechanics now return the generic `ScannedCode` projection with raw value, normalized value, and symbology. |
 | 62 | Kind-owned identifier resolvers | **PARTIAL** | All 9 applicable kinds now own resolver classes and Book/Manga validate ISBN checksums; provider/catalog lookup dispatch is still routed through generic compatibility services. |
@@ -126,7 +126,7 @@ Status meanings:
 | 94 | Mandatory contracts all 9 kinds | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
 | 95 | Release/Edition contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
 | 96 | Action contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
-| 97 | Calendar contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
+| 97 | Calendar contracts | **PARTIAL** | Comic/TV/Anime contributor behavior is tested, but the all-kind calendar contract and stable event identity guarantees are not complete. |
 | 98 | Barcode contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
 | 99 | Metadata override contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
 | 100 | Provider-kind contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
@@ -139,13 +139,13 @@ Status meanings:
 | 107 | TV semantics | **DONE** | Kind-specific domain test suites exist for the listed semantics and the full test suite currently passes. |
 | 108 | Anime semantics | **DONE** | Kind-specific domain test suites exist for the listed semantics and the full test suite currently passes. |
 | 109 | Music semantics | **DONE** | Kind-specific domain test suites exist for the listed semantics and the full test suite currently passes. |
-| 110 | Cross-kind dependency enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 543 violations and still has migration allowlists. |
-| 111 | Provider dependency enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 543 violations and still has migration allowlists. |
-| 112 | Core DTO ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 543 violations and still has migration allowlists. |
-| 113 | Type-erasure enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 543 violations and still has migration allowlists. |
-| 114 | Semantic action enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 543 violations and still has migration allowlists. |
-| 115 | DB ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 543 violations and still has migration allowlists. |
-| 116 | Declarative Add/Edit ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 543 violations and still has migration allowlists. |
+| 110 | Cross-kind dependency enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 541 violations and still has migration allowlists. |
+| 111 | Provider dependency enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 541 violations and still has migration allowlists. |
+| 112 | Core DTO ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 541 violations and still has migration allowlists. |
+| 113 | Type-erasure enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 541 violations and still has migration allowlists. |
+| 114 | Semantic action enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 541 violations and still has migration allowlists. |
+| 115 | DB ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 541 violations and still has migration allowlists. |
+| 116 | Declarative Add/Edit ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 541 violations and still has migration allowlists. |
 | 117 | Catalog deletions | **PARTIAL** | Delete-only work has removed multiple legacy surfaces, while catalog/Owned/edit/hierarchy compatibility remains. |
 | 118 | Owned deletions | **PARTIAL** | Delete-only work has removed multiple legacy surfaces, while catalog/Owned/edit/hierarchy compatibility remains. |
 | 119 | Edit/Add deletions | **PARTIAL** | Delete-only work has removed multiple legacy surfaces, while catalog/Owned/edit/hierarchy compatibility remains. |
@@ -160,7 +160,7 @@ Status meanings:
 
 | Gate | Status | Evidence |
 |---|---|---|
-| Full `lib/**` semantic checker baseline | FAIL | Current checker exits 1 with 543 AST violations; its 392 complexity warnings are informational and the migration allowlist remains explicit/shrinkable. |
+| Full `lib/**` semantic checker baseline | FAIL | Current checker exits 1 with 541 AST violations; its 392 complexity warnings are informational and the migration allowlist remains explicit/shrinkable. |
 | Core DTO field adoption | PASS | Generated DTO policy and CI checks are present; dev seed/core tests pass. |
 | Nine-kind mandatory typed contracts | PASS | Explicit all-kind manifest and matrix tests are present and passing. |
 | No cross-kind imports | FAIL | Baseline includes a Game → Music import violation and generic Library → TV imports. |
@@ -171,11 +171,11 @@ Status meanings:
 
 ## PR0 conclusion
 
-PR0 is complete as a refreshed rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are coherent, enriched, and validated, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 added the structural action, import/export, and generic menu contracts. PR16 and PR63 made the owned read projections and loan references explicit. PR64 consolidated the generic pick-list/vocabulary infrastructure, and PR65 now uses explicit kind-owned vocabulary contributors; universal Owned vocabularies and the broader common Owned persistence/UI remain compatibility bridges. The seed entry point now validates catalog/owned/tracking coverage and quality before writes. Comic now has typed owned persistence plus typed workspace, value, stats, inspector, presentation, relation, Add, Edit, transfer, series-detail, and CSV export consumers; ComicInfo XML and Comic CSV projection are kind-owned and the global Shelf no longer exposes Comic-specific grade/series filters, while generic compatibility edges remain. CSV encoding/decoding mechanics are centralized without yet removing the semantic union profile. Manga hierarchy hydration and the Shelf volume/chapter contribution now live under Manga. Movie/TV/Anime physical copy details are duplicated inside their owning kinds, removing one shared video ownership abstraction from generic UI. The current checker baseline is 543 AST violations with 392 informational complexity warnings and must shrink in subsequent migrations.
+PR0 is complete as a refreshed rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are coherent, enriched, and validated, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 added the structural action, import/export, and generic menu contracts. PR16 and PR63 made the owned read projections and loan references explicit. PR64 consolidated the generic pick-list/vocabulary infrastructure, and PR65 now uses explicit kind-owned vocabulary contributors; universal Owned vocabularies and the broader common Owned persistence/UI remain compatibility bridges. The seed entry point now validates catalog/owned/tracking coverage and quality before writes. Comic now has typed owned persistence plus typed workspace, value, stats, inspector, presentation, relation, Add, Edit, transfer, series-detail, and CSV export consumers; ComicInfo XML, Comic CSV layout/parser/projection, and its CLZ aliases are kind-owned and the global Shelf no longer exposes Comic-specific grade/series filters, while generic compatibility edges remain. CSV encoding/decoding mechanics are centralized without yet removing the semantic union profile. Manga hierarchy hydration and the Shelf volume/chapter contribution now live under Manga. Movie/TV/Anime physical copy details are duplicated inside their owning kinds, removing one shared video ownership abstraction from generic UI. Calendar now dispatches Comic release and TV/Anime episode projections through kind contributors, while generic release/owned fallbacks remain. The current checker baseline is 541 AST violations with 392 informational complexity warnings and must shrink in subsequent migrations.
 
 ## Recommended next PR
 
-Current branch recommendation: `PR47 - Move CLZ semantics into relevant kinds`.
-Next active implementation: `PR47 - Move CLZ semantics into relevant kinds`, extracting the remaining Comic CLZ aliases/parsing/import mapping from the generic Collection path while preserving the existing import/export behavior through explicit kind-owned profiles.
+Current branch recommendation: `PR58/59 - Continue kind calendar contributions`.
+Next active implementation: `PR58/59 - Continue kind calendar contributions`, moving the next kind's release projection through the structural contributor contract while preserving generic fallback behavior for kinds not yet migrated.
 
 `PR11 — Migrate existing kind toolbar descriptors to typed action registries`, while shrinking the PR1 baseline in parallel with each migration.
