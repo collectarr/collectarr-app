@@ -25,8 +25,6 @@ import 'package:collectarr_app/features/settings/import_job_provider.dart';
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
