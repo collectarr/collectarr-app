@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `19155d38` (`feat(actions): add typed import export contracts`)
+HEAD: `370ecc85` (`feat(actions): add generic typed action menu`)
 
 ## Scope and evidence
 
@@ -42,8 +42,7 @@ Status meanings:
 | 10 | Declarative Add renderer | **DONE** | Structural typed schemas and shared renderers exist and are exercised by contract tests. |
 | 11 | Introduce typed `UiAction<TContext>` | **PARTIAL** | Structural `UiAction<TContext>` and placement contract now exist; the existing runtime-backed toolbar descriptors still need migration to kind-owned typed action registries. |
 | 12 | File import/export action contracts | **PARTIAL** | Structural `ExportArtifact`, `ImportPreview`, `ExportAction`, and `ImportAction` contracts now exist; generic file host migration and kind-owned format actions remain. |
-| 12 | File import/export action contracts | **NOT STARTED** | No complete structural UiAction/import-export contract and kind-owned action registry is in place. |
-| 13 | Action menu host | **NOT STARTED** | No complete structural UiAction/import-export contract and kind-owned action registry is in place. |
+| 13 | Action menu host | **PARTIAL** | Generic `ActionMenu<TContext>` now renders typed actions by placement and state; existing Library menus and kind toolbar descriptors still need migration to this host. |
 | 14 | Remove canonical common Owned domain | **PARTIAL** | Structural refs and typed tracking pieces exist, but common Owned/TrackingUnit compatibility remains. |
 | 15 | Move tracking fields out of Owned | **PARTIAL** | Structural refs and typed tracking pieces exist, but common Owned/TrackingUnit compatibility remains. |
 | 16 | Owned action/read projections | **DONE** | Cross-kind read projections/refs exist and are used as the intended small summary boundary. |
@@ -172,7 +171,7 @@ Status meanings:
 
 ## PR0 conclusion
 
-PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11 now adds the structural action contract. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
+PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11-13 now add the structural action, import/export, and generic menu contracts. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
 
 ## Recommended next PR
 
