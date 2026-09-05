@@ -120,10 +120,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   projector: const TvWorkspaceProjector(),
   ownedDetailsCodec: const TvOwnedDetailsCodec(),
   fields: tvLibraryKindSchema.toRegistry(),
-  catalogCodec: const DefaultCatalogKindCodec<TvSeriesMetadata>(
-    TvSeriesMetadata.fromJson,
-    _encodeTvMetadata,
-  ),
+  catalogMetadataDecoder: TvSeriesMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.tv,
     singularLabel: 'TV Show',
@@ -246,8 +243,6 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
 );
 
 String _tvChildrenTitle(int count) => 'Seasons ($count)';
-
-Map<String, dynamic> _encodeTvMetadata(TvSeriesMetadata m) => m.toJson();
 
 Future<List<LibraryHierarchyNode>> _fetchTvSeasons({
   required ApiClient api,

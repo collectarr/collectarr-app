@@ -40,8 +40,8 @@ Object? decodeLibraryKindMetadata(
   Map<String, dynamic> json,
 ) {
   for (final module in collectarrKindModules) {
-    if (module.kind == mediaKind && module.catalogCodec != null) {
-      return module.catalogCodec!.decode(json);
+    if (module.kind == mediaKind && module.catalogMetadataDecoder != null) {
+      return module.catalogMetadataDecoder!(json);
     }
   }
   return Map<String, dynamic>.from(json);

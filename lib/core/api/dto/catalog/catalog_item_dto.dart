@@ -13,7 +13,6 @@ export 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';

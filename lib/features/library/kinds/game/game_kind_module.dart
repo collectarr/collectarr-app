@@ -56,10 +56,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   projector: const GameWorkspaceProjector(),
   ownedDetailsCodec: const GameOwnedDetailsCodec(),
   fields: gameLibraryKindSchema.toRegistry(),
-  catalogCodec: const DefaultCatalogKindCodec<GameCatalogMetadata>(
-    GameCatalogMetadata.fromJson,
-    _encodeGameMetadata,
-  ),
+  catalogMetadataDecoder: GameCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.game,
     singularLabel: 'Game',
@@ -146,8 +143,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   ),
   buildCardPresentation: buildGameCardPresentation,
 );
-
-Map<String, dynamic> _encodeGameMetadata(GameCatalogMetadata m) => m.toJson();
 
 Iterable<String> _getGameFacetValues(
   LibraryProjectionRuntime item,

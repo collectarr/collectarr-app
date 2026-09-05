@@ -119,10 +119,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   projector: const AnimeWorkspaceProjector(),
   ownedDetailsCodec: const AnimeOwnedDetailsCodec(),
   fields: animeLibraryKindSchema.toRegistry(),
-  catalogCodec: const DefaultCatalogKindCodec<AnimeMetadata>(
-    AnimeMetadata.fromJson,
-    _encodeAnimeMetadata,
-  ),
+  catalogMetadataDecoder: AnimeMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.anime,
     singularLabel: 'Anime',
@@ -249,8 +246,6 @@ Future<List<LibraryHierarchyNode>> _fetchAnimeEpisodes({
     AnimeCoreMapper.fromSeriesDto(dto),
   );
 }
-
-Map<String, dynamic> _encodeAnimeMetadata(AnimeMetadata m) => m.toJson();
 
 List<LibraryAddAdvancedFilterField<String>> buildAnimeAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,

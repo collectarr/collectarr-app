@@ -161,10 +161,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   projector: const BookWorkspaceProjector(),
   ownedDetailsCodec: const BookOwnedDetailsCodec(),
   fields: bookLibraryKindSchema.toRegistry(),
-  catalogCodec: const DefaultCatalogKindCodec<BookCatalogMetadata>(
-    BookCatalogMetadata.fromJson,
-    _encodeBookMetadata,
-  ),
+  catalogMetadataDecoder: BookCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.book,
     singularLabel: 'Book',
@@ -308,8 +305,6 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
 }
 
 String _bookChildrenTitle(int count) => 'Editions ($count)';
-
-Map<String, dynamic> _encodeBookMetadata(BookCatalogMetadata m) => m.toJson();
 
 Iterable<String> _getBookFacetValues(
   LibraryProjectionRuntime item,

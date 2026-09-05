@@ -200,10 +200,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   projector: const ComicWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: comicLibraryKindSchema.toRegistry(),
-  catalogCodec: const DefaultCatalogKindCodec<ComicCatalogMetadata>(
-    ComicCatalogMetadata.fromJson,
-    _encodeComicMetadata,
-  ),
+  catalogMetadataDecoder: ComicCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.comic,
     singularLabel: 'Comic',
@@ -492,8 +489,6 @@ Future<void> _showJumpToIssueDialog(
     controller.dispose();
   }
 }
-
-Map<String, dynamic> _encodeComicMetadata(ComicCatalogMetadata m) => m.toJson();
 
 List<LibraryAddAdvancedFilterField<String>> buildComicAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,

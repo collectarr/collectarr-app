@@ -96,10 +96,7 @@ final boardGameKindModule =
   projector: const BoardGameWorkspaceProjector(),
   ownedDetailsCodec: const BoardgameOwnedDetailsCodec(),
   fields: boardgameLibraryKindSchema.toRegistry(),
-  catalogCodec: const DefaultCatalogKindCodec<BoardGameMetadata>(
-    BoardGameMetadata.fromJson,
-    _encodeBoardGameMetadata,
-  ),
+  catalogMetadataDecoder: BoardGameMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.boardgame,
     singularLabel: 'Board Game',
@@ -194,9 +191,6 @@ final boardGameKindModule =
     definitions: boardgameLibraryFacetDefinitions,
   ),
 );
-
-Map<String, dynamic> _encodeBoardGameMetadata(BoardGameMetadata m) =>
-    m.toJson();
 
 Iterable<String> _getBoardGameFacetValues(
   LibraryProjectionRuntime item,

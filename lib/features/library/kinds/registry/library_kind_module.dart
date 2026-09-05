@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 
-export 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -56,6 +55,10 @@ export 'package:collectarr_app/features/library/config/library_linked_metadata_c
 export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
+typedef CatalogMetadataDecoder = Object? Function(
+  Map<String, dynamic> payload,
+);
+
 /// Migration-only compatibility surface for existing generic callers.
 ///
 /// Do not add members here. New dispatch contracts belong in
@@ -84,7 +87,7 @@ abstract interface class LibraryKindRuntime {
   LibraryKindToolbarModule? get toolbar;
   LibraryKindProviderMapper? get providerMapper;
   LibraryFacetModule? get facets;
-  CatalogKindCodec<Object?>? get catalogCodec;
+  CatalogMetadataDecoder? get catalogMetadataDecoder;
   List<LibrarySearchTarget> get searchTargetOptions;
 
   LibraryWorkspaceViewProfile get viewProfile;
@@ -224,7 +227,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     this.toolbar,
     this.providerMapper,
     this.facets,
-    this.catalogCodec,
+    this.catalogMetadataDecoder,
     this.searchTargetOptions = const [],
     LibraryWorkspaceViewProfile? viewProfile,
     LibraryCardPresentation Function(
@@ -236,7 +239,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
 
   final OwnedDetailsCodec<TDetails> ownedDetailsCodec;
   @override
-  final CatalogKindCodec<Object?>? catalogCodec;
+  final CatalogMetadataDecoder? catalogMetadataDecoder;
   @override
   final LibraryKindIdentity identity;
 
@@ -300,7 +303,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
       toolbar: toolbar,
       providerMapper: providerMapper,
       facets: facets,
-      catalogCodec: catalogCodec,
+      catalogMetadataDecoder: catalogMetadataDecoder,
       searchTargetOptions: searchTargetOptions,
       viewProfile: _viewProfile,
       buildCardPresentation: _buildCardPresentation,

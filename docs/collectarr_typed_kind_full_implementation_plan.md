@@ -2001,6 +2001,14 @@ sync mapper
 
 No global metadata codec registry.
 
+### Status (2026-09-05)
+
+Complete. `CatalogKindCodec`, its default implementation, global registry, and
+all module registrations are deleted. Each kind now exposes its own metadata
+decoder callback through the kind module, while domain models keep their local
+`toJson` serialization for Core, provider, edit, and sync boundaries.
+Continue with PR74.
+
 ---
 
 ## PR 74 — Delete generic catalog cache

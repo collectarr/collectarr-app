@@ -72,10 +72,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: musicLibraryKindSchema.toRegistry(),
-  catalogCodec: const DefaultCatalogKindCodec<MusicCatalogMetadata>(
-    MusicCatalogMetadata.fromJson,
-    _encodeMusicMetadata,
-  ),
+  catalogMetadataDecoder: MusicCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.music,
     singularLabel: 'Music',
@@ -187,8 +184,6 @@ Future<List<LibraryHierarchyNode>> _fetchMusicTracks({
   final release = MusicCoreMapper.fromReleaseDto(dto);
   return MusicHierarchyMapper.toLibraryNodes(release);
 }
-
-Map<String, dynamic> _encodeMusicMetadata(MusicCatalogMetadata m) => m.toJson();
 
 List<LibraryAddAdvancedFilterField<String>> buildMusicAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,

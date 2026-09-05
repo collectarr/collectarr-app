@@ -158,10 +158,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   projector: const MovieWorkspaceProjector(),
   ownedDetailsCodec: const MovieOwnedDetailsCodec(),
   fields: movieLibraryKindSchema.toRegistry(),
-  catalogCodec: const DefaultCatalogKindCodec<MovieCatalogMetadata>(
-    MovieCatalogMetadata.fromJson,
-    _encodeMovieMetadata,
-  ),
+  catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.movie,
     singularLabel: 'Movie',
@@ -271,8 +268,6 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   ),
   buildCardPresentation: buildMovieCardPresentation,
 );
-
-Map<String, dynamic> _encodeMovieMetadata(MovieCatalogMetadata m) => m.toJson();
 
 List<LibraryAddAdvancedFilterField<String>> buildMovieAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
