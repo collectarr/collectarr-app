@@ -7,6 +7,8 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../contracts/kind_contract_manifest.dart';
+
 class _ProviderKindCase {
   const _ProviderKindCase({
     required this.provider,
@@ -217,6 +219,19 @@ NormalizedProviderEnvelopeV1 _envelopeFor(_ProviderKindCase testCase) {
 
 void main() {
   final registry = buildDefaultProviderRegistry();
+
+  test('provider matrix covers the declared provider-kind manifest', () {
+    final covered = {
+      for (final testCase in _providerKindCases)
+        '${testCase.provider}:${testCase.kind.apiValue}',
+    };
+    final declared = {
+      for (final entry in kindContractManifest.providerKindParticipants.entries)
+        for (final kind in entry.value) '${entry.key}:${kind.apiValue}',
+    };
+
+    expect(covered, equals(declared));
+  });
 
   for (final testCase in _providerKindCases) {
     test('${testCase.kind.apiValue} × ${testCase.provider} mapping contract',

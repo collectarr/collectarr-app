@@ -3033,6 +3033,12 @@ timestamps/counts, and reset semantics.
 
 Run generic provider-integration contracts against **every actual provider-kind pair**, not one provider.
 
+Status: complete. The provider mapping matrix covers every mapped provider-kind
+pair in the registry (including multi-kind AniList, ComicVine, Hardcover, and
+TMDb), and the manifest test prevents a pair from being added without a
+corresponding mapping contract. Ingest-only MyAnimeList remains outside this
+matrix because it has no metadata mapper.
+
 ---
 
 # PHASE 29 — Final Kind-Specific Tests
