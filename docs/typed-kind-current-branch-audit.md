@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `8b1a8204` (`feat(pick-lists): register kind vocabulary contributors explicitly`)
+HEAD: `898ad834` (`refactor(catalog): delegate derived vocabulary capture to kinds`)
 
 ## Scope and evidence
 
@@ -80,7 +80,7 @@ Status meanings:
 | 48 | Delete/rehome generic Collection XML | **NOT STARTED** | The new plan's feature-host/action and semantic serializer moves have not been completed as a coherent migration. |
 | 49 | Move ComicInfo.xml into Comic | **NOT STARTED** | The new plan's feature-host/action and semantic serializer moves have not been completed as a coherent migration. |
 | 50 | Replace common owned collection commands | **NOT STARTED** | The new plan's feature-host/action and semantic serializer moves have not been completed as a coherent migration. |
-| 51 | Delete `CatalogCacheDerivedDataService` | **PARTIAL** | The old generic cache was reduced/renamed, but typed per-kind replacement is not complete and generic repository code remains. |
+| 51 | Delete `CatalogCacheDerivedDataService` | **PARTIAL** | Derived vocabulary capture now delegates metadata projection to explicit kind contributors; generic serial authority and the catalog compatibility repository still remain. |
 | 52 | Remove generic `CatalogCacheRepository` | **PARTIAL** | The old generic cache was reduced/renamed, but typed per-kind replacement is not complete and generic repository code remains. |
 | 53 | Delete catalog type-erasure stack | **PARTIAL** | Several erased names were deleted, but CatalogItem transport/interoperability and generic metadata bridges remain. |
 | 54 | Delete `shelfVolumesProvider` | **PARTIAL** | Typed hierarchy work exists, but legacy shelf volume/Season compatibility files are still present. |
@@ -175,7 +175,7 @@ PR0 is complete as a rebaseline. The branch has substantial prior typed-kind wor
 
 ## Recommended next PR
 
-Current branch recommendation: `PR65 - Replace global semantic vocabulary definitions with explicit kind-owned contributors`.
+Current branch recommendation: `PR14 - Remove canonical common Owned domain`.
 Next active implementation: `PR14 - Remove canonical common Owned domain` in incremental kind-owned slices.
 
 `PR11 — Migrate existing kind toolbar descriptors to typed action registries`, while shrinking the PR1 baseline in parallel with each migration.
