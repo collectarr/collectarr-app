@@ -10,7 +10,6 @@ when their inputs are genuinely owner-neutral.
 | `add/add_bottom_bar.dart` | EDIT | Move to the owning add flow |
 | `add/grading_draft.dart` | DOMAIN MODEL | Move to comic/manga/book owners |
 | `add/signature_draft.dart` | DOMAIN MODEL | Move to the owning kind |
-| `add/video_physical_release_draft.dart` | EDIT | Move/duplicate into movie/TV/anime |
 | `ownership/grading_details.dart` | DOMAIN MODEL | Move to comic/manga/book owners |
 | `ownership/signature_details.dart` | DOMAIN MODEL | Move to the owning kind |
 | `ownership/video_like_owned_details.dart` | DOMAIN MODEL | Replace with kind-owned details |

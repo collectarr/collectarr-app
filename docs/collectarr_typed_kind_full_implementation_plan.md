@@ -2224,6 +2224,9 @@ remaining callers import the active detail implementation explicitly.
 The obsolete root release capability/source compatibility barrels are also
 gone; release consumers now reference their explicit release modules.
 
+The unused shared `VideoPhysicalReleaseDraft` has been removed; active Add
+flows already use their typed kind drafts.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
