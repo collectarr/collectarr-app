@@ -2390,6 +2390,13 @@ Move controllers/state into smaller structural classes.
 
 No semantic fields.
 
+### Progress (2026-09-05)
+
+The unused aggregate `LibraryAddController` has been removed; the Add dialog
+now has one live session-controller boundary instead of a second facade over
+search/selection/preview state. The remaining dialog-local options and
+prefill orchestration are still candidates for structural extraction.
+
 ---
 
 # PHASE 21 — UI Convergence
