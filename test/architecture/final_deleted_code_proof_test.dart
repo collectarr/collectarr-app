@@ -58,6 +58,7 @@ void main() {
         'lib/core/models/tracking_unit.dart',
         'lib/features/collection/',
         'lib/features/library/kinds/',
+        'lib/features/library/tracking/tracking_unit_codec.dart',
       ],
     };
 
