@@ -54,9 +54,12 @@ final class LibraryKindRegistry {
 final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
 
 final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
-    _collectionCsvProjections = {
+    _collectionCsvProjections = Map.unmodifiable({
   CatalogMediaKind.comic: const ComicCollectionCsvProjection(),
-};
+});
+
+Iterable<LibraryCollectionCsvProjection> get libraryCollectionCsvProjections =>
+    _collectionCsvProjections.values;
 
 /// Returns the kind-owned semantic CSV contribution for a serialization
 /// boundary. The generic Collection feature receives cells only; it never

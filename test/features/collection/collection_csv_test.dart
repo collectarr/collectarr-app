@@ -292,6 +292,38 @@ void main() {
     expect(rows.single.notes, 'CLZ import');
   });
 
+  test('collection csv receives Comic-only CLZ aliases from the kind', () {
+    final rows = CollectionCsv().parse(
+      const CsvEncoder(lineDelimiter: '\n').convert([
+        [
+          'Core ComicID',
+          'Issue Number',
+          'Raw / Slabbed',
+          'Grading Company',
+          'Key Comic',
+          'Key Reason',
+          'Collection Status',
+        ],
+        [
+          'comic-1',
+          '1',
+          'Slabbed',
+          'CGC',
+          'Yes',
+          'First appearance',
+          'In Collection',
+        ],
+      ]),
+    );
+
+    expect(rows.single.itemId, 'comic-1');
+    expect(rows.single.itemNumber, '1');
+    expect(rows.single.rawOrSlabbed, 'Slabbed');
+    expect(rows.single.gradingCompany, 'CGC');
+    expect(rows.single.keyComic, isTrue);
+    expect(rows.single.keyReason, 'First appearance');
+  });
+
   test('collection csv parses structured location ids directly', () {
     final rows = CollectionCsv().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([

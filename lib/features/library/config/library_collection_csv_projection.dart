@@ -10,6 +10,12 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 abstract interface class LibraryCollectionCsvProjection {
   CatalogMediaKind get kind;
 
+  /// Aliases contributed by the kind's external CSV integrations.
+  ///
+  /// Keys are canonical wire-column names. Values are human-facing or
+  /// provider-facing aliases accepted by the generic CSV reader.
+  Map<String, List<String>> get columnAliases;
+
   /// Returns the 11 catalog cells in the canonical Collection CSV order.
   List<String> catalogCells(LibraryEntry entry);
 

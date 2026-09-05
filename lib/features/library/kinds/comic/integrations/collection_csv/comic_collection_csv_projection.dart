@@ -18,6 +18,9 @@ final class ComicCollectionCsvProjection
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
+  Map<String, List<String>> get columnAliases => _columnAliases;
+
+  @override
   List<String> catalogCells(LibraryEntry entry) {
     final catalog = entry.catalogItem;
     final comic =
@@ -86,4 +89,20 @@ final class ComicCollectionCsvProjection
         '${utc.month.toString().padLeft(2, '0')}-'
         '${utc.day.toString().padLeft(2, '0')}';
   }
+
+  static const _columnAliases = <String, List<String>>{
+    'item_id': ['Core ComicID', 'ComicID'],
+    'item_number': ['Issue', 'Issue No.', 'Issue Number'],
+    'raw_or_slabbed': ['Raw / Slabbed', 'Grade Status'],
+    'grading_company': ['Grading Company'],
+    'grader_notes': ['Grader Notes'],
+    'label_type': ['Label Type'],
+    'certification_number': [
+      'Certification Number',
+      'Cert Number',
+      'Cert #',
+    ],
+    'key_comic': ['Key Comic'],
+    'key_reason': ['Key Reason'],
+  };
 }

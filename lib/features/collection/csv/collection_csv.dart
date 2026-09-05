@@ -906,22 +906,29 @@ class CollectionCsv {
         }
       }
     }
+    for (final projection in libraryCollectionCsvProjections) {
+      if (projection.columnAliases.containsKey(normalized)) {
+        return normalized;
+      }
+      for (final entry in projection.columnAliases.entries) {
+        for (final alias in entry.value) {
+          if (_normalizeColumn(alias) == normalized) {
+            return entry.key;
+          }
+        }
+      }
+    }
     return normalized;
   }
 
   static const _columnAliases = {
     'item_id': [
       'Collectarr Item ID',
-      'Core ComicID',
       'Core SeriesID',
-      'ComicID',
     ],
     'kind': ['Media Type', 'Kind', 'Type', 'Library', 'Media Kind'],
     'title': ['Series', 'Show', 'Release', 'Full Title'],
     'item_number': [
-      'Issue',
-      'Issue No.',
-      'Issue Number',
       'No. / Vol.',
       'Volume',
       'Season / Volume',
@@ -983,14 +990,7 @@ class CollectionCsv {
     'location_id': ['Location ID', 'Location Id'],
     'index_number': ['Index', 'Index Number'],
     'cover_price_cents': ['Cover Price'],
-    'raw_or_slabbed': ['Raw / Slabbed', 'Grade Status'],
-    'grading_company': ['Grading Company'],
-    'grader_notes': ['Grader Notes'],
     'signed_by': ['Signed By'],
-    'label_type': ['Label Type'],
-    'certification_number': ['Certification Number', 'Cert Number', 'Cert #'],
-    'key_comic': ['Key Comic'],
-    'key_reason': ['Key Reason'],
     'rating': ['Rating'],
     'read_status': ['Read It', 'Read Status', 'Read'],
     'tags': ['Tags'],
