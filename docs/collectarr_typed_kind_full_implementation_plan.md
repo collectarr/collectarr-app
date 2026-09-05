@@ -2525,6 +2525,16 @@ LibraryVocabularyField<T>
 
 No production semantic field subclasses in shared.
 
+### Progress (2026-09-05)
+
+Shared selection controls now live in
+`features/library/ui/primitives/library_selection_fields.dart`:
+`LibrarySelectField<T>` standardizes typed dropdown chrome and
+`LibraryVocabularyField` standardizes single- and multi-value vocabulary
+selection while receiving all values and callbacks from callers. The former
+edit-field-local vocabulary wrapper was moved to this boundary; the detail
+copy selector now consumes `LibrarySelectField<String>`.
+
 ---
 
 ## PR 90 — Edit visual parity contract

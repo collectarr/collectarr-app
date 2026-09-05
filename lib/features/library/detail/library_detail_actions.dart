@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -50,10 +51,10 @@ class LibraryDetailActionStrip extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  initialValue: selectedOwnedItemId,
+                child: LibrarySelectField<String>(
+                  label: 'Copy in collection',
+                  value: selectedOwnedItemId,
                   decoration: const InputDecoration(
-                    labelText: 'Copy in collection',
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 10,
