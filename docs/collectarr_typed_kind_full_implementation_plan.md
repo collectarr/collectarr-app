@@ -2172,6 +2172,9 @@ owner-specific result types; the shared video tracking-rules facade is gone.
 
 The unused shared episodic tracking draft has also been removed.
 
+Movie's release shelf drilldown now lives under the Movie release module with
+Movie-specific model and widget names.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

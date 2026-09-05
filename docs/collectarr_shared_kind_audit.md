@@ -55,7 +55,6 @@ when their inputs are genuinely owner-neutral.
 | `video/release/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
 | `video/release/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
 | `video/release/video_season_summary_card.dart` | VISUAL STRUCTURAL | Keep only after owner-neutral API review |
-| `video/release/video_shelf_drilldown.dart` | HIERARCHY | Move into TV/Anime hierarchy |
 | `video/tracking/video_progress_presenter.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/tracking/video_progress_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime detail |
 | `video/tracking/video_progress_summary.dart` | DOMAIN MODEL | Move into TV/Anime tracking |
@@ -82,7 +81,6 @@ when their inputs are genuinely owner-neutral.
 | `video/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
 | `video/video_season_summary_card.dart` | VISUAL STRUCTURAL | Keep only after owner-neutral API review |
 | `video/video_season_tracking_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
-| `video/video_shelf_drilldown.dart` | HIERARCHY | Move into TV/Anime hierarchy |
 | `video/video_upcoming_episodes_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime hierarchy |
 | `video/video_watch_run_presenter.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/video_workspace_progress.dart` | DOMAIN BEHAVIOR | Move into TV/Anime workspace |
@@ -94,7 +92,8 @@ The shared directory contains no persistence or provider implementation that
 is safe to treat as universal merely because it is reused. The remaining
 shared candidates are small visual components and must expose owner-neutral
 inputs; all video domain, hierarchy, edit, field, provider, release, and
-tracking behavior is queued for PR79. Five video boundaries have already moved
+tracking behavior is queued for PR79. Six video boundaries have already moved
 out during PR79 progress: TV legacy models, TV display models, per-kind video
 physical formats, generic Add provider-kind filter chrome, and episodic
-tracking rules for TV/Anime.
+tracking rules for TV/Anime. Movie's release shelf drilldown is also now
+Movie-owned.

@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/kinds/movie/release/movie_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -209,13 +209,13 @@ class VideoLibraryMediaPresentationBuilder
     required void Function(String releaseId) onSelectRelease,
     required LibraryWorkspaceProjector projector,
   }) {
-    final drilldownItems = buildVideoShelfReleaseItems(
+    final drilldownItems = buildMovieShelfReleaseItems(
       titleItem: selectedItem,
       ownedCopies: ownedCopies,
       wishlistItems: wishlistItems,
       projector: projector,
     );
-    return VideoShelfReleaseDrilldown(
+    return MovieShelfReleaseDrilldown(
       titleItem: selectedItem,
       items: drilldownItems,
       selectedReleaseId: selectedReleaseId,

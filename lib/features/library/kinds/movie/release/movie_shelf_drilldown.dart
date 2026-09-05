@@ -13,8 +13,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-class VideoShelfReleaseDrilldownItem {
-  const VideoShelfReleaseDrilldownItem({
+class MovieShelfReleaseDrilldownItem {
+  const MovieShelfReleaseDrilldownItem({
     required this.item,
     required this.sourceLabel,
     required this.ownedCount,
@@ -29,7 +29,7 @@ class VideoShelfReleaseDrilldownItem {
   final LibraryReleaseNodeRef node;
 }
 
-bool canOpenVideoShelfDrilldown(
+bool canOpenMovieShelfDrilldown(
   LibraryKindRuntime? type,
   LibraryProjectionRuntime item,
 ) {
@@ -43,7 +43,7 @@ bool canOpenVideoShelfDrilldown(
   return runtime.presentation.builder.canOpenKindDrilldown(item);
 }
 
-List<VideoShelfReleaseDrilldownItem> buildVideoShelfReleaseItems({
+List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
   required LibraryProjectionRuntime titleItem,
   required List<OwnedItem> ownedCopies,
   required List<WishlistItem> wishlistItems,
@@ -91,7 +91,7 @@ List<VideoShelfReleaseDrilldownItem> buildVideoShelfReleaseItems({
   ];
 }
 
-VideoShelfReleaseDrilldownItem _buildDrilldownItem(
+MovieShelfReleaseDrilldownItem _buildDrilldownItem(
   LibraryProjectionRuntime titleItem,
   CatalogEdition edition, {
   required List<CatalogEdition> editions,
@@ -146,7 +146,7 @@ VideoShelfReleaseDrilldownItem _buildDrilldownItem(
     customFieldBadges: titleItem.customFieldBadges,
   );
 
-  return VideoShelfReleaseDrilldownItem(
+  return MovieShelfReleaseDrilldownItem(
     item: projectionItem,
     sourceLabel: videoReleaseSourceLabel(edition),
     ownedCount:
@@ -156,8 +156,8 @@ VideoShelfReleaseDrilldownItem _buildDrilldownItem(
   );
 }
 
-class VideoShelfReleaseDrilldown extends StatelessWidget {
-  const VideoShelfReleaseDrilldown({
+class MovieShelfReleaseDrilldown extends StatelessWidget {
+  const MovieShelfReleaseDrilldown({
     super.key,
     required this.titleItem,
     required this.items,
@@ -171,7 +171,7 @@ class VideoShelfReleaseDrilldown extends StatelessWidget {
   });
 
   final LibraryProjectionRuntime titleItem;
-  final List<VideoShelfReleaseDrilldownItem> items;
+  final List<MovieShelfReleaseDrilldownItem> items;
   final String? selectedReleaseId;
   final double coverSize;
   final Color accent;
@@ -204,7 +204,7 @@ class VideoShelfReleaseDrilldown extends StatelessWidget {
       ),
       body: items.isEmpty
           ? const Center(child: Text('No release variants found'))
-          : LibraryWorkspaceGrid<VideoShelfReleaseDrilldownItem>(
+          : LibraryWorkspaceGrid<MovieShelfReleaseDrilldownItem>(
               items: items,
               maxCrossAxisExtent: coverSize,
               mainAxisExtent: coverSize / 0.68,
