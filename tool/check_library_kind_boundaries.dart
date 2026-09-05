@@ -219,6 +219,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/kinds/boardgame/data/remote/boardgame_core_mapper.dart',
     'lib/features/library/kinds/movie/data/remote/movie_core_mapper.dart',
     'lib/features/library/kinds/anime/data/remote/anime_core_mapper.dart',
+    'lib/features/library/kinds/music/data/remote/music_core_mapper.dart',
+    'lib/features/library/kinds/tv/data/remote/tv_core_mapper.dart',
+    'lib/features/library/kinds/tv/data/remote/tv_remote_source.dart',
     'lib/features/library/kinds/_shared/video/providers/video_seasons_provider.dart',
   };
 

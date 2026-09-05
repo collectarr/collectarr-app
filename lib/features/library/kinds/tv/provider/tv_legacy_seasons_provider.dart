@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/season.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
-import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final seasonsProvider = FutureProvider.autoDispose
@@ -26,20 +26,14 @@ final seasonsProvider = FutureProvider.autoDispose
   return const <Season>[];
 });
 
-final tvSeriesSeasonsProvider =
-    FutureProvider.autoDispose.family<List<TvSeasonDto>, String>(
-  (ref, seriesId) async {
-    final api = ref.watch(apiClientProvider);
-    return api
-        .getTvSeriesSeasonsDto(seriesId)
-        .timeout(const Duration(seconds: 60));
-  },
-);
+/// Compatibility provider for callers that still consume the shared Season
+/// model. The Core DTO boundary lives in the TV-owned remote provider.
+final tvSeriesSeasonsProvider = tvSeasonsBySeriesProvider;
 
 final tvSeasonsBySeriesRefProvider = FutureProvider.autoDispose
     .family<List<Season>, String>((ref, seriesId) async {
   final seasons = await ref.watch(tvSeriesSeasonsProvider(seriesId).future);
-  return _seasonDtosToSeasonModels(seasons);
+  return _seasonModelsToLegacySeasons(seasons);
 });
 
 final seasonsByCatalogRefProvider =
@@ -52,16 +46,16 @@ final seasonsByCatalogRefProvider =
   },
 );
 
-List<Season> _seasonDtosToSeasonModels(List<TvSeasonDto> seasons) {
+List<Season> _seasonModelsToLegacySeasons(List<TvSeason> seasons) {
   return [
     for (final season in seasons)
       Season(
         seasonNumber: season.seasonNumber ?? 0,
-        title: season.title,
+        title: season.title ?? 'Season ${season.seasonNumber ?? 0}',
         overview: season.description,
         episodeCount: season.episodeCount ?? 0,
-        airDate: season.airDateValue?.toIso8601String(),
-        posterUrl: season.coverImageUrlValue,
+        airDate: season.airDate?.toIso8601String(),
+        posterUrl: season.coverImageUrl,
       ),
   ];
 }

@@ -2804,6 +2804,10 @@ Comic tests
 
 Equivalent rule for all kind-specific Core DTOs.
 
+Status: complete. All generated Core DTO imports in kind code now live under
+`kinds/<kind>/data/remote`; TV legacy season reads consume TV-owned models, and
+the checker/test suite enforces the remote-adapter location.
+
 ---
 
 ## PR 103 — Hard enforce declarative Add/Edit ownership

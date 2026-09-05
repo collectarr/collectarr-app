@@ -10,11 +10,12 @@ void main() {
     ).readAsString();
 
     expect(content, contains('tvSeriesSeasonsProvider'));
+    expect(content, contains('tvSeasonsBySeriesProvider'));
     expect(content, contains('tvSeasonsBySeriesRefProvider'));
-    expect(content, contains('getTvSeriesSeasonsDto'));
     expect(content, contains('seasonsByCatalogRefProvider'));
     expect(content, isNot(contains('getItemSeasons(')));
     expect(content, isNot(contains('itemSeasonsProvider')));
     expect(content, isNot(contains('/metadata/items/')));
+    expect(content, isNot(contains('collectarr_api.models.dart')));
   });
 }
