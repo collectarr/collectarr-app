@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 
 class CollectionCsvRow {
   const CollectionCsvRow({
@@ -305,6 +305,13 @@ class CollectionCsv {
 
   List<String> _catalogFields(ShelfEntry entry) {
     final catalog = entry.catalogItem;
+    final projection = libraryCollectionCsvProjectionForKind(
+      catalogMediaKindFromValue(catalog?.kind),
+    );
+    if (projection != null) {
+      return _validatedCatalogCells(projection.catalogCells(entry));
+    }
+
     final payload = catalog?.payload ?? const <String, dynamic>{};
     final pub = payload['publishing'] as Map?;
     final itemNumber =
@@ -338,6 +345,67 @@ class CollectionCsv {
     ];
   }
 
+  List<String> _validatedCatalogCells(List<String> cells) {
+    if (cells.length != libraryCollectionCsvCatalogCellCount) {
+      throw StateError(
+        'Collection CSV catalog projection returned ${cells.length} cells; '
+        'expected $libraryCollectionCsvCatalogCellCount.',
+      );
+    }
+    return cells;
+  }
+
+  List<String> _kindOwnedCellsBeforeQuantity(
+    ShelfEntry entry, {
+    required bool clzFriendly,
+  }) {
+    final projection = libraryCollectionCsvProjectionForKind(
+      catalogMediaKindFromValue(entry.catalogItem?.kind),
+    );
+    if (projection == null) {
+      return clzFriendly ? const [''] : const [];
+    }
+    final cells = projection.ownedCellsBeforeQuantity(
+      entry,
+      clzFriendly: clzFriendly,
+    );
+    return cells;
+  }
+
+  List<String> _kindOwnedCellsAfterIndex(
+    ShelfEntry entry, {
+    required bool clzFriendly,
+  }) {
+    final projection = libraryCollectionCsvProjectionForKind(
+      catalogMediaKindFromValue(entry.catalogItem?.kind),
+    );
+    if (projection == null) {
+      return List<String>.filled(
+        clzFriendly
+            ? libraryCollectionCsvOwnedCellCount - 1
+            : libraryCollectionCsvOwnedCellCount,
+        '',
+      );
+    }
+    final beforeQuantity = projection.ownedCellsBeforeQuantity(
+      entry,
+      clzFriendly: clzFriendly,
+    );
+    final cells = projection.ownedCellsAfterIndex(
+      entry,
+      clzFriendly: clzFriendly,
+    );
+    if (beforeQuantity.length + cells.length !=
+        libraryCollectionCsvOwnedCellCount) {
+      throw StateError(
+        'Collection CSV owned projection for ${projection.kind.apiValue} '
+        'returned ${beforeQuantity.length + cells.length} cells; expected '
+        '$libraryCollectionCsvOwnedCellCount.',
+      );
+    }
+    return cells;
+  }
+
   List<String> _entryToRow(
     ShelfEntry entry, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
@@ -348,8 +416,6 @@ class CollectionCsv {
         ? _customFieldCells(
             o.id, customFieldDefinitions, customFieldValuesByItem)
         : List.filled(customFieldDefinitions.length, '');
-    final details = o?.details;
-    final comic = details is ComicOwnedDetails ? details : null;
     return [
       ..._catalogFields(entry),
       _status(entry),
@@ -362,15 +428,7 @@ class CollectionCsv {
       o?.quantity.toString() ?? '',
       _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
-      comic?.coverPriceCents?.toString() ?? '',
-      comic?.rawOrSlabbed ?? '',
-      comic?.gradingCompany ?? '',
-      comic?.graderNotes ?? '',
-      comic?.signedBy ?? '',
-      comic?.labelType ?? '',
-      comic?.certificationNumber ?? '',
-      comic == null ? '' : comic.keyComic.toString(),
-      comic?.keyReason ?? '',
+      ..._kindOwnedCellsAfterIndex(entry, clzFriendly: false),
       o?.rating?.toString() ?? '',
       o?.readStatus ?? '',
       _formatDate(o?.startedAt),
@@ -389,8 +447,6 @@ class CollectionCsv {
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
     final o = entry.ownedItem;
-    final details = o?.details;
-    final comic = details is ComicOwnedDetails ? details : null;
     final cfValues = o != null
         ? _customFieldCells(
             o.id, customFieldDefinitions, customFieldValuesByItem)
@@ -403,18 +459,11 @@ class CollectionCsv {
       _formatDate(o?.purchaseDate),
       _formatMoney(o?.pricePaidCents),
       o?.currency ?? entry.wishlistItem?.currency ?? '',
-      _formatMoney(comic?.coverPriceCents),
+      ..._kindOwnedCellsBeforeQuantity(entry, clzFriendly: true),
       o?.quantity.toString() ?? '',
       _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
-      comic?.rawOrSlabbed ?? '',
-      comic?.gradingCompany ?? '',
-      comic?.graderNotes ?? '',
-      comic?.signedBy ?? '',
-      comic?.labelType ?? '',
-      comic?.certificationNumber ?? '',
-      comic == null ? '' : comic.keyComic.toString(),
-      comic?.keyReason ?? '',
+      ..._kindOwnedCellsAfterIndex(entry, clzFriendly: true),
       o?.rating?.toString() ?? '',
       o?.readStatus ?? '',
       _formatDate(o?.startedAt),

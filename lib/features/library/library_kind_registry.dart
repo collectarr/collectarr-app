@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
+import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
+import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,6 +50,20 @@ final class LibraryKindRegistry {
 }
 
 final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
+
+final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
+    _collectionCsvProjections = {
+  CatalogMediaKind.comic: const ComicCollectionCsvProjection(),
+};
+
+/// Returns the kind-owned semantic CSV contribution for a serialization
+/// boundary. The generic Collection feature receives cells only; it never
+/// inspects Comic or another kind's domain fields.
+LibraryCollectionCsvProjection? libraryCollectionCsvProjectionForKind(
+  CatalogMediaKind kind,
+) {
+  return _collectionCsvProjections[kind];
+}
 
 final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {
   return defaultLibraryKindRegistry;
