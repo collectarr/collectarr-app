@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:flutter/material.dart';
 
 class MultiSelectPickListField extends StatelessWidget {

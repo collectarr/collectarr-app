@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 

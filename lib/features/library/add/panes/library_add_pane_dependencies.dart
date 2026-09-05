@@ -20,7 +20,7 @@ export 'package:collectarr_app/features/library/config/physical_media_formats.da
 export 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 export 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 export 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
-export 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+export 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 export 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 export 'package:collectarr_app/features/library/library_kind_registry.dart';
 export 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
