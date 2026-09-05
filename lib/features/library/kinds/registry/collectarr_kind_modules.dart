@@ -135,6 +135,20 @@ final class _RuntimeLibraryKindRegistration implements LibraryKindRegistration {
       request: request.copyWith(scope: LibraryEditScope.release),
     );
   }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    // The current editor renders owned details as part of its all-scope
+    // session. Keep this as a dedicated dispatch entry point so the boundary
+    // can evolve to a kind-owned owned editor without widening the registry.
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: LibraryEditScope.all),
+    );
+  }
 }
 
 final _registrationTemplates = <_RuntimeLibraryKindRegistration>[

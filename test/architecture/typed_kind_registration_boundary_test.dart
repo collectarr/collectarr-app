@@ -19,6 +19,7 @@ void main() {
     expect(source, contains('buildAdd'));
     expect(source, contains('openMediaEdit'));
     expect(source, contains('openReleaseEdit'));
+    expect(source, contains('openOwnedEdit'));
   });
 
   test('page dispatch has no concrete-kind switch or imports', () {

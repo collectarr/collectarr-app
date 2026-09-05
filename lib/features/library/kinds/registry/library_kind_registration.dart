@@ -30,4 +30,9 @@ abstract interface class LibraryKindRegistration {
     required BuildContext context,
     required LibraryEditDialogRequest request,
   });
+
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  });
 }
