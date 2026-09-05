@@ -152,7 +152,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     final item = await showDialog<CatalogItem>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
-        type: comicKindModule,
+        type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
         row: row,
       ),
     );
@@ -193,7 +193,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
-          comicKindModule,
+          libraryKindRuntimeForKind(CatalogMediaKind.comic),
           row,
           limit: 5,
         );
@@ -329,7 +329,11 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       _error = null;
     });
     try {
-      final type = ref.read(resolvedLibraryTypeProvider(comicKindModule));
+      final type = ref.read(
+        resolvedLibraryTypeProvider(
+          libraryKindRuntimeForKind(CatalogMediaKind.comic),
+        ),
+      );
       final response = await createLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
         type: type,

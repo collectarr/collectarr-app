@@ -1,4 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
+import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -78,4 +81,14 @@ bool libraryGroupModeSupportsCompletion(
   return type.groupModeSupportsCompletion(
     type.fields.decodeGroupId(groupMode),
   );
+}
+
+/// Composition-root contributions exposed to generic feature hosts.
+///
+/// The registry may assemble kind implementations; callers receive only the
+/// structural artifact contract and never import a concrete kind.
+List<ExportPreviewArtifact> libraryExportPreviewArtifacts(
+  Iterable<ShelfEntry> entries,
+) {
+  return comicInfoExportPreviews(entries);
 }
