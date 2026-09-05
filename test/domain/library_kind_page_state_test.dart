@@ -219,7 +219,9 @@ void main() {
       () {
     expect(
       buildLibraryKindPage(
-        type: defaultLibraryKindRegistry.require(CatalogMediaKind.comic),
+        registration: libraryKindRegistrationForRuntime(
+          defaultLibraryKindRegistry.require(CatalogMediaKind.comic),
+        ),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/comic'),
@@ -228,7 +230,9 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: defaultLibraryKindRegistry.require(CatalogMediaKind.movie),
+        registration: libraryKindRegistrationForRuntime(
+          defaultLibraryKindRegistry.require(CatalogMediaKind.movie),
+        ),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/movie'),
@@ -237,7 +241,9 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: defaultLibraryKindRegistry.require(CatalogMediaKind.tv),
+        registration: libraryKindRegistrationForRuntime(
+          defaultLibraryKindRegistry.require(CatalogMediaKind.tv),
+        ),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/tv'),
@@ -246,7 +252,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: genericKindModule,
+        registration: libraryKindRegistrationForRuntime(genericKindModule),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/unknown'),
