@@ -1,9 +1,13 @@
+import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/anime/activity/anime_activity_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/barcode/anime_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/barcode/boardgame_barcode_resolver.dart';
@@ -23,6 +27,7 @@ import 'package:collectarr_app/features/library/kinds/comic/barcode/comic_barcod
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_collection_shelf_extension.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/tv/activity/tv_activity_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/barcode/tv_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
@@ -102,6 +107,52 @@ LibraryCalendarContributor? libraryCalendarContributorForKind(
   CatalogMediaKind kind,
 ) {
   return _calendarContributors[kind];
+}
+
+final Map<CatalogMediaKind, LibraryActivityContributor> _activityContributors =
+    Map.unmodifiable({
+  CatalogMediaKind.anime: const AnimeActivityContributor(),
+  CatalogMediaKind.tv: const TvActivityContributor(),
+});
+
+Iterable<LibraryActivityContributor> get libraryActivityContributors =>
+    _activityContributors.values;
+
+LibraryActivityContributor? libraryActivityContributorForKind(
+  CatalogMediaKind kind,
+) {
+  return _activityContributors[kind];
+}
+
+/// Projects watch sessions through their owning kind. Sessions for kinds
+/// without a semantic contributor still produce a generic watched event, but
+/// no kind-owned coordinates are inspected here.
+Iterable<ActivityEvent> libraryActivityEventsForWatchSessions(
+  Iterable<WatchSession> sessions,
+) sync* {
+  final byKind = <CatalogMediaKind, List<WatchSession>>{};
+  for (final session in sessions) {
+    byKind.putIfAbsent(session.targetRef.mediaKind, () => []).add(session);
+  }
+
+  for (final entry in byKind.entries) {
+    final contributor = libraryActivityContributorForKind(entry.key);
+    if (contributor != null) {
+      yield* contributor.contribute(
+        LibraryActivityContext(watchSessions: entry.value),
+      );
+      continue;
+    }
+    for (final session in entry.value) {
+      if (session.isDeleted) continue;
+      yield ActivityEvent(
+        kind: ActivityEventKind.watched,
+        timestamp: session.watchedAt,
+        sourceId: session.id,
+        rating: session.rating,
+      );
+    }
+  }
 }
 
 final Map<CatalogMediaKind, LibraryBarcodeResolver> _barcodeResolvers =

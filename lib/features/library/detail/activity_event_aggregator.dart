@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 
 /// Aggregates [ActivityEvent]s for a single catalog item from the various
@@ -14,9 +13,9 @@ class ActivityEventAggregator {
   static List<ActivityEvent> aggregate({
     required List<OwnedItem> ownedItems,
     required List<TrackingEntry> trackingEntries,
-    required List<WatchSession> watchSessions,
     required List<WishlistItem> wishlistItems,
     required List<Loan> loans,
+    Iterable<ActivityEvent> kindEvents = const <ActivityEvent>[],
   }) {
     final events = <ActivityEvent>[];
 
@@ -117,20 +116,8 @@ class ActivityEventAggregator {
       }
     }
 
-    // --- Watch sessions ---
-    for (final session in watchSessions) {
-      if (session.isDeleted) continue;
-
-      final epStr = session.isEpisodeSession
-          ? 'S${session.seasonNumber}E${session.episodeNumber}'
-          : null;
-      events.add(ActivityEvent(
-        kind: ActivityEventKind.watched,
-        timestamp: session.watchedAt,
-        detail: epStr,
-        rating: session.rating,
-      ));
-    }
+    // Kind-owned activity projections (for example TV/Anime episode labels).
+    events.addAll(kindEvents);
 
     // --- Wishlist events ---
     for (final wish in wishlistItems) {

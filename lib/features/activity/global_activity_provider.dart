@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/detail/activity_event_aggregator.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -81,9 +82,11 @@ final globalActivityProvider =
     final events = ActivityEventAggregator.aggregate(
       ownedItems: ownedByItem[itemId] ?? const <OwnedItem>[],
       trackingEntries: trackingByItem[itemId] ?? const <TrackingEntry>[],
-      watchSessions: watchByItem[itemId] ?? const <WatchSession>[],
       wishlistItems: wishlistByItem[itemId] ?? const <WishlistItem>[],
       loans: loansByItem[itemId] ?? const <Loan>[],
+      kindEvents: libraryActivityEventsForWatchSessions(
+        watchByItem[itemId] ?? const <WatchSession>[],
+      ),
     );
     final item = catalog[itemId];
     final title = item?.title ?? 'Unknown item';

@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/detail/activity_event_aggregator.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -92,9 +93,9 @@ class _ActivityTimelineSectionState
     final events = ActivityEventAggregator.aggregate(
       ownedItems: ownedItems,
       trackingEntries: trackingEntries,
-      watchSessions: watchSessions,
       wishlistItems: wishlistItems,
       loans: _loans ?? const [],
+      kindEvents: libraryActivityEventsForWatchSessions(watchSessions),
     );
 
     return DecoratedBox(
