@@ -36,7 +36,6 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracki
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit_mutations.dart';
 
 final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));
@@ -188,15 +187,6 @@ final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
     watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
     ownedItems: ref.watch(ownedItemsCacheRepositoryProvider),
-    syncQueue: ref.watch(syncQueueRepositoryProvider),
-    mutationRunner: ref.watch(collectionMutationRunnerProvider),
-  );
-});
-
-final tvTrackingUnitMutationsProvider =
-    Provider<TvTrackingUnitMutations>((ref) {
-  return TvTrackingUnitMutations(
-    trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
