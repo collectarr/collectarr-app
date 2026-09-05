@@ -1,9 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -166,5 +171,188 @@ void main() {
       columns.map((row) => row.data['name']),
       isNot(contains('season_number')),
     );
+  });
+
+  test('routes watch sessions to the TV and Anime owner tables', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = WatchSessionsCacheRepository(db);
+    final now = DateTime.utc(2026, 9, 5);
+
+    await repository.upsertAll([
+      WatchSession(
+        id: 'tv-session-1',
+        targetRef: const CatalogEntityRef(
+          kind: 'tv',
+          entityType: CatalogEntityType.work,
+          id: 'tv-1',
+        ),
+        seasonNumber: 1,
+        episodeNumber: 2,
+        watchedAt: now,
+        updatedAt: now,
+      ),
+      WatchSession(
+        id: 'anime-session-1',
+        targetRef: const CatalogEntityRef(
+          kind: 'anime',
+          entityType: CatalogEntityType.work,
+          id: 'anime-1',
+        ),
+        seasonNumber: 1,
+        episodeNumber: 3,
+        watchedAt: now,
+        updatedAt: now,
+      ),
+    ]);
+
+    expect(await db.select(db.tvWatchSessionRows).get(), hasLength(1));
+    expect(await db.select(db.animeWatchSessionRows).get(), hasLength(1));
+    expect(await repository.listActiveByItemId('tv-1'), hasLength(1));
+    expect(
+      (await repository.listActiveByItemId('anime-1')).single.targetRef.kind,
+      'anime',
+    );
+  });
+
+  test('routes custom episodes to the TV and Anime owner tables', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = CustomEpisodesCacheRepository(db);
+    final now = DateTime.utc(2026, 9, 5);
+
+    await repository.upsertAll([
+      CustomEpisode(
+        id: 'tv-custom-1',
+        seriesRef: const CatalogEntityRef(
+          kind: 'tv',
+          entityType: CatalogEntityType.work,
+          id: 'tv-1',
+        ),
+        seasonNumber: 1,
+        episodeNumber: 9,
+        title: 'TV special',
+        updatedAt: now,
+      ),
+      CustomEpisode(
+        id: 'anime-custom-1',
+        seriesRef: const CatalogEntityRef(
+          kind: 'anime',
+          entityType: CatalogEntityType.work,
+          id: 'anime-1',
+        ),
+        seasonNumber: 2,
+        episodeNumber: 5,
+        title: 'Anime special',
+        updatedAt: now,
+      ),
+    ]);
+
+    expect(await db.select(db.tvCustomEpisodeRows).get(), hasLength(1));
+    expect(await db.select(db.animeCustomEpisodeRows).get(), hasLength(1));
+    expect(
+      (await repository.findById('anime-custom-1'))?.seriesRef.kind,
+      'anime',
+    );
+  });
+
+  test('migrates legacy watch and custom episode rows to typed owners',
+      () async {
+    final directory = await Directory.systemTemp.createTemp(
+      'collectarr_video_personal_v24',
+    );
+    addTearDown(() => directory.delete(recursive: true));
+    final file = File('${directory.path}/cache.sqlite');
+
+    final old = LocalDatabase(NativeDatabase(file));
+    await old.customStatement('DROP TABLE anime_watch_session_rows');
+    await old.customStatement('DROP TABLE anime_custom_episode_rows');
+    await old.customStatement('''
+      CREATE TABLE watch_sessions_cache (
+        id TEXT NOT NULL PRIMARY KEY,
+        item_id TEXT NOT NULL,
+        target_ref_json TEXT,
+        tracking_entry_id TEXT,
+        season_number INTEGER,
+        episode_number INTEGER,
+        source_type TEXT,
+        seen_where TEXT,
+        watched_at INTEGER NOT NULL,
+        rating INTEGER,
+        notes TEXT,
+        updated_at INTEGER NOT NULL,
+        deleted_at INTEGER
+      )
+    ''');
+    await old.customStatement('''
+      CREATE TABLE custom_episodes_cache (
+        id TEXT NOT NULL PRIMARY KEY,
+        item_id TEXT NOT NULL,
+        season_number INTEGER NOT NULL,
+        episode_number INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        overview TEXT,
+        air_date TEXT,
+        runtime_minutes INTEGER,
+        still_image_url TEXT,
+        local_image_path TEXT,
+        thumbnail_image_url TEXT,
+        updated_at INTEGER NOT NULL,
+        deleted_at INTEGER
+      )
+    ''');
+    await old.customStatement(
+      'INSERT INTO watch_sessions_cache '
+      '(id, item_id, target_ref_json, season_number, episode_number, '
+      'watched_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [
+        'legacy-anime-session',
+        'anime-legacy',
+        jsonEncode({
+          'kind': 'anime',
+          'entity_type': 'work',
+          'id': 'anime-legacy',
+        }),
+        1,
+        6,
+        1000,
+        1000,
+      ],
+    );
+    await old.customStatement(
+      'INSERT INTO custom_episodes_cache '
+      '(id, item_id, season_number, episode_number, title, air_date, '
+      'updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [
+        'legacy-custom',
+        'tv-legacy',
+        2,
+        8,
+        'Legacy special',
+        '2026-09-05',
+        1000,
+      ],
+    );
+    await old.customStatement('PRAGMA user_version = 24');
+    await old.close();
+
+    final db = LocalDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+    final sessions = WatchSessionsCacheRepository(db);
+    final episodes = CustomEpisodesCacheRepository(db);
+
+    expect((await sessions.findById('legacy-anime-session'))?.targetRef.kind,
+        'anime');
+    expect((await episodes.findById('legacy-custom'))?.title, 'Legacy special');
+    expect(await db.select(db.animeWatchSessionRows).get(), hasLength(1));
+    expect(await db.select(db.tvCustomEpisodeRows).get(), hasLength(1));
+    final tableNames = (await db
+            .customSelect(
+              "SELECT name FROM sqlite_master WHERE type = 'table'",
+            )
+            .get())
+        .map((row) => row.data['name']);
+    expect(tableNames, isNot(contains('watch_sessions_cache')));
+    expect(tableNames, isNot(contains('custom_episodes_cache')));
   });
 }

@@ -106,3 +106,42 @@ class AnimeTrackingUnitRows extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+class AnimeWatchSessionRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get seriesId => text()();
+  TextColumn get episodeId => text().nullable()();
+  TextColumn get targetRefJson => text().nullable()();
+  TextColumn get trackingEntryId => text().nullable()();
+  IntColumn get seasonNumber => integer().nullable()();
+  IntColumn get episodeNumber => integer().nullable()();
+  TextColumn get sourceType => text().nullable()();
+  TextColumn get seenWhere => text().nullable()();
+  DateTimeColumn get watchedAt => dateTime()();
+  IntColumn get rating => integer().nullable()();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class AnimeCustomEpisodeRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get seriesId => text()();
+  IntColumn get seasonNumber => integer()();
+  IntColumn get episodeNumber => integer()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  DateTimeColumn get airDate => dateTime().nullable()();
+  IntColumn get runtimeMinutes => integer().nullable()();
+  TextColumn get stillImageUrl => text().nullable()();
+  TextColumn get localImagePath => text().nullable()();
+  TextColumn get thumbnailImageUrl => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

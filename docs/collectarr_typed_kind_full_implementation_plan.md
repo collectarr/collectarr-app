@@ -2068,6 +2068,13 @@ issueNumber
 
 Kind tables instead.
 
+### Status (2026-09-05)
+
+Complete. `TrackingUnit` now contains only shared identity and lifecycle
+fields. TV/Anime, Book/Manga, and Comic coordinate data is persisted in
+kind-owned tables with a v23-to-v24 migration for existing rows.
+Continue with PR77.
+
 ---
 
 ## PR 77 — TV/Anime watch storage split
@@ -2082,6 +2089,13 @@ CustomEpisodes
 to actual owners.
 
 Duplicate between TV/Anime if semantics differ.
+
+### Status (2026-09-05)
+
+Complete. The generic watch-session and custom-episode tables are removed.
+TV uses its typed tables, Anime has dedicated typed tables, and v24-to-v25
+migration preserves legacy rows before dropping the generic tables.
+Continue with PR78.
 
 ---
 

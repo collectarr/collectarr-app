@@ -1,110 +1,79 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:drift/drift.dart';
 
+/// Compatibility facade over the TV and Anime-owned custom-episode tables.
 class CustomEpisodesCacheRepository {
   CustomEpisodesCacheRepository(this._db);
 
   final LocalDatabase _db;
 
-  /// All active (non-deleted) custom episodes for a specific item.
   Future<List<CustomEpisode>> listByItemId(String itemId) async {
-    final query = _db.select(_db.customEpisodesCache)
-      ..where((t) => t.itemId.equals(itemId) & t.deletedAt.isNull())
-      ..orderBy([
-        (t) => OrderingTerm.asc(t.seasonNumber),
-        (t) => OrderingTerm.asc(t.episodeNumber),
-      ]);
-    return (await query.get()).map(_fromRow).toList();
+    final tvRows = await (_db.select(_db.tvCustomEpisodeRows)
+          ..where(
+            (row) => row.seriesId.equals(itemId) & row.deletedAt.isNull(),
+          ))
+        .get();
+    final animeRows = await (_db.select(_db.animeCustomEpisodeRows)
+          ..where(
+            (row) => row.seriesId.equals(itemId) & row.deletedAt.isNull(),
+          ))
+        .get();
+    final episodes = [
+      ...tvRows.map(_fromTvRow),
+      ...animeRows.map(_fromAnimeRow),
+    ]..sort(_compareEpisodes);
+    return episodes;
   }
 
-  /// All active custom episodes grouped by season number.
   Future<Map<int, List<CustomEpisode>>> listByItemIdGrouped(
     String itemId,
   ) async {
     final episodes = await listByItemId(itemId);
     final grouped = <int, List<CustomEpisode>>{};
-    for (final ep in episodes) {
-      grouped.putIfAbsent(ep.seasonNumber, () => <CustomEpisode>[]).add(ep);
+    for (final episode in episodes) {
+      grouped.putIfAbsent(episode.seasonNumber, () => <CustomEpisode>[]).add(
+            episode,
+          );
     }
     return grouped;
   }
 
-  /// All active custom episodes.
   Future<List<CustomEpisode>> listActive() async {
-    final query = _db.select(_db.customEpisodesCache)
-      ..where((t) => t.deletedAt.isNull())
-      ..orderBy([
-        (t) => OrderingTerm.asc(t.itemId),
-        (t) => OrderingTerm.asc(t.seasonNumber),
-        (t) => OrderingTerm.asc(t.episodeNumber),
-      ]);
-    return (await query.get()).map(_fromRow).toList();
+    final tvRows = await (_db.select(_db.tvCustomEpisodeRows)
+          ..where((row) => row.deletedAt.isNull()))
+        .get();
+    final animeRows = await (_db.select(_db.animeCustomEpisodeRows)
+          ..where((row) => row.deletedAt.isNull()))
+        .get();
+    final episodes = [
+      ...tvRows.map(_fromTvRow),
+      ...animeRows.map(_fromAnimeRow),
+    ]..sort(_compareEpisodes);
+    return episodes;
   }
 
   Future<CustomEpisode?> findById(String id) async {
-    final query = _db.select(_db.customEpisodesCache)
-      ..where((t) => t.id.equals(id));
-    final row = await query.getSingleOrNull();
-    return row == null ? null : _fromRow(row);
+    final tvRow = await (_db.select(_db.tvCustomEpisodeRows)
+          ..where((row) => row.id.equals(id)))
+        .getSingleOrNull();
+    if (tvRow != null) return _fromTvRow(tvRow);
+    final animeRow = await (_db.select(_db.animeCustomEpisodeRows)
+          ..where((row) => row.id.equals(id)))
+        .getSingleOrNull();
+    return animeRow == null ? null : _fromAnimeRow(animeRow);
   }
 
-  Future<void> upsert(CustomEpisode episode) {
-    return _db.into(_db.customEpisodesCache).insertOnConflictUpdate(
-          CustomEpisodesCacheCompanion.insert(
-            id: episode.id,
-            itemId: episode.itemId,
-            seasonNumber: episode.seasonNumber,
-            episodeNumber: episode.episodeNumber,
-            title: episode.title,
-            overview: Value(episode.overview),
-            airDate: Value(episode.airDate),
-            runtimeMinutes: Value(episode.runtimeMinutes),
-            stillImageUrl: Value(episode.stillImageUrl),
-            localImagePath: Value(episode.localImagePath),
-            thumbnailImageUrl: Value(episode.thumbnailImageUrl),
-            updatedAt: episode.updatedAt,
-            deletedAt: Value(episode.deletedAt),
-          ),
-        );
+  Future<void> upsert(CustomEpisode episode) async {
+    await _db.transaction(() => _upsert(episode));
   }
 
   Future<void> upsertAll(List<CustomEpisode> episodes) async {
-    await _db.batch((batch) {
+    if (episodes.isEmpty) return;
+    await _db.transaction(() async {
       for (final episode in episodes) {
-        batch.insert(
-          _db.customEpisodesCache,
-          CustomEpisodesCacheCompanion.insert(
-            id: episode.id,
-            itemId: episode.itemId,
-            seasonNumber: episode.seasonNumber,
-            episodeNumber: episode.episodeNumber,
-            title: episode.title,
-            overview: Value(episode.overview),
-            airDate: Value(episode.airDate),
-            runtimeMinutes: Value(episode.runtimeMinutes),
-            stillImageUrl: Value(episode.stillImageUrl),
-            localImagePath: Value(episode.localImagePath),
-            thumbnailImageUrl: Value(episode.thumbnailImageUrl),
-            updatedAt: episode.updatedAt,
-            deletedAt: Value(episode.deletedAt),
-          ),
-          onConflict: DoUpdate((_) => CustomEpisodesCacheCompanion(
-                itemId: Value(episode.itemId),
-                seasonNumber: Value(episode.seasonNumber),
-                episodeNumber: Value(episode.episodeNumber),
-                title: Value(episode.title),
-                overview: Value(episode.overview),
-                airDate: Value(episode.airDate),
-                runtimeMinutes: Value(episode.runtimeMinutes),
-                stillImageUrl: Value(episode.stillImageUrl),
-                localImagePath: Value(episode.localImagePath),
-                thumbnailImageUrl: Value(episode.thumbnailImageUrl),
-                updatedAt: Value(episode.updatedAt),
-                deletedAt: Value(episode.deletedAt),
-              )),
-        );
+        await _upsert(episode);
       }
     });
   }
@@ -113,19 +82,66 @@ class CustomEpisodesCacheRepository {
     return upsert(episode.copyWith(deletedAt: now, updatedAt: now));
   }
 
-  CustomEpisode _fromRow(CustomEpisodesCacheData row) {
+  Future<void> _upsert(CustomEpisode episode) {
+    if (episode.seriesRef.kind == 'anime') {
+      return _db
+          .into(_db.animeCustomEpisodeRows)
+          .insertOnConflictUpdate(_toAnimeCompanion(episode));
+    }
+    return _db
+        .into(_db.tvCustomEpisodeRows)
+        .insertOnConflictUpdate(_toTvCompanion(episode));
+  }
+
+  AnimeCustomEpisodeRowsCompanion _toAnimeCompanion(CustomEpisode episode) {
+    return AnimeCustomEpisodeRowsCompanion.insert(
+      id: episode.id,
+      seriesId: episode.itemId,
+      seasonNumber: episode.seasonNumber,
+      episodeNumber: episode.episodeNumber,
+      title: episode.title,
+      description: Value(episode.overview),
+      airDate: Value(_parseDate(episode.airDate)),
+      runtimeMinutes: Value(episode.runtimeMinutes),
+      stillImageUrl: Value(episode.stillImageUrl),
+      localImagePath: Value(episode.localImagePath),
+      thumbnailImageUrl: Value(episode.thumbnailImageUrl),
+      updatedAt: episode.updatedAt,
+      deletedAt: Value(episode.deletedAt),
+    );
+  }
+
+  TvCustomEpisodeRowsCompanion _toTvCompanion(CustomEpisode episode) {
+    return TvCustomEpisodeRowsCompanion.insert(
+      id: episode.id,
+      seriesId: episode.itemId,
+      seasonNumber: episode.seasonNumber,
+      episodeNumber: episode.episodeNumber,
+      title: episode.title,
+      description: Value(episode.overview),
+      airDate: Value(_parseDate(episode.airDate)),
+      runtimeMinutes: Value(episode.runtimeMinutes),
+      stillImageUrl: Value(episode.stillImageUrl),
+      localImagePath: Value(episode.localImagePath),
+      thumbnailImageUrl: Value(episode.thumbnailImageUrl),
+      updatedAt: episode.updatedAt,
+      deletedAt: Value(episode.deletedAt),
+    );
+  }
+
+  CustomEpisode _fromTvRow(TvCustomEpisodeRow row) {
     return CustomEpisode(
       id: row.id,
       seriesRef: CatalogEntityRef(
         kind: 'tv',
         entityType: CatalogEntityType.work,
-        id: row.itemId,
+        id: row.seriesId,
       ),
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
       title: row.title,
-      overview: row.overview,
-      airDate: row.airDate,
+      overview: row.description,
+      airDate: _formatDate(row.airDate),
       runtimeMinutes: row.runtimeMinutes,
       stillImageUrl: row.stillImageUrl,
       localImagePath: row.localImagePath,
@@ -134,4 +150,41 @@ class CustomEpisodesCacheRepository {
       deletedAt: row.deletedAt,
     );
   }
+
+  CustomEpisode _fromAnimeRow(AnimeCustomEpisodeRow row) {
+    return CustomEpisode(
+      id: row.id,
+      seriesRef: CatalogEntityRef(
+        kind: 'anime',
+        entityType: CatalogEntityType.work,
+        id: row.seriesId,
+      ),
+      seasonNumber: row.seasonNumber,
+      episodeNumber: row.episodeNumber,
+      title: row.title,
+      overview: row.description,
+      airDate: _formatDate(row.airDate),
+      runtimeMinutes: row.runtimeMinutes,
+      stillImageUrl: row.stillImageUrl,
+      localImagePath: row.localImagePath,
+      thumbnailImageUrl: row.thumbnailImageUrl,
+      updatedAt: row.updatedAt,
+      deletedAt: row.deletedAt,
+    );
+  }
+
+  static int _compareEpisodes(CustomEpisode a, CustomEpisode b) {
+    final item = a.itemId.compareTo(b.itemId);
+    if (item != 0) return item;
+    final season = a.seasonNumber.compareTo(b.seasonNumber);
+    if (season != 0) return season;
+    return a.episodeNumber.compareTo(b.episodeNumber);
+  }
 }
+
+DateTime? _parseDate(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  return DateTime.tryParse(value);
+}
+
+String? _formatDate(DateTime? value) => value?.toIso8601String();

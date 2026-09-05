@@ -175,25 +175,6 @@ class TrackingUnitsCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-class WatchSessionsCache extends Table {
-  TextColumn get id => text()();
-  TextColumn get itemId => text()();
-  TextColumn get targetRefJson => text().nullable()();
-  TextColumn get trackingEntryId => text().nullable()();
-  IntColumn get seasonNumber => integer().nullable()();
-  IntColumn get episodeNumber => integer().nullable()();
-  TextColumn get sourceType => text().nullable()();
-  TextColumn get seenWhere => text().nullable()();
-  DateTimeColumn get watchedAt => dateTime()();
-  IntColumn get rating => integer().nullable()();
-  TextColumn get notes => text().nullable()();
-  DateTimeColumn get updatedAt => dateTime()();
-  DateTimeColumn get deletedAt => dateTime().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
 class SyncQueue extends Table {
   TextColumn get id => text()();
   TextColumn get entityType => text()();
@@ -214,25 +195,6 @@ class UserMetadataOverridesCache extends Table {
   TextColumn get fieldPath => text()();
   TextColumn get originalValue => text().nullable()();
   TextColumn get overrideValue => text()();
-  DateTimeColumn get updatedAt => dateTime()();
-  DateTimeColumn get deletedAt => dateTime().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-class CustomEpisodesCache extends Table {
-  TextColumn get id => text()();
-  TextColumn get itemId => text()();
-  IntColumn get seasonNumber => integer()();
-  IntColumn get episodeNumber => integer()();
-  TextColumn get title => text()();
-  TextColumn get overview => text().nullable()();
-  TextColumn get airDate => text().nullable()();
-  IntColumn get runtimeMinutes => integer().nullable()();
-  TextColumn get stillImageUrl => text().nullable()();
-  TextColumn get localImagePath => text().nullable()();
-  TextColumn get thumbnailImageUrl => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
@@ -370,10 +332,8 @@ class ProviderItemLinksCache extends Table {
   WishlistItemsCache,
   TrackingEntriesCache,
   TrackingUnitsCache,
-  WatchSessionsCache,
   SyncQueue,
   UserMetadataOverridesCache,
-  CustomEpisodesCache,
   UserExternalLinksCache,
   CustomFieldDefinitionsCache,
   CustomFieldValuesCache,
@@ -423,6 +383,8 @@ class ProviderItemLinksCache extends Table {
   AnimeOwnedDetailsRows,
   AnimeTrackingRows,
   AnimeTrackingUnitRows,
+  AnimeWatchSessionRows,
+  AnimeCustomEpisodeRows,
   ComicTrackingUnitRows,
   MangaTrackingUnitRows,
   BookTrackingUnitRows,
@@ -436,7 +398,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration {
@@ -537,6 +499,9 @@ class LocalDatabase extends _$LocalDatabase {
         }
         if (from < 24) {
           await _migrateTrackingUnits(m);
+        }
+        if (from < 25) {
+          await _migrateVideoPersonalRows(m);
         }
       },
       beforeOpen: (details) async {
@@ -738,6 +703,143 @@ class LocalDatabase extends _$LocalDatabase {
       int value => value,
       num value => value.toInt(),
       String value => int.tryParse(value),
+      _ => null,
+    };
+  }
+
+  Future<void> _migrateVideoPersonalRows(Migrator m) async {
+    await m.createTable(animeWatchSessionRows);
+    await m.createTable(animeCustomEpisodeRows);
+
+    if (await _hasTable('watch_sessions_cache')) {
+      final rows =
+          await customSelect('SELECT * FROM watch_sessions_cache').get();
+      for (final row in rows) {
+        final data = row.data;
+        final id = data['id']?.toString();
+        final itemId = data['item_id']?.toString();
+        if (id == null || itemId == null) {
+          continue;
+        }
+        final targetRef = _legacyTargetRefJson(
+          data['target_ref_json'],
+          itemId: itemId,
+        );
+        final kind = _legacyTargetKind(
+          data['target_ref_json'],
+        );
+        final table = kind == 'anime'
+            ? animeWatchSessionRows.actualTableName
+            : tvWatchSessionRows.actualTableName;
+        await customStatement(
+          'INSERT OR REPLACE INTO $table '
+          '(id, series_id, episode_id, target_ref_json, tracking_entry_id, '
+          'season_number, episode_number, source_type, seen_where, watched_at, '
+          'rating, notes, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            id,
+            itemId,
+            null,
+            targetRef,
+            data['tracking_entry_id'],
+            _legacyInt(data['season_number']),
+            _legacyInt(data['episode_number']),
+            data['source_type'],
+            data['seen_where'],
+            _legacyDateTimeMillis(data['watched_at']),
+            _legacyInt(data['rating']),
+            data['notes'],
+            _legacyDateTimeMillis(data['updated_at']),
+            _legacyDateTimeMillis(data['deleted_at']),
+          ],
+        );
+      }
+      await customStatement('DROP TABLE watch_sessions_cache');
+    }
+
+    if (await _hasTable('custom_episodes_cache')) {
+      final rows =
+          await customSelect('SELECT * FROM custom_episodes_cache').get();
+      for (final row in rows) {
+        final data = row.data;
+        final id = data['id']?.toString();
+        final itemId = data['item_id']?.toString();
+        if (id == null || itemId == null) {
+          continue;
+        }
+        await customStatement(
+          'INSERT OR REPLACE INTO ${tvCustomEpisodeRows.actualTableName} '
+          '(id, series_id, season_number, episode_number, title, description, '
+          'air_date, runtime_minutes, still_image_url, local_image_path, '
+          'thumbnail_image_url, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            id,
+            itemId,
+            _legacyInt(data['season_number']) ?? 0,
+            _legacyInt(data['episode_number']) ?? 0,
+            data['title']?.toString() ?? 'Untitled episode',
+            data['overview'],
+            _legacyDateTimeMillis(data['air_date']),
+            _legacyInt(data['runtime_minutes']),
+            data['still_image_url'],
+            data['local_image_path'],
+            data['thumbnail_image_url'],
+            _legacyDateTimeMillis(data['updated_at']),
+            _legacyDateTimeMillis(data['deleted_at']),
+          ],
+        );
+      }
+      await customStatement('DROP TABLE custom_episodes_cache');
+    }
+  }
+
+  String _legacyTargetKind(Object? rawJson) {
+    final raw = rawJson?.toString();
+    if (raw == null || raw.isEmpty) {
+      return 'tv';
+    }
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        final kind = decoded['kind']?.toString().trim().toLowerCase();
+        if (kind == 'anime') {
+          return 'anime';
+        }
+      }
+    } on Object {
+      // Malformed legacy refs are retained as a TV fallback below.
+    }
+    return 'tv';
+  }
+
+  String _legacyTargetRefJson(
+    Object? rawJson, {
+    required String itemId,
+  }) {
+    final raw = rawJson?.toString();
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map) {
+          return jsonEncode(Map<String, dynamic>.from(decoded));
+        }
+      } on Object {
+        // Fall through to a valid work reference.
+      }
+    }
+    return jsonEncode({
+      'kind': _legacyTargetKind(rawJson),
+      'entity_type': 'work',
+      'id': itemId,
+    });
+  }
+
+  int? _legacyDateTimeMillis(Object? value) {
+    return switch (value) {
+      int value => value,
+      num value => value.toInt(),
+      DateTime value => value.millisecondsSinceEpoch,
+      String value => DateTime.tryParse(value)?.millisecondsSinceEpoch,
       _ => null,
     };
   }
