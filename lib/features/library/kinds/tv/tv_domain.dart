@@ -4,9 +4,9 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_release.dart';
+import 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/models/catalog/video_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/models/catalog/video_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
@@ -39,9 +39,9 @@ export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_ty
 export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
-export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
-export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_release.dart';
+export 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
+export 'package:collectarr_app/features/library/models/catalog/video_catalog_mapper.dart';
+export 'package:collectarr_app/features/library/models/catalog/video_catalog_release.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_mapper.dart';

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:flutter_test/flutter_test.dart';

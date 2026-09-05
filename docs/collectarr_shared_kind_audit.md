@@ -7,9 +7,6 @@ when their inputs are genuinely owner-neutral.
 
 | File | Classification | PR79 disposition |
 | --- | --- | --- |
-| `video/catalog/video_catalog_item.dart` | DOMAIN MODEL | Move/duplicate into movie/TV/anime |
-| `video/catalog/video_catalog_mapper.dart` | DOMAIN BEHAVIOR | Move provider mapping into owners |
-| `video/catalog/video_catalog_release.dart` | DOMAIN MODEL | Move to video kind owners |
 | `video/detail/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
 | `video/release/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
 | `video/release/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |

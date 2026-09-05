@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_release.dart';
+import 'package:collectarr_app/features/library/models/catalog/video_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/models/catalog/video_catalog_release.dart';
 
 class VideoWorkMetadata {
   const VideoWorkMetadata({

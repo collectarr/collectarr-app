@@ -2249,6 +2249,10 @@ Owner-neutral video Edit controller support, draft contract, edit models,
 helpers, and standard tabs now live under `features/library/edit/video`; only
 TV episodic Edit surfaces remain under a kind module.
 
+The legacy video catalog compatibility models and mapper now live under
+`library/models/catalog`; kind workspace DTOs import that explicit model
+boundary instead of `_shared/video`.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
