@@ -11,7 +11,7 @@ const moviesMetadataLabels = LibraryMetadataLabels(
   values: {'creators': 'Cast & Crew', 'genres': 'Genres'},
 );
 
-const moviesLibraryMediaBuilder = VideoLibraryMediaPresentationBuilder(
+const moviesLibraryMediaBuilder = MovieLibraryMediaPresentationBuilder(
   showSummary: true,
   metadataLabels: moviesMetadataLabels,
 );

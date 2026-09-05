@@ -8,9 +8,9 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
-class VideoLibraryMediaPresentationBuilder
+class LibraryVideoMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
-  const VideoLibraryMediaPresentationBuilder({
+  const LibraryVideoMediaPresentationBuilder({
     this.showSummary = false,
     this.metadataLabels = const LibraryMetadataLabels(),
     this.itemNumberLabel = 'Number',

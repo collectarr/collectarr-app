@@ -2215,6 +2215,9 @@ sit behind a video-kind compatibility barrel.
 The drilldown page state is now a generic kind hierarchy state rather than a
 video shared state; Movie and Anime reuse it through `library/generic`.
 
+The owner-neutral video presentation base now lives under library config
+presentation infrastructure as `LibraryVideoMediaPresentationBuilder`.
+
 The obsolete root video detail compatibility barrel has also been removed;
 remaining callers import the active detail implementation explicitly.
 

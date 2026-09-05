@@ -14,9 +14,9 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-class VideoLibraryMediaPresentationBuilder
+class MovieLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
-  const VideoLibraryMediaPresentationBuilder({
+  const MovieLibraryMediaPresentationBuilder({
     this.showSummary = false,
     this.metadataLabels = const LibraryMetadataLabels(),
   });
