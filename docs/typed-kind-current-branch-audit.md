@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `d892e99e3508150aa48be475fa420d62493da609` (`d892e99e feat(dev): refresh complete typed seed fixtures`)
+HEAD: `8dd0281c` (`refactor(repository): add typed read contract`)
 
 ## Scope and evidence
 
@@ -29,9 +29,9 @@ Status meanings:
 
 | PR | Task | Status | Evidence / remaining boundary |
 |---:|---|---|---|
-| 0 | Branch delta audit | **NOT STARTED** | This audit is the current PR0 deliverable. |
-| 1 | Whole-repository semantic boundary checker baseline | **PARTIAL** | The existing checker scans lib/, but its enforcement and allowlist are still Library/migration scoped. |
-| 2 | Typed reusable contract-test framework | **PARTIAL** | Typed contract tests exist, but the new plan adds domains and requires execution across every applicable kind. |
+| 0 | Branch delta audit | **DONE** | This document records the branch delta, whole-repository baseline, and a status for every PR0-125 task. |
+| 1 | Whole-repository semantic boundary checker baseline | **PARTIAL** | The checker now scans relevant production `lib/**` boundaries and reports the migration baseline; allowlists and current violations still need to shrink. |
+| 2 | Typed reusable contract-test framework | **PARTIAL** | Reusable contracts now cover repository, workspace, Add/Edit, owned, provider, tracking, actions, import/export, calendar, barcode, and overrides; execution is not yet registered for every applicable kind. |
 | 3 | Core DTO adoption checker | **DONE** | Generated-field policies and explicit all-kind contract registrations are present and covered by tests/CI. |
 | 4 | All-kind contract manifest | **DONE** | Generated-field policies and explicit all-kind contract registrations are present and covered by tests/CI. |
 | 5 | Tiny `LibraryKindRegistration` | **PARTIAL** | A registration boundary exists, but the runtime still exposes erased capability/field surfaces. |
@@ -40,7 +40,7 @@ Status meanings:
 | 8 | Declarative Edit renderer | **DONE** | Structural typed schemas and shared renderers exist and are exercised by contract tests. |
 | 9 | Typed structural `AddSchema` | **DONE** | Structural typed schemas and shared renderers exist and are exercised by contract tests. |
 | 10 | Declarative Add renderer | **DONE** | Structural typed schemas and shared renderers exist and are exercised by contract tests. |
-| 11 | Introduce typed `UiAction<TContext>` | **NOT STARTED** | No complete structural UiAction/import-export contract and kind-owned action registry is in place. |
+| 11 | Introduce typed `UiAction<TContext>` | **PARTIAL** | Structural `UiAction<TContext>` and placement contract now exist; the existing runtime-backed toolbar descriptors still need migration to kind-owned typed action registries. |
 | 12 | File import/export action contracts | **NOT STARTED** | No complete structural UiAction/import-export contract and kind-owned action registry is in place. |
 | 13 | Action menu host | **NOT STARTED** | No complete structural UiAction/import-export contract and kind-owned action registry is in place. |
 | 14 | Remove canonical common Owned domain | **PARTIAL** | Structural refs and typed tracking pieces exist, but common Owned/TrackingUnit compatibility remains. |
@@ -171,8 +171,8 @@ Status meanings:
 
 ## PR0 conclusion
 
-PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is now implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. Its current failing baseline is 635 AST violations and must shrink in subsequent PRs.
+PR0 is complete as a rebaseline. The branch has substantial prior typed-kind work and the seed fixtures are now coherent, but it is not yet compliant with the new definition of done. PR1 is implemented as a baseline: the checker applies boundary rules across the relevant production `lib/**` surface, skips only explicit generated/composition roots, and keeps migration allowlists visible. PR2-6 added reusable contracts, strict Core field adoption, an explicit nine-kind manifest, an owned-edit registration boundary, and typed read repositories. PR11 now adds the structural action contract. The current checker baseline remains 635 AST violations and must shrink in subsequent migrations.
 
 ## Recommended next PR
 
-`PR2 — Typed reusable contract-test framework`, while shrinking the PR1 baseline in parallel with each migration.
+`PR11 — Migrate existing kind toolbar descriptors to typed action registries`, while shrinking the PR1 baseline in parallel with each migration.

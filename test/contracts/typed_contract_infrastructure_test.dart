@@ -2,7 +2,10 @@ import 'add_contract.dart';
 import 'dart:typed_data';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:collectarr_app/features/library/actions/ui_action.dart';
 
 import 'actions/import_export_contract.dart';
 import 'actions/ui_action_contract.dart';
@@ -227,9 +230,9 @@ class FixtureDto {
     create: _FixtureAction.new,
     id: (action) => action.id,
     label: (action) => action.label,
-    isVisible: (_, __) => true,
-    isEnabled: (_, __) => true,
-    run: (_, __) {},
+    isVisible: (action, context) => action.isVisible(context),
+    isEnabled: (action, context) => action.isEnabled(context),
+    run: (action, context) => action.run(context),
     createContext: () => 'context',
   );
 
@@ -299,11 +302,29 @@ class FixtureDto {
   );
 }
 
-final class _FixtureAction {
+final class _FixtureAction implements UiAction<String> {
   const _FixtureAction();
 
+  @override
   String get id => 'fixture.action';
+
+  @override
   String get label => 'Fixture action';
+
+  @override
+  IconData get icon => Icons.play_arrow;
+
+  @override
+  UiActionPlacement get placement => UiActionPlacement.secondary;
+
+  @override
+  bool isVisible(String context) => context == 'context';
+
+  @override
+  bool isEnabled(String context) => context == 'context';
+
+  @override
+  void run(String context) {}
 }
 
 final class _FixtureImportPreview {
