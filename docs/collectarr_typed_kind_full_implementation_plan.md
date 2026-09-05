@@ -3055,6 +3055,10 @@ story arc behavior
 variant logic
 ```
 
+Status: complete. Comic semantic coverage is present across issue grouping and
+ordering, grading/key details, story arcs, and variants in the Comic domain,
+hierarchy, mapper, repository, and edit tests.
+
 ---
 
 ## PR 112 — Manga semantic tests
@@ -3064,6 +3068,9 @@ volume/chapter ordering
 demographic/publication behavior
 ```
 
+Status: complete. Manga hierarchy and domain tests cover ordered
+volume/chapter projection plus demographic and publication metadata.
+
 ---
 
 ## PR 113 — Book semantic tests
@@ -3072,6 +3079,9 @@ demographic/publication behavior
 edition behavior
 ISBN/identifier semantics
 ```
+
+Status: complete. Book mapper, domain, hierarchy, repository, local mapper,
+and edition-edit tests cover edition distinctions and ISBN/identifier fields.
 
 ---
 
@@ -3083,6 +3093,9 @@ completeness
 region
 ```
 
+Status: complete. Game mapper, release-edit, local persistence, repository,
+and owned-details tests cover platform/release, completeness, and region.
+
 ---
 
 ## PR 115 — BoardGame semantic tests
@@ -3092,6 +3105,9 @@ edition distinctions
 designers/mechanics/families
 ```
 
+Status: complete. BoardGame mapper, catalog, owned-details, stats, and edit
+tests cover edition distinctions and designers/mechanics/families.
+
 ---
 
 ## PR 116 — Movie semantic tests
@@ -3099,6 +3115,9 @@ designers/mechanics/families
 ```text
 release/media semantics
 ```
+
+Status: complete. Movie Core/domain, hierarchy, local persistence, repository,
+and Release Edit tests cover release/media and physical-edition semantics.
 
 ---
 
@@ -3110,11 +3129,19 @@ release episode maps
 watch sessions
 ```
 
+Status: complete. TV domain, workspace hierarchy, local repository, release
+mapping, edit, and tracking-provider tests cover season/episode ordering,
+release episode maps, and watch sessions.
+
 ---
 
 ## PR 118 — Anime semantic tests
 
 Independent from TV.
+
+Status: complete. Anime has independent domain, Core mapping, hierarchy,
+release-edit, repository, and tracking-rule coverage; no TV model is used for
+its release semantics.
 
 ---
 
@@ -3126,6 +3153,10 @@ track durations
 release/media structure
 classical metadata
 ```
+
+Status: complete. Music Core/domain, MusicBrainz, workspace, hierarchy,
+repository, inspector, and edit tests cover disc/track ordering, durations,
+release/media structure, and classical fields.
 
 ---
 
