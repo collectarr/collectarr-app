@@ -35,6 +35,9 @@ jobs:
       - name: Check library kind boundaries
         run: dart run tool/check_library_kind_boundaries.dart
 
+      - name: Verify generated Core DTO field adoption
+        run: flutter test test/contracts/all_core_dto_field_adoption_contract_test.dart
+
       - name: Analyze
         run: flutter analyze --fatal-warnings --fatal-infos
 
