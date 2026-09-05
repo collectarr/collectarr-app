@@ -2257,6 +2257,12 @@ Video release source resolution and release projection capability now live
 under the explicit `features/library/release` subsystem; no release behavior
 remains under `_shared/video`.
 
+The mixed legacy video detail implementation now lives under
+`features/library/detail` as `LibraryVideoDetailPage` and
+`buildLibraryVideoDetailPage`; `_shared` is empty. Its TV-only sections are
+still guarded by the typed kind at runtime and can be split into the TV detail
+module in a follow-up without reintroducing a shared kind boundary.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

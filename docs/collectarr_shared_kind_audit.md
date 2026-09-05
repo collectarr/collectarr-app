@@ -7,18 +7,17 @@ when their inputs are genuinely owner-neutral.
 
 | File | Classification | PR79 disposition |
 | --- | --- | --- |
-| `video/detail/video_detail_page.dart` | DOMAIN BEHAVIOR | Move into explicit library detail infrastructure |
+| _No files remain_ | — | — |
 
 ## Audit outcome
 
-The shared directory contains no persistence or provider implementation that
-is safe to treat as universal merely because it is reused. Release projection
-and source logic now live under the explicit `features/library/release`
-subsystem; the only remaining candidate is the legacy video detail
-implementation. PR79 has already moved TV legacy models, display models,
-physical formats, episodic tracking and progress surfaces, upcoming-episode
-hierarchy, TV Edit episode surfaces, Movie release shelf drilldown, generic Add
-video chrome, generic detail components, catalog compatibility models, and the
-owner-neutral presentation/drilldown primitives out of `_shared/video`.
+The shared directory is now empty. Release projection/source logic and the
+legacy video detail implementation live under explicit library detail/release
+subsystems rather than inside a kind-shared tree. PR79 has moved TV legacy
+models, display models, physical formats, episodic tracking and progress
+surfaces, upcoming-episode hierarchy, TV Edit episode surfaces, Movie release
+shelf drilldown, generic Add video chrome, generic detail components, catalog
+compatibility models, and the owner-neutral presentation/drilldown primitives
+out of `_shared/video`.
 Universal session history now lives under library tracking, while serial
 authority persistence and UI live under explicit catalog/library subsystems.

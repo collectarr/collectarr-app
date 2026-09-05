@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -56,7 +56,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
         ],
         child: MaterialApp(
-          home: VideoLibraryDetailPage(
+          home: LibraryVideoDetailPage(
             request: LibraryDetailPageRequest(
               type: type,
               item: tvItem,

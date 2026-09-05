@@ -28,7 +28,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_bu
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
@@ -205,7 +205,7 @@ void main() {
     );
     expect(tvKindModule.edit.editDialogBuilder, isNotNull);
     expect(tvKindModule.inspector.detailPageBuilder,
-        same(buildVideoLibraryDetailPage));
+        same(buildLibraryVideoDetailPage));
   });
 
   test('tv edit presentation splits media and release tabs', () {

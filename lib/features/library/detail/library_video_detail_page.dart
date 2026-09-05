@@ -33,25 +33,25 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-Widget buildVideoLibraryDetailPage(
+Widget buildLibraryVideoDetailPage(
   BuildContext context,
   LibraryDetailPageRequest request,
 ) {
-  return VideoLibraryDetailPage(request: request);
+  return LibraryVideoDetailPage(request: request);
 }
 
-class VideoLibraryDetailPage extends ConsumerStatefulWidget {
-  const VideoLibraryDetailPage({super.key, required this.request});
+class LibraryVideoDetailPage extends ConsumerStatefulWidget {
+  const LibraryVideoDetailPage({super.key, required this.request});
 
   final LibraryDetailPageRequest request;
 
   @override
-  ConsumerState<VideoLibraryDetailPage> createState() =>
-      _VideoLibraryDetailPageState();
+  ConsumerState<LibraryVideoDetailPage> createState() =>
+      _LibraryVideoDetailPageState();
 }
 
-class _VideoLibraryDetailPageState
-    extends ConsumerState<VideoLibraryDetailPage> {
+class _LibraryVideoDetailPageState
+    extends ConsumerState<LibraryVideoDetailPage> {
   String? _selectedReleaseNodeId;
   final Map<String, String?> _selectedOwnedItemIdByRelease =
       <String, String?>{};
@@ -69,7 +69,7 @@ class _VideoLibraryDetailPageState
   }
 
   @override
-  void didUpdateWidget(covariant VideoLibraryDetailPage oldWidget) {
+  void didUpdateWidget(covariant LibraryVideoDetailPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.request.item.source.itemId !=
         widget.request.item.source.itemId) {

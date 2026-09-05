@@ -22,7 +22,7 @@ import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/release/video_release_projection_capability.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -185,7 +185,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   ),
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildMovieInspectorSections,
-    detailPageBuilder: buildVideoLibraryDetailPage,
+    detailPageBuilder: buildLibraryVideoDetailPage,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<MovieCatalogMetadata>(
     _movieLinkedMetadataValues,
