@@ -78,7 +78,6 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     final trackingProgress = _detailTrackingProgressLabel(trackingEntry);
-    final trackingEpisode = _detailTrackingEpisodeLabel(trackingEntry);
     return LibraryDetailSection(
       title: 'Local collection',
       accentColor: accent,
@@ -139,8 +138,6 @@ class LibraryDetailPersonalSection extends StatelessWidget {
                 value: genericLibraryDash(trackingStatus)),
             LibraryDetailField(
                 label: 'Progress', value: genericLibraryDash(trackingProgress)),
-            LibraryDetailField(
-                label: 'Episode', value: genericLibraryDash(trackingEpisode)),
             LibraryDetailField(
                 label: 'Rating', value: trackingRating?.toString() ?? '-'),
             LibraryDetailField(
@@ -238,21 +235,6 @@ String? _detailTrackingProgressLabel(TrackingEntry? trackingEntry) {
     return '${current ?? 0}/$total';
   }
   return '${current ?? 0}';
-}
-
-String? _detailTrackingEpisodeLabel(TrackingEntry? trackingEntry) {
-  final seasonNumber = trackingEntry?.seasonNumber;
-  final episodeNumber = trackingEntry?.episodeNumber;
-  if (seasonNumber == null && episodeNumber == null) {
-    return null;
-  }
-  if (seasonNumber != null && episodeNumber != null) {
-    return 'S$seasonNumber · Ep $episodeNumber';
-  }
-  if (seasonNumber != null) {
-    return 'S$seasonNumber';
-  }
-  return 'Ep ${episodeNumber!}';
 }
 
 class LibraryDetailLocalSnapshotSection extends StatelessWidget {
