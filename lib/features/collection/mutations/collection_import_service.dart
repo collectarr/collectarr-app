@@ -52,7 +52,7 @@ final class CollectionImportService {
     final catalogItems = Map<String, dynamic>.from(await catalogCache.findByIds(
       resolvedRows.map((row) => row.itemId),
     ));
-    final importedCatalogItems = <dynamic>[];
+    final importedCatalogItems = <CatalogItem>[];
     for (final row in resolvedRows) {
       final snapshot = _catalogItemFromCsvRow(
         row,

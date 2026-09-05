@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -81,10 +81,8 @@ final class OwnedItemMutations {
           ]);
         }
 
-        final resolvedIsDigital = common.isDigital ??
-            (existingCatalog?.physicalFormat == 'digital' ||
-                existingCatalog?.physicalFormatLabel?.toLowerCase() ==
-                    'digital');
+        final resolvedIsDigital =
+            common.isDigital ?? existingCatalog?.physicalFormat == 'digital';
         final resolvedCatalogRef = _catalogRefForItem(
           catalogRef.id,
           existingCatalog,
@@ -324,14 +322,11 @@ final class OwnedItemMutations {
   }
 
   Future<void> updateCatalogSnapshot(
-    dynamic item, {
+    CatalogItem item, {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final metadataItem = typedCatalogItemFromUnknown(item);
-    if (metadataItem == null) {
-      throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
-    }
+    final metadataItem = typedCatalogItemFromCatalogItem(item);
     final itemId = metadataItem.id;
     await mutationRunner.run(
       origin: origin,
@@ -344,7 +339,7 @@ final class OwnedItemMutations {
   }
 
   Future<void> updateCatalogSnapshots(
-    Iterable<dynamic> items,
+    Iterable<CatalogItem> items,
   ) async {
     final pendingItems = items.toList(growable: false);
     if (pendingItems.isEmpty) return;
@@ -358,15 +353,7 @@ final class OwnedItemMutations {
         ]);
       },
       eventsToEmit: [
-        for (final item in pendingItems)
-          CatalogItemChanged(
-            typedCatalogItemFromUnknown(item)?.id ??
-                (throw ArgumentError.value(
-                  item,
-                  'item',
-                  'Unsupported catalog item type',
-                )),
-          ),
+        for (final item in pendingItems) CatalogItemChanged(item.id),
       ],
     );
   }
@@ -531,11 +518,8 @@ final class OwnedItemMutations {
     );
   }
 
-  SyncChange _syncChangeForCatalogItem(dynamic item, DateTime now) {
-    final metadataItem = typedCatalogItemFromUnknown(item);
-    if (metadataItem == null) {
-      throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
-    }
+  SyncChange _syncChangeForCatalogItem(CatalogItem item, DateTime now) {
+    final metadataItem = typedCatalogItemFromCatalogItem(item);
     final itemId = metadataItem.id;
     final payload = metadataItem.toSyncPayload();
     return SyncChange(

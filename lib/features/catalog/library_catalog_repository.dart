@@ -26,12 +26,11 @@ final class LibraryCatalogRepository {
   Future<void> upsertMetadataItems(List<CatalogItem> items) => upsertAll(items);
 
   Future<void> upsertAll(
-    Iterable<dynamic> items, {
+    Iterable<CatalogItem> items, {
     bool captureDerivedData = true,
   }) async {
     final catalogItems = [
-      for (final item in items)
-        if (item is CatalogItem) typedCatalogItemFromCatalogItem(item),
+      for (final item in items) typedCatalogItemFromCatalogItem(item),
     ];
     if (catalogItems.isEmpty) return;
 
