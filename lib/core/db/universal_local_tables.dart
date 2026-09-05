@@ -193,6 +193,9 @@ class UserMetadataOverridesCache extends Table {
 class LoansCache extends Table {
   TextColumn get id => text()();
   TextColumn get ownedItemId => text()();
+
+  /// Serialized kind component of the structural OwnedItemRef.
+  TextColumn get ownedKind => text().nullable()();
   TextColumn get borrowerName => text()();
   DateTimeColumn get lentDate => dateTime()();
   DateTimeColumn get dueDate => dateTime().nullable()();

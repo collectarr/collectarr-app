@@ -1,9 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 
 class Loan {
   const Loan({
     required this.id,
     required this.ownedItemId,
+    this.ownedRef,
     this.catalogRef,
     required this.borrowerName,
     required this.lentDate,
@@ -14,6 +18,7 @@ class Loan {
 
   final String id;
   final String ownedItemId;
+  final OwnedItemRef? ownedRef;
   final CatalogEntityRef? catalogRef;
   final String borrowerName;
   final DateTime lentDate;
@@ -23,6 +28,15 @@ class Loan {
 
   bool get isActive => returnedDate == null;
 
+  /// Structural cross-kind reference used by generic hosts.
+  OwnedItemRef get ownedItemReference {
+    return ownedRef ??
+        OwnedItemRef(
+          kind: catalogRef?.mediaKind ?? CatalogMediaKind.unknown,
+          id: OwnedItemId(ownedItemId),
+        );
+  }
+
   bool isOverdueAt(DateTime now) {
     return isActive && dueDate != null && now.isAfter(dueDate!);
   }
@@ -31,6 +45,11 @@ class Loan {
     return Loan(
       id: _requiredString(json, 'id'),
       ownedItemId: _requiredString(json, 'owned_item_id'),
+      ownedRef: json['owned_ref'] is Map
+          ? OwnedItemRef.fromJson(
+              Map<String, Object?>.from(json['owned_ref'] as Map),
+            )
+          : null,
       catalogRef: json['catalog_ref'] is Map<String, dynamic>
           ? CatalogEntityRef.fromJson(
               json['catalog_ref'] as Map<String, dynamic>)
@@ -70,6 +89,7 @@ class Loan {
   Map<String, dynamic> toJson() {
     return {
       'owned_item_id': ownedItemId,
+      if (ownedRef != null) 'owned_ref': ownedRef!.toJson(),
       if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       'borrower_name': borrowerName,
       'lent_date':
@@ -83,6 +103,7 @@ class Loan {
 
   Loan copyWith({
     CatalogEntityRef? catalogRef,
+    OwnedItemRef? ownedRef,
     String? borrowerName,
     DateTime? dueDate,
     DateTime? returnedDate,
@@ -91,6 +112,7 @@ class Loan {
     return Loan(
       id: id,
       ownedItemId: ownedItemId,
+      ownedRef: ownedRef ?? this.ownedRef,
       catalogRef: catalogRef ?? this.catalogRef,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate,

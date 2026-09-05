@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -11,12 +12,12 @@ import 'package:uuid/uuid.dart';
 class InspectorLoanSection extends StatefulWidget {
   const InspectorLoanSection({
     super.key,
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.db,
     required this.accent,
   });
 
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -37,14 +38,14 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
   @override
   void didUpdateWidget(InspectorLoanSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.ownedItemId != widget.ownedItemId) {
+    if (oldWidget.ownedRef != widget.ownedRef) {
       _load();
     }
   }
 
   Future<void> _load() async {
     final repo = LoanRepository(widget.db);
-    final loans = await repo.getLoansForItem(widget.ownedItemId);
+    final loans = await repo.getLoansForItem(widget.ownedRef.id.value);
     if (mounted) {
       setState(() {
         _loans = loans;
@@ -57,7 +58,7 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
     final result = await showDialog<Loan>(
       context: context,
       builder: (context) => _LoanCreateDialog(
-        ownedItemId: widget.ownedItemId,
+        ownedRef: widget.ownedRef,
         accent: widget.accent,
       ),
     );
@@ -306,11 +307,11 @@ class _LoanTile extends StatelessWidget {
 
 class _LoanCreateDialog extends StatefulWidget {
   const _LoanCreateDialog({
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.accent,
   });
 
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final Color accent;
 
   @override
@@ -402,7 +403,8 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
     if (name.isEmpty) return;
     final loan = Loan(
       id: const Uuid().v4(),
-      ownedItemId: widget.ownedItemId,
+      ownedItemId: widget.ownedRef.id.value,
+      ownedRef: widget.ownedRef,
       borrowerName: name,
       lentDate: _lentDate,
       dueDate: _dueDate,

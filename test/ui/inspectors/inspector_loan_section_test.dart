@@ -5,6 +5,9 @@ import 'package:collectarr_app/features/library/inspector/inspector_loan_section
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 
 import '../../helpers/test_constants.dart';
 
@@ -30,7 +33,10 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorLoanSection(
-            ownedItemId: 'owned-1',
+            ownedRef: const OwnedItemRef(
+              kind: CatalogMediaKind.book,
+              id: OwnedItemId('owned-1'),
+            ),
             db: db,
             accent: Colors.orange,
           ),

@@ -1,5 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:drift/drift.dart';
 
 class LoanRepository {
@@ -34,6 +37,7 @@ class LoanRepository {
           LoansCacheCompanion.insert(
             id: loan.id,
             ownedItemId: loan.ownedItemId,
+            ownedKind: Value(loan.ownedRef?.kind.apiValue),
             borrowerName: loan.borrowerName,
             lentDate: loan.lentDate,
             dueDate: Value(loan.dueDate),
@@ -56,6 +60,12 @@ class LoanRepository {
     return Loan(
       id: row.id,
       ownedItemId: row.ownedItemId,
+      ownedRef: row.ownedKind == null
+          ? null
+          : OwnedItemRef(
+              kind: catalogMediaKindFromApiValue(row.ownedKind),
+              id: OwnedItemId(row.ownedItemId),
+            ),
       borrowerName: row.borrowerName,
       lentDate: row.lentDate,
       dueDate: row.dueDate,

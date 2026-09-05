@@ -6336,6 +6336,12 @@ class $LoansCacheTable extends LoansCache
   late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
       'owned_item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedKindMeta =
+      const VerificationMeta('ownedKind');
+  @override
+  late final GeneratedColumn<String> ownedKind = GeneratedColumn<String>(
+      'owned_kind', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _borrowerNameMeta =
       const VerificationMeta('borrowerName');
   @override
@@ -6366,8 +6372,16 @@ class $LoansCacheTable extends LoansCache
       'notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, ownedItemId, borrowerName, lentDate, dueDate, returnedDate, notes];
+  List<GeneratedColumn> get $columns => [
+        id,
+        ownedItemId,
+        ownedKind,
+        borrowerName,
+        lentDate,
+        dueDate,
+        returnedDate,
+        notes
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -6390,6 +6404,10 @@ class $LoansCacheTable extends LoansCache
               data['owned_item_id']!, _ownedItemIdMeta));
     } else if (isInserting) {
       context.missing(_ownedItemIdMeta);
+    }
+    if (data.containsKey('owned_kind')) {
+      context.handle(_ownedKindMeta,
+          ownedKind.isAcceptableOrUnknown(data['owned_kind']!, _ownedKindMeta));
     }
     if (data.containsKey('borrower_name')) {
       context.handle(
@@ -6432,6 +6450,8 @@ class $LoansCacheTable extends LoansCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       ownedItemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      ownedKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_kind']),
       borrowerName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}borrower_name'])!,
       lentDate: attachedDatabase.typeMapping
@@ -6454,6 +6474,9 @@ class $LoansCacheTable extends LoansCache
 class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   final String id;
   final String ownedItemId;
+
+  /// Serialized kind component of the structural OwnedItemRef.
+  final String? ownedKind;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -6462,6 +6485,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   const LoansCacheData(
       {required this.id,
       required this.ownedItemId,
+      this.ownedKind,
       required this.borrowerName,
       required this.lentDate,
       this.dueDate,
@@ -6472,6 +6496,9 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedKind != null) {
+      map['owned_kind'] = Variable<String>(ownedKind);
+    }
     map['borrower_name'] = Variable<String>(borrowerName);
     map['lent_date'] = Variable<DateTime>(lentDate);
     if (!nullToAbsent || dueDate != null) {
@@ -6490,6 +6517,9 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
     return LoansCacheCompanion(
       id: Value(id),
       ownedItemId: Value(ownedItemId),
+      ownedKind: ownedKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedKind),
       borrowerName: Value(borrowerName),
       lentDate: Value(lentDate),
       dueDate: dueDate == null && nullToAbsent
@@ -6509,6 +6539,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
     return LoansCacheData(
       id: serializer.fromJson<String>(json['id']),
       ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      ownedKind: serializer.fromJson<String?>(json['ownedKind']),
       borrowerName: serializer.fromJson<String>(json['borrowerName']),
       lentDate: serializer.fromJson<DateTime>(json['lentDate']),
       dueDate: serializer.fromJson<DateTime?>(json['dueDate']),
@@ -6522,6 +6553,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'ownedKind': serializer.toJson<String?>(ownedKind),
       'borrowerName': serializer.toJson<String>(borrowerName),
       'lentDate': serializer.toJson<DateTime>(lentDate),
       'dueDate': serializer.toJson<DateTime?>(dueDate),
@@ -6533,6 +6565,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   LoansCacheData copyWith(
           {String? id,
           String? ownedItemId,
+          Value<String?> ownedKind = const Value.absent(),
           String? borrowerName,
           DateTime? lentDate,
           Value<DateTime?> dueDate = const Value.absent(),
@@ -6541,6 +6574,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
       LoansCacheData(
         id: id ?? this.id,
         ownedItemId: ownedItemId ?? this.ownedItemId,
+        ownedKind: ownedKind.present ? ownedKind.value : this.ownedKind,
         borrowerName: borrowerName ?? this.borrowerName,
         lentDate: lentDate ?? this.lentDate,
         dueDate: dueDate.present ? dueDate.value : this.dueDate,
@@ -6553,6 +6587,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
       id: data.id.present ? data.id.value : this.id,
       ownedItemId:
           data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedKind: data.ownedKind.present ? data.ownedKind.value : this.ownedKind,
       borrowerName: data.borrowerName.present
           ? data.borrowerName.value
           : this.borrowerName,
@@ -6570,6 +6605,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
     return (StringBuffer('LoansCacheData(')
           ..write('id: $id, ')
           ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedKind: $ownedKind, ')
           ..write('borrowerName: $borrowerName, ')
           ..write('lentDate: $lentDate, ')
           ..write('dueDate: $dueDate, ')
@@ -6580,14 +6616,15 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, ownedItemId, borrowerName, lentDate, dueDate, returnedDate, notes);
+  int get hashCode => Object.hash(id, ownedItemId, ownedKind, borrowerName,
+      lentDate, dueDate, returnedDate, notes);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LoansCacheData &&
           other.id == this.id &&
           other.ownedItemId == this.ownedItemId &&
+          other.ownedKind == this.ownedKind &&
           other.borrowerName == this.borrowerName &&
           other.lentDate == this.lentDate &&
           other.dueDate == this.dueDate &&
@@ -6598,6 +6635,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
 class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   final Value<String> id;
   final Value<String> ownedItemId;
+  final Value<String?> ownedKind;
   final Value<String> borrowerName;
   final Value<DateTime> lentDate;
   final Value<DateTime?> dueDate;
@@ -6607,6 +6645,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   const LoansCacheCompanion({
     this.id = const Value.absent(),
     this.ownedItemId = const Value.absent(),
+    this.ownedKind = const Value.absent(),
     this.borrowerName = const Value.absent(),
     this.lentDate = const Value.absent(),
     this.dueDate = const Value.absent(),
@@ -6617,6 +6656,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   LoansCacheCompanion.insert({
     required String id,
     required String ownedItemId,
+    this.ownedKind = const Value.absent(),
     required String borrowerName,
     required DateTime lentDate,
     this.dueDate = const Value.absent(),
@@ -6630,6 +6670,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   static Insertable<LoansCacheData> custom({
     Expression<String>? id,
     Expression<String>? ownedItemId,
+    Expression<String>? ownedKind,
     Expression<String>? borrowerName,
     Expression<DateTime>? lentDate,
     Expression<DateTime>? dueDate,
@@ -6640,6 +6681,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedKind != null) 'owned_kind': ownedKind,
       if (borrowerName != null) 'borrower_name': borrowerName,
       if (lentDate != null) 'lent_date': lentDate,
       if (dueDate != null) 'due_date': dueDate,
@@ -6652,6 +6694,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   LoansCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? ownedItemId,
+      Value<String?>? ownedKind,
       Value<String>? borrowerName,
       Value<DateTime>? lentDate,
       Value<DateTime?>? dueDate,
@@ -6661,6 +6704,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
     return LoansCacheCompanion(
       id: id ?? this.id,
       ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedKind: ownedKind ?? this.ownedKind,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate ?? this.lentDate,
       dueDate: dueDate ?? this.dueDate,
@@ -6678,6 +6722,9 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
     }
     if (ownedItemId.present) {
       map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (ownedKind.present) {
+      map['owned_kind'] = Variable<String>(ownedKind.value);
     }
     if (borrowerName.present) {
       map['borrower_name'] = Variable<String>(borrowerName.value);
@@ -6705,6 +6752,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
     return (StringBuffer('LoansCacheCompanion(')
           ..write('id: $id, ')
           ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedKind: $ownedKind, ')
           ..write('borrowerName: $borrowerName, ')
           ..write('lentDate: $lentDate, ')
           ..write('dueDate: $dueDate, ')
@@ -42745,6 +42793,7 @@ typedef $$ItemImagesCacheTableProcessedTableManager = ProcessedTableManager<
 typedef $$LoansCacheTableCreateCompanionBuilder = LoansCacheCompanion Function({
   required String id,
   required String ownedItemId,
+  Value<String?> ownedKind,
   required String borrowerName,
   required DateTime lentDate,
   Value<DateTime?> dueDate,
@@ -42755,6 +42804,7 @@ typedef $$LoansCacheTableCreateCompanionBuilder = LoansCacheCompanion Function({
 typedef $$LoansCacheTableUpdateCompanionBuilder = LoansCacheCompanion Function({
   Value<String> id,
   Value<String> ownedItemId,
+  Value<String?> ownedKind,
   Value<String> borrowerName,
   Value<DateTime> lentDate,
   Value<DateTime?> dueDate,
@@ -42777,6 +42827,9 @@ class $$LoansCacheTableFilterComposer
 
   ColumnFilters<String> get ownedItemId => $composableBuilder(
       column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedKind => $composableBuilder(
+      column: $table.ownedKind, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get borrowerName => $composableBuilder(
       column: $table.borrowerName, builder: (column) => ColumnFilters(column));
@@ -42808,6 +42861,9 @@ class $$LoansCacheTableOrderingComposer
 
   ColumnOrderings<String> get ownedItemId => $composableBuilder(
       column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedKind => $composableBuilder(
+      column: $table.ownedKind, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get borrowerName => $composableBuilder(
       column: $table.borrowerName,
@@ -42841,6 +42897,9 @@ class $$LoansCacheTableAnnotationComposer
 
   GeneratedColumn<String> get ownedItemId => $composableBuilder(
       column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedKind =>
+      $composableBuilder(column: $table.ownedKind, builder: (column) => column);
 
   GeneratedColumn<String> get borrowerName => $composableBuilder(
       column: $table.borrowerName, builder: (column) => column);
@@ -42886,6 +42945,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> ownedItemId = const Value.absent(),
+            Value<String?> ownedKind = const Value.absent(),
             Value<String> borrowerName = const Value.absent(),
             Value<DateTime> lentDate = const Value.absent(),
             Value<DateTime?> dueDate = const Value.absent(),
@@ -42896,6 +42956,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
               LoansCacheCompanion(
             id: id,
             ownedItemId: ownedItemId,
+            ownedKind: ownedKind,
             borrowerName: borrowerName,
             lentDate: lentDate,
             dueDate: dueDate,
@@ -42906,6 +42967,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String ownedItemId,
+            Value<String?> ownedKind = const Value.absent(),
             required String borrowerName,
             required DateTime lentDate,
             Value<DateTime?> dueDate = const Value.absent(),
@@ -42916,6 +42978,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
               LoansCacheCompanion.insert(
             id: id,
             ownedItemId: ownedItemId,
+            ownedKind: ownedKind,
             borrowerName: borrowerName,
             lentDate: lentDate,
             dueDate: dueDate,

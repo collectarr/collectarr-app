@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
@@ -257,6 +258,10 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       Loan(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
         ownedItemId: ownedItem.id,
+        ownedRef: OwnedItemRef(
+          kind: ownedItem.catalogRef.mediaKind,
+          id: OwnedItemId(ownedItem.id),
+        ),
         catalogRef: ownedItem.catalogRef,
         borrowerName: draft.borrowerName,
         lentDate: draft.lentDate,

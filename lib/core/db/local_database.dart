@@ -88,7 +88,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 25;
+  int get schemaVersion => 26;
 
   @override
   MigrationStrategy get migration {
@@ -192,6 +192,21 @@ class LocalDatabase extends _$LocalDatabase {
         }
         if (from < 25) {
           await _migrateVideoPersonalRows(m);
+        }
+        if (from < 26) {
+          await m.addColumn(loansCache, loansCache.ownedKind);
+          if (await _hasTable(ownedItemsCache.actualTableName)) {
+            await customStatement('''
+              UPDATE ${loansCache.actualTableName}
+              SET owned_kind = (
+                SELECT kind
+                FROM ${ownedItemsCache.actualTableName}
+                WHERE ${ownedItemsCache.actualTableName}.id =
+                    ${loansCache.actualTableName}.owned_item_id
+              )
+              WHERE owned_kind IS NULL
+            ''');
+          }
         }
       },
       beforeOpen: (details) async {

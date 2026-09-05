@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -245,7 +246,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               context,
               title: 'Loans',
               child: InspectorLoanSection(
-                ownedItemId: activeOwnedItem.id,
+                ownedRef: OwnedItemRef(
+                  kind: activeOwnedItem.catalogRef.mediaKind,
+                  id: OwnedItemId(activeOwnedItem.id),
+                ),
                 db: widget.db!,
                 accent: widget.accent,
               ),

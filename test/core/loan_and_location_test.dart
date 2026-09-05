@@ -1,5 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -20,6 +23,26 @@ void main() {
       expect(loan.isOverdueAt(DateTime.utc(2026, 5, 9, 23, 59)), isFalse);
       expect(loan.isOverdueAt(DateTime.utc(2026, 5, 10)), isFalse);
       expect(loan.isOverdueAt(DateTime.utc(2026, 5, 11)), isTrue);
+    });
+
+    test('exposes the structural owned reference without domain details', () {
+      final loan = Loan(
+        id: 'loan-1',
+        ownedItemId: 'owned-1',
+        ownedRef: const OwnedItemRef(
+          kind: CatalogMediaKind.book,
+          id: OwnedItemId('owned-1'),
+        ),
+        borrowerName: 'Alex',
+        lentDate: DateTime.utc(2026, 5, 1),
+      );
+
+      expect(loan.ownedItemReference.kind, CatalogMediaKind.book);
+      expect(loan.ownedItemReference.id, const OwnedItemId('owned-1'));
+      expect(loan.toJson()['owned_ref'], {
+        'kind': 'book',
+        'id': 'owned-1',
+      });
     });
   });
 

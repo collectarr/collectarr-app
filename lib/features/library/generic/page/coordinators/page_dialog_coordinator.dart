@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -472,30 +474,37 @@ class LibraryPageDialogCoordinator {
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final context = _page.context;
-    final ownedItemIds = <String>{
-      for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.node.id) &&
-            item.source.ownedItem?.id != null &&
-            !_page.activeLoanOwnedItemIds.contains(item.source.ownedItem!.id))
-          item.source.ownedItem!.id,
-    };
-    if (ownedItemIds.isEmpty || !_page.mounted) return;
+    final ownedItemsById = <String, OwnedItem>{};
+    for (final item in projection.filteredItems) {
+      final ownedItem = item.source.ownedItem;
+      if (_page.selection.itemIds.contains(item.node.id) &&
+          ownedItem != null &&
+          !_page.activeLoanOwnedItemIds.contains(ownedItem.id)) {
+        ownedItemsById[ownedItem.id] = ownedItem;
+      }
+    }
+    final ownedItems = ownedItemsById.values.toList(growable: false);
+    if (ownedItems.isEmpty || !_page.mounted) return;
 
     final draft = await showDialog<BatchLoanDraft>(
       context: context,
       builder: (context) => BatchLoanDialog(
         accent: _page.accent,
-        itemCount: ownedItemIds.length,
+        itemCount: ownedItems.length,
       ),
     );
     if (draft == null || !_page.mounted || !context.mounted) return;
 
     final repo = LoanRepository(_page.ref.read(localDatabaseProvider));
-    for (final ownedItemId in ownedItemIds) {
+    for (final ownedItem in ownedItems) {
       await repo.create(
         Loan(
           id: const Uuid().v4(),
-          ownedItemId: ownedItemId,
+          ownedItemId: ownedItem.id,
+          ownedRef: OwnedItemRef(
+            kind: ownedItem.catalogRef.mediaKind,
+            id: OwnedItemId(ownedItem.id),
+          ),
           borrowerName: draft.borrowerName,
           lentDate: draft.lentDate,
           dueDate: draft.dueDate,
@@ -510,7 +519,7 @@ class LibraryPageDialogCoordinator {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Created ${ownedItemIds.length} loan record${ownedItemIds.length == 1 ? '' : 's'}.',
+            'Created ${ownedItems.length} loan record${ownedItems.length == 1 ? '' : 's'}.',
           ),
         ),
       );
