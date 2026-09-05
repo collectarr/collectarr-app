@@ -61,7 +61,7 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
     AniListProvider(httpClient: httpClient).toConnector(
       personalRead: anilistSync,
       personalWrite: anilistSync,
-      fileImport: const AniListFileImportCapability(),
+      personalListFileImport: const AniListPersonalListFileImportCapability(),
     ),
   );
   registry.register(
@@ -94,7 +94,7 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
       credentials: tmdbCredentials,
       httpClient: httpClient,
     ).toConnector(
-      fileImport: const TmdbFileImportCapability(),
+      personalListFileImport: const TmdbPersonalListFileImportCapability(),
     ),
   );
   registry.register(MusicBrainzProvider(httpClient: httpClient).toConnector());
@@ -110,7 +110,7 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
         supportsSearch: false,
         supportsIngest: true,
       ),
-      fileImport: MyAnimeListFileImportCapability(),
+      personalListFileImport: MyAnimeListPersonalListFileImportCapability(),
     ),
   );
 

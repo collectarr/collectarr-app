@@ -15,8 +15,8 @@ void main() {
       expect(connector!.supportsMetadata, isTrue);
       expect(connector.supportsPersonalRead, isTrue);
       expect(connector.supportsPersonalWrite, isTrue);
-      expect(connector.supportsFileImport, isTrue);
-      expect(connector.canImport, isTrue);
+      expect(connector.supportsPersonalListFileImport, isTrue);
+      expect(connector.canImportPersonalList, isTrue);
       expect(connector.canPull, isTrue);
       expect(connector.canPush, isTrue);
       expect(connector.supportsBidirectionalSync, isTrue);
@@ -30,20 +30,21 @@ void main() {
       expect(connector!.supportsMetadata, isTrue);
       expect(connector.supportsPersonalRead, isFalse);
       expect(connector.supportsPersonalWrite, isFalse);
-      expect(connector.supportsFileImport, isFalse);
-      expect(connector.canImport, isFalse);
+      expect(connector.supportsPersonalListFileImport, isFalse);
+      expect(connector.canImportPersonalList, isFalse);
       expect(connector.canPull, isFalse);
       expect(connector.canPush, isFalse);
     });
 
-    test('ProviderConnector for MyAnimeList only exposes fileImport', () {
+    test('ProviderConnector for MyAnimeList exposes personal-list file import',
+        () {
       final connector =
           defaultProviderConnectorRegistry.getById(ProviderId.myAnimeList);
 
       expect(connector, isNotNull);
       expect(connector!.supportsMetadata, isFalse);
-      expect(connector.supportsFileImport, isTrue);
-      expect(connector.canImport, isTrue);
+      expect(connector.supportsPersonalListFileImport, isTrue);
+      expect(connector.canImportPersonalList, isTrue);
       expect(connector.canPull, isFalse);
       expect(connector.canPush, isFalse);
     });
@@ -60,16 +61,16 @@ void main() {
         (d) => d.id == ProviderId.myAnimeList,
       );
 
-      expect(aniListDesc.canImport, isTrue);
+      expect(aniListDesc.canImportPersonalList, isTrue);
       expect(aniListDesc.canPull, isTrue);
       expect(aniListDesc.canPush, isTrue);
       expect(aniListDesc.supportsAccountSync, isTrue);
-      expect(aniListDesc.supportsFileImport, isTrue);
+      expect(aniListDesc.supportsPersonalListFileImport, isTrue);
 
-      expect(tmdbDesc.canImport, isTrue);
-      expect(tmdbDesc.supportsFileImport, isTrue);
+      expect(tmdbDesc.canImportPersonalList, isTrue);
+      expect(tmdbDesc.supportsPersonalListFileImport, isTrue);
 
-      expect(malDesc.canImport, isTrue);
+      expect(malDesc.canImportPersonalList, isTrue);
       expect(malDesc.canPull, isFalse);
       expect(malDesc.supportsAccountSync, isFalse);
     });

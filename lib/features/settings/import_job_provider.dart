@@ -20,8 +20,8 @@ import 'package:collectarr_app/features/providers/domain/models/provider_persona
 import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
-import 'package:collectarr_app/features/settings/anime_list_import_service.dart';
-import 'package:collectarr_app/features/settings/provider_csv_import_service.dart';
+import 'package:collectarr_app/features/imports/personal_lists/anime_list_import_service.dart';
+import 'package:collectarr_app/features/imports/personal_lists/provider_csv_import_service.dart';
 import 'package:collectarr_app/features/settings/provider_import_history_store.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';

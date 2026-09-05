@@ -35,8 +35,8 @@ class ProviderImportDescriptor {
     return reg.getById(id);
   }
 
-  bool canImportWith([ProviderConnectorRegistry? registry]) =>
-      _resolveConnector(registry)?.supportsFileImport ?? false;
+  bool canImportPersonalListWith([ProviderConnectorRegistry? registry]) =>
+      _resolveConnector(registry)?.supportsPersonalListFileImport ?? false;
 
   bool canPullWith([ProviderConnectorRegistry? registry]) =>
       _resolveConnector(registry)?.supportsPersonalRead ?? false;
@@ -44,12 +44,12 @@ class ProviderImportDescriptor {
   bool canPushWith([ProviderConnectorRegistry? registry]) =>
       _resolveConnector(registry)?.supportsPersonalWrite ?? false;
 
-  bool get canImport => canImportWith();
+  bool get canImportPersonalList => canImportPersonalListWith();
   bool get canPull => canPullWith();
   bool get canPush => canPushWith();
 
   bool get supportsAccountSync => canPull;
-  bool get supportsFileImport => canImport;
+  bool get supportsPersonalListFileImport => canImportPersonalList;
 }
 
 /// Icon data for each provider (Material Icons fallback for missing logos).

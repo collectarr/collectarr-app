@@ -38,9 +38,9 @@ class _MockPersonalReadWrite
   }) async {}
 }
 
-class _MockFileImport implements FileImportCapability {
+class _MockPersonalListFileImport implements PersonalListFileImportCapability {
   @override
-  Future<List<ProviderPersonalEntry>> parseFile(String content,
+  Future<List<ProviderPersonalEntry>> parsePersonalListFile(String content,
           {String? filename}) async =>
       [];
 }
@@ -50,7 +50,7 @@ void main() {
     testWidgets('renders connectors and derives dynamic capability chips',
         (tester) async {
       final mockReadWrite = _MockPersonalReadWrite();
-      final mockImport = _MockFileImport();
+      final mockImport = _MockPersonalListFileImport();
 
       final aniListConnector = ProviderConnector(
         id: ProviderId.aniList,
@@ -62,7 +62,7 @@ void main() {
         ),
         personalRead: mockReadWrite,
         personalWrite: mockReadWrite,
-        fileImport: mockImport,
+        personalListFileImport: mockImport,
       );
 
       final openLibraryConnector = ProviderConnector(
@@ -110,7 +110,7 @@ void main() {
       expect(find.text('Open Library'), findsOneWidget);
 
       // Verify dynamically derived capability chips for AniList
-      expect(find.text('File Import'), findsOneWidget);
+      expect(find.text('Personal list import'), findsOneWidget);
       expect(find.text('Pull Sync'), findsOneWidget);
       expect(find.text('Push Sync'), findsOneWidget);
       expect(find.text('2-Way Sync'), findsOneWidget);

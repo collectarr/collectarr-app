@@ -45,8 +45,14 @@ abstract interface class PersonalListWriteCapability {
   });
 }
 
-abstract interface class FileImportCapability {
-  Future<List<ProviderPersonalEntry>> parseFile(
+/// Reads provider-owned personal-list exports into the provider-neutral
+/// [ProviderPersonalEntry] projection.
+///
+/// This contract deliberately does not cover catalog metadata imports. Those
+/// imports are owned by the relevant kind integration and are not exposed as
+/// a provider-wide connector capability.
+abstract interface class PersonalListFileImportCapability {
+  Future<List<ProviderPersonalEntry>> parsePersonalListFile(
     String content, {
     String? filename,
   });
@@ -82,7 +88,7 @@ final class ProviderConnector implements MetadataCapability {
     this.metadata,
     this.personalRead,
     this.personalWrite,
-    this.fileImport,
+    this.personalListFileImport,
     this.identity,
     this.images,
     this.barcode,
@@ -93,7 +99,7 @@ final class ProviderConnector implements MetadataCapability {
   final MetadataCapability? metadata;
   final PersonalListReadCapability? personalRead;
   final PersonalListWriteCapability? personalWrite;
-  final FileImportCapability? fileImport;
+  final PersonalListFileImportCapability? personalListFileImport;
   final IdentityCapability? identity;
   final ImageCapability? images;
   final BarcodeCapability? barcode;
@@ -106,7 +112,7 @@ final class ProviderConnector implements MetadataCapability {
   bool get supportsMetadata => metadata != null;
   bool get supportsPersonalRead => personalRead != null;
   bool get supportsPersonalWrite => personalWrite != null;
-  bool get supportsFileImport => fileImport != null;
+  bool get supportsPersonalListFileImport => personalListFileImport != null;
   bool get supportsIdentity => identity != null;
   bool get supportsImages => images != null;
   bool get supportsBarcode => barcode != null;
@@ -133,7 +139,7 @@ final class ProviderConnector implements MetadataCapability {
     ];
   }
 
-  bool get canImport => supportsFileImport;
+  bool get canImportPersonalList => supportsPersonalListFileImport;
   bool get canPull => supportsPersonalRead;
   bool get canPush => supportsPersonalWrite;
 

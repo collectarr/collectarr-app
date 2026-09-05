@@ -12,7 +12,7 @@ abstract class ProviderAdapter implements MetadataProvider, MetadataCapability {
   ProviderConnector toConnector({
     PersonalListReadCapability? personalRead,
     PersonalListWriteCapability? personalWrite,
-    FileImportCapability? fileImport,
+    PersonalListFileImportCapability? personalListFileImport,
     IdentityCapability? identity,
     ImageCapability? images,
     BarcodeCapability? barcode,
@@ -23,7 +23,7 @@ abstract class ProviderAdapter implements MetadataProvider, MetadataCapability {
       metadata: this,
       personalRead: personalRead,
       personalWrite: personalWrite,
-      fileImport: fileImport,
+      personalListFileImport: personalListFileImport,
       identity: identity,
       images: images,
       barcode: barcode,
