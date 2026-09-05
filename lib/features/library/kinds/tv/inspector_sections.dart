@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/inspector/sections/releases_sect
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_upcoming_episodes_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
@@ -161,7 +161,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           accent: request.accent,
         ),
         const SizedBox(height: 8),
-        VideoUpcomingEpisodesSection(
+        TvUpcomingEpisodesSection(
           seriesRef: seriesRef,
           accent: request.accent,
         ),

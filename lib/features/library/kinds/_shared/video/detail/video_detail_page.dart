@@ -20,7 +20,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/video_extern
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_upcoming_episodes_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
@@ -354,7 +354,7 @@ class _VideoLibraryDetailPageState
               ),
             if (_isTvKind) const SizedBox(height: 16),
             if (_isTvKind)
-              VideoUpcomingEpisodesSection(
+              TvUpcomingEpisodesSection(
                 seriesRef: seriesRef,
                 accent: request.accent,
               ),

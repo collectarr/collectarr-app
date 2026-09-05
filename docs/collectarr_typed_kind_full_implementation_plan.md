@@ -2184,8 +2184,11 @@ The seasons/episodes Add preview UI now lives under `features/library/add` and
 is consumed explicitly by Anime and TV.
 
 TV now owns its episodic progress presenter/summary, episode identity, season
-tracking section, progress row/card, and episode-rating surfaces; Movie and Anime no longer
-receive those TV-only sections from the generic video detail page.
+tracking section, progress row/card, and episode-rating surfaces; Movie and
+Anime no longer receive those TV-only sections from the generic video detail
+page.
+
+Upcoming-episode hierarchy UI is also now TV-owned under `tv/hierarchy`.
 
 Unused video Edit support and compatibility barrels have been removed; the
 custom-tab builder now imports concrete tab modules directly.

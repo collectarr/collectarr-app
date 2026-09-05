@@ -4,8 +4,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class VideoUpcomingEpisodesSection extends ConsumerWidget {
-  const VideoUpcomingEpisodesSection({
+class TvUpcomingEpisodesSection extends ConsumerWidget {
+  const TvUpcomingEpisodesSection({
     super.key,
     required this.seriesRef,
     required this.accent,
