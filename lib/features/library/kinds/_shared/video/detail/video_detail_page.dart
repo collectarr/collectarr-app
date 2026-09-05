@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models
 import 'package:collectarr_app/features/library/detail/library_video_title_metadata_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_source.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
@@ -335,7 +335,7 @@ class _VideoLibraryDetailPageState
               ),
             const SizedBox(height: 16),
             if (_isTvKind)
-              VideoExternalLinksSection(
+              LibraryExternalLinksSection(
                 title: 'External links',
                 links: ((request.item.source.catalogItem?.kindMetadata
                             .toSyncPayload()['trailer_urls'] as List?)

@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/tv/inspector/session_histo
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +86,6 @@ void main() {
     expect(sections.whereType<InspectorSessionHistorySection>(), hasLength(1));
     expect(sections.whereType<InspectorReleasesSection>(), hasLength(1));
     expect(sections.whereType<InspectorContributorsSection>(), hasLength(1));
-    expect(sections.whereType<VideoExternalLinksSection>(), hasLength(1));
+    expect(sections.whereType<LibraryExternalLinksSection>(), hasLength(1));
   });
 }

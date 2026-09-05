@@ -3,8 +3,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class VideoExternalLinksSection extends StatelessWidget {
-  const VideoExternalLinksSection({
+class LibraryExternalLinksSection extends StatelessWidget {
+  const LibraryExternalLinksSection({
     super.key,
     required this.title,
     required this.links,

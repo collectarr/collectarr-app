@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
@@ -150,7 +150,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       slot: LibraryDetailSectionSlot.links,
       title: 'Links / trailers',
       children: [
-        VideoExternalLinksSection(
+        LibraryExternalLinksSection(
           title: 'External links',
           links: tvLinks,
           accent: request.accent,

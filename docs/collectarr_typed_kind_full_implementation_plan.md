@@ -2206,6 +2206,9 @@ page now lives in generic detail infrastructure.
 TV-specific Edit episode tabs, dialog, and episode row/thumbnail widgets now
 live under `tv/edit`; the shared custom-tab dispatcher only composes them.
 
+External links are now a generic library detail component, shared by the
+active detail and edit surfaces without living under `_shared/video`.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
