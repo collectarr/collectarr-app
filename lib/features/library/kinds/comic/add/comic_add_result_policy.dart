@@ -52,13 +52,12 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
 
 bool _comicItemIsVariant(CatalogItem item) {
   final metadata = item.kindMetadata;
-  return metadata is ComicCatalogMetadata &&
-      metadata.variant?.trim().isNotEmpty == true;
+  return metadata is ComicMedia && metadata.variant?.trim().isNotEmpty == true;
 }
 
 String _comicGroupTitle(CatalogItem item) {
   final metadata = item.kindMetadata;
-  if (metadata is ComicCatalogMetadata) {
+  if (metadata is ComicMedia) {
     final seriesTitle =
         metadata.seriesTitle?.trim() ?? metadata.series?.seriesTitle?.trim();
     if (seriesTitle != null && seriesTitle.isNotEmpty) {
