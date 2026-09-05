@@ -1,13 +1,40 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
+  test('Comic calendar contributor owns release-date mapping', () {
+    final item = testCatalogItem(
+      id: 'comic-item',
+      kind: 'comic',
+      title: 'Amazing Spider-Man',
+      releaseDate: DateTime.utc(1963, 3, 1),
+    );
+    final events = const ComicCalendarContributor()
+        .contribute(
+          LibraryCalendarContext(
+            catalogItems: [item],
+            watchSessions: const [],
+            titleForItem: (itemId) => itemId,
+          ),
+        )
+        .toList();
+
+    expect(events, hasLength(1));
+    expect(events.single.kind, CalendarEventKind.releaseDate);
+    expect(events.single.itemId, 'comic-item');
+    expect(events.single.title, 'Amazing Spider-Man');
+    expect(events.single.date, DateTime.utc(1963, 3, 1));
+  });
+
   test('TV calendar contributor owns episode title projection', () {
     final events = const TvCalendarContributor()
         .contribute(

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 
 typedef CalendarTitleForItem = String Function(String itemId);
@@ -10,10 +10,12 @@ typedef CalendarTitleForItem = String Function(String itemId);
 /// kind-specific persisted values such as episode coordinates.
 final class LibraryCalendarContext {
   const LibraryCalendarContext({
+    this.catalogItems = const [],
     required this.watchSessions,
     required this.titleForItem,
   });
 
+  final Iterable<CatalogItem> catalogItems;
   final Iterable<WatchSession> watchSessions;
   final CalendarTitleForItem titleForItem;
 }

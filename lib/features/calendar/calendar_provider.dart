@@ -32,10 +32,26 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
 
   final events = <CalendarEvent>[];
 
+  final calendarContext = LibraryCalendarContext(
+    catalogItems: catalogById.values,
+    watchSessions: watchSessions,
+    titleForItem: titleFor,
+  );
+  for (final contributor in libraryCalendarContributors) {
+    events.addAll(contributor.contribute(calendarContext));
+  }
+
+  final contributedReleaseItemIds = {
+    for (final event in events)
+      if (event.kind == CalendarEventKind.releaseDate && event.itemId != null)
+        event.itemId,
+  };
+
   // --- Release dates from catalog ---
   for (final entry in catalogById.entries) {
     final item = entry.value;
-    if (item.releaseDate != null) {
+    if (item.releaseDate != null &&
+        !contributedReleaseItemIds.contains(entry.key)) {
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
         date: item.releaseDate!,
@@ -78,14 +94,6 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
         ownedItemId: item.id,
       ));
     }
-  }
-
-  final calendarContext = LibraryCalendarContext(
-    watchSessions: watchSessions,
-    titleForItem: titleFor,
-  );
-  for (final contributor in libraryCalendarContributors) {
-    events.addAll(contributor.contribute(calendarContext));
   }
 
   // --- Watch sessions without a kind contributor ---

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/config/library_calendar_contribu
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
+import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_collection_shelf_extension.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
@@ -66,6 +67,7 @@ Iterable<LibraryCollectionCsvProjection> get libraryCollectionCsvProjections =>
 
 final Map<CatalogMediaKind, LibraryCalendarContributor> _calendarContributors =
     Map.unmodifiable({
+  CatalogMediaKind.comic: const ComicCalendarContributor(),
   CatalogMediaKind.tv: const TvCalendarContributor(),
   CatalogMediaKind.anime: const AnimeCalendarContributor(),
 });
