@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seas
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
 import 'package:collectarr_app/features/library/detail/library_video_title_metadata_section.dart';
 import 'package:collectarr_app/features/library/detail/library_metadata_corrections_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/release/video_release_source.dart';
+import 'package:collectarr_app/features/library/release/video_release_source.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';

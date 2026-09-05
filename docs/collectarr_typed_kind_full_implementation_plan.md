@@ -2253,6 +2253,10 @@ The legacy video catalog compatibility models and mapper now live under
 `library/models/catalog`; kind workspace DTOs import that explicit model
 boundary instead of `_shared/video`.
 
+Video release source resolution and release projection capability now live
+under the explicit `features/library/release` subsystem; no release behavior
+remains under `_shared/video`.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
