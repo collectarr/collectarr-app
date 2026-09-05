@@ -2161,6 +2161,9 @@ has been removed.
 The TV workspace display-level and grouping enums are also now owned by TV;
 the former shared display-model file has been removed.
 
+The legacy TV episode/release model file has likewise moved under
+`tv/domain`; `_shared/video/domain` no longer owns domain models.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/domain/video_episode.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
