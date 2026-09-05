@@ -2394,8 +2394,11 @@ No semantic fields.
 
 The unused aggregate `LibraryAddController` has been removed; the Add dialog
 now has one live session-controller boundary instead of a second facade over
-search/selection/preview state. The remaining dialog-local options and
-prefill orchestration are still candidates for structural extraction.
+search/selection/preview state. Form option loading now lives in
+`LibraryAddFormOptionsController`, while the dialog shell's dimensions and
+results/preview pane constraints live in `LibraryAddDialogLayout`. Prefill
+orchestration remains dialog-local until a further extraction has a clear
+boundary.
 
 ---
 

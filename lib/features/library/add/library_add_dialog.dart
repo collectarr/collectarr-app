@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_form
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
+import 'package:collectarr_app/features/library/add/layout/library_add_dialog_layout.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -112,28 +113,22 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   double? _dialogWidth;
   double? _dialogHeight;
-  static const _defaultDialogWidth = 1320.0;
-  static const _defaultDialogHeight = 860.0;
-  static const _minDialogWidth = 760.0;
-  static const _maxDialogWidth = 1800.0;
-  static const _minDialogHeight = 560.0;
-  static const _maxDialogHeight = 1200.0;
 
   double _resultsPaneWidth = 500;
 
   double _clampedResultsPaneWidth(double totalWidth) {
-    final minResultsWidth = 320.0;
-    final minPreviewWidth = 320.0;
-    final maxResultsWidth = (totalWidth - minPreviewWidth).clamp(
-      minResultsWidth,
-      totalWidth,
+    return LibraryAddDialogLayout.clampResultsPaneWidth(
+      totalWidth: totalWidth,
+      requestedWidth: _resultsPaneWidth,
     );
-    return _resultsPaneWidth.clamp(minResultsWidth, maxResultsWidth);
   }
 
   void _resizeResultsPane(double delta, double totalWidth) {
     setState(() {
-      _resultsPaneWidth = _clampedResultsPaneWidth(totalWidth) + delta;
+      _resultsPaneWidth = LibraryAddDialogLayout.clampResultsPaneWidth(
+        totalWidth: totalWidth,
+        requestedWidth: _clampedResultsPaneWidth(totalWidth) + delta,
+      );
     });
   }
 
@@ -527,19 +522,21 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     return LibraryDialogScaffold(
       accent: accent,
       themeData: dialogTheme,
-      width: _dialogWidth ?? _defaultDialogWidth,
-      height: _dialogHeight ?? _defaultDialogHeight,
-      minWidth: _minDialogWidth,
-      maxWidth: _maxDialogWidth,
-      minHeight: _minDialogHeight,
-      maxHeight: _maxDialogHeight,
+      width: _dialogWidth ?? LibraryAddDialogLayout.defaultDialogWidth,
+      height: _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
+      minWidth: LibraryAddDialogLayout.minDialogWidth,
+      maxWidth: LibraryAddDialogLayout.maxDialogWidth,
+      minHeight: LibraryAddDialogLayout.minDialogHeight,
+      maxHeight: LibraryAddDialogLayout.maxDialogHeight,
       onResizeWidth: (delta) => setState(() {
-        _dialogWidth = ((_dialogWidth ?? _defaultDialogWidth) + delta)
-            .clamp(_minDialogWidth, _maxDialogWidth);
+        _dialogWidth = LibraryAddDialogLayout.clampDialogWidth(
+          (_dialogWidth ?? LibraryAddDialogLayout.defaultDialogWidth) + delta,
+        );
       }),
       onResizeHeight: (delta) => setState(() {
-        _dialogHeight = ((_dialogHeight ?? _defaultDialogHeight) + delta)
-            .clamp(_minDialogHeight, _maxDialogHeight);
+        _dialogHeight = LibraryAddDialogLayout.clampDialogHeight(
+          (_dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight) + delta,
+        );
       }),
       header: widget.headerBuilder?.call(context, headerRequest) ??
           addCapability.headerBuilder?.call(context, headerRequest) ??
