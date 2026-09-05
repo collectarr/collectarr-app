@@ -2175,6 +2175,8 @@ The unused shared episodic tracking draft has also been removed.
 Movie's release shelf drilldown now lives under the Movie release module with
 Movie-specific model and widget names.
 
+The unused shared video workspace-progress surface has also been removed.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
