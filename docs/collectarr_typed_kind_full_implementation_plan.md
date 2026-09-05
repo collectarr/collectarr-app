@@ -3022,6 +3022,11 @@ completion semantics where structurally promised
 
 Kind-specific semantics remain separate tests.
 
+Status: complete. Shared tracking-profile contracts and typed tracking-entry
+contracts now run for all nine active kinds, covering status vocabulary,
+storage normalization, progress ratios, persistence round-trips, completion
+timestamps/counts, and reset semantics.
+
 ---
 
 ## PR 110 — Provider contracts

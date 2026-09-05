@@ -103,5 +103,9 @@ void main() {
       kindContractManifest.optionalParticipants['releaseProjection'],
       equals(videoReleaseKinds),
     );
+    expect(
+      kindContractManifest.optionalParticipants['tracking'],
+      equals(kindContractManifest.activeKinds),
+    );
   });
 }
