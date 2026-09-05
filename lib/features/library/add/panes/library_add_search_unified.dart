@@ -118,7 +118,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       ensureKey(key, groupTitle);
       coreItems[key]!.add(item);
       sourceSets[key]!.add('core');
-      final payload = item.kindMetadata.toSyncPayload();
+      final payload = item.payload;
       final publisher = (payload['publisher'] ??
           (payload['publishing'] as Map?)?['original_publisher']) as String?;
       publishers[key] ??= publisher;
@@ -588,7 +588,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
     final displayTitle = _coreChildDisplayTitle(item);
-    final payload = item.kindMetadata.toSyncPayload();
+    final payload = item.payload;
     final publisher = (payload['publisher'] ??
         (payload['publishing'] as Map?)?['original_publisher']) as String?;
     final physicalFormatLabel = payload['physical_format_label'] as String?;
@@ -681,9 +681,8 @@ class _UnifiedCoreChildTile extends StatelessWidget {
 }
 
 String _coreChildDisplayTitle(CatalogItem item) {
-  final itemNumber = (item.kindMetadata.toSyncPayload()['item_number'] ??
-      (item.kindMetadata.toSyncPayload()['publishing']
-          as Map?)?['issue_number']) as String?;
+  final itemNumber = (item.payload['item_number'] ??
+      (item.payload['publishing'] as Map?)?['issue_number']) as String?;
   if (itemNumber != null && itemNumber.trim().isNotEmpty) {
     return '${item.title} #$itemNumber';
   }

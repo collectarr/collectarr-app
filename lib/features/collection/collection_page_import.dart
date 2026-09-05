@@ -961,7 +961,7 @@ class _CatalogThumb extends StatelessWidget {
 }
 
 String _catalogTitle(CatalogItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
+  final payload = item.payload;
   final pub = payload['publishing'] as Map?;
   final issue = (payload['item_number'] ?? pub?['issue_number'])?.toString();
   if (issue == null || issue.isEmpty) {
@@ -971,7 +971,7 @@ String _catalogTitle(CatalogItem item) {
 }
 
 String _catalogSubtitle(CatalogItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
+  final payload = item.payload;
   final pub = payload['publishing'] as Map?;
   final variant = (payload['variant'] ?? pub?['variant'])?.toString();
   final publisher =
@@ -1041,8 +1041,7 @@ CatalogItem? _confidentImportMatch(
       : MetadataSearchQuery.normalizeBarcode(row.barcode!);
   if (barcode != null && barcode.isNotEmpty) {
     final barcodeMatches = results.where((item) {
-      final itemBarcode =
-          item.kindMetadata.toSyncPayload()['barcode'] as String?;
+      final itemBarcode = item.payload['barcode'] as String?;
       return itemBarcode != null &&
           MetadataSearchQuery.normalizeBarcode(itemBarcode) == barcode;
     }).toList(growable: false);

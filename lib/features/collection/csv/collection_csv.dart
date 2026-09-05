@@ -305,8 +305,7 @@ class CollectionCsv {
 
   List<String> _catalogFields(ShelfEntry entry) {
     final catalog = entry.catalogItem;
-    final payload =
-        catalog?.kindMetadata.toSyncPayload() ?? const <String, dynamic>{};
+    final payload = catalog?.payload ?? const <String, dynamic>{};
     final pub = payload['publishing'] as Map?;
     final itemNumber =
         (payload['item_number'] ?? pub?['issue_number'])?.toString() ?? '';

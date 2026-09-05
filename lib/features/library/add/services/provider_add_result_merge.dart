@@ -39,7 +39,7 @@ Map<String, dynamic> mergeHydratedProviderAddResultRaw({
   required Map<String, dynamic> raw,
   required CatalogItem sourceSelection,
 }) {
-  final payload = sourceSelection.kindMetadata.toSyncPayload();
+  final payload = sourceSelection.payload;
   final merged = <String, dynamic>{
     ...raw,
     if (!raw.containsKey('editions') && payload['editions'] != null)
@@ -59,7 +59,7 @@ Future<void> applyProviderIngestCorrections({
   required Map<String, Object?> corrections,
   required CatalogItem edited,
 }) {
-  final payload = edited.kindMetadata.toSyncPayload();
+  final payload = edited.payload;
   return api.adminUpdateCatalogItem(
     kind: kind,
     id: itemId,

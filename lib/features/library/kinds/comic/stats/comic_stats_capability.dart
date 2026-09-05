@@ -42,7 +42,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     final volumeGap = _numberedGapSummary(
       state.entries,
       (entry) {
-        final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+        final payload = entry.catalogItem?.payload;
         final rawVolume = payload?['volume_number'] ??
             (payload?['series'] as Map?)?['volume_number'];
         if (rawVolume == null) return null;
@@ -98,8 +98,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
           _comicMetadata(entry)
               ?.characters
               .where((name) => name.trim().isNotEmpty) ??
-          ((entry.catalogItem?.kindMetadata.toSyncPayload()['characters']
-                  as List?)
+          ((entry.catalogItem?.payload['characters'] as List?)
               ?.cast<String>()
               .where((name) => name.trim().isNotEmpty)) ??
           const <String>[],
@@ -113,8 +112,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
           _comicMetadata(entry)
               ?.storyArcs
               .where((name) => name.trim().isNotEmpty) ??
-          ((entry.catalogItem?.kindMetadata.toSyncPayload()['story_arcs']
-                  as List?)
+          ((entry.catalogItem?.payload['story_arcs'] as List?)
               ?.cast<String>()
               .where((name) => name.trim().isNotEmpty)) ??
           const <String>[],
@@ -129,7 +127,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   static Iterable<Map<String, dynamic>> _creatorCredits(ShelfEntry entry) {
     final meta = _comicMetadata(entry);
     if (meta != null) return meta.creators;
-    final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+    final payload = entry.catalogItem?.payload;
     final creators = payload?['creators'] as List?;
     if (creators != null) {
       return creators.whereType<Map<String, dynamic>>();
@@ -166,7 +164,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
       if (!entry.isOwned) {
         continue;
       }
-      final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+      final payload = entry.catalogItem?.payload;
       final seriesTitle = ((payload?['series_title'] ??
               (payload?['series'] as Map?)?['series_title']) as String?)
           ?.trim();
@@ -210,7 +208,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
       if (!entry.isOwned) {
         continue;
       }
-      final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+      final payload = entry.catalogItem?.payload;
       final seriesTitle = ((payload?['series_title'] ??
               (payload?['series'] as Map?)?['series_title']) as String?)
           ?.trim();

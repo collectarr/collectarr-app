@@ -337,8 +337,8 @@ class _LibraryVideoDetailPageState
             if (_isTvKind)
               LibraryExternalLinksSection(
                 title: 'External links',
-                links: ((request.item.source.catalogItem?.kindMetadata
-                            .toSyncPayload()['trailer_urls'] as List?)
+                links: ((request.item.source.catalogItem
+                            ?.payload['trailer_urls'] as List?)
                         ?.whereType<Map<String, dynamic>>()
                         .map((e) =>
                             TrailerLink.fromJson(Map<String, dynamic>.from(e)))

@@ -141,8 +141,7 @@ String? _metadataFactValue(
 
 Widget _buildEditionFormatBadges(LibraryProjectionRuntime item) {
   final catalogItem = item.source.catalogItem;
-  final editionsPayload =
-      catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?;
+  final editionsPayload = catalogItem?.payload['editions'] as List?;
   final editions = editionsPayload != null
       ? editionsPayload
           .whereType<Map<Object?, Object?>>()

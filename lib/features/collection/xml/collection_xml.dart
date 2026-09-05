@@ -65,7 +65,7 @@ class CollectionXml {
             });
           } else if (item != null) {
             builder.element('Catalog', nest: () {
-              final payload = item.kindMetadata.toSyncPayload();
+              final payload = item.payload;
               final pubMap = payload['publishing'] as Map?;
               final seriesMap = payload['series'] as Map?;
               _textElement(builder, 'Kind', item.kind);

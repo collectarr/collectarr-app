@@ -87,18 +87,19 @@ class ProviderCandidate {
 
   CatalogItem placeholderItem() {
     return typedCatalogItemFromMap({
-          'id': localCatalogId,
-          'kind': kind,
-          'title': title,
-          'item_number': issueNumber,
-          'issue_number': issueNumber,
-          'synopsis': summary,
-          'cover_image_url': imageUrl,
-          'variant': variantName,
-          'publisher': publisher,
-          if (series != null) 'series_title': series!.seriesTitle,
-          if (series != null) 'volume_start_year': series!.volumeStartYear,
-        });
+      'id': localCatalogId,
+      'kind': kind,
+      'title': title,
+      'item_number': issueNumber,
+      'issue_number': issueNumber,
+      'synopsis': summary,
+      'cover_image_url': imageUrl,
+      'variant': variantName,
+      'publisher': publisher,
+      if (series != null) 'series_title': series!.seriesTitle,
+      if (series != null) 'volume_start_year': series!.volumeStartYear,
+      if (series != null) 'release_year': series!.volumeStartYear,
+    });
   }
 
   bool get isStub {

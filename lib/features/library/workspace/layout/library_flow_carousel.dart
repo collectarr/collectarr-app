@@ -831,8 +831,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
       if (formatLabel != null) formatLabel,
     ].whereType<String>().join('  ·  ');
 
-    final payload =
-        widget.item.source.catalogItem?.kindMetadata.toSyncPayload();
+    final payload = widget.item.source.catalogItem?.payload;
     final editions = (payload?['editions'] as List?)
             ?.whereType<Map<Object?, Object?>>()
             .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))

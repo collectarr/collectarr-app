@@ -28,7 +28,7 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
 ) {
   final barcodeBuckets = <String, _DuplicateBucket>{};
   for (final entry in entries) {
-    final payload = entry.catalogItem?.kindMetadata.toSyncPayload() ?? const {};
+    final payload = entry.catalogItem?.payload ?? const {};
     final rawBarcode = payload['barcode']?.toString();
     final barcode = _normalizedBarcode(rawBarcode);
     if (barcode == null) {
@@ -58,7 +58,7 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
     if (item == null) {
       continue;
     }
-    final payload = item.kindMetadata.toSyncPayload();
+    final payload = item.payload;
     final title = _normalizedText(item.title);
     final issue = _normalizedText(
         (payload['item_number'] ?? payload['itemNumber'])?.toString());
@@ -344,9 +344,7 @@ class _DuplicateEntryRow extends StatelessWidget {
                     item == null
                         ? entry.title
                         : _itemTitle(
-                            item.title,
-                            item.kindMetadata.toSyncPayload()['item_number']
-                                as String?),
+                            item.title, item.payload['item_number'] as String?),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -433,7 +431,7 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   }
   if (_allShareValue(
     catalogItems.map((item) {
-      final payload = item.kindMetadata.toSyncPayload();
+      final payload = item.payload;
       return _normalizedText(
           (payload['item_number'] ?? payload['itemNumber'])?.toString());
     }),
@@ -442,7 +440,7 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   }
   if (_allShareValue(
     catalogItems.map((item) {
-      final payload = item.kindMetadata.toSyncPayload();
+      final payload = item.payload;
       return _normalizedText(payload['publisher']?.toString());
     }),
   )) {
@@ -453,7 +451,7 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   }
   if (_allShareValue(
     catalogItems.map((item) {
-      final payload = item.kindMetadata.toSyncPayload();
+      final payload = item.payload;
       return _normalizedText(payload['variant']?.toString());
     }),
   )) {
@@ -494,7 +492,7 @@ String _issueDuplicateLabel(ShelfEntry entry) {
   if (catalogItem == null) {
     return entry.title;
   }
-  final payload = catalogItem.kindMetadata.toSyncPayload();
+  final payload = catalogItem.payload;
   final itemNumber =
       (payload['item_number'] ?? payload['itemNumber'])?.toString();
   final publisher = payload['publisher']?.toString();
@@ -512,7 +510,7 @@ String _issueDuplicateLabel(ShelfEntry entry) {
 
 String _entrySubtitle(ShelfEntry entry) {
   final catalogItem = entry.catalogItem;
-  final payload = catalogItem?.kindMetadata.toSyncPayload() ?? const {};
+  final payload = catalogItem?.payload ?? const {};
   final publisher = payload['publisher']?.toString();
   final barcode = payload['barcode']?.toString();
 

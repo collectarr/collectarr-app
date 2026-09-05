@@ -122,10 +122,9 @@ class MusicLibraryMediaPresentationBuilder
       genreLine: genreLine.isEmpty ? null : genreLine,
       subLine: subLine,
       coverUrl: coverUrl,
-      itemNumber:
-          (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
-              preview?.itemNumber ??
-              candidate?.issueNumber,
+      itemNumber: (item?.payload['item_number'] as String?) ??
+          preview?.itemNumber ??
+          candidate?.issueNumber,
       tracks: tracks,
       trackCount:
           (releaseDetails?['track_count'] as num?)?.toInt() ?? tracks.length,

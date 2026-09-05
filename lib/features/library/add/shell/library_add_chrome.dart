@@ -342,8 +342,8 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                         children: [
                           for (final suggestion in request.suggestions)
                             () {
-                              final itemNumber = suggestion.kindMetadata
-                                  .toSyncPayload()['item_number'] as String?;
+                              final itemNumber =
+                                  suggestion.payload['item_number'] as String?;
                               return ListTile(
                                 dense: true,
                                 title: Text(suggestion.title),

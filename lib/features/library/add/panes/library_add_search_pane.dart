@@ -563,9 +563,9 @@ class _SearchResultsGrid extends StatelessWidget {
         final title = isCore ? item.title : candidate!.title;
         final coverUrl = isCore ? item.displayCoverUrl : candidate!.imageUrl;
         final corePublisher = isCore
-            ? ((item.kindMetadata.toSyncPayload()['publisher'] ??
-                (item.kindMetadata.toSyncPayload()['publishing']
-                    as Map?)?['original_publisher']) as String?)
+            ? ((item.payload['publisher'] ??
+                    (item.payload['publishing'] as Map?)?['original_publisher'])
+                as String?)
             : null;
         final subtitle = isCore
             ? [
@@ -938,7 +938,7 @@ class SearchResultTile extends StatelessWidget {
     final summary = matchSummary?.call(item);
     final resultDisplay =
         type.presentation.builder.buildSearchResultDisplay(item: item);
-    final payload = item.kindMetadata.toSyncPayload();
+    final payload = item.payload;
     final publisher = (payload['publisher'] ??
         (payload['publishing'] as Map?)?['original_publisher']) as String?;
     final physicalFormatLabel = payload['physical_format_label'] as String?;

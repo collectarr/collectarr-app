@@ -156,7 +156,7 @@ Future<void> addLibraryItemsToTarget({
 }
 
 bool? _digitalOwnedItemFlag(CatalogItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
+  final payload = item.payload;
   if (payload['is_digital'] is bool) {
     return payload['is_digital'] as bool;
   }

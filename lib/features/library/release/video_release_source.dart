@@ -31,7 +31,7 @@ List<CatalogEdition> resolveVideoCatalogEditionsForCatalogItem(
   Iterable<OwnedItem> ownedItems = const <OwnedItem>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
-  final payload = item.kindMetadata.toSyncPayload();
+  final payload = item.payload;
   final editionsPayload = payload['editions'] as List?;
   final rawEditions = editionsPayload != null
       ? editionsPayload

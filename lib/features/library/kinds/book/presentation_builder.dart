@@ -242,20 +242,18 @@ class BookLibraryMediaPresentationBuilder
         if (creator['name']?.toString().trim().isNotEmpty == true)
           creator['name']!.toString().trim(),
     ];
-    if (creatorNames.isNotEmpty) {
-      sectionSpecs.add(
-        LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.relations,
-          title: 'Contributors',
-          chips: [
-            LibraryDetailChipGroup(
-              values: creatorNames,
-              onValueTap: onFilterByValue,
-            ),
-          ],
-        ),
-      );
-    }
+    sectionSpecs.add(
+      LibraryDetailSectionSpec(
+        slot: LibraryDetailSectionSlot.relations,
+        title: 'Contributors',
+        chips: [
+          LibraryDetailChipGroup(
+            values: creatorNames,
+            onValueTap: onFilterByValue,
+          ),
+        ],
+      ),
+    );
 
     final imageFacts = <LibraryDetailField>[
       if (dto.coverImageUrl?.trim().isNotEmpty == true)
@@ -860,10 +858,14 @@ List<String> _bookDiscoveryTagsForSelection({
 
 BookCatalogMetadata? _bookMetadata(LibraryProjectionRuntime item) {
   final metadata = item.source.catalogItem?.kindMetadata;
-  return metadata is BookCatalogMetadata ? metadata : null;
+  if (metadata is BookCatalogMetadata) return metadata;
+  final payload = item.source.catalogItem?.payload;
+  return payload == null ? null : BookCatalogMetadata.fromJson(payload);
 }
 
 BookCatalogMetadata? _bookMetadataItem(CatalogItem? item) {
   final metadata = item?.kindMetadata;
-  return metadata is BookCatalogMetadata ? metadata : null;
+  if (metadata is BookCatalogMetadata) return metadata;
+  final payload = item?.payload;
+  return payload == null ? null : BookCatalogMetadata.fromJson(payload);
 }

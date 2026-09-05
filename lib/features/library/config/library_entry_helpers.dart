@@ -42,7 +42,7 @@ bool itemHasMissingCover(CatalogItem item) {
 }
 
 bool itemHasMissingDetails(CatalogItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
+  final payload = item.payload;
   final publisher = (payload['publisher'] ??
       (payload['publishing'] as Map?)?['original_publisher']) as String?;
   return (publisher == null || publisher.trim().isEmpty) ||
@@ -239,7 +239,7 @@ List<String> libraryReferencePlatforms(LibraryProjectionRuntime item) {
     values.add(variantPlatform);
   }
   final catalogItem = item.source.catalogItem;
-  final payload = catalogItem?.kindMetadata.toSyncPayload();
+  final payload = catalogItem?.payload;
   final gameMap = payload?['game'];
   final rawPlatforms = (gameMap is Map
       ? gameMap['platforms']

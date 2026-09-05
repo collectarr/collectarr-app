@@ -111,7 +111,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
         selectedItem?.title ??
         selectedCandidate!.title;
     final itemNumber = selectedBundle == null
-        ? (selectedItem?.kindMetadata.toSyncPayload()['item_number'] as String?)
+        ? (selectedItem?.payload['item_number'] as String?)
         : null;
     final preview = candidatePreview;
     final synopsis = selectedItem?.synopsis ??
@@ -1199,7 +1199,7 @@ List<(String, String?)> _metadataRowsForItem(
   LibraryKindRuntime type,
 ) {
   final previewLabels = type.presentation.previewLabels;
-  final payload = item.kindMetadata.toSyncPayload();
+  final payload = item.payload;
   final seriesMap = payload['series'] as Map?;
   final seriesTitle =
       (payload['series_title'] ?? seriesMap?['series_title']) as String?;
@@ -1368,7 +1368,7 @@ List<_PreviewDiscoverySectionData> _discoverySections({
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
-  final payload = item?.kindMetadata.toSyncPayload();
+  final payload = item?.payload;
   final itemCreators = payload?['creators'];
   final creators = (itemCreators is List)
       ? itemCreators

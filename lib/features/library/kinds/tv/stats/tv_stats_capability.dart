@@ -22,7 +22,7 @@ class TvStatsCapability implements LibraryStatsCapability {
     final seasonGap = _numberedGapSummary(
       state.entries,
       (entry) {
-        final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+        final payload = entry.catalogItem?.payload;
         final rawSeason = payload?['season_number'] ??
             (payload?['series'] as Map?)?['season_number'];
         if (rawSeason == null) return null;
@@ -50,7 +50,7 @@ class TvStatsCapability implements LibraryStatsCapability {
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
       if (!entry.isOwned) continue;
-      final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+      final payload = entry.catalogItem?.payload;
       final seriesTitle = ((payload?['series_title'] ??
               (payload?['series'] as Map?)?['series_title']) as String?)
           ?.trim();
