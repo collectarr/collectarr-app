@@ -1,8 +1,9 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 
 class ComicValueCapability implements LibraryValueCapability {
@@ -12,19 +13,24 @@ class ComicValueCapability implements LibraryValueCapability {
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
     Iterable<ShelfEntry> entries,
   ) {
-    final valuedEntries = entries.where((entry) {
-      final ownedItem = entry.ownedItem;
-      final details = ownedItem?.details;
-      return entry.isOwned &&
-          details is ComicOwnedDetails &&
-          details.coverPriceCents != null &&
-          ownedItem?.currency != null;
+    final valuedEntries = [
+      for (final entry in entries)
+        if (entry.isOwned)
+          (
+            entry: entry,
+            owned: _comicOwnedItem(entry),
+          ),
+    ].where((candidate) {
+      final ownedItem = candidate.owned;
+      return ownedItem != null &&
+          ownedItem.details.coverPriceCents != null &&
+          ownedItem.currency != null;
     }).toList(growable: false);
     if (valuedEntries.isEmpty) {
       return null;
     }
     final currencies = {
-      for (final entry in valuedEntries) entry.ownedItem!.currency!,
+      for (final candidate in valuedEntries) candidate.owned!.currency!,
     };
     return LibraryCollectionValueSummary(
       valuedCount: valuedEntries.length,
@@ -32,12 +38,8 @@ class ComicValueCapability implements LibraryValueCapability {
           ? null
           : valuedEntries.fold<int>(
               0,
-              (total, entry) {
-                final details = entry.ownedItem!.details;
-                return total +
-                    (details is ComicOwnedDetails
-                        ? details.coverPriceCents ?? 0
-                        : 0);
+              (total, candidate) {
+                return total + candidate.owned!.details.coverPriceCents!;
               },
             ),
       currency: currencies.length == 1 ? currencies.single : null,
@@ -59,5 +61,13 @@ class ComicValueCapability implements LibraryValueCapability {
     final payload = catalog?.payload ?? const <String, dynamic>{};
     final publishing = payload['publishing'] as Map?;
     return (publishing?['cover_price_cents'] as num?)?.toInt();
+  }
+
+  static ComicOwnedItem? _comicOwnedItem(ShelfEntry entry) {
+    final owned = entry.ownedItem;
+    if (owned == null) {
+      return null;
+    }
+    return ComicOwnedItemLegacyAdapter.fromLegacy(owned);
   }
 }

@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
 
@@ -26,8 +27,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
 
   static int countKeyComics(Iterable<ShelfEntry> entries) {
     return entries.where((entry) => entry.isOwned).where((entry) {
-      final details = entry.ownedItem?.details;
-      return details is ComicOwnedDetails && details.keyComic;
+      return _comicOwnedItem(entry)?.details.keyComic == true;
     }).length;
   }
 
@@ -41,11 +41,10 @@ class ComicStatsCapability implements LibraryStatsCapability {
     final volumeGap = _numberedGapSummary(
       state.entries,
       (entry) {
-        final payload = entry.catalogItem?.payload;
-        final rawVolume = payload?['volume_number'] ??
-            (payload?['series'] as Map?)?['volume_number'];
+        final metadata = _comicMetadata(entry);
+        final rawVolume = metadata?.series?.volumeNumber;
         if (rawVolume == null) return null;
-        final volume = double.tryParse(rawVolume.toString());
+        final volume = double.tryParse(rawVolume);
         if (volume == null || volume % 1 != 0) {
           return null;
         }
@@ -84,9 +83,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   static Map<String, int> _topCreatorCounts(List<ShelfEntry> entries) {
     return _countMany(
       entries,
-      (entry) => _creatorCredits(entry)
-          .map((credit) => credit['name']?.toString() ?? '')
-          .where((name) => name.trim().isNotEmpty),
+      _creatorNames,
     );
   }
 
@@ -97,9 +94,6 @@ class ComicStatsCapability implements LibraryStatsCapability {
           _comicMetadata(entry)
               ?.characters
               .where((name) => name.trim().isNotEmpty) ??
-          ((entry.catalogItem?.payload['characters'] as List?)
-              ?.cast<String>()
-              .where((name) => name.trim().isNotEmpty)) ??
           const <String>[],
     );
   }
@@ -111,27 +105,19 @@ class ComicStatsCapability implements LibraryStatsCapability {
           _comicMetadata(entry)
               ?.storyArcs
               .where((name) => name.trim().isNotEmpty) ??
-          ((entry.catalogItem?.payload['story_arcs'] as List?)
-              ?.cast<String>()
-              .where((name) => name.trim().isNotEmpty)) ??
           const <String>[],
     );
   }
 
-  static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {
-    final metadata = entry.catalogItem?.kindMetadata;
-    return metadata is ComicCatalogMetadata ? metadata : null;
-  }
-
-  static Iterable<Map<String, dynamic>> _creatorCredits(ShelfEntry entry) {
+  static Iterable<String> _creatorNames(ShelfEntry entry) {
     final meta = _comicMetadata(entry);
-    if (meta != null) return meta.creators;
-    final payload = entry.catalogItem?.payload;
-    final creators = payload?['creators'] as List?;
-    if (creators != null) {
-      return creators.whereType<Map<String, dynamic>>();
+    if (meta == null) {
+      return const <String>[];
     }
-    return const <Map<String, dynamic>>[];
+    if (meta.creatorCredits.isNotEmpty) {
+      return meta.creatorCredits.map((credit) => credit.name);
+    }
+    return meta.creators.map((credit) => credit['name']?.toString() ?? '');
   }
 
   static Map<String, int> _countMany(
@@ -163,12 +149,10 @@ class ComicStatsCapability implements LibraryStatsCapability {
       if (!entry.isOwned) {
         continue;
       }
-      final payload = entry.catalogItem?.payload;
-      final seriesTitle = ((payload?['series_title'] ??
-              (payload?['series'] as Map?)?['series_title']) as String?)
-          ?.trim();
-      final itemNumberStr = payload?['item_number'] as String?;
-      final issueNumber = _wholeIssueNumber(itemNumberStr);
+      final metadata = _comicMetadata(entry);
+      final seriesTitle =
+          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
+      final issueNumber = _wholeIssueNumber(metadata?.issueNumber);
       if (seriesTitle == null || seriesTitle.isEmpty || issueNumber == null) {
         continue;
       }
@@ -207,10 +191,9 @@ class ComicStatsCapability implements LibraryStatsCapability {
       if (!entry.isOwned) {
         continue;
       }
-      final payload = entry.catalogItem?.payload;
-      final seriesTitle = ((payload?['series_title'] ??
-              (payload?['series'] as Map?)?['series_title']) as String?)
-          ?.trim();
+      final metadata = _comicMetadata(entry);
+      final seriesTitle =
+          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
       final number = numberFor(entry);
       if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;
@@ -246,6 +229,26 @@ class ComicStatsCapability implements LibraryStatsCapability {
     }
     final match = RegExp(r"^\s*(\d+)").firstMatch(value);
     return match == null ? null : int.tryParse(match.group(1)!);
+  }
+
+  static ComicOwnedItem? _comicOwnedItem(ShelfEntry entry) {
+    final owned = entry.ownedItem;
+    if (owned == null) {
+      return null;
+    }
+    return ComicOwnedItemLegacyAdapter.fromLegacy(owned);
+  }
+
+  static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {
+    final metadata = entry.catalogItem?.kindMetadata;
+    if (metadata is ComicCatalogMetadata) {
+      return metadata;
+    }
+    final payload = entry.catalogItem?.payload;
+    if (payload == null || payload.isEmpty) {
+      return null;
+    }
+    return ComicCatalogMetadata.fromJson(payload);
   }
 }
 
