@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -12,6 +11,7 @@ import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -67,14 +67,20 @@ void main() {
       wishlist: WishlistItemsCacheRepository(db),
       catalogCache: catalogCache,
       trackingEntries: TrackingEntriesCacheRepository(db),
-      trackingUnits: TrackingUnitsCacheRepository(db),
+      trackingUnits: TrackingUnitsCacheRepository(
+        db,
+        codecs: collectarrTrackingUnitCodecs,
+      ),
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
 
     trackingMutations = TrackingMutations(
       trackingEntries: TrackingEntriesCacheRepository(db),
-      trackingUnits: TrackingUnitsCacheRepository(db),
+      trackingUnits: TrackingUnitsCacheRepository(
+        db,
+        codecs: collectarrTrackingUnitCodecs,
+      ),
       watchSessions: WatchSessionsCacheRepository(db),
       catalogCache: catalogCache,
       ownedItems: OwnedItemsCacheRepository(db),

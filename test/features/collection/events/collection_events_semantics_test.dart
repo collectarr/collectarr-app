@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -43,7 +44,10 @@ void main() {
     final wishlistRepo = WishlistItemsCacheRepository(db);
     final catalogRepo = LibraryCatalogRepository(db);
     final trackingRepo = TrackingEntriesCacheRepository(db);
-    final trackingUnitsRepo = TrackingUnitsCacheRepository(db);
+    final trackingUnitsRepo = TrackingUnitsCacheRepository(
+      db,
+      codecs: collectarrTrackingUnitCodecs,
+    );
     final watchSessionsRepo = WatchSessionsCacheRepository(db);
     final syncQueueRepo = SyncQueueRepository(db);
 

@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +17,10 @@ void main() {
   test('stores coordinates in the matching kind table', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingUnitsCacheRepository(db);
+    final repository = TrackingUnitsCacheRepository(
+      db,
+      codecs: collectarrTrackingUnitCodecs,
+    );
     final completedAt = DateTime.utc(2026, 9, 5, 12);
 
     await repository.upsert(
@@ -54,7 +58,10 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingUnitsCacheRepository(db);
+    final repository = TrackingUnitsCacheRepository(
+      db,
+      codecs: collectarrTrackingUnitCodecs,
+    );
     final now = DateTime.utc(2026, 9, 5);
 
     await repository.upsertAll([
@@ -154,7 +161,10 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase(file));
     addTearDown(db.close);
-    final repository = TrackingUnitsCacheRepository(db);
+    final repository = TrackingUnitsCacheRepository(
+      db,
+      codecs: collectarrTrackingUnitCodecs,
+    );
     final unit = await repository.findById('legacy-episode');
 
     expect(unit, isA<VideoTrackingUnit>());

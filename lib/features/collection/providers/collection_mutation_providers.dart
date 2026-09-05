@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/collection/runner/collection_mutation_ru
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 
 final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));
@@ -59,7 +60,10 @@ final trackingEntriesCacheRepositoryProvider =
 
 final trackingUnitsCacheRepositoryProvider =
     Provider<TrackingUnitsCacheRepository>((ref) {
-  return TrackingUnitsCacheRepository(ref.watch(localDatabaseProvider));
+  return TrackingUnitsCacheRepository(
+    ref.watch(localDatabaseProvider),
+    codecs: collectarrTrackingUnitCodecs,
+  );
 });
 
 final watchSessionsCacheRepositoryProvider =

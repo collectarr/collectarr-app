@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/collection/repositories/user_external_li
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -65,7 +66,10 @@ final trackingEntriesByCatalogItemProvider =
 });
 
 final trackingUnitsProvider = FutureProvider<List<TrackingUnit>>((ref) async {
-  final cache = TrackingUnitsCacheRepository(ref.watch(localDatabaseProvider));
+  final cache = TrackingUnitsCacheRepository(
+    ref.watch(localDatabaseProvider),
+    codecs: collectarrTrackingUnitCodecs,
+  );
   return cache.listActive();
 });
 

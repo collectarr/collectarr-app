@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:drift/native.dart';
@@ -37,7 +38,10 @@ void main() {
       wishlist: wishlistRepo,
       catalogCache: catalogCache,
       trackingEntries: TrackingEntriesCacheRepository(db),
-      trackingUnits: TrackingUnitsCacheRepository(db),
+      trackingUnits: TrackingUnitsCacheRepository(
+        db,
+        codecs: collectarrTrackingUnitCodecs,
+      ),
       syncQueue: syncQueue,
       mutationRunner: runner,
     );
