@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:csv/csv.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 
@@ -276,7 +276,7 @@ class CollectionCsv {
           customFieldValuesByItem: customFieldValuesByItem,
         ),
     ];
-    return const CsvEncoder(lineDelimiter: '\n').convert(rows);
+    return const CsvWriter(lineDelimiter: '\n').write(rows);
   }
 
   String exportClzFriendlyShelf(
@@ -300,7 +300,7 @@ class CollectionCsv {
           customFieldValuesByItem: customFieldValuesByItem,
         ),
     ];
-    return const CsvEncoder(lineDelimiter: '\n').convert(rows);
+    return const CsvWriter(lineDelimiter: '\n').write(rows);
   }
 
   List<String> _catalogFields(ShelfEntry entry) {
@@ -447,24 +447,21 @@ class CollectionCsv {
   }
 
   List<CollectionCsvRow> parse(String csv) {
-    final rows = const CsvDecoder(
+    final rows = const CsvReader(
       fieldDelimiter: ',',
       dynamicTyping: false,
-    ).convert(csv);
+    ).read(csv);
     if (rows.length <= 1) {
       return const [];
     }
-    final parsedHeader = rows.first.map(_cellValue).toList(growable: false);
-    if (parsedHeader.isNotEmpty) {
-      parsedHeader[0] = parsedHeader[0].replaceFirst('\ufeff', '');
-    }
+    final parsedHeader = rows.first.toList(growable: false);
     final index = _headerIndex(parsedHeader);
     final cfColumns = _customFieldColumns(parsedHeader);
     return [
       for (final row in rows.skip(1))
         _rowFromValues(
           index,
-          row.map(_cellValue).toList(growable: false),
+          row,
           cfColumns: cfColumns,
         ),
     ].where(_isMeaningfulRow).toList(growable: false);
@@ -689,8 +686,6 @@ class CollectionCsv {
       _ => false,
     };
   }
-
-  String _cellValue(dynamic value) => value?.toString() ?? '';
 
   String _normalizedStatus(String value) {
     final normalized = value.trim().toLowerCase();

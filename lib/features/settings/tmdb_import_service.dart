@@ -6,8 +6,8 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:csv/csv.dart';
 import 'package:dio/dio.dart';
+import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_runner.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -1011,21 +1011,18 @@ class TmdbImportService {
     String csvText, {
     required TmdbImportCollection collection,
   }) {
-    final rows = const CsvDecoder(
+    final rows = const CsvReader(
       fieldDelimiter: ',',
       dynamicTyping: false,
-    ).convert(csvText);
+    ).read(csvText);
     if (rows.length <= 1) {
       return const <TmdbImportEntry>[];
     }
-    final header = rows.first.map(_stringCell).toList(growable: false);
-    if (header.isNotEmpty) {
-      header[0] = header[0].replaceFirst('\ufeff', '');
-    }
+    final header = rows.first.toList(growable: false);
     final index = _csvHeaderIndex(header);
     final entries = rows
         .skip(1)
-        .map((row) => row.map(_stringCell).toList(growable: false))
+        .map((row) => row.toList(growable: false))
         .where((row) => row.any((value) => value.trim().isNotEmpty))
         .map((row) => _entryFromCsvRow(index, row, collection: collection))
         .whereType<TmdbImportEntry>()
@@ -1208,13 +1205,6 @@ class TmdbImportService {
 
   static bool _looksLikeJson(String value) {
     return value.startsWith('{') || value.startsWith('[');
-  }
-
-  static String _stringCell(Object? value) {
-    return switch (value) {
-      null => '',
-      _ => value.toString(),
-    };
   }
 
   static Map<String, int> _csvHeaderIndex(List<String> header) {

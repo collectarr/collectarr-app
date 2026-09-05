@@ -8,7 +8,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
-import 'package:csv/csv.dart';
+import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:file_selector/file_selector.dart';
 
 /// Shows a dialog to share the current collection view.
@@ -138,7 +138,7 @@ class _CollectionShareDialog extends StatelessWidget {
         ];
       }),
     ];
-    final csv = const CsvEncoder().convert(rows);
+    final csv = const CsvWriter().write(rows);
     Clipboard.setData(ClipboardData(text: csv));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Copied as CSV')),
@@ -184,7 +184,7 @@ class _CollectionShareDialog extends StatelessWidget {
         ];
       }),
     ];
-    final csv = const CsvEncoder().convert(rows);
+    final csv = const CsvWriter().write(rows);
     await _saveToFile(context, csv, 'csv');
   }
 
