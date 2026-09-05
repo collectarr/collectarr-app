@@ -25,12 +25,52 @@ Future<void> main() async {
 
     final seededCatalogCount =
         catalogRows.where((row) => row.id.startsWith('seed-')).length;
-    if (seededCatalogCount !=
-        devSeedCatalogCounts.values.fold<int>(0, (sum, count) => sum + count)) {
+    final expectedSeedCount =
+        devSeedCatalogCounts.values.fold<int>(0, (sum, count) => sum + count);
+    if (seededCatalogCount != expectedSeedCount) {
       throw StateError(
-        'Seed verification failed: expected ${devSeedCatalogCounts.values.fold<int>(0, (sum, count) => sum + count)} '
+        'Seed verification failed: expected $expectedSeedCount '
         'seed catalog rows, found $seededCatalogCount',
       );
+    }
+    for (final entry in devSeedCatalogCounts.entries) {
+      final catalogKindCount = catalogRows
+          .where((row) => row.id.startsWith('seed-') && row.kind == entry.key)
+          .length;
+      if (catalogKindCount != entry.value) {
+        throw StateError(
+          'Seed verification failed for ${entry.key}: expected '
+          '${entry.value} catalog rows, found $catalogKindCount',
+        );
+      }
+    }
+
+    final seededOwnedCount =
+        ownedRows.where((row) => row.itemId.startsWith('seed-')).length;
+    final seededTrackingCount =
+        trackingRows.where((row) => row.itemId.startsWith('seed-')).length;
+    if (seededOwnedCount != expectedSeedCount ||
+        seededTrackingCount != expectedSeedCount) {
+      throw StateError(
+        'Seed verification failed: expected $expectedSeedCount owned and '
+        'tracking rows, found $seededOwnedCount owned and '
+        '$seededTrackingCount tracking rows',
+      );
+    }
+    for (final entry in devSeedCatalogCounts.entries) {
+      final ownedKindCount = ownedRows
+          .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+          .length;
+      final trackingKindCount = trackingRows
+          .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+          .length;
+      if (ownedKindCount != entry.value || trackingKindCount != entry.value) {
+        throw StateError(
+          'Seed verification failed for ${entry.key}: expected '
+          '${entry.value} owned/tracking rows, found '
+          '$ownedKindCount/$trackingKindCount',
+        );
+      }
     }
 
     stdout.writeln(
@@ -38,7 +78,8 @@ Future<void> main() async {
       'seed_catalog_items=$seededCatalogCount '
       'owned_items=${ownedRows.length} tracking_entries=${trackingRows.length} '
       'item_images_cache=$imageCount '
-      'comic_owned_items=$comicOwnedCount comic_reading_rows=$comicReadingCount',
+      'comic_owned_items=$comicOwnedCount comic_reading_rows=$comicReadingCount '
+      'by_kind=${devSeedCatalogCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')}',
     );
   } finally {
     await db.close();

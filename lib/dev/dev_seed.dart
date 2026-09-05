@@ -127,6 +127,9 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     ownedItems: ownedItems,
     trackingEntries: trackingEntries,
   );
+  validateSeedCatalogQuality(allItems);
+  validateSeedOwnedQuality(ownedItems);
+  validateSeedTrackingQuality(trackingEntries);
 
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);

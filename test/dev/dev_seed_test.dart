@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
+import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -8,6 +9,21 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('seed quality guard rejects incomplete catalog data', () {
+    final incomplete = enrichSeedItem(
+      seedCatalogItem(
+        id: 'seed-comic-invalid',
+        kind: 'comic',
+        title: 'Incomplete fixture',
+      ),
+    );
+
+    expect(
+      () => validateSeedCatalogQuality([incomplete]),
+      throwsA(isA<StateError>()),
+    );
+  });
+
   test('dev seed populates new libraries and image sets, and is idempotent',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
@@ -23,6 +39,11 @@ void main() {
     }
     expect(catalogRows.map((row) => row.id).toSet(), hasLength(130));
     expect(catalogRows.every((row) => row.title.trim().isNotEmpty), isTrue);
+    expect(
+        catalogRows.every((row) =>
+            row.coverImageUrl?.trim().isNotEmpty == true &&
+            row.thumbnailImageUrl?.trim().isNotEmpty == true),
+        isTrue);
     final videoRows = catalogRows.where((row) =>
         row.kind == 'movie' || row.kind == 'tv' || row.kind == 'anime');
     expect(
