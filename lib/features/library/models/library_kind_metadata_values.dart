@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 Map<String, dynamic> libraryKindMetadataPayload(CatalogItem item) {
   return item.payload;

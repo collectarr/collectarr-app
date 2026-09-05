@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 
 import 'package:collectarr_app/core/models/owned_item_details.dart';

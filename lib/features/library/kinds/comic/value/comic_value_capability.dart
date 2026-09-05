@@ -14,8 +14,10 @@ class ComicValueCapability implements LibraryValueCapability {
   ) {
     final valuedEntries = entries.where((entry) {
       final ownedItem = entry.ownedItem;
+      final details = ownedItem?.details;
       return entry.isOwned &&
-          (ownedItem?.details as ComicOwnedDetails?)?.coverPriceCents != null &&
+          details is ComicOwnedDetails &&
+          details.coverPriceCents != null &&
           ownedItem?.currency != null;
     }).toList(growable: false);
     if (valuedEntries.isEmpty) {
@@ -30,10 +32,13 @@ class ComicValueCapability implements LibraryValueCapability {
           ? null
           : valuedEntries.fold<int>(
               0,
-              (total, entry) =>
-                  total +
-                  (entry.ownedItem!.details as ComicOwnedDetails)
-                      .coverPriceCents!,
+              (total, entry) {
+                final details = entry.ownedItem!.details;
+                return total +
+                    (details is ComicOwnedDetails
+                        ? details.coverPriceCents ?? 0
+                        : 0);
+              },
             ),
       currency: currencies.length == 1 ? currencies.single : null,
       hasMixedCurrencies: currencies.length > 1,
@@ -46,12 +51,13 @@ class ComicValueCapability implements LibraryValueCapability {
       return dto.metadata?.publishing?.coverPriceCents ??
           dto.comic.publishing.coverPriceCents;
     }
-    final meta = item.source.catalogItem?.kindMetadata;
-    if (meta is ComicCatalogMetadata) {
-      return meta.publishing?.coverPriceCents;
+    final catalog = item.source.catalogItem;
+    final metadata = catalog?.kindMetadata;
+    if (metadata is ComicCatalogMetadata) {
+      return metadata.publishing?.coverPriceCents;
     }
-    final payload = meta?.toSyncPayload();
-    final publishing = payload?['publishing'] as Map?;
+    final payload = catalog?.payload ?? const <String, dynamic>{};
+    final publishing = payload['publishing'] as Map?;
     return (publishing?['cover_price_cents'] as num?)?.toInt();
   }
 }

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
@@ -154,22 +153,21 @@ CatalogItem metadataItemFromIngestResult(AdminMetadataItem item) {
   final primaryVariant = item.primaryVariant;
   final releaseDate = primaryEdition?.releaseDate;
   return typedCatalogItemFromMap({
-        'id': item.id,
-        'kind': item.kind,
-        'title': item.title,
-        'item_number': item.itemNumber,
-        'synopsis': item.synopsis,
-        'cover_image_url':
-            primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
-        'thumbnail_image_url':
-            primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
-        'publisher': primaryEdition?.publisher ?? item.publisher,
-        'edition_title': primaryEdition?.title,
-        'physical_format': primaryEdition?.physicalFormat,
-        'physical_format_label': primaryEdition?.physicalFormatLabel,
-        'release_date': releaseDate?.toUtc().toIso8601String(),
-        'barcode': primaryVariant?.barcode ?? item.barcode,
-        'variant': primaryVariant?.name,
-        if (item.series != null) 'series_title': item.series!.seriesTitle,
-      });
+    'id': item.id,
+    'kind': item.kind,
+    'title': item.title,
+    'item_number': item.itemNumber,
+    'synopsis': item.synopsis,
+    'cover_image_url': primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
+    'thumbnail_image_url':
+        primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
+    'publisher': primaryEdition?.publisher ?? item.publisher,
+    'edition_title': primaryEdition?.title,
+    'physical_format': primaryEdition?.physicalFormat,
+    'physical_format_label': primaryEdition?.physicalFormatLabel,
+    'release_date': releaseDate?.toUtc().toIso8601String(),
+    'barcode': primaryVariant?.barcode ?? item.barcode,
+    'variant': primaryVariant?.name,
+    if (item.series != null) 'series_title': item.series!.seriesTitle,
+  });
 }

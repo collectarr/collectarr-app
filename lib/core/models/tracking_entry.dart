@@ -14,14 +14,14 @@ class TrackingEntry extends PersonalTrackingBase {
     this.variantId,
     this.bundleReleaseId,
     Object? sourceType,
-    Object? status,
-    int? rating,
-    DateTime? startedAt,
+    super.status,
+    super.rating,
+    super.startedAt,
     DateTime? finishedAt,
     this.progressCurrent,
     this.progressTotal,
     this.timesCompleted,
-    String? notes,
+    super.notes,
     this.seasonNumber,
     this.episodeNumber,
     Map<String, int>? episodeRatings,
@@ -30,11 +30,7 @@ class TrackingEntry extends PersonalTrackingBase {
   })  : sourceType = trackingSourceTypeFromValue(sourceType),
         episodeRatings = episodeRatings ?? const {},
         super(
-          status: status,
-          rating: rating,
-          startedAt: startedAt,
           completedAt: finishedAt,
-          notes: notes,
         );
 
   final String id;

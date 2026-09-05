@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:flutter/material.dart';
 
@@ -100,11 +99,11 @@ class BookEditDraft extends LibraryEditKindDraft {
     final language = emptyToNull(languageController.text);
     final country = emptyToNull(countryController.text);
 
-    final updatedPublishing = meta?.publishing != null
-        ? meta!.publishing!.copyWith(
-            pageCount: count ?? meta.publishing?.pageCount,
-            imprint: impr ?? meta.publishing?.imprint,
-            originalPublisher: pub ?? meta.publishing?.originalPublisher,
+    final updatedPublishing = meta.publishing != null
+        ? meta.publishing!.copyWith(
+            pageCount: count ?? meta.publishing!.pageCount,
+            imprint: impr ?? meta.publishing!.imprint,
+            originalPublisher: pub ?? meta.publishing!.originalPublisher,
           )
         : ((count != null || impr != null || pub != null)
             ? CatalogPublishingDetailsDto(
@@ -114,31 +113,29 @@ class BookEditDraft extends LibraryEditKindDraft {
               )
             : null);
 
-    final updatedMetadata = meta?.copyWith(
-          publisher: pub ?? meta.publisher,
-          barcode: barcode ?? meta.barcode,
-          editionTitle: editionTitle ?? meta.editionTitle,
-          variant: variant ?? meta.variant,
-          physicalFormat: format ?? meta.physicalFormat,
-          physicalFormatLabel: format ?? meta.physicalFormatLabel,
-          language: language ?? meta.language,
-          country: country ?? meta.country,
-          authors: _splitValues(authorsController.text, fallback: meta.authors),
-          genres: _splitValues(genresController.text, fallback: meta.genres),
-          subjects:
-              _splitValues(subjectsController.text, fallback: meta.subjects),
-          translators: _splitValues(
-            translatorsController.text,
-            fallback: meta.translators,
-          ),
-          originalPublicationDate: parseDate(releaseDateController.text) ??
-              meta.originalPublicationDate,
-          publishing: updatedPublishing != null && updatedPublishing.hasData
-              ? updatedPublishing
-              : null,
-          links: _externalLinks.isNotEmpty ? _externalLinks : meta.links,
-        ) ??
-        selection.item.kindMetadata;
+    final updatedMetadata = meta.copyWith(
+      publisher: pub ?? meta.publisher,
+      barcode: barcode ?? meta.barcode,
+      editionTitle: editionTitle ?? meta.editionTitle,
+      variant: variant ?? meta.variant,
+      physicalFormat: format ?? meta.physicalFormat,
+      physicalFormatLabel: format ?? meta.physicalFormatLabel,
+      language: language ?? meta.language,
+      country: country ?? meta.country,
+      authors: _splitValues(authorsController.text, fallback: meta.authors),
+      genres: _splitValues(genresController.text, fallback: meta.genres),
+      subjects: _splitValues(subjectsController.text, fallback: meta.subjects),
+      translators: _splitValues(
+        translatorsController.text,
+        fallback: meta.translators,
+      ),
+      originalPublicationDate:
+          parseDate(releaseDateController.text) ?? meta.originalPublicationDate,
+      publishing: updatedPublishing != null && updatedPublishing.hasData
+          ? updatedPublishing
+          : null,
+      links: _externalLinks.isNotEmpty ? _externalLinks : meta.links,
+    );
 
     final updatedItem = selection.item.copyWith(
       kindMetadata: updatedMetadata,
@@ -166,7 +163,7 @@ LibraryEditKindDraft createBookEditDraft({
   final ownedDetails = ownedItem?.details;
   final book = ownedDetails is BookOwnedDetails ? ownedDetails : null;
   final rawMetadata = item.kindMetadata;
-  final BookCatalogMetadata? metadata = rawMetadata is BookCatalogMetadata
+  final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
       ? rawMetadata
       : BookCatalogMetadata.fromJson(item.payload);
   return BookEditDraft(
@@ -174,52 +171,51 @@ LibraryEditKindDraft createBookEditDraft({
     dustJacketPresent: book?.dustJacketPresent ?? false,
     dustJacketCondition: book?.dustJacketCondition,
     pageCountController: textControllers.create(
-      text: metadata?.publishing?.pageCount?.toString() ?? '',
+      text: metadata.publishing?.pageCount?.toString() ?? '',
     ),
     imprintController: textControllers.create(
-      text: metadata?.publishing?.imprint ?? '',
+      text: metadata.publishing?.imprint ?? '',
     ),
     publisherController: textControllers.create(
-      text:
-          metadata?.publisher ?? metadata?.publishing?.originalPublisher ?? '',
+      text: metadata.publisher ?? metadata.publishing?.originalPublisher ?? '',
     ),
     barcodeController: textControllers.create(
-      text: metadata?.barcode ?? '',
+      text: metadata.barcode ?? '',
     ),
     releaseDateController: textControllers.create(
-      text: metadata?.originalPublicationDate != null
-          ? formatDate(metadata!.originalPublicationDate!)
+      text: metadata.originalPublicationDate != null
+          ? formatDate(metadata.originalPublicationDate!)
           : '',
     ),
     releaseYearController: textControllers.create(
-      text: metadata?.originalPublicationDate?.year.toString() ?? '',
+      text: metadata.originalPublicationDate?.year.toString() ?? '',
     ),
     editionTitleController: textControllers.create(
-      text: metadata?.editionTitle ?? '',
+      text: metadata.editionTitle ?? '',
     ),
     variantController: textControllers.create(
-      text: metadata?.variant ?? '',
+      text: metadata.variant ?? '',
     ),
     formatController: textControllers.create(
-      text: metadata?.physicalFormatLabel ?? metadata?.physicalFormat ?? '',
+      text: metadata.physicalFormatLabel ?? metadata.physicalFormat ?? '',
     ),
     languageController: textControllers.create(
-      text: metadata?.language ?? '',
+      text: metadata.language ?? '',
     ),
     countryController: textControllers.create(
-      text: metadata?.country ?? '',
+      text: metadata.country ?? '',
     ),
     authorsController: textControllers.create(
-      text: metadata?.authors.join(', ') ?? '',
+      text: metadata.authors.join(', '),
     ),
     genresController: textControllers.create(
-      text: metadata?.genres.join(', ') ?? '',
+      text: metadata.genres.join(', '),
     ),
     subjectsController: textControllers.create(
-      text: metadata?.subjects.join(', ') ?? '',
+      text: metadata.subjects.join(', '),
     ),
     translatorsController: textControllers.create(
-      text: metadata?.translators.join(', ') ?? '',
+      text: metadata.translators.join(', '),
     ),
   );
 }
