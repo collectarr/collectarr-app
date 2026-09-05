@@ -267,7 +267,7 @@ class _VideoSeasonTrackingSectionState
       _pendingEpisodeKeys.add(key);
     });
     try {
-      await ref.read(trackingMutationsProvider).setTrackingEpisodeCompleted(
+      await ref.read(tvTrackingUnitMutationsProvider).setEpisodeCompleted(
             widget.seriesRef,
             seasonNumber: seasonNumber,
             episodeNumber: episode.episodeNumber,
@@ -293,7 +293,9 @@ class _VideoSeasonTrackingSectionState
       _seasonMutationInFlight = true;
     });
     try {
-      await ref.read(trackingMutationsProvider).setSeasonEpisodesCompleted(
+      await ref
+          .read(tvTrackingUnitMutationsProvider)
+          .setSeasonEpisodesCompleted(
             widget.seriesRef,
             seasonNumber: season.seasonNumber,
             episodeNumbers:
