@@ -168,6 +168,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     // owning TV/Anime codecs interpret the payload, not the generic host.
     'lib/features/library/tracking/tracking_entry_codec.dart',
     'lib/features/library/tracking/watch_session_codec.dart',
+    'lib/features/library/tracking/custom_episode_codec.dart',
     'lib/features/library/generic/library_sort_preset_store.dart',
     'lib/features/library/generic/page/coordinators/page_cover_coordinator.dart',
     'lib/features/library/metadata/library_metadata_compare_dialog.dart',
@@ -198,6 +199,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     // interpretation after the generic host dispatches by kind.
     'lib/features/library/tracking/tracking_entry_codec.dart',
     'lib/features/library/tracking/watch_session_codec.dart',
+    'lib/features/library/tracking/custom_episode_codec.dart',
     'lib/features/library/detail/library_detail_hero.dart',
     'lib/features/library/detail/story_arc_detail_page.dart',
     'lib/features/library/generic/library_route_state.dart',
