@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `8dd0281c` (`refactor(repository): add typed read contract`)
+HEAD: `19155d38` (`feat(actions): add typed import export contracts`)
 
 ## Scope and evidence
 
@@ -41,6 +41,7 @@ Status meanings:
 | 9 | Typed structural `AddSchema` | **DONE** | Structural typed schemas and shared renderers exist and are exercised by contract tests. |
 | 10 | Declarative Add renderer | **DONE** | Structural typed schemas and shared renderers exist and are exercised by contract tests. |
 | 11 | Introduce typed `UiAction<TContext>` | **PARTIAL** | Structural `UiAction<TContext>` and placement contract now exist; the existing runtime-backed toolbar descriptors still need migration to kind-owned typed action registries. |
+| 12 | File import/export action contracts | **PARTIAL** | Structural `ExportArtifact`, `ImportPreview`, `ExportAction`, and `ImportAction` contracts now exist; generic file host migration and kind-owned format actions remain. |
 | 12 | File import/export action contracts | **NOT STARTED** | No complete structural UiAction/import-export contract and kind-owned action registry is in place. |
 | 13 | Action menu host | **NOT STARTED** | No complete structural UiAction/import-export contract and kind-owned action registry is in place. |
 | 14 | Remove canonical common Owned domain | **PARTIAL** | Structural refs and typed tracking pieces exist, but common Owned/TrackingUnit compatibility remains. |
