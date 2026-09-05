@@ -3,7 +3,7 @@
     Reset the local Drift database and (optionally) run the app.
 
 .DESCRIPTION
-    1. Kills any lingering dart / flutter processes that hold the DB lock.
+    1. Kills lingering collectarr dart / flutter processes that hold the DB lock.
     2. Deletes collectarr.sqlite from the Documents folder.
     3. Optionally runs `flutter run -d windows` afterwards.
 
@@ -27,30 +27,40 @@ param(
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 
-# --- 1. Kill lingering dart processes ---
-$dartProcs = Get-Process -Name dart -ErrorAction SilentlyContinue
-if ($dartProcs) {
-    Write-Host "[reset] Killing $($dartProcs.Count) dart process(es)..." -ForegroundColor Yellow
-    $dartProcs | Stop-Process -Force
+# --- 1. Kill lingering workspace processes ---
+$workspaceRoot = [IO.Path]::GetFullPath($projectRoot).TrimEnd('\')
+$processNames = @('dart', 'flutter', 'collectarr_app')
+$workspaceProcesses = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
+    Where-Object {
+        $processNames -contains $_.Name.TrimEnd('.exe') -and
+        (
+            ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($workspaceRoot, [StringComparison]::OrdinalIgnoreCase)) -or
+            ($_.CommandLine -and $_.CommandLine.IndexOf($workspaceRoot, [StringComparison]::OrdinalIgnoreCase) -ge 0)
+        )
+    }
+
+if ($workspaceProcesses) {
+    Write-Host "[reset] Killing $($workspaceProcesses.Count) collectarr process(es)..." -ForegroundColor Yellow
+    $workspaceProcesses | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
     Start-Sleep -Milliseconds 500
 } else {
-    Write-Host "[reset] No lingering dart processes." -ForegroundColor Green
+    Write-Host "[reset] No lingering collectarr processes." -ForegroundColor Green
 }
 
 # --- 2. Delete the local Drift database ---
 $dbPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'collectarr.sqlite'
-if (Test-Path $dbPath) {
-    Remove-Item $dbPath -Force
+if (Test-Path -LiteralPath $dbPath) {
+    Remove-Item -LiteralPath $dbPath -Force
     Write-Host "[reset] Deleted $dbPath" -ForegroundColor Green
 } else {
     Write-Host "[reset] DB not found at $dbPath (already clean)." -ForegroundColor Green
 }
 
-# Also clean the -wal and -shm sidecar files if they exist
-foreach ($ext in @('.sqlite-wal', '.sqlite-shm')) {
-    $sidecar = $dbPath.Replace('.sqlite', $ext)
-    if (Test-Path $sidecar) {
-        Remove-Item $sidecar -Force
+# Also clean SQLite's journal sidecars if they exist.
+foreach ($suffix in @('-wal', '-shm', '-journal')) {
+    $sidecar = "$dbPath$suffix"
+    if (Test-Path -LiteralPath $sidecar) {
+        Remove-Item -LiteralPath $sidecar -Force
         Write-Host "[reset] Deleted sidecar $sidecar" -ForegroundColor Green
     }
 }
