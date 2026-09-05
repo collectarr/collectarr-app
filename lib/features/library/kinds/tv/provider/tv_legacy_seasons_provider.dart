@@ -26,13 +26,9 @@ final seasonsProvider = FutureProvider.autoDispose
   return const <Season>[];
 });
 
-/// Compatibility provider for callers that still consume the shared Season
-/// model. The Core DTO boundary lives in the TV-owned remote provider.
-final tvSeriesSeasonsProvider = tvSeasonsBySeriesProvider;
-
 final tvSeasonsBySeriesRefProvider = FutureProvider.autoDispose
     .family<List<Season>, String>((ref, seriesId) async {
-  final seasons = await ref.watch(tvSeriesSeasonsProvider(seriesId).future);
+  final seasons = await ref.watch(tvSeasonsBySeriesProvider(seriesId).future);
   return _seasonModelsToLegacySeasons(seasons);
 });
 

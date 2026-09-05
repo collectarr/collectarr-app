@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_search_debounce_provider.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_providers.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
 import '../../../../helpers/test_data_factories.dart';
 
@@ -181,26 +180,6 @@ void main() {
 
       subGrouped.close();
       subDisplay.close();
-    });
-  });
-
-  group('LibraryWorkspaceIntentNotifier Tests', () {
-    test(
-        'intent dispatcher delegates mutations to both filters and view config',
-        () {
-      final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      final intent = container.read(libraryWorkspaceIntentProvider(key));
-      intent.setViewMode(LibraryViewMode.list);
-      intent.setSort(ComicSortIds.rating);
-
-      final viewConfig = container.read(libraryViewConfigProvider(key));
-      final filters = container.read(libraryFiltersProvider(key));
-
-      expect(viewConfig.viewMode, equals(LibraryViewMode.list));
-      expect(filters.sortId, equals(ComicSortIds.rating));
     });
   });
 

@@ -147,7 +147,7 @@ class _LibraryBucketManagerDialogState
           ],
         ),
       ),
-      child: Column(
+      body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),

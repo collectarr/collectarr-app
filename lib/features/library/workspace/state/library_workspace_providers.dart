@@ -33,9 +33,6 @@ export 'library_field_options_providers.dart';
 // Phase 11 – Persistence (hydration + auto-save)
 export 'library_workspace_persistence.dart';
 
-// Phase 12 – Single dispatch facade
-export 'library_workspace_intent.dart';
-
 // Local facet values provider
 export 'library_facet_values_provider.dart';
 

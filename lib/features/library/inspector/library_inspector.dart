@@ -615,7 +615,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         onClose: () => Navigator.of(context).pop(),
-        child: SingleChildScrollView(child: child),
+        body: SingleChildScrollView(child: child),
       ),
     );
   }

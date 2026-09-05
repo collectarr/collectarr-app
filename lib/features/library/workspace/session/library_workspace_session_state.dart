@@ -282,9 +282,6 @@ final class LibrarySessionFolderState {
   final String? treeSelectedNodeId;
   final List<LibrarySidebarScopeSnapshot> scopeHistory;
 
-  /// Compatibility alias for [treeSelectedNodeId].
-  String? get selectedNodeId => treeSelectedNodeId;
-
   LibrarySessionFolderState copyWith({
     String? Function()? selectedBucket,
     LibraryFolderPreset? Function()? preset,

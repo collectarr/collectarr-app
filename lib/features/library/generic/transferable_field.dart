@@ -299,9 +299,6 @@ class TransferableField {
     ),
   ];
 
-  /// Backwards-compatible alias for universalBuiltIn.
-  static const List<TransferableField> sharedBuiltIn = universalBuiltIn;
-
   /// Build a complete field list including user-defined custom fields.
   static List<TransferableField> withCustomFields(
     List<CustomFieldDefinition> definitions, {

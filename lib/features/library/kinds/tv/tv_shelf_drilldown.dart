@@ -1,7 +1,3 @@
-// The legacy override adapter is intentionally dynamic until all UI callers
-// have moved to TV-owned season models.
-// ignore_for_file: avoid_dynamic_calls
-
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
@@ -31,15 +27,14 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
   final Future<void> Function() onRefreshFromCore;
   final VoidCallback onOpenTitleDetails;
 
-  /// Accepts typed TV seasons and legacy season values during UI migration.
-  final List<Object>? seasonsOverride;
+  /// Optional typed TV season data used by deterministic widget tests and
+  /// callers that already have a TV-owned hierarchy snapshot.
+  final List<TvSeason>? seasonsOverride;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
-    final seasons = seasonsOverride
-        ?.map((season) => _coerceSeason(season, titleItem.node.titleItemId))
-        .toList(growable: false);
+    final seasons = seasonsOverride;
     if (seasons != null) {
       return _buildWithSeasons(context, seasons);
     }
@@ -253,53 +248,6 @@ class _TvShelfSeasonItem {
 
   final TvSeason season;
   final LibraryProjectionRuntime item;
-}
-
-TvSeason _coerceSeason(Object value, String seriesId) {
-  if (value case final TvSeason season) {
-    return season;
-  }
-
-  // Compatibility adapter for callers that still pass the old shared Season
-  // model. The drilldown itself only consumes TV-owned models after this
-  // boundary.
-  final legacy = value as dynamic;
-  final seasonNumber = (legacy.seasonNumber as num?)?.toInt() ?? 0;
-  final seasonId =
-      legacy.providerItemId?.toString() ?? '$seriesId:season:$seasonNumber';
-  final rawEpisodes =
-      (legacy.episodes as Iterable<dynamic>? ?? const <dynamic>[])
-          .cast<Object>();
-  return TvSeason(
-    id: seasonId,
-    seriesId: seriesId,
-    seasonNumber: seasonNumber,
-    title: legacy.title?.toString(),
-    description: legacy.overview?.toString(),
-    airDate: DateTime.tryParse(legacy.airDate?.toString() ?? ''),
-    episodeCount: (legacy.episodeCount as num?)?.toInt(),
-    coverImageUrl: legacy.posterUrl?.toString(),
-    episodes: [
-      for (final entry in rawEpisodes)
-        _coerceEpisode(entry, seriesId, seasonId),
-    ],
-  );
-}
-
-TvEpisode _coerceEpisode(Object value, String seriesId, String seasonId) {
-  final legacy = value as dynamic;
-  final number = (legacy.episodeNumber as num?)?.toDouble();
-  final fallback = number?.toString() ?? '0';
-  return TvEpisode(
-    id: legacy.providerItemId?.toString() ?? '$seasonId:episode:$fallback',
-    seriesId: seriesId,
-    seasonId: seasonId,
-    episodeNumber: number,
-    title: legacy.title?.toString(),
-    description: legacy.overview?.toString(),
-    airDate: DateTime.tryParse(legacy.airDate?.toString() ?? ''),
-    runtimeMinutes: (legacy.runtimeMinutes as num?)?.toInt(),
-  );
 }
 
 String _episodeNumber(double? number) {

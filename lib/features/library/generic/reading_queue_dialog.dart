@@ -208,7 +208,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         onPressed: () => Navigator.of(context).pop(),
         child: const Text('Close'),
       ),
-      child: SizedBox(
+      body: SizedBox(
         width: 560,
         height: 460,
         child: _loading

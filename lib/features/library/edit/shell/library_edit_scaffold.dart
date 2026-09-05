@@ -185,7 +185,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
         maxHeight: maxHeight,
         density: LibraryDensity.comfortable,
         expandBody: false,
-        child: AnimatedSize(
+        body: AnimatedSize(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           alignment: Alignment.topCenter,

@@ -48,11 +48,10 @@ class LibraryDialogScaffold extends StatelessWidget {
     this.expandBody = true,
     this.themeData,
     this.insetPadding,
-    this.child,
     this.body,
   }) : assert(
-          header != null || title != null || child != null || body != null,
-          'LibraryDialogScaffold requires a header, title, child, or body.',
+          header != null || title != null || body != null,
+          'LibraryDialogScaffold requires a header, title, or body.',
         );
 
   final Widget? header;
@@ -78,9 +77,6 @@ class LibraryDialogScaffold extends StatelessWidget {
   final ThemeData? themeData;
   final EdgeInsets? insetPadding;
 
-  /// Main body child (alias for [body] for backwards compatibility).
-  final Widget? child;
-
   /// Main body content widget.
   final Widget? body;
 
@@ -89,7 +85,7 @@ class LibraryDialogScaffold extends StatelessWidget {
     final palette = appPalette(context);
     final resolvedAccent = accent ?? LibraryAccentScope.accentOf(context);
     final windowClass = AppWindowClass.of(context);
-    final effectiveBody = body ?? child ?? const SizedBox.shrink();
+    final effectiveBody = body ?? const SizedBox.shrink();
     final effectivePadding =
         padding ?? (body != null ? EdgeInsets.zero : const EdgeInsets.all(12));
 

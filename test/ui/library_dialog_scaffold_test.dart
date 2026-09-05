@@ -18,7 +18,7 @@ void main() {
                 return LibraryDialogScaffold(
                   title: const Text('Inspector'),
                   onClose: () {},
-                  child: const Text('Body'),
+                  body: const Text('Body'),
                 );
               },
             ),

@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -197,8 +196,7 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _baseEntries(
-      CatalogItem local, CatalogItem server) {
+  List<MetadataDiffEntry> _baseEntries(CatalogItem local, CatalogItem server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     return [
@@ -265,8 +263,7 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _comicEntries(
-      CatalogItem local, CatalogItem server) {
+  List<MetadataDiffEntry> _comicEntries(CatalogItem local, CatalogItem server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localSeries = (localP['series'] as Map?) ?? localP;
@@ -318,8 +315,7 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _musicEntries(
-      CatalogItem local, CatalogItem server) {
+  List<MetadataDiffEntry> _musicEntries(CatalogItem local, CatalogItem server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localSeries = (localP['series'] as Map?) ?? localP;
@@ -464,8 +460,7 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _discEntries(
-      CatalogItem local, CatalogItem server) {
+  List<MetadataDiffEntry> _discEntries(CatalogItem local, CatalogItem server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localMusic = (localP['music'] as Map?) ?? localP;
@@ -525,7 +520,7 @@ class _LibraryMetadataCompareDialogState
       maxWidth: 1200,
       maxHeight: 820,
       padding: EdgeInsets.zero,
-      child: _isLoading
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(

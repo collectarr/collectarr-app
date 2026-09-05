@@ -21,7 +21,7 @@ void main() {
       expect(state.filters.sortId, null);
       expect(state.filters.groupId, null);
       expect(state.selection.itemIds, isEmpty);
-      expect(state.folder.selectedNodeId, null);
+      expect(state.folder.treeSelectedNodeId, null);
       expect(state.asyncState.isLoading, false);
       expect(state.asyncState.error, null);
     });
@@ -73,7 +73,7 @@ void main() {
     test('setFolder updates selected folder node and display mode', () {
       controller.setFolder('folder-123',
           displayMode: LibraryFolderDisplayMode.tree);
-      expect(controller.value.folder.selectedNodeId, 'folder-123');
+      expect(controller.value.folder.treeSelectedNodeId, 'folder-123');
       expect(
           controller.value.folder.displayMode, LibraryFolderDisplayMode.tree);
     });
