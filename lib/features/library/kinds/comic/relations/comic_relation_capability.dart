@@ -13,10 +13,12 @@ const comicRelationCapability = LibraryRelationCapability(
 LibraryRelationTarget? _comicRelationTargetFor(
   LibraryProjectionRuntime item,
 ) {
-  final metadata = item.source.catalogItem?.kindMetadata;
-  if (metadata is! ComicCatalogMetadata) {
-    return null;
-  }
+  final catalog = item.source.catalogItem;
+  if (catalog == null) return null;
+  final rawMetadata = catalog.kindMetadata;
+  final metadata = rawMetadata is ComicCatalogMetadata
+      ? rawMetadata
+      : ComicCatalogMetadata.fromJson(catalog.payload);
   final series = metadata.series;
   final id = series?.seriesId?.trim();
   final title = series?.seriesTitle?.trim();

@@ -86,9 +86,10 @@ class BookEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.item.kindMetadata is BookCatalogMetadata
-        ? (selection.item.kindMetadata as BookCatalogMetadata)
-        : null;
+    final rawMetadata = selection.item.kindMetadata;
+    final meta = rawMetadata is BookCatalogMetadata
+        ? rawMetadata
+        : BookCatalogMetadata.fromJson(selection.item.payload);
     final count = int.tryParse(pageCountController.text);
     final impr = emptyToNull(imprintController.text);
     final pub = emptyToNull(publisherController.text);
@@ -165,8 +166,9 @@ LibraryEditKindDraft createBookEditDraft({
   final ownedDetails = ownedItem?.details;
   final book = ownedDetails is BookOwnedDetails ? ownedDetails : null;
   final rawMetadata = item.kindMetadata;
-  final BookCatalogMetadata? metadata =
-      rawMetadata is BookCatalogMetadata ? rawMetadata : null;
+  final BookCatalogMetadata? metadata = rawMetadata is BookCatalogMetadata
+      ? rawMetadata
+      : BookCatalogMetadata.fromJson(item.payload);
   return BookEditDraft(
     signedBy: book?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,

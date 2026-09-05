@@ -137,7 +137,8 @@ class CollectionXml {
                 _textElement(
                     builder, 'IndexNumber', owned.indexNumber.toString());
               }
-              final comic = owned.details as ComicOwnedDetails?;
+              final details = owned.details;
+              final comic = details is ComicOwnedDetails ? details : null;
               _textElement(builder, 'RawOrSlabbed', comic?.rawOrSlabbed);
               _textElement(builder, 'GradingCompany', comic?.gradingCompany);
               _textElement(builder, 'GraderNotes', comic?.graderNotes);

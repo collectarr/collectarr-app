@@ -25,11 +25,10 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static int countKeyComics(Iterable<ShelfEntry> entries) {
-    return entries
-        .where((entry) => entry.isOwned)
-        .where((entry) =>
-            (entry.ownedItem?.details as ComicOwnedDetails?)?.keyComic == true)
-        .length;
+    return entries.where((entry) => entry.isOwned).where((entry) {
+      final details = entry.ownedItem?.details;
+      return details is ComicOwnedDetails && details.keyComic;
+    }).length;
   }
 
   @override
