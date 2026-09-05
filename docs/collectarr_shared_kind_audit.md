@@ -26,7 +26,6 @@ when their inputs are genuinely owner-neutral.
 | `video/detail/video_inspector_panel.dart` | EDIT | Split into kind inspector flows |
 | `video/detail/video_inspector_sections.dart` | FIELDS | Split into kind-owned fields |
 | `video/detail/video_metadata_corrections_section.dart` | DOMAIN BEHAVIOR | Move to kind metadata flows |
-| `video/domain/video_episode.dart` | DOMAIN MODEL | Move/duplicate into TV and Anime |
 | `video/edit/dialogs/tv_custom_episode_dialog.dart` | EDIT | Move to TV/Anime owner |
 | `video/edit/tabs/tv_episode_disc_map_tab.dart` | EDIT | Move to TV owner |
 | `video/edit/tabs/tv_episodes_tab.dart` | EDIT | Move to TV/Anime owner |
@@ -51,7 +50,6 @@ when their inputs are genuinely owner-neutral.
 | `video/episodes/video_episode_rating_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/episodes/video_episode_row.dart` | VISUAL STRUCTURAL | Keep only if owner-neutral; otherwise duplicate |
 | `video/episodes/video_upcoming_episodes_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime hierarchy |
-| `video/library_add_video_kind_filters.dart` | FIELDS | Move filters into kind add schemas |
 | `video/library_add_video_result_policy.dart` | EDIT | Move result policy into kind add flows |
 | `video/providers/video_seasons_provider.dart` | PROVIDER | Move provider mapping into TV/Anime |
 | `video/release/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
@@ -69,7 +67,6 @@ when their inputs are genuinely owner-neutral.
 | `video/tracking/watch_history_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/video_add_preview_sections.dart` | EDIT | Move into kind add previews |
 | `video/video_detail_page.dart` | DOMAIN BEHAVIOR | Split into movie/TV/anime detail |
-| `video/video_display_models.dart` | DOMAIN MODEL | Split into kind presentation models |
 | `video/video_drilldown_library_page_state.dart` | HIERARCHY | Move into TV/Anime hierarchy |
 | `video/video_edit_support.dart` | EDIT | Keep only owner-neutral primitives |
 | `video/video_episode_identity.dart` | DOMAIN MODEL | Move into TV/Anime domain |
@@ -80,7 +77,6 @@ when their inputs are genuinely owner-neutral.
 | `video/video_inspector_sections.dart` | FIELDS | Split into kind-owned fields |
 | `video/video_library_media_presentation_builder.dart` | DOMAIN BEHAVIOR | Move into kind presentation |
 | `video/video_metadata_corrections_section.dart` | DOMAIN BEHAVIOR | Move into kind metadata flows |
-| `video/video_physical_media_formats.dart` | VOCABULARY | Move into kind vocabularies |
 | `video/video_progress_presenter.dart` | DOMAIN BEHAVIOR | Move into TV/Anime tracking |
 | `video/video_progress_section.dart` | DOMAIN BEHAVIOR | Move into TV/Anime detail |
 | `video/video_progress_summary.dart` | DOMAIN MODEL | Move into TV/Anime tracking |
@@ -101,4 +97,6 @@ The shared directory contains no persistence or provider implementation that
 is safe to treat as universal merely because it is reused. The remaining
 shared candidates are small visual components and must expose owner-neutral
 inputs; all video domain, hierarchy, edit, field, provider, release, and
-tracking behavior is queued for PR79.
+tracking behavior is queued for PR79. Four video boundaries have already moved
+out during PR79 progress: TV legacy models, TV display models, per-kind video
+physical formats, and generic Add provider-kind filter chrome.
