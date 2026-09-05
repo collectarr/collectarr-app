@@ -2872,6 +2872,13 @@ or explicit architectural justification.
 
 No new abstraction in this PR.
 
+Status: complete. Removed the unused workspace intent facade, obsolete
+dialog-scaffold and transferable-field aliases, the unused TV provider alias,
+and the dynamic TV shelf override coercion. The remaining `Season` adapter is
+still intentionally retained because tracking and inspector widgets consume
+the shared Core season shape; its Core DTO boundary is now fed by the typed TV
+provider.
+
 ---
 
 # PHASE 27 — Core Evolution Contract for All Kinds
@@ -2902,6 +2909,10 @@ MusicTrackDto
 ...
 ```
 
+Status: complete. Added a generated-source discovery check and explicit field
+classification policies for all 19 typed Core DTOs, including media, track,
+episode, season, release, and release-map DTOs.
+
 ---
 
 ## PR 106 — CI fails on unclassified Core field
@@ -2921,6 +2932,10 @@ developer maps or ignores explicitly
 ```
 
 This is desired behavior.
+
+Status: complete. The CI workflow now runs the complete generated DTO adoption
+contract after code generation and before analysis, so an unclassified Core
+field fails the pull request.
 
 ---
 
@@ -2960,6 +2975,13 @@ Music
 Do not iterate erased runtime objects.
 
 Use explicit typed invocations.
+
+Status: complete. The mandatory manifest now covers identity, Core mapping,
+field adoption, repository, persistence, workspace, fields, sort, group,
+facet, vocabulary, Add, and Media Edit for all nine active kinds. A typed
+module matrix invokes each kind through its concrete
+`LibraryKindSpec<TWorkspace, TOwnedDetails>` signature and verifies the
+corresponding contract coverage files.
 
 ---
 
