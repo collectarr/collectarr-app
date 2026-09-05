@@ -3226,6 +3226,10 @@ FAIL
 N/A
 ```
 
+Status: complete. The final parity report is recorded in
+`docs/typed-kind-parity-final.md`; it reports PASS/N/A across the nine kinds
+and keeps the known erased-catalog-metadata debt as an explicit FAIL.
+
 No `partial`.
 
 ---
