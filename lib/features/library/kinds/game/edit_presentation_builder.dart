@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
@@ -108,9 +108,20 @@ const _gameCombinedTabs = [
 ];
 
 class GameLibraryCombinedEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const GameLibraryCombinedEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _gameCombinedTabs,
           trackedTabs: _gameCombinedTabs,
           catalogTabs: _gameCombinedTabs,
@@ -119,9 +130,20 @@ class GameLibraryCombinedEditPresentationBuilder
 }
 
 class GameLibraryMediaEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const GameLibraryMediaEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _gameMediaTabs,
           trackedTabs: _gameMediaTabs,
           catalogTabs: _gameMediaTabs,
@@ -130,9 +152,20 @@ class GameLibraryMediaEditPresentationBuilder
 }
 
 class GameLibraryReleaseEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const GameLibraryReleaseEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _gameReleaseTabs,
           trackedTabs: _gameReleaseTabs,
           catalogTabs: _gameReleaseTabs,

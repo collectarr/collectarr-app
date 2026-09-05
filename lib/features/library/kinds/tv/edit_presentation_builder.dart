@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/edit/video/video_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
@@ -140,10 +140,18 @@ const _tvAllTabs = [
 ];
 
 class TvLibraryEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const TvLibraryEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _tvAllTabs,
@@ -154,10 +162,18 @@ class TvLibraryEditPresentationBuilder
 }
 
 class TvLibraryMediaEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const TvLibraryMediaEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _tvMediaTabs,
@@ -168,10 +184,18 @@ class TvLibraryMediaEditPresentationBuilder
 }
 
 class TvLibraryReleaseEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const TvLibraryReleaseEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _tvReleaseTabs,

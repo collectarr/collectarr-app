@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_chrome_config.dar
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -30,9 +29,7 @@ class LibraryEditCapability {
     this.editDialogBuilder,
     this.mediaEditDialogBuilder,
     this.releaseEditDialogBuilder,
-    this.presentation = const LibraryEditPresentation(
-      builder: DefaultLibraryEditPresentationBuilder(),
-    ),
+    required this.presentation,
     this.editChrome = const LibraryEditChromeConfig(),
     this.vocabularies,
     this.conditions = kGeneralConditions,

@@ -48,16 +48,6 @@ class LibraryEditTabSpec {
       sectionIdsForContext;
 }
 
-class LibraryEditFooterSpec {
-  const LibraryEditFooterSpec({
-    this.label,
-    this.fieldIds = const [],
-  });
-
-  final String? label;
-  final List<String> fieldIds;
-}
-
 class LibraryEditPresentationState {
   const LibraryEditPresentationState({
     required this.showsOwnershipReferenceSection,
@@ -92,10 +82,6 @@ abstract class LibraryEditPresentationBuilder {
   List<String> buildTabSectionIds({
     required LibraryEditPresentationContext context,
     required String tabId,
-  });
-
-  LibraryEditFooterSpec buildFooter({
-    required LibraryEditPresentationContext context,
   });
 
   LibraryEditPresentationState build({

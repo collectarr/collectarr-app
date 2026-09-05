@@ -429,7 +429,9 @@ class ComicFeature {}
         initialDraftBuilder: GenericAddDraft.new,
         search: genericKindModule.add.search,
       ),
-      edit: const LibraryEditCapability(),
+      edit: LibraryEditCapability(
+        presentation: genericKindModule.edit.presentation,
+      ),
       buildCardPresentation: (item, {required musicVertical}) =>
           const LibraryCardPresentation(),
     );

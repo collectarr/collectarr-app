@@ -2295,6 +2295,15 @@ Comic/Game booleans
 generic grading/key labels
 ```
 
+### Progress (2026-09-05)
+
+Complete for the current Edit presentation layer. The default presentation
+builder and its global tab/section fallbacks have been removed. Each active
+kind now provides an explicit presentation builder, including Generic and
+Anime, while the shared base keeps only the mechanics for selecting and
+ordering the kind-declared tabs. `LibraryEditCapability` requires that
+presentation explicitly, and the unused generic footer contract is gone.
+
 ---
 
 ## PR 82 — Delete `LibrarySectionRegistry`

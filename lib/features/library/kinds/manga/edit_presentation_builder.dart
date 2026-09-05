@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
@@ -72,13 +72,20 @@ const _mangaCombinedTabs = [
 ];
 
 class MangaLibraryEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const MangaLibraryEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _mangaCombinedTabs,
           trackedTabs: _mangaCombinedTabs,
           catalogTabs: _mangaCombinedTabs,
