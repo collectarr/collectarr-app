@@ -32,13 +32,43 @@ CatalogItem enrichSeedItem(CatalogItem item) {
   final payload = Map<String, dynamic>.from(item.toSyncPayload());
   payload.putIfAbsent('id', () => item.id);
 
+  // Older seed payloads used a flat string for series. The typed catalog
+  // contract stores series as an object, and serial-authority discovery reads
+  // that object directly. Normalize the legacy shape while enriching data so
+  // a forced re-seed cannot reintroduce an invalid payload.
+  final rawSeries = payload['series'];
+  if (rawSeries is String && rawSeries.trim().isNotEmpty) {
+    payload['series'] = <String, dynamic>{'series_title': rawSeries.trim()};
+  }
+  _normalizeNestedPayload(payload, 'video', const <String>[
+    'runtime_minutes',
+    'color',
+    'nr_discs',
+    'screen_ratio',
+    'audio_tracks',
+    'subtitles',
+    'layers',
+  ]);
+  _normalizeNestedPayload(payload, 'music', const <String>[
+    'track_count',
+    'catalog_number',
+    'release_status',
+    'original_release_date',
+    'recording_date',
+    'studio',
+    'is_live',
+    'tracks',
+    'discs',
+  ]);
+  _normalizeNestedPayload(payload, 'game', const <String>['platforms']);
+
   payload.putIfAbsent('localized_title', () => item.displayTitle ?? item.title);
   payload.putIfAbsent('original_title', () => item.originalTitle ?? item.title);
   payload.putIfAbsent(
     'title_extension',
     () => item.releaseYear != null ? '${item.releaseYear}' : item.itemNumber,
   );
-  final seriesMap = item.payload['series'] as Map?;
+  final seriesMap = payload['series'] is Map ? payload['series'] as Map : null;
   final seriesTitle = seriesMap?['series_title'] as String?;
   final pubMap = item.payload['publishing'] as Map?;
   payload.putIfAbsent(
@@ -118,7 +148,18 @@ CatalogItem enrichSeedItem(CatalogItem item) {
   }
 
   if (item.kind == 'music') {
-    payload.putIfAbsent('track_count', () => 10);
+    final musicMap = payload['music'] is Map
+        ? payload['music'] as Map
+        : const <String, dynamic>{};
+    final musicTracks = musicMap['tracks'];
+    payload.putIfAbsent(
+      'track_count',
+      () =>
+          musicMap['track_count'] ??
+          (musicTracks is List && musicTracks.isNotEmpty
+              ? musicTracks.length
+              : 10),
+    );
     payload.putIfAbsent('catalog_number', () => 'SEED-${item.id}');
     payload.putIfAbsent(
       'original_release_date',
@@ -162,6 +203,31 @@ CatalogItem enrichSeedItem(CatalogItem item) {
   }
 
   return CatalogItem.fromJson(payload);
+}
+
+void _normalizeNestedPayload(
+  Map<String, dynamic> payload,
+  String key,
+  List<String> mirroredKeys,
+) {
+  final normalized = _asPayloadMap(payload[key]);
+  if (normalized == null) return;
+  payload[key] = normalized;
+  for (final field in mirroredKeys) {
+    payload.putIfAbsent(field, () => normalized[field]);
+  }
+}
+
+Map<String, dynamic>? _asPayloadMap(Object? value) {
+  if (value is Map) return Map<String, dynamic>.from(value);
+  if (value == null) return null;
+  try {
+    final dynamic encoded = (value as dynamic).toJson();
+    if (encoded is Map) return Map<String, dynamic>.from(encoded);
+  } on Object {
+    // A provider-shaped value that cannot be encoded is left untouched.
+  }
+  return null;
 }
 
 bool _isVideoKind(String kind) =>

@@ -4,10 +4,10 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 
 List<CatalogItem> boardgameSeedCatalogItems() => [
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-01',
         kind: 'boardgame',
         title: 'Gloomhaven',
@@ -35,7 +35,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         characters: ['Brute', 'Spellweaver', 'Scoundrel'],
         genres: ['cooperative', 'dungeon crawl', 'tactical'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-02',
         kind: 'boardgame',
         title: 'Gloomhaven: Jaws of the Lion',
@@ -54,7 +54,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         characters: ['Valrath Red Guard', 'Inox Hatchet'],
         genres: ['cooperative', 'dungeon crawl'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-03',
         kind: 'boardgame',
         title: 'Wingspan',
@@ -73,7 +73,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['engine building', 'card game', 'nature'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-04',
         kind: 'boardgame',
         title: 'Pandemic',
@@ -89,7 +89,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         characters: ['Medic', 'Scientist', 'Researcher'],
         genres: ['cooperative', 'strategy'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-05',
         kind: 'boardgame',
         title: 'Pandemic Legacy: Season 1',
@@ -110,7 +110,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         storyArcs: ['Legacy Campaign'],
         genres: ['cooperative', 'legacy', 'campaign'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-06',
         kind: 'boardgame',
         title: 'Terraforming Mars',
@@ -131,7 +131,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['engine building', 'science', 'corporate'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-07',
         kind: 'boardgame',
         title: 'Spirit Island',
@@ -150,7 +150,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['cooperative', 'strategy', 'asymmetric'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-08',
         kind: 'boardgame',
         title: 'Root',
@@ -177,7 +177,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['asymmetric', 'war game', 'area control'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-09',
         kind: 'boardgame',
         title: 'Brass: Birmingham',
@@ -194,7 +194,7 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['economic', 'network building', 'industrial'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-10',
         kind: 'boardgame',
         title: 'Scythe',
@@ -219,33 +219,53 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
     ];
 
 List<OwnedItem> boardgameSeedOwnedItems(DateTime now) => [
-      OwnedItem(
-        id: 'seed-owned-bg-01',
-        catalogRef: seedCatalogRef('seed-boardgame-01'),
-        createdAt: now.subtract(const Duration(days: 600)),
-        updatedAt: now,
-        isDigital: false,
-        condition: 'Very Good',
-        purchaseDate: DateTime.utc(2019, 8, 1),
-        pricePaidCents: 14000,
-        currency: 'USD',
-        personalNotes: 'All characters unlocked',
-        rating: 9,
-        readStatus: 'inProgress',
-        purchaseStore: 'Miniature Market',
-      ),
+      for (var i = 1; i <= 10; i++)
+        OwnedItem(
+          // Keep the original first ID so existing local seed data is updated
+          // instead of leaving an orphaned copy behind after a re-seed.
+          id: i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+          catalogRef: seedCatalogRef('seed-boardgame-${seedOrdinal2(i)}'),
+          createdAt: now.subtract(Duration(days: 600 - (i * 25))),
+          updatedAt: now,
+          isDigital: false,
+          condition: i.isEven ? 'Near Mint' : 'Very Good',
+          purchaseDate: DateTime.utc(2017 + i, i % 12 + 1, 1),
+          pricePaidCents: i == 1 ? 14000 : 4500 + (i * 250),
+          currency: 'USD',
+          personalNotes: i == 1
+              ? 'All characters unlocked.'
+              : 'Complete retail copy with rulebook and components.',
+          quantity: 1,
+          rating: 7 + (i % 4),
+          readStatus: i == 1 ? 'inProgress' : 'completed',
+          startedAt: DateTime.utc(2024, i % 12 + 1, 5),
+          finishedAt: i == 1 ? null : DateTime.utc(2024, i % 12 + 1, 20),
+          purchaseStore: i.isEven ? 'Local Game Store' : 'Miniature Market',
+          collectionStatus: 'collected',
+        ),
     ];
 
 List<TrackingEntry> boardgameSeedTrackingEntries(DateTime now) => [
-      TrackingEntry(
-        id: 'seed-track-06',
-        catalogRef: seedCatalogRef('seed-boardgame-01'),
-        ownedItemId: 'seed-owned-bg-01',
-        sourceType: TrackingSourceType.physical,
-        status: MediaTrackingStatus.paused,
-        progressCurrent: 35,
-        progressTotal: 95,
-        notes: 'Scenario 35, paused for summer',
-        updatedAt: now,
-      ),
+      for (var i = 1; i <= 10; i++)
+        TrackingEntry(
+          // Keep the original first tracking ID for idempotent upgrades.
+          id: i == 1
+              ? 'seed-track-06'
+              : 'seed-track-boardgame-${seedOrdinal2(i)}',
+          catalogRef: seedCatalogRef('seed-boardgame-${seedOrdinal2(i)}'),
+          ownedItemId:
+              i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+          sourceType: TrackingSourceType.physical,
+          status: i == 1
+              ? MediaTrackingStatus.paused
+              : (i <= 6
+                  ? MediaTrackingStatus.completed
+                  : MediaTrackingStatus.inProgress),
+          progressCurrent: i == 1 ? 35 : (i <= 6 ? 1 : 0),
+          progressTotal: i == 1 ? 95 : 1,
+          notes: i == 1
+              ? 'Scenario 35, paused for summer.'
+              : 'Played with friends.',
+          updatedAt: now,
+        ),
     ];

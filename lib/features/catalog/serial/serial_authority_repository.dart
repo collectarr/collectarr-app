@@ -195,7 +195,10 @@ class SerialAuthorityRepository {
       }
       final kind = metadataItem.kind;
       final payload = metadataItem.payload;
-      final seriesPayload = payload['series'] as Map? ?? payload;
+      final rawSeriesPayload = payload['series'];
+      final seriesPayload = rawSeriesPayload is Map
+          ? Map<String, dynamic>.from(rawSeriesPayload)
+          : payload;
       final seriesTitle =
           (seriesPayload['series_title'] ?? seriesPayload['seriesTitle'])
               ?.toString();

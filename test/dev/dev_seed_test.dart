@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,11 +16,89 @@ void main() {
     await seedLocalDatabase(db);
 
     final catalogRows = await LibraryCatalogRepository(db).findAll();
-    expect(_countKind(catalogRows, 'tv'), 10);
-    expect(_countKind(catalogRows, 'anime'), 10);
-    expect(_countKind(catalogRows, 'manga'), 10);
+    const expectedCatalogCounts = <String, int>{
+      'movie': 15,
+      'tv': 15,
+      'anime': 15,
+      'manga': 15,
+      'book': 15,
+      'music': 15,
+      'game': 15,
+      'boardgame': 10,
+      'comic': 15,
+    };
+    for (final entry in expectedCatalogCounts.entries) {
+      expect(_countKind(catalogRows, entry.key), entry.value,
+          reason: 'Unexpected ${entry.key} seed count');
+    }
+    expect(catalogRows.map((row) => row.id).toSet(), hasLength(130));
+    expect(catalogRows.every((row) => row.title.trim().isNotEmpty), isTrue);
+    final videoRows = catalogRows.where((row) =>
+        row.kind == 'movie' || row.kind == 'tv' || row.kind == 'anime');
+    expect(
+        videoRows.every((row) =>
+            row.payload['runtime_minutes'] is int &&
+            row.payload['nr_discs'] is int),
+        isTrue);
+    final musicRows = catalogRows.where((row) => row.kind == 'music');
+    expect(
+        musicRows.every((row) =>
+            row.payload['track_count'] is int &&
+            (row.payload['tracks'] as List?)?.isNotEmpty == true),
+        isTrue);
 
     final ownedRows = await db.select(db.ownedItemsCache).get();
+    for (final entry in expectedCatalogCounts.entries) {
+      final kindOwned = ownedRows
+          .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+          .toList();
+      expect(kindOwned, hasLength(entry.value),
+          reason: 'Unexpected ${entry.key} owned seed count');
+    }
+    expect(
+        ownedRows
+            .every((row) => catalogRows.any((item) => item.id == row.itemId)),
+        isTrue);
+    expect(ownedRows.map((row) => row.id).toSet(), hasLength(130));
+
+    final trackingRows = await db.select(db.trackingEntriesCache).get();
+    for (final entry in expectedCatalogCounts.entries) {
+      final kindTracking = trackingRows
+          .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+          .toList();
+      expect(kindTracking, hasLength(entry.value),
+          reason: 'Unexpected ${entry.key} tracking seed count');
+    }
+    final ownedIds = ownedRows.map((row) => row.id).toSet();
+    expect(trackingRows.map((row) => row.id).toSet(), hasLength(130));
+    expect(
+        trackingRows.every((row) =>
+            row.ownedItemId == null || ownedIds.contains(row.ownedItemId)),
+        isTrue);
+
+    final pickLists = PickListRepository(db);
+    expect(await pickLists.getValues('physical_formats'), contains('Tankobon'));
+    expect(await pickLists.getValues('countries'), contains('KR'));
+    expect(await pickLists.getValues('languages'), contains('ko'));
+    expect(await pickLists.getValues('genres'), contains('progressive rock'));
+    expect(await pickLists.getValues('genres'), contains('dungeon crawl'));
+    expect(await pickLists.getValues('genres'), contains('souls-like'));
+
+    final customFields = CustomFieldRepository(db);
+    final definitions = await customFields.listDefinitions();
+    expect(definitions, hasLength(9));
+    final definitionIds =
+        definitions.map((definition) => definition.id).toSet();
+    final customValues = (await customFields.listAllValues())
+        .values
+        .expand((values) => values)
+        .toList();
+    expect(customValues, hasLength(9));
+    expect(
+        customValues
+            .every((value) => definitionIds.contains(value.fieldDefinitionId)),
+        isTrue);
+
     final tvOwned =
         ownedRows.where((row) => row.itemId.startsWith('seed-tv-')).toList();
     final animeOwned =
@@ -26,9 +106,9 @@ void main() {
     final mangaOwned =
         ownedRows.where((row) => row.itemId.startsWith('seed-manga-')).toList();
 
-    expect(tvOwned, hasLength(10));
-    expect(animeOwned, hasLength(10));
-    expect(mangaOwned, hasLength(10));
+    expect(tvOwned, hasLength(15));
+    expect(animeOwned, hasLength(15));
+    expect(mangaOwned, hasLength(15));
     expect(
         tvOwned.every((row) => (row.personalNotes ?? '').isNotEmpty), isTrue);
     expect(animeOwned.every((row) => (row.personalNotes ?? '').isNotEmpty),
@@ -42,9 +122,9 @@ void main() {
         await _countImages(db, 'seed-owned-seed-anime-', 'front_cover');
     final mangaFront =
         await _countImages(db, 'seed-owned-seed-manga-', 'front_cover');
-    expect(tvFront, 10);
-    expect(animeFront, 10);
-    expect(mangaFront, 10);
+    expect(tvFront, 15);
+    expect(animeFront, 15);
+    expect(mangaFront, 15);
 
     final tvBack = await _countImages(db, 'seed-owned-seed-tv-', 'back_cover');
     final animeBack =
