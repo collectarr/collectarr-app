@@ -36,8 +36,6 @@ when their inputs are genuinely owner-neutral.
 | `video/edit/video_kind_edit_draft.dart` | DOMAIN MODEL | Replace with kind drafts |
 | `video/release/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
 | `video/release/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
-| `video/video_release_projection_capability.dart` | DOMAIN BEHAVIOR | Move into kind release projections |
-| `video/video_release_source.dart` | DOMAIN BEHAVIOR | Move into kind release sources |
 
 ## Audit outcome
 

@@ -2221,6 +2221,9 @@ presentation infrastructure as `LibraryVideoMediaPresentationBuilder`.
 The obsolete root video detail compatibility barrel has also been removed;
 remaining callers import the active detail implementation explicitly.
 
+The obsolete root release capability/source compatibility barrels are also
+gone; release consumers now reference their explicit release modules.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
