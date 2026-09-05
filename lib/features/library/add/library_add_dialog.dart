@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/providers/collection_mutation
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_form_options_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
@@ -99,6 +100,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
 class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddSessionController _controller;
   late final LibraryAddManualDraft _manualDraft;
+  static const _formOptionsController = LibraryAddFormOptionsController();
 
   late final TextEditingController _queryController;
   late final TextEditingController _barcodeController;
@@ -226,8 +228,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   Future<void> _loadAvailableLocations() async {
-    final locations =
-        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    final locations = await _formOptionsController.loadLocations(
+      ref.read(localDatabaseProvider),
+    );
     if (!mounted) return;
     setState(() {
       _availableLocations = locations;
@@ -257,36 +260,18 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   Future<void> _loadPickListOptions() async {
     final state = _controller.state;
-    final editCap = widget.type.edit;
-    final conditionDefinition =
-        editCap.vocabularies?.definitionForSuffix('condition');
-    final gradeDefinition = editCap.vocabularies?.definitionForSuffix('grade');
-    final builtInConditions = conditionDefinition == null
-        ? editCap.conditions
-        : [for (final value in conditionDefinition.builtIns) value.toString()];
-    final builtInGrades = gradeDefinition == null
-        ? editCap.grades
-        : [for (final value in gradeDefinition.builtIns) value.toString()];
-    final options = await loadConditionGradePickListOptions(
-      ref.read(localDatabaseProvider),
-      mediaKind: widget.type.kind.apiValue,
-      builtInConditions: builtInConditions,
-      builtInGrades: builtInGrades,
-      conditionListName: conditionDefinition?.key,
-      gradeListName: gradeDefinition?.key,
+    final options = await _formOptionsController.loadPickLists(
+      database: ref.read(localDatabaseProvider),
+      type: widget.type,
       selectedCondition: state.defaultCondition,
       selectedGrade: state.defaultGrade,
-    );
-    final tagOptions = await loadTagPickListOptions(
-      ref.read(localDatabaseProvider),
-      mediaKind: widget.type.kind.apiValue,
-      selectedTags: splitPickListValues(state.defaultTags),
+      selectedTags: state.defaultTags,
     );
     if (!mounted) return;
     setState(() {
       _conditionOptions = options.conditions;
       _gradeOptions = options.grades;
-      _tagOptions = tagOptions;
+      _tagOptions = options.tags;
     });
   }
 
