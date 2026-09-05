@@ -1,14 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/video_like_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/video_physical_copy_details.dart';
+import 'package:collectarr_app/features/library/models/library_physical_owned_details.dart';
+import 'package:collectarr_app/features/library/models/library_physical_copy_details.dart';
 
 const Object _tvDetailsUnset = Object();
 
 @immutable
-class TvOwnedDetails extends OwnedItemDetails with VideoLikeOwnedDetails {
+class TvOwnedDetails extends OwnedItemDetails
+    with LibraryPhysicalOwnedDetails {
   const TvOwnedDetails({
-    this.physical = const VideoPhysicalCopyDetails(),
+    this.physical = const LibraryPhysicalCopyDetails(),
     String? features,
     List<String>? hdrFormats,
     String? boxSetId,
@@ -24,7 +25,7 @@ class TvOwnedDetails extends OwnedItemDetails with VideoLikeOwnedDetails {
         _packaging = packaging,
         _distributor = distributor;
 
-  final VideoPhysicalCopyDetails physical;
+  final LibraryPhysicalCopyDetails physical;
 
   final String? _features;
   final List<String>? _hdrFormats;
@@ -62,7 +63,7 @@ class TvOwnedDetails extends OwnedItemDetails with VideoLikeOwnedDetails {
 
   factory TvOwnedDetails.fromJson(Map<String, dynamic> json) {
     return TvOwnedDetails(
-      physical: VideoPhysicalCopyDetails.fromJson(json),
+      physical: LibraryPhysicalCopyDetails.fromJson(json),
     );
   }
 
@@ -74,7 +75,7 @@ class TvOwnedDetails extends OwnedItemDetails with VideoLikeOwnedDetails {
     Object? region = _tvDetailsUnset,
     Object? packaging = _tvDetailsUnset,
     Object? distributor = _tvDetailsUnset,
-    VideoPhysicalCopyDetails? physical,
+    LibraryPhysicalCopyDetails? physical,
   }) {
     return TvOwnedDetails(
       features: identical(features, _tvDetailsUnset)

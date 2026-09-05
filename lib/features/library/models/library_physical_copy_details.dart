@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class VideoPhysicalCopyDetails {
-  const VideoPhysicalCopyDetails({
+class LibraryPhysicalCopyDetails {
+  const LibraryPhysicalCopyDetails({
     this.features,
     this.hdrFormats = const <String>[],
     this.boxSetId,
@@ -30,8 +30,8 @@ class VideoPhysicalCopyDetails {
         if (distributor != null) 'distributor': distributor,
       };
 
-  factory VideoPhysicalCopyDetails.fromJson(Map<String, dynamic> json) {
-    return VideoPhysicalCopyDetails(
+  factory LibraryPhysicalCopyDetails.fromJson(Map<String, dynamic> json) {
+    return LibraryPhysicalCopyDetails(
       features: json['features'] as String?,
       hdrFormats: (json['hdr_formats'] as List<dynamic>?)
               ?.whereType<String>()
@@ -45,7 +45,7 @@ class VideoPhysicalCopyDetails {
     );
   }
 
-  VideoPhysicalCopyDetails copyWith({
+  LibraryPhysicalCopyDetails copyWith({
     String? features,
     List<String>? hdrFormats,
     String? boxSetId,
@@ -54,7 +54,7 @@ class VideoPhysicalCopyDetails {
     String? packaging,
     String? distributor,
   }) {
-    return VideoPhysicalCopyDetails(
+    return LibraryPhysicalCopyDetails(
       features: features ?? this.features,
       hdrFormats: hdrFormats ?? this.hdrFormats,
       boxSetId: boxSetId ?? this.boxSetId,
@@ -68,7 +68,7 @@ class VideoPhysicalCopyDetails {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is VideoPhysicalCopyDetails &&
+      other is LibraryPhysicalCopyDetails &&
           runtimeType == other.runtimeType &&
           features == other.features &&
           listEquals(hdrFormats, other.hdrFormats) &&

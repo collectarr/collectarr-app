@@ -336,8 +336,8 @@ class _InspectorPersonalDetailsEditorState
     _notesController.text = item.personalNotes ?? '';
     _purchaseStoreController.text = item.purchaseStore ?? '';
     final details = item.details;
-    final videoDetails = details is VideoLikeOwnedDetails
-        ? details as VideoLikeOwnedDetails
+    final videoDetails = details is LibraryPhysicalOwnedDetails
+        ? details as LibraryPhysicalOwnedDetails
         : null;
     _boxSetNameController.text = videoDetails?.boxSetName ?? '';
     _selectedLocationId = item.locationId;
@@ -406,8 +406,8 @@ class _InspectorPersonalDetailsEditorState
     }
     final currency = _currencyController.text.trim().toUpperCase();
     final details = widget.ownedItem.details;
-    final video = details is VideoLikeOwnedDetails
-        ? details as VideoLikeOwnedDetails
+    final video = details is LibraryPhysicalOwnedDetails
+        ? details as LibraryPhysicalOwnedDetails
         : null;
     OwnedDetailsDraft? detailsDraft;
     if (_emptyToNull(_boxSetNameController.text) != null && video != null) {

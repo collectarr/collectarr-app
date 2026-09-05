@@ -41,8 +41,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             : <OwnedItem>[ownedItem!];
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final details = ownedItem?.details;
-    final ownedVideoDetails = details is VideoLikeOwnedDetails
-        ? details as VideoLikeOwnedDetails
+    final ownedVideoDetails = details is LibraryPhysicalOwnedDetails
+        ? details as LibraryPhysicalOwnedDetails
         : null;
     final ownedComicDetails = details is ComicOwnedDetails ? details : null;
     final ownedMusicDetails = details is MusicOwnedDetails ? details : null;

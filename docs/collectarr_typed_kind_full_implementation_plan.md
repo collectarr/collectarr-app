@@ -2241,6 +2241,10 @@ explicit library model/Add model locations rather than the shared kind tree.
 The legacy kind Add bottom bar is now generic Add pane infrastructure and is
 consumed explicitly by the Comic and Movie shells.
 
+The common physical ownership contract and copy value now live as
+owner-neutral library models; Movie, TV, and Anime typed ownership models
+implement/use those models directly instead of importing kind-shared files.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

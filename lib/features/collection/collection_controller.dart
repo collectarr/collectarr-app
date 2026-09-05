@@ -260,8 +260,8 @@ final boxSetGroupsProvider = Provider<Map<String, List<OwnedItem>>>((ref) {
       for (final item in items) {
         if (item.isDeleted) continue;
         final details = item.details;
-        final videoDetails = details is VideoLikeOwnedDetails
-            ? details as VideoLikeOwnedDetails
+        final videoDetails = details is LibraryPhysicalOwnedDetails
+            ? details as LibraryPhysicalOwnedDetails
             : null;
         final name = videoDetails?.boxSetName;
         if (name != null && name.isNotEmpty) {
