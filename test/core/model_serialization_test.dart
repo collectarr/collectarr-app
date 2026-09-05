@@ -7,11 +7,11 @@ import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
 import 'package:collectarr_app/features/library/models/catalog/video_catalog_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -285,16 +285,23 @@ void main() {
     expect(candidate.displayTitle, 'Absolute Batman #1');
   });
 
-  test('season episode parses page count separately from runtime', () {
-    final episode = Episode.fromJson({
+  test('typed TV episode parses runtime and air date', () {
+    final episode = TvEpisode.fromJson({
+      'id': 'episode-1',
+      'series_id': 'series-1',
+      'season_id': 'season-1',
+      'season_number': 1,
       'episode_number': 1,
       'title': 'Romance Dawn',
-      'runtime_minutes': null,
-      'page_count': 53,
+      'description': 'A new adventure begins.',
+      'air_date': '2026-01-01T00:00:00Z',
+      'runtime_minutes': 24,
     });
 
-    expect(episode.pageCount, 53);
-    expect(episode.runtimeMinutes, isNull);
+    expect(episode.title, 'Romance Dawn');
+    expect(episode.description, 'A new adventure begins.');
+    expect(episode.runtimeMinutes, 24);
+    expect(episode.airDate, DateTime.utc(2026, 1, 1));
   });
 
   test('loan parses optional invalid dates as null and guards required fields',
