@@ -2678,6 +2678,12 @@ etc.
 
 Allow central Drift composition root to import them.
 
+Status: complete. Added an architecture test that scans all Drift table
+declarations, requires kind-specific tables under the owning
+`kinds/<kind>/data/local` module, requires `LocalDatabase` to compose each
+kind table explicitly, and limits `core/db` declarations to the 20 universal
+tables.
+
 ---
 
 # PHASE 24 — Final Runtime Reduction
