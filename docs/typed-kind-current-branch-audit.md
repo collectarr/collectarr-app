@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `54210618` (`feat(core): add typed owned item projections`)
+HEAD: `eabcbf11` (`refactor(barcode): return typed scanned codes`)
 
 ## Scope and evidence
 
@@ -90,7 +90,7 @@ Status meanings:
 | 58 | Generic calendar becomes event host only | **NOT STARTED** | Calendar remains a host with catalog semantics still represented by generic/legacy paths; contributors are not complete. |
 | 59 | Kind calendar contributors | **NOT STARTED** | Calendar remains a host with catalog semantics still represented by generic/legacy paths; contributors are not complete. |
 | 60 | Universal calendar contributors | **NOT STARTED** | Calendar remains a host with catalog semantics still represented by generic/legacy paths; contributors are not complete. |
-| 61 | Keep scanner generic | **PARTIAL** | Scanner mechanics exist, but the new generic ScannedCode and kind-owned resolver matrix is incomplete. |
+| 61 | Keep scanner generic | **DONE** | Scanner UI and platform mechanics now return the generic `ScannedCode` projection with raw value, normalized value, and symbology. |
 | 62 | Kind-owned identifier resolvers | **NOT STARTED** | Kind-owned identifier resolvers are not complete for all applicable kinds. |
 | 63 | Loans use `OwnedItemRef` | **PARTIAL** | Loan infrastructure exists, but the common Owned domain still leaks into the cross-kind boundary. |
 | 64 | Collapse duplicate pick-list infrastructure | **PARTIAL** | Pick-list infrastructure and typed vocabularies exist, but the old/new paths and global semantic definitions still need consolidation. |
