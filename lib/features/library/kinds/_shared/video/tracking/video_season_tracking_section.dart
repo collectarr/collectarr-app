@@ -67,6 +67,7 @@ class _VideoSeasonTrackingSectionState
             ) ??
             seasons.first;
         final watchedEpisodeKeys = trackedUnits
+            .whereType<VideoTrackingUnit>()
             .where((unit) => unit.unitType == TrackingUnitType.episode)
             .map(_episodeKeyForUnit)
             .toSet();
@@ -205,6 +206,7 @@ class _VideoSeasonTrackingSectionState
       }
     }
     final trackedEpisodes = trackedUnits
+        .whereType<VideoTrackingUnit>()
         .where((unit) => unit.unitType == TrackingUnitType.episode)
         .toList(growable: false)
       ..sort((a, b) {
@@ -311,7 +313,7 @@ class _VideoSeasonTrackingSectionState
     return '$seasonNumber:$episodeNumber';
   }
 
-  String _episodeKeyForUnit(TrackingUnit unit) {
+  String _episodeKeyForUnit(VideoTrackingUnit unit) {
     return _episodeKey(unit.seasonNumber ?? 0, unit.episodeNumber ?? 0);
   }
 }

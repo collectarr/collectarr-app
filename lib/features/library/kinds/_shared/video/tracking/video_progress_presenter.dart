@@ -231,7 +231,7 @@ class VideoProgressPresenter {
     List<WatchSession> watchSessions,
   ) {
     final keys = <String>{};
-    for (final unit in trackedUnits) {
+    for (final unit in trackedUnits.whereType<VideoTrackingUnit>()) {
       if (unit.isDeleted || unit.unitType != TrackingUnitType.episode) {
         continue;
       }
@@ -275,7 +275,7 @@ class VideoProgressPresenter {
       );
       map.putIfAbsent(key, () => <WatchSession>[]).add(session);
     }
-    for (final unit in trackedUnits) {
+    for (final unit in trackedUnits.whereType<VideoTrackingUnit>()) {
       if (unit.isDeleted || unit.unitType != TrackingUnitType.episode) {
         continue;
       }
@@ -344,10 +344,10 @@ class VideoProgressPresenter {
     return latest;
   }
 
-  static TrackingUnit? _latestWatchedTrackingUnit(
+  static VideoTrackingUnit? _latestWatchedTrackingUnit(
       List<TrackingUnit> trackedUnits) {
-    TrackingUnit? latest;
-    for (final unit in trackedUnits) {
+    VideoTrackingUnit? latest;
+    for (final unit in trackedUnits.whereType<VideoTrackingUnit>()) {
       if (unit.isDeleted || unit.unitType != TrackingUnitType.episode) {
         continue;
       }

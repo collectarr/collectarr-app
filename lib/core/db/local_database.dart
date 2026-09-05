@@ -160,17 +160,13 @@ class TrackingEntriesCache extends Table {
 class TrackingUnitsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
+  TextColumn get kind => text().withDefault(const Constant('unknown'))();
   TextColumn get trackingEntryId => text().nullable()();
   TextColumn get ownedItemId => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
   TextColumn get bundleReleaseId => text().nullable()();
   TextColumn get unitType => text()();
-  IntColumn get seasonNumber => integer().nullable()();
-  IntColumn get episodeNumber => integer().nullable()();
-  IntColumn get volumeNumber => integer().nullable()();
-  IntColumn get chapterNumber => integer().nullable()();
-  TextColumn get issueNumber => text().nullable()();
   DateTimeColumn get completedAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -420,11 +416,16 @@ class ProviderItemLinksCache extends Table {
   TvWatchSessionRows,
   TvEpisodeProgressRows,
   TvCustomEpisodeRows,
+  TvTrackingUnitRows,
   AnimeMediaRows,
   AnimeEpisodeRows,
   AnimeReleaseRows,
   AnimeOwnedDetailsRows,
   AnimeTrackingRows,
+  AnimeTrackingUnitRows,
+  ComicTrackingUnitRows,
+  MangaTrackingUnitRows,
+  BookTrackingUnitRows,
   MusicReleaseRows,
   MusicMediaRows,
   MusicTrackRows,
@@ -435,7 +436,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 24;
 
   @override
   MigrationStrategy get migration {
@@ -534,6 +535,9 @@ class LocalDatabase extends _$LocalDatabase {
         if (from < 23) {
           await _migrateCatalogCache();
         }
+        if (from < 24) {
+          await _migrateTrackingUnits(m);
+        }
       },
       beforeOpen: (details) async {
         // A newer on-disk version cannot be migrated safely by this client.
@@ -624,6 +628,118 @@ class LocalDatabase extends _$LocalDatabase {
       await LibraryCatalogRepository(this).upsertAll(items);
     }
     await customStatement('DROP TABLE IF EXISTS catalog_cache');
+  }
+
+  Future<void> _migrateTrackingUnits(Migrator m) async {
+    await m.createTable(tvTrackingUnitRows);
+    await m.createTable(animeTrackingUnitRows);
+    await m.createTable(bookTrackingUnitRows);
+    await m.createTable(mangaTrackingUnitRows);
+    await m.createTable(comicTrackingUnitRows);
+
+    final tableName = trackingUnitsCache.actualTableName;
+    final columns = await customSelect('PRAGMA table_info($tableName)').get();
+    final columnNames = columns
+        .map((column) => column.data['name']?.toString())
+        .whereType<String>()
+        .toSet();
+    final kindExpression = columnNames.contains('kind')
+        ? "COALESCE(NULLIF(u.kind, ''), NULLIF(e.kind, ''), 'unknown')"
+        : "COALESCE(NULLIF(e.kind, ''), 'unknown')";
+    String legacyColumn(String name) {
+      return columnNames.contains(name) ? 'u.$name' : 'NULL';
+    }
+
+    final legacyRows = await customSelect('''
+      SELECT
+        u.id,
+        ${legacyColumn('unit_type')} AS unit_type,
+        ${legacyColumn('season_number')} AS season_number,
+        ${legacyColumn('episode_number')} AS episode_number,
+        ${legacyColumn('volume_number')} AS volume_number,
+        ${legacyColumn('chapter_number')} AS chapter_number,
+        ${legacyColumn('issue_number')} AS issue_number,
+        $kindExpression AS kind
+      FROM $tableName u
+      LEFT JOIN ${trackingEntriesCache.actualTableName} e
+        ON e.id = u.tracking_entry_id
+    ''').get();
+    final migratedKinds = <String, String>{};
+
+    for (final row in legacyRows) {
+      final data = row.data;
+      final id = data['id']?.toString();
+      final kind = data['kind']?.toString() ?? 'unknown';
+      final unitType = data['unit_type']?.toString();
+      if (id == null || id.isEmpty) {
+        continue;
+      }
+      migratedKinds[id] = kind;
+      final seasonNumber = _legacyInt(data['season_number']);
+      final episodeNumber = _legacyInt(data['episode_number']);
+      final volumeNumber = _legacyInt(data['volume_number']);
+      final chapterNumber = _legacyInt(data['chapter_number']);
+      final issueNumber = data['issue_number']?.toString();
+
+      if ((kind == 'tv' || kind == 'anime') &&
+          (unitType == 'season' || unitType == 'episode')) {
+        await customStatement(
+          'INSERT OR REPLACE INTO ${tvTrackingUnitRows.actualTableName} '
+          '(id, season_number, episode_number) VALUES (?, ?, ?)',
+          [id, seasonNumber, episodeNumber],
+        );
+        if (kind == 'anime') {
+          await customStatement(
+            'INSERT OR REPLACE INTO ${animeTrackingUnitRows.actualTableName} '
+            '(id, season_number, episode_number) VALUES (?, ?, ?)',
+            [id, seasonNumber, episodeNumber],
+          );
+          await customStatement(
+            'DELETE FROM ${tvTrackingUnitRows.actualTableName} WHERE id = ?',
+            [id],
+          );
+        }
+      } else if (kind == 'book' || kind == 'manga') {
+        final table = kind == 'book'
+            ? bookTrackingUnitRows.actualTableName
+            : mangaTrackingUnitRows.actualTableName;
+        await customStatement(
+          'INSERT OR REPLACE INTO $table '
+          '(id, volume_number, chapter_number) VALUES (?, ?, ?)',
+          [id, volumeNumber, chapterNumber],
+        );
+      } else if (kind == 'comic' && unitType == 'issue') {
+        await customStatement(
+          'INSERT OR REPLACE INTO ${comicTrackingUnitRows.actualTableName} '
+          '(id, issue_number) VALUES (?, ?)',
+          [id, issueNumber],
+        );
+      }
+    }
+
+    await m.alterTable(
+      columnNames.contains('kind')
+          ? TableMigration(trackingUnitsCache)
+          : TableMigration(
+              trackingUnitsCache,
+              newColumns: [trackingUnitsCache.kind],
+            ),
+    );
+    for (final entry in migratedKinds.entries) {
+      await customStatement(
+        'UPDATE $tableName SET kind = ? WHERE id = ?',
+        [entry.value, entry.key],
+      );
+    }
+  }
+
+  int? _legacyInt(Object? value) {
+    return switch (value) {
+      int value => value,
+      num value => value.toInt(),
+      String value => int.tryParse(value),
+      _ => null,
+    };
   }
 
   Future<bool> _hasTable(String tableName) async {

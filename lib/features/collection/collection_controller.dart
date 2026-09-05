@@ -84,29 +84,7 @@ final trackingUnitsByCatalogItemProvider =
             .add(item);
       }
       for (final entries in grouped.values) {
-        entries.sort((a, b) {
-          final seasonCompare =
-              (a.seasonNumber ?? 0).compareTo(b.seasonNumber ?? 0);
-          if (seasonCompare != 0) {
-            return seasonCompare;
-          }
-          final episodeCompare =
-              (a.episodeNumber ?? 0).compareTo(b.episodeNumber ?? 0);
-          if (episodeCompare != 0) {
-            return episodeCompare;
-          }
-          final volumeCompare =
-              (a.volumeNumber ?? 0).compareTo(b.volumeNumber ?? 0);
-          if (volumeCompare != 0) {
-            return volumeCompare;
-          }
-          final chapterCompare =
-              (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
-          if (chapterCompare != 0) {
-            return chapterCompare;
-          }
-          return a.updatedAt.compareTo(b.updatedAt);
-        });
+        entries.sort(_compareTrackingUnits);
       }
       return grouped;
     },
@@ -119,6 +97,28 @@ final trackingUnitsByCatalogRefProvider =
   return ref.watch(trackingUnitsByCatalogItemProvider)[catalogRef.id] ??
       const <TrackingUnit>[];
 });
+
+int _compareTrackingUnits(TrackingUnit a, TrackingUnit b) {
+  final typeCompare = a.unitType.storageValue.compareTo(b.unitType.storageValue);
+  if (typeCompare != 0) {
+    return typeCompare;
+  }
+  if (a is VideoTrackingUnit && b is VideoTrackingUnit) {
+    final season = (a.seasonNumber ?? 0).compareTo(b.seasonNumber ?? 0);
+    if (season != 0) return season;
+    final episode = (a.episodeNumber ?? 0).compareTo(b.episodeNumber ?? 0);
+    if (episode != 0) return episode;
+  } else if (a is ReadingTrackingUnit && b is ReadingTrackingUnit) {
+    final volume = (a.volumeNumber ?? 0).compareTo(b.volumeNumber ?? 0);
+    if (volume != 0) return volume;
+    final chapter = (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
+    if (chapter != 0) return chapter;
+  } else if (a is ComicTrackingUnit && b is ComicTrackingUnit) {
+    final issue = (a.issueNumber ?? '').compareTo(b.issueNumber ?? '');
+    if (issue != 0) return issue;
+  }
+  return a.updatedAt.compareTo(b.updatedAt);
+}
 
 final wishlistByCatalogItemProvider =
     Provider<Map<String, List<WishlistItem>>>((ref) {

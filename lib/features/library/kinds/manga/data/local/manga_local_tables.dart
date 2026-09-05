@@ -49,3 +49,12 @@ class MangaOwnedDetailsRows extends Table {
   @override
   Set<Column> get primaryKey => {ownedItemId};
 }
+
+class MangaTrackingUnitRows extends Table {
+  TextColumn get id => text()();
+  IntColumn get volumeNumber => integer().nullable()();
+  IntColumn get chapterNumber => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

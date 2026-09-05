@@ -88,3 +88,11 @@ class ComicOwnedDetailsRows extends Table {
   @override
   Set<Column> get primaryKey => {ownedItemId};
 }
+
+class ComicTrackingUnitRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get issueNumber => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

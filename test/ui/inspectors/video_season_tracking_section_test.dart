@@ -88,10 +88,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     final units = await db.select(db.trackingUnitsCache).get();
+    final videoUnits = await db.select(db.tvTrackingUnitRows).get();
     expect(units, hasLength(1));
     expect(units.single.itemId, itemId);
-    expect(units.single.seasonNumber, 1);
-    expect(units.single.episodeNumber, 1);
+    expect(videoUnits, hasLength(1));
+    expect(videoUnits.single.seasonNumber, 1);
+    expect(videoUnits.single.episodeNumber, 1);
     expect(units.single.deletedAt, isNull);
 
     final entries = await db.select(db.trackingEntriesCache).get();

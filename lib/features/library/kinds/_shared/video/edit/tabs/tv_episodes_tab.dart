@@ -370,13 +370,13 @@ bool _episodeWatched({
   required int seasonNumber,
   required int episodeNumber,
 }) {
-  final tracked = trackedUnits.any(
-    (unit) =>
-        unit.unitType == TrackingUnitType.episode &&
-        unit.seasonNumber == seasonNumber &&
-        unit.episodeNumber == episodeNumber &&
-        !unit.isDeleted,
-  );
+  final tracked = trackedUnits.whereType<VideoTrackingUnit>().any(
+        (unit) =>
+            unit.unitType == TrackingUnitType.episode &&
+            unit.seasonNumber == seasonNumber &&
+            unit.episodeNumber == episodeNumber &&
+            !unit.isDeleted,
+      );
   if (tracked) {
     return true;
   }

@@ -3174,6 +3174,13 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
   late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
       'item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('unknown'));
   static const VerificationMeta _trackingEntryIdMeta =
       const VerificationMeta('trackingEntryId');
   @override
@@ -3210,36 +3217,6 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
   late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
       'unit_type', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _seasonNumberMeta =
-      const VerificationMeta('seasonNumber');
-  @override
-  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
-      'season_number', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _episodeNumberMeta =
-      const VerificationMeta('episodeNumber');
-  @override
-  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
-      'episode_number', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _volumeNumberMeta =
-      const VerificationMeta('volumeNumber');
-  @override
-  late final GeneratedColumn<int> volumeNumber = GeneratedColumn<int>(
-      'volume_number', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _chapterNumberMeta =
-      const VerificationMeta('chapterNumber');
-  @override
-  late final GeneratedColumn<int> chapterNumber = GeneratedColumn<int>(
-      'chapter_number', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _issueNumberMeta =
-      const VerificationMeta('issueNumber');
-  @override
-  late final GeneratedColumn<String> issueNumber = GeneratedColumn<String>(
-      'issue_number', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -3262,17 +3239,13 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
   List<GeneratedColumn> get $columns => [
         id,
         itemId,
+        kind,
         trackingEntryId,
         ownedItemId,
         editionId,
         variantId,
         bundleReleaseId,
         unitType,
-        seasonNumber,
-        episodeNumber,
-        volumeNumber,
-        chapterNumber,
-        issueNumber,
         completedAt,
         updatedAt,
         deletedAt
@@ -3298,6 +3271,10 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
           itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
     } else if (isInserting) {
       context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
     }
     if (data.containsKey('tracking_entry_id')) {
       context.handle(
@@ -3331,36 +3308,6 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
     } else if (isInserting) {
       context.missing(_unitTypeMeta);
     }
-    if (data.containsKey('season_number')) {
-      context.handle(
-          _seasonNumberMeta,
-          seasonNumber.isAcceptableOrUnknown(
-              data['season_number']!, _seasonNumberMeta));
-    }
-    if (data.containsKey('episode_number')) {
-      context.handle(
-          _episodeNumberMeta,
-          episodeNumber.isAcceptableOrUnknown(
-              data['episode_number']!, _episodeNumberMeta));
-    }
-    if (data.containsKey('volume_number')) {
-      context.handle(
-          _volumeNumberMeta,
-          volumeNumber.isAcceptableOrUnknown(
-              data['volume_number']!, _volumeNumberMeta));
-    }
-    if (data.containsKey('chapter_number')) {
-      context.handle(
-          _chapterNumberMeta,
-          chapterNumber.isAcceptableOrUnknown(
-              data['chapter_number']!, _chapterNumberMeta));
-    }
-    if (data.containsKey('issue_number')) {
-      context.handle(
-          _issueNumberMeta,
-          issueNumber.isAcceptableOrUnknown(
-              data['issue_number']!, _issueNumberMeta));
-    }
     if (data.containsKey('completed_at')) {
       context.handle(
           _completedAtMeta,
@@ -3392,6 +3339,8 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
       ownedItemId: attachedDatabase.typeMapping
@@ -3404,16 +3353,6 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
           DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
       unitType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
-      seasonNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
-      episodeNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
-      volumeNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}volume_number']),
-      chapterNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}chapter_number']),
-      issueNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}issue_number']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -3433,34 +3372,26 @@ class TrackingUnitsCacheData extends DataClass
     implements Insertable<TrackingUnitsCacheData> {
   final String id;
   final String itemId;
+  final String kind;
   final String? trackingEntryId;
   final String? ownedItemId;
   final String? editionId;
   final String? variantId;
   final String? bundleReleaseId;
   final String unitType;
-  final int? seasonNumber;
-  final int? episodeNumber;
-  final int? volumeNumber;
-  final int? chapterNumber;
-  final String? issueNumber;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
   const TrackingUnitsCacheData(
       {required this.id,
       required this.itemId,
+      required this.kind,
       this.trackingEntryId,
       this.ownedItemId,
       this.editionId,
       this.variantId,
       this.bundleReleaseId,
       required this.unitType,
-      this.seasonNumber,
-      this.episodeNumber,
-      this.volumeNumber,
-      this.chapterNumber,
-      this.issueNumber,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt});
@@ -3469,6 +3400,7 @@ class TrackingUnitsCacheData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
+    map['kind'] = Variable<String>(kind);
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
@@ -3485,21 +3417,6 @@ class TrackingUnitsCacheData extends DataClass
       map['bundle_release_id'] = Variable<String>(bundleReleaseId);
     }
     map['unit_type'] = Variable<String>(unitType);
-    if (!nullToAbsent || seasonNumber != null) {
-      map['season_number'] = Variable<int>(seasonNumber);
-    }
-    if (!nullToAbsent || episodeNumber != null) {
-      map['episode_number'] = Variable<int>(episodeNumber);
-    }
-    if (!nullToAbsent || volumeNumber != null) {
-      map['volume_number'] = Variable<int>(volumeNumber);
-    }
-    if (!nullToAbsent || chapterNumber != null) {
-      map['chapter_number'] = Variable<int>(chapterNumber);
-    }
-    if (!nullToAbsent || issueNumber != null) {
-      map['issue_number'] = Variable<String>(issueNumber);
-    }
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -3512,6 +3429,7 @@ class TrackingUnitsCacheData extends DataClass
     return TrackingUnitsCacheCompanion(
       id: Value(id),
       itemId: Value(itemId),
+      kind: Value(kind),
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
@@ -3528,21 +3446,6 @@ class TrackingUnitsCacheData extends DataClass
           ? const Value.absent()
           : Value(bundleReleaseId),
       unitType: Value(unitType),
-      seasonNumber: seasonNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(seasonNumber),
-      episodeNumber: episodeNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(episodeNumber),
-      volumeNumber: volumeNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(volumeNumber),
-      chapterNumber: chapterNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(chapterNumber),
-      issueNumber: issueNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(issueNumber),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -3557,17 +3460,13 @@ class TrackingUnitsCacheData extends DataClass
     return TrackingUnitsCacheData(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
+      kind: serializer.fromJson<String>(json['kind']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
       ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
       editionId: serializer.fromJson<String?>(json['editionId']),
       variantId: serializer.fromJson<String?>(json['variantId']),
       bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
       unitType: serializer.fromJson<String>(json['unitType']),
-      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
-      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
-      volumeNumber: serializer.fromJson<int?>(json['volumeNumber']),
-      chapterNumber: serializer.fromJson<int?>(json['chapterNumber']),
-      issueNumber: serializer.fromJson<String?>(json['issueNumber']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -3579,17 +3478,13 @@ class TrackingUnitsCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
+      'kind': serializer.toJson<String>(kind),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
       'ownedItemId': serializer.toJson<String?>(ownedItemId),
       'editionId': serializer.toJson<String?>(editionId),
       'variantId': serializer.toJson<String?>(variantId),
       'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
       'unitType': serializer.toJson<String>(unitType),
-      'seasonNumber': serializer.toJson<int?>(seasonNumber),
-      'episodeNumber': serializer.toJson<int?>(episodeNumber),
-      'volumeNumber': serializer.toJson<int?>(volumeNumber),
-      'chapterNumber': serializer.toJson<int?>(chapterNumber),
-      'issueNumber': serializer.toJson<String?>(issueNumber),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -3599,23 +3494,20 @@ class TrackingUnitsCacheData extends DataClass
   TrackingUnitsCacheData copyWith(
           {String? id,
           String? itemId,
+          String? kind,
           Value<String?> trackingEntryId = const Value.absent(),
           Value<String?> ownedItemId = const Value.absent(),
           Value<String?> editionId = const Value.absent(),
           Value<String?> variantId = const Value.absent(),
           Value<String?> bundleReleaseId = const Value.absent(),
           String? unitType,
-          Value<int?> seasonNumber = const Value.absent(),
-          Value<int?> episodeNumber = const Value.absent(),
-          Value<int?> volumeNumber = const Value.absent(),
-          Value<int?> chapterNumber = const Value.absent(),
-          Value<String?> issueNumber = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       TrackingUnitsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
+        kind: kind ?? this.kind,
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
@@ -3626,15 +3518,6 @@ class TrackingUnitsCacheData extends DataClass
             ? bundleReleaseId.value
             : this.bundleReleaseId,
         unitType: unitType ?? this.unitType,
-        seasonNumber:
-            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
-        episodeNumber:
-            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
-        volumeNumber:
-            volumeNumber.present ? volumeNumber.value : this.volumeNumber,
-        chapterNumber:
-            chapterNumber.present ? chapterNumber.value : this.chapterNumber,
-        issueNumber: issueNumber.present ? issueNumber.value : this.issueNumber,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -3643,6 +3526,7 @@ class TrackingUnitsCacheData extends DataClass
     return TrackingUnitsCacheData(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      kind: data.kind.present ? data.kind.value : this.kind,
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
@@ -3654,20 +3538,6 @@ class TrackingUnitsCacheData extends DataClass
           ? data.bundleReleaseId.value
           : this.bundleReleaseId,
       unitType: data.unitType.present ? data.unitType.value : this.unitType,
-      seasonNumber: data.seasonNumber.present
-          ? data.seasonNumber.value
-          : this.seasonNumber,
-      episodeNumber: data.episodeNumber.present
-          ? data.episodeNumber.value
-          : this.episodeNumber,
-      volumeNumber: data.volumeNumber.present
-          ? data.volumeNumber.value
-          : this.volumeNumber,
-      chapterNumber: data.chapterNumber.present
-          ? data.chapterNumber.value
-          : this.chapterNumber,
-      issueNumber:
-          data.issueNumber.present ? data.issueNumber.value : this.issueNumber,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -3680,17 +3550,13 @@ class TrackingUnitsCacheData extends DataClass
     return (StringBuffer('TrackingUnitsCacheData(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('kind: $kind, ')
           ..write('trackingEntryId: $trackingEntryId, ')
           ..write('ownedItemId: $ownedItemId, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
           ..write('bundleReleaseId: $bundleReleaseId, ')
           ..write('unitType: $unitType, ')
-          ..write('seasonNumber: $seasonNumber, ')
-          ..write('episodeNumber: $episodeNumber, ')
-          ..write('volumeNumber: $volumeNumber, ')
-          ..write('chapterNumber: $chapterNumber, ')
-          ..write('issueNumber: $issueNumber, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -3702,17 +3568,13 @@ class TrackingUnitsCacheData extends DataClass
   int get hashCode => Object.hash(
       id,
       itemId,
+      kind,
       trackingEntryId,
       ownedItemId,
       editionId,
       variantId,
       bundleReleaseId,
       unitType,
-      seasonNumber,
-      episodeNumber,
-      volumeNumber,
-      chapterNumber,
-      issueNumber,
       completedAt,
       updatedAt,
       deletedAt);
@@ -3722,17 +3584,13 @@ class TrackingUnitsCacheData extends DataClass
       (other is TrackingUnitsCacheData &&
           other.id == this.id &&
           other.itemId == this.itemId &&
+          other.kind == this.kind &&
           other.trackingEntryId == this.trackingEntryId &&
           other.ownedItemId == this.ownedItemId &&
           other.editionId == this.editionId &&
           other.variantId == this.variantId &&
           other.bundleReleaseId == this.bundleReleaseId &&
           other.unitType == this.unitType &&
-          other.seasonNumber == this.seasonNumber &&
-          other.episodeNumber == this.episodeNumber &&
-          other.volumeNumber == this.volumeNumber &&
-          other.chapterNumber == this.chapterNumber &&
-          other.issueNumber == this.issueNumber &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -3742,17 +3600,13 @@ class TrackingUnitsCacheCompanion
     extends UpdateCompanion<TrackingUnitsCacheData> {
   final Value<String> id;
   final Value<String> itemId;
+  final Value<String> kind;
   final Value<String?> trackingEntryId;
   final Value<String?> ownedItemId;
   final Value<String?> editionId;
   final Value<String?> variantId;
   final Value<String?> bundleReleaseId;
   final Value<String> unitType;
-  final Value<int?> seasonNumber;
-  final Value<int?> episodeNumber;
-  final Value<int?> volumeNumber;
-  final Value<int?> chapterNumber;
-  final Value<String?> issueNumber;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -3760,17 +3614,13 @@ class TrackingUnitsCacheCompanion
   const TrackingUnitsCacheCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
+    this.kind = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
     this.ownedItemId = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
     this.bundleReleaseId = const Value.absent(),
     this.unitType = const Value.absent(),
-    this.seasonNumber = const Value.absent(),
-    this.episodeNumber = const Value.absent(),
-    this.volumeNumber = const Value.absent(),
-    this.chapterNumber = const Value.absent(),
-    this.issueNumber = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -3779,17 +3629,13 @@ class TrackingUnitsCacheCompanion
   TrackingUnitsCacheCompanion.insert({
     required String id,
     required String itemId,
+    this.kind = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
     this.ownedItemId = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
     this.bundleReleaseId = const Value.absent(),
     required String unitType,
-    this.seasonNumber = const Value.absent(),
-    this.episodeNumber = const Value.absent(),
-    this.volumeNumber = const Value.absent(),
-    this.chapterNumber = const Value.absent(),
-    this.issueNumber = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -3802,17 +3648,13 @@ class TrackingUnitsCacheCompanion
   static Insertable<TrackingUnitsCacheData> custom({
     Expression<String>? id,
     Expression<String>? itemId,
+    Expression<String>? kind,
     Expression<String>? trackingEntryId,
     Expression<String>? ownedItemId,
     Expression<String>? editionId,
     Expression<String>? variantId,
     Expression<String>? bundleReleaseId,
     Expression<String>? unitType,
-    Expression<int>? seasonNumber,
-    Expression<int>? episodeNumber,
-    Expression<int>? volumeNumber,
-    Expression<int>? chapterNumber,
-    Expression<String>? issueNumber,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -3821,17 +3663,13 @@ class TrackingUnitsCacheCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
+      if (kind != null) 'kind': kind,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
       if (ownedItemId != null) 'owned_item_id': ownedItemId,
       if (editionId != null) 'edition_id': editionId,
       if (variantId != null) 'variant_id': variantId,
       if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
       if (unitType != null) 'unit_type': unitType,
-      if (seasonNumber != null) 'season_number': seasonNumber,
-      if (episodeNumber != null) 'episode_number': episodeNumber,
-      if (volumeNumber != null) 'volume_number': volumeNumber,
-      if (chapterNumber != null) 'chapter_number': chapterNumber,
-      if (issueNumber != null) 'issue_number': issueNumber,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -3842,17 +3680,13 @@ class TrackingUnitsCacheCompanion
   TrackingUnitsCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
+      Value<String>? kind,
       Value<String?>? trackingEntryId,
       Value<String?>? ownedItemId,
       Value<String?>? editionId,
       Value<String?>? variantId,
       Value<String?>? bundleReleaseId,
       Value<String>? unitType,
-      Value<int?>? seasonNumber,
-      Value<int?>? episodeNumber,
-      Value<int?>? volumeNumber,
-      Value<int?>? chapterNumber,
-      Value<String?>? issueNumber,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -3860,17 +3694,13 @@ class TrackingUnitsCacheCompanion
     return TrackingUnitsCacheCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
+      kind: kind ?? this.kind,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
       bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
       unitType: unitType ?? this.unitType,
-      seasonNumber: seasonNumber ?? this.seasonNumber,
-      episodeNumber: episodeNumber ?? this.episodeNumber,
-      volumeNumber: volumeNumber ?? this.volumeNumber,
-      chapterNumber: chapterNumber ?? this.chapterNumber,
-      issueNumber: issueNumber ?? this.issueNumber,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -3886,6 +3716,9 @@ class TrackingUnitsCacheCompanion
     }
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
     }
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
@@ -3904,21 +3737,6 @@ class TrackingUnitsCacheCompanion
     }
     if (unitType.present) {
       map['unit_type'] = Variable<String>(unitType.value);
-    }
-    if (seasonNumber.present) {
-      map['season_number'] = Variable<int>(seasonNumber.value);
-    }
-    if (episodeNumber.present) {
-      map['episode_number'] = Variable<int>(episodeNumber.value);
-    }
-    if (volumeNumber.present) {
-      map['volume_number'] = Variable<int>(volumeNumber.value);
-    }
-    if (chapterNumber.present) {
-      map['chapter_number'] = Variable<int>(chapterNumber.value);
-    }
-    if (issueNumber.present) {
-      map['issue_number'] = Variable<String>(issueNumber.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -3940,17 +3758,13 @@ class TrackingUnitsCacheCompanion
     return (StringBuffer('TrackingUnitsCacheCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
+          ..write('kind: $kind, ')
           ..write('trackingEntryId: $trackingEntryId, ')
           ..write('ownedItemId: $ownedItemId, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
           ..write('bundleReleaseId: $bundleReleaseId, ')
           ..write('unitType: $unitType, ')
-          ..write('seasonNumber: $seasonNumber, ')
-          ..write('episodeNumber: $episodeNumber, ')
-          ..write('volumeNumber: $volumeNumber, ')
-          ..write('chapterNumber: $chapterNumber, ')
-          ..write('issueNumber: $issueNumber, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -32736,6 +32550,251 @@ class TvCustomEpisodeRowsCompanion extends UpdateCompanion<TvCustomEpisodeRow> {
   }
 }
 
+class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
+    with TableInfo<$TvTrackingUnitRowsTable, TvTrackingUnitRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvTrackingUnitRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [id, seasonNumber, episodeNumber];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_tracking_unit_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvTrackingUnitRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TvTrackingUnitRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvTrackingUnitRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+    );
+  }
+
+  @override
+  $TvTrackingUnitRowsTable createAlias(String alias) {
+    return $TvTrackingUnitRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvTrackingUnitRow extends DataClass
+    implements Insertable<TvTrackingUnitRow> {
+  final String id;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  const TvTrackingUnitRow(
+      {required this.id, this.seasonNumber, this.episodeNumber});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    return map;
+  }
+
+  TvTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvTrackingUnitRowsCompanion(
+      id: Value(id),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+    );
+  }
+
+  factory TvTrackingUnitRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvTrackingUnitRow(
+      id: serializer.fromJson<String>(json['id']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
+    };
+  }
+
+  TvTrackingUnitRow copyWith(
+          {String? id,
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent()}) =>
+      TvTrackingUnitRow(
+        id: id ?? this.id,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+      );
+  TvTrackingUnitRow copyWithCompanion(TvTrackingUnitRowsCompanion data) {
+    return TvTrackingUnitRow(
+      id: data.id.present ? data.id.value : this.id,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvTrackingUnitRow(')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, seasonNumber, episodeNumber);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvTrackingUnitRow &&
+          other.id == this.id &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber);
+}
+
+class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
+  final Value<String> id;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
+  final Value<int> rowid;
+  const TvTrackingUnitRowsCompanion({
+    this.id = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvTrackingUnitRowsCompanion.insert({
+    required String id,
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<TvTrackingUnitRow> custom({
+    Expression<String>? id,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvTrackingUnitRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
+      Value<int>? rowid}) {
+    return TvTrackingUnitRowsCompanion(
+      id: id ?? this.id,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvTrackingUnitRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AnimeMediaRowsTable extends AnimeMediaRows
     with TableInfo<$AnimeMediaRowsTable, AnimeMediaRow> {
   @override
@@ -36062,6 +36121,946 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
   }
 }
 
+class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
+    with TableInfo<$AnimeTrackingUnitRowsTable, AnimeTrackingUnitRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AnimeTrackingUnitRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [id, seasonNumber, episodeNumber];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'anime_tracking_unit_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<AnimeTrackingUnitRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AnimeTrackingUnitRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AnimeTrackingUnitRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+    );
+  }
+
+  @override
+  $AnimeTrackingUnitRowsTable createAlias(String alias) {
+    return $AnimeTrackingUnitRowsTable(attachedDatabase, alias);
+  }
+}
+
+class AnimeTrackingUnitRow extends DataClass
+    implements Insertable<AnimeTrackingUnitRow> {
+  final String id;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  const AnimeTrackingUnitRow(
+      {required this.id, this.seasonNumber, this.episodeNumber});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    return map;
+  }
+
+  AnimeTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
+    return AnimeTrackingUnitRowsCompanion(
+      id: Value(id),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+    );
+  }
+
+  factory AnimeTrackingUnitRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AnimeTrackingUnitRow(
+      id: serializer.fromJson<String>(json['id']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
+    };
+  }
+
+  AnimeTrackingUnitRow copyWith(
+          {String? id,
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent()}) =>
+      AnimeTrackingUnitRow(
+        id: id ?? this.id,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+      );
+  AnimeTrackingUnitRow copyWithCompanion(AnimeTrackingUnitRowsCompanion data) {
+    return AnimeTrackingUnitRow(
+      id: data.id.present ? data.id.value : this.id,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnimeTrackingUnitRow(')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, seasonNumber, episodeNumber);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AnimeTrackingUnitRow &&
+          other.id == this.id &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber);
+}
+
+class AnimeTrackingUnitRowsCompanion
+    extends UpdateCompanion<AnimeTrackingUnitRow> {
+  final Value<String> id;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
+  final Value<int> rowid;
+  const AnimeTrackingUnitRowsCompanion({
+    this.id = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AnimeTrackingUnitRowsCompanion.insert({
+    required String id,
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<AnimeTrackingUnitRow> custom({
+    Expression<String>? id,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AnimeTrackingUnitRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
+      Value<int>? rowid}) {
+    return AnimeTrackingUnitRowsCompanion(
+      id: id ?? this.id,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnimeTrackingUnitRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
+    with TableInfo<$ComicTrackingUnitRowsTable, ComicTrackingUnitRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ComicTrackingUnitRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _issueNumberMeta =
+      const VerificationMeta('issueNumber');
+  @override
+  late final GeneratedColumn<String> issueNumber = GeneratedColumn<String>(
+      'issue_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [id, issueNumber];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'comic_tracking_unit_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ComicTrackingUnitRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('issue_number')) {
+      context.handle(
+          _issueNumberMeta,
+          issueNumber.isAcceptableOrUnknown(
+              data['issue_number']!, _issueNumberMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ComicTrackingUnitRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ComicTrackingUnitRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      issueNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}issue_number']),
+    );
+  }
+
+  @override
+  $ComicTrackingUnitRowsTable createAlias(String alias) {
+    return $ComicTrackingUnitRowsTable(attachedDatabase, alias);
+  }
+}
+
+class ComicTrackingUnitRow extends DataClass
+    implements Insertable<ComicTrackingUnitRow> {
+  final String id;
+  final String? issueNumber;
+  const ComicTrackingUnitRow({required this.id, this.issueNumber});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || issueNumber != null) {
+      map['issue_number'] = Variable<String>(issueNumber);
+    }
+    return map;
+  }
+
+  ComicTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
+    return ComicTrackingUnitRowsCompanion(
+      id: Value(id),
+      issueNumber: issueNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(issueNumber),
+    );
+  }
+
+  factory ComicTrackingUnitRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ComicTrackingUnitRow(
+      id: serializer.fromJson<String>(json['id']),
+      issueNumber: serializer.fromJson<String?>(json['issueNumber']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'issueNumber': serializer.toJson<String?>(issueNumber),
+    };
+  }
+
+  ComicTrackingUnitRow copyWith(
+          {String? id, Value<String?> issueNumber = const Value.absent()}) =>
+      ComicTrackingUnitRow(
+        id: id ?? this.id,
+        issueNumber: issueNumber.present ? issueNumber.value : this.issueNumber,
+      );
+  ComicTrackingUnitRow copyWithCompanion(ComicTrackingUnitRowsCompanion data) {
+    return ComicTrackingUnitRow(
+      id: data.id.present ? data.id.value : this.id,
+      issueNumber:
+          data.issueNumber.present ? data.issueNumber.value : this.issueNumber,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicTrackingUnitRow(')
+          ..write('id: $id, ')
+          ..write('issueNumber: $issueNumber')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, issueNumber);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ComicTrackingUnitRow &&
+          other.id == this.id &&
+          other.issueNumber == this.issueNumber);
+}
+
+class ComicTrackingUnitRowsCompanion
+    extends UpdateCompanion<ComicTrackingUnitRow> {
+  final Value<String> id;
+  final Value<String?> issueNumber;
+  final Value<int> rowid;
+  const ComicTrackingUnitRowsCompanion({
+    this.id = const Value.absent(),
+    this.issueNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ComicTrackingUnitRowsCompanion.insert({
+    required String id,
+    this.issueNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<ComicTrackingUnitRow> custom({
+    Expression<String>? id,
+    Expression<String>? issueNumber,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (issueNumber != null) 'issue_number': issueNumber,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ComicTrackingUnitRowsCompanion copyWith(
+      {Value<String>? id, Value<String?>? issueNumber, Value<int>? rowid}) {
+    return ComicTrackingUnitRowsCompanion(
+      id: id ?? this.id,
+      issueNumber: issueNumber ?? this.issueNumber,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (issueNumber.present) {
+      map['issue_number'] = Variable<String>(issueNumber.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicTrackingUnitRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('issueNumber: $issueNumber, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
+    with TableInfo<$MangaTrackingUnitRowsTable, MangaTrackingUnitRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MangaTrackingUnitRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _volumeNumberMeta =
+      const VerificationMeta('volumeNumber');
+  @override
+  late final GeneratedColumn<int> volumeNumber = GeneratedColumn<int>(
+      'volume_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _chapterNumberMeta =
+      const VerificationMeta('chapterNumber');
+  @override
+  late final GeneratedColumn<int> chapterNumber = GeneratedColumn<int>(
+      'chapter_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [id, volumeNumber, chapterNumber];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'manga_tracking_unit_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MangaTrackingUnitRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('volume_number')) {
+      context.handle(
+          _volumeNumberMeta,
+          volumeNumber.isAcceptableOrUnknown(
+              data['volume_number']!, _volumeNumberMeta));
+    }
+    if (data.containsKey('chapter_number')) {
+      context.handle(
+          _chapterNumberMeta,
+          chapterNumber.isAcceptableOrUnknown(
+              data['chapter_number']!, _chapterNumberMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MangaTrackingUnitRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MangaTrackingUnitRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      volumeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}volume_number']),
+      chapterNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chapter_number']),
+    );
+  }
+
+  @override
+  $MangaTrackingUnitRowsTable createAlias(String alias) {
+    return $MangaTrackingUnitRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MangaTrackingUnitRow extends DataClass
+    implements Insertable<MangaTrackingUnitRow> {
+  final String id;
+  final int? volumeNumber;
+  final int? chapterNumber;
+  const MangaTrackingUnitRow(
+      {required this.id, this.volumeNumber, this.chapterNumber});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || volumeNumber != null) {
+      map['volume_number'] = Variable<int>(volumeNumber);
+    }
+    if (!nullToAbsent || chapterNumber != null) {
+      map['chapter_number'] = Variable<int>(chapterNumber);
+    }
+    return map;
+  }
+
+  MangaTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
+    return MangaTrackingUnitRowsCompanion(
+      id: Value(id),
+      volumeNumber: volumeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(volumeNumber),
+      chapterNumber: chapterNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(chapterNumber),
+    );
+  }
+
+  factory MangaTrackingUnitRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MangaTrackingUnitRow(
+      id: serializer.fromJson<String>(json['id']),
+      volumeNumber: serializer.fromJson<int?>(json['volumeNumber']),
+      chapterNumber: serializer.fromJson<int?>(json['chapterNumber']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'volumeNumber': serializer.toJson<int?>(volumeNumber),
+      'chapterNumber': serializer.toJson<int?>(chapterNumber),
+    };
+  }
+
+  MangaTrackingUnitRow copyWith(
+          {String? id,
+          Value<int?> volumeNumber = const Value.absent(),
+          Value<int?> chapterNumber = const Value.absent()}) =>
+      MangaTrackingUnitRow(
+        id: id ?? this.id,
+        volumeNumber:
+            volumeNumber.present ? volumeNumber.value : this.volumeNumber,
+        chapterNumber:
+            chapterNumber.present ? chapterNumber.value : this.chapterNumber,
+      );
+  MangaTrackingUnitRow copyWithCompanion(MangaTrackingUnitRowsCompanion data) {
+    return MangaTrackingUnitRow(
+      id: data.id.present ? data.id.value : this.id,
+      volumeNumber: data.volumeNumber.present
+          ? data.volumeNumber.value
+          : this.volumeNumber,
+      chapterNumber: data.chapterNumber.present
+          ? data.chapterNumber.value
+          : this.chapterNumber,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MangaTrackingUnitRow(')
+          ..write('id: $id, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('chapterNumber: $chapterNumber')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, volumeNumber, chapterNumber);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MangaTrackingUnitRow &&
+          other.id == this.id &&
+          other.volumeNumber == this.volumeNumber &&
+          other.chapterNumber == this.chapterNumber);
+}
+
+class MangaTrackingUnitRowsCompanion
+    extends UpdateCompanion<MangaTrackingUnitRow> {
+  final Value<String> id;
+  final Value<int?> volumeNumber;
+  final Value<int?> chapterNumber;
+  final Value<int> rowid;
+  const MangaTrackingUnitRowsCompanion({
+    this.id = const Value.absent(),
+    this.volumeNumber = const Value.absent(),
+    this.chapterNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MangaTrackingUnitRowsCompanion.insert({
+    required String id,
+    this.volumeNumber = const Value.absent(),
+    this.chapterNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<MangaTrackingUnitRow> custom({
+    Expression<String>? id,
+    Expression<int>? volumeNumber,
+    Expression<int>? chapterNumber,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (volumeNumber != null) 'volume_number': volumeNumber,
+      if (chapterNumber != null) 'chapter_number': chapterNumber,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MangaTrackingUnitRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<int?>? volumeNumber,
+      Value<int?>? chapterNumber,
+      Value<int>? rowid}) {
+    return MangaTrackingUnitRowsCompanion(
+      id: id ?? this.id,
+      volumeNumber: volumeNumber ?? this.volumeNumber,
+      chapterNumber: chapterNumber ?? this.chapterNumber,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (volumeNumber.present) {
+      map['volume_number'] = Variable<int>(volumeNumber.value);
+    }
+    if (chapterNumber.present) {
+      map['chapter_number'] = Variable<int>(chapterNumber.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MangaTrackingUnitRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('chapterNumber: $chapterNumber, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
+    with TableInfo<$BookTrackingUnitRowsTable, BookTrackingUnitRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BookTrackingUnitRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _volumeNumberMeta =
+      const VerificationMeta('volumeNumber');
+  @override
+  late final GeneratedColumn<int> volumeNumber = GeneratedColumn<int>(
+      'volume_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _chapterNumberMeta =
+      const VerificationMeta('chapterNumber');
+  @override
+  late final GeneratedColumn<int> chapterNumber = GeneratedColumn<int>(
+      'chapter_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [id, volumeNumber, chapterNumber];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'book_tracking_unit_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<BookTrackingUnitRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('volume_number')) {
+      context.handle(
+          _volumeNumberMeta,
+          volumeNumber.isAcceptableOrUnknown(
+              data['volume_number']!, _volumeNumberMeta));
+    }
+    if (data.containsKey('chapter_number')) {
+      context.handle(
+          _chapterNumberMeta,
+          chapterNumber.isAcceptableOrUnknown(
+              data['chapter_number']!, _chapterNumberMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BookTrackingUnitRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BookTrackingUnitRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      volumeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}volume_number']),
+      chapterNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}chapter_number']),
+    );
+  }
+
+  @override
+  $BookTrackingUnitRowsTable createAlias(String alias) {
+    return $BookTrackingUnitRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BookTrackingUnitRow extends DataClass
+    implements Insertable<BookTrackingUnitRow> {
+  final String id;
+  final int? volumeNumber;
+  final int? chapterNumber;
+  const BookTrackingUnitRow(
+      {required this.id, this.volumeNumber, this.chapterNumber});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || volumeNumber != null) {
+      map['volume_number'] = Variable<int>(volumeNumber);
+    }
+    if (!nullToAbsent || chapterNumber != null) {
+      map['chapter_number'] = Variable<int>(chapterNumber);
+    }
+    return map;
+  }
+
+  BookTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
+    return BookTrackingUnitRowsCompanion(
+      id: Value(id),
+      volumeNumber: volumeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(volumeNumber),
+      chapterNumber: chapterNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(chapterNumber),
+    );
+  }
+
+  factory BookTrackingUnitRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BookTrackingUnitRow(
+      id: serializer.fromJson<String>(json['id']),
+      volumeNumber: serializer.fromJson<int?>(json['volumeNumber']),
+      chapterNumber: serializer.fromJson<int?>(json['chapterNumber']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'volumeNumber': serializer.toJson<int?>(volumeNumber),
+      'chapterNumber': serializer.toJson<int?>(chapterNumber),
+    };
+  }
+
+  BookTrackingUnitRow copyWith(
+          {String? id,
+          Value<int?> volumeNumber = const Value.absent(),
+          Value<int?> chapterNumber = const Value.absent()}) =>
+      BookTrackingUnitRow(
+        id: id ?? this.id,
+        volumeNumber:
+            volumeNumber.present ? volumeNumber.value : this.volumeNumber,
+        chapterNumber:
+            chapterNumber.present ? chapterNumber.value : this.chapterNumber,
+      );
+  BookTrackingUnitRow copyWithCompanion(BookTrackingUnitRowsCompanion data) {
+    return BookTrackingUnitRow(
+      id: data.id.present ? data.id.value : this.id,
+      volumeNumber: data.volumeNumber.present
+          ? data.volumeNumber.value
+          : this.volumeNumber,
+      chapterNumber: data.chapterNumber.present
+          ? data.chapterNumber.value
+          : this.chapterNumber,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookTrackingUnitRow(')
+          ..write('id: $id, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('chapterNumber: $chapterNumber')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, volumeNumber, chapterNumber);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BookTrackingUnitRow &&
+          other.id == this.id &&
+          other.volumeNumber == this.volumeNumber &&
+          other.chapterNumber == this.chapterNumber);
+}
+
+class BookTrackingUnitRowsCompanion
+    extends UpdateCompanion<BookTrackingUnitRow> {
+  final Value<String> id;
+  final Value<int?> volumeNumber;
+  final Value<int?> chapterNumber;
+  final Value<int> rowid;
+  const BookTrackingUnitRowsCompanion({
+    this.id = const Value.absent(),
+    this.volumeNumber = const Value.absent(),
+    this.chapterNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BookTrackingUnitRowsCompanion.insert({
+    required String id,
+    this.volumeNumber = const Value.absent(),
+    this.chapterNumber = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<BookTrackingUnitRow> custom({
+    Expression<String>? id,
+    Expression<int>? volumeNumber,
+    Expression<int>? chapterNumber,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (volumeNumber != null) 'volume_number': volumeNumber,
+      if (chapterNumber != null) 'chapter_number': chapterNumber,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BookTrackingUnitRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<int?>? volumeNumber,
+      Value<int?>? chapterNumber,
+      Value<int>? rowid}) {
+    return BookTrackingUnitRowsCompanion(
+      id: id ?? this.id,
+      volumeNumber: volumeNumber ?? this.volumeNumber,
+      chapterNumber: chapterNumber ?? this.chapterNumber,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (volumeNumber.present) {
+      map['volume_number'] = Variable<int>(volumeNumber.value);
+    }
+    if (chapterNumber.present) {
+      map['chapter_number'] = Variable<int>(chapterNumber.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookTrackingUnitRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('volumeNumber: $volumeNumber, ')
+          ..write('chapterNumber: $chapterNumber, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $MusicReleaseRowsTable extends MusicReleaseRows
     with TableInfo<$MusicReleaseRowsTable, MusicReleaseRow> {
   @override
@@ -38660,6 +39659,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $TvEpisodeProgressRowsTable(this);
   late final $TvCustomEpisodeRowsTable tvCustomEpisodeRows =
       $TvCustomEpisodeRowsTable(this);
+  late final $TvTrackingUnitRowsTable tvTrackingUnitRows =
+      $TvTrackingUnitRowsTable(this);
   late final $AnimeMediaRowsTable animeMediaRows = $AnimeMediaRowsTable(this);
   late final $AnimeEpisodeRowsTable animeEpisodeRows =
       $AnimeEpisodeRowsTable(this);
@@ -38669,6 +39670,14 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $AnimeOwnedDetailsRowsTable(this);
   late final $AnimeTrackingRowsTable animeTrackingRows =
       $AnimeTrackingRowsTable(this);
+  late final $AnimeTrackingUnitRowsTable animeTrackingUnitRows =
+      $AnimeTrackingUnitRowsTable(this);
+  late final $ComicTrackingUnitRowsTable comicTrackingUnitRows =
+      $ComicTrackingUnitRowsTable(this);
+  late final $MangaTrackingUnitRowsTable mangaTrackingUnitRows =
+      $MangaTrackingUnitRowsTable(this);
+  late final $BookTrackingUnitRowsTable bookTrackingUnitRows =
+      $BookTrackingUnitRowsTable(this);
   late final $MusicReleaseRowsTable musicReleaseRows =
       $MusicReleaseRowsTable(this);
   late final $MusicMediaRowsTable musicMediaRows = $MusicMediaRowsTable(this);
@@ -38730,11 +39739,16 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         tvWatchSessionRows,
         tvEpisodeProgressRows,
         tvCustomEpisodeRows,
+        tvTrackingUnitRows,
         animeMediaRows,
         animeEpisodeRows,
         animeReleaseRows,
         animeOwnedDetailsRows,
         animeTrackingRows,
+        animeTrackingUnitRows,
+        comicTrackingUnitRows,
+        mangaTrackingUnitRows,
+        bookTrackingUnitRows,
         musicReleaseRows,
         musicMediaRows,
         musicTrackRows,
@@ -40086,17 +41100,13 @@ typedef $$TrackingUnitsCacheTableCreateCompanionBuilder
     = TrackingUnitsCacheCompanion Function({
   required String id,
   required String itemId,
+  Value<String> kind,
   Value<String?> trackingEntryId,
   Value<String?> ownedItemId,
   Value<String?> editionId,
   Value<String?> variantId,
   Value<String?> bundleReleaseId,
   required String unitType,
-  Value<int?> seasonNumber,
-  Value<int?> episodeNumber,
-  Value<int?> volumeNumber,
-  Value<int?> chapterNumber,
-  Value<String?> issueNumber,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -40106,17 +41116,13 @@ typedef $$TrackingUnitsCacheTableUpdateCompanionBuilder
     = TrackingUnitsCacheCompanion Function({
   Value<String> id,
   Value<String> itemId,
+  Value<String> kind,
   Value<String?> trackingEntryId,
   Value<String?> ownedItemId,
   Value<String?> editionId,
   Value<String?> variantId,
   Value<String?> bundleReleaseId,
   Value<String> unitType,
-  Value<int?> seasonNumber,
-  Value<int?> episodeNumber,
-  Value<int?> volumeNumber,
-  Value<int?> chapterNumber,
-  Value<String?> issueNumber,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -40138,6 +41144,9 @@ class $$TrackingUnitsCacheTableFilterComposer
   ColumnFilters<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
@@ -40157,21 +41166,6 @@ class $$TrackingUnitsCacheTableFilterComposer
 
   ColumnFilters<String> get unitType => $composableBuilder(
       column: $table.unitType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get seasonNumber => $composableBuilder(
-      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get episodeNumber => $composableBuilder(
-      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get volumeNumber => $composableBuilder(
-      column: $table.volumeNumber, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get chapterNumber => $composableBuilder(
-      column: $table.chapterNumber, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get issueNumber => $composableBuilder(
-      column: $table.issueNumber, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -40198,6 +41192,9 @@ class $$TrackingUnitsCacheTableOrderingComposer
   ColumnOrderings<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
@@ -40217,25 +41214,6 @@ class $$TrackingUnitsCacheTableOrderingComposer
 
   ColumnOrderings<String> get unitType => $composableBuilder(
       column: $table.unitType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get seasonNumber => $composableBuilder(
-      column: $table.seasonNumber,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get episodeNumber => $composableBuilder(
-      column: $table.episodeNumber,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get volumeNumber => $composableBuilder(
-      column: $table.volumeNumber,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get chapterNumber => $composableBuilder(
-      column: $table.chapterNumber,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get issueNumber => $composableBuilder(
-      column: $table.issueNumber, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -40262,6 +41240,9 @@ class $$TrackingUnitsCacheTableAnnotationComposer
   GeneratedColumn<String> get itemId =>
       $composableBuilder(column: $table.itemId, builder: (column) => column);
 
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
@@ -40279,21 +41260,6 @@ class $$TrackingUnitsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get unitType =>
       $composableBuilder(column: $table.unitType, builder: (column) => column);
-
-  GeneratedColumn<int> get seasonNumber => $composableBuilder(
-      column: $table.seasonNumber, builder: (column) => column);
-
-  GeneratedColumn<int> get episodeNumber => $composableBuilder(
-      column: $table.episodeNumber, builder: (column) => column);
-
-  GeneratedColumn<int> get volumeNumber => $composableBuilder(
-      column: $table.volumeNumber, builder: (column) => column);
-
-  GeneratedColumn<int> get chapterNumber => $composableBuilder(
-      column: $table.chapterNumber, builder: (column) => column);
-
-  GeneratedColumn<String> get issueNumber => $composableBuilder(
-      column: $table.issueNumber, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -40336,17 +41302,13 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
+            Value<String> kind = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
             Value<String?> bundleReleaseId = const Value.absent(),
             Value<String> unitType = const Value.absent(),
-            Value<int?> seasonNumber = const Value.absent(),
-            Value<int?> episodeNumber = const Value.absent(),
-            Value<int?> volumeNumber = const Value.absent(),
-            Value<int?> chapterNumber = const Value.absent(),
-            Value<String?> issueNumber = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -40355,17 +41317,13 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
               TrackingUnitsCacheCompanion(
             id: id,
             itemId: itemId,
+            kind: kind,
             trackingEntryId: trackingEntryId,
             ownedItemId: ownedItemId,
             editionId: editionId,
             variantId: variantId,
             bundleReleaseId: bundleReleaseId,
             unitType: unitType,
-            seasonNumber: seasonNumber,
-            episodeNumber: episodeNumber,
-            volumeNumber: volumeNumber,
-            chapterNumber: chapterNumber,
-            issueNumber: issueNumber,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -40374,17 +41332,13 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String itemId,
+            Value<String> kind = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
             Value<String?> bundleReleaseId = const Value.absent(),
             required String unitType,
-            Value<int?> seasonNumber = const Value.absent(),
-            Value<int?> episodeNumber = const Value.absent(),
-            Value<int?> volumeNumber = const Value.absent(),
-            Value<int?> chapterNumber = const Value.absent(),
-            Value<String?> issueNumber = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -40393,17 +41347,13 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
               TrackingUnitsCacheCompanion.insert(
             id: id,
             itemId: itemId,
+            kind: kind,
             trackingEntryId: trackingEntryId,
             ownedItemId: ownedItemId,
             editionId: editionId,
             variantId: variantId,
             bundleReleaseId: bundleReleaseId,
             unitType: unitType,
-            seasonNumber: seasonNumber,
-            episodeNumber: episodeNumber,
-            volumeNumber: volumeNumber,
-            chapterNumber: chapterNumber,
-            issueNumber: issueNumber,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -53763,6 +54713,155 @@ typedef $$TvCustomEpisodeRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     TvCustomEpisodeRow,
     PrefetchHooks Function()>;
+typedef $$TvTrackingUnitRowsTableCreateCompanionBuilder
+    = TvTrackingUnitRowsCompanion Function({
+  required String id,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<int> rowid,
+});
+typedef $$TvTrackingUnitRowsTableUpdateCompanionBuilder
+    = TvTrackingUnitRowsCompanion Function({
+  Value<String> id,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<int> rowid,
+});
+
+class $$TvTrackingUnitRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvTrackingUnitRowsTable> {
+  $$TvTrackingUnitRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+}
+
+class $$TvTrackingUnitRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvTrackingUnitRowsTable> {
+  $$TvTrackingUnitRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvTrackingUnitRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvTrackingUnitRowsTable> {
+  $$TvTrackingUnitRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+}
+
+class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvTrackingUnitRowsTable,
+    TvTrackingUnitRow,
+    $$TvTrackingUnitRowsTableFilterComposer,
+    $$TvTrackingUnitRowsTableOrderingComposer,
+    $$TvTrackingUnitRowsTableAnnotationComposer,
+    $$TvTrackingUnitRowsTableCreateCompanionBuilder,
+    $$TvTrackingUnitRowsTableUpdateCompanionBuilder,
+    (
+      TvTrackingUnitRow,
+      BaseReferences<_$LocalDatabase, $TvTrackingUnitRowsTable,
+          TvTrackingUnitRow>
+    ),
+    TvTrackingUnitRow,
+    PrefetchHooks Function()> {
+  $$TvTrackingUnitRowsTableTableManager(
+      _$LocalDatabase db, $TvTrackingUnitRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvTrackingUnitRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvTrackingUnitRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvTrackingUnitRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvTrackingUnitRowsCompanion(
+            id: id,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvTrackingUnitRowsCompanion.insert(
+            id: id,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvTrackingUnitRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvTrackingUnitRowsTable,
+    TvTrackingUnitRow,
+    $$TvTrackingUnitRowsTableFilterComposer,
+    $$TvTrackingUnitRowsTableOrderingComposer,
+    $$TvTrackingUnitRowsTableAnnotationComposer,
+    $$TvTrackingUnitRowsTableCreateCompanionBuilder,
+    $$TvTrackingUnitRowsTableUpdateCompanionBuilder,
+    (
+      TvTrackingUnitRow,
+      BaseReferences<_$LocalDatabase, $TvTrackingUnitRowsTable,
+          TvTrackingUnitRow>
+    ),
+    TvTrackingUnitRow,
+    PrefetchHooks Function()>;
 typedef $$AnimeMediaRowsTableCreateCompanionBuilder = AnimeMediaRowsCompanion
     Function({
   required String id,
@@ -55278,6 +56377,596 @@ typedef $$AnimeTrackingRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     AnimeTrackingRow,
     PrefetchHooks Function()>;
+typedef $$AnimeTrackingUnitRowsTableCreateCompanionBuilder
+    = AnimeTrackingUnitRowsCompanion Function({
+  required String id,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<int> rowid,
+});
+typedef $$AnimeTrackingUnitRowsTableUpdateCompanionBuilder
+    = AnimeTrackingUnitRowsCompanion Function({
+  Value<String> id,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<int> rowid,
+});
+
+class $$AnimeTrackingUnitRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $AnimeTrackingUnitRowsTable> {
+  $$AnimeTrackingUnitRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+}
+
+class $$AnimeTrackingUnitRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $AnimeTrackingUnitRowsTable> {
+  $$AnimeTrackingUnitRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$AnimeTrackingUnitRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $AnimeTrackingUnitRowsTable> {
+  $$AnimeTrackingUnitRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+}
+
+class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $AnimeTrackingUnitRowsTable,
+    AnimeTrackingUnitRow,
+    $$AnimeTrackingUnitRowsTableFilterComposer,
+    $$AnimeTrackingUnitRowsTableOrderingComposer,
+    $$AnimeTrackingUnitRowsTableAnnotationComposer,
+    $$AnimeTrackingUnitRowsTableCreateCompanionBuilder,
+    $$AnimeTrackingUnitRowsTableUpdateCompanionBuilder,
+    (
+      AnimeTrackingUnitRow,
+      BaseReferences<_$LocalDatabase, $AnimeTrackingUnitRowsTable,
+          AnimeTrackingUnitRow>
+    ),
+    AnimeTrackingUnitRow,
+    PrefetchHooks Function()> {
+  $$AnimeTrackingUnitRowsTableTableManager(
+      _$LocalDatabase db, $AnimeTrackingUnitRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AnimeTrackingUnitRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AnimeTrackingUnitRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AnimeTrackingUnitRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AnimeTrackingUnitRowsCompanion(
+            id: id,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AnimeTrackingUnitRowsCompanion.insert(
+            id: id,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$AnimeTrackingUnitRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $AnimeTrackingUnitRowsTable,
+        AnimeTrackingUnitRow,
+        $$AnimeTrackingUnitRowsTableFilterComposer,
+        $$AnimeTrackingUnitRowsTableOrderingComposer,
+        $$AnimeTrackingUnitRowsTableAnnotationComposer,
+        $$AnimeTrackingUnitRowsTableCreateCompanionBuilder,
+        $$AnimeTrackingUnitRowsTableUpdateCompanionBuilder,
+        (
+          AnimeTrackingUnitRow,
+          BaseReferences<_$LocalDatabase, $AnimeTrackingUnitRowsTable,
+              AnimeTrackingUnitRow>
+        ),
+        AnimeTrackingUnitRow,
+        PrefetchHooks Function()>;
+typedef $$ComicTrackingUnitRowsTableCreateCompanionBuilder
+    = ComicTrackingUnitRowsCompanion Function({
+  required String id,
+  Value<String?> issueNumber,
+  Value<int> rowid,
+});
+typedef $$ComicTrackingUnitRowsTableUpdateCompanionBuilder
+    = ComicTrackingUnitRowsCompanion Function({
+  Value<String> id,
+  Value<String?> issueNumber,
+  Value<int> rowid,
+});
+
+class $$ComicTrackingUnitRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $ComicTrackingUnitRowsTable> {
+  $$ComicTrackingUnitRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => ColumnFilters(column));
+}
+
+class $$ComicTrackingUnitRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ComicTrackingUnitRowsTable> {
+  $$ComicTrackingUnitRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ComicTrackingUnitRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ComicTrackingUnitRowsTable> {
+  $$ComicTrackingUnitRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get issueNumber => $composableBuilder(
+      column: $table.issueNumber, builder: (column) => column);
+}
+
+class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ComicTrackingUnitRowsTable,
+    ComicTrackingUnitRow,
+    $$ComicTrackingUnitRowsTableFilterComposer,
+    $$ComicTrackingUnitRowsTableOrderingComposer,
+    $$ComicTrackingUnitRowsTableAnnotationComposer,
+    $$ComicTrackingUnitRowsTableCreateCompanionBuilder,
+    $$ComicTrackingUnitRowsTableUpdateCompanionBuilder,
+    (
+      ComicTrackingUnitRow,
+      BaseReferences<_$LocalDatabase, $ComicTrackingUnitRowsTable,
+          ComicTrackingUnitRow>
+    ),
+    ComicTrackingUnitRow,
+    PrefetchHooks Function()> {
+  $$ComicTrackingUnitRowsTableTableManager(
+      _$LocalDatabase db, $ComicTrackingUnitRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ComicTrackingUnitRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ComicTrackingUnitRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ComicTrackingUnitRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String?> issueNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicTrackingUnitRowsCompanion(
+            id: id,
+            issueNumber: issueNumber,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<String?> issueNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicTrackingUnitRowsCompanion.insert(
+            id: id,
+            issueNumber: issueNumber,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ComicTrackingUnitRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $ComicTrackingUnitRowsTable,
+        ComicTrackingUnitRow,
+        $$ComicTrackingUnitRowsTableFilterComposer,
+        $$ComicTrackingUnitRowsTableOrderingComposer,
+        $$ComicTrackingUnitRowsTableAnnotationComposer,
+        $$ComicTrackingUnitRowsTableCreateCompanionBuilder,
+        $$ComicTrackingUnitRowsTableUpdateCompanionBuilder,
+        (
+          ComicTrackingUnitRow,
+          BaseReferences<_$LocalDatabase, $ComicTrackingUnitRowsTable,
+              ComicTrackingUnitRow>
+        ),
+        ComicTrackingUnitRow,
+        PrefetchHooks Function()>;
+typedef $$MangaTrackingUnitRowsTableCreateCompanionBuilder
+    = MangaTrackingUnitRowsCompanion Function({
+  required String id,
+  Value<int?> volumeNumber,
+  Value<int?> chapterNumber,
+  Value<int> rowid,
+});
+typedef $$MangaTrackingUnitRowsTableUpdateCompanionBuilder
+    = MangaTrackingUnitRowsCompanion Function({
+  Value<String> id,
+  Value<int?> volumeNumber,
+  Value<int?> chapterNumber,
+  Value<int> rowid,
+});
+
+class $$MangaTrackingUnitRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MangaTrackingUnitRowsTable> {
+  $$MangaTrackingUnitRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber, builder: (column) => ColumnFilters(column));
+}
+
+class $$MangaTrackingUnitRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MangaTrackingUnitRowsTable> {
+  $$MangaTrackingUnitRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MangaTrackingUnitRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MangaTrackingUnitRowsTable> {
+  $$MangaTrackingUnitRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber, builder: (column) => column);
+}
+
+class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MangaTrackingUnitRowsTable,
+    MangaTrackingUnitRow,
+    $$MangaTrackingUnitRowsTableFilterComposer,
+    $$MangaTrackingUnitRowsTableOrderingComposer,
+    $$MangaTrackingUnitRowsTableAnnotationComposer,
+    $$MangaTrackingUnitRowsTableCreateCompanionBuilder,
+    $$MangaTrackingUnitRowsTableUpdateCompanionBuilder,
+    (
+      MangaTrackingUnitRow,
+      BaseReferences<_$LocalDatabase, $MangaTrackingUnitRowsTable,
+          MangaTrackingUnitRow>
+    ),
+    MangaTrackingUnitRow,
+    PrefetchHooks Function()> {
+  $$MangaTrackingUnitRowsTableTableManager(
+      _$LocalDatabase db, $MangaTrackingUnitRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MangaTrackingUnitRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MangaTrackingUnitRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MangaTrackingUnitRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> chapterNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MangaTrackingUnitRowsCompanion(
+            id: id,
+            volumeNumber: volumeNumber,
+            chapterNumber: chapterNumber,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> chapterNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MangaTrackingUnitRowsCompanion.insert(
+            id: id,
+            volumeNumber: volumeNumber,
+            chapterNumber: chapterNumber,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MangaTrackingUnitRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $MangaTrackingUnitRowsTable,
+        MangaTrackingUnitRow,
+        $$MangaTrackingUnitRowsTableFilterComposer,
+        $$MangaTrackingUnitRowsTableOrderingComposer,
+        $$MangaTrackingUnitRowsTableAnnotationComposer,
+        $$MangaTrackingUnitRowsTableCreateCompanionBuilder,
+        $$MangaTrackingUnitRowsTableUpdateCompanionBuilder,
+        (
+          MangaTrackingUnitRow,
+          BaseReferences<_$LocalDatabase, $MangaTrackingUnitRowsTable,
+              MangaTrackingUnitRow>
+        ),
+        MangaTrackingUnitRow,
+        PrefetchHooks Function()>;
+typedef $$BookTrackingUnitRowsTableCreateCompanionBuilder
+    = BookTrackingUnitRowsCompanion Function({
+  required String id,
+  Value<int?> volumeNumber,
+  Value<int?> chapterNumber,
+  Value<int> rowid,
+});
+typedef $$BookTrackingUnitRowsTableUpdateCompanionBuilder
+    = BookTrackingUnitRowsCompanion Function({
+  Value<String> id,
+  Value<int?> volumeNumber,
+  Value<int?> chapterNumber,
+  Value<int> rowid,
+});
+
+class $$BookTrackingUnitRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BookTrackingUnitRowsTable> {
+  $$BookTrackingUnitRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber, builder: (column) => ColumnFilters(column));
+}
+
+class $$BookTrackingUnitRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BookTrackingUnitRowsTable> {
+  $$BookTrackingUnitRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$BookTrackingUnitRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BookTrackingUnitRowsTable> {
+  $$BookTrackingUnitRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get volumeNumber => $composableBuilder(
+      column: $table.volumeNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get chapterNumber => $composableBuilder(
+      column: $table.chapterNumber, builder: (column) => column);
+}
+
+class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BookTrackingUnitRowsTable,
+    BookTrackingUnitRow,
+    $$BookTrackingUnitRowsTableFilterComposer,
+    $$BookTrackingUnitRowsTableOrderingComposer,
+    $$BookTrackingUnitRowsTableAnnotationComposer,
+    $$BookTrackingUnitRowsTableCreateCompanionBuilder,
+    $$BookTrackingUnitRowsTableUpdateCompanionBuilder,
+    (
+      BookTrackingUnitRow,
+      BaseReferences<_$LocalDatabase, $BookTrackingUnitRowsTable,
+          BookTrackingUnitRow>
+    ),
+    BookTrackingUnitRow,
+    PrefetchHooks Function()> {
+  $$BookTrackingUnitRowsTableTableManager(
+      _$LocalDatabase db, $BookTrackingUnitRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BookTrackingUnitRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BookTrackingUnitRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BookTrackingUnitRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> chapterNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookTrackingUnitRowsCompanion(
+            id: id,
+            volumeNumber: volumeNumber,
+            chapterNumber: chapterNumber,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<int?> volumeNumber = const Value.absent(),
+            Value<int?> chapterNumber = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookTrackingUnitRowsCompanion.insert(
+            id: id,
+            volumeNumber: volumeNumber,
+            chapterNumber: chapterNumber,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BookTrackingUnitRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $BookTrackingUnitRowsTable,
+        BookTrackingUnitRow,
+        $$BookTrackingUnitRowsTableFilterComposer,
+        $$BookTrackingUnitRowsTableOrderingComposer,
+        $$BookTrackingUnitRowsTableAnnotationComposer,
+        $$BookTrackingUnitRowsTableCreateCompanionBuilder,
+        $$BookTrackingUnitRowsTableUpdateCompanionBuilder,
+        (
+          BookTrackingUnitRow,
+          BaseReferences<_$LocalDatabase, $BookTrackingUnitRowsTable,
+              BookTrackingUnitRow>
+        ),
+        BookTrackingUnitRow,
+        PrefetchHooks Function()>;
 typedef $$MusicReleaseRowsTableCreateCompanionBuilder
     = MusicReleaseRowsCompanion Function({
   required String id,
@@ -56548,6 +58237,8 @@ class $LocalDatabaseManager {
       $$TvEpisodeProgressRowsTableTableManager(_db, _db.tvEpisodeProgressRows);
   $$TvCustomEpisodeRowsTableTableManager get tvCustomEpisodeRows =>
       $$TvCustomEpisodeRowsTableTableManager(_db, _db.tvCustomEpisodeRows);
+  $$TvTrackingUnitRowsTableTableManager get tvTrackingUnitRows =>
+      $$TvTrackingUnitRowsTableTableManager(_db, _db.tvTrackingUnitRows);
   $$AnimeMediaRowsTableTableManager get animeMediaRows =>
       $$AnimeMediaRowsTableTableManager(_db, _db.animeMediaRows);
   $$AnimeEpisodeRowsTableTableManager get animeEpisodeRows =>
@@ -56558,6 +58249,14 @@ class $LocalDatabaseManager {
       $$AnimeOwnedDetailsRowsTableTableManager(_db, _db.animeOwnedDetailsRows);
   $$AnimeTrackingRowsTableTableManager get animeTrackingRows =>
       $$AnimeTrackingRowsTableTableManager(_db, _db.animeTrackingRows);
+  $$AnimeTrackingUnitRowsTableTableManager get animeTrackingUnitRows =>
+      $$AnimeTrackingUnitRowsTableTableManager(_db, _db.animeTrackingUnitRows);
+  $$ComicTrackingUnitRowsTableTableManager get comicTrackingUnitRows =>
+      $$ComicTrackingUnitRowsTableTableManager(_db, _db.comicTrackingUnitRows);
+  $$MangaTrackingUnitRowsTableTableManager get mangaTrackingUnitRows =>
+      $$MangaTrackingUnitRowsTableTableManager(_db, _db.mangaTrackingUnitRows);
+  $$BookTrackingUnitRowsTableTableManager get bookTrackingUnitRows =>
+      $$BookTrackingUnitRowsTableTableManager(_db, _db.bookTrackingUnitRows);
   $$MusicReleaseRowsTableTableManager get musicReleaseRows =>
       $$MusicReleaseRowsTableTableManager(_db, _db.musicReleaseRows);
   $$MusicMediaRowsTableTableManager get musicMediaRows =>

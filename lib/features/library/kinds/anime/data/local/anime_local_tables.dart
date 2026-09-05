@@ -97,3 +97,12 @@ class AnimeTrackingRows extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+class AnimeTrackingUnitRows extends Table {
+  TextColumn get id => text()();
+  IntColumn get seasonNumber => integer().nullable()();
+  IntColumn get episodeNumber => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

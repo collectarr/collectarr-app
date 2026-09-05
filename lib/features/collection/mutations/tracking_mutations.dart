@@ -374,7 +374,7 @@ final class TrackingMutations {
       action: () async {
         final existing = await trackingUnits.findById(unitId);
         if (resolvedIsCompleted) {
-          final unit = TrackingUnit(
+          final unit = VideoTrackingUnit(
             id: unitId,
             targetRef: seriesRef,
             unitType: TrackingUnitType.episode,

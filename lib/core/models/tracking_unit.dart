@@ -24,6 +24,10 @@ TrackingUnitType? trackingUnitTypeFromValue(String? value) {
   return null;
 }
 
+/// Fields shared by every personal tracking unit.
+///
+/// Coordinates deliberately live on the kind-specific subclasses below so a
+/// unit cannot carry unrelated TV, print, and comic fields simultaneously.
 class TrackingUnit {
   const TrackingUnit({
     required this.id,
@@ -36,11 +40,6 @@ class TrackingUnit {
     this.editionId,
     this.variantId,
     this.bundleReleaseId,
-    this.seasonNumber,
-    this.episodeNumber,
-    this.volumeNumber,
-    this.chapterNumber,
-    this.issueNumber,
     this.deletedAt,
   });
 
@@ -52,11 +51,6 @@ class TrackingUnit {
   final String? variantId;
   final String? bundleReleaseId;
   final TrackingUnitType unitType;
-  final int? seasonNumber;
-  final int? episodeNumber;
-  final int? volumeNumber;
-  final int? chapterNumber;
-  final String? issueNumber;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -75,11 +69,6 @@ class TrackingUnit {
       'edition_id': editionId,
       'variant_id': variantId,
       'bundle_release_id': bundleReleaseId,
-      'season_number': seasonNumber,
-      'episode_number': episodeNumber,
-      'volume_number': volumeNumber,
-      'chapter_number': chapterNumber,
-      'issue_number': issueNumber,
       'completed_at': completedAt.toUtc().toIso8601String(),
     };
   }
@@ -93,11 +82,6 @@ class TrackingUnit {
     String? variantId,
     String? bundleReleaseId,
     TrackingUnitType? unitType,
-    int? seasonNumber,
-    int? episodeNumber,
-    int? volumeNumber,
-    int? chapterNumber,
-    String? issueNumber,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -111,11 +95,185 @@ class TrackingUnit {
       variantId: variantId ?? this.variantId,
       bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
       unitType: unitType ?? this.unitType,
-      seasonNumber: seasonNumber ?? this.seasonNumber,
-      episodeNumber: episodeNumber ?? this.episodeNumber,
-      volumeNumber: volumeNumber ?? this.volumeNumber,
-      chapterNumber: chapterNumber ?? this.chapterNumber,
-      issueNumber: issueNumber ?? this.issueNumber,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+}
+
+/// A TV or anime season/episode tracking unit.
+class VideoTrackingUnit extends TrackingUnit {
+  const VideoTrackingUnit({
+    required super.id,
+    required super.targetRef,
+    required super.completedAt,
+    required super.updatedAt,
+    this.seasonNumber,
+    this.episodeNumber,
+    super.trackingEntryId,
+    super.ownedItemId,
+    super.editionId,
+    super.variantId,
+    super.bundleReleaseId,
+    super.deletedAt,
+    super.unitType = TrackingUnitType.episode,
+  });
+
+  final int? seasonNumber;
+  final int? episodeNumber;
+
+  @override
+  Map<String, dynamic> toSyncPayload() {
+    return super.toSyncPayload()
+      ..addAll({
+        'season_number': seasonNumber,
+        'episode_number': episodeNumber,
+      });
+  }
+
+  @override
+  VideoTrackingUnit copyWith({
+    String? id,
+    CatalogEntityRef? targetRef,
+    String? trackingEntryId,
+    String? ownedItemId,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    TrackingUnitType? unitType,
+    DateTime? completedAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return VideoTrackingUnit(
+      id: id ?? this.id,
+      targetRef: targetRef ?? this.targetRef,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      unitType: unitType ?? this.unitType,
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+}
+
+/// A book or manga volume/chapter tracking unit.
+class ReadingTrackingUnit extends TrackingUnit {
+  const ReadingTrackingUnit({
+    required super.id,
+    required super.targetRef,
+    required super.completedAt,
+    required super.updatedAt,
+    this.volumeNumber,
+    this.chapterNumber,
+    super.trackingEntryId,
+    super.ownedItemId,
+    super.editionId,
+    super.variantId,
+    super.bundleReleaseId,
+    super.deletedAt,
+    super.unitType = TrackingUnitType.chapter,
+  });
+
+  final int? volumeNumber;
+  final int? chapterNumber;
+
+  @override
+  Map<String, dynamic> toSyncPayload() {
+    return super.toSyncPayload()
+      ..addAll({
+        'volume_number': volumeNumber,
+        'chapter_number': chapterNumber,
+      });
+  }
+
+  @override
+  ReadingTrackingUnit copyWith({
+    String? id,
+    CatalogEntityRef? targetRef,
+    String? trackingEntryId,
+    String? ownedItemId,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    TrackingUnitType? unitType,
+    DateTime? completedAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return ReadingTrackingUnit(
+      id: id ?? this.id,
+      targetRef: targetRef ?? this.targetRef,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      unitType: unitType ?? this.unitType,
+      volumeNumber: volumeNumber,
+      chapterNumber: chapterNumber,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+}
+
+/// A comic issue tracking unit.
+class ComicTrackingUnit extends TrackingUnit {
+  const ComicTrackingUnit({
+    required super.id,
+    required super.targetRef,
+    required super.completedAt,
+    required super.updatedAt,
+    this.issueNumber,
+    super.trackingEntryId,
+    super.ownedItemId,
+    super.editionId,
+    super.variantId,
+    super.bundleReleaseId,
+    super.deletedAt,
+    super.unitType = TrackingUnitType.issue,
+  });
+
+  final String? issueNumber;
+
+  @override
+  Map<String, dynamic> toSyncPayload() {
+    return super.toSyncPayload()..['issue_number'] = issueNumber;
+  }
+
+  @override
+  ComicTrackingUnit copyWith({
+    String? id,
+    CatalogEntityRef? targetRef,
+    String? trackingEntryId,
+    String? ownedItemId,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+    TrackingUnitType? unitType,
+    DateTime? completedAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return ComicTrackingUnit(
+      id: id ?? this.id,
+      targetRef: targetRef ?? this.targetRef,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      unitType: unitType ?? this.unitType,
+      issueNumber: issueNumber,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,

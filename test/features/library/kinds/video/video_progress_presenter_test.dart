@@ -36,7 +36,7 @@ Episode _episode({
 }
 
 TrackingUnit _trackedEpisode(int seasonNumber, int episodeNumber, DateTime at) {
-  return TrackingUnit(
+  return VideoTrackingUnit(
     id: '$seasonNumber-$episodeNumber',
     targetRef: _ref(),
     unitType: TrackingUnitType.episode,
