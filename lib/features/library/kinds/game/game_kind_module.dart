@@ -128,6 +128,8 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     releaseEditDialogBuilder: buildGameReleaseLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
     conditions: GameVocabularies.condition.builtIns,
+    defaultCondition: 'Near Mint',
+    defaultGrade: 'Ungraded',
     presentation: gameLibraryEditPresentation,
     createDraft: createGameEditDraft,
   ),

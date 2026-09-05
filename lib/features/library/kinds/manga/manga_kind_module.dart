@@ -270,6 +270,8 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     mediaEditDialogBuilder: buildMangaMediaLibraryEditDialog,
     presentation: mangaLibraryEditPresentation,
     vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
+    defaultCondition: 'Near Mint',
+    defaultGrade: 'Ungraded',
     editChrome: const LibraryEditChromeConfig(
       titleUsesItemTitle: true,
       synopsisLabel: 'Plot',
@@ -313,9 +315,8 @@ Future<List<LibraryHierarchyNode>> _fetchMangaVolumes({
   String? provider,
   String? providerItemId,
 }) async {
-  final work = await api
-      .getMangaWorkDto(itemId)
-      .timeout(const Duration(seconds: 60));
+  final work =
+      await api.getMangaWorkDto(itemId).timeout(const Duration(seconds: 60));
   final manga = MangaCoreMapper.fromWorkDto(work);
   final hierarchy = MangaHierarchyMapper.fromChapterRows(
     seriesId: itemId,

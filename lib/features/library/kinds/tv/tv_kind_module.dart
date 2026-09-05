@@ -233,6 +233,8 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     editDialogBuilder: buildTvLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
     presentation: tvLibraryEditPresentation,
+    defaultCondition: 'Near Mint',
+    defaultGrade: 'Ungraded',
     createDraft: createTvEditDraft,
   ),
   providerMapper: const TvLibraryKindProviderMapper(),

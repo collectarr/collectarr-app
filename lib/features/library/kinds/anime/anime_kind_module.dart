@@ -224,6 +224,8 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   edit: LibraryEditCapability(
     editDialogBuilder: buildAnimeLibraryEditDialog,
     presentation: animeLibraryEditPresentation,
+    defaultCondition: 'Near Mint',
+    defaultGrade: 'Ungraded',
     vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
     createDraft: createAnimeEditDraft,
   ),

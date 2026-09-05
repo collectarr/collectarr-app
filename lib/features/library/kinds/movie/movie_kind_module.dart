@@ -260,6 +260,8 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     editDialogBuilder: buildMovieLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
     presentation: movieLibraryEditPresentation,
+    defaultCondition: 'Near Mint',
+    defaultGrade: 'Ungraded',
     createDraft: createMovieEditDraft,
   ),
   providerMapper: const MovieLibraryKindProviderMapper(),

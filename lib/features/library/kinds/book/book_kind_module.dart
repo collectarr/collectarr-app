@@ -278,6 +278,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
       releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
     ),
     conditions: BookVocabularies.condition.builtIns,
+    defaultCondition: 'Near Mint',
+    defaultGrade: 'Ungraded',
     createDraft: createBookEditDraft,
   ),
   providerMapper: const BookLibraryKindProviderMapper(),

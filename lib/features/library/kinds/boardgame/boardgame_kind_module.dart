@@ -181,6 +181,8 @@ final boardGameKindModule =
     releaseEditDialogBuilder: buildBoardGameReleaseLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
     presentation: boardGamesLibraryEditPresentation,
+    defaultCondition: 'Near Mint',
+    defaultGrade: 'Ungraded',
     createDraft: createBoardGameEditDraft,
   ),
   providerMapper: const BoardGameLibraryKindProviderMapper(),

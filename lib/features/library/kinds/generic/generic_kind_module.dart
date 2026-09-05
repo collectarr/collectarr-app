@@ -58,6 +58,8 @@ final genericKindModule =
   ),
   edit: LibraryEditCapability(
     presentation: genericLibraryEditPresentation,
+    defaultCondition: 'Near Mint',
+    defaultGrade: 'Ungraded',
     createDraft: createGenericEditDraft,
   ),
   buildCardPresentation: (item, {required musicVertical}) =>

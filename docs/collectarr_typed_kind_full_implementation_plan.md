@@ -2363,6 +2363,15 @@ No default media/publishing fields.
 
 Every Add field comes from kind's schema.
 
+### Progress (2026-09-05)
+
+The Add session no longer owns implicit `Near Mint`/`Ungraded` values. Those
+defaults are now required and declared by every registered kind's Edit/Add
+capability, then injected into the session through the active typed runtime.
+User prefill values still override the kind defaults. The general condition
+scale remains an explicit vocabulary fallback for kinds without a specialized
+condition vocabulary and is the next Add semantic cleanup target.
+
 ---
 
 ## PR 85 — Split oversized Add dialog controller/layout

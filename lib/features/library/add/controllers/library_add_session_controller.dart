@@ -93,6 +93,11 @@ class LibraryAddSessionController
                 manualDraft:
                     libraryKindRuntimeForKind(kind).add.createInitialDraft(),
                 submitState: const AsyncValue.data(null),
+                defaultCondition: (type ?? libraryKindRuntimeForKind(kind))
+                    .edit
+                    .defaultCondition,
+                defaultGrade:
+                    (type ?? libraryKindRuntimeForKind(kind)).edit.defaultGrade,
               ),
         );
 
@@ -1488,6 +1493,8 @@ class LibraryAddSessionController
       commonDraft: const LibraryAddCommonDraft(),
       manualDraft: libraryKindRuntimeForKind(kind).add.createInitialDraft(),
       submitState: const AsyncValue.data(null),
+      defaultCondition: type.edit.defaultCondition,
+      defaultGrade: type.edit.defaultGrade,
     );
   }
 

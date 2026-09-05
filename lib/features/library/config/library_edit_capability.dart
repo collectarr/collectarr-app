@@ -35,8 +35,8 @@ class LibraryEditCapability {
     this.vocabularies,
     this.conditions = kGeneralConditions,
     this.grades = const [],
-    this.defaultCondition,
-    this.defaultGrade,
+    required this.defaultCondition,
+    required this.defaultGrade,
     required this.createDraft,
   });
 
@@ -48,8 +48,8 @@ class LibraryEditCapability {
   final LibraryKindVocabularyCapability? vocabularies;
   final List<String> conditions;
   final List<String> grades;
-  final String? defaultCondition;
-  final String? defaultGrade;
+  final String defaultCondition;
+  final String defaultGrade;
   final LibraryEditKindDraftFactory createDraft;
 
   bool get hasConditionPickList => conditions.isNotEmpty;

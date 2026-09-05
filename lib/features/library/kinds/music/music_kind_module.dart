@@ -162,6 +162,8 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     editDialogBuilder: buildMusicLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
     presentation: musicLibraryEditPresentation,
+    defaultCondition: 'Near Mint',
+    defaultGrade: 'Ungraded',
     createDraft: createMusicEditDraft,
   ),
   providerMapper: const MusicLibraryKindProviderMapper(),
