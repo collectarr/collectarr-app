@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `898ad834` (`refactor(catalog): delegate derived vocabulary capture to kinds`)
+HEAD: `eed057f2` (`feat(comic): persist typed owned copies`)
 
 ## Scope and evidence
 
@@ -43,13 +43,13 @@ Status meanings:
 | 11 | Introduce typed `UiAction<TContext>` | **PARTIAL** | Structural `UiAction<TContext>` and placement contract now exist; the existing runtime-backed toolbar descriptors still need migration to kind-owned typed action registries. |
 | 12 | File import/export action contracts | **PARTIAL** | Structural `ExportArtifact`, `ImportPreview`, `ExportAction`, and `ImportAction` contracts now exist; generic file host migration and kind-owned format actions remain. |
 | 13 | Action menu host | **PARTIAL** | Generic `ActionMenu<TContext>` now renders typed actions by placement and state; existing Library menus and kind toolbar descriptors still need migration to this host. |
-| 14 | Remove canonical common Owned domain | **PARTIAL** | Structural refs and typed tracking pieces exist, but common Owned/TrackingUnit compatibility remains. |
-| 15 | Move tracking fields out of Owned | **PARTIAL** | Structural refs and typed tracking pieces exist, but common Owned/TrackingUnit compatibility remains. |
+| 14 | Remove canonical common Owned domain | **PARTIAL** | Comic now has a complete typed owned model behind an explicit legacy adapter; the common Owned aggregate and other-kind compatibility remain. |
+| 15 | Move tracking fields out of Owned | **PARTIAL** | Comic reading state is now separate from Comic copy state; generic Owned tracking fields and other-kind migrations remain. |
 | 16 | Owned action/read projections | **DONE** | `OwnedItemRef` and `OwnedItemSummary` now exist as explicit small cross-kind projections; domain-specific owned details remain outside the projection. |
-| 17 | Comic typed domain | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
+| 17 | Comic typed domain | **DONE** | ComicMedia, ComicRelease, ComicOwnedItem, and ComicReadingState now have kind-owned typed IDs/models with round-trip and legacy-boundary tests. |
 | 18 | Comic Core mapping | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
-| 19 | Comic local DB | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
-| 20 | Comic repository | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
+| 19 | Comic local DB | **PARTIAL** | Comic now owns complete ComicOwnedItemsRows and ComicReadingRows with v26 backfill coverage; the common OwnedItemsCache and legacy details table remain during migration. |
+| 20 | Comic repository | **DONE** | ComicRepository and ComicOwnedRepository expose typed media/release/owned operations; generic catalog/collection callers remain outside the kind as explicit compatibility bridges. |
 | 21 | Comic workspace | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
 | 22 | Comic Add/Edit | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
 | 23 | Comic collection actions | **PARTIAL** | Comic has typed vertical slices and tests, but the new plan still finds erased metadata and generic integration bridges. |
@@ -175,7 +175,7 @@ PR0 is complete as a rebaseline. The branch has substantial prior typed-kind wor
 
 ## Recommended next PR
 
-Current branch recommendation: `PR14 - Remove canonical common Owned domain`.
-Next active implementation: `PR14 - Remove canonical common Owned domain` in incremental kind-owned slices.
+Current branch recommendation: `PR19 - Comic local DB`.
+Next active implementation: `PR19 - Comic local DB`, using the typed owned model as the target domain.
 
 `PR11 — Migrate existing kind toolbar descriptors to typed action registries`, while shrinking the PR1 baseline in parallel with each migration.
