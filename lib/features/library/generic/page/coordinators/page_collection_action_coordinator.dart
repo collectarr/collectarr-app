@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -195,7 +196,7 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   Future<void> scanBarcodeFlow() async {
-    final code = await showModalBottomSheet<String>(
+    final scannedCode = await showModalBottomSheet<ScannedCode>(
       context: _page.context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -210,8 +211,8 @@ class LibraryPageCollectionActionCoordinator {
         leadingIcon: _page.type.identity.icon,
       ),
     );
-    if (code != null && _page.mounted) {
-      await _showAddDialog(barcode: code);
+    if (scannedCode != null && _page.mounted) {
+      await _showAddDialog(barcode: scannedCode.value);
     }
   }
 

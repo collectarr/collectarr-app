@@ -140,7 +140,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       return;
     }
     setState(() {
-      _barcodeController.text = barcodes.first;
+      _barcodeController.text = barcodes.first.value;
     });
   }
 

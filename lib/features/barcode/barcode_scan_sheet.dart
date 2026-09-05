@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -153,23 +154,22 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
       return;
     }
     for (final barcode in capture.barcodes) {
-      final rawValue = barcode.rawValue;
-      final value = rawValue == null ? null : normalizeScannedBarcode(rawValue);
-      if (value != null && value.isNotEmpty) {
+      final scannedCode = scannedCodeFromBarcode(barcode);
+      if (scannedCode != null) {
         _hasReturned = true;
-        Navigator.of(context).pop(value);
+        Navigator.of(context).pop(scannedCode);
         return;
       }
     }
   }
 
   void _submitManual() {
-    final value = normalizeScannedBarcode(_manualController.text);
-    if (value.isEmpty || _hasReturned) {
+    final scannedCode = ScannedCode.tryFromRaw(_manualController.text);
+    if (scannedCode == null || _hasReturned) {
       return;
     }
     _hasReturned = true;
-    Navigator.of(context).pop(value);
+    Navigator.of(context).pop(scannedCode);
   }
 }
 

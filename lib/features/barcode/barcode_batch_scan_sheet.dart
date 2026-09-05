@@ -1,10 +1,11 @@
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 /// A batch barcode scanner that stays open and collects multiple barcodes.
-/// Returns a list of scanned barcode strings when the user confirms.
+/// Returns generic scanned codes when the user confirms.
 class BarcodeBatchScanSheet extends StatefulWidget {
   const BarcodeBatchScanSheet({
     super.key,
@@ -22,10 +23,10 @@ class BarcodeBatchScanSheet extends StatefulWidget {
 }
 
 class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
-  final List<String> _scannedBarcodes = [];
+  final List<ScannedCode> _scannedBarcodes = [];
   late final bool _cameraSupported;
   MobileScannerController? _scannerController;
-  String? _lastScanned;
+  String? _lastScannedValue;
 
   @override
   void initState() {
@@ -54,18 +55,16 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
   }
 
   void _onDetect(BarcodeCapture capture) {
-    final newBarcodes = <String>[];
-    String? lastScanned;
+    final newBarcodes = <ScannedCode>[];
+    String? lastScannedValue;
     for (final barcode in capture.barcodes) {
-      final rawValue = barcode.rawValue;
-      final value = rawValue == null ? null : normalizeScannedBarcode(rawValue);
-      if (value != null &&
-          value.isNotEmpty &&
-          value != _lastScanned &&
-          !_scannedBarcodes.contains(value) &&
-          !newBarcodes.contains(value)) {
-        newBarcodes.add(value);
-        lastScanned = value;
+      final scannedCode = scannedCodeFromBarcode(barcode);
+      if (scannedCode != null &&
+          scannedCode.value != _lastScannedValue &&
+          !_scannedBarcodes.any((code) => code.value == scannedCode.value) &&
+          !newBarcodes.any((code) => code.value == scannedCode.value)) {
+        newBarcodes.add(scannedCode);
+        lastScannedValue = scannedCode.value;
       }
     }
     if (newBarcodes.isEmpty) {
@@ -73,7 +72,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
     }
     setState(() {
       _scannedBarcodes.addAll(newBarcodes);
-      _lastScanned = lastScanned;
+      _lastScannedValue = lastScannedValue;
     });
   }
 
@@ -116,7 +115,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                 const SizedBox(width: 8),
                 IconButton(
                   tooltip: 'Close',
-                  onPressed: () => Navigator.of(context).pop(<String>[]),
+                  onPressed: () => Navigator.of(context).pop(<ScannedCode>[]),
                   icon: const Icon(Icons.close),
                 ),
               ],
@@ -126,7 +125,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
               'Point camera at barcodes. Each unique barcode is added automatically.',
               style: TextStyle(fontSize: 12, color: kAppTextMuted),
             ),
-            if (_lastScanned != null) ...[
+            if (_lastScannedValue != null) ...[
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -138,7 +137,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Last scanned: $_lastScanned',
+                      'Last scanned: $_lastScannedValue',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.greenAccent,
@@ -186,7 +185,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              _scannedBarcodes[i],
+                              _scannedBarcodes[i].value,
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontFamily: kClzMonospaceFontFamily,
@@ -222,8 +221,8 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
 }
 
 /// Shows the batch scan sheet and returns the list of scanned barcodes.
-Future<List<String>?> showBarcodeBatchScanSheet(BuildContext context) {
-  return showModalBottomSheet<List<String>>(
+Future<List<ScannedCode>?> showBarcodeBatchScanSheet(BuildContext context) {
+  return showModalBottomSheet<List<ScannedCode>>(
     context: context,
     isScrollControlled: true,
     backgroundColor: kAppPanel,

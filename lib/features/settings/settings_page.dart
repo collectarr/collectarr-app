@@ -15,6 +15,7 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -1176,7 +1177,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _scanPairingQr(BuildContext context) async {
-    final scanned = await showModalBottomSheet<String>(
+    final scanned = await showModalBottomSheet<ScannedCode>(
       context: context,
       isScrollControlled: true,
       builder: (context) => const BarcodeScanSheet(
@@ -1188,10 +1189,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         leadingIcon: Icons.qr_code_scanner,
       ),
     );
-    if (scanned == null || scanned.isEmpty || !mounted) {
+    if (scanned == null || scanned.value.isEmpty || !mounted) {
       return;
     }
-    await _applyPairingCode(scanned);
+    await _applyPairingCode(scanned.value);
   }
 
   Future<void> _applyPairingCode(String code) async {

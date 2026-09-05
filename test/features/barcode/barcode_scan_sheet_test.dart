@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -7,14 +8,14 @@ import '../../helpers/test_constants.dart';
 void main() {
   testWidgets('manual-only barcode sheet returns normalized input',
       (tester) async {
-    String? result;
+    ScannedCode? result;
     await tester.pumpWidget(
       MaterialApp(
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(
               onPressed: () async {
-                result = await showModalBottomSheet<String>(
+                result = await showModalBottomSheet<ScannedCode>(
                   context: context,
                   isScrollControlled: true,
                   builder: (context) => const BarcodeScanSheet(
@@ -47,7 +48,8 @@ void main() {
     await tester.tap(find.text('Lookup barcode'));
     await pumpUntilSettled(tester);
 
-    expect(result, '759606083060');
+    expect(result?.value, '759606083060');
+    expect(result?.symbology, ScannedCodeSymbology.unknown);
   });
 
   testWidgets('barcode sheet can describe the active media add flow',
