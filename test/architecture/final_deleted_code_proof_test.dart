@@ -39,6 +39,11 @@ void main() {
       'CatalogItemDto': [
         'lib/core/api/dto/catalog/',
         'lib/core/api/mappers/',
+        'lib/features/library/kinds/anime/data/remote/',
+        'lib/features/library/kinds/boardgame/data/remote/',
+        'lib/features/library/kinds/game/data/remote/',
+        'lib/features/library/kinds/manga/data/remote/',
+        'lib/features/library/kinds/movie/data/remote/',
       ],
       'GenericEditDraft': [
         'lib/features/library/kinds/generic/',

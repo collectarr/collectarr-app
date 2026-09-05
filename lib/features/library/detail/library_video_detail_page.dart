@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
-import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_legacy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
 import 'package:collectarr_app/features/library/detail/library_video_title_metadata_section.dart';

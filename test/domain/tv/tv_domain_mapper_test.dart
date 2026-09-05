@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_legacy_mapper.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';

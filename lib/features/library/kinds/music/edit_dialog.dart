@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/mappers/music_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/remote/music_legacy_mapper.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';

@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/collection/repositories/user_external_li
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_legacy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
