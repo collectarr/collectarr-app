@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_section_registry.dart';
+import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -107,7 +107,7 @@ class DefaultLibraryEditPresentationBuilder
             : context.isTrackingOnly || context.hasWishlistContext
                 ? trackedTabs
                 : catalogTabs;
-    return LibraryEditSectionRegistry.instance.orderTabs(tabs);
+    return LibraryEditTabOrder.instance.orderTabs(tabs);
   }
 
   @override

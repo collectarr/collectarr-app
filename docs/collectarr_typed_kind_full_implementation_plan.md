@@ -2308,6 +2308,13 @@ seriesHierarchy
 video_specs
 ```
 
+### Progress (2026-09-05)
+
+Complete for the current implementation. The former registry only sorted edit
+tabs by their declarative priority, so it has been renamed to the technical
+`LibraryEditTabOrder` helper. Kind-specific section IDs remain declared by
+their own presentation builders; no global registry owns semantic sections.
+
 Kinds declare sections directly in schemas.
 
 ---

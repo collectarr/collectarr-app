@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/tv/edit_presentation_build
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('detail sections follow the shared registry order', () {
+  test('detail sections follow the shared detail order', () {
     final sections = orderLibraryDetailSections([
       const LibraryDetailSectionSpec(
         slot: LibraryDetailSectionSlot.activity,
@@ -36,7 +36,7 @@ void main() {
     );
   });
 
-  test('tv edit tabs are ordered by the shared section registry', () {
+  test('tv edit tabs are ordered by the technical tab order helper', () {
     final builder = TvLibraryEditPresentationBuilder();
     final tabs = builder.buildTabs(
       context: const LibraryEditPresentationContext(

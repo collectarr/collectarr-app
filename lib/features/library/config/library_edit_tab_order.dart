@@ -1,10 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 
-class LibraryEditSectionRegistry {
-  const LibraryEditSectionRegistry();
+class LibraryEditTabOrder {
+  const LibraryEditTabOrder();
 
-  static const LibraryEditSectionRegistry instance =
-      LibraryEditSectionRegistry();
+  static const LibraryEditTabOrder instance = LibraryEditTabOrder();
 
   int orderOfTab(LibraryEditTabSpec tab) {
     return tab.priority;
