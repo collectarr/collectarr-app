@@ -3,7 +3,7 @@
 Audit date: 2026-09-05
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `e39c85fa` (`feat(barcode): add kind-owned identifier resolvers`)
+HEAD: `c21ec98a` (`refactor(loans): persist owned item references`)
 
 ## Scope and evidence
 
@@ -92,7 +92,7 @@ Status meanings:
 | 60 | Universal calendar contributors | **NOT STARTED** | Calendar remains a host with catalog semantics still represented by generic/legacy paths; contributors are not complete. |
 | 61 | Keep scanner generic | **DONE** | Scanner UI and platform mechanics now return the generic `ScannedCode` projection with raw value, normalized value, and symbology. |
 | 62 | Kind-owned identifier resolvers | **PARTIAL** | All 9 applicable kinds now own resolver classes and Book/Manga validate ISBN checksums; provider/catalog lookup dispatch is still routed through generic compatibility services. |
-| 63 | Loans use `OwnedItemRef` | **PARTIAL** | Loan infrastructure exists, but the common Owned domain still leaks into the cross-kind boundary. |
+| 63 | Loans use `OwnedItemRef` | **PARTIAL** | Loan records now persist `owned_kind`, expose `OwnedItemRef`, and new Loan/inspector/bulk flows write it; legacy string ID compatibility and generic owned loading remain. |
 | 64 | Collapse duplicate pick-list infrastructure | **PARTIAL** | Pick-list infrastructure and typed vocabularies exist, but the old/new paths and global semantic definitions still need consolidation. |
 | 65 | All concrete vocabularies stay kind-owned | **PARTIAL** | Pick-list infrastructure and typed vocabularies exist, but the old/new paths and global semantic definitions still need consolidation. |
 | 66 | Separate personal imports from metadata imports | **PARTIAL** | Provider personal sync and import orchestration have typed pieces, while metadata import semantics still cross generic feature boundaries. |
@@ -114,7 +114,7 @@ Status meanings:
 | 82 | Remove normalized provider metadata god model | **PARTIAL** | The normalized envelope is quarantined/covered, but has not been deleted. |
 | 83 | Personal sync cleanup | **PARTIAL** | ProviderPersonalEntry and sync policy tests exist; a full canonical cleanup and parity audit remain. |
 | 84 | Sync policy parity | **PARTIAL** | ProviderPersonalEntry and sync policy tests exist; a full canonical cleanup and parity audit remain. |
-| 85 | `LocalDatabase` becomes composition root | **PARTIAL** | Kind tables and ownership tests exist, but LocalDatabase/production DB composition still needs the final ownership gate. |
+| 85 | `LocalDatabase` becomes composition root | **PARTIAL** | LocalDatabase remains the composition root and now includes the typed kind tables plus structural loan reference migration; final semantic-column enforcement remains. |
 | 86 | Kind DB ownership checker | **PARTIAL** | Kind tables and ownership tests exist, but LocalDatabase/production DB composition still needs the final ownership gate. |
 | 87 | Delete giant `LibraryKindRuntime` | **PARTIAL** | Dispatch uses registrations, but the giant runtime and generic capability forwarding are still present. |
 | 88 | Cross-kind summaries only | **DONE** | The intentionally small cross-kind projections CatalogSearchHit, OwnedItemRef/Summary, and ProviderSearchHit exist. |
