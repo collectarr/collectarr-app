@@ -2231,6 +2231,10 @@ The serial presentation builder had only a Manga consumer and is now
 Manga-owned under `manga/presentation_builder.dart`; Comic keeps its own
 presentation builder.
 
+Serial authority persistence now lives under `catalog/serial`, while its
+owner-neutral picker/manager dialog lives under `library/serial`; the kind
+tree no longer hides either service in `_shared`.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers

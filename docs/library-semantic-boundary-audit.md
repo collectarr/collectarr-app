@@ -48,7 +48,7 @@ All concrete semantics must reside strictly within `lib/features/library/kinds/<
 | `lib/features/library/kinds/registry/library_kind_module.dart` | `LibraryKindRuntime` / `LibraryKindSpec` | Typed capability ownership | contract/infrastructure | Allowed | Kind-owned typed capability modules | PR 8 |
 | `lib/features/library/config/presentation/library_media_presentation_models.dart` | `LibraryMediaPresentationModels` | Concrete media formatting | presentation semantic | ❌ Violation | Per-kind presentation adapters | PR 4 |
 | `lib/features/library/edit/shell/library_edit_dialog.dart` | `_buildComicTab`, `_buildVideoTab`, `_buildGameTab` | Kind-specific tab builders in generic shell | presentation semantic | ❌ Violation | Kind-delegated edit tab renderers | PR 4 |
-| `lib/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart` | `SerialAuthorityRepository` | serial authority | kind-domain infrastructure | Allowed (shared serial kind primitive) | Comic/Manga serial authority | PR 4 |
+| `lib/features/catalog/serial/serial_authority_repository.dart` | `SerialAuthorityRepository` | serial authority | catalog infrastructure | Allowed (explicit serial subsystem) | Comic/Manga serial authority | PR 4 |
 | `lib/features/library/workspace/` | `LibraryWorkspaceDto` | Media workspace projection | serialization boundary | Allowed | Clean DTO boundary | PR 4 |
 
 ---

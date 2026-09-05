@@ -14,8 +14,6 @@ when their inputs are genuinely owner-neutral.
 | `ownership/signature_details.dart` | DOMAIN MODEL | Move to the owning kind |
 | `ownership/video_like_owned_details.dart` | DOMAIN MODEL | Replace with kind-owned details |
 | `ownership/video_physical_copy_details.dart` | DOMAIN MODEL | Move/duplicate into video owners |
-| `serial/authority/serial_authority_dialog.dart` | EDIT | Move to serial-capable owners |
-| `serial/authority/serial_authority_repository.dart` | PERSISTENCE | Move behind typed serial owners |
 | `video/catalog/video_catalog_item.dart` | DOMAIN MODEL | Move/duplicate into movie/TV/anime |
 | `video/catalog/video_catalog_mapper.dart` | DOMAIN BEHAVIOR | Move provider mapping into owners |
 | `video/catalog/video_catalog_release.dart` | DOMAIN MODEL | Move to video kind owners |
@@ -39,16 +37,12 @@ when their inputs are genuinely owner-neutral.
 
 The shared directory contains no persistence or provider implementation that
 is safe to treat as universal merely because it is reused. The remaining
-shared candidates are small visual components and must expose owner-neutral
-inputs; all video domain, hierarchy, edit, field, provider, release, and
-tracking behavior is queued for PR79. Ten video boundaries have already moved
-out during PR79 progress: TV legacy models, TV display models, per-kind video
-physical formats, generic Add provider-kind filter chrome, and episodic
-tracking rules for TV/Anime. Movie's release shelf drilldown is also now
-Movie-owned; the unused workspace progress surface has been removed. Universal
-session history and its presenter now live under library tracking. The Add
-seasons/episodes preview and video result policy are also now part of generic
-Add infrastructure. TV
-now owns episodic progress, identity, row/card, season-tracking, rating, and
-upcoming-episode surfaces. The TV season provider compatibility layer is now
-TV-owned as well.
+video candidates are concentrated in catalog mapping, release projection, and
+the common video edit controller/tabs; they remain queued for the next
+kind-specific de-share steps. PR79 has already moved TV legacy models,
+display models, physical formats, episodic tracking and progress surfaces,
+upcoming-episode hierarchy, TV Edit episode surfaces, Movie release shelf
+drilldown, generic Add video chrome, generic detail components, and the
+owner-neutral presentation/drilldown primitives out of `_shared/video`.
+Universal session history now lives under library tracking, while serial
+authority persistence and UI live under explicit catalog/library subsystems.
