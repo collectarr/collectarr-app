@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -79,14 +79,14 @@ class TvReleaseMediaTab extends ConsumerWidget {
                                   const SizedBox(width: 8),
                                   Text(
                                     disc.title ??
-                                        'Disc ${disc.discNumber ?? 1}',
+                                        'Disc ${disc.mediaNumber ?? 1}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                   const Spacer(),
                                   Text(
-                                    'Disc ${disc.discNumber ?? 1}',
+                                    'Disc ${disc.mediaNumber ?? 1}',
                                     style: TextStyle(
                                       color: appPalette(context).textMuted,
                                       fontSize: 12,
@@ -94,13 +94,24 @@ class TvReleaseMediaTab extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              if (disc.formatLabel != null) ...[
+                              if (disc.mediaType != null) ...[
                                 const SizedBox(height: 8),
-                                Text('Format: ${disc.formatLabel}'),
+                                Text('Format: ${disc.mediaType}'),
                               ],
-                              if (disc.features.isNotEmpty) ...[
+                              if (disc.encoding != null ||
+                                  disc.resolution != null ||
+                                  disc.hdrFormat != null) ...[
                                 const SizedBox(height: 8),
-                                Text('Features: ${disc.features.join(', ')}'),
+                                Text(
+                                  [
+                                    if (disc.encoding != null)
+                                      'Encoding: ${disc.encoding}',
+                                    if (disc.resolution != null)
+                                      'Resolution: ${disc.resolution}',
+                                    if (disc.hdrFormat != null)
+                                      'HDR: ${disc.hdrFormat}',
+                                  ].join(', '),
+                                ),
                               ],
                             ],
                           ),

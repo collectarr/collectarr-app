@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -76,7 +76,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
               }
               final discNumbers = <int>{
                 for (final media in videoEdit.tvReleaseMediaDraft)
-                  media.discNumber ?? 1,
+                  media.mediaNumber ?? 1,
                 if (videoEdit.tvReleaseMediaDraft.isEmpty) 1,
                 for (final assignment
                     in videoEdit.tvEpisodeDiscAssignments.values)
@@ -168,9 +168,11 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                                 .updateTvEpisodeDiscAssignment(
                                               episode.id,
                                               seasonNumber:
-                                                  episode.seasonNumber,
-                                              episodeNumber:
-                                                  episode.episodeNumber,
+                                                  episode.seasonNumber ?? 0,
+                                              episodeNumber: episode
+                                                      .episodeNumber
+                                                      ?.toInt() ??
+                                                  0,
                                               discNumber: value,
                                             );
                                           },

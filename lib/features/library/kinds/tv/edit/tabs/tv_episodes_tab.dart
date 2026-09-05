@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/dialogs/tv_custom_episode_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/widgets/tv_episode_row.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -118,9 +118,7 @@ class TvEpisodesTab extends ConsumerWidget {
                       _buildSeasonCard(
                         context,
                         seasonTitle: 'Season ${season.seasonNumber}',
-                        imageUrl: season.posterUrl ??
-                            series?.posterUrl ??
-                            series?.backdropUrl,
+                        imageUrl: season.posterUrl ?? _seriesImageUrl(series),
                         episodes: season.episodes,
                         trackedUnits: trackedUnits,
                         watchSessions: watchSessions,
@@ -213,25 +211,25 @@ List<_EpisodeRowData> _mergedEpisodeRows({
   for (final episode in providerEpisodes) {
     rowsByKey['${episode.seasonNumber}:${episode.episodeNumber}'] =
         _EpisodeRowData(
-      seasonNumber: episode.seasonNumber,
-      episodeNumber: episode.episodeNumber,
-      title: episode.title.isEmpty ? 'Untitled' : episode.title,
-      overview: episode.overview,
+      seasonNumber: episode.seasonNumber ?? 0,
+      episodeNumber: episode.episodeNumber?.toInt() ?? 0,
+      title: episode.title?.isEmpty ?? true ? 'Untitled' : episode.title!,
+      overview: episode.description,
       airDate: _formatDate(episode.airDate),
       runtimeMinutes: episode.runtimeMinutes,
-      stillImageUrl: episode.stillUrl,
+      stillImageUrl: episode.coverImageUrl,
       localImagePath: null,
       thumbnailImageUrl: null,
       discNumber: videoEdit.discAssignmentForEpisode(
         episodeId: episode.id,
-        seasonNumber: episode.seasonNumber,
-        episodeNumber: episode.episodeNumber,
+        seasonNumber: episode.seasonNumber ?? 0,
+        episodeNumber: episode.episodeNumber?.toInt() ?? 0,
       ),
       watched: _episodeWatched(
         trackedUnits: trackedUnits,
         watchSessions: watchSessions,
-        seasonNumber: episode.seasonNumber,
-        episodeNumber: episode.episodeNumber,
+        seasonNumber: episode.seasonNumber ?? 0,
+        episodeNumber: episode.episodeNumber?.toInt() ?? 0,
       ),
       rating: null,
       customEpisode: null,
@@ -394,4 +392,11 @@ String? _formatDate(DateTime? value) {
     return null;
   }
   return value.toIso8601String().split('T').first;
+}
+
+String? _seriesImageUrl(TvSeries? series) {
+  if (series == null) return null;
+  final raw = series.rawPayload;
+  return (raw['poster_url'] ?? raw['backdrop_url'] ?? raw['cover_image_url'])
+      as String?;
 }

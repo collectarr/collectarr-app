@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_search_hit.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.client.dart';
@@ -210,34 +209,6 @@ class ApiClient {
 
   Future<TvReleaseMediaDto> getTvReleaseMediaItemDto(String id) {
     return _catalogApi.getTvReleaseMediaItemDto(id);
-  }
-
-  Future<List<Season>> getTvSeriesSeasons(String seriesId) async {
-    final seasons = await getTvSeriesSeasonsDto(seriesId);
-    return seasons
-        .map(
-          (season) => Season(
-            seasonNumber: season.seasonNumber ?? 0,
-            title: season.title,
-            providerItemId: season.id,
-            overview: season.description,
-            airDate: season.releaseDate?.toIso8601String(),
-            episodeCount: season.episodeCount,
-            posterUrl: season.coverImageUrl,
-            episodes: [
-              for (final episode in season.episodes)
-                Episode(
-                  episodeNumber: episode.episodeNumber?.toInt() ?? 0,
-                  title: episode.title,
-                  providerItemId: episode.id,
-                  overview: episode.description,
-                  airDate: episode.releaseDate?.toIso8601String(),
-                  runtimeMinutes: episode.runtimeMinutes,
-                ),
-            ],
-          ),
-        )
-        .toList(growable: false);
   }
 
   Future<BookWorkDto> getBookWorkDto(String id) {

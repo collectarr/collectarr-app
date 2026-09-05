@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_episode_row.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';
@@ -46,7 +46,7 @@ class _VideoSeasonTrackingSectionState
   @override
   Widget build(BuildContext context) {
     final seasonsAsync = ref.watch(
-      seasonsByCatalogRefProvider(widget.seriesRef),
+      tvSeasonsByCatalogRefProvider(widget.seriesRef),
     );
     final trackedUnits =
         ref.watch(trackingUnitsByCatalogRefProvider(widget.seriesRef));
@@ -77,8 +77,8 @@ class _VideoSeasonTrackingSectionState
             .where(
               (episode) => watchedEpisodeKeys.contains(
                 _episodeKey(
-                  selectedSeason.seasonNumber,
-                  episode.episodeNumber,
+                  selectedSeason.seasonNumber ?? 0,
+                  episode.episodeNumber?.toInt() ?? 0,
                 ),
               ),
             )
@@ -172,18 +172,15 @@ class _VideoSeasonTrackingSectionState
                       _showCustomEpisodes = value;
                     });
                   },
-                  seasonNumber: selectedSeason.seasonNumber,
+                  seasonNumber: selectedSeason.seasonNumber ?? 0,
                   accent: widget.accent,
                   customEpisodesAsync: customEpisodesAsync,
                   watchedEpisodeKeys: watchedEpisodeKeys,
                   watchSessions: watchSessions,
                   pendingEpisodeKeys: _pendingEpisodeKeys,
                   onToggleEpisode: (epNum) => _toggleEpisode(
-                    selectedSeason.seasonNumber,
-                    Episode(
-                      episodeNumber: epNum,
-                      title: '',
-                    ),
+                    selectedSeason.seasonNumber ?? 0,
+                    epNum,
                     watchedEpisodeKeys: watchedEpisodeKeys,
                   ),
                 ),
@@ -196,7 +193,7 @@ class _VideoSeasonTrackingSectionState
   }
 
   int _resolvedSeasonNumber(
-    List<Season> seasons, {
+    List<TvSeason> seasons, {
     required List<TrackingUnit> trackedUnits,
   }) {
     final currentSelection = _selectedSeasonNumber;
@@ -230,10 +227,10 @@ class _VideoSeasonTrackingSectionState
         }
       }
     }
-    return seasons.first.seasonNumber;
+    return seasons.first.seasonNumber ?? 0;
   }
 
-  Season? _seasonForNumber(List<Season> seasons, int seasonNumber) {
+  TvSeason? _seasonForNumber(List<TvSeason> seasons, int seasonNumber) {
     for (final season in seasons) {
       if (season.seasonNumber == seasonNumber) {
         return season;
@@ -242,26 +239,29 @@ class _VideoSeasonTrackingSectionState
     return null;
   }
 
-  String _seasonChipLabel(Season season, Set<String> watchedEpisodeKeys) {
+  String _seasonChipLabel(TvSeason season, Set<String> watchedEpisodeKeys) {
     final watchedCount = season.episodes
         .where(
           (episode) => watchedEpisodeKeys.contains(
-            _episodeKey(season.seasonNumber, episode.episodeNumber),
+            _episodeKey(
+              season.seasonNumber ?? 0,
+              episode.episodeNumber?.toInt() ?? 0,
+            ),
           ),
         )
         .length;
     if (season.episodes.isEmpty) {
-      return season.title;
+      return season.title ?? 'Season ${season.seasonNumber ?? 0}';
     }
     return '${season.title} ($watchedCount/${season.episodes.length})';
   }
 
   Future<void> _toggleEpisode(
     int seasonNumber,
-    Episode episode, {
+    int episodeNumber, {
     required Set<String> watchedEpisodeKeys,
   }) async {
-    final key = _episodeKey(seasonNumber, episode.episodeNumber);
+    final key = _episodeKey(seasonNumber, episodeNumber);
     if (_pendingEpisodeKeys.contains(key)) {
       return;
     }
@@ -272,7 +272,7 @@ class _VideoSeasonTrackingSectionState
       await ref.read(tvTrackingUnitMutationsProvider).setEpisodeCompleted(
             widget.seriesRef,
             seasonNumber: seasonNumber,
-            episodeNumber: episode.episodeNumber,
+            episodeNumber: episodeNumber,
             completed: !watchedEpisodeKeys.contains(key),
           );
     } finally {
@@ -285,7 +285,7 @@ class _VideoSeasonTrackingSectionState
   }
 
   Future<void> _setSeasonWatched(
-    Season season, {
+    TvSeason season, {
     required bool completed,
   }) async {
     if (_seasonMutationInFlight) {
@@ -299,9 +299,10 @@ class _VideoSeasonTrackingSectionState
           .read(tvTrackingUnitMutationsProvider)
           .setSeasonEpisodesCompleted(
             widget.seriesRef,
-            seasonNumber: season.seasonNumber,
-            episodeNumbers:
-                season.episodes.map((episode) => episode.episodeNumber),
+            seasonNumber: season.seasonNumber ?? 0,
+            episodeNumbers: season.episodes.map(
+              (episode) => episode.episodeNumber?.toInt() ?? 0,
+            ),
             completed: completed,
           );
     } finally {
@@ -339,7 +340,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   });
 
   final CatalogEntityRef catalogRef;
-  final Season providerSeason;
+  final TvSeason providerSeason;
   final bool showCustomEpisodes;
   final ValueChanged<bool> onShowCustomEpisodesChanged;
   final int seasonNumber;
@@ -508,12 +509,14 @@ class _CustomEpisodesPanel extends ConsumerWidget {
                     .where(
                       (s) =>
                           s.seasonNumber == seasonNumber &&
-                          s.episodeNumber == episode.episodeNumber,
+                          s.episodeNumber ==
+                              (episode.episodeNumber?.toInt() ?? 0),
                     )
                     .length,
                 busy: pendingEpisodeKeys
                     .contains('$seasonNumber:${episode.episodeNumber}'),
-                onWatchToggle: () => onToggleEpisode(episode.episodeNumber),
+                onWatchToggle: () =>
+                    onToggleEpisode(episode.episodeNumber?.toInt() ?? 0),
                 onDuplicate: () => _showCustomEpisodeDialog(
                   context,
                   ref,
@@ -534,11 +537,11 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     for (final episode in providerSeason.episodes) {
       await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
             catalogRef: catalogRef,
-            seasonNumber: providerSeason.seasonNumber,
-            episodeNumber: episode.episodeNumber,
-            title: episode.title,
-            overview: episode.overview,
-            airDate: episode.airDate,
+            seasonNumber: providerSeason.seasonNumber ?? 0,
+            episodeNumber: episode.episodeNumber?.toInt() ?? 0,
+            title: episode.title ?? 'Untitled',
+            overview: episode.description,
+            airDate: _formatTvAirDate(episode.airDate),
             runtimeMinutes: episode.runtimeMinutes,
           );
     }
@@ -550,7 +553,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     WidgetRef ref, {
     required int seasonNumber,
     CustomEpisode? existing,
-    Episode? providerEpisode,
+    TvEpisode? providerEpisode,
   }) async {
     final result = await showDialog<_CustomEpisodeFormResult>(
       context: context,
@@ -558,11 +561,15 @@ class _CustomEpisodesPanel extends ConsumerWidget {
         accent: accent,
         title: existing == null ? 'Add custom episode' : 'Edit custom episode',
         confirmLabel: existing == null ? 'Add' : 'Save',
-        initialEpisodeNumber:
-            existing?.episodeNumber ?? providerEpisode?.episodeNumber ?? 1,
+        initialEpisodeNumber: existing?.episodeNumber ??
+            providerEpisode?.episodeNumber?.toInt() ??
+            1,
         initialTitle: existing?.title ?? providerEpisode?.title ?? '',
-        initialOverview: existing?.overview ?? providerEpisode?.overview ?? '',
-        initialAirDate: existing?.airDate ?? providerEpisode?.airDate ?? '',
+        initialOverview:
+            existing?.overview ?? providerEpisode?.description ?? '',
+        initialAirDate: existing?.airDate ??
+            _formatTvAirDate(providerEpisode?.airDate) ??
+            '',
         initialRuntimeMinutes:
             existing?.runtimeMinutes ?? providerEpisode?.runtimeMinutes,
         initialStillImageUrl: existing?.stillImageUrl ?? '',
@@ -628,7 +635,7 @@ class _ProviderEpisodeTile extends StatelessWidget {
 
   final Color accent;
   final int seasonNumber;
-  final Episode episode;
+  final TvEpisode episode;
   final bool watched;
   final int watchCount;
   final bool busy;
@@ -641,9 +648,9 @@ class _ProviderEpisodeTile extends StatelessWidget {
       episode: VideoEpisodeProgressSummary(
         episode: VideoEpisodeIdentity(
           seasonNumber: seasonNumber,
-          episodeNumber: episode.episodeNumber,
+          episodeNumber: episode.episodeNumber?.toInt() ?? 0,
           title: episode.title,
-          airDate: _parseDate(episode.airDate),
+          airDate: episode.airDate,
           runtimeMinutes: episode.runtimeMinutes,
         ),
         watchedCount: watchCount,
@@ -957,4 +964,8 @@ DateTime? _parseDate(String? raw) {
     return null;
   }
   return DateTime.tryParse(raw);
+}
+
+String? _formatTvAirDate(DateTime? value) {
+  return value?.toIso8601String().split('T').first;
 }

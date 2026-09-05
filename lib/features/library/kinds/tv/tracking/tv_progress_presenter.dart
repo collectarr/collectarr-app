@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
 
@@ -11,7 +11,7 @@ class VideoProgressPresenter {
   const VideoProgressPresenter();
 
   VideoProgressSummary build({
-    required List<Season> seasons,
+    required List<TvSeason> seasons,
     required List<TrackingUnit> trackedUnits,
     required List<WatchSession> watchSessions,
     DateTime? now,
@@ -80,7 +80,7 @@ class VideoProgressPresenter {
   }
 
   VideoSeasonProgressSummary seasonSummary({
-    required Season season,
+    required TvSeason season,
     required List<TrackingUnit> trackedUnits,
     required List<WatchSession> watchSessions,
     DateTime? now,
@@ -96,8 +96,8 @@ class VideoProgressPresenter {
         .where(
           (episode) => watchedKeys.contains(
             _episodeKey(
-              seasonNumber: season.seasonNumber,
-              episodeNumber: episode.episodeNumber,
+              seasonNumber: _seasonNumber(season),
+              episodeNumber: _episodeNumber(episode),
             ),
           ),
         )
@@ -111,7 +111,7 @@ class VideoProgressPresenter {
       watchSessions: watchSessions,
     );
     final lastWatchedAt = _latestWatchSessionForSeason(
-      season.seasonNumber,
+      _seasonNumber(season),
       watchSessions,
     )?.watchedAt;
     final nextEpisode = _nextEpisode(seasonEpisodes, watchedKeys, referenceNow);
@@ -123,8 +123,8 @@ class VideoProgressPresenter {
       referenceNow: referenceNow,
     );
     return VideoSeasonProgressSummary(
-      seasonNumber: season.seasonNumber,
-      title: season.title,
+      seasonNumber: _seasonNumber(season),
+      title: season.title ?? 'Season ${_seasonNumber(season)}',
       totalEpisodes: episodes.length,
       releasedEpisodes: releaseCount,
       watchedEpisodes: watchedCount,
@@ -139,7 +139,7 @@ class VideoProgressPresenter {
   }
 
   List<VideoEpisodeProgressSummary> episodeRows({
-    required Season season,
+    required TvSeason season,
     required List<TrackingUnit> trackedUnits,
     required List<WatchSession> watchSessions,
   }) {
@@ -149,7 +149,7 @@ class VideoProgressPresenter {
       if (!session.isEpisodeSession) {
         continue;
       }
-      if (session.seasonNumber != season.seasonNumber) {
+      if (session.seasonNumber != _seasonNumber(season)) {
         continue;
       }
       final key = _episodeKey(
@@ -161,15 +161,15 @@ class VideoProgressPresenter {
     final rows = <VideoEpisodeProgressSummary>[];
     for (final episode in season.episodes) {
       final identity = VideoEpisodeIdentity(
-        seasonNumber: season.seasonNumber,
-        episodeNumber: episode.episodeNumber,
+        seasonNumber: _seasonNumber(season),
+        episodeNumber: _episodeNumber(episode),
         title: episode.title,
-        airDate: _parseEpisodeDate(episode.airDate),
+        airDate: episode.airDate,
         runtimeMinutes: episode.runtimeMinutes,
       );
       final key = _episodeKey(
-        seasonNumber: season.seasonNumber,
-        episodeNumber: episode.episodeNumber,
+        seasonNumber: _seasonNumber(season),
+        episodeNumber: _episodeNumber(episode),
       );
       final sessions = sessionsByEpisode[key] ?? const <WatchSession>[];
       rows.add(
@@ -187,12 +187,13 @@ class VideoProgressPresenter {
     return rows;
   }
 
-  static List<Season> _regularSeasons(List<Season> seasons) {
-    final regular = seasons.where((season) => season.seasonNumber > 0).toList();
+  static List<TvSeason> _regularSeasons(List<TvSeason> seasons) {
+    final regular =
+        seasons.where((season) => _seasonNumber(season) > 0).toList();
     return regular.isEmpty ? seasons : regular;
   }
 
-  static List<_SeasonEpisode> _flattenEpisodes(List<Season> seasons) {
+  static List<_SeasonEpisode> _flattenEpisodes(List<TvSeason> seasons) {
     final result = <_SeasonEpisode>[];
     for (final season in seasons) {
       for (final episode in season.episodes) {
@@ -220,10 +221,8 @@ class VideoProgressPresenter {
     return airDate == null || !airDate.isAfter(now);
   }
 
-  static bool _isEpisodeReleased(Episode episode, DateTime now) {
-    final raw = episode.airDate;
-    final airDate =
-        raw == null || raw.trim().isEmpty ? null : DateTime.tryParse(raw);
+  static bool _isEpisodeReleased(TvEpisode episode, DateTime now) {
+    final airDate = episode.airDate;
     return airDate == null || !airDate.isAfter(now);
   }
 
@@ -410,8 +409,8 @@ class VideoProgressPresenter {
       }
       if (_isReleased(item, now)) {
         return VideoEpisodeIdentity(
-          seasonNumber: item.season.seasonNumber,
-          episodeNumber: item.episode.episodeNumber,
+          seasonNumber: _seasonNumber(item.season),
+          episodeNumber: _episodeNumber(item.episode),
           title: item.episode.title,
           airDate: _episodeAirDate(item),
           runtimeMinutes: item.episode.runtimeMinutes,
@@ -421,17 +420,17 @@ class VideoProgressPresenter {
     return null;
   }
 
-  static int? _firstRegularSeasonNumber(List<Season> seasons) {
+  static int? _firstRegularSeasonNumber(List<TvSeason> seasons) {
     for (final season in seasons) {
-      if (season.seasonNumber > 0) {
-        return season.seasonNumber;
+      if (_seasonNumber(season) > 0) {
+        return _seasonNumber(season);
       }
     }
-    return seasons.isEmpty ? null : seasons.first.seasonNumber;
+    return seasons.isEmpty ? null : _seasonNumber(seasons.first);
   }
 
   static String _seasonStatusLabel({
-    required Season season,
+    required TvSeason season,
     required int watchedCount,
     required int releaseCount,
     required int totalCount,
@@ -460,8 +459,8 @@ class VideoProgressPresenter {
 class _SeasonEpisode {
   const _SeasonEpisode(this.season, this.episode);
 
-  final Season season;
-  final Episode episode;
+  final TvSeason season;
+  final TvEpisode episode;
 }
 
 String _episodeKey({
@@ -473,22 +472,15 @@ String _episodeKey({
 
 String _episodeKeyForSeasonEpisode(_SeasonEpisode episode) {
   return _episodeKey(
-    seasonNumber: episode.season.seasonNumber,
-    episodeNumber: episode.episode.episodeNumber,
+    seasonNumber: _seasonNumber(episode.season),
+    episodeNumber: _episodeNumber(episode.episode),
   );
 }
 
 DateTime? _episodeAirDate(_SeasonEpisode episode) {
-  final raw = episode.episode.airDate;
-  if (raw == null || raw.trim().isEmpty) {
-    return null;
-  }
-  return DateTime.tryParse(raw);
+  return episode.episode.airDate;
 }
 
-DateTime? _parseEpisodeDate(String? raw) {
-  if (raw == null || raw.trim().isEmpty) {
-    return null;
-  }
-  return DateTime.tryParse(raw);
-}
+int _seasonNumber(TvSeason season) => season.seasonNumber ?? 0;
+
+int _episodeNumber(TvEpisode episode) => episode.episodeNumber?.toInt() ?? 0;

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_legacy_mapper.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
@@ -104,10 +103,9 @@ void main() {
       'id': 'media-1',
       'release_id': 'release-1',
       'title': 'Disc 1',
-      'format_label': 'Blu-ray',
-      'disc_number': 1,
-      'sequence_number': 1,
-      'features': ['dub'],
+      'format': 'Blu-ray',
+      'media_number': 1,
+      'media_type': 'disc',
       'episodes': [
         {
           'id': 'episode-1',
@@ -160,7 +158,7 @@ void main() {
       'kind': 'tv',
     });
 
-    final series = tvSeriesFromDto(seriesDto);
+    final series = TvCoreMapper.fromSeriesDto(seriesDto);
     expect(series.id, 'series-1');
     expect(series.title, 'Cowboy Bebop');
     expect(series.seasons, isEmpty);
@@ -193,22 +191,27 @@ void main() {
     final Map<String, dynamic> raw = seriesDto.raw;
     final releaseJson =
         (raw['releases'] as List<dynamic>).cast<Map<String, dynamic>>()[0];
-    final release = tvReleaseFromDto(TvReleaseDto.fromJson(releaseJson));
+    final release =
+        TvCoreMapper.fromReleaseDto(TvReleaseDto.fromJson(releaseJson));
     expect(release.media, hasLength(1));
     expect(release.media.single.episodes, hasLength(1));
 
-    final media = tvReleaseMediaFromDto(TvReleaseMediaDto.fromJson(mediaJson));
-    expect(media.discNumber, 1);
+    final media = TvCoreMapper.fromReleaseMediaDto(
+      TvReleaseMediaDto.fromJson(mediaJson),
+    );
+    expect(media.mediaNumber, 1);
     expect(media.episodes, hasLength(1));
 
-    final map = tvReleaseEpisodeMapFromDto(TvReleaseEpisodeMapDto.fromJson({
-      'id': 'map-1',
-      'release_id': 'release-1',
-      'media_id': 'media-1',
-      'episode_id': 'episode-1',
-      'disc_number': 1,
-      'sequence_number': 1,
-    }));
+    final map = TvCoreMapper.fromReleaseEpisodeMapDto(
+      TvReleaseEpisodeMapDto.fromJson({
+        'id': 'map-1',
+        'release_id': 'release-1',
+        'media_id': 'media-1',
+        'episode_id': 'episode-1',
+        'disc_number': 1,
+        'sequence_number': 1,
+      }),
+    );
     expect(map.releaseId, 'release-1');
     expect(map.mediaId, 'media-1');
     expect(map.episodeId, 'episode-1');

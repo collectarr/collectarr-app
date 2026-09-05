@@ -6,13 +6,13 @@ import 'package:collectarr_app/features/collection/repositories/user_external_li
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_legacy_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -542,7 +542,7 @@ class VideoEditController {
       final dto = await api
           .getTvSeriesDto(seriesId)
           .timeout(const Duration(seconds: 20));
-      return tvSeriesFromDto(dto);
+      return TvCoreMapper.fromSeriesDto(dto);
     } on TimeoutException {
       return null;
     }
@@ -556,15 +556,15 @@ class VideoEditController {
     tvEpisodeDiscAssignments = {
       for (final media in tvReleaseMediaDraft)
         for (final episode in media.episodes) ...{
-          episode.id: media.discNumber ?? 1,
+          episode.id: media.mediaNumber ?? 1,
           '${episode.seasonNumber}:${episode.episodeNumber}':
-              media.discNumber ?? 1,
+              media.mediaNumber ?? 1,
         },
     };
     if (tvEpisodeDiscAssignments.isEmpty) {
       final fallbackDisc = tvReleaseMediaDraft.isEmpty
           ? 1
-          : (tvReleaseMediaDraft.first.discNumber ?? 1);
+          : (tvReleaseMediaDraft.first.mediaNumber ?? 1);
       for (final episode in flattenTvEpisodes(series)) {
         tvEpisodeDiscAssignments[episode.id] = fallbackDisc;
         tvEpisodeDiscAssignments[
@@ -610,10 +610,8 @@ class VideoEditController {
           id: '${series.id}:media:1',
           releaseId: series.id,
           title: 'Disc 1',
-          formatLabel: formatLabel,
-          discNumber: 1,
-          sequenceNumber: 1,
-          features: const <String>[],
+          mediaType: formatLabel,
+          mediaNumber: 1,
           episodes: episodes,
         ),
       ];
@@ -625,10 +623,8 @@ class VideoEditController {
           id: '${series.id}:media:$i',
           releaseId: series.id,
           title: 'Disc $i',
-          formatLabel: formatLabel,
-          discNumber: i,
-          sequenceNumber: i,
-          features: const <String>[],
+          mediaType: formatLabel,
+          mediaNumber: i,
           episodes: const <TvEpisode>[],
         ),
       );
@@ -653,6 +649,6 @@ class VideoEditController {
   String tvEpisodeLabel(TvEpisode episode) {
     final seasonPart = 'S${episode.seasonNumber.toString().padLeft(2, '0')}';
     final episodePart = 'E${episode.episodeNumber.toString().padLeft(2, '0')}';
-    return '$seasonPart$episodePart ${episode.title.isEmpty ? 'Episode' : episode.title}';
+    return '$seasonPart$episodePart ${episode.title?.isEmpty ?? true ? 'Episode' : episode.title}';
   }
 }

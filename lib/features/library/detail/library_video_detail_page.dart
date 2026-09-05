@@ -10,9 +10,9 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_legacy_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/detail/library_video_title_metadata_section.dart';
 import 'package:collectarr_app/features/library/detail/library_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/release/video_release_source.dart';
@@ -91,7 +91,7 @@ class _LibraryVideoDetailPageState
     }
     final api = ref.read(apiClientProvider);
     final dto = await api.getTvSeriesDto(widget.request.item.source.itemId);
-    return tvSeriesFromDto(dto);
+    return TvCoreMapper.fromSeriesDto(dto);
   }
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
@@ -191,7 +191,7 @@ class _LibraryVideoDetailPageState
       entityType: CatalogEntityType.work,
       id: request.item.source.itemId,
     );
-    final seasonsAsync = ref.watch(seasonsByCatalogRefProvider(seriesRef));
+    final seasonsAsync = ref.watch(tvSeasonsByCatalogRefProvider(seriesRef));
     final watchHistoryTargets = <WatchHistoryTargetOption>[
       WatchHistoryTargetOption(
         ref: seriesRef,
@@ -207,9 +207,9 @@ class _LibraryVideoDetailPageState
                 entityType: CatalogEntityType.season,
                 id: '${seriesRef.id}:season:${season.seasonNumber}',
               ),
-              label: season.title,
-              subtitle: 'Season ${season.seasonNumber}',
-              seasonNumber: season.seasonNumber,
+              label: season.title ?? 'Season ${season.seasonNumber ?? 0}',
+              subtitle: 'Season ${season.seasonNumber ?? 0}',
+              seasonNumber: season.seasonNumber ?? 0,
             ),
             for (final episode in season.episodes)
               WatchHistoryTargetOption(
@@ -218,11 +218,11 @@ class _LibraryVideoDetailPageState
                   entityType: CatalogEntityType.episode,
                   id: '${seriesRef.id}:season:${season.seasonNumber}:episode:${episode.episodeNumber}',
                 ),
-                label: episode.title,
+                label: episode.title ?? 'Episode ${episode.episodeNumber ?? 0}',
                 subtitle:
                     'Season ${season.seasonNumber} • Episode ${episode.episodeNumber}',
                 seasonNumber: season.seasonNumber,
-                episodeNumber: episode.episodeNumber,
+                episodeNumber: episode.episodeNumber?.toInt() ?? 0,
               ),
           ],
         ],
@@ -735,15 +735,15 @@ class _TvReleaseTile extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: LibraryCoverImage(
-                    title: release.title ?? '',
-                    imageUrl: release.frontCoverUrl,
+                    title: release.title,
+                    imageUrl: release.coverImageUrl,
                     borderRadius: 12,
                   ),
                 ),
               ),
               const SizedBox(height: 10),
               Text(
-                release.title ?? '',
+                release.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -754,8 +754,8 @@ class _TvReleaseTile extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 [
-                  if (release.formatLabel?.trim().isNotEmpty == true)
-                    release.formatLabel!,
+                  if (release.format?.trim().isNotEmpty == true)
+                    release.format!,
                   '${release.media.length} media',
                   '${release.episodeMappings.length} maps',
                 ].join(' • '),
@@ -812,7 +812,7 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              release.title ?? '',
+              release.title,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -827,10 +827,10 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
                       .toIso8601String()
                       .split('T')
                       .first,
-                if (release.country?.trim().isNotEmpty == true)
-                  release.country!,
-                if (release.language?.trim().isNotEmpty == true)
-                  release.language!,
+                if (release.regionCode?.trim().isNotEmpty == true)
+                  release.regionCode!,
+                if (release.languageAudio.isNotEmpty)
+                  release.languageAudio.join(', '),
               ].join(' • '),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: palette.textMuted,
@@ -845,8 +845,8 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
                   ChoiceChip(
                     label: Text(
                       media.title ??
-                          media.formatLabel ??
-                          'Disc ${media.discNumber ?? 1}',
+                          media.mediaType ??
+                          'Disc ${media.mediaNumber ?? 1}',
                     ),
                     selected: selectedMedia?.id == media.id,
                     selectedColor: accent.withValues(alpha: 0.24),
@@ -858,8 +858,8 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
             if (selectedMedia != null) ...[
               Text(
                 selectedMedia.title ??
-                    selectedMedia.formatLabel ??
-                    'Disc ${selectedMedia.discNumber ?? 1}',
+                    selectedMedia.mediaType ??
+                    'Disc ${selectedMedia.mediaNumber ?? 1}',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: palette.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -868,10 +868,10 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 [
-                  if (selectedMedia.formatLabel?.trim().isNotEmpty == true)
-                    selectedMedia.formatLabel!,
-                  if (selectedMedia.discNumber != null)
-                    'Disc ${selectedMedia.discNumber}',
+                  if (selectedMedia.mediaType?.trim().isNotEmpty == true)
+                    selectedMedia.mediaType!,
+                  if (selectedMedia.mediaNumber != null)
+                    'Disc ${selectedMedia.mediaNumber}',
                   '${selectedMedia.episodes.length} episodes',
                 ].join(' • '),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -953,8 +953,7 @@ class _TvEpisodeMapList extends StatelessWidget {
                       'Disc ${mapping.discNumber}',
                     if (mapping.sequenceNumber != null)
                       'Seq ${mapping.sequenceNumber}',
-                    if (mapping.episodeId != null)
-                      _episodeTitleForId(series, mapping.episodeId!),
+                    _episodeTitleForId(series, mapping.episodeId),
                   ].where((value) => value.trim().isNotEmpty).join(' • '),
                 ),
               ),
@@ -975,9 +974,9 @@ String _episodeTitleForId(TvSeries series, String episodeId) {
   for (final season in series.seasons) {
     for (final episode in season.episodes) {
       if (episode.id == episodeId) {
-        return episode.title.isEmpty
+        return episode.title?.isEmpty ?? true
             ? 'Episode ${episode.episodeNumber}'
-            : episode.title;
+            : episode.title!;
       }
     }
   }

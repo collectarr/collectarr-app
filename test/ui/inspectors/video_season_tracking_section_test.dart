@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
@@ -105,27 +104,4 @@ void main() {
   }, skip: true);
 }
 
-class _VideoSeasonApiClient extends ApiClient {
-  @override
-  Future<List<Season>> getTvSeriesSeasons(String seriesId) async {
-    return [
-      Season(
-        seasonNumber: 1,
-        title: 'Season 1',
-        episodeCount: 2,
-        episodes: [
-          Episode(
-            episodeNumber: 1,
-            title: 'Asteroid Blues',
-            runtimeMinutes: 24,
-          ),
-          Episode(
-            episodeNumber: 2,
-            title: 'Stray Dog Strut',
-            runtimeMinutes: 24,
-          ),
-        ],
-      ),
-    ];
-  }
-}
+class _VideoSeasonApiClient extends ApiClient {}

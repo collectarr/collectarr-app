@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +20,7 @@ class TvUpcomingEpisodesSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(seasonsByCatalogRefProvider(seriesRef));
+    final seasonsAsync = ref.watch(tvSeasonsByCatalogRefProvider(seriesRef));
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
@@ -29,14 +29,14 @@ class TvUpcomingEpisodesSection extends ConsumerWidget {
         final upcoming = <_UpcomingEpisodeItem>[];
         for (final season in seasons) {
           for (final episode in season.episodes) {
-            final airDate = DateTime.tryParse(episode.airDate ?? '');
+            final airDate = episode.airDate;
             if (airDate == null || !airDate.isAfter(now)) {
               continue;
             }
             upcoming.add(
               _UpcomingEpisodeItem(
-                seasonNumber: season.seasonNumber,
-                episodeNumber: episode.episodeNumber,
+                seasonNumber: season.seasonNumber ?? 0,
+                episodeNumber: episode.episodeNumber?.toInt() ?? 0,
                 title: episode.title,
                 airDate: airDate,
               ),

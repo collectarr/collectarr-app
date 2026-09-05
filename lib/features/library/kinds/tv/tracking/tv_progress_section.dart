@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
-import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +23,7 @@ class VideoProgressSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(seasonsByCatalogRefProvider(seriesRef));
+    final seasonsAsync = ref.watch(tvSeasonsByCatalogRefProvider(seriesRef));
     final trackedUnits =
         ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
     final watchSessions =

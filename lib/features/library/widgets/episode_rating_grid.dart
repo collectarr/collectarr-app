@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -29,19 +28,23 @@ typedef EpisodeRatingCallback = void Function(
 /// Columns = seasons (S1, S2, …), rows = episodes (E1, E2, …).
 /// Each cell is color-coded from yellow (low) to green (high).
 /// Bottom row shows the average rating per season.
-class EpisodeRatingGrid extends StatelessWidget {
+class EpisodeRatingGrid<TSeason> extends StatelessWidget {
   const EpisodeRatingGrid({
     super.key,
     required this.seasons,
     required this.ratings,
+    required this.seasonNumberOf,
+    required this.episodeCountOf,
     this.onRatingTap,
     this.cellSize = 38,
     this.headerStyle,
     this.compact = false,
   });
 
-  final List<Season> seasons;
+  final List<TSeason> seasons;
   final Map<String, int> ratings;
+  final int Function(TSeason) seasonNumberOf;
+  final int Function(TSeason) episodeCountOf;
   final EpisodeRatingCallback? onRatingTap;
   final double cellSize;
   final TextStyle? headerStyle;
@@ -53,12 +56,12 @@ class EpisodeRatingGrid extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final sortedSeasons = List<Season>.from(seasons)
-      ..sort((a, b) => a.seasonNumber.compareTo(b.seasonNumber));
+    final sortedSeasons = List<TSeason>.from(seasons)
+      ..sort((a, b) => seasonNumberOf(a).compareTo(seasonNumberOf(b)));
 
     final maxEpisodes = sortedSeasons.fold<int>(
       0,
-      (max, s) => math.max(max, s.episodes.length),
+      (max, s) => math.max(max, episodeCountOf(s)),
     );
 
     if (maxEpisodes == 0) {
@@ -76,8 +79,9 @@ class EpisodeRatingGrid extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Header row: labels + season columns
-          _HeaderRow(
+          _HeaderRow<TSeason>(
             seasons: sortedSeasons,
+            seasonNumberOf: seasonNumberOf,
             labelWidth: labelWidth,
             cellSize: effectiveCellSize,
             fontSize: fontSize,
@@ -86,9 +90,11 @@ class EpisodeRatingGrid extends StatelessWidget {
           const SizedBox(height: 2),
           // Episode rows
           for (var ep = 1; ep <= maxEpisodes; ep++)
-            _EpisodeRow(
+            _EpisodeRow<TSeason>(
               episodeNumber: ep,
               seasons: sortedSeasons,
+              seasonNumberOf: seasonNumberOf,
+              episodeCountOf: episodeCountOf,
               ratings: ratings,
               onRatingTap: onRatingTap,
               labelWidth: labelWidth,
@@ -97,8 +103,10 @@ class EpisodeRatingGrid extends StatelessWidget {
             ),
           const SizedBox(height: 4),
           // Average row
-          _AverageRow(
+          _AverageRow<TSeason>(
             seasons: sortedSeasons,
+            seasonNumberOf: seasonNumberOf,
+            episodeCountOf: episodeCountOf,
             ratings: ratings,
             maxEpisodes: maxEpisodes,
             labelWidth: labelWidth,
@@ -111,16 +119,18 @@ class EpisodeRatingGrid extends StatelessWidget {
   }
 }
 
-class _HeaderRow extends StatelessWidget {
+class _HeaderRow<TSeason> extends StatelessWidget {
   const _HeaderRow({
     required this.seasons,
+    required this.seasonNumberOf,
     required this.labelWidth,
     required this.cellSize,
     required this.fontSize,
     this.headerStyle,
   });
 
-  final List<Season> seasons;
+  final List<TSeason> seasons;
+  final int Function(TSeason) seasonNumberOf;
   final double labelWidth;
   final double cellSize;
   final double fontSize;
@@ -145,7 +155,7 @@ class _HeaderRow extends StatelessWidget {
             height: cellSize * 0.7,
             child: Center(
               child: Text(
-                'S${season.seasonNumber}',
+                'S${seasonNumberOf(season)}',
                 style: style,
               ),
             ),
@@ -155,10 +165,12 @@ class _HeaderRow extends StatelessWidget {
   }
 }
 
-class _EpisodeRow extends StatelessWidget {
+class _EpisodeRow<TSeason> extends StatelessWidget {
   const _EpisodeRow({
     required this.episodeNumber,
     required this.seasons,
+    required this.seasonNumberOf,
+    required this.episodeCountOf,
     required this.ratings,
     required this.onRatingTap,
     required this.labelWidth,
@@ -167,7 +179,9 @@ class _EpisodeRow extends StatelessWidget {
   });
 
   final int episodeNumber;
-  final List<Season> seasons;
+  final List<TSeason> seasons;
+  final int Function(TSeason) seasonNumberOf;
+  final int Function(TSeason) episodeCountOf;
   final Map<String, int> ratings;
   final EpisodeRatingCallback? onRatingTap;
   final double labelWidth;
@@ -200,11 +214,11 @@ class _EpisodeRow extends StatelessWidget {
         ),
         for (final season in seasons)
           _RatingCell(
-            season: season.seasonNumber,
+            season: seasonNumberOf(season),
             episode: episodeNumber,
-            hasEpisode: episodeNumber <= season.episodes.length,
-            rating:
-                ratings[episodeRatingKey(season.seasonNumber, episodeNumber)],
+            hasEpisode: episodeNumber <= episodeCountOf(season),
+            rating: ratings[
+                episodeRatingKey(seasonNumberOf(season), episodeNumber)],
             onTap: onRatingTap,
             size: cellSize,
             fontSize: fontSize,
@@ -275,9 +289,11 @@ class _RatingCell extends StatelessWidget {
   }
 }
 
-class _AverageRow extends StatelessWidget {
+class _AverageRow<TSeason> extends StatelessWidget {
   const _AverageRow({
     required this.seasons,
+    required this.seasonNumberOf,
+    required this.episodeCountOf,
     required this.ratings,
     required this.maxEpisodes,
     required this.labelWidth,
@@ -285,7 +301,9 @@ class _AverageRow extends StatelessWidget {
     required this.fontSize,
   });
 
-  final List<Season> seasons;
+  final List<TSeason> seasons;
+  final int Function(TSeason) seasonNumberOf;
+  final int Function(TSeason) episodeCountOf;
   final Map<String, int> ratings;
   final int maxEpisodes;
   final double labelWidth;
@@ -321,11 +339,11 @@ class _AverageRow extends StatelessWidget {
     );
   }
 
-  Widget _averageCell(BuildContext context, Season season) {
+  Widget _averageCell(BuildContext context, TSeason season) {
     final palette = appPalette(context);
     final seasonRatings = <int>[];
-    for (var ep = 1; ep <= season.episodes.length; ep++) {
-      final r = ratings[episodeRatingKey(season.seasonNumber, ep)];
+    for (var ep = 1; ep <= episodeCountOf(season); ep++) {
+      final r = ratings[episodeRatingKey(seasonNumberOf(season), ep)];
       if (r != null) seasonRatings.add(r);
     }
 
