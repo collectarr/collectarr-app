@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit_mutations.dart';
@@ -58,7 +59,10 @@ final catalogCacheRepositoryProvider =
 
 final trackingEntriesCacheRepositoryProvider =
     Provider<TrackingEntriesCacheRepository>((ref) {
-  return TrackingEntriesCacheRepository(ref.watch(localDatabaseProvider));
+  return TrackingEntriesCacheRepository(
+    ref.watch(localDatabaseProvider),
+    codecs: collectarrTrackingEntryCodecs,
+  );
 });
 
 final trackingUnitsCacheRepositoryProvider =

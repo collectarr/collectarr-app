@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 import 'package:collectarr_app/features/sync/data/sync_retry_mapper.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
@@ -47,7 +48,10 @@ class SyncRepository {
       queue: SyncQueueRepository(_db),
       catalog: LibraryCatalogRepository(_db),
       ownedItems: OwnedItemsCacheRepository(_db),
-      trackingEntries: TrackingEntriesCacheRepository(_db),
+      trackingEntries: TrackingEntriesCacheRepository(
+        _db,
+        codecs: collectarrTrackingEntryCodecs,
+      ),
       wishlistItems: WishlistItemsCacheRepository(_db),
     ).syncNow(deviceId, since: since);
   }

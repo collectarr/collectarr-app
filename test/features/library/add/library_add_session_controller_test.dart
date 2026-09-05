@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_cach
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -59,7 +60,10 @@ void main() {
       ownedItems: OwnedItemsCacheRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
       catalogCache: catalogCache,
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(
+        db,
+        codecs: collectarrTrackingEntryCodecs,
+      ),
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
@@ -67,7 +71,10 @@ void main() {
     wishlistMutations = WishlistMutations(
       wishlist: WishlistItemsCacheRepository(db),
       catalogCache: catalogCache,
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(
+        db,
+        codecs: collectarrTrackingEntryCodecs,
+      ),
       trackingUnits: TrackingUnitsCacheRepository(
         db,
         codecs: collectarrTrackingUnitCodecs,
@@ -77,7 +84,10 @@ void main() {
     );
 
     trackingMutations = TrackingMutations(
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(
+        db,
+        codecs: collectarrTrackingEntryCodecs,
+      ),
       trackingUnits: TrackingUnitsCacheRepository(
         db,
         codecs: collectarrTrackingUnitCodecs,

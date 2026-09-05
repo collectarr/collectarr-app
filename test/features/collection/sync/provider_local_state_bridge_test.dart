@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
 import 'package:drift/native.dart';
@@ -15,7 +16,10 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final catalog = LibraryCatalogRepository(db);
-    final tracking = TrackingEntriesCacheRepository(db);
+    final tracking = TrackingEntriesCacheRepository(
+      db,
+      codecs: collectarrTrackingEntryCodecs,
+    );
     final bridge = ProviderLocalStateBridge(
       catalogCache: catalog,
       trackingEntries: tracking,

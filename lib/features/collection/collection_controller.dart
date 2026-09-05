@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/collection/repositories/user_metadata_ov
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -39,8 +40,10 @@ final collectionByCatalogItemProvider = Provider<Map<String, OwnedItem>>((ref) {
 
 final trackingEntriesProvider =
     FutureProvider<List<TrackingEntry>>((ref) async {
-  final cache =
-      TrackingEntriesCacheRepository(ref.watch(localDatabaseProvider));
+  final cache = TrackingEntriesCacheRepository(
+    ref.watch(localDatabaseProvider),
+    codecs: collectarrTrackingEntryCodecs,
+  );
   return cache.listActive();
 });
 

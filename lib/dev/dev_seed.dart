@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/collection/repositories/item_images_cach
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 
 export 'package:collectarr_app/dev/seeds/anime_seeds.dart';
 export 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
@@ -76,7 +77,10 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   final catalogRepo = LibraryCatalogRepository(db);
   final comicOwnedRepo = ComicOwnedRepository(db);
   final ownedRepo = OwnedItemsCacheRepository(db);
-  final trackingRepo = TrackingEntriesCacheRepository(db);
+  final trackingRepo = TrackingEntriesCacheRepository(
+    db,
+    codecs: collectarrTrackingEntryCodecs,
+  );
   final imagesRepo = ItemImagesCacheRepository(db);
   final pickListRepo = PickListRepository(db);
   final customFieldRepo = CustomFieldRepository(db);

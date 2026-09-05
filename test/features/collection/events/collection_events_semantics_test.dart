@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_cach
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -44,7 +45,10 @@ void main() {
     final ownedRepo = OwnedItemsCacheRepository(db);
     final wishlistRepo = WishlistItemsCacheRepository(db);
     final catalogRepo = LibraryCatalogRepository(db);
-    final trackingRepo = TrackingEntriesCacheRepository(db);
+    final trackingRepo = TrackingEntriesCacheRepository(
+      db,
+      codecs: collectarrTrackingEntryCodecs,
+    );
     final trackingUnitsRepo = TrackingUnitsCacheRepository(
       db,
       codecs: collectarrTrackingUnitCodecs,
@@ -158,8 +162,10 @@ void main() {
       status: MediaTrackingStatus.inProgress,
     );
 
-    final entries = await TrackingEntriesCacheRepository(db)
-        .findActiveByItemIds(['book-300']);
+    final entries = await TrackingEntriesCacheRepository(
+      db,
+      codecs: collectarrTrackingEntryCodecs,
+    ).findActiveByItemIds(['book-300']);
     final trackingEntry = entries.single;
 
     final events = <CollectionEvent>[];

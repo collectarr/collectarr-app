@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,7 +26,10 @@ void main() {
       queue: SyncQueueRepository(db),
       catalog: LibraryCatalogRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(
+        db,
+        codecs: collectarrTrackingEntryCodecs,
+      ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: since);
 
@@ -71,7 +75,10 @@ void main() {
       queue: queue,
       catalog: LibraryCatalogRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(
+        db,
+        codecs: collectarrTrackingEntryCodecs,
+      ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
 
@@ -119,7 +126,10 @@ void main() {
       queue: queue,
       catalog: LibraryCatalogRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      trackingEntries: TrackingEntriesCacheRepository(
+        db,
+        codecs: collectarrTrackingEntryCodecs,
+      ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('desktop');
 

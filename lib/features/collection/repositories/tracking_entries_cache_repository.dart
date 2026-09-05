@@ -1,17 +1,22 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
 
 class TrackingEntriesCacheRepository {
-  const TrackingEntriesCacheRepository(this._db);
+  TrackingEntriesCacheRepository(
+    this._db, {
+    required Iterable<TrackingEntryCodec> codecs,
+  }) : _codecs = {
+          for (final codec in codecs) codec.kind: codec,
+        };
 
   static const _lookupBatchSize = 500;
 
   final LocalDatabase _db;
+  final Map<String, TrackingEntryCodec> _codecs;
 
   Future<List<TrackingEntry>> listActive() async {
     final rows = await (_db.select(_db.trackingEntriesCache)
@@ -19,8 +24,9 @@ class TrackingEntriesCacheRepository {
           ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]))
         .get();
     if (rows.isEmpty) return const [];
+    final coordinates = await _loadCoordinates(rows.map((row) => row.id));
     return rows
-        .map((r) => _fromCache(r, catalogKind: r.kind))
+        .map((r) => _fromCache(r, coordinates[r.id], catalogKind: r.kind))
         .toList(growable: false);
   }
 
@@ -30,7 +36,8 @@ class TrackingEntriesCacheRepository {
           ..limit(1))
         .getSingleOrNull();
     if (row == null) return null;
-    return _fromCache(row, catalogKind: row.kind);
+    final coordinates = await _loadCoordinates([row.id]);
+    return _fromCache(row, coordinates[row.id], catalogKind: row.kind);
   }
 
   Future<List<TrackingEntry>> findActiveByItemIds(
@@ -48,45 +55,54 @@ class TrackingEntriesCacheRepository {
               (row) => row.itemId.isIn(batch) & row.deletedAt.isNull(),
             ))
           .get();
+      final coordinates = await _loadCoordinates(rows.map((row) => row.id));
       items.addAll(
-        rows.map((r) => _fromCache(r, catalogKind: r.kind)),
+        rows.map(
+          (r) => _fromCache(r, coordinates[r.id], catalogKind: r.kind),
+        ),
       );
     }
     return items;
   }
 
-  Future<void> upsert(TrackingEntry item) {
-    return _db.into(_db.trackingEntriesCache).insert(
-          _toCompanion(item),
-          mode: InsertMode.insertOrReplace,
-        );
+  Future<void> upsert(TrackingEntry item) async {
+    await _db.transaction(() async {
+      await _db.into(_db.trackingEntriesCache).insert(
+            _toCompanion(item),
+            mode: InsertMode.insertOrReplace,
+          );
+      await _replaceCoordinates(item);
+    });
   }
 
   Future<void> upsertAll(List<TrackingEntry> items) async {
     if (items.isEmpty) {
       return;
     }
-    await _db.batch((batch) {
-      batch.insertAll(
-        _db.trackingEntriesCache,
-        items.map(_toCompanion),
-        mode: InsertMode.insertOrReplace,
-      );
+    await _db.transaction(() async {
+      await _db.batch((batch) {
+        batch.insertAll(
+          _db.trackingEntriesCache,
+          items.map(_toCompanion),
+          mode: InsertMode.insertOrReplace,
+        );
+      });
+      for (final item in items) {
+        await _replaceCoordinates(item);
+      }
     });
   }
 
   Future<void> markDeleted(TrackingEntry item, DateTime deletedAt) {
-    return _db.into(_db.trackingEntriesCache).insert(
-          _toCompanion(
-            item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt),
-          ),
-          mode: InsertMode.insertOrReplace,
-        );
+    return upsert(item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt));
   }
 
-  TrackingEntry _fromCache(TrackingEntriesCacheData row,
-      {String? catalogKind}) {
-    return TrackingEntry(
+  TrackingEntry _fromCache(
+    TrackingEntriesCacheData row,
+    Object? coordinates, {
+    String? catalogKind,
+  }) {
+    final storageRow = TrackingEntryStorageRow(
       id: row.id,
       catalogRef: _catalogRefForRow(row, catalogKind: catalogKind),
       ownedItemId: row.ownedItemId,
@@ -102,12 +118,29 @@ class TrackingEntriesCacheRepository {
       progressTotal: row.progressTotal,
       timesCompleted: row.timesCompleted,
       notes: row.notes,
-      seasonNumber: row.seasonNumber,
-      episodeNumber: row.episodeNumber,
-      episodeRatings: _decodeEpisodeRatings(row.episodeRatings),
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
+    return _codecs[row.kind]?.fromStorageRow(storageRow, coordinates) ??
+        TrackingEntry(
+          id: storageRow.id,
+          catalogRef: storageRow.catalogRef,
+          ownedItemId: storageRow.ownedItemId,
+          editionId: storageRow.editionId,
+          variantId: storageRow.variantId,
+          bundleReleaseId: storageRow.bundleReleaseId,
+          sourceType: storageRow.sourceType,
+          status: storageRow.status,
+          rating: storageRow.rating,
+          startedAt: storageRow.startedAt,
+          finishedAt: storageRow.finishedAt,
+          progressCurrent: storageRow.progressCurrent,
+          progressTotal: storageRow.progressTotal,
+          timesCompleted: storageRow.timesCompleted,
+          notes: storageRow.notes,
+          updatedAt: storageRow.updatedAt,
+          deletedAt: storageRow.deletedAt,
+        );
   }
 
   TrackingEntriesCacheCompanion _toCompanion(TrackingEntry item) {
@@ -128,12 +161,26 @@ class TrackingEntriesCacheRepository {
       progressTotal: Value(item.progressTotal),
       timesCompleted: Value(item.timesCompleted),
       notes: Value(item.notes),
-      seasonNumber: Value(item.seasonNumber),
-      episodeNumber: Value(item.episodeNumber),
-      episodeRatings: Value(_encodeEpisodeRatings(item.episodeRatings)),
       updatedAt: item.updatedAt,
       deletedAt: Value(item.deletedAt),
     );
+  }
+
+  Future<void> _replaceCoordinates(TrackingEntry item) async {
+    for (final codec in _codecs.values) {
+      await codec.clearCoordinates(_db, item.id);
+    }
+    await _codecs[item.catalogRef.kind]?.writeCoordinates(_db, item);
+  }
+
+  Future<Map<String, Object?>> _loadCoordinates([
+    Iterable<String>? ids,
+  ]) async {
+    final coordinates = <String, Object?>{};
+    for (final codec in _codecs.values) {
+      coordinates.addAll(await codec.loadCoordinates(_db, ids));
+    }
+    return coordinates;
   }
 
   CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row,
@@ -144,36 +191,16 @@ class TrackingEntriesCacheRepository {
       variantId: row.variantId,
       bundleReleaseId: row.bundleReleaseId,
     );
-    final entityType = row.seasonNumber != null || row.episodeNumber != null
-        ? CatalogEntityType.episode
-        : switch (anchor?.type) {
-            PersonalItemAnchorType.bundleRelease => CatalogEntityType.release,
-            PersonalItemAnchorType.variant => CatalogEntityType.release,
-            PersonalItemAnchorType.edition => CatalogEntityType.edition,
-            _ => CatalogEntityType.work,
-          };
+    final entityType = switch (anchor?.type) {
+      PersonalItemAnchorType.bundleRelease => CatalogEntityType.release,
+      PersonalItemAnchorType.variant => CatalogEntityType.release,
+      PersonalItemAnchorType.edition => CatalogEntityType.edition,
+      _ => CatalogEntityType.work,
+    };
     return CatalogEntityRef(
       kind: catalogKind ?? 'unknown',
       entityType: entityType,
       id: row.itemId,
     );
-  }
-
-  static Map<String, int>? _decodeEpisodeRatings(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    try {
-      final decoded = jsonDecode(raw);
-      if (decoded is Map) {
-        return decoded.map((k, v) => MapEntry(k as String, (v as num).toInt()));
-      }
-    } catch (_) {
-      // Malformed JSON in episode ratings is non-critical; fall through to null.
-    }
-    return null;
-  }
-
-  static String? _encodeEpisodeRatings(Map<String, int> ratings) {
-    if (ratings.isEmpty) return null;
-    return jsonEncode(ratings);
   }
 }
