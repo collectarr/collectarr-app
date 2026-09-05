@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -67,15 +68,11 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
   final resolvedNow = now ?? DateTime.now();
   final bySeries = <String, _MissingComicSeriesAccumulator>{};
   for (final item in items) {
-    final rawMetadata = item.source.catalogItem?.kindMetadata;
-    final ComicCatalogMetadata metadata;
-    if (rawMetadata is ComicCatalogMetadata) {
-      metadata = rawMetadata;
-    } else if (rawMetadata != null) {
-      metadata = ComicCatalogMetadata.fromJson(item.source.catalogItem!.payload);
-    } else {
+    final dto = item.dto;
+    if (dto is! ComicWorkspaceDto) {
       continue;
     }
+    final metadata = dto.metadata ?? dto.comic;
     final issueNumber = _issueNumber(metadata.issueNumber);
     if (issueNumber == null) {
       continue;
@@ -106,13 +103,12 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
       accumulator.coverUrl = coverUrl;
     }
 
-    if (item.source.ownedItem != null) {
+    if (dto.ownedItem != null) {
       accumulator.ownedIssueNumbers.add(issueNumber);
       continue;
     }
     if (options.excludeOnOrder &&
-        item.source.ownedItem?.collectionStatus?.trim().toLowerCase() ==
-            'on_order') {
+        dto.ownedItem?.collectionStatus?.trim().toLowerCase() == 'on_order') {
       continue;
     }
     if (options.excludeUnreleased &&
