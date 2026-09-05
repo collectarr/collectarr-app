@@ -1,11 +1,12 @@
-import 'dart:convert';
-
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -40,18 +41,13 @@ void main() {
 
     final result = await runner.run(
       action: () async {
-        await db.into(db.catalogCache).insert(
-              CatalogCacheCompanion.insert(
-                id: 'cat-1',
-                kind: 'comic',
-                payloadJson: jsonEncode({
-                  'id': 'cat-1',
-                  'kind': 'comic',
-                  'title': 'Test Title',
-                }),
-                cachedAt: DateTime.now(),
-              ),
-            );
+        await LibraryCatalogRepository(db).upsertAll([
+          typedCatalogItemFromMap({
+            'id': 'cat-1',
+            'kind': 'comic',
+            'title': 'Test Title',
+          }),
+        ]);
         return 42;
       },
       eventsToEmit: const [OwnedItemAdded('owned-1')],
@@ -63,7 +59,7 @@ void main() {
     expect((eventsReceived.first as OwnedItemAdded).ownedItemId, 'owned-1');
     expect(syncScheduled, isTrue);
 
-    final items = await db.select(db.catalogCache).get();
+    final items = await LibraryCatalogRepository(db).findAll();
     expect(items, hasLength(1));
     await sub.cancel();
   });
@@ -83,18 +79,13 @@ void main() {
     expect(
       () => runner.run(
         action: () async {
-          await db.into(db.catalogCache).insert(
-                CatalogCacheCompanion.insert(
-                  id: 'cat-fail',
-                  kind: 'comic',
-                  payloadJson: jsonEncode({
-                    'id': 'cat-fail',
-                    'kind': 'comic',
-                    'title': 'Should Rollback',
-                  }),
-                  cachedAt: DateTime.now(),
-                ),
-              );
+          await LibraryCatalogRepository(db).upsertAll([
+            typedCatalogItemFromMap({
+              'id': 'cat-fail',
+              'kind': 'comic',
+              'title': 'Should Rollback',
+            }),
+          ]);
           throw Exception('Simulated write failure');
         },
         eventsToEmit: const [OwnedItemAdded('owned-fail')],
@@ -105,7 +96,7 @@ void main() {
     expect(eventsReceived, isEmpty);
     expect(syncScheduled, isFalse);
 
-    final items = await db.select(db.catalogCache).get();
+    final items = await LibraryCatalogRepository(db).findAll();
     expect(items, isEmpty);
 
     await sub.cancel();
@@ -149,18 +140,13 @@ void main() {
 
     await runner.run(
       action: () async {
-        await db.into(db.catalogCache).insert(
-              CatalogCacheCompanion.insert(
-                id: localRef.id,
-                kind: localRef.kind,
-                payloadJson: jsonEncode({
-                  'id': localRef.id,
-                  'kind': localRef.kind,
-                  'title': 'Movie',
-                }),
-                cachedAt: DateTime.now(),
-              ),
-            );
+        await LibraryCatalogRepository(db).upsertAll([
+          typedCatalogItemFromMap({
+            'id': localRef.id,
+            'kind': localRef.kind,
+            'title': 'Movie',
+          }),
+        ]);
       },
       triggerSync: false,
       origin: MutationOrigin.user,

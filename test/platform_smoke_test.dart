@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/main.dart';
 import 'package:drift/native.dart';
@@ -75,24 +78,17 @@ void main() {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
 
-      await db.into(db.catalogCache).insert(
-            CatalogCacheCompanion.insert(
-              id: 'smoke-1',
-              kind: 'comic',
-              payloadJson: jsonEncode({
-                'id': 'smoke-1',
-                'kind': 'comic',
-                'title': 'Smoke Test Issue',
-              }),
-              cachedAt: DateTime.now(),
-            ),
-          );
+      await LibraryCatalogRepository(db).upsertAll([
+        typedCatalogItemFromMap({
+          'id': 'smoke-1',
+          'kind': 'comic',
+          'title': 'Smoke Test Issue',
+        }),
+      ]);
 
-      final rows = await db.select(db.catalogCache).get();
-      expect(rows, hasLength(1));
-      final payload =
-          jsonDecode(rows.first.payloadJson) as Map<String, dynamic>;
-      expect(payload['title'], 'Smoke Test Issue');
+      final item = await LibraryCatalogRepository(db).findById('smoke-1');
+      expect(item, isNotNull);
+      expect(item!.title, 'Smoke Test Issue');
     });
 
     test('barcode camera NOT supported on Windows desktop', () {

@@ -2,7 +2,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
@@ -17,7 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late LocalDatabase db;
-  late CatalogCacheRepository catalogCache;
+  late LibraryCatalogRepository catalogCache;
   late WishlistItemsCacheRepository wishlistRepo;
   late SyncQueueRepository syncQueue;
   late WishlistMutations wishlistMutations;
@@ -25,7 +25,7 @@ void main() {
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
-    catalogCache = CatalogCacheRepository(db);
+    catalogCache = LibraryCatalogRepository(db);
     wishlistRepo = WishlistItemsCacheRepository(db);
     syncQueue = SyncQueueRepository(db);
     final runner = CollectionMutationRunner(

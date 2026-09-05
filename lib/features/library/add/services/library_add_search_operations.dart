@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -53,7 +53,7 @@ LibraryAddProviderSearchDebounceDecision
 Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   required ApiClient api,
   required LibraryKindRuntime type,
-  required CatalogCacheRepository catalog,
+  required LibraryCatalogRepository catalog,
   required LibraryMetadataSearchInput input,
   required Duration timeout,
   required LibraryAddSearchRanking ranking,
@@ -77,7 +77,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
 Future<List<CatalogItem>> fetchLibraryAddSuggestions({
   required ApiClient api,
   required LibraryKindRuntime type,
-  required CatalogCacheRepository catalog,
+  required LibraryCatalogRepository catalog,
   required LibraryMetadataSearchInput input,
   required LibraryAddSearchRanking ranking,
   required LibraryAddSearchContext searchContext,
@@ -99,7 +99,7 @@ Future<List<CatalogItem>> fetchLibraryAddSuggestions({
 Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
   required ApiClient api,
   required LibraryKindRuntime type,
-  required CatalogCacheRepository catalog,
+  required LibraryCatalogRepository catalog,
   required String barcode,
   required Duration timeout,
   required bool providerSearchAvailable,

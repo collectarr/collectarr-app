@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:drift/native.dart';
@@ -16,14 +16,14 @@ void main() {
     final items = await searchAndCacheLibraryMetadata(
       api: api,
       type: comicKindModule,
-      catalog: CatalogCacheRepository(db),
+      catalog: LibraryCatalogRepository(db),
       input: const LibraryMetadataSearchInput(
         query: 'Batman',
         issueNumber: '1',
         limit: 25,
       ),
     );
-    final rows = await db.select(db.catalogCache).get();
+    final rows = await LibraryCatalogRepository(db).findAll();
 
     expect(api.lastSearchQuery?.kind, 'comic');
     expect(api.lastSearchQuery?.query, 'Batman');
@@ -42,11 +42,11 @@ void main() {
     final results = await lookupAndCacheLibraryBarcodes(
       api: api,
       type: comicKindModule,
-      catalog: CatalogCacheRepository(db),
+      catalog: LibraryCatalogRepository(db),
       barcodes: const ['good-code', 'missing-code'],
       onResult: seen.add,
     );
-    final rows = await db.select(db.catalogCache).get();
+    final rows = await LibraryCatalogRepository(db).findAll();
 
     expect(results.length, 2);
     expect(results.first.found, isTrue);

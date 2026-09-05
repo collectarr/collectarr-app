@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -999,7 +999,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
               'kind': dto.kind,
             }),
           );
-      await CatalogCacheRepository(ref.read(localDatabaseProvider)).upsertAll([
+      await LibraryCatalogRepository(ref.read(localDatabaseProvider))
+          .upsertAll([
         item,
       ]);
     } catch (error, stackTrace) {

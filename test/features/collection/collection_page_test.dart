@@ -1,7 +1,10 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -24,19 +27,14 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-1',
-              'kind': 'comic',
-              'title': 'Superman, Vol. 4',
-              'item_number': '8A',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    await LibraryCatalogRepository(db).upsertAll([
+      typedCatalogItemFromMap({
+        'id': 'comic-1',
+        'kind': 'comic',
+        'title': 'Superman, Vol. 4',
+        'item_number': '8A',
+      }),
+    ]);
     await db.into(db.locationsCache).insert(
           LocationsCacheCompanion.insert(
             id: 'loc-box-6',
@@ -125,19 +123,14 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-1',
-              'kind': 'comic',
-              'title': 'Superman, Vol. 4',
-              'item_number': '8A',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    await LibraryCatalogRepository(db).upsertAll([
+      typedCatalogItemFromMap({
+        'id': 'comic-1',
+        'kind': 'comic',
+        'title': 'Superman, Vol. 4',
+        'item_number': '8A',
+      }),
+    ]);
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',

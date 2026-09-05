@@ -26,6 +26,7 @@ final class ComicCoreMapper {
           : CatalogPublishingDetailsDto(subtitle: dto.subtitle),
       creatorCredits: _mapContributors(dto.contributors),
       releases: _mapIssues(dto.issues),
+      rawPayload: dto.toJson(),
     );
   }
 

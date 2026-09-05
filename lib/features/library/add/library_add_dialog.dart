@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
@@ -160,7 +160,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       wishlistMutations: ref.read(wishlistMutationsProvider),
       trackingMutations: ref.read(trackingMutationsProvider),
       api: ref.read(apiClientProvider),
-      catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
+      catalog: LibraryCatalogRepository(ref.read(localDatabaseProvider)),
       providerRegistry: ref.read(providerRegistryProvider).value ??
           buildDefaultProviderRegistry(),
       coverScanService: widget.coverScanService,

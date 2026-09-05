@@ -69,11 +69,10 @@ class LibraryPageEditCoordinator {
     final db = _s.ref.read(localDatabaseProvider);
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
-    final cached = (await CatalogCacheRepository(db)
+    final cached = (await LibraryCatalogRepository(db)
         .findByIds({catalogItem.id}))[catalogItem.id];
-    final freshMetadataItem = cached != null
-        ? typedCatalogItemFromCatalogItem(cached)
-        : catalogItem;
+    final freshMetadataItem =
+        cached != null ? typedCatalogItemFromCatalogItem(cached) : catalogItem;
     final ownedItems = _s.ref.read(collectionProvider).maybeWhen(
           data: (value) => value,
           orElse: () => const <OwnedItem>[],

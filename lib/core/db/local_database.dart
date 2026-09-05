@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/local/book_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/local/boardgame_local_tables.dart';
@@ -11,18 +12,9 @@ import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_loc
 import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_tables.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 
 part 'local_database.g.dart';
-
-class CatalogCache extends Table {
-  TextColumn get id => text()();
-  TextColumn get kind => text()();
-  TextColumn get payloadJson => text()();
-  DateTimeColumn get cachedAt => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
 
 class OwnedItemsCache extends Table {
   TextColumn get id => text()();
@@ -378,7 +370,6 @@ class ProviderItemLinksCache extends Table {
 }
 
 @DriftDatabase(tables: [
-  CatalogCache,
   OwnedItemsCache,
   WishlistItemsCache,
   TrackingEntriesCache,
@@ -444,7 +435,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration {
@@ -540,6 +531,9 @@ class LocalDatabase extends _$LocalDatabase {
             await m.addColumn(trackingEntriesCache, trackingEntriesCache.kind);
           }
         }
+        if (from < 23) {
+          await _migrateCatalogCache();
+        }
       },
       beforeOpen: (details) async {
         // A newer on-disk version cannot be migrated safely by this client.
@@ -565,14 +559,16 @@ class LocalDatabase extends _$LocalDatabase {
 
     final legacyRows = await customSelect('SELECT * FROM $tableName').get();
     final catalogKinds = <String, String>{};
-    final catalogRows = await customSelect(
-      'SELECT id, kind FROM ${catalogCache.actualTableName}',
-    ).get();
-    for (final row in catalogRows) {
-      final id = row.data['id']?.toString();
-      final kind = row.data['kind']?.toString();
-      if (id != null && kind != null && kind.isNotEmpty) {
-        catalogKinds[id] = kind;
+    if (await _hasTable('catalog_cache')) {
+      final catalogRows = await customSelect(
+        'SELECT id, kind FROM catalog_cache',
+      ).get();
+      for (final row in catalogRows) {
+        final id = row.data['id']?.toString();
+        final kind = row.data['kind']?.toString();
+        if (id != null && kind != null && kind.isNotEmpty) {
+          catalogKinds[id] = kind;
+        }
       }
     }
     final migratedRows = <String, ({String kind, String detailsJson})>{};
@@ -602,6 +598,40 @@ class LocalDatabase extends _$LocalDatabase {
         [entry.value.kind, entry.value.detailsJson, entry.key],
       );
     }
+  }
+
+  Future<void> _migrateCatalogCache() async {
+    if (!await _hasTable('catalog_cache')) {
+      return;
+    }
+    final rows = await customSelect(
+      'SELECT id, kind, payload_json FROM catalog_cache',
+    ).get();
+    final items = <CatalogItem>[];
+    for (final row in rows) {
+      final decoded = jsonDecode(row.data['payload_json']?.toString() ?? '');
+      if (decoded is! Map) continue;
+      final payload = Map<String, dynamic>.from(decoded)
+        ..['id'] ??= row.data['id']?.toString() ?? ''
+        ..['kind'] ??= row.data['kind']?.toString() ?? 'unknown';
+      try {
+        items.add(CatalogItem.fromJson(payload));
+      } on Object {
+        // Ignore malformed legacy snapshots; the generic cache is retired.
+      }
+    }
+    if (items.isNotEmpty) {
+      await LibraryCatalogRepository(this).upsertAll(items);
+    }
+    await customStatement('DROP TABLE IF EXISTS catalog_cache');
+  }
+
+  Future<bool> _hasTable(String tableName) async {
+    final rows = await customSelect(
+      'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
+      variables: [Variable.withString('table'), Variable.withString(tableName)],
+    ).get();
+    return rows.isNotEmpty;
   }
 
   String _legacyOwnedKind(
@@ -763,6 +793,7 @@ class LocalDatabase extends _$LocalDatabase {
         'DROP TABLE IF EXISTS ${table.actualTableName}',
       );
     }
+    await customStatement('DROP TABLE IF EXISTS catalog_cache');
     await m.createAll();
   }
 }

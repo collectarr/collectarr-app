@@ -9,7 +9,7 @@ import 'package:collectarr_app/core/models/tracking_target.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
@@ -40,7 +40,7 @@ final class TrackingMutations {
   final TrackingEntriesCacheRepository trackingEntries;
   final TrackingUnitsCacheRepository trackingUnits;
   final WatchSessionsCacheRepository watchSessions;
-  final CatalogCacheRepository catalogCache;
+  final LibraryCatalogRepository catalogCache;
   final OwnedItemsCacheRepository? ownedItems;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;

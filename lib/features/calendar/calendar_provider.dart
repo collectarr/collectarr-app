@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -12,7 +12,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   final ownedItems = await ref.watch(collectionProvider.future);
   final watchSessions = await ref.watch(watchSessionsProvider.future);
   final loans = await LoanRepository(db).getAllLoans();
-  final catalogRepo = CatalogCacheRepository(db);
+  final catalogRepo = LibraryCatalogRepository(db);
 
   // Collect all item IDs we need titles for.
   final itemIds = <String>{};

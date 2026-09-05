@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,7 +13,7 @@ void main() {
 
     await seedLocalDatabase(db);
 
-    final catalogRows = await db.select(db.catalogCache).get();
+    final catalogRows = await LibraryCatalogRepository(db).findAll();
     expect(_countKind(catalogRows, 'tv'), 10);
     expect(_countKind(catalogRows, 'anime'), 10);
     expect(_countKind(catalogRows, 'manga'), 10);
@@ -70,7 +72,7 @@ void main() {
     await seedLocalDatabase(db);
 
     final catalogCountAfterSecondSeed =
-        (await db.select(db.catalogCache).get()).length;
+        (await LibraryCatalogRepository(db).findAll()).length;
     final imageCountAfterSecondSeed =
         (await db.select(db.itemImagesCache).get()).length;
 
@@ -79,7 +81,7 @@ void main() {
   });
 }
 
-int _countKind(List<CatalogCacheData> rows, String kind) {
+int _countKind(List<CatalogItem> rows, String kind) {
   return rows.where((row) => row.kind == kind).length;
 }
 

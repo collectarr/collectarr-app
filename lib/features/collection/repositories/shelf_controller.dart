@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -26,7 +26,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     for (final item in wishlist) item.catalogRef.id,
     for (final item in trackingEntries) item.catalogRef.id,
   };
-  final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
+  final catalogItems = await LibraryCatalogRepository(db).findByIds(ids);
   final libraryCatalogItems = {
     for (final entry in catalogItems.entries)
       entry.key: typedCatalogItemFromCatalogItem(entry.value),

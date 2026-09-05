@@ -4,26 +4,21 @@ import 'package:collectarr_app/features/collection/repositories/pick_list_reposi
 import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
-final class CatalogCacheDerivedDataService {
-  const CatalogCacheDerivedDataService(this._db);
+final class LibraryCatalogDerivedDataService {
+  const LibraryCatalogDerivedDataService(this._db);
 
   final LocalDatabase _db;
 
   Future<void> capture(Iterable<Object> items) async {
     final list = items.toList(growable: false);
-    if (list.isEmpty) {
-      return;
-    }
+    if (list.isEmpty) return;
+
     final byKind = <String, List<dynamic>>{};
     for (final item in list) {
-      final kindMetadata = _kindMetadataFor(item);
-      final kind = (item as CatalogItem).kind;
+      final catalogItem = item as CatalogItem;
       byKind
-          .putIfAbsent(
-            kind,
-            () => <dynamic>[],
-          )
-          .add(kindMetadata);
+          .putIfAbsent(catalogItem.kind, () => <dynamic>[])
+          .add(catalogItem.kindMetadata);
     }
 
     final pickLists = PickListRepository(_db);
@@ -36,9 +31,7 @@ final class CatalogCacheDerivedDataService {
         final definitions = runtime.edit.vocabularies?.definitions ?? const [];
         for (final definition in definitions) {
           final valuesFrom = definition.valuesFrom;
-          if (valuesFrom == null) {
-            continue;
-          }
+          if (valuesFrom == null) continue;
           final values = <String?>[];
           for (final metadata in entry.value) {
             values.addAll(valuesFrom(metadata));
@@ -52,9 +45,5 @@ final class CatalogCacheDerivedDataService {
       }
       await serialAuthority.captureCatalogItemsWithoutTransaction(list);
     });
-  }
-
-  static dynamic _kindMetadataFor(Object item) {
-    return (item as CatalogItem).kindMetadata;
   }
 }

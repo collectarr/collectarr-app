@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_m
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
@@ -52,7 +52,7 @@ void main() {
       database: db,
       events: CollectionEventBus(),
     );
-    final catalogCache = CatalogCacheRepository(db);
+    final catalogCache = LibraryCatalogRepository(db);
 
     ownedMutations = OwnedItemMutations(
       ownedItems: OwnedItemsCacheRepository(db),
@@ -626,7 +626,7 @@ void main() {
 
       registry.register(comicProvider.toConnector());
 
-      final catalog = CatalogCacheRepository(db);
+      final catalog = LibraryCatalogRepository(db);
 
       final sessionController = LibraryAddSessionController(
         kind: CatalogMediaKind.comic,

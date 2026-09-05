@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -23,33 +23,27 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-1',
-              'kind': 'comic',
-              'title': 'Superman, Vol. 4',
-              'item_number': '8A',
-              'thumbnail_image_url': 'https://cdn.example/superman-thumb.jpg',
-              'edition_title': 'Direct market edition',
-              'physical_format': 'single-issue',
-              'physical_format_label': 'Single Issue',
-              'publisher': 'DC',
-              'release_date': '2016-10-05T00:00:00.000Z',
-              'release_year': 2016,
-              'barcode': '76194134192700811',
-              'variant': 'Regular Cover',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    final catalogRepo = LibraryCatalogRepository(db);
+    await catalogRepo.upsertAll([
+      typedCatalogItemFromMap({
+        'id': 'comic-1',
+        'kind': 'comic',
+        'title': 'Superman, Vol. 4',
+        'item_number': '8A',
+        'thumbnail_image_url': 'https://cdn.example/superman-thumb.jpg',
+        'edition_title': 'Direct market edition',
+        'physical_format': 'single-issue',
+        'physical_format_label': 'Single Issue',
+        'publisher': 'DC',
+        'release_date': '2016-10-05T00:00:00.000Z',
+        'release_year': 2016,
+        'barcode': '76194134192700811',
+        'variant': 'Regular Cover',
+      }),
+    ]);
 
-    final catalog = await db.select(db.catalogCache).getSingle();
-
-    final catalogPayload =
-        jsonDecode(catalog.payloadJson) as Map<String, dynamic>;
+    final catalog = await catalogRepo.findById('comic-1');
+    final catalogPayload = catalog!.payload;
     expect(catalogPayload['publisher'], 'DC');
     expect(catalogPayload['thumbnail_image_url'],
         'https://cdn.example/superman-thumb.jpg');
@@ -65,24 +59,22 @@ void main() {
   test('reports the current schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 22);
+    expect(db.schemaVersion, 23);
   });
 
-  test('migrates a v7 cache to v22 without losing existing cache rows',
+  test('migrates a v7 cache to v23 without losing existing cache rows',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_migrate');
     addTearDown(() => dir.delete(recursive: true));
     final file = File('${dir.path}/cache.sqlite');
 
     final old = LocalDatabase(NativeDatabase(file));
-    await old.into(old.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({'id': 'comic-1', 'title': 'Preserved'}),
-            cachedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    await _insertLegacyCatalogItem(
+      old,
+      id: 'comic-1',
+      kind: 'comic',
+      payload: {'id': 'comic-1', 'title': 'Preserved'},
+    );
     await old.customStatement(
       'DROP TABLE ${old.providerAccountsCache.actualTableName}',
     );
@@ -134,15 +126,14 @@ void main() {
     final db = LocalDatabase(NativeDatabase(file));
     addTearDown(db.close);
 
-    final catalog = await db.select(db.catalogCache).getSingle();
-    expect(catalog.id, 'comic-1');
-    final payload = jsonDecode(catalog.payloadJson) as Map<String, dynamic>;
-    expect(payload['title'], 'Preserved');
+    final catalog = await LibraryCatalogRepository(db).findById('comic-1');
+    expect(catalog?.id, 'comic-1');
+    expect(catalog?.title, 'Preserved');
     expect(await db.select(db.providerAccountsCache).get(), isEmpty);
     expect(await db.select(db.providerItemLinksCache).get(), isEmpty);
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
   test('migrates a v8 provider account table by adding username', () async {
@@ -248,7 +239,7 @@ void main() {
     final migrated = await db.select(db.providerAccountsCache).getSingle();
     expect(migrated.username, 'new-user');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
   test('migrates v9 owned semantic columns into typed details JSON', () async {
@@ -257,28 +248,24 @@ void main() {
     final file = File('${dir.path}/cache.sqlite');
 
     final old = LocalDatabase(NativeDatabase(file));
-    await old.batch((batch) {
-      batch.insertAll(old.catalogCache, [
-        CatalogCacheCompanion.insert(
-          id: 'comic-legacy',
-          kind: 'comic',
-          payloadJson: jsonEncode({'id': 'comic-legacy', 'kind': 'comic'}),
-          cachedAt: DateTime.utc(2026, 5, 11),
-        ),
-        CatalogCacheCompanion.insert(
-          id: 'tv-legacy',
-          kind: 'tv',
-          payloadJson: jsonEncode({'id': 'tv-legacy', 'kind': 'tv'}),
-          cachedAt: DateTime.utc(2026, 5, 11),
-        ),
-        CatalogCacheCompanion.insert(
-          id: 'game-legacy',
-          kind: 'game',
-          payloadJson: jsonEncode({'id': 'game-legacy', 'kind': 'game'}),
-          cachedAt: DateTime.utc(2026, 5, 11),
-        ),
-      ]);
-    });
+    await _insertLegacyCatalogItem(
+      old,
+      id: 'comic-legacy',
+      kind: 'comic',
+      payload: {'id': 'comic-legacy', 'kind': 'comic'},
+    );
+    await _insertLegacyCatalogItem(
+      old,
+      id: 'tv-legacy',
+      kind: 'tv',
+      payload: {'id': 'tv-legacy', 'kind': 'tv'},
+    );
+    await _insertLegacyCatalogItem(
+      old,
+      id: 'game-legacy',
+      kind: 'game',
+      payload: {'id': 'game-legacy', 'kind': 'game'},
+    );
     await _replaceOwnedItemsWithV9Schema(old);
     final tableName = old.ownedItemsCache.actualTableName;
     final updatedAt = DateTime.utc(2026, 5, 11).millisecondsSinceEpoch;
@@ -478,7 +465,7 @@ void main() {
     expect(gameMediaRows, isEmpty);
     expect(gameReleaseRows, isEmpty);
     expect(gameOwnedDetailsRows, isEmpty);
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
   test('creates Book, Game, and BoardGame tables when migrating from v12',
@@ -535,7 +522,7 @@ void main() {
     expect(await db.select(db.boardGameOwnedDetailsRows).get(), isEmpty);
     expect(await db.select(db.boardGamePlaySessionsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
   test('creates BoardGame play-session table when migrating from v15',
@@ -556,7 +543,7 @@ void main() {
 
     expect(await db.select(db.boardGamePlaySessionsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
   test('creates BoardGame tables when migrating from v14', () async {
@@ -584,7 +571,7 @@ void main() {
     expect(await db.select(db.boardGameEditionRows).get(), isEmpty);
     expect(await db.select(db.boardGameOwnedDetailsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
   test('owned item repository round-trips opaque kind details', () async {
@@ -666,7 +653,7 @@ void main() {
     expect(await db.select(db.movieReleaseRows).get(), isEmpty);
     expect(await db.select(db.movieOwnedDetailsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
   test('creates Anime tables when migrating from v19', () async {
@@ -702,7 +689,7 @@ void main() {
     expect(await db.select(db.animeOwnedDetailsRows).get(), isEmpty);
     expect(await db.select(db.animeTrackingRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
   test('creates Music tables when migrating from v20', () async {
@@ -712,14 +699,12 @@ void main() {
     final file = File('${dir.path}/cache.sqlite');
 
     final old = LocalDatabase(NativeDatabase(file));
-    await old.into(old.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'music-1',
-            kind: 'music',
-            payloadJson: jsonEncode({'id': 'music-1', 'title': 'Preserved'}),
-            cachedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    await _insertLegacyCatalogItem(
+      old,
+      id: 'music-1',
+      kind: 'music',
+      payload: {'id': 'music-1', 'title': 'Preserved'},
+    );
     await old.customStatement(
       'DROP TABLE ${old.musicReleaseRows.actualTableName}',
     );
@@ -738,16 +723,17 @@ void main() {
     final db = LocalDatabase(NativeDatabase(file));
     addTearDown(db.close);
 
-    expect(await db.select(db.musicReleaseRows).get(), isEmpty);
+    expect((await db.select(db.musicReleaseRows).get()).single.title, 'Preserved');
     expect(await db.select(db.musicMediaRows).get(), isEmpty);
     expect(await db.select(db.musicTrackRows).get(), isEmpty);
     expect(await db.select(db.musicOwnedDetailsRows).get(), isEmpty);
-    expect((await db.select(db.catalogCache).getSingle()).id, 'music-1');
+    expect(
+        await LibraryCatalogRepository(db).findById('music-1') != null, isTrue);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v22 schema',
+  test('destructively rebuilds a higher-versioned cache to the v23 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -756,30 +742,28 @@ void main() {
     // Simulate a cache created by an older build: a populated table plus a
     // higher on-disk schema version that Drift will not run onUpgrade for.
     final old = LocalDatabase(NativeDatabase(file));
-    await old.into(old.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-1',
-              'kind': 'comic',
-              'title': 'Stale Cached Title',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
-    await old.customStatement('PRAGMA user_version = 23');
+    await _insertLegacyCatalogItem(
+      old,
+      id: 'comic-1',
+      kind: 'comic',
+      payload: {
+        'id': 'comic-1',
+        'kind': 'comic',
+        'title': 'Stale Cached Title',
+      },
+    );
+    await old.customStatement('PRAGMA user_version = 24');
     await old.close();
 
     // Reopening with the reset schema version must wipe and recreate the cache.
     final db = LocalDatabase(NativeDatabase(file));
     addTearDown(db.close);
 
-    final rows = await db.select(db.catalogCache).get();
+    final rows = await LibraryCatalogRepository(db).findAll();
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 22);
+    expect(version.data.values.first, 23);
   });
 
   test('stores personal collection and wishlist data locally', () async {
@@ -1034,7 +1018,7 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repo = CatalogCacheRepository(db);
+    final repo = LibraryCatalogRepository(db);
 
     await repo.upsertMetadataItems([
       typedCatalogItemFromMap({
@@ -1070,7 +1054,7 @@ void main() {
   test('catalog cache repository preserves editions and variants', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repo = CatalogCacheRepository(db);
+    final repo = LibraryCatalogRepository(db);
 
     await repo.upsertMetadataItems([
       typedCatalogItemFromMap({
@@ -1235,4 +1219,25 @@ Future<void> _replaceOwnedItemsWithV9Schema(LocalDatabase db) async {
     ALTER TABLE $tableName ADD COLUMN game_value_is_locked INTEGER
   ''');
   await db.customStatement('DROP TABLE $currentTableName');
+}
+
+Future<void> _insertLegacyCatalogItem(
+  LocalDatabase db, {
+  required String id,
+  required String kind,
+  required Map<String, dynamic> payload,
+}) async {
+  await db.customStatement('''
+    CREATE TABLE IF NOT EXISTS catalog_cache (
+      id TEXT NOT NULL PRIMARY KEY,
+      kind TEXT NOT NULL,
+      payload_json TEXT NOT NULL,
+      cached_at INTEGER NOT NULL
+    )
+  ''');
+  await db.customStatement(
+    'INSERT OR REPLACE INTO catalog_cache '
+    '(id, kind, payload_json, cached_at) VALUES (?, ?, ?, ?)',
+    [id, kind, jsonEncode(payload), 0],
+  );
 }

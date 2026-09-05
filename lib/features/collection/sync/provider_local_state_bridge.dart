@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -17,7 +17,7 @@ final class ProviderLocalStateBridge {
     required this.wishlist,
   });
 
-  final CatalogCacheRepository catalogCache;
+  final LibraryCatalogRepository catalogCache;
   final TrackingEntriesCacheRepository trackingEntries;
   final WishlistItemsCacheRepository wishlist;
 

@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
@@ -53,7 +53,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     final db = ref.read(localDatabaseProvider);
     final loansRepo = LoanRepository(db);
     final ownedRepo = OwnedItemsCacheRepository(db);
-    final catalogRepo = CatalogCacheRepository(db);
+    final catalogRepo = LibraryCatalogRepository(db);
     final locationRepo = LocationRepository(db);
 
     final loans = await loansRepo.getAllLoans();
@@ -146,7 +146,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
 
   Future<OwnedItem?> _resolveOwnedItemFromBarcode(String barcode) async {
     final catalog =
-        await CatalogCacheRepository(ref.read(localDatabaseProvider))
+        await LibraryCatalogRepository(ref.read(localDatabaseProvider))
             .findByBarcode(barcode);
     if (catalog == null) {
       return null;

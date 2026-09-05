@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
@@ -102,7 +102,7 @@ class LibraryAddSessionController
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
   final ApiClient? api;
-  final CatalogCacheRepository? catalog;
+  final LibraryCatalogRepository? catalog;
   final ProviderRegistry? providerRegistry;
   final LibraryCoverScanService coverScanService;
   final LibraryAddWorkflowService workflowService;
@@ -937,8 +937,7 @@ class LibraryAddSessionController
           : selected.thumbnailImageUrl ?? selected.coverImageUrl;
       final hydratedPayload = hydratedItem.payload;
       final hydratedEditionsPayload = hydratedPayload['editions'] as List?;
-      final selectedEditionsPayload =
-          selected.payload['editions'] as List?;
+      final selectedEditionsPayload = selected.payload['editions'] as List?;
       final mergedPayload = {
         ...hydratedPayload,
         if (mergedCoverImageUrl != null) 'cover_image_url': mergedCoverImageUrl,

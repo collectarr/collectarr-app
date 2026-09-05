@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -493,11 +494,11 @@ class PickListRepository {
     String fieldName,
     String normalized,
   ) async {
-    final rows = await _db.select(_db.catalogCache).get();
+    final items = await LibraryCatalogRepository(_db).findAll();
     var count = 0;
-    for (final row in rows) {
-      final payload = jsonDecode(row.payloadJson);
-      if (payload is Map<String, dynamic> && payload[fieldName] is String) {
+    for (final item in items) {
+      final payload = item.payload;
+      if (payload[fieldName] is String) {
         if (normalizePickListValue(payload[fieldName] as String) ==
             normalized) {
           count++;

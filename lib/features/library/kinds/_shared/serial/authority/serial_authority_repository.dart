@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:drift/drift.dart';
@@ -301,29 +300,23 @@ class SerialAuthorityRepository {
     if (!applyToCatalog) {
       return;
     }
-    final catalogRows = await (_db.select(_db.catalogCache)
-          ..where((table) => table.kind.equals(row.mediaKind)))
-        .get();
-    for (final catalogRow in catalogRows) {
-      final catalogItem = _catalogFromCacheRow(catalogRow);
+    final catalogItems =
+        await LibraryCatalogRepository(_db).findAll(kind: row.mediaKind);
+    for (final catalogItem in catalogItems) {
       if (!_catalogMatchesSeries(catalogItem, row)) {
         continue;
       }
-      await (_db.update(_db.catalogCache)
-            ..where((table) => table.id.equals(catalogRow.id)))
-          .write(
-        CatalogCacheCompanion(
-          payloadJson: Value(
-            jsonEncode(
-              _catalogPayloadWithSeries(
-                catalogItem,
-                seriesId: row.coreSeriesId,
-                seriesTitle: title.trim(),
-              ),
+      await LibraryCatalogRepository(_db).upsertAll(
+        [
+          typedCatalogItemFromMap(
+            _catalogPayloadWithSeries(
+              catalogItem,
+              seriesId: row.coreSeriesId,
+              seriesTitle: title.trim(),
             ),
           ),
-          cachedAt: Value(DateTime.now().toUtc()),
-        ),
+        ],
+        captureDerivedData: false,
       );
     }
   }
@@ -355,32 +348,26 @@ class SerialAuthorityRepository {
     if (sources.isEmpty) {
       return;
     }
-    final catalogRows = await (_db.select(_db.catalogCache)
-          ..where((table) => table.kind.equals(target.mediaKind)))
-        .get();
-    for (final catalogRow in catalogRows) {
-      final catalogItem = _catalogFromCacheRow(catalogRow);
+    final catalogItems =
+        await LibraryCatalogRepository(_db).findAll(kind: target.mediaKind);
+    for (final catalogItem in catalogItems) {
       final matchesSource = sources.any(
         (source) => _catalogMatchesSeries(catalogItem, source),
       );
       if (!matchesSource) {
         continue;
       }
-      await (_db.update(_db.catalogCache)
-            ..where((table) => table.id.equals(catalogRow.id)))
-          .write(
-        CatalogCacheCompanion(
-          payloadJson: Value(
-            jsonEncode(
-              _catalogPayloadWithSeries(
-                catalogItem,
-                seriesId: target.coreSeriesId,
-                seriesTitle: target.title,
-              ),
+      await LibraryCatalogRepository(_db).upsertAll(
+        [
+          typedCatalogItemFromMap(
+            _catalogPayloadWithSeries(
+              catalogItem,
+              seriesId: target.coreSeriesId,
+              seriesTitle: target.title,
             ),
           ),
-          cachedAt: Value(DateTime.now().toUtc()),
-        ),
+        ],
+        captureDerivedData: false,
       );
     }
     await (_db.delete(_db.serialAuthorityCache)
@@ -389,12 +376,10 @@ class SerialAuthorityRepository {
   }
 
   Future<Map<String, int>> _countsBySeriesKey(String mediaKind) async {
-    final rows = await (_db.select(_db.catalogCache)
-          ..where((table) => table.kind.equals(mediaKind)))
-        .get();
     final counts = <String, int>{};
-    for (final row in rows) {
-      final catalogItem = _catalogFromCacheRow(row);
+    final catalogItems =
+        await LibraryCatalogRepository(_db).findAll(kind: mediaKind);
+    for (final catalogItem in catalogItems) {
       final series = _seriesPayload(catalogItem);
       final normalizedTitle = _normalize(
         (series['series_title'] ?? series['seriesTitle'])?.toString(),
@@ -468,17 +453,6 @@ class SerialAuthorityRepository {
           (series['series_title'] ?? series['seriesTitle'])?.toString(),
         ) ==
         registryRow.normalizedTitle;
-  }
-
-  CatalogItem _catalogFromCacheRow(CatalogCacheData row) {
-    final decoded = jsonDecode(row.payloadJson);
-    if (decoded is! Map) {
-      throw StateError('Invalid catalog cache payload for ${row.id}.');
-    }
-    final payload = Map<String, dynamic>.from(decoded);
-    payload['id'] ??= row.id;
-    payload['kind'] ??= row.kind;
-    return typedCatalogItemFromMap(payload);
   }
 
   static Map<String, dynamic> _seriesPayload(CatalogItem item) {

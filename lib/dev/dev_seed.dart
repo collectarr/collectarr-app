@@ -8,8 +8,6 @@
 /// Safe to call multiple times – uses deterministic IDs (idempotent via upsert).
 library;
 
-import 'package:drift/drift.dart';
-
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -26,7 +24,7 @@ import 'package:collectarr_app/dev/seeds/music_seeds.dart';
 import 'package:collectarr_app/dev/seeds/pick_list_seeds.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/tv_seeds.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
@@ -46,12 +44,9 @@ export 'package:collectarr_app/dev/seeds/pick_list_seeds.dart';
 export 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 export 'package:collectarr_app/dev/seeds/tv_seeds.dart';
 
-/// Returns `true` if the local catalog cache is empty.
+/// Returns `true` if all typed local catalog graphs are empty.
 Future<bool> _isDatabaseEmpty(LocalDatabase db) async {
-  final countExpr = countAll();
-  final count = await (db.selectOnly(db.catalogCache)..addColumns([countExpr]))
-      .getSingle();
-  return (count.read(countExpr) ?? 0) == 0;
+  return (await LibraryCatalogRepository(db).findAll()).isEmpty;
 }
 
 /// Seeds the local database with rich dev data if it is empty.
@@ -60,7 +55,7 @@ Future<bool> _isDatabaseEmpty(LocalDatabase db) async {
 Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   if (!force && !await _isDatabaseEmpty(db)) return;
 
-  final catalogRepo = CatalogCacheRepository(db);
+  final catalogRepo = LibraryCatalogRepository(db);
   final ownedRepo = OwnedItemsCacheRepository(db);
   final trackingRepo = TrackingEntriesCacheRepository(db);
   final imagesRepo = ItemImagesCacheRepository(db);

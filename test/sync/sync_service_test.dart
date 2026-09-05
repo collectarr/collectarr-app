@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
@@ -23,7 +23,7 @@ void main() {
       client: client,
       db: db,
       queue: SyncQueueRepository(db),
-      catalog: CatalogCacheRepository(db),
+      catalog: LibraryCatalogRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
       trackingEntries: TrackingEntriesCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),
@@ -32,7 +32,6 @@ void main() {
     final row = await db.select(db.ownedItemsCache).getSingle();
     final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
-    final catalogRow = await db.select(db.catalogCache).getSingle();
     final locations = await LocationRepository(db).getAll();
     expect(client.lastPullSince, since);
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
@@ -41,8 +40,7 @@ void main() {
     expect(trackingRow.status, 'Completed');
     expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
-    final catalogItem =
-        await CatalogCacheRepository(db).findById(catalogRow.id);
+    final catalogItem = await LibraryCatalogRepository(db).findById('comic-1');
     expect(catalogItem?.title, 'Absolute Batman');
     expect(catalogItem?.coverImageUrl, 'https://cdn.example/absolute.jpg');
     expect(catalogItem?.thumbnailImageUrl,
@@ -71,7 +69,7 @@ void main() {
       client: _RejectedSyncClient(),
       db: db,
       queue: queue,
-      catalog: CatalogCacheRepository(db),
+      catalog: LibraryCatalogRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
       trackingEntries: TrackingEntriesCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),
@@ -119,7 +117,7 @@ void main() {
       client: client,
       db: db,
       queue: queue,
-      catalog: CatalogCacheRepository(db),
+      catalog: LibraryCatalogRepository(db),
       ownedItems: OwnedItemsCacheRepository(db),
       trackingEntries: TrackingEntriesCacheRepository(db),
       wishlistItems: WishlistItemsCacheRepository(db),

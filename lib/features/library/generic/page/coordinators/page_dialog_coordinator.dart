@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -261,7 +261,7 @@ class LibraryPageDialogCoordinator {
     final queuedOwnedItems = ownedItems
         .where((item) => !item.isDeleted && queueIds.contains(item.id))
         .toList(growable: false);
-    final legacyCatalogItemsById = await CatalogCacheRepository(db).findByIds(
+    final legacyCatalogItemsById = await LibraryCatalogRepository(db).findByIds(
       queuedOwnedItems.map((item) => item.itemId),
     );
     final catalogItemsById = {

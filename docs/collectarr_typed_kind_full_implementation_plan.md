@@ -2022,6 +2022,16 @@ DELETE generic CatalogCacheRepository
 
 No canonical `id + kind + payloadJson` media store.
 
+### Status (2026-09-05)
+
+Complete. The generic `CatalogCache` table and `CatalogCacheRepository` are
+deleted from the active schema and runtime. Catalog reads and writes now go
+through `LibraryCatalogRepository`, which delegates to the nine typed kind
+repositories. Existing installations migrate legacy `catalog_cache` rows into
+typed tables before dropping the table; owned-item and tracking persistence no
+longer joins against it.
+Continue with PR75.
+
 ---
 
 # PHASE 17 — Tracking De-Generalization

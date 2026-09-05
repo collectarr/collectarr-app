@@ -13,7 +13,7 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
@@ -2014,7 +2014,7 @@ void main() {
     await tester.tap(find.byType(FilledButton).last);
     await pumpUntilSettled(tester);
 
-    final rows = await db.select(db.catalogCache).get();
+    final rows = await LibraryCatalogRepository(db).findAll();
     expect(rows, isNotEmpty);
     expect(rows.single.id, 'music-core-1');
   });
@@ -2063,9 +2063,9 @@ void main() {
     await tester.tap(find.byType(FilledButton).last);
     await pumpUntilSettled(tester);
 
-    final rows = await db.select(db.catalogCache).get();
+    final rows = await LibraryCatalogRepository(db).findAll();
     expect(rows, isNotEmpty);
-    final cached = await CatalogCacheRepository(db).findById(rows.single.id);
+    final cached = await LibraryCatalogRepository(db).findById(rows.single.id);
     final music = MusicCatalogDetailsDto.fromJson(
       Map<String, dynamic>.from(cached!.payload['music'] as Map),
     );

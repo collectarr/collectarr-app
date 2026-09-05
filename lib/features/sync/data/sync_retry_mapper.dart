@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -66,7 +66,8 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'library_item_snapshot':
-        final item = await CatalogCacheRepository(db).findById(change.entityId);
+        final item =
+            await LibraryCatalogRepository(db).findById(change.entityId);
         if (item == null) {
           return null;
         }

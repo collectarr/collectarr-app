@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
@@ -53,7 +53,7 @@ void main() {
       ),
     );
 
-    final catalogRows = await fixture.db.select(fixture.db.catalogCache).get();
+    final catalogRows = await fixture.catalog.findAll();
     final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
     final trackingRows =
         await fixture.db.select(fixture.db.trackingEntriesCache).get();
@@ -298,7 +298,7 @@ class _WorkflowFixture {
   late final LocalDatabase db;
   late final ProviderContainer container;
 
-  CatalogCacheRepository get catalog => CatalogCacheRepository(db);
+  LibraryCatalogRepository get catalog => LibraryCatalogRepository(db);
 
   OwnedItemMutations get ownedMutations => container.read(
         ownedItemMutationsProvider,

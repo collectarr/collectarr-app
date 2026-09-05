@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/detail/activity_event_aggregator.dart';
@@ -74,7 +74,7 @@ final globalActivityProvider =
     return const <GlobalActivityEntry>[];
   }
 
-  final catalog = await CatalogCacheRepository(db).findByIds(itemIds);
+  final catalog = await LibraryCatalogRepository(db).findByIds(itemIds);
 
   final entries = <GlobalActivityEntry>[];
   for (final itemId in itemIds) {

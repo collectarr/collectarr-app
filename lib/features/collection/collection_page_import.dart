@@ -159,7 +159,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     if (item == null || !mounted || _preview == null) {
       return;
     }
-    await CatalogCacheRepository(ref.read(localDatabaseProvider))
+    await LibraryCatalogRepository(ref.read(localDatabaseProvider))
         .upsertMetadataItems([item]);
     final resolvedRow = row.copyWith(itemId: item.id);
     setState(() {
@@ -205,7 +205,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         resolvedRows.add(row.copyWith(itemId: match.id));
         resolvedItems.add(match);
       }
-      await CatalogCacheRepository(ref.read(localDatabaseProvider))
+      await LibraryCatalogRepository(ref.read(localDatabaseProvider))
           .upsertMetadataItems(resolvedItems);
       if (!mounted) {
         return;

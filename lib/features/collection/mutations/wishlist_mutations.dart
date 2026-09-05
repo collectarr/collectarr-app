@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
@@ -29,7 +29,7 @@ final class WishlistMutations {
   });
 
   final WishlistItemsCacheRepository wishlist;
-  final CatalogCacheRepository catalogCache;
+  final LibraryCatalogRepository catalogCache;
   final TrackingEntriesCacheRepository trackingEntries;
   final TrackingUnitsCacheRepository trackingUnits;
   final SyncQueueRepository syncQueue;

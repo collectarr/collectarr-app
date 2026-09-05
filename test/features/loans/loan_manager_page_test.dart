@@ -1,10 +1,11 @@
-import 'dart:convert';
-
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -27,18 +28,13 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-1',
-              'kind': 'comic',
-              'title': 'Action Comics #1',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 1),
-          ),
-        );
+    await LibraryCatalogRepository(db).upsertAll([
+      typedCatalogItemFromMap({
+        'id': 'comic-1',
+        'kind': 'comic',
+        'title': 'Action Comics #1',
+      }),
+    ]);
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -87,18 +83,13 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-2',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-2',
-              'kind': 'comic',
-              'title': 'Detective Comics #27',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 1),
-          ),
-        );
+    await LibraryCatalogRepository(db).upsertAll([
+      typedCatalogItemFromMap({
+        'id': 'comic-2',
+        'kind': 'comic',
+        'title': 'Detective Comics #27',
+      }),
+    ]);
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-2',

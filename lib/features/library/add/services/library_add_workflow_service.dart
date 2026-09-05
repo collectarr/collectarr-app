@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
@@ -89,7 +89,7 @@ class LibraryAddWorkflowService {
     required void Function(bool value) setIsAdding,
     required void Function(String? message) setError,
     required void Function(LibraryAddDialogResult result) onSuccess,
-    required CatalogCacheRepository catalog,
+    required LibraryCatalogRepository catalog,
     required OwnedItemMutations ownedMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
@@ -159,7 +159,7 @@ class LibraryAddWorkflowService {
     required void Function(String? message) setError,
     required void Function(LibraryAddDialogResult result) onSuccess,
     required bool Function(Object error) isMissingBearerTokenError,
-    required CatalogCacheRepository catalog,
+    required LibraryCatalogRepository catalog,
     required OwnedItemMutations ownedMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,

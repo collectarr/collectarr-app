@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -262,7 +262,7 @@ class _LibraryMetadataRefreshDialogState
     });
 
     final api = ref.read(apiClientProvider);
-    final catalog = CatalogCacheRepository(ref.read(localDatabaseProvider));
+    final catalog = LibraryCatalogRepository(ref.read(localDatabaseProvider));
     for (final entry in targets) {
       if (!mounted) {
         return;
