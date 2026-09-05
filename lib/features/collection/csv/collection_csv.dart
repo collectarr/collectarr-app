@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 
 class CollectionCsvRow {
   const CollectionCsvRow({
@@ -178,8 +177,6 @@ class CollectionCsvRow {
 }
 
 class CollectionCsv {
-  static const _comicImportProfile = ComicCollectionCsvImportProfile();
-
   static const header = [
     'item_id',
     'kind',
@@ -515,10 +512,7 @@ class CollectionCsv {
           index,
           row,
           cfColumns: cfColumns,
-          comic: _comicImportProfile.parseRow(
-            header: parsedHeader,
-            values: row,
-          ),
+          kindImportCells: _kindImportCells(parsedHeader, row),
         ),
     ].where(_isMeaningfulRow).toList(growable: false);
   }
@@ -638,7 +632,7 @@ class CollectionCsv {
     Map<String, int> index,
     List<String> values, {
     Map<String, int> cfColumns = const {},
-    ComicCollectionCsvImportRow? comic,
+    ({List<String> catalog, List<String> owned})? kindImportCells,
   }) {
     final cfValues = <String, String?>{};
     for (final entry in cfColumns.entries) {
@@ -647,25 +641,36 @@ class CollectionCsv {
         cfValues[entry.key] = v;
       }
     }
+    final catalogCells =
+        kindImportCells?.catalog ?? _genericCatalogCells(index, values);
+    final ownedCells =
+        kindImportCells?.owned ?? _genericOwnedCells(index, values);
+    if (catalogCells.length != libraryCollectionCsvCatalogCellCount) {
+      throw StateError(
+        'Collection CSV import catalog projection returned '
+        '${catalogCells.length} cells; expected '
+        '$libraryCollectionCsvCatalogCellCount.',
+      );
+    }
+    if (ownedCells.length != libraryCollectionCsvOwnedCellCount) {
+      throw StateError(
+        'Collection CSV import owned projection returned ${ownedCells.length} '
+        'cells; expected $libraryCollectionCsvOwnedCellCount.',
+      );
+    }
     return CollectionCsvRow(
-      itemId: comic?.itemId ?? _value(index, values, 'item_id'),
+      itemId: catalogCells[0],
       status: _normalizedStatus(_value(index, values, 'status')),
-      kind: comic?.kind ?? _optionalValue(index, values, 'kind'),
-      title: comic?.title ?? _optionalValue(index, values, 'title'),
-      itemNumber:
-          comic?.issueNumber ?? _optionalValue(index, values, 'item_number'),
-      variant:
-          comic?.variantDescription ?? _optionalValue(index, values, 'variant'),
-      editionTitle:
-          comic?.editionTitle ?? _optionalValue(index, values, 'edition_title'),
-      physicalFormat: comic?.physicalFormat ??
-          _optionalValue(index, values, 'physical_format'),
-      physicalFormatLabel: comic?.physicalFormatLabel ??
-          _optionalValue(index, values, 'physical_format_label'),
-      publisher: comic?.publisher ?? _optionalValue(index, values, 'publisher'),
-      releaseDate: comic?.releaseDate ??
-          _parseDate(_value(index, values, 'release_date')),
-      barcode: comic?.barcode ?? _optionalValue(index, values, 'barcode'),
+      kind: _optionalCell(catalogCells[1]),
+      title: _optionalCell(catalogCells[2]),
+      itemNumber: _optionalCell(catalogCells[3]),
+      variant: _optionalCell(catalogCells[4]),
+      editionTitle: _optionalCell(catalogCells[5]),
+      physicalFormat: _optionalCell(catalogCells[6]),
+      physicalFormatLabel: _optionalCell(catalogCells[7]),
+      publisher: _optionalCell(catalogCells[8]),
+      releaseDate: _parseDate(catalogCells[9]),
+      barcode: _optionalCell(catalogCells[10]),
       condition: _optionalValue(index, values, 'condition'),
       grade: _optionalValue(index, values, 'grade'),
       purchaseDate: _parseDate(_value(index, values, 'purchase_date')),
@@ -675,22 +680,15 @@ class CollectionCsv {
       quantity: int.tryParse(_value(index, values, 'quantity')),
       locationId: _optionalValue(index, values, 'location_id'),
       indexNumber: int.tryParse(_value(index, values, 'index_number')),
-      coverPriceCents: comic?.coverPriceCents ??
-          _moneyCents(_value(index, values, 'cover_price_cents')),
-      rawOrSlabbed: comic?.rawOrSlabbed ??
-          _optionalValue(index, values, 'raw_or_slabbed'),
-      gradingCompany: comic?.gradingCompany ??
-          _optionalValue(index, values, 'grading_company'),
-      graderNotes:
-          comic?.graderNotes ?? _optionalValue(index, values, 'grader_notes'),
-      signedBy: comic?.signedBy ?? _optionalValue(index, values, 'signed_by'),
-      labelType:
-          comic?.labelType ?? _optionalValue(index, values, 'label_type'),
-      certificationNumber: comic?.certificationNumber ??
-          _optionalValue(index, values, 'certification_number'),
-      keyComic: comic?.keyComic ?? _boolValue(index, values, 'key_comic'),
-      keyReason:
-          comic?.keyReason ?? _optionalValue(index, values, 'key_reason'),
+      coverPriceCents: _moneyCents(ownedCells[0]),
+      rawOrSlabbed: _optionalCell(ownedCells[1]),
+      gradingCompany: _optionalCell(ownedCells[2]),
+      graderNotes: _optionalCell(ownedCells[3]),
+      signedBy: _optionalCell(ownedCells[4]),
+      labelType: _optionalCell(ownedCells[5]),
+      certificationNumber: _optionalCell(ownedCells[6]),
+      keyComic: _boolCell(ownedCells[7]),
+      keyReason: _optionalCell(ownedCells[8]),
       rating: int.tryParse(_value(index, values, 'rating')),
       readStatus: _optionalValue(index, values, 'read_status'),
       startedAt: _parseDate(_value(index, values, 'started_at')),
@@ -701,6 +699,74 @@ class CollectionCsv {
       soldTo: _optionalValue(index, values, 'sold_to'),
       customFieldValues: cfValues,
     );
+  }
+
+  ({List<String> catalog, List<String> owned})? _kindImportCells(
+    List<String> header,
+    List<String> values,
+  ) {
+    for (final projection in libraryCollectionCsvProjections) {
+      final catalog = projection.importCatalogCells(
+        header: header,
+        values: values,
+      );
+      if (catalog == null) continue;
+      final owned = projection.importOwnedCells(
+            header: header,
+            values: values,
+          ) ??
+          const <String>[];
+      return (catalog: catalog, owned: owned);
+    }
+    return null;
+  }
+
+  List<String> _genericCatalogCells(
+    Map<String, int> index,
+    List<String> values,
+  ) {
+    return [
+      _value(index, values, 'item_id'),
+      _value(index, values, 'kind'),
+      _value(index, values, 'title'),
+      _value(index, values, 'item_number'),
+      _value(index, values, 'variant'),
+      _value(index, values, 'edition_title'),
+      _value(index, values, 'physical_format'),
+      _value(index, values, 'physical_format_label'),
+      _value(index, values, 'publisher'),
+      _value(index, values, 'release_date'),
+      _value(index, values, 'barcode'),
+    ];
+  }
+
+  List<String> _genericOwnedCells(
+    Map<String, int> index,
+    List<String> values,
+  ) {
+    return [
+      _value(index, values, 'cover_price_cents'),
+      _value(index, values, 'raw_or_slabbed'),
+      _value(index, values, 'grading_company'),
+      _value(index, values, 'grader_notes'),
+      _value(index, values, 'signed_by'),
+      _value(index, values, 'label_type'),
+      _value(index, values, 'certification_number'),
+      _value(index, values, 'key_comic'),
+      _value(index, values, 'key_reason'),
+    ];
+  }
+
+  String? _optionalCell(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  bool _boolCell(String value) {
+    return switch (value.trim().toLowerCase()) {
+      '1' || 'true' || 'yes' || 'y' => true,
+      _ => false,
+    };
   }
 
   /// Extracts custom field column names and their indices from the header.
@@ -750,13 +816,6 @@ class CollectionCsv {
       Map<String, int> index, List<String> values, String column) {
     final value = _value(index, values, column).trim();
     return value.isEmpty ? null : value;
-  }
-
-  bool _boolValue(Map<String, int> index, List<String> values, String column) {
-    return switch (_value(index, values, column).trim().toLowerCase()) {
-      '1' || 'true' || 'yes' || 'y' => true,
-      _ => false,
-    };
   }
 
   String _normalizedStatus(String value) {

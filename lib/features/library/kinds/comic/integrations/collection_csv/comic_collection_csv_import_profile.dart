@@ -49,6 +49,40 @@ final class ComicCollectionCsvImportRow {
   final String? certificationNumber;
   final bool keyComic;
   final String? keyReason;
+
+  List<String> get catalogCells => [
+        itemId,
+        kind ?? '',
+        title ?? '',
+        issueNumber ?? '',
+        variantDescription ?? '',
+        editionTitle ?? '',
+        physicalFormat ?? '',
+        physicalFormatLabel ?? '',
+        publisher ?? '',
+        _formatDate(releaseDate),
+        barcode ?? '',
+      ];
+
+  List<String> get ownedCells => [
+        coverPriceCents?.toString() ?? '',
+        rawOrSlabbed ?? '',
+        gradingCompany ?? '',
+        graderNotes ?? '',
+        signedBy ?? '',
+        labelType ?? '',
+        certificationNumber ?? '',
+        keyComic.toString(),
+        keyReason ?? '',
+      ];
+
+  static String _formatDate(DateTime? value) {
+    if (value == null) return '';
+    final utc = value.toUtc();
+    return '${utc.year.toString().padLeft(4, '0')}-'
+        '${utc.month.toString().padLeft(2, '0')}-'
+        '${utc.day.toString().padLeft(2, '0')}';
+  }
 }
 
 /// Comic's CLZ/CSV parser and semantic aliases.

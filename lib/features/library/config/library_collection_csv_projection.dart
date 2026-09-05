@@ -17,6 +17,24 @@ abstract interface class LibraryCollectionCsvProjection {
   /// kind-specific labels and columns out of Collection.
   List<String>? get clzFriendlyHeader;
 
+  /// Parses a kind-owned catalog segment from an external CSV row.
+  ///
+  /// The returned cells are already normalized for the generic legacy import
+  /// adapter. Null means that this projection does not own the row.
+  List<String>? importCatalogCells({
+    required List<String> header,
+    required List<String> values,
+  });
+
+  /// Parses a kind-owned owned-copy segment from an external CSV row.
+  ///
+  /// This is a serialization-boundary bridge only. The kind performs typed
+  /// interpretation before returning the normalized cells.
+  List<String>? importOwnedCells({
+    required List<String> header,
+    required List<String> values,
+  });
+
   /// Aliases contributed by the kind's external CSV integrations.
   ///
   /// Keys are canonical wire-column names. Values are human-facing or

@@ -23,6 +23,26 @@ final class ComicCollectionCsvProjection
       ComicCollectionCsvImportProfile.clzFriendlyHeader;
 
   @override
+  List<String>? importCatalogCells({
+    required List<String> header,
+    required List<String> values,
+  }) {
+    return const ComicCollectionCsvImportProfile()
+        .parseRow(header: header, values: values)
+        ?.catalogCells;
+  }
+
+  @override
+  List<String>? importOwnedCells({
+    required List<String> header,
+    required List<String> values,
+  }) {
+    return const ComicCollectionCsvImportProfile()
+        .parseRow(header: header, values: values)
+        ?.ownedCells;
+  }
+
+  @override
   Map<String, List<String>> get columnAliases => _columnAliases;
 
   @override
