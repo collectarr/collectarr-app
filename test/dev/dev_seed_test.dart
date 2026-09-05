@@ -16,17 +16,7 @@ void main() {
     await seedLocalDatabase(db);
 
     final catalogRows = await LibraryCatalogRepository(db).findAll();
-    const expectedCatalogCounts = <String, int>{
-      'movie': 15,
-      'tv': 15,
-      'anime': 15,
-      'manga': 15,
-      'book': 15,
-      'music': 15,
-      'game': 15,
-      'boardgame': 10,
-      'comic': 15,
-    };
+    const expectedCatalogCounts = devSeedCatalogCounts;
     for (final entry in expectedCatalogCounts.entries) {
       expect(_countKind(catalogRows, entry.key), entry.value,
           reason: 'Unexpected ${entry.key} seed count');
