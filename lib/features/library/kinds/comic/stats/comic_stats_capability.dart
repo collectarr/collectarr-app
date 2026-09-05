@@ -241,14 +241,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
 
   static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {
     final metadata = entry.catalogItem?.kindMetadata;
-    if (metadata is ComicCatalogMetadata) {
-      return metadata;
-    }
-    final payload = entry.catalogItem?.payload;
-    if (payload == null || payload.isEmpty) {
-      return null;
-    }
-    return ComicCatalogMetadata.fromJson(payload);
+    return metadata is ComicCatalogMetadata ? metadata : null;
   }
 }
 
