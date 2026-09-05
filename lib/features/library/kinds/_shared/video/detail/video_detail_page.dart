@@ -14,7 +14,7 @@ import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_legacy_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_legacy_models.dart';
 import 'package:collectarr_app/features/library/detail/library_video_title_metadata_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_metadata_corrections_section.dart';
+import 'package:collectarr_app/features/library/detail/library_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_source.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
@@ -432,7 +432,7 @@ class _VideoLibraryDetailPageState
               defaultTargetRef: seriesRef,
               targetOptions: watchHistoryTargets,
             ),
-            VideoMetadataCorrectionsSection(
+            LibraryMetadataCorrectionsSection(
               itemId: request.item.source.itemId,
               accent: request.accent,
             ),

@@ -2209,6 +2209,9 @@ live under `tv/edit`; the shared custom-tab dispatcher only composes them.
 External links are now a generic library detail component, shared by the
 active detail and edit surfaces without living under `_shared/video`.
 
+Metadata corrections are likewise generic detail infrastructure and no longer
+sit behind a video-kind compatibility barrel.
+
 ---
 
 ## PR 80 — De-share publishing/serial leftovers
