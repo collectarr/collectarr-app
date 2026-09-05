@@ -3264,6 +3264,10 @@ Semantic generic use must be zero.
 
 Structural/UI/help/test text can be justified.
 
+Status: complete as an audit. `docs/typed-kind-semantic-vacuum-audit.md`
+classifies the remaining vocabulary by boundary and records the shared
+Library compatibility bridge as an explicit FAIL carried into PR122.
+
 ---
 
 ## PR 122 — Final deleted-code proof
