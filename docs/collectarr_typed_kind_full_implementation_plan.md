@@ -2724,6 +2724,12 @@ kind dispatch
 
 No complete generic metadata.
 
+Status: complete. Added `CatalogSearchHit` as the compact cross-kind search
+summary with a `CatalogEntityRef`, typed kind, title, optional subtitle, and
+image URL. `ApiClient.searchHits` now decodes legacy search rows into this
+shape and rejects incomplete identities; the payload is deliberately not
+carried past the search boundary.
+
 ---
 
 # PHASE 25 — Final Architecture Checker

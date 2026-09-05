@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/auth_session.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_search_hit.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/season.dart';
@@ -118,6 +119,32 @@ class ApiClient {
       barcode: barcode,
       limit: limit,
     );
+  }
+
+  /// Returns only the identity and display summary needed by cross-kind UI.
+  Future<List<CatalogSearchHit>> searchHits(
+    String query, {
+    String? kind,
+    String? series,
+    String? issueNumber,
+    String? publisher,
+    int? year,
+    String? barcode,
+    int? limit,
+  }) async {
+    final rows = await search(
+      query,
+      kind: kind,
+      series: series,
+      issueNumber: issueNumber,
+      publisher: publisher,
+      year: year,
+      barcode: barcode,
+      limit: limit,
+    );
+    return [
+      for (final row in rows) CatalogSearchHit.fromJson(row),
+    ];
   }
 
   Future<List<Map<String, dynamic>>> searchMetadata(

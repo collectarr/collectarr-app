@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -169,6 +170,29 @@ void main() {
         expect(results, hasLength(2));
         expect(results[0]['title'], 'Batman #1');
         expect(results[1]['title'], 'Batman #2');
+      });
+
+      test('returns compact typed search hits', () async {
+        final interceptor = _FakeApiInterceptor();
+        interceptor.onGet('/search', [
+          {
+            'id': 'movie-1',
+            'title': 'Arrival',
+            'kind': 'movie',
+            'summary': 'A linguist meets visitors.',
+            'image_url': 'https://example.test/arrival.jpg',
+            'payload': {'not': 'part of a search hit'},
+          },
+        ]);
+        final client = _createTestClient(interceptor);
+
+        final hits = await client.searchHits('Arrival', kind: 'movie');
+
+        expect(hits, hasLength(1));
+        expect(hits.single.title, 'Arrival');
+        expect(hits.single.kind, CatalogMediaKind.movie);
+        expect(hits.single.ref.id, 'movie-1');
+        expect(hits.single.toJson().containsKey('payload'), isFalse);
       });
     });
 
