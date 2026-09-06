@@ -297,6 +297,42 @@ LibraryKindRuntime libraryKindRuntimeForKind(
   return reg.require(kind);
 }
 
+/// Composition-root dispatch for kind-owned facet extraction and remote facet
+/// loading. The generic library only receives the structural facet module;
+/// it does not read facet semantics from [LibraryKindRuntime].
+LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.anime => animeKindModule.facets,
+    CatalogMediaKind.boardgame => boardGameKindModule.facets,
+    CatalogMediaKind.book => bookKindModule.facets,
+    CatalogMediaKind.comic => comicKindModule.facets,
+    CatalogMediaKind.game => gameKindModule.facets,
+    CatalogMediaKind.manga => mangaKindModule.facets,
+    CatalogMediaKind.movie => movieKindModule.facets,
+    CatalogMediaKind.music => musicKindModule.facets,
+    CatalogMediaKind.tv => tvKindModule.facets,
+    CatalogMediaKind.unknown => null,
+  };
+}
+
+/// Composition-root dispatch for kind-owned provider metadata mappings.
+LibraryKindProviderMapper? libraryKindProviderMapperForKind(
+  CatalogMediaKind kind,
+) {
+  return switch (kind) {
+    CatalogMediaKind.anime => animeKindModule.providerMapper,
+    CatalogMediaKind.boardgame => boardGameKindModule.providerMapper,
+    CatalogMediaKind.book => bookKindModule.providerMapper,
+    CatalogMediaKind.comic => comicKindModule.providerMapper,
+    CatalogMediaKind.game => gameKindModule.providerMapper,
+    CatalogMediaKind.manga => mangaKindModule.providerMapper,
+    CatalogMediaKind.movie => movieKindModule.providerMapper,
+    CatalogMediaKind.music => musicKindModule.providerMapper,
+    CatalogMediaKind.tv => tvKindModule.providerMapper,
+    CatalogMediaKind.unknown => null,
+  };
+}
+
 /// Composition-root access to the kind-owned serialization codec.
 ///
 /// The codec is used only at persistence/import boundaries. Generic callers

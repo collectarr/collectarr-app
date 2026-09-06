@@ -51,7 +51,8 @@ abstract final class _LibraryFacetControllerOps {
     GenericLibraryPageState state,
     String mode,
   ) {
-    return state.widget.type.facets?.externalFacetBucketIdsByMode[mode];
+    return libraryKindFacetModuleForKind(state.widget.type.kind)
+        ?.externalFacetBucketIdsByMode[mode];
   }
 
   static FacetBuckets? facetBucketsForMode(
@@ -117,7 +118,7 @@ abstract final class _LibraryFacetControllerOps {
     try {
       final buckets = await state
           .fetchFacetBuckets(
-            type: state.widget.type,
+            facets: libraryKindFacetModuleForKind(state.widget.type.kind),
             facetId: facetId,
             itemIds: shelfItemIds,
             signature: signature,

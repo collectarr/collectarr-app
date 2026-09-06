@@ -33,12 +33,13 @@ class LibraryFacetValuesInput {
 final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
     .family<List<String>, LibraryFacetValuesInput>((ref, input) {
   final module = libraryKindRuntimeForKind(input.key.kind);
-  if (module.facets?.getFacetValues == null) {
+  final facets = libraryKindFacetModuleForKind(module.kind);
+  if (facets?.getFacetValues == null) {
     return Stream.value(const <String>[]);
   }
 
   Object? getValue(LibraryProjectionRuntime item) {
-    return module.facets!.getFacetValues!(item, input.facetId);
+    return facets!.getFacetValues!(item, input.facetId);
   }
 
   final repository = ref.watch(libraryWorkspaceRepositoryProvider);

@@ -980,7 +980,9 @@ class LibraryAddSessionController
         );
         final item = CatalogItem.fromJson(raw);
         final decoder = type.catalogMetadataDecoder;
-        return decoder == null ? item : item.withKindMetadata(decoder(item.payload));
+        return decoder == null
+            ? item
+            : item.withKindMetadata(decoder(item.payload));
       });
 
       if (searchGen != state.search.coreSearchGeneration) return;
@@ -1382,11 +1384,12 @@ class LibraryAddSessionController
             previewState: previewController,
             providerActionService: providerActionService,
             providerOrchestrationService: providerOrchestrationService,
-            providerMapper: type.providerMapper?.buildCorrections ??
-                ((
-                        {required CatalogItem edited,
-                        required CatalogItem preview}) =>
-                    const <String, Object?>{}),
+            providerMapper:
+                libraryKindProviderMapperForKind(type.kind)?.buildCorrections ??
+                    ((
+                            {required CatalogItem edited,
+                            required CatalogItem preview}) =>
+                        const <String, Object?>{}),
             visibleProviderResults: () => state.visibleProviderResults(
               type.add.resultPolicy,
             ),

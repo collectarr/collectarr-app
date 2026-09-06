@@ -113,13 +113,12 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
 
   /// Fetch facet rows from the API and build [FacetBuckets].
   Future<FacetBuckets> fetchFacetBuckets({
-    required LibraryKindRuntime type,
+    required LibraryFacetModule? facets,
     required LibraryFacetIdRuntime facetId,
     required Set<String> itemIds,
     required String signature,
     String? allBucketLabel,
   }) async {
-    final facets = type.facets;
     if (facets == null) {
       return FacetBuckets(
         shelfSignature: signature,

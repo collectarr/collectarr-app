@@ -82,8 +82,6 @@ abstract interface class LibraryKindRuntime {
   TitleProjectionCapability<LibraryWorkspaceDto> get titleCapability;
   ReleaseProjectionCapability<LibraryWorkspaceDto>? get releaseCapability;
   LibraryKindToolbarModule? get toolbar;
-  LibraryKindProviderMapper? get providerMapper;
-  LibraryFacetModule? get facets;
   CatalogMetadataDecoder? get catalogMetadataDecoder;
   List<LibrarySearchTarget> get searchTargetOptions;
 
@@ -241,9 +239,7 @@ class LibraryKindSpec<
   final LibraryAddCapability add;
   @override
   final LibraryKindToolbarModule? toolbar;
-  @override
   final LibraryKindProviderMapper? providerMapper;
-  @override
   final LibraryFacetModule? facets;
   @override
   final List<LibrarySearchTarget> searchTargetOptions;

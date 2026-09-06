@@ -40,7 +40,7 @@ class LibraryAddWorkflowService {
           provider: preview.provider,
           providerItemId: preview.providerItemId,
         );
-    final mapper = libraryKindRuntimeForKind(mediaKind).providerMapper;
+    final mapper = libraryKindProviderMapperForKind(mediaKind);
     if (mapper == null) {
       throw StateError('No provider mapper registered for ${preview.kind}');
     }
