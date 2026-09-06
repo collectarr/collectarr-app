@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:drift/drift.dart';
 
@@ -32,9 +35,8 @@ class UserExternalLinksCacheRepository {
         await _db.into(_db.userExternalLinksCache).insert(
               UserExternalLinksCacheCompanion.insert(
                 id: link.id,
-                itemId: link.itemId,
-                editionId: Value(link.editionId),
-                variantId: Value(link.variantId),
+                itemId: link.catalogRef.id,
+                catalogRefJson: jsonEncode(link.catalogRef.toJson()),
                 label: link.label,
                 url: link.url,
                 kind: link.kind,
@@ -48,11 +50,17 @@ class UserExternalLinksCacheRepository {
   }
 
   UserExternalLink _fromRow(UserExternalLinksCacheData row) {
+    final rawRef = jsonDecode(row.catalogRefJson);
+    if (rawRef is! Map) {
+      throw FormatException(
+        'External link ${row.id} contains an invalid catalog reference',
+      );
+    }
     return UserExternalLink(
       id: row.id,
-      itemId: row.itemId,
-      editionId: row.editionId,
-      variantId: row.variantId,
+      catalogRef: CatalogEntityRef.fromJson(
+        Map<String, dynamic>.from(rawRef),
+      ),
       label: row.label,
       url: row.url,
       kind: row.kind,

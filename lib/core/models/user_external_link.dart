@@ -1,25 +1,25 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+
 final class UserExternalLink {
   UserExternalLink({
     required this.id,
-    required this.itemId,
+    required this.catalogRef,
     required this.label,
     required this.url,
     required this.kind,
     required this.createdAt,
     required this.updatedAt,
-    this.editionId,
-    this.variantId,
   });
 
   final String id;
-  final String itemId;
-  final String? editionId;
-  final String? variantId;
+  final CatalogEntityRef catalogRef;
   final String label;
   final String url;
   final String kind;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  String get itemId => catalogRef.id;
 
   bool get isTrailer => kind == 'trailer';
 
@@ -27,15 +27,11 @@ final class UserExternalLink {
     String? label,
     String? url,
     String? kind,
-    String? editionId,
-    String? variantId,
     DateTime? updatedAt,
   }) {
     return UserExternalLink(
       id: id,
-      itemId: itemId,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
+      catalogRef: catalogRef,
       label: label ?? this.label,
       url: url ?? this.url,
       kind: kind ?? this.kind,

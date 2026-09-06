@@ -172,6 +172,7 @@ LibraryEditKindDraft createAnimeEditDraft({
   final anime = metadata is AnimeMetadata ? metadata : null;
   final videoEdit = VideoEditController(
     itemId: item.id,
+    catalogRef: item.catalogRef,
     initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
     initialGenres: anime?.genres.join(', ') ?? '',
     initialEditionTitle:

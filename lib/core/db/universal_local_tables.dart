@@ -48,8 +48,10 @@ class ItemImagesCache extends Table {
 class UserExternalLinksCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
-  TextColumn get editionId => text().nullable()();
-  TextColumn get variantId => text().nullable()();
+  /// The complete catalog target is transported opaquely by this universal
+  /// table. Kind integrations decide whether it is a work, release, or
+  /// another entity.
+  TextColumn get catalogRefJson => text()();
   TextColumn get label => text()();
   TextColumn get url => text()();
   TextColumn get kind => text()();

@@ -140,14 +140,17 @@ class WishlistItemsCacheRepository {
         'Wishlist row ${row.id} contains an invalid target anchor',
       );
     }
+    final anchorJson = rawAnchor is Map
+        ? Map<String, dynamic>.from(rawAnchor)
+        : null;
     return WishlistItem(
       id: row.id,
       catalogRef: CatalogEntityRef.fromJson(
         Map<String, dynamic>.from(rawCatalogRef),
       ),
-      anchor: rawAnchor == null
+      anchor: anchorJson == null
           ? null
-          : PersonalItemAnchor.fromJson(Map<String, dynamic>.from(rawAnchor)),
+          : PersonalItemAnchor.fromJson(anchorJson),
       targetPriceCents: row.targetPriceCents,
       currency: row.currency,
       notes: row.notes,

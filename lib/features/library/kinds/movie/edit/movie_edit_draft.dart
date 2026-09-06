@@ -169,6 +169,7 @@ LibraryEditKindDraft createMovieEditDraft({
   final movie = metadata is MovieCatalogMetadata ? metadata : null;
   final videoEdit = VideoEditController(
     itemId: item.id,
+    catalogRef: item.catalogRef,
     initialRuntime: movie?.runtimeMinutes?.toString() ?? '',
     initialAgeRating: movie?.ageRating ?? '',
     initialAudienceRating: movie?.audienceRating ?? '',

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:drift/native.dart';
@@ -21,7 +22,11 @@ void main() {
     final links = [
       UserExternalLink(
         id: 'link-1',
-        itemId: 'item-1',
+        catalogRef: const CatalogEntityRef(
+          kind: 'movie',
+          entityType: CatalogEntityType.work,
+          id: 'item-1',
+        ),
         label: 'Review',
         url: 'https://example.com/review',
         kind: 'review',
@@ -30,7 +35,11 @@ void main() {
       ),
       UserExternalLink(
         id: 'link-2',
-        itemId: 'item-1',
+        catalogRef: const CatalogEntityRef(
+          kind: 'movie',
+          entityType: CatalogEntityType.work,
+          id: 'item-1',
+        ),
         label: 'Trailer',
         url: 'https://example.com/trailer',
         kind: 'trailer',

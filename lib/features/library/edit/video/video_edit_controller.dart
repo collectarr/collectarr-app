@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/user_external_link.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -11,6 +12,7 @@ class VideoEditController {
   VideoEditController({
     this.ref,
     required this.itemId,
+    required this.catalogRef,
     this.initialRuntime = '',
     this.initialAgeRating = '',
     this.initialAudienceRating = '',
@@ -47,6 +49,7 @@ class VideoEditController {
 
   final WidgetRef? ref;
   final String itemId;
+  final CatalogEntityRef catalogRef;
   final String initialRuntime;
   final String initialAgeRating;
   final String initialAudienceRating;
@@ -113,7 +116,7 @@ class VideoEditController {
       for (final link in initialTrailerLinks.where((link) => !link.isAutomatic))
         UserExternalLink(
           id: 'seed-$itemId-${link.kind}-${link.url.hashCode}',
-          itemId: itemId,
+          catalogRef: catalogRef,
           label: link.title ?? link.description ?? link.url,
           url: link.url,
           kind: link.kind == 'trailer' ? 'trailer' : 'custom',
@@ -186,13 +189,13 @@ class VideoEditController {
     final repo = UserExternalLinksCacheRepository(db);
     final links = <UserExternalLink>[];
     for (final link in userLinkEdits) {
-      final resolved = link.toUserExternalLink(itemId: itemId);
+      final resolved = link.toUserExternalLink();
       if (resolved != null) {
         links.add(resolved);
       }
     }
     for (final link in userTrailerEdits) {
-      final resolved = link.toUserExternalLink(itemId: itemId);
+      final resolved = link.toUserExternalLink();
       if (resolved != null) {
         links.add(resolved);
       }

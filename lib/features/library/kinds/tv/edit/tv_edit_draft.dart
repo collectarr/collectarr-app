@@ -191,6 +191,7 @@ LibraryEditKindDraft createTvEditDraft({
   final tv = metadata is TvSeriesMetadata ? metadata : null;
   final videoEdit = VideoEditController(
     itemId: item.id,
+    catalogRef: item.catalogRef,
     initialRuntime: tv?.episodeRuntimeMinutes?.toString() ?? '',
     initialAgeRating: tv?.contentRating ?? '',
     initialGenres: tv?.genres.join(', ') ?? '',

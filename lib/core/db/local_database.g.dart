@@ -3006,18 +3006,12 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
   late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
       'item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
   @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _labelMeta = const VerificationMeta('label');
   @override
   late final GeneratedColumn<String> label = GeneratedColumn<String>(
@@ -3046,17 +3040,8 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
       'updated_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        itemId,
-        editionId,
-        variantId,
-        label,
-        url,
-        kind,
-        createdAt,
-        updatedAt
-      ];
+  List<GeneratedColumn> get $columns =>
+      [id, itemId, catalogRefJson, label, url, kind, createdAt, updatedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3079,13 +3064,13 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
     } else if (isInserting) {
       context.missing(_itemIdMeta);
     }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
     }
     if (data.containsKey('label')) {
       context.handle(
@@ -3131,10 +3116,8 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
       label: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}label'])!,
       url: attachedDatabase.typeMapping
@@ -3158,8 +3141,11 @@ class UserExternalLinksCacheData extends DataClass
     implements Insertable<UserExternalLinksCacheData> {
   final String id;
   final String itemId;
-  final String? editionId;
-  final String? variantId;
+
+  /// The complete catalog target is transported opaquely by this universal
+  /// table. Kind integrations decide whether it is a work, release, or
+  /// another entity.
+  final String catalogRefJson;
   final String label;
   final String url;
   final String kind;
@@ -3168,8 +3154,7 @@ class UserExternalLinksCacheData extends DataClass
   const UserExternalLinksCacheData(
       {required this.id,
       required this.itemId,
-      this.editionId,
-      this.variantId,
+      required this.catalogRefJson,
       required this.label,
       required this.url,
       required this.kind,
@@ -3180,12 +3165,7 @@ class UserExternalLinksCacheData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
     map['label'] = Variable<String>(label);
     map['url'] = Variable<String>(url);
     map['kind'] = Variable<String>(kind);
@@ -3198,12 +3178,7 @@ class UserExternalLinksCacheData extends DataClass
     return UserExternalLinksCacheCompanion(
       id: Value(id),
       itemId: Value(itemId),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
+      catalogRefJson: Value(catalogRefJson),
       label: Value(label),
       url: Value(url),
       kind: Value(kind),
@@ -3218,8 +3193,7 @@ class UserExternalLinksCacheData extends DataClass
     return UserExternalLinksCacheData(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
       label: serializer.fromJson<String>(json['label']),
       url: serializer.fromJson<String>(json['url']),
       kind: serializer.fromJson<String>(json['kind']),
@@ -3233,8 +3207,7 @@ class UserExternalLinksCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
       'label': serializer.toJson<String>(label),
       'url': serializer.toJson<String>(url),
       'kind': serializer.toJson<String>(kind),
@@ -3246,8 +3219,7 @@ class UserExternalLinksCacheData extends DataClass
   UserExternalLinksCacheData copyWith(
           {String? id,
           String? itemId,
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
+          String? catalogRefJson,
           String? label,
           String? url,
           String? kind,
@@ -3256,8 +3228,7 @@ class UserExternalLinksCacheData extends DataClass
       UserExternalLinksCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
         label: label ?? this.label,
         url: url ?? this.url,
         kind: kind ?? this.kind,
@@ -3269,8 +3240,9 @@ class UserExternalLinksCacheData extends DataClass
     return UserExternalLinksCacheData(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
       label: data.label.present ? data.label.value : this.label,
       url: data.url.present ? data.url.value : this.url,
       kind: data.kind.present ? data.kind.value : this.kind,
@@ -3284,8 +3256,7 @@ class UserExternalLinksCacheData extends DataClass
     return (StringBuffer('UserExternalLinksCacheData(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
           ..write('label: $label, ')
           ..write('url: $url, ')
           ..write('kind: $kind, ')
@@ -3297,15 +3268,14 @@ class UserExternalLinksCacheData extends DataClass
 
   @override
   int get hashCode => Object.hash(
-      id, itemId, editionId, variantId, label, url, kind, createdAt, updatedAt);
+      id, itemId, catalogRefJson, label, url, kind, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserExternalLinksCacheData &&
           other.id == this.id &&
           other.itemId == this.itemId &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
+          other.catalogRefJson == this.catalogRefJson &&
           other.label == this.label &&
           other.url == this.url &&
           other.kind == this.kind &&
@@ -3317,8 +3287,7 @@ class UserExternalLinksCacheCompanion
     extends UpdateCompanion<UserExternalLinksCacheData> {
   final Value<String> id;
   final Value<String> itemId;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
+  final Value<String> catalogRefJson;
   final Value<String> label;
   final Value<String> url;
   final Value<String> kind;
@@ -3328,8 +3297,7 @@ class UserExternalLinksCacheCompanion
   const UserExternalLinksCacheCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
     this.label = const Value.absent(),
     this.url = const Value.absent(),
     this.kind = const Value.absent(),
@@ -3340,8 +3308,7 @@ class UserExternalLinksCacheCompanion
   UserExternalLinksCacheCompanion.insert({
     required String id,
     required String itemId,
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
+    required String catalogRefJson,
     required String label,
     required String url,
     required String kind,
@@ -3350,6 +3317,7 @@ class UserExternalLinksCacheCompanion
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
+        catalogRefJson = Value(catalogRefJson),
         label = Value(label),
         url = Value(url),
         kind = Value(kind),
@@ -3358,8 +3326,7 @@ class UserExternalLinksCacheCompanion
   static Insertable<UserExternalLinksCacheData> custom({
     Expression<String>? id,
     Expression<String>? itemId,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
+    Expression<String>? catalogRefJson,
     Expression<String>? label,
     Expression<String>? url,
     Expression<String>? kind,
@@ -3370,8 +3337,7 @@ class UserExternalLinksCacheCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
       if (label != null) 'label': label,
       if (url != null) 'url': url,
       if (kind != null) 'kind': kind,
@@ -3384,8 +3350,7 @@ class UserExternalLinksCacheCompanion
   UserExternalLinksCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
+      Value<String>? catalogRefJson,
       Value<String>? label,
       Value<String>? url,
       Value<String>? kind,
@@ -3395,8 +3360,7 @@ class UserExternalLinksCacheCompanion
     return UserExternalLinksCacheCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
       label: label ?? this.label,
       url: url ?? this.url,
       kind: kind ?? this.kind,
@@ -3415,11 +3379,8 @@ class UserExternalLinksCacheCompanion
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
     }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
     if (label.present) {
       map['label'] = Variable<String>(label.value);
@@ -3447,8 +3408,7 @@ class UserExternalLinksCacheCompanion
     return (StringBuffer('UserExternalLinksCacheCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
           ..write('label: $label, ')
           ..write('url: $url, ')
           ..write('kind: $kind, ')
@@ -50077,8 +50037,7 @@ typedef $$UserExternalLinksCacheTableCreateCompanionBuilder
     = UserExternalLinksCacheCompanion Function({
   required String id,
   required String itemId,
-  Value<String?> editionId,
-  Value<String?> variantId,
+  required String catalogRefJson,
   required String label,
   required String url,
   required String kind,
@@ -50090,8 +50049,7 @@ typedef $$UserExternalLinksCacheTableUpdateCompanionBuilder
     = UserExternalLinksCacheCompanion Function({
   Value<String> id,
   Value<String> itemId,
-  Value<String?> editionId,
-  Value<String?> variantId,
+  Value<String> catalogRefJson,
   Value<String> label,
   Value<String> url,
   Value<String> kind,
@@ -50115,11 +50073,9 @@ class $$UserExternalLinksCacheTableFilterComposer
   ColumnFilters<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get label => $composableBuilder(
       column: $table.label, builder: (column) => ColumnFilters(column));
@@ -50152,11 +50108,9 @@ class $$UserExternalLinksCacheTableOrderingComposer
   ColumnOrderings<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get label => $composableBuilder(
       column: $table.label, builder: (column) => ColumnOrderings(column));
@@ -50189,11 +50143,8 @@ class $$UserExternalLinksCacheTableAnnotationComposer
   GeneratedColumn<String> get itemId =>
       $composableBuilder(column: $table.itemId, builder: (column) => column);
 
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get label =>
       $composableBuilder(column: $table.label, builder: (column) => column);
@@ -50244,8 +50195,7 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
             Value<String> label = const Value.absent(),
             Value<String> url = const Value.absent(),
             Value<String> kind = const Value.absent(),
@@ -50256,8 +50206,7 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
               UserExternalLinksCacheCompanion(
             id: id,
             itemId: itemId,
-            editionId: editionId,
-            variantId: variantId,
+            catalogRefJson: catalogRefJson,
             label: label,
             url: url,
             kind: kind,
@@ -50268,8 +50217,7 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String itemId,
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
+            required String catalogRefJson,
             required String label,
             required String url,
             required String kind,
@@ -50280,8 +50228,7 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
               UserExternalLinksCacheCompanion.insert(
             id: id,
             itemId: itemId,
-            editionId: editionId,
-            variantId: variantId,
+            catalogRefJson: catalogRefJson,
             label: label,
             url: url,
             kind: kind,

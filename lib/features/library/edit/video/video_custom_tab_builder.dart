@@ -23,7 +23,7 @@ Widget? buildVideoCustomTabView({
 }) {
   final videoEdit = (draft.kindDetails is VideoEditDraftContract)
       ? (draft.kindDetails as VideoEditDraftContract).videoEdit
-      : VideoEditController(itemId: item.id);
+      : VideoEditController(itemId: item.id, catalogRef: item.catalogRef);
 
   return switch (tabId) {
     'edition' => VideoEditEditionTab(
