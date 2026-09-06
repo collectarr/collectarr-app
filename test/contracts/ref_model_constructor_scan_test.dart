@@ -5,12 +5,26 @@ import 'package:flutter_test/flutter_test.dart';
 String _read(String relativePath) => File(relativePath).readAsStringSync();
 
 String _extractSyncPayloadBody(String content) {
-  final match = RegExp(
-    r'Map<String, dynamic> toSyncPayload\(\)\s*\{\s*return \{\s*([\s\S]*?)\s*\};\s*\}',
-    multiLine: true,
-  ).firstMatch(content);
-  expect(match, isNotNull);
-  return match!.group(1)!;
+  final signature = content.indexOf('Map<String, dynamic> toSyncPayload()');
+  expect(signature, greaterThanOrEqualTo(0));
+
+  final openingBrace = content.indexOf('{', signature);
+  expect(openingBrace, greaterThan(signature));
+
+  var depth = 0;
+  for (var index = openingBrace; index < content.length; index++) {
+    switch (content[index]) {
+      case '{':
+        depth++;
+      case '}':
+        depth--;
+        if (depth == 0) {
+          return content.substring(openingBrace + 1, index);
+        }
+    }
+  }
+
+  fail('Could not find the end of toSyncPayload()');
 }
 
 void main() {

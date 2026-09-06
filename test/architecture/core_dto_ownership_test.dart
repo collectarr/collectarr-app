@@ -16,7 +16,12 @@ void main() {
       )) {
         continue;
       }
-      if (!relativePath.contains('/data/remote/')) {
+      // The registry is a composition root: it wires the kind-owned remote
+      // mappers into the local catalog repository codec list. It may import
+      // the generated DTO library for that wiring, but it must not interpret
+      // a DTO or own a mapper implementation.
+      final isKindCompositionRoot = relativePath.contains('/kinds/registry/');
+      if (!relativePath.contains('/data/remote/') && !isKindCompositionRoot) {
         violations.add(relativePath);
       }
     }
