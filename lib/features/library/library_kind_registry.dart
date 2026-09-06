@@ -15,12 +15,14 @@ import 'package:collectarr_app/features/library/kinds/anime/barcode/anime_barcod
 import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/admin/boardgame_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/barcode/boardgame_barcode_resolver.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/barcode/book_isbn_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/book/admin/book_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/admin/game_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/barcode/game_barcode_resolver.dart';
+import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/admin/manga_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/barcode/manga_identifier_resolver.dart';
@@ -95,8 +97,10 @@ final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
 
 final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
     _collectionCsvProjections = Map.unmodifiable({
+  CatalogMediaKind.boardgame: const BoardGameCollectionCsvProjection(),
   CatalogMediaKind.book: const BookCollectionCsvProjection(),
   CatalogMediaKind.comic: const ComicCollectionCsvProjection(),
+  CatalogMediaKind.game: const GameCollectionCsvProjection(),
   CatalogMediaKind.manga: const MangaCollectionCsvProjection(),
   CatalogMediaKind.movie: const MovieCollectionCsvProjection(),
 });
