@@ -1,11 +1,13 @@
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 
 import 'contract_test_helpers.dart';
 
 void defineTrackingEntryContract({
   required String name,
   required TrackingEntry Function() create,
+  required TrackingEntryCodec codec,
 }) {
   defineTypedContract<TrackingEntry>(
     name: '$name tracking persistence contract',
@@ -38,12 +40,12 @@ void defineTrackingEntryContract({
           '$name tracking status label must be shared',
         );
 
-        final restored = TrackingEntry.fromJson({
-          ...entry.toSyncPayload(),
-          'id': entry.id,
-          'updated_at': entry.updatedAt.toIso8601String(),
-          'deleted_at': entry.deletedAt?.toIso8601String(),
-        });
+        final restored = codec.fromSyncPayload(
+          payload: codec.toSyncPayload(entry),
+          id: entry.id,
+          updatedAt: entry.updatedAt,
+          deletedAt: entry.deletedAt,
+        );
         expectSame(
           restored.status,
           entry.status,
@@ -65,29 +67,36 @@ void defineTrackingEntryContract({
           '$name tracking completion count must round-trip',
         );
 
-        final genericFallback = TrackingEntry.fromJson({
-          ...entry.toSyncPayload(),
-          'id': entry.id,
-          'season_number': 9,
-          'episode_number': 9,
-          'episode_ratings': {'9:9': 10},
-          'updated_at': entry.updatedAt.toIso8601String(),
-          'deleted_at': entry.deletedAt?.toIso8601String(),
-        });
+        final lifecyclePayload = entry.toSyncPayload();
         expectSame(
-          genericFallback.seasonNumber,
-          null,
-          '$name generic tracking fallback must not parse season coordinates',
+          lifecyclePayload.containsKey('season_number'),
+          false,
+          '$name common tracking payload must not own season coordinates',
         );
         expectSame(
-          genericFallback.episodeNumber,
-          null,
-          '$name generic tracking fallback must not parse episode coordinates',
+          lifecyclePayload.containsKey('episode_number'),
+          false,
+          '$name common tracking payload must not own episode coordinates',
         );
         expectSame(
-          genericFallback.episodeRatings,
+          lifecyclePayload.containsKey('episode_ratings'),
+          false,
+          '$name common tracking payload must not own episode ratings',
+        );
+        expectSame(
+          entry.seasonNumber,
+          null,
+          '$name base tracking fixture must not contain season coordinates',
+        );
+        expectSame(
+          entry.episodeNumber,
+          null,
+          '$name base tracking fixture must not contain episode coordinates',
+        );
+        expectSame(
+          entry.episodeRatings,
           const <String, int>{},
-          '$name generic tracking fallback must not parse episode ratings',
+          '$name base tracking fixture must not contain episode ratings',
         );
 
         final completed = entry.copyWith(

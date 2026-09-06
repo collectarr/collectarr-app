@@ -78,35 +78,6 @@ class TrackingEntry extends PersonalTrackingBase {
     };
   }
 
-  factory TrackingEntry.fromJson(Map<String, dynamic> json) {
-    final catalogRefJson = json['catalog_ref'] as Map<String, dynamic>;
-    return TrackingEntry(
-      id: json['id'] as String,
-      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
-      ownedItemId: json['owned_item_id'] as String?,
-      editionId: json['edition_id'] as String?,
-      variantId: json['variant_id'] as String?,
-      bundleReleaseId: json['bundle_release_id'] as String?,
-      sourceType: json['source_type'] as String?,
-      status: json['status'] as String?,
-      rating: json['rating'] as int?,
-      startedAt: json['started_at'] == null
-          ? null
-          : DateTime.parse(json['started_at'] as String),
-      finishedAt: json['finished_at'] == null
-          ? null
-          : DateTime.parse(json['finished_at'] as String),
-      progressCurrent: json['progress_current'] as int?,
-      progressTotal: json['progress_total'] as int?,
-      timesCompleted: json['times_completed'] as int?,
-      notes: json['notes'] as String?,
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      deletedAt: json['deleted_at'] == null
-          ? null
-          : DateTime.parse(json['deleted_at'] as String),
-    );
-  }
-
   TrackingEntry copyWith({
     String? id,
     CatalogEntityRef? catalogRef,

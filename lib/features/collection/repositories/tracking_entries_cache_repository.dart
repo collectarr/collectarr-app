@@ -98,8 +98,14 @@ class TrackingEntriesCacheRepository {
   }
 
   Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
-    return _codecs[entry.catalogRef.kind]?.toSyncPayload(entry) ??
-        entry.toSyncPayload();
+    final codec = _codecs[entry.catalogRef.kind];
+    if (codec == null) {
+      throw UnsupportedError(
+        'No kind-owned tracking-entry codec is registered for '
+        '${entry.catalogRef.kind}',
+      );
+    }
+    return codec.toSyncPayload(entry);
   }
 
   TrackingEntry _fromCache(
@@ -126,26 +132,13 @@ class TrackingEntriesCacheRepository {
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
-    return _codecs[row.kind]?.fromStorageRow(storageRow, coordinates) ??
-        TrackingEntry(
-          id: storageRow.id,
-          catalogRef: storageRow.catalogRef,
-          ownedItemId: storageRow.ownedItemId,
-          editionId: storageRow.editionId,
-          variantId: storageRow.variantId,
-          bundleReleaseId: storageRow.bundleReleaseId,
-          sourceType: storageRow.sourceType,
-          status: storageRow.status,
-          rating: storageRow.rating,
-          startedAt: storageRow.startedAt,
-          finishedAt: storageRow.finishedAt,
-          progressCurrent: storageRow.progressCurrent,
-          progressTotal: storageRow.progressTotal,
-          timesCompleted: storageRow.timesCompleted,
-          notes: storageRow.notes,
-          updatedAt: storageRow.updatedAt,
-          deletedAt: storageRow.deletedAt,
-        );
+    final codec = _codecs[row.kind];
+    if (codec == null) {
+      throw UnsupportedError(
+        'No kind-owned tracking-entry codec is registered for ${row.kind}',
+      );
+    }
+    return codec.fromStorageRow(storageRow, coordinates);
   }
 
   TrackingEntriesCacheCompanion _toCompanion(TrackingEntry item) {

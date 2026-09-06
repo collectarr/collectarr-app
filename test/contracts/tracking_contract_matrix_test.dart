@@ -11,11 +11,16 @@ import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.da
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 
 import 'tracking_entry_contract.dart';
 import 'tracking_profile_contract.dart';
 
 void main() {
+  final codecsByKind = {
+    for (final codec in collectarrTrackingEntryCodecs) codec.kind: codec,
+  };
   defineTrackingProfileContract(
     name: 'Comic',
     create: () => comicKindModule.trackingProfile,
@@ -53,20 +58,29 @@ void main() {
     create: () => musicKindModule.trackingProfile,
   );
 
-  _defineTrackingEntryContract('comic', CatalogMediaKind.comic);
-  _defineTrackingEntryContract('manga', CatalogMediaKind.manga);
-  _defineTrackingEntryContract('book', CatalogMediaKind.book);
-  _defineTrackingEntryContract('game', CatalogMediaKind.game);
-  _defineTrackingEntryContract('boardgame', CatalogMediaKind.boardgame);
-  _defineTrackingEntryContract('movie', CatalogMediaKind.movie);
-  _defineTrackingEntryContract('tv', CatalogMediaKind.tv);
-  _defineTrackingEntryContract('anime', CatalogMediaKind.anime);
-  _defineTrackingEntryContract('music', CatalogMediaKind.music);
+  _defineTrackingEntryContract('comic', CatalogMediaKind.comic, codecsByKind);
+  _defineTrackingEntryContract('manga', CatalogMediaKind.manga, codecsByKind);
+  _defineTrackingEntryContract('book', CatalogMediaKind.book, codecsByKind);
+  _defineTrackingEntryContract('game', CatalogMediaKind.game, codecsByKind);
+  _defineTrackingEntryContract(
+    'boardgame',
+    CatalogMediaKind.boardgame,
+    codecsByKind,
+  );
+  _defineTrackingEntryContract('movie', CatalogMediaKind.movie, codecsByKind);
+  _defineTrackingEntryContract('tv', CatalogMediaKind.tv, codecsByKind);
+  _defineTrackingEntryContract('anime', CatalogMediaKind.anime, codecsByKind);
+  _defineTrackingEntryContract('music', CatalogMediaKind.music, codecsByKind);
 }
 
-void _defineTrackingEntryContract(String name, CatalogMediaKind kind) {
+void _defineTrackingEntryContract(
+  String name,
+  CatalogMediaKind kind,
+  Map<String, TrackingEntryCodec> codecsByKind,
+) {
   defineTrackingEntryContract(
     name: name,
+    codec: codecsByKind[kind.apiValue]!,
     create: () => TrackingEntry(
       id: '$name-tracking-1',
       catalogRef: CatalogEntityRef(

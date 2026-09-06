@@ -301,12 +301,10 @@ class SyncApplyService {
             deletedAt == null ? null : DateTime.parse(deletedAt as String),
       );
     }
-    return TrackingEntry.fromJson({
-      ...payload,
-      'id': entity['entity_id'],
-      'updated_at': entity['client_changed_at'],
-      'deleted_at': deletedAt,
-    });
+    throw UnsupportedError(
+      'No kind-owned tracking-entry codec is registered for '
+      '${kind ?? 'unknown'}',
+    );
   }
 
   WatchSession _watchSessionFromEntity(Map<String, dynamic> entity) {

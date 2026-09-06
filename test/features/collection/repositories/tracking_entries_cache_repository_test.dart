@@ -71,7 +71,7 @@ void main() {
     expect(repository.toSyncPayload(entry), containsPair('season_number', 2));
   });
 
-  test('does not persist hierarchy coordinates for an unregistered kind',
+  test('does not persist hierarchy coordinates for a non-episodic kind',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -103,5 +103,13 @@ void main() {
     expect(row.seasonNumber, isNull);
     expect(row.episodeNumber, isNull);
     expect(row.episodeRatings, isNull);
+    expect(
+      repository.toSyncPayload(entry!),
+      isNot(contains('season_number')),
+    );
+    expect(
+      repository.toSyncPayload(entry),
+      isNot(contains('episode_number')),
+    );
   });
 }
