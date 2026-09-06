@@ -41,5 +41,4 @@ const movieTrackingProfile = MediaTrackingProfile(
       storageValue: 'Rewatching',
     ),
   ],
-  supportsEpisodeCoordinates: true,
 );

@@ -17,16 +17,10 @@ class MediaTrackingProfile {
   const MediaTrackingProfile({
     required this.name,
     required this.options,
-    this.supportsEpisodeCoordinates = false,
   });
 
   final String name;
   final List<MediaTrackingOption> options;
-
-  /// A compatibility presentation capability for the current editor host.
-  /// TV/Anime profiles opt in; the owning kind remains responsible for the
-  /// actual season/episode state and persistence.
-  final bool supportsEpisodeCoordinates;
 
   String? normalizeStorageValue(String? value) {
     final status = mediaTrackingStatusFromString(value);

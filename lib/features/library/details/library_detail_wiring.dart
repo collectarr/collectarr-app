@@ -25,6 +25,7 @@ List<Widget> buildLibraryDetailEditorSections({
         mediaType: catalogItem?.kind ?? '',
         trackingEntry: trackingEntry,
         profile: type.trackingProfile,
+        trackingEditor: type.inspector.trackingEditor,
         editions: catalogItem == null
             ? const []
             : type.presentation.builder.buildReleaseEditions(

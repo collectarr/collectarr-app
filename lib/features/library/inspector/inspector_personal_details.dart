@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -428,6 +429,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
     required this.trackingEntry,
     required this.profile,
     required this.accent,
+    this.trackingEditor,
     this.editions = const <CatalogEdition>[],
   });
 
@@ -436,6 +438,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
   final TrackingEntry trackingEntry;
   final MediaTrackingProfile profile;
   final Color accent;
+  final LibraryTrackingEditorCapability? trackingEditor;
   final List<CatalogEdition> editions;
 
   @override
@@ -450,21 +453,12 @@ class _InspectorTrackingDetailsEditorState
   late final TextEditingController _progressCurrentController;
   late final TextEditingController _progressTotalController;
   late final TextEditingController _timesCompletedController;
-  late final TextEditingController _seasonNumberController;
-  late final TextEditingController _episodeNumberController;
   late final TextEditingController _trackingNotesController;
+  TrackingEntryEditMutation? _trackingEditorMutation;
   DateTime? _startedAt;
   DateTime? _finishedAt;
   String? _selectedEditionId;
   String? _selectedVariantId;
-
-  bool get _showsEpisodeFields {
-    return widget.profile.supportsEpisodeCoordinates ||
-        _seasonNumberController.text.trim().isNotEmpty ||
-        _episodeNumberController.text.trim().isNotEmpty ||
-        widget.trackingEntry.seasonNumber != null ||
-        widget.trackingEntry.episodeNumber != null;
-  }
 
   @override
   void initState() {
@@ -474,8 +468,6 @@ class _InspectorTrackingDetailsEditorState
     _progressCurrentController = TextEditingController();
     _progressTotalController = TextEditingController();
     _timesCompletedController = TextEditingController();
-    _seasonNumberController = TextEditingController();
-    _episodeNumberController = TextEditingController();
     _trackingNotesController = TextEditingController();
     _syncFromEntry(widget.trackingEntry);
   }
@@ -485,6 +477,7 @@ class _InspectorTrackingDetailsEditorState
     super.didUpdateWidget(oldWidget);
     if (oldWidget.trackingEntry.id != widget.trackingEntry.id ||
         oldWidget.trackingEntry.updatedAt != widget.trackingEntry.updatedAt) {
+      _trackingEditorMutation = null;
       _syncFromEntry(widget.trackingEntry);
     }
   }
@@ -496,8 +489,6 @@ class _InspectorTrackingDetailsEditorState
     _progressCurrentController.dispose();
     _progressTotalController.dispose();
     _timesCompletedController.dispose();
-    _seasonNumberController.dispose();
-    _episodeNumberController.dispose();
     _trackingNotesController.dispose();
     super.dispose();
   }
@@ -578,15 +569,22 @@ class _InspectorTrackingDetailsEditorState
             accent: accent,
             progressCurrentController: _progressCurrentController,
             progressTotalController: _progressTotalController,
-            seasonNumberController: _seasonNumberController,
-            episodeNumberController: _episodeNumberController,
-            showsEpisodeFields: _showsEpisodeFields,
             onDecrementProgress: () => _bumpProgress(-1),
             onIncrementProgress: () => _bumpProgress(1),
-            onDecrementEpisode: () => _bumpEpisode(-1),
-            onIncrementEpisode: () => _bumpEpisode(1),
           ),
         ),
+        if (widget.trackingEditor != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: widget.trackingEditor!.build(
+              context,
+              entry: widget.trackingEntry,
+              onChanged: (mutation) => setState(
+                () => _trackingEditorMutation = mutation,
+              ),
+              accent: accent,
+            ),
+          ),
         _InspectorEditorRow(
           label: 'Progress',
           child: Row(
@@ -629,38 +627,6 @@ class _InspectorTrackingDetailsEditorState
             ),
           ),
         ),
-        if (_showsEpisodeFields) ...[
-          _InspectorEditorRow(
-            label: 'Episode',
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _seasonNumberController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'Season',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _episodeNumberController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'Episode',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
         _InspectorEditorRow(
           label: 'Notes',
           alignTop: true,
@@ -734,8 +700,6 @@ class _InspectorTrackingDetailsEditorState
     _progressCurrentController.text = entry.progressCurrent?.toString() ?? '';
     _progressTotalController.text = entry.progressTotal?.toString() ?? '';
     _timesCompletedController.text = entry.timesCompleted?.toString() ?? '';
-    _seasonNumberController.text = entry.seasonNumber?.toString() ?? '';
-    _episodeNumberController.text = entry.episodeNumber?.toString() ?? '';
     _trackingNotesController.text = entry.notes ?? '';
     _startedAt = entry.startedAt;
     _finishedAt = entry.finishedAt;
@@ -799,14 +763,6 @@ class _InspectorTrackingDetailsEditorState
     );
     setState(() {
       _progressCurrentController.text = '$bounded';
-    });
-  }
-
-  void _bumpEpisode(int delta) {
-    final current = parseTrackingInt(_episodeNumberController.text) ?? 1;
-    final bounded = clampTrackingEpisode(current: current, delta: delta);
-    setState(() {
-      _episodeNumberController.text = '$bounded';
     });
   }
 
@@ -885,8 +841,7 @@ class _InspectorTrackingDetailsEditorState
           progressTotal: _parseInt(_progressTotalController.text),
           timesCompleted: _parseInt(_timesCompletedController.text),
           notes: _emptyToNull(_trackingNotesController.text),
-          seasonNumber: _parseInt(_seasonNumberController.text),
-          episodeNumber: _parseInt(_episodeNumberController.text),
+          customizeEntry: _trackingEditorMutation,
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

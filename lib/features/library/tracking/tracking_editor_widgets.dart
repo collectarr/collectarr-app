@@ -19,42 +19,21 @@ List<Widget> buildTrackingProgressFieldWidgets({
   ];
 }
 
-List<Widget> buildTrackingEpisodeFieldWidgets({
-  required TrackingFieldWidgetBuilder buildField,
-  required TextEditingController seasonNumberController,
-  required TextEditingController episodeNumberController,
-}) {
-  return [
-    buildField(seasonNumberController, 'Season'),
-    buildField(episodeNumberController, 'Episode'),
-  ];
-}
-
 class TrackingQuickAdjustments extends StatelessWidget {
   const TrackingQuickAdjustments({
     super.key,
     required this.accent,
     required this.progressCurrentController,
     required this.progressTotalController,
-    required this.seasonNumberController,
-    required this.episodeNumberController,
-    required this.showsEpisodeFields,
     required this.onDecrementProgress,
     required this.onIncrementProgress,
-    required this.onDecrementEpisode,
-    required this.onIncrementEpisode,
   });
 
   final Color accent;
   final TextEditingController progressCurrentController;
   final TextEditingController progressTotalController;
-  final TextEditingController seasonNumberController;
-  final TextEditingController episodeNumberController;
-  final bool showsEpisodeFields;
   final VoidCallback onDecrementProgress;
   final VoidCallback onIncrementProgress;
-  final VoidCallback onDecrementEpisode;
-  final VoidCallback onIncrementEpisode;
 
   @override
   Widget build(BuildContext context) {
@@ -62,15 +41,11 @@ class TrackingQuickAdjustments extends StatelessWidget {
       animation: Listenable.merge([
         progressCurrentController,
         progressTotalController,
-        seasonNumberController,
-        episodeNumberController,
       ]),
       builder: (context, child) {
         final progressCurrent =
             parseTrackingInt(progressCurrentController.text) ?? 0;
         final progressTotal = parseTrackingInt(progressTotalController.text);
-        final seasonNumber = parseTrackingInt(seasonNumberController.text);
-        final episodeNumber = parseTrackingInt(episodeNumberController.text);
         return Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -84,16 +59,6 @@ class TrackingQuickAdjustments extends StatelessWidget {
               onDecrement: onDecrementProgress,
               onIncrement: onIncrementProgress,
             ),
-            if (showsEpisodeFields)
-              _QuickTrackingStepper(
-                accent: accent,
-                label: trackingEpisodeSummaryLabel(
-                  seasonNumber: seasonNumber,
-                  episodeNumber: episodeNumber,
-                ),
-                onDecrement: onDecrementEpisode,
-                onIncrement: onIncrementEpisode,
-              ),
           ],
         );
       },
@@ -111,17 +76,6 @@ String trackingProgressSummaryLabel({
   return 'Progress $progressCurrent';
 }
 
-String trackingEpisodeSummaryLabel({
-  int? seasonNumber,
-  int? episodeNumber,
-}) {
-  final resolvedEpisode = episodeNumber ?? 1;
-  if (seasonNumber != null) {
-    return 'S$seasonNumber · Ep $resolvedEpisode';
-  }
-  return 'Episode $resolvedEpisode';
-}
-
 int clampTrackingProgress({
   required int current,
   required int delta,
@@ -132,14 +86,6 @@ int clampTrackingProgress({
     return next.clamp(0, progressTotal);
   }
   return next < 0 ? 0 : next;
-}
-
-int clampTrackingEpisode({
-  required int current,
-  required int delta,
-}) {
-  final next = current + delta;
-  return next < 1 ? 1 : next;
 }
 
 int? parseTrackingInt(String value) {

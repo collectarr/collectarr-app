@@ -41,5 +41,4 @@ const animeTrackingProfile = MediaTrackingProfile(
       storageValue: 'Rewatching',
     ),
   ],
-  supportsEpisodeCoordinates: true,
 );

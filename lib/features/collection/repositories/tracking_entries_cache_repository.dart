@@ -98,14 +98,11 @@ class TrackingEntriesCacheRepository {
   }
 
   Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
-    final codec = _codecs[entry.catalogRef.kind];
-    if (codec == null) {
-      throw UnsupportedError(
-        'No kind-owned tracking-entry codec is registered for '
-        '${entry.catalogRef.kind}',
-      );
-    }
-    return codec.toSyncPayload(entry);
+    // Legacy local rows may not have a kind yet. Preserve only the common
+    // lifecycle payload until the row is re-associated with an owner; remote
+    // sync reconstruction remains strict in SyncApplyService.
+    return _codecs[entry.catalogRef.kind]?.toSyncPayload(entry) ??
+        entry.toSyncPayload();
   }
 
   TrackingEntry _fromCache(
@@ -132,13 +129,30 @@ class TrackingEntriesCacheRepository {
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
-    final codec = _codecs[row.kind];
-    if (codec == null) {
-      throw UnsupportedError(
-        'No kind-owned tracking-entry codec is registered for ${row.kind}',
-      );
-    }
-    return codec.fromStorageRow(storageRow, coordinates);
+    return _codecs[row.kind]?.fromStorageRow(storageRow, coordinates) ??
+        _fromLegacyStorageRow(storageRow);
+  }
+
+  TrackingEntry _fromLegacyStorageRow(TrackingEntryStorageRow row) {
+    return TrackingEntry(
+      id: row.id,
+      catalogRef: row.catalogRef,
+      ownedItemId: row.ownedItemId,
+      editionId: row.editionId,
+      variantId: row.variantId,
+      bundleReleaseId: row.bundleReleaseId,
+      sourceType: row.sourceType,
+      status: row.status,
+      rating: row.rating,
+      startedAt: row.startedAt,
+      finishedAt: row.finishedAt,
+      progressCurrent: row.progressCurrent,
+      progressTotal: row.progressTotal,
+      timesCompleted: row.timesCompleted,
+      notes: row.notes,
+      updatedAt: row.updatedAt,
+      deletedAt: row.deletedAt,
+    );
   }
 
   TrackingEntriesCacheCompanion _toCompanion(TrackingEntry item) {

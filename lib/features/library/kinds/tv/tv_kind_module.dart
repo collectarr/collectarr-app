@@ -25,6 +25,8 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_editor_extension.dart';
+import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
@@ -145,6 +147,9 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     sectionsBuilder: buildTvInspectorSections,
     detailPageBuilder: buildLibraryVideoDetailPage,
     showsDefaultPersonalSection: false,
+    trackingEditor: LibraryTrackingEditorCapability(
+      builder: buildTvTrackingEditorExtension,
+    ),
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
     _tvLinkedMetadataValues,

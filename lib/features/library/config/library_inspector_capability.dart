@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:flutter/material.dart';
 
 /// Encapsulates inspector header, sections, and detail presentation for a media kind.
@@ -10,6 +11,7 @@ class LibraryInspectorCapability {
     this.showsDefaultPersonalSection = true,
     this.showsCreatorSpotlight = false,
     this.supportsOwnedItemImages = true,
+    this.trackingEditor,
   });
 
   final LibraryInspectorHeroBuilder? heroBuilder;
@@ -18,6 +20,7 @@ class LibraryInspectorCapability {
   final bool showsDefaultPersonalSection;
   final bool showsCreatorSpotlight;
   final bool supportsOwnedItemImages;
+  final LibraryTrackingEditorCapability? trackingEditor;
 
   List<Widget> buildSections(
     BuildContext context,
