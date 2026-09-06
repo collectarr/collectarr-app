@@ -133,6 +133,7 @@ final class CollectionImportService {
           row,
           now,
           existing: existingOwned[row.itemId],
+          fallbackKind: catItemKind,
         );
         ownedItemsList.add(ownedItem);
         syncChanges.add(
@@ -363,9 +364,13 @@ final class CollectionImportService {
     CollectionCsvRow row,
     DateTime now, {
     OwnedItem? existing,
+    String? fallbackKind,
   }) {
     if (existing != null) {
-      final importedDetails = _ownedDetailsFromCsvRow(row);
+      final importedDetails = _ownedDetailsFromCsvRow(
+        row,
+        fallbackKind: existing.catalogRef.kind,
+      );
       return existing.copyWith(
         condition: row.condition ?? existing.condition,
         grade: row.grade ?? existing.grade,
@@ -384,13 +389,17 @@ final class CollectionImportService {
         updatedAt: now,
       );
     }
-    final kind = catalogMediaKindFromApiValue(row.kind);
-    final details = _ownedDetailsFromCsvRow(row) ??
+    final resolvedKind = row.kind ?? fallbackKind;
+    final kind = catalogMediaKindFromApiValue(resolvedKind);
+    final details = _ownedDetailsFromCsvRow(
+          row,
+          fallbackKind: resolvedKind,
+        ) ??
         libraryKindRuntimeForKind(kind).defaultOwnedDetails();
     return OwnedItem(
       id: idGenerator(),
       catalogRef: CatalogEntityRef(
-        kind: row.kind ?? 'unknown',
+        kind: resolvedKind ?? CatalogMediaKind.unknown.apiValue,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),
@@ -413,11 +422,14 @@ final class CollectionImportService {
     );
   }
 
-  OwnedItemDetails? _ownedDetailsFromCsvRow(CollectionCsvRow row) {
+  OwnedItemDetails? _ownedDetailsFromCsvRow(
+    CollectionCsvRow row, {
+    String? fallbackKind,
+  }) {
     if (row.kindOwnedCells.length != libraryCollectionCsvOwnedCellCount) {
       return null;
     }
-    final kind = catalogMediaKindFromApiValue(row.kind);
+    final kind = catalogMediaKindFromApiValue(row.kind ?? fallbackKind);
     final projection = libraryCollectionCsvProjectionForKind(kind);
     if (projection case final LibraryCollectionCsvOwnedDetailsDecoder decoder) {
       return decoder.decodeOwnedDetails(row.kindOwnedCells);

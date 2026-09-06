@@ -768,10 +768,12 @@ void main() {
     );
 
     final owned = await db.select(db.ownedItemsCache).getSingle();
+    final typedOwned = await db.select(db.comicOwnedItemsRows).get();
     final queued = await db.select(db.syncQueue).get();
     expect(imported, 1);
     expect(owned.itemId, 'comic-1');
     expect(owned.grade, '7.5');
+    expect(typedOwned, hasLength(1));
     expect(
       queued.where((row) => row.entityType == 'catalog_item'),
       hasLength(1),
