@@ -129,6 +129,7 @@ final class AddOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
 final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
   const UpdateOwnedItemCommand({
     required this.ownedItemId,
+    this.anchor = const Patch.unchanged(),
     this.quantity = const Patch.unchanged(),
     this.condition = const Patch.unchanged(),
     this.grade = const Patch.unchanged(),
@@ -150,6 +151,7 @@ final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
   });
 
   final String ownedItemId;
+  final Patch<PersonalItemAnchor?> anchor;
   final Patch<int> quantity;
   final Patch<String?> condition;
   final Patch<String?> grade;

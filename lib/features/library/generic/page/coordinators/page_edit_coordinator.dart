@@ -275,6 +275,7 @@ class LibraryPageEditCoordinator {
     if (owned != null && personal != null) {
       final updateCmd = UpdateOwnedItemCommand(
         ownedItemId: owned.id,
+        anchor: Patch.set(personal.anchor),
         quantity: Patch.set(personal.quantity),
         condition: personal.condition != null
             ? Patch.set(personal.condition)

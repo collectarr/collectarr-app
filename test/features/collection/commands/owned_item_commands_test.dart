@@ -166,6 +166,13 @@ void main() {
 
     final updateCmd = UpdateOwnedItemCommand(
       ownedItemId: initial.id,
+      anchor: Patch.set(
+        PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.variant.apiValue,
+          editionId: 'edition-updated',
+          variantId: 'variant-updated',
+        ),
+      ),
       condition: const Patch.set('Near Mint'),
       grade: const Patch.set('9.6'),
       details: const Patch.set(
@@ -179,6 +186,9 @@ void main() {
     final updated = await coordinator.updateOwnedItem(updateCmd);
 
     expect(updated.id, initial.id);
+    expect(updated.anchor?.apiValue, 'variant');
+    expect(updated.anchor?.editionId, 'edition-updated');
+    expect(updated.anchor?.variantId, 'variant-updated');
     expect(updated.condition, 'Near Mint');
     expect(updated.grade, '9.6');
     expect(updated.pricePaidCents, 1000);

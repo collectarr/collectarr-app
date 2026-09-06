@@ -176,10 +176,11 @@ final class OwnedItemMutations {
             set: (v) => v,
             clear: () => null,
           ),
-          anchorType: existing.anchorType,
-          editionId: existing.editionId,
-          variantId: existing.variantId,
-          bundleReleaseId: existing.bundleReleaseId,
+          anchor: command.anchor.when(
+            unchanged: () => existing.anchor,
+            set: (value) => value,
+            clear: () => null,
+          ),
           details: resolvedDetails,
           condition: command.condition.when(
             unchanged: () => existing.condition,
