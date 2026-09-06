@@ -81,7 +81,9 @@ void main() {
         ),
       ]);
 
-      await wishlistMutations.addToWishlist('movie-100');
+      await wishlistMutations.addToWishlist(
+        testCatalogRef('movie-100', kind: 'movie'),
+      );
 
       final changes = await syncQueue.listPending();
       final wishlistChange = changes.firstWhere(
@@ -93,11 +95,11 @@ void main() {
       expect(catalogRef['kind'], isNot('comic'));
     });
 
-    test('explicit fallbackKind is respected when item is not in catalog cache',
+    test(
+        'explicit catalog reference resolves an item absent from catalog cache',
         () async {
       await wishlistMutations.addToWishlist(
-        'game-500',
-        fallbackKind: 'game',
+        testCatalogRef('game-500', kind: 'game'),
       );
 
       final changes = await syncQueue.listPending();
@@ -111,10 +113,12 @@ void main() {
     });
 
     test(
-        'missing catalog item with no fallbackKind throws StateError and never defaults to comic',
+        'missing catalog item with an unknown reference kind throws StateError',
         () async {
       expect(
-        () => wishlistMutations.addToWishlist('unknown-unseeded-item'),
+        () => wishlistMutations.addToWishlist(
+          testCatalogRef('unknown-unseeded-item'),
+        ),
         throwsStateError,
       );
     });

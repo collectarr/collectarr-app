@@ -134,7 +134,7 @@ final class CollectionImportService {
           row,
           now,
           existing: existingOwned[row.itemId],
-          fallbackKind: catItemKind,
+          catalogKind: catItemKind,
         );
         ownedItemsList.add(ownedItem);
         syncChanges.add(
@@ -376,12 +376,12 @@ final class CollectionImportService {
     CollectionCsvRow row,
     DateTime now, {
     OwnedItem? existing,
-    String? fallbackKind,
+    String? catalogKind,
   }) {
     if (existing != null) {
       final importedDetails = _ownedDetailsFromCsvRow(
         row,
-        fallbackKind: existing.catalogRef.kind,
+        kind: existing.catalogRef.kind,
       );
       return existing.copyWith(
         condition: row.condition ?? existing.condition,
@@ -401,11 +401,11 @@ final class CollectionImportService {
         updatedAt: now,
       );
     }
-    final resolvedKind = row.kind ?? fallbackKind;
+    final resolvedKind = row.kind ?? catalogKind;
     final kind = catalogMediaKindFromApiValue(resolvedKind);
     final details = _ownedDetailsFromCsvRow(
           row,
-          fallbackKind: resolvedKind,
+          kind: resolvedKind ?? CatalogMediaKind.unknown.apiValue,
         ) ??
         collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
     return OwnedItem(
@@ -436,13 +436,14 @@ final class CollectionImportService {
 
   OwnedItemDetails? _ownedDetailsFromCsvRow(
     CollectionCsvRow row, {
-    String? fallbackKind,
+    required String kind,
   }) {
     if (row.kindOwnedCells.length != libraryCollectionCsvOwnedCellCount) {
       return null;
     }
-    final kind = catalogMediaKindFromApiValue(row.kind ?? fallbackKind);
-    final projection = libraryCollectionCsvProjectionForKind(kind);
+    final projection = libraryCollectionCsvProjectionForKind(
+      catalogMediaKindFromApiValue(kind),
+    );
     if (projection case final LibraryCollectionCsvOwnedDetailsDecoder decoder) {
       return decoder.decodeOwnedDetails(row.kindOwnedCells);
     }

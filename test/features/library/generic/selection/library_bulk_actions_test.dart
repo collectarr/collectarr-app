@@ -163,7 +163,9 @@ void main() {
         details: const MovieOwnedDetailsDraft(),
       ),
     );
-    await wishlistMutations.addToWishlist('movie-2', fallbackKind: 'movie');
+    await wishlistMutations.addToWishlist(
+      testCatalogRef('movie-2', kind: 'movie'),
+    );
     await trackingMutations.upsertTrackingEntry(
       TrackingTarget.catalog(testCatalogRef('movie-3', kind: 'movie')),
       sourceType: TrackingSourceType.streaming,
@@ -253,13 +255,11 @@ void main() {
         );
 
     await wishlistMutations.addToWishlist(
-      'movie-1',
-      fallbackKind: 'movie',
+      testCatalogRef('movie-1', kind: 'movie'),
       anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
     );
     await wishlistMutations.addToWishlist(
-      'movie-1',
-      fallbackKind: 'movie',
+      testCatalogRef('movie-1', kind: 'movie'),
       anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-bluray'),
     );
 

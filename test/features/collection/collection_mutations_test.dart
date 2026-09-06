@@ -557,7 +557,7 @@ void main() {
 
     await container
         .read(wishlistMutationsProvider)
-        .addToWishlist('movie-1', fallbackKind: 'movie');
+        .addToWishlist(testCatalogRef('movie-1', kind: 'movie'));
     final originalRow = await db.select(db.wishlistItemsCache).getSingle();
     final original = WishlistItem(
       id: originalRow.id,
@@ -607,13 +607,11 @@ void main() {
 
     final wishlistMutations = container.read(wishlistMutationsProvider);
     await wishlistMutations.addToWishlist(
-      'movie-1',
-      fallbackKind: 'movie',
+      testCatalogRef('movie-1', kind: 'movie'),
       anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
     );
     await wishlistMutations.addToWishlist(
-      'movie-1',
-      fallbackKind: 'movie',
+      testCatalogRef('movie-1', kind: 'movie'),
       anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-bluray'),
     );
 
@@ -642,13 +640,11 @@ void main() {
 
     final wishlistMutations = container.read(wishlistMutationsProvider);
     await wishlistMutations.addToWishlist(
-      'movie-1',
-      fallbackKind: 'movie',
+      testCatalogRef('movie-1', kind: 'movie'),
       anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
     );
     await wishlistMutations.addToWishlist(
-      'movie-1',
-      fallbackKind: 'movie',
+      testCatalogRef('movie-1', kind: 'movie'),
       anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-bluray'),
     );
 
@@ -746,7 +742,9 @@ void main() {
     final wishlistMutations = container.read(wishlistMutationsProvider);
     final importService = container.read(collectionImportServiceProvider);
 
-    await wishlistMutations.addToWishlist('comic-1', fallbackKind: 'comic');
+    await wishlistMutations.addToWishlist(
+      testCatalogRef('comic-1', kind: 'comic'),
+    );
     await importService.importRows([
       const CollectionCsvRow(
         itemId: 'comic-1',

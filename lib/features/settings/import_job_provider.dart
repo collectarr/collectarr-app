@@ -647,8 +647,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           );
         } else {
           await wishlistMutations.addToWishlist(
-            item.id,
-            fallbackKind: item.kind,
+            item.catalogRef,
             origin: origin,
           );
         }
@@ -1022,8 +1021,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
       await wishlistMutations.addToWishlist(
-        item.id,
-        fallbackKind: item.kind,
+        item.catalogRef,
         origin: origin,
       );
       return;

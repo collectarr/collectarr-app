@@ -133,8 +133,7 @@ Future<void> addLibraryItemsToTarget({
         break;
       case LibraryAddTarget.wishlist:
         await wishlistMutations.addToWishlist(
-          item.id,
-          fallbackKind: item.kind,
+          item.catalogRefForPersonalAnchor(itemAnchor),
           anchor: itemAnchor,
         );
         break;

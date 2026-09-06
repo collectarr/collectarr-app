@@ -130,10 +130,19 @@ class LibraryBulkActions {
 
   Future<void> moveSelectedToWishlist(List<ShelfEntry> entries) async {
     for (var index = 0; index < entries.length; index++) {
+      final entry = entries[index];
+      final catalogRef = entry.catalogItem?.catalogRefForPersonalAnchor(null) ??
+          entry.ownedItem?.catalogRef ??
+          entry.wishlistItem?.catalogRef ??
+          entry.trackingEntry?.catalogRef;
+      if (catalogRef == null) {
+        throw StateError(
+          'Cannot move selected item to wishlist without a catalog reference: '
+          '${entry.itemId}',
+        );
+      }
       await wishlistMutations.addToWishlist(
-        entries[index].itemId,
-        fallbackKind: entries[index].catalogItem?.kind ??
-            entries[index].ownedItem?.catalogRef.kind,
+        catalogRef,
       );
     }
     final ownedEntries = [

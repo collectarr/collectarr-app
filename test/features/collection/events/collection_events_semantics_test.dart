@@ -114,7 +114,9 @@ void main() {
   test(
       'add owned item with matching wishlist entry emits OwnedItemAdded and WishlistChanged',
       () async {
-    await wishlistMutations.addToWishlist('movie-200', fallbackKind: 'movie');
+    await wishlistMutations.addToWishlist(
+      testCatalogRef('movie-200', kind: 'movie'),
+    );
 
     final events = <CollectionEvent>[];
     final sub = eventBus.stream.listen(events.add);

@@ -52,8 +52,7 @@ class LibraryCollectionActions {
       wishlistItem: item.source.wishlistItem,
     );
     return wishlistMutations.addToWishlist(
-      item.source.catalogItem!.id,
-      fallbackKind: item.source.catalogItem?.kind,
+      item.source.catalogItem!.catalogRefForPersonalAnchor(anchor),
       anchor: anchor,
     );
   }

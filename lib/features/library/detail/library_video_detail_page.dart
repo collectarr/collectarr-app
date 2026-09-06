@@ -99,9 +99,18 @@ class _LibraryVideoDetailPageState
 
   Future<void> _addWishlistForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
+    final catalogItem = widget.request.item.source.catalogItem;
+    if (catalogItem == null) {
+      return;
+    }
     await ref.read(wishlistMutationsProvider).addToWishlist(
-          widget.request.item.source.itemId,
-          fallbackKind: widget.request.type.kind.apiValue,
+          catalogItem.catalogRefForPersonalAnchor(
+            PersonalItemAnchor.fromRaw(
+              editionId: anchor.editionId,
+              variantId: anchor.variantId,
+              bundleReleaseId: anchor.bundleReleaseId,
+            ),
+          ),
           anchor: PersonalItemAnchor.fromRaw(
             editionId: anchor.editionId,
             variantId: anchor.variantId,

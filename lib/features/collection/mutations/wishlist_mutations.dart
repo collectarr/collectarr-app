@@ -38,24 +38,25 @@ final class WishlistMutations {
   final IdGenerator idGenerator;
 
   Future<void> addToWishlist(
-    String itemId, {
-    String? fallbackKind,
+    CatalogEntityRef catalogRef, {
     PersonalItemAnchor? anchor,
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
+    if (!catalogRef.isKnown ||
+        catalogRef.mediaKind == CatalogMediaKind.unknown) {
+      throw StateError(
+        'Cannot add wishlist item without a registered catalog kind: '
+        '${catalogRef.id}',
+      );
+    }
     final now = DateTime.now().toUtc();
+    final itemId = catalogRef.id;
     final catalogItem = await catalogCache.findById(itemId);
     final existing = await wishlist.findActiveByItemAnchorValue(itemId, anchor);
-    final localRef = existing?.catalogRef ??
-        (catalogItem != null || fallbackKind != null
-            ? _catalogRefForItem(
-                itemId,
-                catalogItem,
-                fallbackKind: fallbackKind,
-                anchor: anchor,
-              )
-            : null);
+    final resolvedCatalogRef =
+        catalogItem?.catalogRefForPersonalAnchor(anchor) ?? catalogRef;
+    final localRef = existing?.catalogRef ?? resolvedCatalogRef;
     await mutationRunner.run(
       origin: origin,
       localRef: localRef,
@@ -65,12 +66,7 @@ final class WishlistMutations {
         if (existing == null) {
           final item = WishlistItem(
             id: idGenerator(),
-            catalogRef: _catalogRefForItem(
-              itemId,
-              catalogItem,
-              fallbackKind: fallbackKind,
-              anchor: anchor,
-            ),
+            catalogRef: resolvedCatalogRef,
             anchor: anchor,
             createdAt: now,
             updatedAt: now,
@@ -198,13 +194,14 @@ final class WishlistMutations {
   }
 
   Future<void> toggleWishlist(
-    String itemId, {
+    CatalogEntityRef catalogRef, {
     PersonalItemAnchor? anchor,
   }) async {
+    final itemId = catalogRef.id;
     final existing = await wishlist.findActiveByItemAnchorValue(itemId, anchor);
     if (existing == null) {
       await addToWishlist(
-        itemId,
+        catalogRef,
         anchor: anchor,
       );
     } else {
@@ -233,28 +230,6 @@ final class WishlistMutations {
     }
 
     return await wishlist.findActiveByItemIds([itemId]);
-  }
-
-  CatalogEntityRef _catalogRefForItem(
-    String itemId,
-    CatalogItem? item, {
-    String? fallbackKind,
-    PersonalItemAnchor? anchor,
-  }) {
-    if (item != null) {
-      return item.catalogRefForPersonalAnchor(anchor);
-    }
-    final resolvedKind = fallbackKind?.trim();
-    if (resolvedKind == null || resolvedKind.isEmpty) {
-      throw StateError(
-        'Cannot resolve CatalogEntityRef for item "$itemId": no catalog item found and no fallback kind provided.',
-      );
-    }
-    return CatalogEntityRef(
-      kind: resolvedKind,
-      entityType: CatalogEntityType.work,
-      id: itemId,
-    );
   }
 
   SyncChange _syncChangeForWishlistItem(

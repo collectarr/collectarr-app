@@ -74,9 +74,8 @@ final class OwnedItemMutations {
         }
 
         final resolvedCatalogRef = _catalogRefForItem(
-          catalogRef.id,
+          catalogRef,
           existingCatalog,
-          fallbackKind: catalogRef.kind,
           anchor: anchor,
         );
 
@@ -412,25 +411,20 @@ final class OwnedItemMutations {
   // ─── Helpers ─────────────────────────────────────────────────────────────
 
   CatalogEntityRef _catalogRefForItem(
-    String itemId,
+    CatalogEntityRef catalogRef,
     CatalogItem? item, {
-    String? fallbackKind,
     PersonalItemAnchor? anchor,
   }) {
     if (item != null) {
       return item.catalogRefForPersonalAnchor(anchor);
     }
-    final resolvedKind = fallbackKind?.trim();
-    if (resolvedKind == null || resolvedKind.isEmpty) {
+    if (!catalogRef.isKnown) {
       throw StateError(
-        'Cannot resolve CatalogEntityRef for item "$itemId": no catalog item found and no fallback kind provided.',
+        'Cannot resolve CatalogEntityRef without a complete catalog reference: '
+        '${catalogRef.id}',
       );
     }
-    return CatalogEntityRef(
-      kind: resolvedKind,
-      entityType: CatalogEntityType.work,
-      id: itemId,
-    );
+    return catalogRef;
   }
 
   SyncChange _syncChangeForOwnedItem(

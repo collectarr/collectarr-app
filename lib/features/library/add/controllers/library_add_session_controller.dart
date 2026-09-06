@@ -1307,8 +1307,7 @@ class LibraryAddSessionController
           await _addOwnedItemWithTracking(command);
         case LibraryAddTarget.wishlist:
           await wishlistMutations.addToWishlist(
-            item.id,
-            fallbackKind: item.kind,
+            item.catalogRefForPersonalAnchor(_selectedAnchor),
             anchor: _selectedAnchor,
           );
         case LibraryAddTarget.track:
@@ -1432,8 +1431,7 @@ class LibraryAddSessionController
               await _addOwnedItemWithTracking(command);
             case LibraryAddTarget.wishlist:
               await wishlistMutations.addToWishlist(
-                metadataItem.id,
-                fallbackKind: metadataItem.kind,
+                metadataItem.catalogRefForPersonalAnchor(_selectedAnchor),
                 anchor: _selectedAnchor,
               );
             case LibraryAddTarget.track:
@@ -1495,8 +1493,7 @@ class LibraryAddSessionController
             await _addOwnedItemWithTracking(command);
           case LibraryAddTarget.wishlist:
             await wishlistMutations.addToWishlist(
-              selectedResult.id,
-              fallbackKind: selectedResult.kind,
+              selectedResult.catalogRefForPersonalAnchor(_selectedAnchor),
               anchor: _selectedAnchor,
             );
           case LibraryAddTarget.track:
