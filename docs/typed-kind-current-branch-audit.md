@@ -3,7 +3,7 @@
 Audit date: 2026-09-06
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `998b6a46` (`refactor(tv): remove legacy hierarchy models`)
+HEAD: `ea5548a9` (`refactor(tv): own personal episode import mapping`)
 
 ## Scope and evidence
 
@@ -11,7 +11,7 @@ This is the PR0 rebaseline for the new Full Typed-Kind Vertical Architecture pla
 
 Evidence checked:
 
-- `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, de-shared video ownership details, explicit personal-list import boundaries, kind-owned Activity projections, kind-owned Admin proposal fields, concrete tracking profiles for every registered kind, kind-owned concrete tracking-unit models and persistence codecs, kind-owned TV/Anime tracking-entry coordinate and sync codecs, kind-owned TV/Anime tracking-entry sync parsing, kind-owned TV/Anime custom-episode/watch-session codecs, kind-owned TV/Anime watch-session sync codecs, TV-owned episode completion mutations, and the TV typed hierarchy migration.
+- `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, de-shared video ownership details, explicit personal-list import boundaries, kind-owned Activity projections, kind-owned Admin proposal fields, concrete tracking profiles for every registered kind, kind-owned concrete tracking-unit models and persistence codecs, kind-owned TV/Anime tracking-entry coordinate and sync codecs, kind-owned TV/Anime tracking-entry sync parsing, kind-owned TV/Anime custom-episode/watch-session codecs, kind-owned TV/Anime watch-session sync codecs, TV-owned episode completion mutations, the TV typed hierarchy migration, TV-owned personal episode import mapping, and workspace-scoped local reset cleanup.
 - `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 502 AST architecture violations; its 392 complexity warnings are informational.
 - `test/contracts/**`, `test/architecture/**`, `test/dev/dev_seed_test.dart`, the Comic domain suite, the Collection/Shelf/Stats suites, and the Movie/TV/Anime vertical suites: focused suites pass; the full suite passed at 1878 tests with 5 skipped before the latest tracking-only change, and the post-change tracking/config/UI suite passes at 91 tests with warnings only.
 - Barcode contracts execute against all 9 registered kind resolvers; the Add and metadata lookup paths dispatch normalized identifiers through the owning resolver before the API boundary.
@@ -180,11 +180,13 @@ PR0 is complete as a refreshed rebaseline. The branch has substantial prior type
 
 ## Recommended next PR
 
-Latest verification after typed seed coverage, AniList boundary cleanup, legacy mapper deletion, and TV hierarchy migration: the checker reports 502 AST violations and 392 informational complexity warnings.
+Latest verification after typed seed coverage, AniList boundary cleanup, legacy mapper deletion, TV hierarchy migration, TV personal-import ownership, and reset-script cleanup: the checker reports 502 AST violations and 392 informational complexity warnings.
 
 Since the previous audit text, TV/Anime tracking-entry sync reconstruction and watch-session sync reconstruction/serialization have also moved behind their kind codecs; the common fallback now serializes only lifecycle fields.
 
 The latest TV cleanup removes the legacy TV DTO mapper, hierarchy models, generic season provider facade, and the `ApiClient` season conversion helper. TV detail/edit/progress paths now consume `TvCoreMapper`, `tv_models.dart`, and typed TV season providers directly; the generic rating grid keeps only structural selector callbacks.
+
+TV personal episode import mapping now lives under the TV integration boundary; the generic personal-list host remains responsible only for file parsing/orchestration. The local reset script also scopes process cleanup to the current workspace and removes all SQLite journal sidecars, preventing unrelated Dart processes or stale WAL files from affecting development verification.
 
 Current branch recommendation: `PR71 continuation - reduce generic tracking state`.
 Next active implementation: `PR71 continuation - move canonical tracking mutations/state behind kind-owned typed adapters while preserving generic timestamps, history, and sync mechanics.
