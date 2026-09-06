@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/features/activity/universal_activity_contributors.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
@@ -156,14 +157,15 @@ LibraryAdminContributor? libraryAdminContributorForKind(
   return _adminContributors[kind];
 }
 
-/// Projects watch sessions through their owning kind. Sessions for kinds
-/// without a semantic contributor still produce a generic watched event, but
-/// no kind-owned coordinates are inspected here.
+/// Projects watch sessions through their owning kind. The fallback for kinds
+/// without a semantic contributor is delegated to the universal contributor;
+/// this registry only performs kind dispatch.
 Iterable<ActivityEvent> libraryActivityEventsForWatchSessions(
   Iterable<WatchSession> sessions,
 ) sync* {
+  final sessionList = sessions.toList(growable: false);
   final byKind = <CatalogMediaKind, List<WatchSession>>{};
-  for (final session in sessions) {
+  for (final session in sessionList) {
     byKind.putIfAbsent(session.targetRef.mediaKind, () => []).add(session);
   }
 
@@ -175,16 +177,15 @@ Iterable<ActivityEvent> libraryActivityEventsForWatchSessions(
       );
       continue;
     }
-    for (final session in entry.value) {
-      if (session.isDeleted) continue;
-      yield ActivityEvent(
-        kind: ActivityEventKind.watched,
-        timestamp: session.watchedAt,
-        sourceId: session.id,
-        rating: session.rating,
-      );
-    }
   }
+
+  yield* const GenericWatchActivityContributor().contribute(
+    UniversalActivityContext(
+      watchSessions: sessionList,
+      hasKindContributor: (kind) =>
+          libraryActivityContributorForKind(kind) != null,
+    ),
+  );
 }
 
 final Map<CatalogMediaKind, LibraryBarcodeResolver> _barcodeResolvers =

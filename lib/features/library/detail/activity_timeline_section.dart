@@ -95,7 +95,9 @@ class _ActivityTimelineSectionState
       trackingEntries: trackingEntries,
       wishlistItems: wishlistItems,
       loans: _loans ?? const [],
-      kindEvents: libraryActivityEventsForWatchSessions(watchSessions),
+      watchSessions: watchSessions,
+      hasKindContributor: (kind) =>
+          libraryActivityContributorForKind(kind) != null,
     );
 
     return DecoratedBox(

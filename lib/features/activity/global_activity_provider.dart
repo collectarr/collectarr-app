@@ -84,9 +84,9 @@ final globalActivityProvider =
       trackingEntries: trackingByItem[itemId] ?? const <TrackingEntry>[],
       wishlistItems: wishlistByItem[itemId] ?? const <WishlistItem>[],
       loans: loansByItem[itemId] ?? const <Loan>[],
-      kindEvents: libraryActivityEventsForWatchSessions(
-        watchByItem[itemId] ?? const <WatchSession>[],
-      ),
+      watchSessions: watchByItem[itemId] ?? const <WatchSession>[],
+      hasKindContributor: (kind) =>
+          libraryActivityContributorForKind(kind) != null,
     );
     final item = catalog[itemId];
     final title = item?.title ?? 'Unknown item';
