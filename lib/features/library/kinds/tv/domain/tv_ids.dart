@@ -79,6 +79,23 @@ final class TvReleaseMediaId {
 }
 
 @immutable
+final class TvOwnedItemId {
+  const TvOwnedItemId(this.value);
+
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is TvOwnedItemId && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}
+
+@immutable
 final class TvReleaseEpisodeMapId {
   const TvReleaseEpisodeMapId(this.value);
   final String value;

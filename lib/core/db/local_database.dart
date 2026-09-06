@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_loc
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_tables.dart';
@@ -69,6 +70,7 @@ part 'local_database.g.dart';
   TvReleaseMediaRows,
   TvReleaseEpisodeMapRows,
   TvOwnedDetailsRows,
+  TvOwnedItemsRows,
   TvWatchSessionRows,
   TvEpisodeProgressRows,
   TvCustomEpisodeRows,
@@ -95,7 +97,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 29;
+  int get schemaVersion => 30;
 
   @override
   MigrationStrategy get migration {
@@ -241,6 +243,12 @@ class LocalDatabase extends _$LocalDatabase {
             await m.createTable(animeOwnedItemsRows);
           }
           await migrateAnimeOwnedItems(this);
+        }
+        if (from < 30) {
+          if (!await _hasTable(tvOwnedItemsRows.actualTableName)) {
+            await m.createTable(tvOwnedItemsRows);
+          }
+          await migrateTvOwnedItems(this);
         }
       },
       beforeOpen: (details) async {

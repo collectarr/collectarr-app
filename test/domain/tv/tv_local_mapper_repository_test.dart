@@ -1,8 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,10 +77,84 @@ void main() {
     expect(second?.releases.single.id, expected.releases.single.id);
   });
 
-  test('TV schema exposes dedicated graph tables at schema version 28', () {
+  test('TvLocalMapper round-trips the complete owned copy', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 29);
+    final item = TvOwnedItem(
+      id: const TvOwnedItemId('owned-tv-1'),
+      catalogRef: const CatalogEntityRef(
+        kind: 'tv',
+        entityType: CatalogEntityType.work,
+        id: 'tv-1',
+      ),
+      createdAt: DateTime.utc(2026, 4, 1),
+      isDigital: false,
+      anchor: PersonalItemAnchor.fromRaw(
+        anchorType: 'edition',
+        editionId: 'release-1',
+      ),
+      condition: 'Near Mint',
+      grade: '9.5',
+      purchaseDate: DateTime.utc(2026, 4, 2),
+      pricePaidCents: 3999,
+      currency: 'EUR',
+      personalNotes: 'Complete season set',
+      quantity: 2,
+      indexNumber: 3,
+      tags: 'favorite,complete',
+      updatedAt: DateTime.utc(2026, 4, 3),
+      ownerUserId: 'user-1',
+      ownerLabel: 'TV collector',
+      locationId: 'shelf-tv',
+      purchaseStore: 'Specialist shop',
+      collectionStatus: 'owned',
+      marketValueCents: 4500,
+      details: const TvOwnedDetails(
+        features: 'Commentary',
+        hdrFormats: ['HDR10'],
+        boxSetId: 'box-1',
+        boxSetName: 'Complete Collection',
+        region: 'B',
+        packaging: 'Amaray',
+        distributor: 'BBC Studios',
+      ),
+    );
+
+    await db.into(db.tvOwnedItemsRows).insert(
+          TvLocalMapper.toOwnedItemRow(item),
+        );
+    final row = await db.select(db.tvOwnedItemsRows).getSingle();
+    final restored = TvLocalMapper.fromOwnedItemRow(row);
+
+    expect(restored.id, item.id);
+    expect(restored.itemId, item.itemId);
+    expect(restored.createdAt?.toUtc(), item.createdAt);
+    expect(restored.isDigital, false);
+    expect(restored.anchor?.apiValue, 'edition');
+    expect(restored.anchor?.editionId, 'release-1');
+    expect(restored.condition, item.condition);
+    expect(restored.grade, item.grade);
+    expect(restored.purchaseDate?.toUtc(), item.purchaseDate);
+    expect(restored.pricePaidCents, item.pricePaidCents);
+    expect(restored.currency, item.currency);
+    expect(restored.personalNotes, item.personalNotes);
+    expect(restored.quantity, item.quantity);
+    expect(restored.indexNumber, item.indexNumber);
+    expect(restored.tags, item.tags);
+    expect(restored.updatedAt.toUtc(), item.updatedAt);
+    expect(restored.ownerUserId, item.ownerUserId);
+    expect(restored.ownerLabel, item.ownerLabel);
+    expect(restored.locationId, item.locationId);
+    expect(restored.purchaseStore, item.purchaseStore);
+    expect(restored.collectionStatus, item.collectionStatus);
+    expect(restored.marketValueCents, item.marketValueCents);
+    expect(restored.details, item.details);
+  });
+
+  test('TV schema exposes dedicated graph tables at schema version 30', () {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    expect(db.schemaVersion, 30);
   });
 }
 

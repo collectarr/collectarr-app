@@ -291,6 +291,20 @@ void main() {
       reason: 'Anime seed copies must retain complete typed ownership data',
     );
 
+    final tvOwnedRows = await db.select(db.tvOwnedItemsRows).get();
+    expect(tvOwnedRows, hasLength(15));
+    expect(
+      tvOwnedRows.every(
+        (row) =>
+            row.itemId.startsWith('seed-tv-') &&
+            row.region?.trim().isNotEmpty == true &&
+            row.packaging?.trim().isNotEmpty == true &&
+            row.distributor?.trim().isNotEmpty == true,
+      ),
+      isTrue,
+      reason: 'TV seed copies must retain complete typed ownership data',
+    );
+
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows

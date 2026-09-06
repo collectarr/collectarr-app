@@ -112,7 +112,7 @@ void main() {
   test('Music schema exposes dedicated graph tables at schema version 28', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 29);
+    expect(db.schemaVersion, 30);
   });
 }
 
