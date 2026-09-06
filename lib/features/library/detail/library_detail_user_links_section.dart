@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -9,16 +10,16 @@ import 'package:url_launcher/url_launcher.dart';
 class LibraryDetailUserLinksSection extends ConsumerWidget {
   const LibraryDetailUserLinksSection({
     super.key,
-    required this.itemId,
+    required this.catalogRef,
     required this.accent,
   });
 
-  final String itemId;
+  final CatalogEntityRef catalogRef;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final linksAsync = ref.watch(userExternalLinksByItemProvider(itemId));
+    final linksAsync = ref.watch(userExternalLinksByItemProvider(catalogRef));
     return linksAsync.when(
       data: (links) {
         final userLinks = links

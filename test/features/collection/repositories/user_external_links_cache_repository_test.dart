@@ -18,7 +18,7 @@ void main() {
     await db.close();
   });
 
-  test('replaceForItem stores and reloads user links', () async {
+  test('replaceForCatalogRef stores and reloads user links', () async {
     final links = [
       UserExternalLink(
         id: 'link-1',
@@ -48,9 +48,14 @@ void main() {
       ),
     ];
 
-    await repo.replaceForItem('item-1', links);
+    const catalogRef = CatalogEntityRef(
+      kind: 'movie',
+      entityType: CatalogEntityType.work,
+      id: 'item-1',
+    );
+    await repo.replaceForCatalogRef(catalogRef, links);
 
-    final loaded = await repo.listByItemId('item-1');
+    final loaded = await repo.listByCatalogRef(catalogRef);
     expect(loaded, hasLength(2));
     expect(loaded.map((link) => link.kind), ['review', 'trailer']);
     expect(loaded.last.label, 'Trailer');

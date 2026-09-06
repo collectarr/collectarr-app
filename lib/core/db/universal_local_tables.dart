@@ -47,7 +47,6 @@ class ItemImagesCache extends Table {
 
 class UserExternalLinksCache extends Table {
   TextColumn get id => text()();
-  TextColumn get itemId => text()();
 
   /// The complete catalog target is transported opaquely by this universal
   /// table. Kind integrations decide whether it is a work, release, or

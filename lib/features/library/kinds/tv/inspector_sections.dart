@@ -157,7 +157,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
         ),
         const SizedBox(height: 8),
         LibraryDetailUserLinksSection(
-          itemId: request.item.node.titleItemId,
+          catalogRef: seriesRef,
           accent: request.accent,
         ),
         const SizedBox(height: 8),

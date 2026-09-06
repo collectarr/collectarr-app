@@ -10,32 +10,41 @@ class UserExternalLinksCacheRepository {
 
   final LocalDatabase _db;
 
-  Future<List<UserExternalLink>> listByItemId(String itemId) async {
+  Future<List<UserExternalLink>> listByCatalogRef(
+    CatalogEntityRef catalogRef,
+  ) async {
     final rows = await (_db.select(_db.userExternalLinksCache)
-          ..where((row) => row.itemId.equals(itemId))
           ..orderBy([
             (row) => OrderingTerm.asc(row.kind),
             (row) => OrderingTerm.asc(row.label),
             (row) => OrderingTerm.asc(row.createdAt),
           ]))
         .get();
-    return rows.map(_fromRow).toList(growable: false);
+    return rows
+        .map(_fromRow)
+        .where((link) => _sameCatalogRef(link.catalogRef, catalogRef))
+        .toList(growable: false);
   }
 
-  Future<void> replaceForItem(
-    String itemId,
+  Future<void> replaceForCatalogRef(
+    CatalogEntityRef catalogRef,
     Iterable<UserExternalLink> links,
   ) async {
     final normalized = links.where((link) => link.url.trim().isNotEmpty);
     await _db.transaction(() async {
-      await (_db.delete(_db.userExternalLinksCache)
-            ..where((row) => row.itemId.equals(itemId)))
-          .go();
+      final rows = await _db.select(_db.userExternalLinksCache).get();
+      for (final row in rows) {
+        final existing = _fromRow(row);
+        if (_sameCatalogRef(existing.catalogRef, catalogRef)) {
+          await (_db.delete(_db.userExternalLinksCache)
+                ..where((entry) => entry.id.equals(row.id)))
+              .go();
+        }
+      }
       for (final link in normalized) {
         await _db.into(_db.userExternalLinksCache).insert(
               UserExternalLinksCacheCompanion.insert(
                 id: link.id,
-                itemId: link.catalogRef.id,
                 catalogRefJson: jsonEncode(link.catalogRef.toJson()),
                 label: link.label,
                 url: link.url,
@@ -67,5 +76,11 @@ class UserExternalLinksCacheRepository {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
+  }
+
+  bool _sameCatalogRef(CatalogEntityRef left, CatalogEntityRef right) {
+    return left.kind == right.kind &&
+        left.entityType == right.entityType &&
+        left.id == right.id;
   }
 }

@@ -112,7 +112,7 @@ class VideoEditController {
     final db = ref!.read(localDatabaseProvider);
     final repo = UserExternalLinksCacheRepository(db);
     final links = [
-      ...await repo.listByItemId(itemId),
+      ...await repo.listByCatalogRef(catalogRef),
       for (final link in initialTrailerLinks.where((link) => !link.isAutomatic))
         UserExternalLink(
           id: 'seed-$itemId-${link.kind}-${link.url.hashCode}',
@@ -200,6 +200,6 @@ class VideoEditController {
         links.add(resolved);
       }
     }
-    await repo.replaceForItem(itemId, links);
+    await repo.replaceForCatalogRef(catalogRef, links);
   }
 }

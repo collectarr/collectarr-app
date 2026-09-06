@@ -125,7 +125,7 @@ class _TvVideoDetailContributionState
             ),
             const SizedBox(height: 16),
             LibraryDetailUserLinksSection(
-              itemId: request.item.source.itemId,
+              catalogRef: request.item.source.catalogItem!.catalogRef,
               accent: request.accent,
             ),
             const SizedBox(height: 16),

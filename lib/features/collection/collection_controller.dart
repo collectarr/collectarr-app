@@ -224,9 +224,10 @@ final metadataOverridesByItemProvider =
 });
 
 final userExternalLinksByItemProvider =
-    FutureProvider.family<List<UserExternalLink>, String>((ref, itemId) async {
+    FutureProvider.family<List<UserExternalLink>, CatalogEntityRef>(
+        (ref, catalogRef) async {
   final db = ref.watch(localDatabaseProvider);
-  return UserExternalLinksCacheRepository(db).listByItemId(itemId);
+  return UserExternalLinksCacheRepository(db).listByCatalogRef(catalogRef);
 });
 
 final customEpisodesByItemProvider =

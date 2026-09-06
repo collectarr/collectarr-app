@@ -2928,11 +2928,6 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
-  @override
-  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
-      'item_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _catalogRefJsonMeta =
       const VerificationMeta('catalogRefJson');
   @override
@@ -2968,7 +2963,7 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, itemId, catalogRefJson, label, url, kind, createdAt, updatedAt];
+      [id, catalogRefJson, label, url, kind, createdAt, updatedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2984,12 +2979,6 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
-    }
-    if (data.containsKey('item_id')) {
-      context.handle(_itemIdMeta,
-          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
-    } else if (isInserting) {
-      context.missing(_itemIdMeta);
     }
     if (data.containsKey('catalog_ref_json')) {
       context.handle(
@@ -3041,8 +3030,6 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
     return UserExternalLinksCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      itemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
       label: attachedDatabase.typeMapping
@@ -3067,7 +3054,6 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
 class UserExternalLinksCacheData extends DataClass
     implements Insertable<UserExternalLinksCacheData> {
   final String id;
-  final String itemId;
 
   /// The complete catalog target is transported opaquely by this universal
   /// table. Kind integrations decide whether it is a work, release, or
@@ -3080,7 +3066,6 @@ class UserExternalLinksCacheData extends DataClass
   final DateTime updatedAt;
   const UserExternalLinksCacheData(
       {required this.id,
-      required this.itemId,
       required this.catalogRefJson,
       required this.label,
       required this.url,
@@ -3091,7 +3076,6 @@ class UserExternalLinksCacheData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['item_id'] = Variable<String>(itemId);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
     map['label'] = Variable<String>(label);
     map['url'] = Variable<String>(url);
@@ -3104,7 +3088,6 @@ class UserExternalLinksCacheData extends DataClass
   UserExternalLinksCacheCompanion toCompanion(bool nullToAbsent) {
     return UserExternalLinksCacheCompanion(
       id: Value(id),
-      itemId: Value(itemId),
       catalogRefJson: Value(catalogRefJson),
       label: Value(label),
       url: Value(url),
@@ -3119,7 +3102,6 @@ class UserExternalLinksCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return UserExternalLinksCacheData(
       id: serializer.fromJson<String>(json['id']),
-      itemId: serializer.fromJson<String>(json['itemId']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
       label: serializer.fromJson<String>(json['label']),
       url: serializer.fromJson<String>(json['url']),
@@ -3133,7 +3115,6 @@ class UserExternalLinksCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'itemId': serializer.toJson<String>(itemId),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
       'label': serializer.toJson<String>(label),
       'url': serializer.toJson<String>(url),
@@ -3145,7 +3126,6 @@ class UserExternalLinksCacheData extends DataClass
 
   UserExternalLinksCacheData copyWith(
           {String? id,
-          String? itemId,
           String? catalogRefJson,
           String? label,
           String? url,
@@ -3154,7 +3134,6 @@ class UserExternalLinksCacheData extends DataClass
           DateTime? updatedAt}) =>
       UserExternalLinksCacheData(
         id: id ?? this.id,
-        itemId: itemId ?? this.itemId,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
         label: label ?? this.label,
         url: url ?? this.url,
@@ -3166,7 +3145,6 @@ class UserExternalLinksCacheData extends DataClass
       UserExternalLinksCacheCompanion data) {
     return UserExternalLinksCacheData(
       id: data.id.present ? data.id.value : this.id,
-      itemId: data.itemId.present ? data.itemId.value : this.itemId,
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
@@ -3182,7 +3160,6 @@ class UserExternalLinksCacheData extends DataClass
   String toString() {
     return (StringBuffer('UserExternalLinksCacheData(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
           ..write('catalogRefJson: $catalogRefJson, ')
           ..write('label: $label, ')
           ..write('url: $url, ')
@@ -3194,14 +3171,13 @@ class UserExternalLinksCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, itemId, catalogRefJson, label, url, kind, createdAt, updatedAt);
+  int get hashCode =>
+      Object.hash(id, catalogRefJson, label, url, kind, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserExternalLinksCacheData &&
           other.id == this.id &&
-          other.itemId == this.itemId &&
           other.catalogRefJson == this.catalogRefJson &&
           other.label == this.label &&
           other.url == this.url &&
@@ -3213,7 +3189,6 @@ class UserExternalLinksCacheData extends DataClass
 class UserExternalLinksCacheCompanion
     extends UpdateCompanion<UserExternalLinksCacheData> {
   final Value<String> id;
-  final Value<String> itemId;
   final Value<String> catalogRefJson;
   final Value<String> label;
   final Value<String> url;
@@ -3223,7 +3198,6 @@ class UserExternalLinksCacheCompanion
   final Value<int> rowid;
   const UserExternalLinksCacheCompanion({
     this.id = const Value.absent(),
-    this.itemId = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
     this.label = const Value.absent(),
     this.url = const Value.absent(),
@@ -3234,7 +3208,6 @@ class UserExternalLinksCacheCompanion
   });
   UserExternalLinksCacheCompanion.insert({
     required String id,
-    required String itemId,
     required String catalogRefJson,
     required String label,
     required String url,
@@ -3243,7 +3216,6 @@ class UserExternalLinksCacheCompanion
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        itemId = Value(itemId),
         catalogRefJson = Value(catalogRefJson),
         label = Value(label),
         url = Value(url),
@@ -3252,7 +3224,6 @@ class UserExternalLinksCacheCompanion
         updatedAt = Value(updatedAt);
   static Insertable<UserExternalLinksCacheData> custom({
     Expression<String>? id,
-    Expression<String>? itemId,
     Expression<String>? catalogRefJson,
     Expression<String>? label,
     Expression<String>? url,
@@ -3263,7 +3234,6 @@ class UserExternalLinksCacheCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (itemId != null) 'item_id': itemId,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
       if (label != null) 'label': label,
       if (url != null) 'url': url,
@@ -3276,7 +3246,6 @@ class UserExternalLinksCacheCompanion
 
   UserExternalLinksCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? itemId,
       Value<String>? catalogRefJson,
       Value<String>? label,
       Value<String>? url,
@@ -3286,7 +3255,6 @@ class UserExternalLinksCacheCompanion
       Value<int>? rowid}) {
     return UserExternalLinksCacheCompanion(
       id: id ?? this.id,
-      itemId: itemId ?? this.itemId,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
       label: label ?? this.label,
       url: url ?? this.url,
@@ -3302,9 +3270,6 @@ class UserExternalLinksCacheCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
-    }
-    if (itemId.present) {
-      map['item_id'] = Variable<String>(itemId.value);
     }
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
@@ -3334,7 +3299,6 @@ class UserExternalLinksCacheCompanion
   String toString() {
     return (StringBuffer('UserExternalLinksCacheCompanion(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
           ..write('catalogRefJson: $catalogRefJson, ')
           ..write('label: $label, ')
           ..write('url: $url, ')
@@ -49934,7 +49898,6 @@ typedef $$UserMetadataOverridesCacheTableProcessedTableManager
 typedef $$UserExternalLinksCacheTableCreateCompanionBuilder
     = UserExternalLinksCacheCompanion Function({
   required String id,
-  required String itemId,
   required String catalogRefJson,
   required String label,
   required String url,
@@ -49946,7 +49909,6 @@ typedef $$UserExternalLinksCacheTableCreateCompanionBuilder
 typedef $$UserExternalLinksCacheTableUpdateCompanionBuilder
     = UserExternalLinksCacheCompanion Function({
   Value<String> id,
-  Value<String> itemId,
   Value<String> catalogRefJson,
   Value<String> label,
   Value<String> url,
@@ -49967,9 +49929,6 @@ class $$UserExternalLinksCacheTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson,
@@ -50003,9 +49962,6 @@ class $$UserExternalLinksCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
@@ -50037,9 +49993,6 @@ class $$UserExternalLinksCacheTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get itemId =>
-      $composableBuilder(column: $table.itemId, builder: (column) => column);
 
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
@@ -50092,7 +50045,6 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> itemId = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
             Value<String> label = const Value.absent(),
             Value<String> url = const Value.absent(),
@@ -50103,7 +50055,6 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
           }) =>
               UserExternalLinksCacheCompanion(
             id: id,
-            itemId: itemId,
             catalogRefJson: catalogRefJson,
             label: label,
             url: url,
@@ -50114,7 +50065,6 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String itemId,
             required String catalogRefJson,
             required String label,
             required String url,
@@ -50125,7 +50075,6 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
           }) =>
               UserExternalLinksCacheCompanion.insert(
             id: id,
-            itemId: itemId,
             catalogRefJson: catalogRefJson,
             label: label,
             url: url,
