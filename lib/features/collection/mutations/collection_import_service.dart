@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
@@ -29,6 +30,7 @@ final class CollectionImportService {
     required this.ownedItems,
     required this.wishlist,
     required this.catalogCache,
+    required this.catalogLookup,
     required this.trackingEntries,
     required this.syncQueue,
     required this.mutationRunner,
@@ -39,6 +41,7 @@ final class CollectionImportService {
   final OwnedItemsCacheRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
   final LibraryCatalogRepository catalogCache;
+  final CatalogLookupRepository catalogLookup;
   final TrackingEntriesCacheRepository trackingEntries;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
@@ -260,24 +263,24 @@ final class CollectionImportService {
       var row = r;
       if (row.itemId.trim().isEmpty) {
         if (row.barcode != null && row.barcode!.trim().isNotEmpty) {
-          final matched = await catalogCache.findByBarcode(
+          final matched = await catalogLookup.findByBarcode(
             row.barcode!,
             kind: row.kind,
           );
           if (matched != null) {
-            row = row.copyWith(itemId: matched.id);
+            row = row.copyWith(itemId: matched.ref.id);
           }
         }
         if (row.itemId.trim().isEmpty &&
             row.title != null &&
             row.title!.trim().isNotEmpty) {
-          final matched = await catalogCache.findByTitleAndIssue(
+          final matched = await catalogLookup.findByTitleAndItemNumber(
             title: row.title!,
             itemNumber: row.itemNumber,
             kind: row.kind,
           );
           if (matched != null) {
-            row = row.copyWith(itemId: matched.id);
+            row = row.copyWith(itemId: matched.ref.id);
           }
         }
       }

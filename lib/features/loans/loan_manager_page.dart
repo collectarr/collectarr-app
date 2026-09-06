@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
@@ -154,13 +155,13 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   Future<OwnedItemSummary?> _resolveOwnedItemFromBarcode(String barcode) async {
-    final catalog =
-        await LibraryCatalogRepository(ref.read(localDatabaseProvider))
-            .findByBarcode(barcode);
+    final catalog = await CatalogLookupRepository(
+      ref.read(localDatabaseProvider),
+    ).findByBarcode(barcode);
     if (catalog == null) {
       return null;
     }
-    final ownedItems = _ownedByCatalogId[catalog.id] ?? const [];
+    final ownedItems = _ownedByCatalogId[catalog.ref.id] ?? const [];
     if (ownedItems.isEmpty) {
       return null;
     }

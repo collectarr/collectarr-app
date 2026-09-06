@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/providers/domain/repositories/provider_l
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/collection_import_service.dart';
@@ -227,6 +228,9 @@ final collectionImportServiceProvider =
     ownedItems: ref.watch(ownedItemsCacheRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    catalogLookup: CatalogLookupRepository(
+      ref.watch(localDatabaseProvider),
+    ),
     trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),

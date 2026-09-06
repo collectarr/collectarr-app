@@ -1,26 +1,25 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_repository.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/remote/boardgame_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/remote/book_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/remote/game_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 
 /// Composition-root registrations for the typed catalog repositories.
 const List<CatalogKindRepositoryCodec> collectarrCatalogRepositoryCodecs = [
@@ -44,9 +43,7 @@ final class ComicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return ComicRepository(db).updateMedia(
-      ComicCoreMapper.fromWorkDto(
-        ComicWorkDto.fromJson(_payloadFor(item)),
-      ),
+      ComicMedia.fromJson(_payloadFor(item)),
     );
   }
 
@@ -69,9 +66,7 @@ final class MangaCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return MangaRepository(db).updateMedia(
-      MangaCoreMapper.fromWorkDto(
-        MangaWorkDto.fromJson(_payloadFor(item)),
-      ),
+      MangaMedia.fromJson(_payloadFor(item)),
     );
   }
 
@@ -94,9 +89,7 @@ final class BookCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return BookRepository(db).updateMedia(
-      BookCoreMapper.fromWorkDto(
-        BookWorkDto.fromJson(_payloadFor(item)),
-      ),
+      BookMedia.fromJson(_payloadFor(item)),
     );
   }
 
@@ -119,9 +112,7 @@ final class GameCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return GameRepository(db).updateMedia(
-      GameCoreMapper.fromWorkDto(
-        GameWorkDto.fromJson(_payloadFor(item)),
-      ),
+      GameMedia.fromJson(_payloadFor(item)),
     );
   }
 
@@ -145,9 +136,7 @@ final class BoardGameCatalogRepositoryCodec
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return BoardGameRepository(db).updateMedia(
-      BoardGameCoreMapper.fromWorkDto(
-        BoardGameWorkDto.fromJson(_payloadFor(item)),
-      ),
+      BoardGameMedia.fromJson(_payloadFor(item)),
     );
   }
 
@@ -170,9 +159,7 @@ final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return MovieRepository(db).updateMedia(
-      MovieCoreMapper.fromWorkDto(
-        MovieWorkDto.fromJson(_payloadFor(item)),
-      ),
+      MovieMedia.fromJson(_payloadFor(item)),
     );
   }
 
@@ -195,9 +182,7 @@ final class TvCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return TvRepository(db).updateSeries(
-      TvCoreMapper.fromSeriesDto(
-        TvSeriesDto.fromJson(_payloadFor(item)),
-      ),
+      TvSeries.fromJson(_payloadFor(item)),
     );
   }
 
@@ -220,9 +205,7 @@ final class AnimeCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return AnimeRepository(db).updateMedia(
-      AnimeCoreMapper.fromSeriesDto(
-        AnimeSeriesDto.fromJson(_payloadFor(item)),
-      ),
+      AnimeMedia.fromJson(_payloadFor(item)),
     );
   }
 
@@ -245,9 +228,7 @@ final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return MusicRepository(db).updateRelease(
-      MusicCoreMapper.fromReleaseDto(
-        MusicReleaseDto.fromJson(_payloadFor(item)),
-      ),
+      MusicRelease.fromJson(_payloadFor(item)),
     );
   }
 
