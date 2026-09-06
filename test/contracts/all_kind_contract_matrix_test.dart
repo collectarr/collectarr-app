@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
@@ -27,7 +28,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('every active kind is checked through its typed module signature', () {
-    _checkTypedKind<ComicWorkspaceDto, ComicOwnedDetails>(
+    _checkTypedKind<ComicWorkspaceDto, ComicOwnedDetails,
+        ComicOwnedDetailsDraft>(
       name: 'Comic',
       kind: CatalogMediaKind.comic,
       spec: comicKindModule,
@@ -40,7 +42,8 @@ void main() {
         'test/domain/comic/comic_media_edit_schema_test.dart',
       ],
     );
-    _checkTypedKind<MangaWorkspaceDto, MangaOwnedDetails>(
+    _checkTypedKind<MangaWorkspaceDto, MangaOwnedDetails,
+        MangaOwnedDetailsDraft>(
       name: 'Manga',
       kind: CatalogMediaKind.manga,
       spec: mangaKindModule,
@@ -52,7 +55,7 @@ void main() {
         'test/domain/manga/manga_media_edit_schema_test.dart',
       ],
     );
-    _checkTypedKind<BookWorkspaceDto, BookOwnedDetails>(
+    _checkTypedKind<BookWorkspaceDto, BookOwnedDetails, BookOwnedDetailsDraft>(
       name: 'Book',
       kind: CatalogMediaKind.book,
       spec: bookKindModule,
@@ -65,7 +68,7 @@ void main() {
         'test/domain/book/book_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<GameWorkspaceDto, GameOwnedDetails>(
+    _checkTypedKind<GameWorkspaceDto, GameOwnedDetails, GameOwnedDetailsDraft>(
       name: 'Game',
       kind: CatalogMediaKind.game,
       spec: gameKindModule,
@@ -78,7 +81,8 @@ void main() {
         'test/domain/game/game_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<BoardGameWorkspaceDto, BoardgameOwnedDetails>(
+    _checkTypedKind<BoardGameWorkspaceDto, BoardgameOwnedDetails,
+        BoardgameOwnedDetailsDraft>(
       name: 'BoardGame',
       kind: CatalogMediaKind.boardgame,
       spec: boardGameKindModule,
@@ -90,7 +94,8 @@ void main() {
         'test/domain/boardgame/boardgame_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<MovieWorkspaceDto, MovieOwnedDetails>(
+    _checkTypedKind<MovieWorkspaceDto, MovieOwnedDetails,
+        MovieOwnedDetailsDraft>(
       name: 'Movie',
       kind: CatalogMediaKind.movie,
       spec: movieKindModule,
@@ -103,7 +108,7 @@ void main() {
         'test/domain/movie/movie_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<TvWorkspaceDto, TvOwnedDetails>(
+    _checkTypedKind<TvWorkspaceDto, TvOwnedDetails, TvOwnedDetailsDraft>(
       name: 'TV',
       kind: CatalogMediaKind.tv,
       spec: tvKindModule,
@@ -115,7 +120,8 @@ void main() {
         'test/domain/tv/tv_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<AnimeWorkspaceDto, AnimeOwnedDetails>(
+    _checkTypedKind<AnimeWorkspaceDto, AnimeOwnedDetails,
+        AnimeOwnedDetailsDraft>(
       name: 'Anime',
       kind: CatalogMediaKind.anime,
       spec: animeKindModule,
@@ -127,7 +133,8 @@ void main() {
         'test/domain/anime/anime_hierarchy_workspace_test.dart',
       ],
     );
-    _checkTypedKind<MusicWorkspaceDto, MusicOwnedDetails>(
+    _checkTypedKind<MusicWorkspaceDto, MusicOwnedDetails,
+        MusicOwnedDetailsDraft>(
       name: 'Music',
       kind: CatalogMediaKind.music,
       spec: musicKindModule,
@@ -141,11 +148,13 @@ void main() {
   });
 }
 
-void _checkTypedKind<TDto extends LibraryWorkspaceDto,
-    TDetails extends OwnedItemDetails>({
+void _checkTypedKind<
+    TDto extends LibraryWorkspaceDto,
+    TDetails extends OwnedItemDetails,
+    TDetailsDraft extends OwnedDetailsDraft>({
   required String name,
   required CatalogMediaKind kind,
-  required LibraryKindSpec<TDto, TDetails> spec,
+  required LibraryKindSpec<TDto, TDetails, TDetailsDraft> spec,
   required List<String> contractFiles,
 }) {
   final fields = spec.fields;

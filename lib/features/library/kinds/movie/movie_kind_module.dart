@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -148,7 +149,8 @@ Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
+final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails,
+    MovieOwnedDetailsDraft>(
   presentation: moviesLibraryMediaPresentation,
   trackingProfile: movieTrackingProfile,
   releaseCapability:

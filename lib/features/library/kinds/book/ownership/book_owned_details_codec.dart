@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 
-class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
+class BookOwnedDetailsCodec
+    implements OwnedDetailsCodec<BookOwnedDetails, BookOwnedDetailsDraft> {
   const BookOwnedDetailsCodec();
 
   @override
@@ -22,7 +22,7 @@ class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
   BookOwnedDetails defaultDetails() => const BookOwnedDetails();
 
   @override
-  OwnedDetailsDraft draftFromDetails(BookOwnedDetails details) =>
+  BookOwnedDetailsDraft draftFromDetails(BookOwnedDetails details) =>
       BookOwnedDetailsDraft(
         signedBy: details.signedBy,
         dustJacketPresent: details.dustJacketPresent,
@@ -30,10 +30,10 @@ class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
       );
 
   @override
-  OwnedDetailsDraft defaultDraft() => const BookOwnedDetailsDraft();
+  BookOwnedDetailsDraft defaultDraft() => const BookOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
+  BookOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
       BookOwnedDetailsDraft(
         signedBy: personal.signedBy,
         dustJacketPresent: personal.dustJacketPresent ?? false,

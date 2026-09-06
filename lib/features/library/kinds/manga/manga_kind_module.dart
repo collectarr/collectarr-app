@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -148,7 +149,8 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
+final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails,
+    MangaOwnedDetailsDraft>(
   presentation: mangaLibraryMediaPresentation,
   trackingProfile: mangaTrackingProfile,
   projector: const MangaWorkspaceProjector(),

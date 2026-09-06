@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_draft.dart';
 
 class GenericOwnedDetailsCodec
-    implements OwnedDetailsCodec<GenericOwnedDetails> {
+    implements
+        OwnedDetailsCodec<GenericOwnedDetails, GenericOwnedDetailsDraft> {
   const GenericOwnedDetailsCodec();
 
   @override
@@ -23,13 +23,13 @@ class GenericOwnedDetailsCodec
   GenericOwnedDetails defaultDetails() => const GenericOwnedDetails();
 
   @override
-  OwnedDetailsDraft draftFromDetails(GenericOwnedDetails details) =>
+  GenericOwnedDetailsDraft draftFromDetails(GenericOwnedDetails details) =>
       const GenericOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft defaultDraft() => const GenericOwnedDetailsDraft();
+  GenericOwnedDetailsDraft defaultDraft() => const GenericOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
+  GenericOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
       const GenericOwnedDetailsDraft();
 }

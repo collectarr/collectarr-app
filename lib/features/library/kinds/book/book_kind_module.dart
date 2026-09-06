@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_d
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
@@ -154,7 +155,8 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
+final bookKindModule =
+    LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails, BookOwnedDetailsDraft>(
   presentation: bookLibraryMediaPresentation,
   trackingProfile: bookTrackingProfile,
   projector: const BookWorkspaceProjector(),

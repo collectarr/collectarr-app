@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 
-class MangaOwnedDetailsCodec implements OwnedDetailsCodec<MangaOwnedDetails> {
+class MangaOwnedDetailsCodec
+    implements OwnedDetailsCodec<MangaOwnedDetails, MangaOwnedDetailsDraft> {
   const MangaOwnedDetailsCodec();
 
   @override
@@ -22,7 +22,7 @@ class MangaOwnedDetailsCodec implements OwnedDetailsCodec<MangaOwnedDetails> {
   MangaOwnedDetails defaultDetails() => const MangaOwnedDetails();
 
   @override
-  OwnedDetailsDraft draftFromDetails(MangaOwnedDetails details) =>
+  MangaOwnedDetailsDraft draftFromDetails(MangaOwnedDetails details) =>
       MangaOwnedDetailsDraft(
         rawOrSlabbed: details.grading.rawOrSlabbed,
         signedBy: details.signedBy,
@@ -43,10 +43,10 @@ class MangaOwnedDetailsCodec implements OwnedDetailsCodec<MangaOwnedDetails> {
       );
 
   @override
-  OwnedDetailsDraft defaultDraft() => const MangaOwnedDetailsDraft();
+  MangaOwnedDetailsDraft defaultDraft() => const MangaOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+  MangaOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
     return MangaOwnedDetailsDraft(
       rawOrSlabbed: personal.rawOrSlabbed,
       signedBy: personal.signedBy,

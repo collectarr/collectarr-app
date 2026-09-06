@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_p
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
@@ -50,7 +51,8 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
+final gameKindModule =
+    LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails, GameOwnedDetailsDraft>(
   presentation: gamesLibraryMediaPresentation,
   trackingProfile: gameTrackingProfile,
   projector: const GameWorkspaceProjector(),

@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 
-class TvOwnedDetailsCodec implements OwnedDetailsCodec<TvOwnedDetails> {
+class TvOwnedDetailsCodec
+    implements OwnedDetailsCodec<TvOwnedDetails, TvOwnedDetailsDraft> {
   const TvOwnedDetailsCodec();
 
   @override
@@ -22,7 +22,7 @@ class TvOwnedDetailsCodec implements OwnedDetailsCodec<TvOwnedDetails> {
   TvOwnedDetails defaultDetails() => const TvOwnedDetails();
 
   @override
-  OwnedDetailsDraft draftFromDetails(TvOwnedDetails details) =>
+  TvOwnedDetailsDraft draftFromDetails(TvOwnedDetails details) =>
       TvOwnedDetailsDraft(
         features: details.features,
         hdrFormats: details.hdrFormats,
@@ -34,10 +34,10 @@ class TvOwnedDetailsCodec implements OwnedDetailsCodec<TvOwnedDetails> {
       );
 
   @override
-  OwnedDetailsDraft defaultDraft() => const TvOwnedDetailsDraft();
+  TvOwnedDetailsDraft defaultDraft() => const TvOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+  TvOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
     return TvOwnedDetailsDraft(
       features: personal.features,
       hdrFormats: personal.hdrFormats ?? const [],

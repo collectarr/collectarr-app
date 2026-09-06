@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
-class MovieOwnedDetailsCodec implements OwnedDetailsCodec<MovieOwnedDetails> {
+class MovieOwnedDetailsCodec
+    implements OwnedDetailsCodec<MovieOwnedDetails, MovieOwnedDetailsDraft> {
   const MovieOwnedDetailsCodec();
 
   @override
@@ -22,7 +22,7 @@ class MovieOwnedDetailsCodec implements OwnedDetailsCodec<MovieOwnedDetails> {
   MovieOwnedDetails defaultDetails() => const MovieOwnedDetails();
 
   @override
-  OwnedDetailsDraft draftFromDetails(MovieOwnedDetails details) =>
+  MovieOwnedDetailsDraft draftFromDetails(MovieOwnedDetails details) =>
       MovieOwnedDetailsDraft(
         features: details.features,
         hdrFormats: details.hdrFormats,
@@ -34,10 +34,10 @@ class MovieOwnedDetailsCodec implements OwnedDetailsCodec<MovieOwnedDetails> {
       );
 
   @override
-  OwnedDetailsDraft defaultDraft() => const MovieOwnedDetailsDraft();
+  MovieOwnedDetailsDraft defaultDraft() => const MovieOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+  MovieOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
     return MovieOwnedDetailsDraft(
       features: personal.features,
       hdrFormats: personal.hdrFormats ?? const [],

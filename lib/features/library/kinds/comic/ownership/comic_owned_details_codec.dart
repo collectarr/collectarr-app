@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 
-class ComicOwnedDetailsCodec implements OwnedDetailsCodec<ComicOwnedDetails> {
+class ComicOwnedDetailsCodec
+    implements OwnedDetailsCodec<ComicOwnedDetails, ComicOwnedDetailsDraft> {
   const ComicOwnedDetailsCodec();
 
   @override
@@ -22,7 +22,7 @@ class ComicOwnedDetailsCodec implements OwnedDetailsCodec<ComicOwnedDetails> {
   ComicOwnedDetails defaultDetails() => const ComicOwnedDetails();
 
   @override
-  OwnedDetailsDraft draftFromDetails(ComicOwnedDetails details) =>
+  ComicOwnedDetailsDraft draftFromDetails(ComicOwnedDetails details) =>
       ComicOwnedDetailsDraft(
         rawOrSlabbed: details.rawOrSlabbed,
         gradingCompany: details.gradingCompany,
@@ -41,10 +41,10 @@ class ComicOwnedDetailsCodec implements OwnedDetailsCodec<ComicOwnedDetails> {
       );
 
   @override
-  OwnedDetailsDraft defaultDraft() => const ComicOwnedDetailsDraft();
+  ComicOwnedDetailsDraft defaultDraft() => const ComicOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+  ComicOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
     return ComicOwnedDetailsDraft(
       rawOrSlabbed: personal.rawOrSlabbed,
       gradingCompany: personal.gradingCompany,

@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_co
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
@@ -95,7 +96,8 @@ Iterable<String?> _comicLinkedMetadataValues(ComicCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
+final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
+    ComicOwnedDetailsDraft>(
   presentation: comicLibraryMediaPresentation,
   trackingProfile: comicTrackingProfile,
   viewProfile: comicsWorkspaceViewProfile,

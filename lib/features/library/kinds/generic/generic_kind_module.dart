@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/generic/edit_presentation_
 import 'package:collectarr_app/features/library/kinds/generic/edit/generic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/generic/vocabulary/generic_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/generic/tracking/generic_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
@@ -22,8 +23,8 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_card_pre
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:flutter/material.dart';
 
-final genericKindModule =
-    LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
+final genericKindModule = LibraryKindSpec<GenericWorkspaceDto,
+    GenericOwnedDetails, GenericOwnedDetailsDraft>(
   presentation: genericLibraryMediaPresentation,
   trackingProfile: genericTrackingProfile,
   projector: const GenericWorkspaceProjector(),

@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 
-class GameOwnedDetailsCodec implements OwnedDetailsCodec<GameOwnedDetails> {
+class GameOwnedDetailsCodec
+    implements OwnedDetailsCodec<GameOwnedDetails, GameOwnedDetailsDraft> {
   const GameOwnedDetailsCodec();
 
   @override
@@ -22,7 +22,7 @@ class GameOwnedDetailsCodec implements OwnedDetailsCodec<GameOwnedDetails> {
   GameOwnedDetails defaultDetails() => const GameOwnedDetails();
 
   @override
-  OwnedDetailsDraft draftFromDetails(GameOwnedDetails details) =>
+  GameOwnedDetailsDraft draftFromDetails(GameOwnedDetails details) =>
       GameOwnedDetailsDraft(
         completeness: details.completeness,
         hasBox: details.hasBox,
@@ -33,10 +33,10 @@ class GameOwnedDetailsCodec implements OwnedDetailsCodec<GameOwnedDetails> {
       );
 
   @override
-  OwnedDetailsDraft defaultDraft() => const GameOwnedDetailsDraft();
+  GameOwnedDetailsDraft defaultDraft() => const GameOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+  GameOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
     return GameOwnedDetailsDraft(
       completeness: personal.gameCompleteness,
       hasBox: personal.gameHasBox,

@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentatio
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
@@ -88,8 +89,8 @@ Iterable<String?> _boardGameLinkedMetadataValues(
       ...metadata.creators.map((credit) => credit['name']?.toString()),
     ];
 
-final boardGameKindModule =
-    LibraryKindSpec<BoardGameWorkspaceDto, BoardgameOwnedDetails>(
+final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto,
+    BoardgameOwnedDetails, BoardgameOwnedDetailsDraft>(
   presentation: boardGamesLibraryMediaPresentation,
   trackingProfile: boardGameTrackingProfile,
   projector: const BoardGameWorkspaceProjector(),

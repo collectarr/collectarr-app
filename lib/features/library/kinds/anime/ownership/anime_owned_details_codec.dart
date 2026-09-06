@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 
-class AnimeOwnedDetailsCodec implements OwnedDetailsCodec<AnimeOwnedDetails> {
+class AnimeOwnedDetailsCodec
+    implements OwnedDetailsCodec<AnimeOwnedDetails, AnimeOwnedDetailsDraft> {
   const AnimeOwnedDetailsCodec();
 
   @override
@@ -22,7 +22,7 @@ class AnimeOwnedDetailsCodec implements OwnedDetailsCodec<AnimeOwnedDetails> {
   AnimeOwnedDetails defaultDetails() => const AnimeOwnedDetails();
 
   @override
-  OwnedDetailsDraft draftFromDetails(AnimeOwnedDetails details) =>
+  AnimeOwnedDetailsDraft draftFromDetails(AnimeOwnedDetails details) =>
       AnimeOwnedDetailsDraft(
         features: details.features,
         hdrFormats: details.hdrFormats,
@@ -34,10 +34,10 @@ class AnimeOwnedDetailsCodec implements OwnedDetailsCodec<AnimeOwnedDetails> {
       );
 
   @override
-  OwnedDetailsDraft defaultDraft() => const AnimeOwnedDetailsDraft();
+  AnimeOwnedDetailsDraft defaultDraft() => const AnimeOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+  AnimeOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
     return AnimeOwnedDetailsDraft(
       features: personal.features,
       hdrFormats: personal.hdrFormats ?? const [],

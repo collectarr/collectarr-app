@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
@@ -61,7 +62,8 @@ Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
+final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails,
+    MusicOwnedDetailsDraft>(
   presentation: musicLibraryMediaPresentation,
   searchTargetOptions: const [
     LibrarySearchTarget.all,

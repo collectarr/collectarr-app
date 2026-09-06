@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
@@ -112,7 +113,8 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
+final tvKindModule =
+    LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails, TvOwnedDetailsDraft>(
   presentation: tvLibraryMediaPresentation,
   trackingProfile: tvTrackingProfile,
   releaseCapability:

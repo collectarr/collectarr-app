@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 
 class BoardgameOwnedDetailsCodec
-    implements OwnedDetailsCodec<BoardgameOwnedDetails> {
+    implements
+        OwnedDetailsCodec<BoardgameOwnedDetails, BoardgameOwnedDetailsDraft> {
   const BoardgameOwnedDetailsCodec();
 
   @override
@@ -24,7 +24,7 @@ class BoardgameOwnedDetailsCodec
   BoardgameOwnedDetails defaultDetails() => const BoardgameOwnedDetails();
 
   @override
-  OwnedDetailsDraft draftFromDetails(BoardgameOwnedDetails details) =>
+  BoardgameOwnedDetailsDraft draftFromDetails(BoardgameOwnedDetails details) =>
       BoardgameOwnedDetailsDraft(
         editionLanguage: details.editionLanguage,
         editionRegion: details.editionRegion,
@@ -38,10 +38,11 @@ class BoardgameOwnedDetailsCodec
       );
 
   @override
-  OwnedDetailsDraft defaultDraft() => const BoardgameOwnedDetailsDraft();
+  BoardgameOwnedDetailsDraft defaultDraft() =>
+      const BoardgameOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+  BoardgameOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
     return const BoardgameOwnedDetailsDraft();
   }
 }

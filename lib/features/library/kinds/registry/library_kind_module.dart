@@ -203,8 +203,10 @@ abstract interface class LibraryKindRuntime {
   });
 }
 
-class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
-    TDetails extends OwnedItemDetails> implements LibraryKindRuntime {
+class LibraryKindSpec<
+    TDto extends LibraryWorkspaceDto,
+    TDetails extends OwnedItemDetails,
+    TDetailsDraft extends OwnedDetailsDraft> implements LibraryKindRuntime {
   const LibraryKindSpec({
     required this.fields,
     required this.projector,
@@ -238,7 +240,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   })  : _viewProfile = viewProfile,
         _buildCardPresentation = buildCardPresentation;
 
-  final OwnedDetailsCodec<TDetails> ownedDetailsCodec;
+  final OwnedDetailsCodec<TDetails, TDetailsDraft> ownedDetailsCodec;
   @override
   final CatalogMetadataDecoder? catalogMetadataDecoder;
   @override
@@ -281,7 +283,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required LibraryKindIdentity identity,
     required LibraryMetadataCapability metadata,
   }) {
-    return LibraryKindSpec<TDto, TDetails>(
+    return LibraryKindSpec<TDto, TDetails, TDetailsDraft>(
       fields: fields,
       projector: projector,
       ownedDetailsCodec: ownedDetailsCodec,
