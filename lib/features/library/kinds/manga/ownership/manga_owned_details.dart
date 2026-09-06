@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 
 const Object _mangaDetailsUnset = Object();
 
 @immutable
-class MangaOwnedDetails extends OwnedItemDetails {
+class MangaOwnedDetails implements JsonEncodable {
   const MangaOwnedDetails({
     this.grading = const MangaGradingDetails(),
     this.signature = const MangaSignatureDetails(),

@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_physical_copy_details.dart';
 
 const Object _movieDetailsUnset = Object();
 
 @immutable
-class MovieOwnedDetails extends OwnedItemDetails {
+class MovieOwnedDetails implements JsonEncodable {
   const MovieOwnedDetails({
     this.physical = const MoviePhysicalCopyDetails(),
     String? features,

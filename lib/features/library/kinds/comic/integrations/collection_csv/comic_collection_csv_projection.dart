@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
@@ -51,7 +51,7 @@ final class ComicCollectionCsvProjection
   Map<String, List<String>> get columnAliases => _columnAliases;
 
   @override
-  OwnedItemDetails? decodeOwnedDetails(List<String> cells) {
+  JsonEncodable? decodeOwnedDetails(List<String> cells) {
     if (cells.length != libraryCollectionCsvOwnedCellCount ||
         !_hasOwnedDetails(cells)) {
       return null;

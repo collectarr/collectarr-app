@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_signature_details.dart';
 
 const Object _bookDetailsUnset = Object();
 
 @immutable
-class BookOwnedDetails extends OwnedItemDetails {
+class BookOwnedDetails implements JsonEncodable {
   const BookOwnedDetails({
     this.signature = const BookSignatureDetails(),
     String? signedBy,

@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('projects owned lifecycle and loan events without kind semantics', () {
-    final owned = OwnedItem<OwnedItemDetails>(
+    final owned = OwnedItem<JsonEncodable>(
       id: 'owned-1',
       catalogRef: const CatalogEntityRef(
         kind: 'book',

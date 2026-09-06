@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 @immutable
-class BoardgameOwnedDetails extends OwnedItemDetails {
+class BoardgameOwnedDetails implements JsonEncodable {
   const BoardgameOwnedDetails({
     this.editionLanguage,
     this.editionRegion,

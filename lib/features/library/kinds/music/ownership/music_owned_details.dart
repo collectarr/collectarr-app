@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/storage_details.dart';
 
 const Object _musicDetailsUnset = Object();
@@ -44,7 +44,7 @@ class MusicMatrixRunout {
 }
 
 @immutable
-class MusicOwnedDetails extends OwnedItemDetails {
+class MusicOwnedDetails implements JsonEncodable {
   const MusicOwnedDetails({
     this.storage = const StorageDetails(),
     String? storageDevice,

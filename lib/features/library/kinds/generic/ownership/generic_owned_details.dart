@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 @immutable
-class GenericOwnedDetails extends OwnedItemDetails {
+class GenericOwnedDetails implements JsonEncodable {
   const GenericOwnedDetails();
 
   @override

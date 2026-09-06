@@ -49,7 +49,7 @@ void main() {
     );
   });
 
-  test('OwnedDetailsDraft converts to corresponding OwnedItemDetails', () {
+  test('OwnedDetailsDraft converts to corresponding JsonEncodable', () {
     const comicDraft = ComicOwnedDetailsDraft(
       rawOrSlabbed: 'Slabbed',
       gradingCompany: 'CGC',

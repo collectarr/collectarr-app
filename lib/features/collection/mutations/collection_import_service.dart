@@ -432,7 +432,7 @@ final class CollectionImportService {
     );
   }
 
-  OwnedItemDetails? _ownedDetailsFromCsvRow(
+  JsonEncodable? _ownedDetailsFromCsvRow(
     CollectionCsvRow row, {
     required String kind,
   }) {

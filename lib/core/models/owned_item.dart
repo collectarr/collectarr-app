@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 
 export 'package:collectarr_app/core/models/money.dart';
-export 'package:collectarr_app/core/models/owned_item_details.dart';
+export 'package:collectarr_app/core/models/json_encodable.dart';
 
 const Object _ownedItemUnset = Object();
 
-class OwnedItem<TDetails extends OwnedItemDetails> {
+class OwnedItem<TDetails extends JsonEncodable> {
   OwnedItem({
     required this.id,
     required this.catalogRef,

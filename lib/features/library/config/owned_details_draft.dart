@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 /// Structural edit/add draft contract for kind-owned copy details.
 ///
@@ -7,5 +7,5 @@ import 'package:collectarr_app/core/models/owned_item_details.dart';
 abstract class OwnedDetailsDraft {
   const OwnedDetailsDraft();
 
-  OwnedItemDetails toDetails();
+  JsonEncodable toDetails();
 }

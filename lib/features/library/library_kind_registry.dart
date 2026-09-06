@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/config/library_activity_contribu
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
@@ -381,7 +381,7 @@ OwnedDetailsDraft libraryKindOwnedDetailsDraftForKind(CatalogMediaKind kind) {
 
 OwnedDetailsDraft libraryKindOwnedDetailsDraftFromDetailsForKind(
   CatalogMediaKind kind,
-  OwnedItemDetails details,
+  JsonEncodable details,
 ) {
   final codec = libraryKindOwnedDetailsCodecForKind(kind);
   codec.validate(details);

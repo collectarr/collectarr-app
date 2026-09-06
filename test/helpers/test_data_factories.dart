@@ -289,7 +289,7 @@ OwnedItem testOwnedItem({
         id: itemId,
       );
 
-  OwnedItemDetails details;
+  JsonEncodable details;
   switch (resolvedCatalogRef.kind) {
     case 'comic':
     case 'manga':

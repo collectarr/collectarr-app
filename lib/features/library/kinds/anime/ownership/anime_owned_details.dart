@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_physical_copy_details.dart';
 
 const Object _animeDetailsUnset = Object();
 
 @immutable
-class AnimeOwnedDetails extends OwnedItemDetails {
+class AnimeOwnedDetails implements JsonEncodable {
   const AnimeOwnedDetails({
     this.physical = const AnimePhysicalCopyDetails(),
     String? features,

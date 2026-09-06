@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_preservation_details.dart';
@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_pres
 const Object _comicDetailsUnset = Object();
 
 @immutable
-class ComicOwnedDetails extends OwnedItemDetails {
+class ComicOwnedDetails implements JsonEncodable {
   const ComicOwnedDetails({
     this.grading = const ComicGradingDetails(),
     this.signature = const ComicSignatureDetails(),
