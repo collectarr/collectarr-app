@@ -20,7 +20,7 @@ void main() {
                   isScrollControlled: true,
                   builder: (context) => const BarcodeScanSheet(
                     cameraSupported: false,
-                    platform: TargetPlatform.windows,
+                    devicePlatform: TargetPlatform.windows,
                   ),
                 );
               },
@@ -59,7 +59,7 @@ void main() {
         home: Scaffold(
           body: BarcodeScanSheet(
             cameraSupported: false,
-            platform: TargetPlatform.windows,
+            devicePlatform: TargetPlatform.windows,
             title: 'Scan game barcode',
             description:
                 'Scan or enter a barcode. Collectarr will open Add Games with this code prefilled.',

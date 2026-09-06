@@ -25,42 +25,42 @@ void main() {
     expect(
       barcodeScannerCameraSupported(
         isWeb: false,
-        platform: TargetPlatform.android,
+        devicePlatform: TargetPlatform.android,
       ),
       isTrue,
     );
     expect(
       barcodeScannerCameraSupported(
         isWeb: false,
-        platform: TargetPlatform.iOS,
+        devicePlatform: TargetPlatform.iOS,
       ),
       isTrue,
     );
     expect(
       barcodeScannerCameraSupported(
         isWeb: false,
-        platform: TargetPlatform.macOS,
+        devicePlatform: TargetPlatform.macOS,
       ),
       isTrue,
     );
     expect(
       barcodeScannerCameraSupported(
         isWeb: true,
-        platform: TargetPlatform.windows,
+        devicePlatform: TargetPlatform.windows,
       ),
       isTrue,
     );
     expect(
       barcodeScannerCameraSupported(
         isWeb: false,
-        platform: TargetPlatform.windows,
+        devicePlatform: TargetPlatform.windows,
       ),
       isFalse,
     );
     expect(
       barcodeScannerCameraSupported(
         isWeb: false,
-        platform: TargetPlatform.linux,
+        devicePlatform: TargetPlatform.linux,
       ),
       isFalse,
     );
@@ -78,7 +78,7 @@ void main() {
     expect(
       barcodeScannerUnavailableMessage(
         isWeb: false,
-        platform: TargetPlatform.windows,
+        devicePlatform: TargetPlatform.windows,
       ),
       contains('not available on this platform'),
     );

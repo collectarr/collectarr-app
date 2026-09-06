@@ -42,12 +42,12 @@ void main() {
     test('barcode camera supported on web (any platform)', () {
       expect(
         barcodeScannerCameraSupported(
-            isWeb: true, platform: TargetPlatform.windows),
+            isWeb: true, devicePlatform: TargetPlatform.windows),
         isTrue,
       );
       expect(
         barcodeScannerCameraSupported(
-            isWeb: true, platform: TargetPlatform.linux),
+            isWeb: true, devicePlatform: TargetPlatform.linux),
         isTrue,
       );
     });
@@ -94,14 +94,14 @@ void main() {
     test('barcode camera NOT supported on Windows desktop', () {
       expect(
         barcodeScannerCameraSupported(
-            isWeb: false, platform: TargetPlatform.windows),
+            isWeb: false, devicePlatform: TargetPlatform.windows),
         isFalse,
       );
     });
 
     test('Windows barcode fallback message suggests manual entry', () {
       final msg = barcodeScannerUnavailableMessage(
-          isWeb: false, platform: TargetPlatform.windows);
+          isWeb: false, devicePlatform: TargetPlatform.windows);
       expect(msg, contains('Enter the barcode manually'));
     });
 
@@ -141,14 +141,14 @@ void main() {
     test('barcode camera IS supported on Android', () {
       expect(
         barcodeScannerCameraSupported(
-            isWeb: false, platform: TargetPlatform.android),
+            isWeb: false, devicePlatform: TargetPlatform.android),
         isTrue,
       );
     });
 
     test('Android barcode unavailable message is user-friendly', () {
       final msg = barcodeScannerUnavailableMessage(
-          isWeb: false, platform: TargetPlatform.android);
+          isWeb: false, devicePlatform: TargetPlatform.android);
       expect(msg, contains('Enter the barcode manually'));
     });
 

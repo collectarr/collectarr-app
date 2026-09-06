@@ -11,12 +11,12 @@ class BarcodeBatchScanSheet extends StatefulWidget {
     super.key,
     this.title = 'Batch Scan',
     @visibleForTesting this.cameraSupported,
-    @visibleForTesting this.platform,
+    @visibleForTesting this.devicePlatform,
   });
 
   final String title;
   final bool? cameraSupported;
-  final TargetPlatform? platform;
+  final TargetPlatform? devicePlatform;
 
   @override
   State<BarcodeBatchScanSheet> createState() => _BarcodeBatchScanSheetState();
@@ -32,7 +32,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
   void initState() {
     super.initState();
     _cameraSupported = widget.cameraSupported ??
-        barcodeScannerCameraSupported(platform: widget.platform);
+        barcodeScannerCameraSupported(devicePlatform: widget.devicePlatform);
     if (_cameraSupported) {
       _scannerController = MobileScannerController(
         formats: const [

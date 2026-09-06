@@ -12,7 +12,7 @@ class BarcodeScanSheet extends StatefulWidget {
     this.submitLabel = 'Lookup barcode',
     this.leadingIcon = Icons.qr_code_scanner,
     @visibleForTesting this.cameraSupported,
-    @visibleForTesting this.platform,
+    @visibleForTesting this.devicePlatform,
   });
 
   final String title;
@@ -21,7 +21,7 @@ class BarcodeScanSheet extends StatefulWidget {
   final String submitLabel;
   final IconData leadingIcon;
   final bool? cameraSupported;
-  final TargetPlatform? platform;
+  final TargetPlatform? devicePlatform;
 
   @override
   State<BarcodeScanSheet> createState() => _BarcodeScanSheetState();
@@ -37,7 +37,7 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
   void initState() {
     super.initState();
     _cameraSupported = widget.cameraSupported ??
-        barcodeScannerCameraSupported(platform: widget.platform);
+        barcodeScannerCameraSupported(devicePlatform: widget.devicePlatform);
     if (_cameraSupported) {
       _scannerController = MobileScannerController(
         formats: const [
@@ -122,7 +122,7 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
             else
               _ScannerFallback(
                 message: barcodeScannerUnavailableMessage(
-                  platform: widget.platform,
+                  devicePlatform: widget.devicePlatform,
                 ),
               ),
             const SizedBox(height: 12),

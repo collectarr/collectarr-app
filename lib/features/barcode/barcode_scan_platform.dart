@@ -32,12 +32,12 @@ ScannedCodeSymbology scannedCodeSymbologyFromFormat(BarcodeFormat format) {
 
 bool barcodeScannerCameraSupported({
   bool isWeb = kIsWeb,
-  TargetPlatform? platform,
+  TargetPlatform? devicePlatform,
 }) {
   if (isWeb) {
     return true;
   }
-  return switch (platform ?? defaultTargetPlatform) {
+  return switch (devicePlatform ?? defaultTargetPlatform) {
     TargetPlatform.android ||
     TargetPlatform.iOS ||
     TargetPlatform.macOS =>
@@ -51,12 +51,12 @@ bool barcodeScannerCameraSupported({
 
 String barcodeScannerUnavailableMessage({
   bool isWeb = kIsWeb,
-  TargetPlatform? platform,
+  TargetPlatform? devicePlatform,
 }) {
   if (isWeb) {
     return 'Camera access is unavailable in this browser. Enter the barcode manually.';
   }
-  return switch (platform ?? defaultTargetPlatform) {
+  return switch (devicePlatform ?? defaultTargetPlatform) {
     TargetPlatform.windows ||
     TargetPlatform.linux ||
     TargetPlatform.fuchsia =>
