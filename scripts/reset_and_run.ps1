@@ -5,13 +5,18 @@
 .DESCRIPTION
     1. Kills lingering collectarr dart / flutter processes that hold the DB lock.
     2. Deletes collectarr.sqlite from the Documents folder.
-    3. Optionally runs `flutter run -d windows` afterwards.
+    3. Optionally seeds the complete typed-kind development fixture.
+    4. Optionally runs `flutter run -d windows` afterwards.
 
 .PARAMETER Run
     When set, launches the app after the reset.
 
 .PARAMETER Clean
     When set, also runs `flutter clean` + `flutter pub get` before launching.
+
+.PARAMETER Seed
+    When set, runs the checked-in typed-kind seed and verification script after
+    the reset. Use with -Run to open the app with the fixture already loaded.
 
 .EXAMPLE
     .\scripts\reset_and_run.ps1            # just reset DB
@@ -21,11 +26,16 @@
 [CmdletBinding()]
 param(
     [switch]$Run,
-    [switch]$Clean
+    [switch]$Clean,
+    [switch]$Seed
 )
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
+
+if ($Seed -and -not (Get-Command dart -ErrorAction SilentlyContinue)) {
+    throw "Dart is not available in PATH; cannot seed the local database."
+}
 
 # --- 1. Kill lingering workspace processes ---
 $workspaceRoot = [IO.Path]::GetFullPath($projectRoot).TrimEnd('\')
@@ -74,7 +84,15 @@ if ($Clean) {
     Pop-Location
 }
 
-# --- 4. Optional: run the app ---
+# --- 4. Optional: seed the typed-kind development fixture ---
+if ($Seed) {
+    Write-Host "[reset] Seeding typed-kind development fixture..." -ForegroundColor Cyan
+    Push-Location $projectRoot
+    dart run scripts/seed_local_db.dart
+    Pop-Location
+}
+
+# --- 5. Optional: run the app ---
 if ($Run) {
     Write-Host "[reset] Launching app..." -ForegroundColor Cyan
     Push-Location $projectRoot

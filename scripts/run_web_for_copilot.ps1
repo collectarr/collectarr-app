@@ -19,6 +19,9 @@
 
 .EXAMPLE
     .\scripts\run_web_for_copilot.ps1 -NoOpen
+
+.EXAMPLE
+    .\scripts\run_web_for_copilot.ps1 -Seed -Route /libraries
 #>
 [CmdletBinding()]
 param(
@@ -31,7 +34,9 @@ param(
 
     [string]$Route = '/libraries',
 
-    [switch]$NoOpen
+    [switch]$NoOpen,
+
+    [switch]$Seed
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,6 +44,9 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 
 if (-not (Get-Command flutter -ErrorAction SilentlyContinue)) {
     throw "Flutter is not available in PATH."
+}
+if ($Seed -and -not (Get-Command dart -ErrorAction SilentlyContinue)) {
+    throw "Dart is not available in PATH; cannot seed the local database."
 }
 
 $routePath = if ([string]::IsNullOrWhiteSpace($Route)) { '/libraries' } else { $Route }
@@ -51,6 +59,13 @@ $url = "http://$HostName`:$Port/#$routePath"
 Write-Host "[web] Project: $projectRoot" -ForegroundColor Cyan
 Write-Host "[web] URL:     $url" -ForegroundColor Cyan
 Write-Host "[web] Device:  $Device" -ForegroundColor Cyan
+
+if ($Seed) {
+    Write-Host "[web] Seeding typed-kind development fixture..." -ForegroundColor Cyan
+    Push-Location $projectRoot
+    dart run scripts/seed_local_db.dart
+    Pop-Location
+}
 
 $flutterArgs = @(
     'run',
