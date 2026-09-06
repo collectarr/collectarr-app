@@ -259,36 +259,52 @@ final class TrackingMutations {
       origin: origin,
       localRef: item.catalogRef,
       action: () async {
-        final entry = TrackingEntry(
-          id: entryId,
-          catalogRef: item.catalogRef,
-          ownedItemId: item.id,
-          editionId: editionId ?? item.editionId,
-          variantId: variantId ?? item.variantId,
-          bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
-          status: status ??
-              mediaTrackingStatusFromValue(item.readStatus) ??
-              existing?.status ??
-              MediaTrackingStatus.planned,
-          rating: rating ?? item.rating ?? existing?.rating,
-          notes: notes ?? item.personalNotes ?? existing?.notes,
-          startedAt: startedAt ?? item.startedAt ?? existing?.startedAt,
-          finishedAt: finishedAt ?? item.finishedAt ?? existing?.finishedAt,
-          progressCurrent: progressCurrent ?? existing?.progressCurrent,
-          progressTotal: progressTotal ?? existing?.progressTotal,
-          // Preserve legacy episodic coordinates already attached to the
-          // entry. New episodic state is written by the owning kind adapter;
-          // this generic Owned sync path must not erase it.
-          seasonNumber: existing?.seasonNumber,
-          episodeNumber: existing?.episodeNumber,
-          episodeRatings: existing?.episodeRatings,
-          sourceType: sourceType ??
-              existing?.sourceType ??
-              (item.isDigital == true
-                  ? TrackingSourceType.digital
-                  : TrackingSourceType.physical),
-          updatedAt: now,
-        );
+        final entry = existing?.copyWith(
+              id: entryId,
+              catalogRef: item.catalogRef,
+              ownedItemId: item.id,
+              editionId: editionId ?? item.editionId,
+              variantId: variantId ?? item.variantId,
+              bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
+              status: status ??
+                  mediaTrackingStatusFromValue(item.readStatus) ??
+                  existing.status ??
+                  MediaTrackingStatus.planned,
+              rating: rating ?? item.rating ?? existing.rating,
+              notes: notes ?? item.personalNotes ?? existing.notes,
+              startedAt: startedAt ?? item.startedAt ?? existing.startedAt,
+              finishedAt: finishedAt ?? item.finishedAt ?? existing.finishedAt,
+              progressCurrent: progressCurrent ?? existing.progressCurrent,
+              progressTotal: progressTotal ?? existing.progressTotal,
+              sourceType: sourceType ??
+                  existing.sourceType ??
+                  (item.isDigital == true
+                      ? TrackingSourceType.digital
+                      : TrackingSourceType.physical),
+              updatedAt: now,
+            ) ??
+            TrackingEntry(
+              id: entryId,
+              catalogRef: item.catalogRef,
+              ownedItemId: item.id,
+              editionId: editionId ?? item.editionId,
+              variantId: variantId ?? item.variantId,
+              bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
+              status: status ??
+                  mediaTrackingStatusFromValue(item.readStatus) ??
+                  MediaTrackingStatus.planned,
+              rating: rating ?? item.rating,
+              notes: notes ?? item.personalNotes,
+              startedAt: startedAt ?? item.startedAt,
+              finishedAt: finishedAt ?? item.finishedAt,
+              progressCurrent: progressCurrent,
+              progressTotal: progressTotal,
+              sourceType: sourceType ??
+                  (item.isDigital == true
+                      ? TrackingSourceType.digital
+                      : TrackingSourceType.physical),
+              updatedAt: now,
+            );
         await trackingEntries.upsert(entry);
         await syncQueue
             .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));

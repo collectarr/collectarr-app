@@ -2,6 +2,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -233,6 +234,48 @@ void main() {
         trackingEntries.toSyncPayload(entry)['season_number'],
         2,
       );
+    });
+
+    test('owned sync preserves kind-owned tracking state on existing entries',
+        () async {
+      const ref = CatalogEntityRef(
+        kind: 'tv',
+        entityType: CatalogEntityType.work,
+        id: 'tv-owned-1',
+      );
+      final owned = OwnedItem(
+        id: 'owned-tv-1',
+        catalogRef: ref,
+        updatedAt: DateTime.utc(2026, 6, 1),
+      );
+      await catalogCache.upsertAll([
+        testCatalogItem(id: ref.id, kind: ref.kind, title: 'Tracked Show'),
+      ]);
+      await ownedItems.upsert(owned);
+      await trackingEntries.upsert(
+        TrackingEntry(
+          id: 'tracking-tv-1',
+          catalogRef: ref,
+          ownedItemId: owned.id,
+          seasonNumber: 4,
+          episodeNumber: 9,
+          episodeRatings: const {'4:9': 10},
+          updatedAt: DateTime.utc(2026, 6, 1),
+        ),
+      );
+
+      await trackingMutations.syncOwnedTrackingEntry(
+        owned,
+        status: MediaTrackingStatus.inProgress,
+        progressCurrent: 9,
+      );
+
+      final entry =
+          (await trackingEntries.findActiveByItemIds([ref.id])).single;
+      expect(entry.seasonNumber, 4);
+      expect(entry.episodeNumber, 9);
+      expect(entry.episodeRatings, const {'4:9': 10});
+      expect(entry.progressCurrent, 9);
     });
   });
 }
