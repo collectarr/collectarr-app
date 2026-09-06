@@ -51,6 +51,8 @@ import 'package:collectarr_app/features/library/kinds/game/data/game_repository.
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/legacy/game_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/legacy/manga_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/legacy/movie_owned_item_legacy_adapter.dart';
@@ -444,9 +446,8 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
 
   final comicRows = await db.select(db.comicOwnedItemsRows).get();
   checkTypedRows('comic_owned_items', 'comic', comicRows.map((row) => row.id));
-  final mangaRows = await db.select(db.mangaOwnedDetailsRows).get();
-  checkTypedRows(
-      'manga_owned_details', 'manga', mangaRows.map((row) => row.ownedItemId));
+  final mangaRows = await db.select(db.mangaOwnedItemsRows).get();
+  checkTypedRows('manga_owned_items', 'manga', mangaRows.map((row) => row.id));
   final bookRows = await db.select(db.bookOwnedItemsRows).get();
   checkTypedRows('book_owned_items', 'book', bookRows.map((row) => row.id));
   final gameRows = await db.select(db.gameOwnedDetailsRows).get();
@@ -477,7 +478,7 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
 Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
   return {
     'comic.owned': (await db.select(db.comicOwnedItemsRows).get()).length,
-    'manga.owned': (await db.select(db.mangaOwnedDetailsRows).get()).length,
+    'manga.owned': (await db.select(db.mangaOwnedItemsRows).get()).length,
     'book.owned': (await db.select(db.bookOwnedItemsRows).get()).length,
     'game.owned': (await db.select(db.gameOwnedItemsRows).get()).length,
     'boardgame.owned':
@@ -555,6 +556,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   final gameOwnedRepo = GameOwnedRepository(db);
   final boardGameOwnedRepo = BoardGameOwnedRepository(db);
   final bookOwnedRepo = BookOwnedRepository(db);
+  final mangaOwnedRepo = MangaOwnedRepository(db);
   final ownedRepo = OwnedItemsCacheRepository(db);
   final trackingRepo = TrackingEntriesCacheRepository(
     db,
@@ -674,6 +676,11 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.book)
         .map(BookOwnedItemLegacyAdapter.fromLegacy),
+  );
+  await mangaOwnedRepo.upsertAll(
+    ownedItems
+        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.manga)
+        .map(MangaOwnedItemLegacyAdapter.fromLegacy),
   );
 
   // --- Item Images (front/back + extras) ---

@@ -366,6 +366,25 @@ void main() {
       reason: 'Book seed copies must retain complete typed ownership data',
     );
 
+    final mangaOwnedRows = await db.select(db.mangaOwnedItemsRows).get();
+    expect(mangaOwnedRows, hasLength(15));
+    expect(
+      mangaOwnedRows.every(
+        (row) =>
+            row.itemId.startsWith('seed-manga-') &&
+            row.rawOrSlabbed?.trim().isNotEmpty == true &&
+            row.signedBy?.trim().isNotEmpty == true &&
+            row.obiStripPresent == true &&
+            row.slipcoverPresent == true &&
+            row.dustJacketPresent == true &&
+            row.insertsPresent == true &&
+            row.printing?.trim().isNotEmpty == true &&
+            row.localizedEdition?.trim().isNotEmpty == true,
+      ),
+      isTrue,
+      reason: 'Manga seed copies must retain complete typed ownership data',
+    );
+
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows

@@ -7,6 +7,8 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 
 Iterable<MangaTrackingUnit> mangaSeedTrackingUnits(
@@ -616,9 +618,21 @@ List<OwnedItem> mangaSeedOwnedItems(DateTime now) => [
           isDigital: false,
           condition: 'Mint',
           details: const MangaOwnedDetails(
+            grading: MangaGradingDetails(
+              rawOrSlabbed: 'Slabbed',
+              gradingCompany: 'CGC',
+              graderNotes: 'White pages; clean spine and corners.',
+              labelType: 'Modern',
+              customLabel: 'Deluxe creator edition',
+              pageQuality: 'White pages',
+              certificationNumber: 'CGC-MANGA-0001',
+            ),
+            signature: MangaSignatureDetails(signedBy: 'Takehiko Inoue'),
             obiStripPresent: true,
+            slipcoverPresent: true,
             dustJacketPresent: true,
             dustJacketCondition: 'Excellent',
+            boxSetOuterCondition: 'Very good',
             insertsPresent: true,
             printing: '1st Print',
             localizedEdition: 'VIZ Media',

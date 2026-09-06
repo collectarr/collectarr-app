@@ -59,10 +59,10 @@ void main() {
   test('reports the current schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 34);
+    expect(db.schemaVersion, 35);
   });
 
-  test('migrates a v7 cache to v34 without losing existing cache rows',
+  test('migrates a v7 cache to v35 without losing existing cache rows',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_migrate');
     addTearDown(() => dir.delete(recursive: true));
@@ -91,6 +91,9 @@ void main() {
       'DROP TABLE ${old.mangaOwnedDetailsRows.actualTableName}',
     );
     await old.customStatement(
+      'DROP TABLE ${old.mangaOwnedItemsRows.actualTableName}',
+    );
+    await old.customStatement(
       'DROP TABLE ${old.bookMediaRows.actualTableName}',
     );
     await old.customStatement(
@@ -98,6 +101,9 @@ void main() {
     );
     await old.customStatement(
       'DROP TABLE ${old.bookOwnedDetailsRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookOwnedItemsRows.actualTableName}',
     );
     await old.customStatement(
       'DROP TABLE ${old.gameMediaRows.actualTableName}',
@@ -133,7 +139,7 @@ void main() {
     expect(await db.select(db.providerItemLinksCache).get(), isEmpty);
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('migrates a v8 provider account table by adding username', () async {
@@ -239,7 +245,7 @@ void main() {
     final migrated = await db.select(db.providerAccountsCache).getSingle();
     expect(migrated.username, 'new-user');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('migrates v9 owned semantic columns into typed details JSON', () async {
@@ -465,7 +471,7 @@ void main() {
     expect(gameMediaRows, isEmpty);
     expect(gameReleaseRows, isEmpty);
     expect(gameOwnedDetailsRows, isEmpty);
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('creates Book, Game, and BoardGame tables when migrating from v12',
@@ -483,6 +489,12 @@ void main() {
     );
     await old.customStatement(
       'DROP TABLE ${old.bookOwnedDetailsRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.bookOwnedItemsRows.actualTableName}',
+    );
+    await old.customStatement(
+      'DROP TABLE ${old.mangaOwnedItemsRows.actualTableName}',
     );
     await old.customStatement(
       'DROP TABLE ${old.gameMediaRows.actualTableName}',
@@ -517,6 +529,8 @@ void main() {
     expect(await db.select(db.bookMediaRows).get(), isEmpty);
     expect(await db.select(db.bookReleaseRows).get(), isEmpty);
     expect(await db.select(db.bookOwnedDetailsRows).get(), isEmpty);
+    expect(await db.select(db.bookOwnedItemsRows).get(), isEmpty);
+    expect(await db.select(db.mangaOwnedItemsRows).get(), isEmpty);
     expect(await db.select(db.gameMediaRows).get(), isEmpty);
     expect(await db.select(db.gameReleaseRows).get(), isEmpty);
     expect(await db.select(db.gameOwnedDetailsRows).get(), isEmpty);
@@ -526,7 +540,7 @@ void main() {
     expect(await db.select(db.boardGameOwnedDetailsRows).get(), isEmpty);
     expect(await db.select(db.boardGamePlaySessionsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('creates BoardGame play-session table when migrating from v15',
@@ -547,7 +561,7 @@ void main() {
 
     expect(await db.select(db.boardGamePlaySessionsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('creates BoardGame tables when migrating from v14', () async {
@@ -575,7 +589,7 @@ void main() {
     expect(await db.select(db.boardGameEditionRows).get(), isEmpty);
     expect(await db.select(db.boardGameOwnedDetailsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('owned item repository round-trips opaque kind details', () async {
@@ -661,7 +675,7 @@ void main() {
     expect(await db.select(db.movieOwnedDetailsRows).get(), isEmpty);
     expect(await db.select(db.movieOwnedItemsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('backfills complete Movie owned rows when migrating from v27', () async {
@@ -711,7 +725,7 @@ void main() {
     expect(restored.packaging, 'SteelBook');
     expect(restored.distributor, 'Warner Home Video');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('creates Anime tables when migrating from v19', () async {
@@ -751,7 +765,7 @@ void main() {
     expect(await db.select(db.animeOwnedItemsRows).get(), isEmpty);
     expect(await db.select(db.animeTrackingRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('backfills complete TV owned rows when migrating from v29', () async {
@@ -796,7 +810,7 @@ void main() {
     expect(restored.packaging, 'Amaray');
     expect(restored.distributor, 'BBC Studios');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('creates Music tables when migrating from v20', () async {
@@ -842,7 +856,7 @@ void main() {
     expect(
         await LibraryCatalogRepository(db).findById('music-1') != null, isTrue);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('backfills complete Music owned rows when migrating from v30', () async {
@@ -905,7 +919,7 @@ void main() {
       },
     ]);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('backfills complete Game owned rows when migrating from v31', () async {
@@ -957,7 +971,7 @@ void main() {
     expect(restored.coreRegion, 'NTSC-U');
     expect(restored.valueIsLocked, false);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('backfills complete BoardGame owned rows when migrating from v32',
@@ -1017,7 +1031,7 @@ void main() {
     expect(restored.hasPaintedMiniatures, true);
     expect(restored.storageNotes, 'Shelf 3');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('backfills complete Book owned rows when migrating from v33', () async {
@@ -1067,10 +1081,87 @@ void main() {
     expect(restored.dustJacketPresent, true);
     expect(restored.dustJacketCondition, 'Very good');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v34 schema',
+  test('backfills complete Manga owned rows when migrating from v34', () async {
+    final dir =
+        await Directory.systemTemp.createTemp('collectarr_db_v34_manga');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/cache.sqlite');
+
+    final old = LocalDatabase(NativeDatabase(file));
+    await old.into(old.ownedItemsCache).insert(
+          OwnedItemsCacheCompanion.insert(
+            id: 'manga-owned-legacy',
+            itemId: 'manga-legacy',
+            kind: const Value('manga'),
+            anchorType: const Value('edition'),
+            editionId: const Value('volume-legacy'),
+            condition: const Value('Mint'),
+            grade: const Value('9.8'),
+            personalNotes: const Value('Complete deluxe volume'),
+            quantity: const Value(2),
+            detailsJson: Value(jsonEncode({
+              'raw_or_slabbed': 'Slabbed',
+              'grading_company': 'CGC',
+              'grader_notes': 'White pages',
+              'label_type': 'Modern',
+              'custom_label': 'Signed creator copy',
+              'page_quality': 'White pages',
+              'certification_number': 'CGC-12345',
+              'signed_by': 'Takehiko Inoue',
+              'obi_strip_present': true,
+              'slipcover_present': true,
+              'dust_jacket_present': true,
+              'dust_jacket_condition': 'Like new',
+              'box_set_outer_condition': 'Very good',
+              'inserts_present': true,
+              'printing': '1st Print',
+              'localized_edition': 'VIZ Media',
+            })),
+            updatedAt: DateTime.utc(2026, 8, 3),
+          ),
+        );
+    await old.customStatement(
+      'DROP TABLE ${old.mangaOwnedItemsRows.actualTableName}',
+    );
+    await old.customStatement('PRAGMA user_version = 34');
+    await old.close();
+
+    final db = LocalDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+
+    final restored = await db.select(db.mangaOwnedItemsRows).getSingle();
+    expect(restored.id, 'manga-owned-legacy');
+    expect(restored.itemId, 'manga-legacy');
+    expect(restored.anchorType, 'edition');
+    expect(restored.editionId, 'volume-legacy');
+    expect(restored.condition, 'Mint');
+    expect(restored.grade, '9.8');
+    expect(restored.personalNotes, 'Complete deluxe volume');
+    expect(restored.quantity, 2);
+    expect(restored.rawOrSlabbed, 'Slabbed');
+    expect(restored.gradingCompany, 'CGC');
+    expect(restored.graderNotes, 'White pages');
+    expect(restored.labelType, 'Modern');
+    expect(restored.customLabel, 'Signed creator copy');
+    expect(restored.pageQuality, 'White pages');
+    expect(restored.certificationNumber, 'CGC-12345');
+    expect(restored.signedBy, 'Takehiko Inoue');
+    expect(restored.obiStripPresent, true);
+    expect(restored.slipcoverPresent, true);
+    expect(restored.dustJacketPresent, true);
+    expect(restored.dustJacketCondition, 'Like new');
+    expect(restored.boxSetOuterCondition, 'Very good');
+    expect(restored.insertsPresent, true);
+    expect(restored.printing, '1st Print');
+    expect(restored.localizedEdition, 'VIZ Media');
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.first, 35);
+  });
+
+  test('destructively rebuilds a higher-versioned cache to the v35 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -1100,7 +1191,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 34);
+    expect(version.data.values.first, 35);
   });
 
   test('stores personal collection and wishlist data locally', () async {

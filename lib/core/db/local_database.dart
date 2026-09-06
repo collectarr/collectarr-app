@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_loc
 import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
@@ -53,6 +54,7 @@ part 'local_database.g.dart';
   ComicOwnedDetailsRows,
   MangaMediaRows,
   MangaOwnedDetailsRows,
+  MangaOwnedItemsRows,
   BookMediaRows,
   BookReleaseRows,
   BookOwnedDetailsRows,
@@ -105,7 +107,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 34;
+  int get schemaVersion => 35;
 
   @override
   MigrationStrategy get migration {
@@ -281,6 +283,12 @@ class LocalDatabase extends _$LocalDatabase {
             await m.createTable(bookOwnedItemsRows);
           }
           await migrateBookOwnedItems(this);
+        }
+        if (from < 35) {
+          if (!await _hasTable(mangaOwnedItemsRows.actualTableName)) {
+            await m.createTable(mangaOwnedItemsRows);
+          }
+          await migrateMangaOwnedItems(this);
         }
       },
       beforeOpen: (details) async {
