@@ -312,36 +312,20 @@ class CollectionCsv {
       return _validatedCatalogCells(projection.catalogCells(entry));
     }
 
-    final payload = catalog?.payload ?? const <String, dynamic>{};
-    final pub = payload['publishing'] as Map?;
-    final itemNumber =
-        (payload['item_number'] ?? pub?['issue_number'])?.toString() ?? '';
-    final variant = (payload['variant'] ?? pub?['variant'])?.toString() ?? '';
-    final editionTitle =
-        (payload['edition_title'] ?? pub?['edition_title'])?.toString() ?? '';
-    final physicalFormat =
-        (payload['physical_format'] ?? pub?['physical_format'])?.toString() ??
-            '';
-    final physicalFormatLabel =
-        (payload['physical_format_label'] ?? pub?['physical_format_label'])
-                ?.toString() ??
-            '';
-    final publisher =
-        (payload['publisher'] ?? pub?['original_publisher'])?.toString() ?? '';
-    final barcode = (payload['barcode'] ?? pub?['barcode'])?.toString() ?? '';
-
+    // Unknown/legacy kinds get only structural catalog cells. Semantic
+    // columns are supplied by a kind-owned projection when supported.
     return [
       entry.itemId,
       catalog?.kind ?? '',
       catalog?.title ?? '',
-      itemNumber,
-      variant,
-      editionTitle,
-      physicalFormat,
-      physicalFormatLabel,
-      publisher,
-      _formatDate(_parseDate(payload['release_date']?.toString() ?? '')),
-      barcode,
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      _formatDate(catalog?.releaseDate),
+      '',
     ];
   }
 
