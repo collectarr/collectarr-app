@@ -182,6 +182,7 @@ final tvKindModule =
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
+    existingOwnedPayloadBuilder: TvOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
         libraryAddVideoKindFilterId: {'tv'},

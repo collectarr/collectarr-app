@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -90,7 +91,11 @@ void main() {
         );
         const common = LibraryAddCommonDraft(
           condition: 'Near Mint',
+          grade: '9.8',
           personalNotes: 'Collection note',
+          purchaseStore: 'Typed Store',
+          collectionStatus: 'Complete',
+          quantity: 2,
         );
 
         final metadataItem = typedCatalogItemFromCatalogItem(item);
@@ -114,6 +119,43 @@ void main() {
             reason: '$kind must build a kind-owned Owned create payload');
         expect(command.typedPayload!.catalogRef.kind, kind.apiValue,
             reason: '$kind payload must retain its owning kind');
+
+        final existing = OwnedItem(
+          id: 'existing-${kind.apiValue}',
+          catalogRef: command.catalogRef,
+          details: command.details.toDetails(),
+          condition: command.common.condition,
+          grade: command.common.grade,
+          personalNotes: command.common.personalNotes,
+          purchaseStore: command.common.purchaseStore,
+          collectionStatus: command.common.collectionStatus,
+          quantity: command.common.quantity,
+          updatedAt: DateTime.utc(2026, 1, 1),
+        );
+        final duplicate = addCap.buildCommandFromOwnedItem(
+          metadataItem,
+          existing,
+          anchor: command.anchor,
+          tracking: const LibraryAddTrackingDraft(readStatus: 'Completed'),
+        );
+        expect(duplicate, isNotNull,
+            reason: '$kind must support typed Owned duplication');
+        expect(duplicate!.typedPayload, isNotNull);
+        final duplicatedOwned = duplicate.typedPayload!.toLegacyOwnedItem(
+          resolvedCatalogRef: duplicate.catalogRef,
+          id: 'duplicate-${kind.apiValue}',
+          createdAt: DateTime.utc(2026, 1, 2),
+          existingCatalog: metadataItem,
+          anchor: duplicate.anchor,
+          ownerUserId: null,
+          ownerLabel: null,
+        );
+        expect(duplicatedOwned.condition, 'Near Mint');
+        expect(duplicatedOwned.grade, '9.8');
+        expect(duplicatedOwned.personalNotes, 'Collection note');
+        expect(duplicatedOwned.purchaseStore, 'Typed Store');
+        expect(duplicatedOwned.collectionStatus, 'Complete');
+        expect(duplicatedOwned.quantity, 2);
         expect(command.details, isNot(isA<GenericOwnedDetailsDraft>()),
             reason:
                 '$kind command details must not be GenericOwnedDetailsDraft');

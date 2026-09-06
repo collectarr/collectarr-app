@@ -146,6 +146,8 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto,
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
+    existingOwnedPayloadBuilder:
+        BoardgameOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildBoardGameAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildBoardGameCoreSearchInput,

@@ -226,6 +226,7 @@ final bookKindModule =
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
+    existingOwnedPayloadBuilder: BookOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildBookAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildBookCoreSearchInput,

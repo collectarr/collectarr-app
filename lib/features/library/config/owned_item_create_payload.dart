@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 
 /// Structural behavior contract for a kind-owned Owned create payload.
 ///
@@ -11,6 +12,7 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 /// field or inspecting the concrete payload.
 abstract interface class OwnedItemCreatePayload {
   CatalogEntityRef get catalogRef;
+  OwnedDetailsDraft get detailsDraft;
 
   OwnedItem toLegacyOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,

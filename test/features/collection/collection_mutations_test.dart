@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
@@ -64,6 +65,42 @@ void main() {
     expect(queued, hasLength(1));
     expect(queued.single.entityType, 'owned_item');
     expect(queued.single.action, 'upsert');
+  });
+
+  test(
+      'collection add prefers the kind-owned create payload over legacy common fields',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(ownedItemMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('comic-typed-payload', kind: 'comic'),
+            common: const OwnedItemCommonDraft(
+              condition: 'Legacy condition',
+              quantity: 1,
+            ),
+            details: const ComicOwnedDetailsDraft(),
+            typedPayload: ComicOwnedItemCreatePayload(
+              catalogRef: testCatalogRef('comic-typed-payload', kind: 'comic'),
+              details: const ComicOwnedDetailsDraft(),
+              condition: 'Typed condition',
+              quantity: 3,
+              purchaseStore: 'Typed store',
+              collectionStatus: 'Complete',
+            ),
+          ),
+        );
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    expect(owned.condition, 'Typed condition');
+    expect(owned.quantity, 3);
+    expect(owned.purchaseStore, 'Typed store');
+    expect(owned.collectionStatus, 'Complete');
   });
 
   test('collection mutations stamp owned item createdAt and owner identity',

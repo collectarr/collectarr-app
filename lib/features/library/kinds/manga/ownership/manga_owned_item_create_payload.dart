@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 
 final class MangaOwnedItemCreatePayload implements OwnedItemCreatePayload {
@@ -23,9 +25,36 @@ final class MangaOwnedItemCreatePayload implements OwnedItemCreatePayload {
     this.tags,
   });
 
+  factory MangaOwnedItemCreatePayload.fromOwnedItem(
+    CatalogItem item,
+    OwnedItem ownedItem,
+  ) {
+    return MangaOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: MangaOwnedDetailsCodec().draftFromDetails(
+        ownedItem.details as MangaOwnedDetails,
+      ),
+      quantity: ownedItem.quantity,
+      condition: ownedItem.condition,
+      grade: ownedItem.grade,
+      purchaseDate: ownedItem.purchaseDate,
+      pricePaidCents: ownedItem.pricePaidCents,
+      currency: ownedItem.currency,
+      personalNotes: ownedItem.personalNotes,
+      locationId: ownedItem.locationId,
+      purchaseStore: ownedItem.purchaseStore,
+      collectionStatus: ownedItem.collectionStatus,
+      isDigital: ownedItem.isDigital,
+      tags: ownedItem.tags,
+    );
+  }
+
   @override
   final CatalogEntityRef catalogRef;
   final MangaOwnedDetailsDraft details;
+
+  @override
+  MangaOwnedDetailsDraft get detailsDraft => details;
   final int quantity;
   final String? condition;
   final String? grade;

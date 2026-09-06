@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 
 /// Comic-owned personal-copy values for the Add command.
@@ -28,9 +30,36 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     this.tags,
   });
 
+  factory ComicOwnedItemCreatePayload.fromOwnedItem(
+    CatalogItem item,
+    OwnedItem ownedItem,
+  ) {
+    return ComicOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: ComicOwnedDetailsCodec().draftFromDetails(
+        ownedItem.details as ComicOwnedDetails,
+      ),
+      quantity: ownedItem.quantity,
+      condition: ownedItem.condition,
+      grade: ownedItem.grade,
+      purchaseDate: ownedItem.purchaseDate,
+      pricePaidCents: ownedItem.pricePaidCents,
+      currency: ownedItem.currency,
+      personalNotes: ownedItem.personalNotes,
+      locationId: ownedItem.locationId,
+      purchaseStore: ownedItem.purchaseStore,
+      collectionStatus: ownedItem.collectionStatus,
+      isDigital: ownedItem.isDigital,
+      tags: ownedItem.tags,
+    );
+  }
+
   @override
   final CatalogEntityRef catalogRef;
   final ComicOwnedDetailsDraft details;
+
+  @override
+  ComicOwnedDetailsDraft get detailsDraft => details;
   final int quantity;
   final String? condition;
   final String? grade;

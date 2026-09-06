@@ -106,6 +106,7 @@ final gameKindModule =
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
+    existingOwnedPayloadBuilder: GameOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildGameAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildGameCoreSearchInput,

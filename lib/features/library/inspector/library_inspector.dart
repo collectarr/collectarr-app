@@ -693,35 +693,25 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (catalogItem == null) {
       return;
     }
+    final command = widget.type.add.buildCommandFromOwnedItem(
+      catalogItem,
+      ownedItem,
+      anchor: ownedItem.anchor,
+      tracking: LibraryAddTrackingDraft(
+        readStatus: mediaTrackingStatusToStorageValue(
+          item.source.trackingEntry?.status,
+        ),
+        rating: item.source.trackingEntry?.rating,
+        startedAt: item.source.trackingEntry?.startedAt,
+        finishedAt: item.source.trackingEntry?.finishedAt,
+        notes: item.source.trackingEntry?.notes,
+      ),
+    );
+    if (command == null) {
+      return;
+    }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          widget.type.add.buildCommandFromDetails(
-            catalogItem,
-            LibraryAddCommonDraft(
-              isDigital: ownedItem.isDigital,
-              condition: ownedItem.condition,
-              grade: ownedItem.grade,
-              purchaseDate: ownedItem.purchaseDate,
-              pricePaidCents: ownedItem.pricePaidCents,
-              currency: ownedItem.currency,
-              personalNotes: ownedItem.personalNotes,
-              quantity: ownedItem.quantity,
-              locationId: ownedItem.locationId,
-              purchaseStore: ownedItem.purchaseStore,
-              collectionStatus: ownedItem.collectionStatus,
-              tags: ownedItem.tags,
-            ),
-            widget.type.ownedDetailsDraftFromDetails(ownedItem.details),
-            anchor: ownedItem.anchor,
-            tracking: LibraryAddTrackingDraft(
-              readStatus: mediaTrackingStatusToStorageValue(
-                item.source.trackingEntry?.status,
-              ),
-              rating: item.source.trackingEntry?.rating,
-              startedAt: item.source.trackingEntry?.startedAt,
-              finishedAt: item.source.trackingEntry?.finishedAt,
-              notes: item.source.trackingEntry?.notes,
-            ),
-          ),
+          command,
         );
     if (!mounted) {
       return;

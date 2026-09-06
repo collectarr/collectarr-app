@@ -217,6 +217,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails,
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
+    existingOwnedPayloadBuilder: MangaOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildMangaAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildMangaCoreSearchInput,

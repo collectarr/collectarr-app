@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
 final class MovieOwnedItemCreatePayload implements OwnedItemCreatePayload {
@@ -23,9 +25,36 @@ final class MovieOwnedItemCreatePayload implements OwnedItemCreatePayload {
     this.tags,
   });
 
+  factory MovieOwnedItemCreatePayload.fromOwnedItem(
+    CatalogItem item,
+    OwnedItem ownedItem,
+  ) {
+    return MovieOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: MovieOwnedDetailsCodec().draftFromDetails(
+        ownedItem.details as MovieOwnedDetails,
+      ),
+      quantity: ownedItem.quantity,
+      condition: ownedItem.condition,
+      grade: ownedItem.grade,
+      purchaseDate: ownedItem.purchaseDate,
+      pricePaidCents: ownedItem.pricePaidCents,
+      currency: ownedItem.currency,
+      personalNotes: ownedItem.personalNotes,
+      locationId: ownedItem.locationId,
+      purchaseStore: ownedItem.purchaseStore,
+      collectionStatus: ownedItem.collectionStatus,
+      isDigital: ownedItem.isDigital,
+      tags: ownedItem.tags,
+    );
+  }
+
   @override
   final CatalogEntityRef catalogRef;
   final MovieOwnedDetailsDraft details;
+
+  @override
+  MovieOwnedDetailsDraft get detailsDraft => details;
   final int quantity;
   final String? condition;
   final String? grade;

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -65,6 +66,11 @@ typedef LibraryAddOwnedPayloadBuilder = OwnedItemCreatePayload Function(
   CatalogItem item,
   LibraryAddCommonDraft common,
   OwnedDetailsDraft details,
+);
+
+typedef LibraryAddExistingOwnedPayloadBuilder = OwnedItemCreatePayload Function(
+  CatalogItem item,
+  OwnedItem ownedItem,
 );
 
 class LibraryAddSearchCapability {
@@ -208,6 +214,13 @@ abstract interface class LibraryAddCapability<
     PersonalItemAnchor? anchor,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   });
+
+  AddOwnedItemCommand? buildCommandFromOwnedItem(
+    CatalogItem item,
+    OwnedItem ownedItem, {
+    PersonalItemAnchor? anchor,
+    LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+  });
 }
 
 class _EmptyKindAddDraft implements LibraryKindAddDraft {
@@ -232,6 +245,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.chrome = const LibraryAddChromeConfig(),
     required this.search,
     this.ownedPayloadBuilder,
+    this.existingOwnedPayloadBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
   });
 
@@ -259,6 +273,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   @override
   final LibraryAddSearchCapability search;
   final LibraryAddOwnedPayloadBuilder? ownedPayloadBuilder;
+  final LibraryAddExistingOwnedPayloadBuilder? existingOwnedPayloadBuilder;
   @override
   final LibraryAddResultPolicy resultPolicy;
 
@@ -332,6 +347,37 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       common: common.toOwnedItemCommonDraft(),
       details: details,
       typedPayload: ownedPayloadBuilder?.call(item, common, details),
+      anchor: anchor,
+      tracking: OwnedItemTrackingDraft(
+        status: mediaTrackingStatusFromValue(tracking.readStatus),
+        rating: tracking.rating,
+        startedAt: tracking.startedAt,
+        finishedAt: tracking.finishedAt,
+        notes: tracking.notes,
+      ),
+    );
+  }
+
+  @override
+  AddOwnedItemCommand? buildCommandFromOwnedItem(
+    CatalogItem item,
+    OwnedItem ownedItem, {
+    PersonalItemAnchor? anchor,
+    LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+  }) {
+    final payload = existingOwnedPayloadBuilder?.call(item, ownedItem);
+    if (payload == null) {
+      return null;
+    }
+    return AddOwnedItemCommand(
+      catalogRef: CatalogEntityRef(
+        kind: kind.apiValue,
+        entityType: CatalogEntityType.ownedCopy,
+        id: item.id,
+      ),
+      common: const OwnedItemCommonDraft(),
+      details: payload.detailsDraft,
+      typedPayload: payload,
       anchor: anchor,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
