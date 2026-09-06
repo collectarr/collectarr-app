@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
@@ -41,42 +41,13 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
     events.addAll(contributor.contribute(calendarContext));
   }
 
-  // --- Owned item events ---
-  for (final item in ownedItems) {
-    if (item.isDeleted) continue;
-    final title = titleFor(item.itemId);
-
-    if (item.purchaseDate != null) {
-      events.add(CalendarEvent(
-        kind: CalendarEventKind.purchased,
-        date: item.purchaseDate!,
-        title: title,
-        eventId: 'owned-purchased:${item.id}',
-        subtitle: item.purchaseStore,
-        itemId: item.itemId,
-        ownedItemId: item.id,
-      ));
-    }
-    if (item.startedAt != null) {
-      events.add(CalendarEvent(
-        kind: CalendarEventKind.started,
-        date: item.startedAt!,
-        title: title,
-        eventId: 'owned-started:${item.id}',
-        itemId: item.itemId,
-        ownedItemId: item.id,
-      ));
-    }
-    if (item.finishedAt != null) {
-      events.add(CalendarEvent(
-        kind: CalendarEventKind.finished,
-        date: item.finishedAt!,
-        title: title,
-        eventId: 'owned-finished:${item.id}',
-        itemId: item.itemId,
-        ownedItemId: item.id,
-      ));
-    }
+  final universalCalendarContext = UniversalCalendarContext(
+    ownedItems: ownedItems,
+    loans: loans,
+    titleForItem: titleFor,
+  );
+  for (final contributor in universalCalendarContributors) {
+    events.addAll(contributor.contribute(universalCalendarContext));
   }
 
   // --- Watch sessions without a kind contributor ---
@@ -100,38 +71,6 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
 
   // --- Loans ---
   // Resolve owned item → catalog item mapping.
-  final ownedById = <String, OwnedItem>{
-    for (final item in ownedItems) item.id: item,
-  };
-
-  for (final loan in loans) {
-    final owned = ownedById[loan.ownedRef.id.value];
-    final title = owned != null ? titleFor(owned.itemId) : 'Unknown item';
-
-    if (loan.dueDate != null) {
-      events.add(CalendarEvent(
-        kind: CalendarEventKind.loanDue,
-        date: loan.dueDate!,
-        title: title,
-        eventId: 'loan-due:${loan.id}',
-        subtitle: 'Loaned to ${loan.borrowerName}',
-        ownedItemId: loan.ownedRef.id.value,
-        itemId: owned?.itemId,
-      ));
-    }
-    if (loan.returnedDate != null) {
-      events.add(CalendarEvent(
-        kind: CalendarEventKind.loanReturn,
-        date: loan.returnedDate!,
-        title: title,
-        eventId: 'loan-return:${loan.id}',
-        subtitle: 'Returned by ${loan.borrowerName}',
-        ownedItemId: loan.ownedRef.id.value,
-        itemId: owned?.itemId,
-      ));
-    }
-  }
-
   events.sort((a, b) => a.date.compareTo(b.date));
   return events;
 });
