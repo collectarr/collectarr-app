@@ -50,11 +50,12 @@ final class WishlistMutations {
       );
     }
     final now = DateTime.now().toUtc();
-    final itemId = catalogRef.id;
+    final itemId = catalogRef.rootId ?? catalogRef.id;
     final catalogItem = await catalogCache.findById(itemId);
     final existing = await wishlist.findActiveByItemAnchorValue(itemId, anchor);
     final resolvedCatalogRef =
-        catalogItem?.catalogRefForPersonalAnchor(anchor) ?? catalogRef;
+        catalogItem?.catalogRefForPersonalAnchor(anchor) ??
+            _catalogRefForPersonalAnchor(catalogRef, anchor);
     final localRef = existing?.catalogRef ?? resolvedCatalogRef;
     await mutationRunner.run(
       origin: origin,
@@ -129,9 +130,14 @@ final class WishlistMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
+    final itemId = item.itemId;
+    final catalogItem = await catalogCache.findById(itemId);
+    final updatedCatalogRef =
+        catalogItem?.catalogRefForPersonalAnchor(anchor) ??
+            _catalogRefForPersonalAnchor(item.catalogRef, anchor);
     final updated = WishlistItem(
       id: item.id,
-      catalogRef: item.catalogRef,
+      catalogRef: updatedCatalogRef,
       anchor: anchor,
       targetPriceCents: targetPriceCents,
       currency: currency,
@@ -147,9 +153,9 @@ final class WishlistMutations {
         await wishlist.upsert(updated);
         await syncQueue
             .enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
-        await syncQueue.enqueue(_syncChangeForCatalogItemId(item.itemId, now));
+        await syncQueue.enqueue(_syncChangeForCatalogItemId(itemId, now));
       },
-      eventsToEmit: [WishlistChanged(item.itemId)],
+      eventsToEmit: [WishlistChanged(itemId)],
     );
     return updated;
   }
@@ -196,7 +202,7 @@ final class WishlistMutations {
     CatalogEntityRef catalogRef, {
     PersonalItemAnchor? anchor,
   }) async {
-    final itemId = catalogRef.id;
+    final itemId = catalogRef.rootId ?? catalogRef.id;
     final existing = await wishlist.findActiveByItemAnchorValue(itemId, anchor);
     if (existing == null) {
       await addToWishlist(
@@ -241,6 +247,42 @@ final class WishlistMutations {
       payload: item.toSyncPayload(),
       clientChangedAt: now,
     );
+  }
+
+  CatalogEntityRef _catalogRefForPersonalAnchor(
+    CatalogEntityRef ref,
+    PersonalItemAnchor? anchor,
+  ) {
+    final rootId = ref.rootId ?? ref.id;
+    if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
+      return ref.copyWith(
+        entityType: CatalogEntityType.work,
+        id: rootId,
+        rootId: null,
+      );
+    }
+    return switch (anchor.type) {
+      PersonalItemAnchorType.edition => ref.copyWith(
+          entityType: CatalogEntityType.edition,
+          id: anchor.editionId ?? ref.id,
+          rootId: rootId,
+        ),
+      PersonalItemAnchorType.variant => ref.copyWith(
+          entityType: CatalogEntityType.release,
+          id: anchor.variantId ?? anchor.editionId ?? ref.id,
+          rootId: rootId,
+        ),
+      PersonalItemAnchorType.bundleRelease => ref.copyWith(
+          entityType: CatalogEntityType.bundleRelease,
+          id: anchor.bundleReleaseId ?? ref.id,
+          rootId: rootId,
+        ),
+      _ => ref.copyWith(
+          entityType: CatalogEntityType.work,
+          id: rootId,
+          rootId: null,
+        ),
+    };
   }
 
   SyncChange _syncChangeForCatalogItemId(String itemId, DateTime now) {

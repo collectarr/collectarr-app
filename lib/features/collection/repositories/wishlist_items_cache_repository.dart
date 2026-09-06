@@ -9,8 +9,6 @@ import 'package:drift/drift.dart';
 class WishlistItemsCacheRepository {
   const WishlistItemsCacheRepository(this._db);
 
-  static const _lookupBatchSize = 500;
-
   final LocalDatabase _db;
 
   Future<List<WishlistItem>> listActive() async {
@@ -30,22 +28,19 @@ class WishlistItemsCacheRepository {
   }
 
   Future<WishlistItem?> findActiveByItemId(String itemId) async {
-    final rows = await (_db.select(_db.wishlistItemsCache)
-          ..where((row) => row.itemId.equals(itemId) & row.deletedAt.isNull())
-          ..limit(1))
-        .get();
-    if (rows.isEmpty) {
-      return null;
-    }
-    return _fromCache(rows.first);
+    final items = await listActiveByItemId(itemId);
+    return items.firstOrNull;
   }
 
   Future<List<WishlistItem>> listActiveByItemId(String itemId) async {
     final rows = await (_db.select(_db.wishlistItemsCache)
-          ..where((row) => row.itemId.equals(itemId) & row.deletedAt.isNull())
+          ..where((row) => row.deletedAt.isNull())
           ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]))
         .get();
-    return rows.map(_fromCache).toList(growable: false);
+    return rows
+        .map(_fromCache)
+        .where((item) => item.itemId == itemId)
+        .toList(growable: false);
   }
 
   Future<WishlistItem?> findActiveByItemAnchorValue(
@@ -68,15 +63,15 @@ class WishlistItemsCacheRepository {
       return const [];
     }
     final items = <WishlistItem>[];
-    for (var index = 0; index < values.length; index += _lookupBatchSize) {
-      final end = (index + _lookupBatchSize).clamp(0, values.length);
-      final batch = values.sublist(index, end);
-      final rows = await (_db.select(_db.wishlistItemsCache)
-            ..where(
-              (row) => row.itemId.isIn(batch) & row.deletedAt.isNull(),
-            ))
-          .get();
-      items.addAll(rows.map(_fromCache));
+    final rows = await (_db.select(_db.wishlistItemsCache)
+          ..where((row) => row.deletedAt.isNull()))
+        .get();
+    final requested = values.toSet();
+    for (final row in rows) {
+      final item = _fromCache(row);
+      if (requested.contains(item.itemId)) {
+        items.add(item);
+      }
     }
     return items;
   }
@@ -134,22 +129,13 @@ class WishlistItemsCacheRepository {
         'Wishlist row ${row.id} contains an invalid catalog reference',
       );
     }
-    final rawAnchor =
-        row.anchorJson == null ? null : jsonDecode(row.anchorJson!);
-    if (rawAnchor != null && rawAnchor is! Map) {
-      throw FormatException(
-        'Wishlist row ${row.id} contains an invalid target anchor',
-      );
-    }
-    final anchorJson =
-        rawAnchor is Map ? Map<String, dynamic>.from(rawAnchor) : null;
+    final catalogRef = CatalogEntityRef.fromJson(
+      Map<String, dynamic>.from(rawCatalogRef),
+    );
     return WishlistItem(
       id: row.id,
-      catalogRef: CatalogEntityRef.fromJson(
-        Map<String, dynamic>.from(rawCatalogRef),
-      ),
-      anchor:
-          anchorJson == null ? null : PersonalItemAnchor.fromJson(anchorJson),
+      catalogRef: catalogRef,
+      anchor: _anchorFromCatalogRef(catalogRef),
       targetPriceCents: row.targetPriceCents,
       currency: row.currency,
       notes: row.notes,
@@ -162,11 +148,7 @@ class WishlistItemsCacheRepository {
   WishlistItemsCacheCompanion _toCompanion(WishlistItem item) {
     return WishlistItemsCacheCompanion.insert(
       id: item.id,
-      itemId: item.itemId,
       catalogRefJson: jsonEncode(item.catalogRef.toJson()),
-      anchorJson: Value(
-        item.anchor == null ? null : jsonEncode(item.anchor!.toJson()),
-      ),
       targetPriceCents: Value(item.targetPriceCents),
       currency: Value(item.currency),
       notes: Value(item.notes),
@@ -174,6 +156,24 @@ class WishlistItemsCacheRepository {
       updatedAt: item.updatedAt,
       deletedAt: Value(item.deletedAt),
     );
+  }
+
+  PersonalItemAnchor? _anchorFromCatalogRef(CatalogEntityRef ref) {
+    return switch (ref.entityType) {
+      CatalogEntityType.edition => PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.edition.apiValue,
+          editionId: ref.id,
+        ),
+      CatalogEntityType.release => PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.variant.apiValue,
+          variantId: ref.id,
+        ),
+      CatalogEntityType.bundleRelease => PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
+          bundleReleaseId: ref.id,
+        ),
+      _ => null,
+    };
   }
 
   bool _matchesAnchorValue(

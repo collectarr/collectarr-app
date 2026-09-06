@@ -24,7 +24,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final db = ref.watch(localDatabaseProvider);
   final ids = {
     for (final item in owned) item.catalogRef.id,
-    for (final item in wishlist) item.catalogRef.id,
+    for (final item in wishlist) item.itemId,
     for (final item in trackingEntries) item.catalogRef.id,
   };
   final catalogItems = await LibraryCatalogRepository(db).findByIds(ids);
@@ -94,7 +94,7 @@ class ShelfState {
     };
     final wishlistByItemId = {
       for (final item in wishlistItems)
-        if (!item.isDeleted) item.catalogRef.id: item,
+        if (!item.isDeleted) item.itemId: item,
     };
     final trackingByItemId = <String, TrackingEntry>{};
     for (final entry in trackingEntries) {

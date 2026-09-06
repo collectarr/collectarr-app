@@ -14,23 +14,12 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
-  @override
-  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
-      'item_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _catalogRefJsonMeta =
       const VerificationMeta('catalogRefJson');
   @override
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _anchorJsonMeta =
-      const VerificationMeta('anchorJson');
-  @override
-  late final GeneratedColumn<String> anchorJson = GeneratedColumn<String>(
-      'anchor_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _targetPriceCentsMeta =
       const VerificationMeta('targetPriceCents');
   @override
@@ -69,9 +58,7 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
   @override
   List<GeneratedColumn> get $columns => [
         id,
-        itemId,
         catalogRefJson,
-        anchorJson,
         targetPriceCents,
         currency,
         notes,
@@ -95,12 +82,6 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('item_id')) {
-      context.handle(_itemIdMeta,
-          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
-    } else if (isInserting) {
-      context.missing(_itemIdMeta);
-    }
     if (data.containsKey('catalog_ref_json')) {
       context.handle(
           _catalogRefJsonMeta,
@@ -108,12 +89,6 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
               data['catalog_ref_json']!, _catalogRefJsonMeta));
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
-    }
-    if (data.containsKey('anchor_json')) {
-      context.handle(
-          _anchorJsonMeta,
-          anchorJson.isAcceptableOrUnknown(
-              data['anchor_json']!, _anchorJsonMeta));
     }
     if (data.containsKey('target_price_cents')) {
       context.handle(
@@ -156,12 +131,8 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
     return WishlistItemsCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      itemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      anchorJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_json']),
       targetPriceCents: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}target_price_cents']),
       currency: attachedDatabase.typeMapping
@@ -186,12 +157,10 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
 class WishlistItemsCacheData extends DataClass
     implements Insertable<WishlistItemsCacheData> {
   final String id;
-  final String itemId;
 
   /// Complete structural target reference. The owning kind interprets its
   /// entity type; this universal table only stores and indexes the reference.
   final String catalogRefJson;
-  final String? anchorJson;
   final int? targetPriceCents;
   final String? currency;
   final String? notes;
@@ -200,9 +169,7 @@ class WishlistItemsCacheData extends DataClass
   final DateTime? deletedAt;
   const WishlistItemsCacheData(
       {required this.id,
-      required this.itemId,
       required this.catalogRefJson,
-      this.anchorJson,
       this.targetPriceCents,
       this.currency,
       this.notes,
@@ -213,11 +180,7 @@ class WishlistItemsCacheData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['item_id'] = Variable<String>(itemId);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || anchorJson != null) {
-      map['anchor_json'] = Variable<String>(anchorJson);
-    }
     if (!nullToAbsent || targetPriceCents != null) {
       map['target_price_cents'] = Variable<int>(targetPriceCents);
     }
@@ -238,11 +201,7 @@ class WishlistItemsCacheData extends DataClass
   WishlistItemsCacheCompanion toCompanion(bool nullToAbsent) {
     return WishlistItemsCacheCompanion(
       id: Value(id),
-      itemId: Value(itemId),
       catalogRefJson: Value(catalogRefJson),
-      anchorJson: anchorJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(anchorJson),
       targetPriceCents: targetPriceCents == null && nullToAbsent
           ? const Value.absent()
           : Value(targetPriceCents),
@@ -264,9 +223,7 @@ class WishlistItemsCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return WishlistItemsCacheData(
       id: serializer.fromJson<String>(json['id']),
-      itemId: serializer.fromJson<String>(json['itemId']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      anchorJson: serializer.fromJson<String?>(json['anchorJson']),
       targetPriceCents: serializer.fromJson<int?>(json['targetPriceCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -280,9 +237,7 @@ class WishlistItemsCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'itemId': serializer.toJson<String>(itemId),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'anchorJson': serializer.toJson<String?>(anchorJson),
       'targetPriceCents': serializer.toJson<int?>(targetPriceCents),
       'currency': serializer.toJson<String?>(currency),
       'notes': serializer.toJson<String?>(notes),
@@ -294,9 +249,7 @@ class WishlistItemsCacheData extends DataClass
 
   WishlistItemsCacheData copyWith(
           {String? id,
-          String? itemId,
           String? catalogRefJson,
-          Value<String?> anchorJson = const Value.absent(),
           Value<int?> targetPriceCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> notes = const Value.absent(),
@@ -305,9 +258,7 @@ class WishlistItemsCacheData extends DataClass
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       WishlistItemsCacheData(
         id: id ?? this.id,
-        itemId: itemId ?? this.itemId,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        anchorJson: anchorJson.present ? anchorJson.value : this.anchorJson,
         targetPriceCents: targetPriceCents.present
             ? targetPriceCents.value
             : this.targetPriceCents,
@@ -320,12 +271,9 @@ class WishlistItemsCacheData extends DataClass
   WishlistItemsCacheData copyWithCompanion(WishlistItemsCacheCompanion data) {
     return WishlistItemsCacheData(
       id: data.id.present ? data.id.value : this.id,
-      itemId: data.itemId.present ? data.itemId.value : this.itemId,
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      anchorJson:
-          data.anchorJson.present ? data.anchorJson.value : this.anchorJson,
       targetPriceCents: data.targetPriceCents.present
           ? data.targetPriceCents.value
           : this.targetPriceCents,
@@ -341,9 +289,7 @@ class WishlistItemsCacheData extends DataClass
   String toString() {
     return (StringBuffer('WishlistItemsCacheData(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('anchorJson: $anchorJson, ')
           ..write('targetPriceCents: $targetPriceCents, ')
           ..write('currency: $currency, ')
           ..write('notes: $notes, ')
@@ -355,16 +301,14 @@ class WishlistItemsCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, itemId, catalogRefJson, anchorJson,
-      targetPriceCents, currency, notes, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(id, catalogRefJson, targetPriceCents,
+      currency, notes, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is WishlistItemsCacheData &&
           other.id == this.id &&
-          other.itemId == this.itemId &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.anchorJson == this.anchorJson &&
           other.targetPriceCents == this.targetPriceCents &&
           other.currency == this.currency &&
           other.notes == this.notes &&
@@ -376,9 +320,7 @@ class WishlistItemsCacheData extends DataClass
 class WishlistItemsCacheCompanion
     extends UpdateCompanion<WishlistItemsCacheData> {
   final Value<String> id;
-  final Value<String> itemId;
   final Value<String> catalogRefJson;
-  final Value<String?> anchorJson;
   final Value<int?> targetPriceCents;
   final Value<String?> currency;
   final Value<String?> notes;
@@ -388,9 +330,7 @@ class WishlistItemsCacheCompanion
   final Value<int> rowid;
   const WishlistItemsCacheCompanion({
     this.id = const Value.absent(),
-    this.itemId = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.anchorJson = const Value.absent(),
     this.targetPriceCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.notes = const Value.absent(),
@@ -401,9 +341,7 @@ class WishlistItemsCacheCompanion
   });
   WishlistItemsCacheCompanion.insert({
     required String id,
-    required String itemId,
     required String catalogRefJson,
-    this.anchorJson = const Value.absent(),
     this.targetPriceCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.notes = const Value.absent(),
@@ -412,15 +350,12 @@ class WishlistItemsCacheCompanion
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        itemId = Value(itemId),
         catalogRefJson = Value(catalogRefJson),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
   static Insertable<WishlistItemsCacheData> custom({
     Expression<String>? id,
-    Expression<String>? itemId,
     Expression<String>? catalogRefJson,
-    Expression<String>? anchorJson,
     Expression<int>? targetPriceCents,
     Expression<String>? currency,
     Expression<String>? notes,
@@ -431,9 +366,7 @@ class WishlistItemsCacheCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (itemId != null) 'item_id': itemId,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (anchorJson != null) 'anchor_json': anchorJson,
       if (targetPriceCents != null) 'target_price_cents': targetPriceCents,
       if (currency != null) 'currency': currency,
       if (notes != null) 'notes': notes,
@@ -446,9 +379,7 @@ class WishlistItemsCacheCompanion
 
   WishlistItemsCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? itemId,
       Value<String>? catalogRefJson,
-      Value<String?>? anchorJson,
       Value<int?>? targetPriceCents,
       Value<String?>? currency,
       Value<String?>? notes,
@@ -458,9 +389,7 @@ class WishlistItemsCacheCompanion
       Value<int>? rowid}) {
     return WishlistItemsCacheCompanion(
       id: id ?? this.id,
-      itemId: itemId ?? this.itemId,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      anchorJson: anchorJson ?? this.anchorJson,
       targetPriceCents: targetPriceCents ?? this.targetPriceCents,
       currency: currency ?? this.currency,
       notes: notes ?? this.notes,
@@ -477,14 +406,8 @@ class WishlistItemsCacheCompanion
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (itemId.present) {
-      map['item_id'] = Variable<String>(itemId.value);
-    }
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
-    }
-    if (anchorJson.present) {
-      map['anchor_json'] = Variable<String>(anchorJson.value);
     }
     if (targetPriceCents.present) {
       map['target_price_cents'] = Variable<int>(targetPriceCents.value);
@@ -514,9 +437,7 @@ class WishlistItemsCacheCompanion
   String toString() {
     return (StringBuffer('WishlistItemsCacheCompanion(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('anchorJson: $anchorJson, ')
           ..write('targetPriceCents: $targetPriceCents, ')
           ..write('currency: $currency, ')
           ..write('notes: $notes, ')
@@ -48525,9 +48446,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
 typedef $$WishlistItemsCacheTableCreateCompanionBuilder
     = WishlistItemsCacheCompanion Function({
   required String id,
-  required String itemId,
   required String catalogRefJson,
-  Value<String?> anchorJson,
   Value<int?> targetPriceCents,
   Value<String?> currency,
   Value<String?> notes,
@@ -48539,9 +48458,7 @@ typedef $$WishlistItemsCacheTableCreateCompanionBuilder
 typedef $$WishlistItemsCacheTableUpdateCompanionBuilder
     = WishlistItemsCacheCompanion Function({
   Value<String> id,
-  Value<String> itemId,
   Value<String> catalogRefJson,
-  Value<String?> anchorJson,
   Value<int?> targetPriceCents,
   Value<String?> currency,
   Value<String?> notes,
@@ -48563,15 +48480,9 @@ class $$WishlistItemsCacheTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get anchorJson => $composableBuilder(
-      column: $table.anchorJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get targetPriceCents => $composableBuilder(
       column: $table.targetPriceCents,
@@ -48605,15 +48516,9 @@ class $$WishlistItemsCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get anchorJson => $composableBuilder(
-      column: $table.anchorJson, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get targetPriceCents => $composableBuilder(
       column: $table.targetPriceCents,
@@ -48647,14 +48552,8 @@ class $$WishlistItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get itemId =>
-      $composableBuilder(column: $table.itemId, builder: (column) => column);
-
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
-
-  GeneratedColumn<String> get anchorJson => $composableBuilder(
-      column: $table.anchorJson, builder: (column) => column);
 
   GeneratedColumn<int> get targetPriceCents => $composableBuilder(
       column: $table.targetPriceCents, builder: (column) => column);
@@ -48705,9 +48604,7 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> itemId = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> anchorJson = const Value.absent(),
             Value<int?> targetPriceCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -48718,9 +48615,7 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
           }) =>
               WishlistItemsCacheCompanion(
             id: id,
-            itemId: itemId,
             catalogRefJson: catalogRefJson,
-            anchorJson: anchorJson,
             targetPriceCents: targetPriceCents,
             currency: currency,
             notes: notes,
@@ -48731,9 +48626,7 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String itemId,
             required String catalogRefJson,
-            Value<String?> anchorJson = const Value.absent(),
             Value<int?> targetPriceCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -48744,9 +48637,7 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
           }) =>
               WishlistItemsCacheCompanion.insert(
             id: id,
-            itemId: itemId,
             catalogRefJson: catalogRefJson,
-            anchorJson: anchorJson,
             targetPriceCents: targetPriceCents,
             currency: currency,
             notes: notes,

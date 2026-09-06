@@ -234,18 +234,21 @@ final class CatalogItemDto {
           kind: kind,
           entityType: CatalogEntityType.edition,
           id: anchor.editionId ?? id,
+          rootId: id,
         );
       case PersonalItemAnchorType.variant:
         return CatalogEntityRef(
           kind: kind,
           entityType: CatalogEntityType.release,
           id: anchor.variantId ?? anchor.editionId ?? id,
+          rootId: id,
         );
       case PersonalItemAnchorType.bundleRelease:
         return CatalogEntityRef(
           kind: kind,
           entityType: CatalogEntityType.bundleRelease,
           id: anchor.bundleReleaseId ?? id,
+          rootId: id,
         );
       default:
         return CatalogEntityRef(

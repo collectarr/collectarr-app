@@ -117,9 +117,7 @@ final wishlistByCatalogItemProvider =
         if (item.isDeleted) {
           continue;
         }
-        grouped
-            .putIfAbsent(item.catalogRef.id, () => <WishlistItem>[])
-            .add(item);
+        grouped.putIfAbsent(item.itemId, () => <WishlistItem>[]).add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -135,7 +133,7 @@ final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
   final items = await cache.listActive();
   return {
     for (final item in items)
-      if (!item.isDeleted) item.catalogRef.id,
+      if (!item.isDeleted) item.itemId,
   };
 });
 

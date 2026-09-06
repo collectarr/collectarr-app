@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -136,7 +137,12 @@ void main() {
 
     expect(deletedOwned?.deletedAt, isNotNull);
     expect(wishlistRows, hasLength(1));
-    expect(wishlistRows.single.itemId, 'movie-1');
+    expect(
+      CatalogEntityRef.fromJson(
+        jsonDecode(wishlistRows.single.catalogRefJson) as Map<String, dynamic>,
+      ).id,
+      'movie-1',
+    );
     expect(wishlistRows.single.deletedAt, isNull);
   });
 
@@ -196,7 +202,9 @@ void main() {
         itemId: 'movie-2',
         wishlistItem: WishlistItem(
           id: wishlistRow.id,
-          catalogRef: testCatalogRef(wishlistRow.itemId, kind: 'movie'),
+          catalogRef: CatalogEntityRef.fromJson(
+            jsonDecode(wishlistRow.catalogRefJson) as Map<String, dynamic>,
+          ),
           createdAt: wishlistRow.createdAt,
           updatedAt: wishlistRow.updatedAt,
         ),
@@ -270,9 +278,10 @@ void main() {
 
     final rows = await db.select(db.wishlistItemsCache).get();
     final row4k = rows.firstWhere(
-      (row) => PersonalItemAnchor.fromJson(
-            jsonDecode(row.anchorJson!) as Map<String, dynamic>,
-          )?.editionId ==
+      (row) =>
+          CatalogEntityRef.fromJson(
+            jsonDecode(row.catalogRefJson) as Map<String, dynamic>,
+          ).id ==
           'edition-4k',
     );
     final actions = buildActions();
@@ -283,10 +292,10 @@ void main() {
         catalogItem: testCatalogItem(id: 'movie-1', kind: 'movie'),
         wishlistItem: WishlistItem(
           id: row4k.id,
-          catalogRef: testCatalogRef(row4k.itemId, kind: 'movie'),
-          anchor: PersonalItemAnchor.fromJson(
-            jsonDecode(row4k.anchorJson!) as Map<String, dynamic>,
+          catalogRef: CatalogEntityRef.fromJson(
+            jsonDecode(row4k.catalogRefJson) as Map<String, dynamic>,
           ),
+          anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
           createdAt: row4k.createdAt,
           updatedAt: row4k.updatedAt,
         ),
@@ -302,10 +311,10 @@ void main() {
     expect(ownedRows.single.editionId, 'edition-4k');
     expect(activeWishlistRows, hasLength(1));
     expect(
-      PersonalItemAnchor.fromJson(
-        jsonDecode(activeWishlistRows.single.anchorJson!)
+      CatalogEntityRef.fromJson(
+        jsonDecode(activeWishlistRows.single.catalogRefJson)
             as Map<String, dynamic>,
-      )?.editionId,
+      ).id,
       'edition-bluray',
     );
   });

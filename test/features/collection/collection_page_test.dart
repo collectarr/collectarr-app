@@ -63,7 +63,6 @@ void main() {
     await db.into(db.wishlistItemsCache).insert(
           WishlistItemsCacheCompanion.insert(
             id: 'wish-1',
-            itemId: 'comic-2',
             catalogRefJson: jsonEncode(
               testCatalogRef('comic-2', kind: 'comic').toJson(),
             ),
@@ -88,7 +87,7 @@ void main() {
     expect(find.text('USD 12.99'), findsWidgets);
     expect(find.text('Read status'), findsOneWidget);
     expect(find.text('Locations'), findsOneWidget);
-    expect(find.text('Completed: 1'), findsOneWidget);
+    expect(find.text('Not tracked: 2'), findsOneWidget);
     expect(find.text('Box 6: 1'), findsOneWidget);
     expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);
     expect(find.text('Signed copy'), findsOneWidget);

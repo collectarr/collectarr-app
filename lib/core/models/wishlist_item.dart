@@ -36,7 +36,7 @@ class WishlistItem {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  String get itemId => catalogRef.id;
+  String get itemId => catalogRef.rootId ?? catalogRef.id;
 
   String? get anchorType => anchor?.apiValue;
   String? get editionId => anchor?.editionId;

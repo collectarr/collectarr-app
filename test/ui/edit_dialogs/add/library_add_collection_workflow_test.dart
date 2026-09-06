@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -102,7 +103,12 @@ void main() {
     final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
-    expect(wishlistRows.single.itemId, 'comic-2');
+    expect(
+      CatalogEntityRef.fromJson(
+        jsonDecode(wishlistRows.single.catalogRefJson) as Map<String, dynamic>,
+      ).id,
+      'comic-2',
+    );
     expect(ownedRows, isEmpty);
     expect(syncRows.map((row) => row.entityType), contains('wishlist_item'));
     expect(
@@ -199,12 +205,12 @@ void main() {
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
 
-    final variantAnchor = PersonalItemAnchor.fromJson(
-      jsonDecode(wishlistRows.single.anchorJson!) as Map<String, dynamic>,
+    final variantRef = CatalogEntityRef.fromJson(
+      jsonDecode(wishlistRows.single.catalogRefJson) as Map<String, dynamic>,
     );
-    expect(variantAnchor?.apiValue, PersonalItemAnchorType.variant.apiValue);
-    expect(variantAnchor?.editionId, 'edition-2');
-    expect(variantAnchor?.variantId, 'variant-2b');
+    expect(variantRef.entityType, CatalogEntityType.release);
+    expect(variantRef.id, 'variant-2b');
+    expect(variantRef.rootId, 'comic-release-2');
   });
 
   test('adds wishlist item against a bundle release anchor', () async {
@@ -225,14 +231,15 @@ void main() {
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
 
-    final bundleAnchor = PersonalItemAnchor.fromJson(
-      jsonDecode(wishlistRows.single.anchorJson!) as Map<String, dynamic>,
+    final bundleRef = CatalogEntityRef.fromJson(
+      jsonDecode(wishlistRows.single.catalogRefJson) as Map<String, dynamic>,
     );
     expect(
-      bundleAnchor?.apiValue,
-      PersonalItemAnchorType.bundleRelease.apiValue,
+      bundleRef.entityType,
+      CatalogEntityType.bundleRelease,
     );
-    expect(bundleAnchor?.bundleReleaseId, 'bundle-1');
+    expect(bundleRef.id, 'bundle-1');
+    expect(bundleRef.rootId, 'comic-bundle-1');
   });
 
   test('adds tracking-only entry when target is track', () async {

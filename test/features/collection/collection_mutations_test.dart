@@ -562,11 +562,6 @@ void main() {
       catalogRef: CatalogEntityRef.fromJson(
         jsonDecode(originalRow.catalogRefJson) as Map<String, dynamic>,
       ),
-      anchor: originalRow.anchorJson == null
-          ? null
-          : PersonalItemAnchor.fromJson(
-              jsonDecode(originalRow.anchorJson!) as Map<String, dynamic>,
-            ),
       targetPriceCents: originalRow.targetPriceCents,
       currency: originalRow.currency,
       notes: originalRow.notes,
@@ -589,11 +584,12 @@ void main() {
     final updated = await db.select(db.wishlistItemsCache).getSingle();
     final queued = await db.select(db.syncQueue).get();
 
-    final updatedAnchor = PersonalItemAnchor.fromJson(
-      jsonDecode(updated.anchorJson!) as Map<String, dynamic>,
+    final updatedRef = CatalogEntityRef.fromJson(
+      jsonDecode(updated.catalogRefJson) as Map<String, dynamic>,
     );
-    expect(updatedAnchor?.apiValue, 'bundle_release');
-    expect(updatedAnchor?.bundleReleaseId, 'bundle-1');
+    expect(updatedRef.entityType, CatalogEntityType.bundleRelease);
+    expect(updatedRef.id, 'bundle-1');
+    expect(updatedRef.rootId, 'movie-1');
     expect(updated.targetPriceCents, 4599);
     expect(updated.currency, 'USD');
     expect(updated.notes, 'Wait for the steelbook bundle.');
@@ -626,9 +622,9 @@ void main() {
     expect(
       rows
           .where((row) => row.deletedAt == null)
-          .map((row) => PersonalItemAnchor.fromJson(
-                jsonDecode(row.anchorJson!) as Map<String, dynamic>,
-              )?.editionId)
+          .map((row) => CatalogEntityRef.fromJson(
+                jsonDecode(row.catalogRefJson) as Map<String, dynamic>,
+              ).id)
           .toSet(),
       {'edition-4k', 'edition-bluray'},
     );
@@ -665,16 +661,16 @@ void main() {
 
     expect(activeRows, hasLength(1));
     expect(
-      PersonalItemAnchor.fromJson(
-        jsonDecode(activeRows.single.anchorJson!) as Map<String, dynamic>,
-      )?.editionId,
+      CatalogEntityRef.fromJson(
+        jsonDecode(activeRows.single.catalogRefJson) as Map<String, dynamic>,
+      ).id,
       'edition-bluray',
     );
     expect(deletedRows, hasLength(1));
     expect(
-      PersonalItemAnchor.fromJson(
-        jsonDecode(deletedRows.single.anchorJson!) as Map<String, dynamic>,
-      )?.editionId,
+      CatalogEntityRef.fromJson(
+        jsonDecode(deletedRows.single.catalogRefJson) as Map<String, dynamic>,
+      ).id,
       'edition-4k',
     );
   });
@@ -1263,7 +1259,12 @@ void main() {
 
     expect(catalog.single.id, 'tmdb-local:movie:603');
     expect(tracking.single.itemId, 'tmdb-local:movie:603');
-    expect(wishlist.single.itemId, 'tmdb-local:movie:603');
+    expect(
+      CatalogEntityRef.fromJson(
+        jsonDecode(wishlist.single.catalogRefJson) as Map<String, dynamic>,
+      ).id,
+      'tmdb-local:movie:603',
+    );
     expect(queued, isEmpty);
   });
 
@@ -1314,7 +1315,12 @@ void main() {
       'movie-603',
     );
     expect(
-      wishlist.where((row) => row.deletedAt == null).single.itemId,
+      CatalogEntityRef.fromJson(
+        jsonDecode(wishlist
+            .where((row) => row.deletedAt == null)
+            .single
+            .catalogRefJson) as Map<String, dynamic>,
+      ).id,
       'movie-603',
     );
     expect(
