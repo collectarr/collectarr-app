@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_deta
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 
 class TvOwnedDetailsCodec
-    implements OwnedDetailsCodec<TvOwnedDetails, TvOwnedDetailsDraft> {
+    extends OwnedDetailsCodec<TvOwnedDetails, TvOwnedDetailsDraft> {
   const TvOwnedDetailsCodec();
 
   @override

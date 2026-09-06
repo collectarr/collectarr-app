@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 
 class GameOwnedDetailsCodec
-    implements OwnedDetailsCodec<GameOwnedDetails, GameOwnedDetailsDraft> {
+    extends OwnedDetailsCodec<GameOwnedDetails, GameOwnedDetailsDraft> {
   const GameOwnedDetailsCodec();
 
   @override

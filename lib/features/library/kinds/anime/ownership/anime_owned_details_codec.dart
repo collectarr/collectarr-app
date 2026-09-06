@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owne
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 
 class AnimeOwnedDetailsCodec
-    implements OwnedDetailsCodec<AnimeOwnedDetails, AnimeOwnedDetailsDraft> {
+    extends OwnedDetailsCodec<AnimeOwnedDetails, AnimeOwnedDetailsDraft> {
   const AnimeOwnedDetailsCodec();
 
   @override

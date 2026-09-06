@@ -17,13 +17,16 @@ abstract interface class LibraryOwnershipCapability<
 abstract interface class OwnedDetailsPersistenceCodec {
   OwnedItemDetails fromJson(Map<String, dynamic> json);
   OwnedItemDetails defaultDetails();
+  void validate(OwnedItemDetails details);
 }
 
-abstract interface class OwnedDetailsCodec<TDetails extends OwnedItemDetails,
+abstract class OwnedDetailsCodec<TDetails extends OwnedItemDetails,
         TDraft extends OwnedDetailsDraft>
     implements
         LibraryOwnershipCapability<TDetails, TDraft>,
         OwnedDetailsPersistenceCodec {
+  const OwnedDetailsCodec();
+
   @override
   TDetails fromJson(Map<String, dynamic> json);
 
@@ -32,4 +35,14 @@ abstract interface class OwnedDetailsCodec<TDetails extends OwnedItemDetails,
 
   @override
   TDetails defaultDetails();
+
+  @override
+  void validate(OwnedItemDetails details) {
+    if (details is! TDetails) {
+      throw ArgumentError(
+        'Incompatible owned details type "${details.runtimeType}". '
+        'Expected "$TDetails".',
+      );
+    }
+  }
 }

@@ -4,8 +4,7 @@ import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_draft.dart';
 
 class GenericOwnedDetailsCodec
-    implements
-        OwnedDetailsCodec<GenericOwnedDetails, GenericOwnedDetailsDraft> {
+    extends OwnedDetailsCodec<GenericOwnedDetails, GenericOwnedDetailsDraft> {
   const GenericOwnedDetailsCodec();
 
   @override

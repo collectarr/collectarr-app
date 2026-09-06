@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owne
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
 class MovieOwnedDetailsCodec
-    implements OwnedDetailsCodec<MovieOwnedDetails, MovieOwnedDetailsDraft> {
+    extends OwnedDetailsCodec<MovieOwnedDetails, MovieOwnedDetailsDraft> {
   const MovieOwnedDetailsCodec();
 
   @override

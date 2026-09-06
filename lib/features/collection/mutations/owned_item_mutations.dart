@@ -3,9 +3,9 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -86,8 +86,7 @@ final class OwnedItemMutations {
         final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
         final details = command.details.toDetails();
         if (mediaKind != CatalogMediaKind.unknown) {
-          final runtime = libraryKindRuntimeForKind(mediaKind);
-          runtime.validateOwnedDetails(details);
+          collectarrOwnedDetailsCodecForKind(mediaKind).validate(details);
         }
 
         final ownedItem = OwnedItem(
@@ -159,16 +158,16 @@ final class OwnedItemMutations {
 
         final mediaKind =
             catalogMediaKindFromApiValue(existing.catalogRef.kind);
-        final runtime = libraryKindRuntimeForKind(mediaKind);
+        final detailsCodec = collectarrOwnedDetailsCodecForKind(mediaKind);
 
         final resolvedDetails = command.details.when(
           unchanged: () => existing.details,
           set: (draft) {
             final details = draft.toDetails();
-            runtime.validateOwnedDetails(details);
+            detailsCodec.validate(details);
             return details;
           },
-          clear: () => runtime.defaultOwnedDetails(),
+          clear: () => detailsCodec.defaultDetails(),
         );
 
         final updatedItem = OwnedItem(

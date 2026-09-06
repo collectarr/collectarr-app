@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 
 class MusicOwnedDetailsCodec
-    implements OwnedDetailsCodec<MusicOwnedDetails, MusicOwnedDetailsDraft> {
+    extends OwnedDetailsCodec<MusicOwnedDetails, MusicOwnedDetailsDraft> {
   const MusicOwnedDetailsCodec();
 
   @override

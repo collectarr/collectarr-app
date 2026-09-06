@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 
 class ComicOwnedDetailsCodec
-    implements OwnedDetailsCodec<ComicOwnedDetails, ComicOwnedDetailsDraft> {
+    extends OwnedDetailsCodec<ComicOwnedDetails, ComicOwnedDetailsDraft> {
   const ComicOwnedDetailsCodec();
 
   @override

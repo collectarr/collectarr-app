@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 
 class MangaOwnedDetailsCodec
-    implements OwnedDetailsCodec<MangaOwnedDetails, MangaOwnedDetailsDraft> {
+    extends OwnedDetailsCodec<MangaOwnedDetails, MangaOwnedDetailsDraft> {
   const MangaOwnedDetailsCodec();
 
   @override

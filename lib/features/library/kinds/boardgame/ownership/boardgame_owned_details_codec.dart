@@ -3,9 +3,8 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 
-class BoardgameOwnedDetailsCodec
-    implements
-        OwnedDetailsCodec<BoardgameOwnedDetails, BoardgameOwnedDetailsDraft> {
+class BoardgameOwnedDetailsCodec extends OwnedDetailsCodec<
+    BoardgameOwnedDetails, BoardgameOwnedDetailsDraft> {
   const BoardgameOwnedDetailsCodec();
 
   @override
