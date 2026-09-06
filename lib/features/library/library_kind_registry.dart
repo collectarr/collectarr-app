@@ -287,13 +287,6 @@ LibraryKindModule libraryKindModuleForKind(
   LibraryKindRegistry? registry,
 }) {
   final reg = registry ?? defaultLibraryKindRegistry;
-  final runtime = reg.tryGet(kind);
-  if (runtime != null) {
-    return runtime;
-  }
-  if (kind.isUnknown) {
-    return genericKindModule;
-  }
   return reg.require(kind);
 }
 

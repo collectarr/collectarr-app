@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
@@ -15,7 +14,6 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.da
 import 'package:collectarr_app/features/library/kinds/comic/page.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/page.dart';
-import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
@@ -637,71 +635,6 @@ final class MusicRegistration implements LibraryKindRegistration {
       );
 }
 
-final class GenericRegistration implements LibraryKindRegistration {
-  const GenericRegistration();
-
-  @override
-  CatalogMediaKind get kind => CatalogMediaKind.unknown;
-
-  @override
-  LibraryKindIdentity get identity => genericKindModule.identity;
-
-  @override
-  Widget buildLibraryPage({
-    required Widget topBar,
-    required Color accent,
-    required Uri routeUri,
-    LibraryLayoutSnapshot? switchLayoutSnapshot,
-  }) =>
-      GenericLibraryPage(
-        type: genericKindModule,
-        topBar: topBar,
-        accent: accent,
-        routeUri: routeUri,
-        switchLayoutSnapshot: switchLayoutSnapshot,
-      );
-
-  @override
-  Widget buildAdd({
-    required BuildContext context,
-    required LibraryAddDialogRequest request,
-  }) =>
-      _buildKindAdd(type: genericKindModule, request: request);
-
-  @override
-  Future<LibraryEditSelection?> openMediaEdit({
-    required BuildContext context,
-    required LibraryEditDialogRequest request,
-  }) =>
-      _openKindEdit(
-        context: context,
-        request: request,
-        scope: LibraryEditScope.media,
-      );
-
-  @override
-  Future<LibraryEditSelection?> openReleaseEdit({
-    required BuildContext context,
-    required LibraryEditDialogRequest request,
-  }) =>
-      _openKindEdit(
-        context: context,
-        request: request,
-        scope: LibraryEditScope.release,
-      );
-
-  @override
-  Future<LibraryEditSelection?> openOwnedEdit({
-    required BuildContext context,
-    required LibraryEditDialogRequest request,
-  }) =>
-      _openKindEdit(
-        context: context,
-        request: request,
-        scope: LibraryEditScope.all,
-      );
-}
-
 const List<LibraryKindRegistration> collectarrKindRegistrations = [
   ComicRegistration(),
   MangaRegistration(),
@@ -725,6 +658,8 @@ LibraryKindRegistration libraryKindRegistrationForKind(CatalogMediaKind kind) {
     CatalogMediaKind.tv => const TvRegistration(),
     CatalogMediaKind.anime => const AnimeRegistration(),
     CatalogMediaKind.music => const MusicRegistration(),
-    CatalogMediaKind.unknown => const GenericRegistration(),
+    CatalogMediaKind.unknown => throw ArgumentError(
+        'No LibraryKindRegistration registered for unknown kind',
+      ),
   };
 }

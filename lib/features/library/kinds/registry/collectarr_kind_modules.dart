@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_m
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
@@ -16,7 +15,6 @@ export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_m
 export 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
-export 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
@@ -48,9 +46,6 @@ LibraryKindModule libraryKindFor(CatalogMediaKind kind) {
   final module = lookupLibraryKind(kind);
   if (module != null) {
     return module;
-  }
-  if (kind.isUnknown) {
-    return genericKindModule;
   }
   throw ArgumentError('No LibraryKindModule registered for kind "$kind"');
 }

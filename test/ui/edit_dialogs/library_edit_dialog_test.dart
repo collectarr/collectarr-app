@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';

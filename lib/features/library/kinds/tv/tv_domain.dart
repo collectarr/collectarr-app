@@ -41,11 +41,6 @@ export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_mapper.dart';
 
 // ---------------------------------------------------------------------------
-// Transitional typedefs
-// ---------------------------------------------------------------------------
-typedef TvWork = TvCatalogItem;
-
-// ---------------------------------------------------------------------------
 // TvPersonalOverlay
 // ---------------------------------------------------------------------------
 final class TvPersonalOverlay {

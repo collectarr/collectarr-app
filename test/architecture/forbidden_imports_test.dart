@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
