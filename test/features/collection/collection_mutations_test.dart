@@ -911,6 +911,42 @@ void main() {
     expect(owned.single.grade, '9.8');
   });
 
+  test('collection import routes tracking columns to tracking entries',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final imported =
+        await container.read(collectionImportServiceProvider).importRows(
+      [
+        CollectionCsvRow(
+          itemId: 'comic-tracking-import',
+          kind: 'comic',
+          status: 'owned',
+          rating: 8,
+          readStatus: 'Read',
+          startedAt: DateTime.utc(2026, 6, 1),
+          finishedAt: DateTime.utc(2026, 6, 2),
+        ),
+      ],
+    );
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    expect(imported, 1);
+    expect(owned.rating, isNull);
+    expect(owned.readStatus, isNull);
+    expect(tracking.ownedItemId, owned.id);
+    expect(tracking.status, 'Completed');
+    expect(tracking.rating, 8);
+    expect(tracking.startedAt?.toUtc(), DateTime.utc(2026, 6, 1));
+    expect(tracking.finishedAt?.toUtc(), DateTime.utc(2026, 6, 2));
+  });
+
   test('collection import preview reports existing owned conflicts', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);

@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
@@ -79,9 +81,16 @@ final class CollectionImportService {
       ))
         item.itemId: item,
     };
+    final existingTracking = {
+      for (final entry in await trackingEntries.findActiveByItemIds(
+        resolvedRows.map((row) => row.itemId),
+      ))
+        entry.ownedItemId ?? entry.itemId: entry,
+    };
 
     final activeWishlistItemIds = existingWishlist.keys.toSet();
     final ownedItemsList = <OwnedItem>[];
+    final trackingEntriesList = <TrackingEntry>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
@@ -129,6 +138,27 @@ final class CollectionImportService {
             clientChangedAt: now,
           ),
         );
+
+        final trackingEntry = _trackingEntryFromCsvRow(
+          row,
+          ownedItem: ownedItem,
+          now: now,
+          existing: existingTracking[ownedItem.id] ??
+              existingTracking[ownedItem.itemId],
+        );
+        if (trackingEntry != null) {
+          trackingEntriesList.add(trackingEntry);
+          syncChanges.add(
+            SyncChange(
+              id: 'tracking_entry:${trackingEntry.id}:upsert:${now.millisecondsSinceEpoch}',
+              entityType: 'tracking_entry',
+              entityId: trackingEntry.id,
+              action: 'upsert',
+              payload: trackingEntries.toSyncPayload(trackingEntry),
+              clientChangedAt: now,
+            ),
+          );
+        }
 
         if (existingWishlistItem != null &&
             activeWishlistItemIds.contains(row.itemId)) {
@@ -187,6 +217,9 @@ final class CollectionImportService {
         if (ownedItemsList.isNotEmpty) {
           await ownedItems.upsertAll(ownedItemsList);
         }
+        if (trackingEntriesList.isNotEmpty) {
+          await trackingEntries.upsertAll(trackingEntriesList);
+        }
         if (wishlistUpserts.isNotEmpty) {
           await wishlist.upsertAll(wishlistUpserts);
         }
@@ -199,6 +232,7 @@ final class CollectionImportService {
       },
       eventsToEmit: [
         for (final item in ownedItemsList) OwnedItemAdded(item.id),
+        for (final entry in trackingEntriesList) TrackingChanged(entry.id),
         for (final item in wishlistUpserts) WishlistChanged(item.itemId),
         for (final item in wishlistDeletes) WishlistChanged(item.itemId),
         for (final catItem in importedCatalogItems)
@@ -324,7 +358,6 @@ final class CollectionImportService {
       return existing.copyWith(
         condition: row.condition ?? existing.condition,
         grade: row.grade ?? existing.grade,
-        rating: row.rating ?? existing.rating,
         pricePaidCents: row.pricePaidCents ?? existing.pricePaidCents,
         currency: row.currency ?? existing.currency,
         locationId: row.locationId ?? existing.locationId,
@@ -345,12 +378,50 @@ final class CollectionImportService {
       updatedAt: now,
       condition: row.condition,
       grade: row.grade,
-      rating: row.rating,
       pricePaidCents: row.pricePaidCents,
       currency: row.currency,
       locationId: row.locationId,
       personalNotes: row.notes,
       details: details,
+    );
+  }
+
+  TrackingEntry? _trackingEntryFromCsvRow(
+    CollectionCsvRow row, {
+    required OwnedItem ownedItem,
+    required DateTime now,
+    TrackingEntry? existing,
+  }) {
+    final hasTrackingValues = row.rating != null ||
+        row.readStatus != null ||
+        row.startedAt != null ||
+        row.finishedAt != null;
+    if (!hasTrackingValues) {
+      return null;
+    }
+
+    final status = mediaTrackingStatusFromValue(row.readStatus);
+    if (existing != null) {
+      return existing.copyWith(
+        catalogRef: ownedItem.catalogRef,
+        ownedItemId: ownedItem.id,
+        status: status ?? existing.status,
+        rating: row.rating ?? existing.rating,
+        startedAt: row.startedAt ?? existing.startedAt,
+        finishedAt: row.finishedAt ?? existing.finishedAt,
+        updatedAt: now,
+      );
+    }
+
+    return TrackingEntry(
+      id: idGenerator(),
+      catalogRef: ownedItem.catalogRef,
+      ownedItemId: ownedItem.id,
+      status: status ?? MediaTrackingStatus.planned,
+      rating: row.rating,
+      startedAt: row.startedAt,
+      finishedAt: row.finishedAt,
+      updatedAt: now,
     );
   }
 }
