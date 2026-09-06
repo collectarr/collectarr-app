@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -14,8 +13,7 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
-import 'package:collectarr_app/features/library/models/catalog/video_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import '../helpers/json_test_helpers.dart';
@@ -198,8 +196,8 @@ void main() {
       'series_group': 'Sci-Fi Classics',
     });
 
-    final videoItem = VideoCatalogMapper.mapDtoToVideo(item);
-    expect(videoItem, isA<VideoCatalogItem>());
+    final videoItem = MovieCatalogMapper.mapDtoToMovie(item);
+    expect(videoItem, isA<MovieCatalogItem>());
     expect(videoItem.videoDetails, isNotNull);
     expect(videoItem.videoDetails.runtimeMinutes, 164);
   });

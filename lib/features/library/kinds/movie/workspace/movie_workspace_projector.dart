@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_mapper.dart';
-import 'package:collectarr_app/features/library/models/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -17,7 +17,7 @@ final class MovieWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final movie =
-        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+        MovieCatalogMapper.mapMetadataItemToMovie(source.catalogItem!);
     final media = MovieWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     MovieCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
@@ -40,7 +40,7 @@ final class MovieWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final movie =
-        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+        MovieCatalogMapper.mapMetadataItemToMovie(source.catalogItem!);
     final media = MovieWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     MovieCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
@@ -62,7 +62,7 @@ final class MovieWorkspaceProjector
     required LibraryCopyNodeRef node,
   }) {
     final movie =
-        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+        MovieCatalogMapper.mapMetadataItemToMovie(source.catalogItem!);
     final media = MovieWorkspaceMapper.fromCatalogItem(source.catalogItem!);
     MovieCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -16,11 +16,11 @@ final class MovieWorkspaceDto extends WorkspaceDtoAdapter {
   final WorkspaceCommonProjection common;
   @override
   final PersonalCopyProjection personal;
-  final VideoCatalogItem movie;
+  final MovieCatalogItem movie;
   final MovieMedia media;
   final MovieCatalogMetadata? metadata;
 
-  VideoCatalogItem get video => movie;
+  MovieCatalogItem get video => movie;
 
   // Domain convenience getters
   String? get director =>
