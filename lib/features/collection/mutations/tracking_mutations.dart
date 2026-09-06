@@ -26,12 +26,12 @@ export 'package:collectarr_app/core/models/tracking_target.dart';
 typedef IdGenerator = String Function();
 String _defaultIdGenerator() => const Uuid().v4();
 
-/// Structural hook for kind-owned tracking fields during local creation.
+/// Structural hook for kind-owned tracking fields during mutation.
 ///
 /// Collection owns persistence and mutation mechanics. A kind may enrich the
 /// common compatibility entry before it is stored, without making the
 /// collection API depend on that kind's semantic fields.
-typedef LocalTrackingEntryCustomizer = TrackingEntry Function(
+typedef TrackingEntryCustomizer = TrackingEntry Function(
   TrackingEntry entry,
 );
 
@@ -92,7 +92,7 @@ final class TrackingMutations {
     String? notes,
     int? seasonNumber,
     int? episodeNumber,
-    Map<String, int>? episodeRatings,
+    TrackingEntryCustomizer? customizeEntry,
     bool allowEmpty = false,
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
@@ -159,7 +159,7 @@ final class TrackingMutations {
             }),
           ]);
         }
-        final entry = TrackingEntry(
+        final baseEntry = TrackingEntry(
           id: entryId,
           catalogRef: catalogRef,
           ownedItemId: targetOwnedItemId ?? existing?.ownedItemId,
@@ -177,9 +177,10 @@ final class TrackingMutations {
           notes: notes ?? existing?.notes,
           seasonNumber: seasonNumber ?? existing?.seasonNumber,
           episodeNumber: episodeNumber ?? existing?.episodeNumber,
-          episodeRatings: episodeRatings ?? existing?.episodeRatings,
+          episodeRatings: existing?.episodeRatings,
           updatedAt: now,
         );
+        final entry = customizeEntry?.call(baseEntry) ?? baseEntry;
         await trackingEntries.upsert(entry);
         await syncQueue
             .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
@@ -297,7 +298,7 @@ final class TrackingMutations {
     int? progressCurrent,
     int? progressTotal,
     int? timesCompleted,
-    LocalTrackingEntryCustomizer? customizeEntry,
+    TrackingEntryCustomizer? customizeEntry,
     bool allowEmpty = false,
     MutationOrigin origin = MutationOrigin.user,
   }) async {

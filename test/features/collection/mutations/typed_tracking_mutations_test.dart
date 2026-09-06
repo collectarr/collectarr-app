@@ -163,7 +163,9 @@ void main() {
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.catalog(ref),
         status: MediaTrackingStatus.inProgress,
-        episodeRatings: unitRatings,
+        customizeEntry: (entry) => entry.copyWith(
+          episodeRatings: unitRatings,
+        ),
       );
 
       final entry =

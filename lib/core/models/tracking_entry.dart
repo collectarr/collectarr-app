@@ -100,9 +100,6 @@ class TrackingEntry extends PersonalTrackingBase {
       progressTotal: json['progress_total'] as int?,
       timesCompleted: json['times_completed'] as int?,
       notes: json['notes'] as String?,
-      seasonNumber: json['season_number'] as int?,
-      episodeNumber: json['episode_number'] as int?,
-      episodeRatings: _parseEpisodeRatings(json['episode_ratings']),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       deletedAt: json['deleted_at'] == null
           ? null
@@ -183,17 +180,4 @@ class TrackingEntry extends PersonalTrackingBase {
           : deletedAt as DateTime?,
     );
   }
-}
-
-Map<String, int> _parseEpisodeRatings(Object? raw) {
-  if (raw is Map) {
-    return {
-      for (final entry in raw.entries)
-        if (entry.key is String && entry.value is int)
-          entry.key as String: entry.value as int
-        else if (entry.key is String && entry.value is num)
-          entry.key as String: (entry.value as num).toInt(),
-    };
-  }
-  return const {};
 }
