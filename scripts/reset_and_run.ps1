@@ -79,25 +79,46 @@ foreach ($suffix in @('-wal', '-shm', '-journal')) {
 if ($Clean) {
     Write-Host "[reset] Running flutter clean..." -ForegroundColor Cyan
     Push-Location $projectRoot
-    flutter clean
-    flutter pub get
-    Pop-Location
+    try {
+        & flutter clean
+        if ($LASTEXITCODE -ne 0) {
+            throw "flutter clean failed with exit code $LASTEXITCODE."
+        }
+        & flutter pub get
+        if ($LASTEXITCODE -ne 0) {
+            throw "flutter pub get failed with exit code $LASTEXITCODE."
+        }
+    } finally {
+        Pop-Location
+    }
 }
 
 # --- 4. Optional: seed the typed-kind development fixture ---
 if ($Seed) {
     Write-Host "[reset] Seeding typed-kind development fixture..." -ForegroundColor Cyan
     Push-Location $projectRoot
-    dart run scripts/seed_local_db.dart
-    Pop-Location
+    try {
+        & dart run scripts/seed_local_db.dart
+        if ($LASTEXITCODE -ne 0) {
+            throw "typed-kind seed failed with exit code $LASTEXITCODE."
+        }
+    } finally {
+        Pop-Location
+    }
 }
 
 # --- 5. Optional: run the app ---
 if ($Run) {
     Write-Host "[reset] Launching app..." -ForegroundColor Cyan
     Push-Location $projectRoot
-    flutter run -d windows
-    Pop-Location
+    try {
+        & flutter run -d windows
+        if ($LASTEXITCODE -ne 0) {
+            throw "flutter run failed with exit code $LASTEXITCODE."
+        }
+    } finally {
+        Pop-Location
+    }
 }
 
 Write-Host "[reset] Done." -ForegroundColor Green

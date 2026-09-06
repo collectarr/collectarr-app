@@ -28,6 +28,7 @@ param(
     [ValidateSet('chrome', 'edge')]
     [string]$Device = 'chrome',
 
+    [ValidateRange(1, 65535)]
     [int]$Port = 7357,
 
     [string]$HostName = '127.0.0.1',
@@ -63,8 +64,14 @@ Write-Host "[web] Device:  $Device" -ForegroundColor Cyan
 if ($Seed) {
     Write-Host "[web] Seeding typed-kind development fixture..." -ForegroundColor Cyan
     Push-Location $projectRoot
-    dart run scripts/seed_local_db.dart
-    Pop-Location
+    try {
+        & dart run scripts/seed_local_db.dart
+        if ($LASTEXITCODE -ne 0) {
+            throw "typed-kind seed failed with exit code $LASTEXITCODE."
+        }
+    } finally {
+        Pop-Location
+    }
 }
 
 $flutterArgs = @(
