@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
@@ -19,6 +18,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -140,6 +140,7 @@ abstract interface class LibraryKindRuntime {
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
   OwnedItemDetails defaultOwnedDetails();
   OwnedDetailsDraft defaultOwnedDetailsDraft();
+  OwnedDetailsDraft ownedDetailsDraftFromDetails(OwnedItemDetails details);
   OwnedDetailsDraft buildPersonalDetailsDraft(
       LibraryPersonalEditSelection personal);
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details);
@@ -320,6 +321,12 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   OwnedDetailsDraft defaultOwnedDetailsDraft() =>
       ownedDetailsCodec.defaultDraft();
+
+  @override
+  OwnedDetailsDraft ownedDetailsDraftFromDetails(OwnedItemDetails details) {
+    validateOwnedDetails(details);
+    return ownedDetailsCodec.draftFromDetails(details as TDetails);
+  }
 
   @override
   OwnedDetailsDraft buildPersonalDetailsDraft(

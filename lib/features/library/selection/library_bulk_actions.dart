@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
 class LibraryBulkActions {
@@ -166,7 +167,9 @@ class LibraryBulkActions {
           finishedAt: src.finishedAt,
           tags: src.tags,
         ),
-        details: src.details.toDraft(),
+        details: libraryKindRuntimeForKind(
+          catalogMediaKindFromApiValue(src.catalogRef.kind),
+        ).ownedDetailsDraftFromDetails(src.details),
       );
       await coordinator.addOwnedItem(addCmd);
     }

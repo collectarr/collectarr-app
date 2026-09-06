@@ -1,7 +1,8 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 
 class MangaOwnedDetailsCodec implements OwnedDetailsCodec<MangaOwnedDetails> {
   const MangaOwnedDetailsCodec();
@@ -19,6 +20,27 @@ class MangaOwnedDetailsCodec implements OwnedDetailsCodec<MangaOwnedDetails> {
 
   @override
   MangaOwnedDetails defaultDetails() => const MangaOwnedDetails();
+
+  @override
+  OwnedDetailsDraft draftFromDetails(MangaOwnedDetails details) =>
+      MangaOwnedDetailsDraft(
+        rawOrSlabbed: details.grading.rawOrSlabbed,
+        signedBy: details.signedBy,
+        gradingCompany: details.gradingCompany,
+        graderNotes: details.graderNotes,
+        labelType: details.grading.labelType,
+        customLabel: details.grading.customLabel,
+        pageQuality: details.grading.pageQuality,
+        certificationNumber: details.grading.certificationNumber,
+        obiStripPresent: details.obiStripPresent,
+        slipcoverPresent: details.slipcoverPresent,
+        dustJacketPresent: details.dustJacketPresent,
+        dustJacketCondition: details.dustJacketCondition,
+        boxSetOuterCondition: details.boxSetOuterCondition,
+        insertsPresent: details.insertsPresent,
+        printing: details.printing,
+        localizedEdition: details.localizedEdition,
+      );
 
   @override
   OwnedDetailsDraft defaultDraft() => const MangaOwnedDetailsDraft();

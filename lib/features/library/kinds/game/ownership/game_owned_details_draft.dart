@@ -1,12 +1,8 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
-import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 
-@immutable
-final class GameAddDraft extends LibraryAddKindDraft {
-  const GameAddDraft({
+class GameOwnedDetailsDraft extends OwnedDetailsDraft {
+  const GameOwnedDetailsDraft({
     this.completeness,
     this.hasBox,
     this.hasManual,
@@ -23,10 +19,7 @@ final class GameAddDraft extends LibraryAddKindDraft {
   final bool? valueIsLocked;
 
   @override
-  CatalogMediaKind get kind => CatalogMediaKind.game;
-
-  @override
-  OwnedDetailsDraft toOwnedDetailsDraft() => GameOwnedDetailsDraft(
+  GameOwnedDetails toDetails() => GameOwnedDetails(
         completeness: completeness,
         hasBox: hasBox,
         hasManual: hasManual,

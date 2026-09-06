@@ -1,7 +1,8 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_draft.dart';
 
 class GenericOwnedDetailsCodec
     implements OwnedDetailsCodec<GenericOwnedDetails> {
@@ -20,6 +21,10 @@ class GenericOwnedDetailsCodec
 
   @override
   GenericOwnedDetails defaultDetails() => const GenericOwnedDetails();
+
+  @override
+  OwnedDetailsDraft draftFromDetails(GenericOwnedDetails details) =>
+      const GenericOwnedDetailsDraft();
 
   @override
   OwnedDetailsDraft defaultDraft() => const GenericOwnedDetailsDraft();

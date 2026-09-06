@@ -1,7 +1,8 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 
 class GameOwnedDetailsCodec implements OwnedDetailsCodec<GameOwnedDetails> {
   const GameOwnedDetailsCodec();
@@ -19,6 +20,17 @@ class GameOwnedDetailsCodec implements OwnedDetailsCodec<GameOwnedDetails> {
 
   @override
   GameOwnedDetails defaultDetails() => const GameOwnedDetails();
+
+  @override
+  OwnedDetailsDraft draftFromDetails(GameOwnedDetails details) =>
+      GameOwnedDetailsDraft(
+        completeness: details.completeness,
+        hasBox: details.hasBox,
+        hasManual: details.hasManual,
+        priceChartingId: details.priceChartingId,
+        coreRegion: details.coreRegion,
+        valueIsLocked: details.valueIsLocked,
+      );
 
   @override
   OwnedDetailsDraft defaultDraft() => const GameOwnedDetailsDraft();

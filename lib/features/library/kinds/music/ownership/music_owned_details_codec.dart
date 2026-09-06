@@ -1,7 +1,8 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 
 class MusicOwnedDetailsCodec implements OwnedDetailsCodec<MusicOwnedDetails> {
   const MusicOwnedDetailsCodec();
@@ -19,6 +20,16 @@ class MusicOwnedDetailsCodec implements OwnedDetailsCodec<MusicOwnedDetails> {
 
   @override
   MusicOwnedDetails defaultDetails() => const MusicOwnedDetails();
+
+  @override
+  OwnedDetailsDraft draftFromDetails(MusicOwnedDetails details) =>
+      MusicOwnedDetailsDraft(
+        storageDevice: details.storageDevice,
+        storageSlot: details.storageSlot,
+        signedBy: details.signedBy,
+        lastCleanedDate: details.lastCleanedDate,
+        matrixRunouts: details.matrixRunouts,
+      );
 
   @override
   OwnedDetailsDraft defaultDraft() => const MusicOwnedDetailsDraft();

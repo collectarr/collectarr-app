@@ -108,7 +108,7 @@ class _LibraryVideoDetailPageState
               variantId: anchor.variantId,
               bundleReleaseId: anchor.bundleReleaseId,
             ),
-            details: const MovieOwnedDetailsDraft(),
+            details: defaultDetailsDraftForKind(widget.request.type.kind),
           ),
         );
   }

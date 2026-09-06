@@ -1,7 +1,8 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 
 class ComicOwnedDetailsCodec implements OwnedDetailsCodec<ComicOwnedDetails> {
   const ComicOwnedDetailsCodec();
@@ -19,6 +20,25 @@ class ComicOwnedDetailsCodec implements OwnedDetailsCodec<ComicOwnedDetails> {
 
   @override
   ComicOwnedDetails defaultDetails() => const ComicOwnedDetails();
+
+  @override
+  OwnedDetailsDraft draftFromDetails(ComicOwnedDetails details) =>
+      ComicOwnedDetailsDraft(
+        rawOrSlabbed: details.rawOrSlabbed,
+        gradingCompany: details.gradingCompany,
+        graderNotes: details.graderNotes,
+        signedBy: details.signedBy,
+        labelType: details.labelType,
+        customLabel: details.customLabel,
+        pageQuality: details.pageQuality,
+        certificationNumber: details.certificationNumber,
+        keyComic: details.keyComic,
+        keyReason: details.keyReason,
+        keyCategory: details.keyCategory,
+        keySeverity: details.keySeverity,
+        coverPriceCents: details.coverPriceCents,
+        lastBagBoardDate: details.lastBagBoardDate,
+      );
 
   @override
   OwnedDetailsDraft defaultDraft() => const ComicOwnedDetailsDraft();

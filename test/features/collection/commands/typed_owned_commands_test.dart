@@ -207,8 +207,16 @@ void main() {
       expect(parsedBook, isA<BookOwnedDetails>());
       expect(parsedBoardgame, isA<BoardgameOwnedDetails>());
 
-      expect(parsedBook.toDraft(), isA<BookOwnedDetailsDraft>());
-      expect(parsedBoardgame.toDraft(), isA<BoardgameOwnedDetailsDraft>());
+      expect(
+        libraryKindRuntimeForKind(CatalogMediaKind.book)
+            .ownedDetailsDraftFromDetails(parsedBook),
+        isA<BookOwnedDetailsDraft>(),
+      );
+      expect(
+        libraryKindRuntimeForKind(CatalogMediaKind.boardgame)
+            .ownedDetailsDraftFromDetails(parsedBoardgame),
+        isA<BoardgameOwnedDetailsDraft>(),
+      );
     });
   });
 }

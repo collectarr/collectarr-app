@@ -1,7 +1,8 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
 class MovieOwnedDetailsCodec implements OwnedDetailsCodec<MovieOwnedDetails> {
   const MovieOwnedDetailsCodec();
@@ -19,6 +20,18 @@ class MovieOwnedDetailsCodec implements OwnedDetailsCodec<MovieOwnedDetails> {
 
   @override
   MovieOwnedDetails defaultDetails() => const MovieOwnedDetails();
+
+  @override
+  OwnedDetailsDraft draftFromDetails(MovieOwnedDetails details) =>
+      MovieOwnedDetailsDraft(
+        features: details.features,
+        hdrFormats: details.hdrFormats,
+        boxSetId: details.boxSetId,
+        boxSetName: details.boxSetName,
+        region: details.region,
+        packaging: details.packaging,
+        distributor: details.distributor,
+      );
 
   @override
   OwnedDetailsDraft defaultDraft() => const MovieOwnedDetailsDraft();
