@@ -128,10 +128,10 @@ Status meanings:
 | 91 | Shared generic result table | **PARTIAL** | Library metrics, typography, result-table, selection, and visual contracts exist; action visual standardization is not yet complete everywhere. |
 | 92 | Standard selection controls | **PARTIAL** | Library metrics, typography, result-table, selection, and visual contracts exist; action visual standardization is not yet complete everywhere. |
 | 93 | Shared action visuals | **PARTIAL** | Library metrics, typography, result-table, selection, and visual contracts exist; action visual standardization is not yet complete everywhere. |
-| 94 | Mandatory contracts all 9 kinds | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist; barcode coverage now executes for all 9 kinds, while action/calendar/override coverage remains incomplete. |
+| 94 | Mandatory contracts all 9 kinds | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist; barcode coverage now executes for all 9 kinds and Calendar now has an all-kind contributor contract, while action/override coverage remains incomplete. |
 | 95 | Release/Edition contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
 | 96 | Action contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
-| 97 | Calendar contracts | **PARTIAL** | Release contributor behavior is tested across all 9 kind contributors plus TV/Anime episode behavior and stable event identities; a reusable full calendar contract remains. |
+| 97 | Calendar contracts | **DONE** | The reusable calendar contributor contract now executes against every registered kind contributor, validating unique IDs, non-empty titles/references, and ordered event ranges; focused kind-specific tests remain alongside it. |
 | 98 | Barcode contracts | **DONE** | The reusable barcode contract executes against all 9 registered resolvers and dispatch tests cover normalization, supported/unsupported values, and unknown-kind behavior. |
 | 99 | Metadata override contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
 | 100 | Provider-kind contracts | **PARTIAL** | Core/add/edit/release/tracking/provider contracts exist, but action/calendar/barcode/override contract coverage is incomplete. |
