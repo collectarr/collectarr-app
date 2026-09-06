@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -285,6 +286,13 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       ),
       common: common.toOwnedItemCommonDraft(),
       details: effectiveDraft.toOwnedDetailsDraft(),
+      tracking: OwnedItemTrackingDraft(
+        status: mediaTrackingStatusFromValue(common.readStatus),
+        rating: common.rating,
+        startedAt: common.startedAt,
+        finishedAt: common.finishedAt,
+        notes: common.personalNotes,
+      ),
     );
   }
 }

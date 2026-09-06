@@ -18,7 +18,15 @@ final class CollectionCommandCoordinator {
   }) async {
     final item = await ownedMutations.addOwnedItem(command);
     if (syncTracking) {
-      await trackingMutations.syncOwnedTrackingEntry(item);
+      final tracking = command.tracking;
+      await trackingMutations.syncOwnedTrackingEntry(
+        item,
+        status: tracking?.status,
+        rating: tracking?.rating,
+        startedAt: tracking?.startedAt,
+        finishedAt: tracking?.finishedAt,
+        notes: tracking?.notes,
+      );
     }
     return item;
   }

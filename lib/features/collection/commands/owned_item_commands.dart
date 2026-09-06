@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/foundation.dart';
@@ -62,10 +63,6 @@ class OwnedItemCommonDraft {
     this.collectionStatus,
     this.isDigital,
     this.tags,
-    this.rating,
-    this.readStatus,
-    this.startedAt,
-    this.finishedAt,
     this.editionId,
     this.variantId,
     this.bundleReleaseId,
@@ -83,13 +80,31 @@ class OwnedItemCommonDraft {
   final String? collectionStatus;
   final bool? isDigital;
   final String? tags;
-  final int? rating;
-  final String? readStatus;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
   final String? editionId;
   final String? variantId;
   final String? bundleReleaseId;
+}
+
+/// Tracking state transported alongside an ownership command.
+///
+/// Tracking is persisted by [TrackingMutations], never as part of the
+/// collection-owned payload. The command keeps this small structural shape so
+/// add flows can commit ownership and then synchronize the typed tracking row.
+@immutable
+class OwnedItemTrackingDraft {
+  const OwnedItemTrackingDraft({
+    this.status,
+    this.rating,
+    this.startedAt,
+    this.finishedAt,
+    this.notes,
+  });
+
+  final MediaTrackingStatus? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final String? notes;
 }
 
 OwnedDetailsDraft defaultDetailsDraftForKind(CatalogMediaKind kind) {
@@ -103,11 +118,13 @@ final class AddOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
     required this.catalogRef,
     required this.common,
     required this.details,
+    this.tracking,
   });
 
   final CatalogEntityRef catalogRef;
   final OwnedItemCommonDraft common;
   final TDetails details;
+  final OwnedItemTrackingDraft? tracking;
 }
 
 /// Command to update an existing owned item in collection.
@@ -127,10 +144,6 @@ final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
     this.collectionStatus = const Patch.unchanged(),
     this.isDigital = const Patch.unchanged(),
     this.tags = const Patch.unchanged(),
-    this.rating = const Patch.unchanged(),
-    this.readStatus = const Patch.unchanged(),
-    this.startedAt = const Patch.unchanged(),
-    this.finishedAt = const Patch.unchanged(),
     this.soldAt = const Patch.unchanged(),
     this.sellPriceCents = const Patch.unchanged(),
     this.soldTo = const Patch.unchanged(),
@@ -152,10 +165,6 @@ final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
   final Patch<String?> collectionStatus;
   final Patch<bool?> isDigital;
   final Patch<String?> tags;
-  final Patch<int?> rating;
-  final Patch<String?> readStatus;
-  final Patch<DateTime?> startedAt;
-  final Patch<DateTime?> finishedAt;
   final Patch<DateTime?> soldAt;
   final Patch<int?> sellPriceCents;
   final Patch<String?> soldTo;

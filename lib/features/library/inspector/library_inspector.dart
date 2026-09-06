@@ -706,12 +706,17 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               personalNotes: ownedItem.personalNotes,
               quantity: ownedItem.quantity,
               locationId: ownedItem.locationId,
-              rating: ownedItem.rating,
-              readStatus: ownedItem.readStatus,
-              startedAt: ownedItem.startedAt,
-              finishedAt: ownedItem.finishedAt,
               tags: ownedItem.tags,
             ),
+            tracking: item.source.trackingEntry == null
+                ? null
+                : OwnedItemTrackingDraft(
+                    status: item.source.trackingEntry!.status,
+                    rating: item.source.trackingEntry!.rating,
+                    startedAt: item.source.trackingEntry!.startedAt,
+                    finishedAt: item.source.trackingEntry!.finishedAt,
+                    notes: item.source.trackingEntry!.notes,
+                  ),
             details: widget.type.ownedDetailsDraftFromDetails(
               ownedItem.details,
             ),

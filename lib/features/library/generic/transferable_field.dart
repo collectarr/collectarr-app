@@ -94,10 +94,6 @@ class TransferableField {
   static OwnedItem _writeCurrency(OwnedItem item, String? v) =>
       item.copyWith(currency: v);
 
-  static String? _readReadStatus(OwnedItem item) => item.readStatus;
-  static OwnedItem _writeReadStatus(OwnedItem item, String? v) =>
-      item.copyWith(readStatus: v);
-
   static String? _readSoldTo(OwnedItem item) => item.soldTo;
   static OwnedItem _writeSoldTo(OwnedItem item, String? v) =>
       item.copyWith(soldTo: v);
@@ -125,24 +121,10 @@ class TransferableField {
   static OwnedItem _writeIndexNumber(OwnedItem item, String? v) =>
       item.copyWith(indexNumber: v != null ? int.tryParse(v) : null);
 
-  static String? _readRating(OwnedItem item) => item.rating?.toString();
-  static OwnedItem _writeRating(OwnedItem item, String? v) =>
-      item.copyWith(rating: v != null ? int.tryParse(v) : null);
-
   static String? _readPurchaseDate(OwnedItem item) =>
       item.purchaseDate?.toIso8601String();
   static OwnedItem _writePurchaseDate(OwnedItem item, String? v) =>
       item.copyWith(purchaseDate: v != null ? DateTime.tryParse(v) : null);
-
-  static String? _readStartedAt(OwnedItem item) =>
-      item.startedAt?.toIso8601String();
-  static OwnedItem _writeStartedAt(OwnedItem item, String? v) =>
-      item.copyWith(startedAt: v != null ? DateTime.tryParse(v) : null);
-
-  static String? _readFinishedAt(OwnedItem item) =>
-      item.finishedAt?.toIso8601String();
-  static OwnedItem _writeFinishedAt(OwnedItem item, String? v) =>
-      item.copyWith(finishedAt: v != null ? DateTime.tryParse(v) : null);
 
   static String? _readSoldAt(OwnedItem item) => item.soldAt?.toIso8601String();
   static OwnedItem _writeSoldAt(OwnedItem item, String? v) =>
@@ -200,14 +182,6 @@ class TransferableField {
       write: _writeCurrency,
     ),
     TransferableField(
-      key: 'readStatus',
-      label: 'Read status',
-      icon: Icons.auto_stories_outlined,
-      type: TransferableFieldType.text,
-      read: _readReadStatus,
-      write: _writeReadStatus,
-    ),
-    TransferableField(
       key: 'soldTo',
       label: 'Sold to',
       icon: Icons.person_outline,
@@ -256,14 +230,6 @@ class TransferableField {
       read: _readIndexNumber,
       write: _writeIndexNumber,
     ),
-    TransferableField(
-      key: 'rating',
-      label: 'My Rating',
-      icon: Icons.star_outline,
-      type: TransferableFieldType.integer,
-      read: _readRating,
-      write: _writeRating,
-    ),
     // --- Dates ---
     TransferableField(
       key: 'purchaseDate',
@@ -272,22 +238,6 @@ class TransferableField {
       type: TransferableFieldType.date,
       read: _readPurchaseDate,
       write: _writePurchaseDate,
-    ),
-    TransferableField(
-      key: 'startedAt',
-      label: 'Started at',
-      icon: Icons.play_arrow_outlined,
-      type: TransferableFieldType.date,
-      read: _readStartedAt,
-      write: _writeStartedAt,
-    ),
-    TransferableField(
-      key: 'finishedAt',
-      label: 'Finished at',
-      icon: Icons.check_circle_outline,
-      type: TransferableFieldType.date,
-      read: _readFinishedAt,
-      write: _writeFinishedAt,
     ),
     TransferableField(
       key: 'soldAt',

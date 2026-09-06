@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -586,10 +587,6 @@ class LibraryEditDraft {
       purchaseStore: emptyToNull(personal.purchaseStoreController.text),
       collectionStatus: personal.collectionStatus,
       tags: emptyToNull(personal.tagsController.text),
-      rating: parseInt(tracking.ratingController.text),
-      readStatus: emptyToNull(tracking.trackingController.text),
-      startedAt: tracking.startedAt,
-      finishedAt: tracking.finishedAt,
       editionId: personal.selectedEditionId,
       variantId: personal.selectedVariantId,
       bundleReleaseId: personal.selectedBundleReleaseId,
@@ -609,6 +606,15 @@ class LibraryEditDraft {
       ),
       common: buildCommonDraft(),
       details: buildDetailsDraft(),
+      tracking: OwnedItemTrackingDraft(
+        status: mediaTrackingStatusFromValue(
+          emptyToNull(tracking.trackingController.text),
+        ),
+        rating: parseInt(tracking.ratingController.text),
+        startedAt: tracking.startedAt,
+        finishedAt: tracking.finishedAt,
+        notes: emptyToNull(tracking.trackingNotesController.text),
+      ),
     );
   }
 

@@ -62,7 +62,6 @@ class LibraryEditCapability {
     required LibraryEditKindDraft kindDraft,
   }) {
     final personal = session.personal;
-    final tracking = session.tracking;
     return UpdateOwnedItemCommand(
       ownedItemId: ownedItemId,
       quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
@@ -96,18 +95,6 @@ class LibraryEditCapability {
       tags: personal.tagsController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.tagsController.text.trim()),
-      rating: tracking.ratingController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseInt(tracking.ratingController.text)),
-      readStatus: tracking.trackingController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(tracking.trackingController.text.trim()),
-      startedAt: tracking.startedAt != null
-          ? Patch.set(tracking.startedAt)
-          : const Patch.clear(),
-      finishedAt: tracking.finishedAt != null
-          ? Patch.set(tracking.finishedAt)
-          : const Patch.clear(),
       soldAt: personal.soldAt != null
           ? Patch.set(personal.soldAt)
           : const Patch.clear(),

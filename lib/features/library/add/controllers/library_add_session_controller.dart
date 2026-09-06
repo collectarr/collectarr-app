@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
@@ -105,6 +106,23 @@ class LibraryAddSessionController
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
+
+  Future<void> _addOwnedItemWithTracking(AddOwnedItemCommand command) async {
+    final ownedItem = await ownedMutations.addOwnedItem(command);
+    final tracking = command.tracking;
+    if (tracking == null) {
+      return;
+    }
+    await trackingMutations.syncOwnedTrackingEntry(
+      ownedItem,
+      status: tracking.status,
+      rating: tracking.rating,
+      startedAt: tracking.startedAt,
+      finishedAt: tracking.finishedAt,
+      notes: tracking.notes,
+    );
+  }
+
   final ApiClient? api;
   final LibraryCatalogRepository? catalog;
   final ProviderRegistry? providerRegistry;
@@ -1259,7 +1277,7 @@ class LibraryAddSessionController
 
       switch (state.target) {
         case LibraryAddTarget.owned:
-          await ownedMutations.addOwnedItem(command);
+          await _addOwnedItemWithTracking(command);
         case LibraryAddTarget.wishlist:
           await wishlistMutations.addToWishlist(
             item.id,
@@ -1378,7 +1396,7 @@ class LibraryAddSessionController
 
           switch (state.target) {
             case LibraryAddTarget.owned:
-              await ownedMutations.addOwnedItem(command);
+              await _addOwnedItemWithTracking(command);
             case LibraryAddTarget.wishlist:
               await wishlistMutations.addToWishlist(
                 metadataItem.id,
@@ -1428,7 +1446,7 @@ class LibraryAddSessionController
 
         switch (state.target) {
           case LibraryAddTarget.owned:
-            await ownedMutations.addOwnedItem(command);
+            await _addOwnedItemWithTracking(command);
           case LibraryAddTarget.wishlist:
             await wishlistMutations.addToWishlist(
               selectedResult.id,

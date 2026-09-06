@@ -51,6 +51,7 @@ void main() {
     expect(cmd.common.grade, '9.8');
     expect(cmd.common.pricePaidCents, 1999);
     expect(cmd.common.currency, 'USD');
+    expect(cmd.tracking, isNotNull);
 
     final details = cmd.details;
     expect(details, isA<ComicOwnedDetailsDraft>());

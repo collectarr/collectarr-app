@@ -133,8 +133,8 @@ void main() {
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(
               condition: 'Near Mint',
-              rating: 8,
             ),
+            tracking: const OwnedItemTrackingDraft(rating: 8),
             details: const ComicOwnedDetailsDraft(),
           ),
         );
@@ -168,9 +168,10 @@ void main() {
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-            common: OwnedItemCommonDraft(
+            common: OwnedItemCommonDraft(),
+            tracking: OwnedItemTrackingDraft(
+              status: MediaTrackingStatus.completed,
               rating: 8,
-              readStatus: 'Completed',
               startedAt: DateTime.utc(2026, 5, 10),
               finishedAt: DateTime.utc(2026, 5, 12),
             ),
@@ -187,6 +188,10 @@ void main() {
     expect(tracking.sourceType, 'physical');
     expect(tracking.status, 'Completed');
     expect(tracking.rating, 8);
+    expect(owned.rating, isNull);
+    expect(owned.readStatus, isNull);
+    expect(owned.startedAt, isNull);
+    expect(owned.finishedAt, isNull);
     expect(
       queued.where((row) => row.entityType == 'tracking_entry'),
       hasLength(1),
@@ -215,9 +220,10 @@ void main() {
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-digital-1', kind: 'movie'),
-            common: const OwnedItemCommonDraft(
+            common: const OwnedItemCommonDraft(),
+            tracking: const OwnedItemTrackingDraft(
+              status: MediaTrackingStatus.completed,
               rating: 9,
-              readStatus: 'Completed',
             ),
             details: const MovieOwnedDetailsDraft(),
           ),

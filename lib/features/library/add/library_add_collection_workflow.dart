@@ -115,16 +115,19 @@ Future<void> addLibraryItemsToTarget({
           kindDraftsByItemId[item.id] ?? capability.createInitialDraft(),
         );
         final ownedItem = await ownedMutations.addOwnedItem(addCmd);
-        await trackingMutations.syncOwnedTrackingEntry(
-          ownedItem,
-          editionId: reference.editionId,
-          variantId: reference.variantId,
-          status: mediaTrackingStatusFromValue(itemCommon.readStatus),
-          rating: itemCommon.rating,
-          startedAt: itemCommon.startedAt,
-          finishedAt: itemCommon.finishedAt,
-          notes: itemCommon.personalNotes,
-        );
+        final tracking = addCmd.tracking;
+        if (tracking != null) {
+          await trackingMutations.syncOwnedTrackingEntry(
+            ownedItem,
+            editionId: reference.editionId,
+            variantId: reference.variantId,
+            status: tracking.status,
+            rating: tracking.rating,
+            startedAt: tracking.startedAt,
+            finishedAt: tracking.finishedAt,
+            notes: tracking.notes,
+          );
+        }
         break;
       case LibraryAddTarget.wishlist:
         await wishlistMutations.addToWishlist(

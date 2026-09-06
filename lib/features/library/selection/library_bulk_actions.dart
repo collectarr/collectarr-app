@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -42,17 +43,18 @@ class LibraryBulkActions {
         locationId: selection.locationId != null
             ? Patch.set(selection.locationId)
             : const Patch.unchanged(),
-        rating: selection.rating != null
-            ? Patch.set(selection.rating)
-            : const Patch.unchanged(),
-        readStatus: selection.readStatus != null
-            ? Patch.set(selection.readStatus)
-            : const Patch.unchanged(),
         tags: selection.tags != null
             ? Patch.set(selection.tags)
             : const Patch.unchanged(),
       );
-      await coordinator.updateOwnedItem(updateCmd);
+      await coordinator.updateOwnedItem(updateCmd, syncTracking: false);
+      if (selection.rating != null || selection.readStatus != null) {
+        await trackingMutations.syncOwnedTrackingEntry(
+          ownedItem,
+          status: mediaTrackingStatusFromValue(selection.readStatus),
+          rating: selection.rating,
+        );
+      }
     }
   }
 
@@ -109,8 +111,10 @@ class LibraryBulkActions {
           condition: defaultCondition,
           grade: defaultGrade,
           locationId: defaultLocationId,
-          readStatus: defaultReadStatus,
           tags: defaultTags,
+        ),
+        tracking: OwnedItemTrackingDraft(
+          status: mediaTrackingStatusFromValue(defaultReadStatus),
         ),
         details: defaultDetailsDraftForKind(resolvedKind),
       );
@@ -141,7 +145,8 @@ class LibraryBulkActions {
         if (entry.ownedItem != null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      final src = ownedEntries[index].ownedItem!;
+      final entry = ownedEntries[index];
+      final src = entry.ownedItem!;
       final addCmd = AddOwnedItemCommand(
         catalogRef: CatalogEntityRef(
           kind: src.catalogRef.kind,
@@ -161,12 +166,17 @@ class LibraryBulkActions {
           personalNotes: src.personalNotes,
           quantity: src.quantity,
           locationId: src.locationId,
-          rating: src.rating,
-          readStatus: src.readStatus,
-          startedAt: src.startedAt,
-          finishedAt: src.finishedAt,
           tags: src.tags,
         ),
+        tracking: entry.trackingEntry == null
+            ? null
+            : OwnedItemTrackingDraft(
+                status: entry.trackingEntry!.status,
+                rating: entry.trackingEntry!.rating,
+                startedAt: entry.trackingEntry!.startedAt,
+                finishedAt: entry.trackingEntry!.finishedAt,
+                notes: entry.trackingEntry!.notes,
+              ),
         details: libraryKindRuntimeForKind(
           catalogMediaKindFromApiValue(src.catalogRef.kind),
         ).ownedDetailsDraftFromDetails(src.details),

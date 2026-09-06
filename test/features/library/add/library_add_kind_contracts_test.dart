@@ -95,7 +95,7 @@ void main() {
         final command = addCap.buildCommand(metadataItem, common, initialDraft);
         expect(command.catalogRef.id, item.id);
         expect(command.common.condition, 'Near Mint');
-        expect(command.common.rating, 9);
+        expect(command.tracking?.rating, 9);
         expect(command.details, isNot(isA<GenericOwnedDetailsDraft>()),
             reason:
                 '$kind command details must not be GenericOwnedDetailsDraft');

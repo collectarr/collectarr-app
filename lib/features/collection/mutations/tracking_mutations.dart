@@ -266,14 +266,11 @@ final class TrackingMutations {
               editionId: editionId ?? item.editionId,
               variantId: variantId ?? item.variantId,
               bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
-              status: status ??
-                  mediaTrackingStatusFromValue(item.readStatus) ??
-                  existing.status ??
-                  MediaTrackingStatus.planned,
-              rating: rating ?? item.rating ?? existing.rating,
-              notes: notes ?? item.personalNotes ?? existing.notes,
-              startedAt: startedAt ?? item.startedAt ?? existing.startedAt,
-              finishedAt: finishedAt ?? item.finishedAt ?? existing.finishedAt,
+              status: status ?? existing.status ?? MediaTrackingStatus.planned,
+              rating: rating ?? existing.rating,
+              notes: notes ?? existing.notes,
+              startedAt: startedAt ?? existing.startedAt,
+              finishedAt: finishedAt ?? existing.finishedAt,
               progressCurrent: progressCurrent ?? existing.progressCurrent,
               progressTotal: progressTotal ?? existing.progressTotal,
               sourceType: sourceType ??
@@ -290,13 +287,11 @@ final class TrackingMutations {
               editionId: editionId ?? item.editionId,
               variantId: variantId ?? item.variantId,
               bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
-              status: status ??
-                  mediaTrackingStatusFromValue(item.readStatus) ??
-                  MediaTrackingStatus.planned,
-              rating: rating ?? item.rating,
-              notes: notes ?? item.personalNotes,
-              startedAt: startedAt ?? item.startedAt,
-              finishedAt: finishedAt ?? item.finishedAt,
+              status: status ?? MediaTrackingStatus.planned,
+              rating: rating,
+              notes: notes,
+              startedAt: startedAt,
+              finishedAt: finishedAt,
               progressCurrent: progressCurrent,
               progressTotal: progressTotal,
               sourceType: sourceType ??

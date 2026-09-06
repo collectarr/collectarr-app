@@ -121,10 +121,6 @@ final class OwnedItemMutations {
           purchaseStore: common.purchaseStore,
           collectionStatus: common.collectionStatus,
           tags: common.tags,
-          rating: common.rating,
-          readStatus: common.readStatus,
-          startedAt: common.startedAt,
-          finishedAt: common.finishedAt,
           ownerUserId: userId,
           ownerLabel: userEmail,
           updatedAt: now,
@@ -256,26 +252,13 @@ final class OwnedItemMutations {
             set: (v) => v,
             clear: () => null,
           ),
-          rating: command.rating.when(
-            unchanged: () => existing.rating,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          readStatus: command.readStatus.when(
-            unchanged: () => existing.readStatus,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          startedAt: command.startedAt.when(
-            unchanged: () => existing.startedAt,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          finishedAt: command.finishedAt.when(
-            unchanged: () => existing.finishedAt,
-            set: (v) => v,
-            clear: () => null,
-          ),
+          // Preserve legacy denormalized tracking columns while their typed
+          // tracking rows are migrated. New writes are routed by the
+          // coordinator to TrackingMutations instead.
+          rating: existing.rating,
+          readStatus: existing.readStatus,
+          startedAt: existing.startedAt,
+          finishedAt: existing.finishedAt,
           soldAt: command.soldAt.when(
             unchanged: () => existing.soldAt,
             set: (v) => v,

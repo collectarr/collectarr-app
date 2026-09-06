@@ -301,18 +301,6 @@ class LibraryPageEditCoordinator {
         tags: personal.tags != null
             ? Patch.set(personal.tags)
             : const Patch.clear(),
-        rating: result.tracking?.rating != null
-            ? Patch.set(result.tracking!.rating)
-            : const Patch.clear(),
-        readStatus: result.tracking?.readStatus != null
-            ? Patch.set(result.tracking!.readStatus)
-            : const Patch.clear(),
-        startedAt: result.tracking?.startedAt != null
-            ? Patch.set(result.tracking!.startedAt)
-            : const Patch.clear(),
-        finishedAt: result.tracking?.finishedAt != null
-            ? Patch.set(result.tracking!.finishedAt)
-            : const Patch.clear(),
         soldAt: personal.soldAt != null
             ? Patch.set(personal.soldAt)
             : const Patch.clear(),
