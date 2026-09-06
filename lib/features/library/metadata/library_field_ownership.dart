@@ -117,21 +117,6 @@ const List<PersonalLibraryFieldSpec> kPersonalLibraryFields = [
     syncable: true,
   ),
   PersonalLibraryFieldSpec(
-    key: 'season_number',
-    label: 'Season number',
-    group: 'Tracking',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'episode_number',
-    label: 'Episode number',
-    group: 'Tracking',
-  ),
-  PersonalLibraryFieldSpec(
-    key: 'episode_ratings',
-    label: 'Episode ratings',
-    group: 'Tracking',
-  ),
-  PersonalLibraryFieldSpec(
     key: 'purchase_date',
     label: 'Purchase date',
     group: 'Acquisition',
