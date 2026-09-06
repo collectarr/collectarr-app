@@ -242,6 +242,7 @@ final class TrackingMutations {
     int? timesCompleted,
     String? notes,
     TrackingSourceType? sourceType,
+    TrackingEntryCustomizer? customizeEntry,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
@@ -259,7 +260,7 @@ final class TrackingMutations {
       origin: origin,
       localRef: item.catalogRef,
       action: () async {
-        final entry = existing?.copyWith(
+        final baseEntry = existing?.copyWith(
               id: entryId,
               catalogRef: item.catalogRef,
               ownedItemId: item.id,
@@ -300,6 +301,7 @@ final class TrackingMutations {
                       : TrackingSourceType.physical),
               updatedAt: now,
             );
+        final entry = customizeEntry?.call(baseEntry) ?? baseEntry;
         await trackingEntries.upsert(entry);
         await syncQueue
             .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));

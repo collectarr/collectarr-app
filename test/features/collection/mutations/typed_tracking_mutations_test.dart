@@ -280,5 +280,41 @@ void main() {
       expect(entry.episodeRatings, const {'4:9': 10});
       expect(entry.progressCurrent, 9);
     });
+
+    test('updateTrackingEntry applies explicit clears', () async {
+      const ref = CatalogEntityRef(
+        kind: 'book',
+        entityType: CatalogEntityType.work,
+        id: 'book-clear-1',
+      );
+      final existing = TrackingEntry(
+        id: 'tracking-clear-1',
+        catalogRef: ref,
+        status: MediaTrackingStatus.completed,
+        rating: 9,
+        startedAt: DateTime.utc(2026, 6, 1),
+        finishedAt: DateTime.utc(2026, 6, 2),
+        notes: 'Finished',
+        updatedAt: DateTime.utc(2026, 6, 2),
+      );
+      await trackingEntries.upsert(existing);
+
+      await trackingMutations.updateTrackingEntry(
+        existing.copyWith(
+          status: null,
+          rating: null,
+          startedAt: null,
+          finishedAt: null,
+          notes: null,
+        ),
+      );
+
+      final updated = await trackingEntries.findById(existing.id);
+      expect(updated?.status, isNull);
+      expect(updated?.rating, isNull);
+      expect(updated?.startedAt, isNull);
+      expect(updated?.finishedAt, isNull);
+      expect(updated?.notes, isNull);
+    });
   });
 }

@@ -321,22 +321,39 @@ class LibraryPageEditCoordinator {
         updateCmd,
         syncTracking: false,
       );
-      await trackingMutations.syncOwnedTrackingEntry(
-        owned,
-        editionId: result.tracking?.editionId,
-        variantId: result.tracking?.variantId,
-        status: mediaTrackingStatusFromValue(result.tracking?.readStatus),
-        rating: result.tracking?.rating,
-        startedAt: result.tracking?.startedAt,
-        finishedAt: result.tracking?.finishedAt,
-        progressCurrent: result.tracking?.progressCurrent ??
-            activeTrackingEntry?.progressCurrent,
-        progressTotal: result.tracking?.progressTotal ??
-            activeTrackingEntry?.progressTotal,
-        timesCompleted: result.tracking?.timesCompleted ??
-            activeTrackingEntry?.timesCompleted,
-        notes: result.tracking?.notes ?? activeTrackingEntry?.notes,
-      );
+      final tracking = result.tracking;
+      if (tracking == null || activeTrackingEntry == null) {
+        await trackingMutations.syncOwnedTrackingEntry(
+          owned,
+          editionId: tracking?.editionId,
+          variantId: tracking?.variantId,
+          status: mediaTrackingStatusFromValue(tracking?.readStatus),
+          rating: tracking?.rating,
+          startedAt: tracking?.startedAt,
+          finishedAt: tracking?.finishedAt,
+          progressCurrent: tracking?.progressCurrent,
+          progressTotal: tracking?.progressTotal,
+          timesCompleted: tracking?.timesCompleted,
+          notes: tracking?.notes,
+          customizeEntry: result.trackingEntryMutation,
+        );
+      } else {
+        final baseTracking = activeTrackingEntry.copyWith(
+          editionId: tracking.editionId,
+          variantId: tracking.variantId,
+          status: mediaTrackingStatusFromValue(tracking.readStatus),
+          rating: tracking.rating,
+          startedAt: tracking.startedAt,
+          finishedAt: tracking.finishedAt,
+          progressCurrent: tracking.progressCurrent,
+          progressTotal: tracking.progressTotal,
+          timesCompleted: tracking.timesCompleted,
+          notes: tracking.notes,
+        );
+        final updatedTracking =
+            result.trackingEntryMutation?.call(baseTracking) ?? baseTracking;
+        await trackingMutations.updateTrackingEntry(updatedTracking);
+      }
       // Save custom field values
       final now = DateTime.now();
       final cfList = result.customFieldEdits.entries.map((e) {
