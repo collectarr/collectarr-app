@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_episode.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
@@ -169,6 +173,100 @@ final class AnimeLocalMapper {
       region: row.region,
       packaging: row.packaging,
       distributor: row.distributor,
+    );
+  }
+
+  static AnimeOwnedItemsRowsCompanion toOwnedItemRow(AnimeOwnedItem item) {
+    if (item.id.value.isEmpty ||
+        item.catalogRef.mediaKind != CatalogMediaKind.anime) {
+      throw StateError('Cannot persist an invalid AnimeOwnedItem');
+    }
+
+    final details = item.details;
+    return AnimeOwnedItemsRowsCompanion.insert(
+      id: item.id.value,
+      itemId: item.itemId,
+      createdAt: Value(item.createdAt),
+      isDigital: Value(item.isDigital),
+      anchorType: Value(item.anchor?.apiValue),
+      editionId: Value(item.anchor?.editionId),
+      variantId: Value(item.anchor?.variantId),
+      bundleReleaseId: Value(item.anchor?.bundleReleaseId),
+      condition: Value(item.condition),
+      grade: Value(item.grade),
+      purchaseDate: Value(item.purchaseDate),
+      pricePaidCents: Value(item.pricePaidCents),
+      currency: Value(item.currency),
+      personalNotes: Value(item.personalNotes),
+      quantity: Value(item.quantity),
+      indexNumber: Value(item.indexNumber),
+      tags: Value(item.tags),
+      updatedAt: item.updatedAt,
+      deletedAt: Value(item.deletedAt),
+      soldAt: Value(item.soldAt),
+      sellPriceCents: Value(item.sellPriceCents),
+      soldTo: Value(item.soldTo),
+      ownerUserId: Value(item.ownerUserId),
+      ownerLabel: Value(item.ownerLabel),
+      locationId: Value(item.locationId),
+      purchaseStore: Value(item.purchaseStore),
+      collectionStatus: Value(item.collectionStatus),
+      marketValueCents: Value(item.marketValueCents),
+      features: Value(details.features),
+      hdrFormatsJson: Value(jsonEncode(details.hdrFormats)),
+      boxSetId: Value(details.boxSetId),
+      boxSetName: Value(details.boxSetName),
+      region: Value(details.region),
+      packaging: Value(details.packaging),
+      distributor: Value(details.distributor),
+    );
+  }
+
+  static AnimeOwnedItem fromOwnedItemRow(AnimeOwnedItemsRow row) {
+    return AnimeOwnedItem(
+      id: AnimeOwnedItemId(row.id),
+      catalogRef: CatalogEntityRef(
+        kind: 'anime',
+        entityType: CatalogEntityType.work,
+        id: row.itemId,
+      ),
+      createdAt: row.createdAt,
+      isDigital: row.isDigital,
+      anchor: PersonalItemAnchor.fromRaw(
+        anchorType: row.anchorType,
+        editionId: row.editionId,
+        variantId: row.variantId,
+        bundleReleaseId: row.bundleReleaseId,
+      ),
+      condition: row.condition,
+      grade: row.grade,
+      purchaseDate: row.purchaseDate,
+      pricePaidCents: row.pricePaidCents,
+      currency: row.currency,
+      personalNotes: row.personalNotes,
+      quantity: row.quantity,
+      indexNumber: row.indexNumber,
+      tags: row.tags,
+      updatedAt: row.updatedAt,
+      deletedAt: row.deletedAt,
+      soldAt: row.soldAt,
+      sellPriceCents: row.sellPriceCents,
+      soldTo: row.soldTo,
+      ownerUserId: row.ownerUserId,
+      ownerLabel: row.ownerLabel,
+      locationId: row.locationId,
+      purchaseStore: row.purchaseStore,
+      collectionStatus: row.collectionStatus,
+      marketValueCents: row.marketValueCents,
+      details: AnimeOwnedDetails(
+        features: row.features,
+        hdrFormats: _decodeStrings(row.hdrFormatsJson),
+        boxSetId: row.boxSetId,
+        boxSetName: row.boxSetName,
+        region: row.region,
+        packaging: row.packaging,
+        distributor: row.distributor,
+      ),
     );
   }
 

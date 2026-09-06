@@ -277,6 +277,20 @@ void main() {
       reason: 'Movie seed copies must retain complete typed ownership data',
     );
 
+    final animeOwnedRows = await db.select(db.animeOwnedItemsRows).get();
+    expect(animeOwnedRows, hasLength(15));
+    expect(
+      animeOwnedRows.every(
+        (row) =>
+            row.itemId.startsWith('seed-anime-') &&
+            row.region?.trim().isNotEmpty == true &&
+            row.packaging?.trim().isNotEmpty == true &&
+            row.distributor?.trim().isNotEmpty == true,
+      ),
+      isTrue,
+      reason: 'Anime seed copies must retain complete typed ownership data',
+    );
+
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows

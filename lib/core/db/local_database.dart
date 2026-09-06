@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_loc
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_tables.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'universal_local_tables.dart';
@@ -76,6 +77,7 @@ part 'local_database.g.dart';
   AnimeEpisodeRows,
   AnimeReleaseRows,
   AnimeOwnedDetailsRows,
+  AnimeOwnedItemsRows,
   AnimeTrackingRows,
   AnimeTrackingUnitRows,
   AnimeWatchSessionRows,
@@ -93,7 +95,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 28;
+  int get schemaVersion => 29;
 
   @override
   MigrationStrategy get migration {
@@ -233,6 +235,12 @@ class LocalDatabase extends _$LocalDatabase {
             await m.createTable(movieOwnedItemsRows);
           }
           await migrateMovieOwnedItems(this);
+        }
+        if (from < 29) {
+          if (!await _hasTable(animeOwnedItemsRows.actualTableName)) {
+            await m.createTable(animeOwnedItemsRows);
+          }
+          await migrateAnimeOwnedItems(this);
         }
       },
       beforeOpen: (details) async {
