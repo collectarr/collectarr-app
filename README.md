@@ -80,19 +80,15 @@ See [docs/library-parity-contract.md](docs/library-parity-contract.md).
 
 ## 🗺️ Roadmap
 
-See [docs/implementation-plan.md](docs/implementation-plan.md).
+See [docs/collectarr_typed_kind_full_implementation_plan.md](docs/collectarr_typed_kind_full_implementation_plan.md).
 
 Current active tracks:
 
-- finish moving the remaining heavy kind editors onto shared metadata contract primitives
-- complete the last generic shell de-generalization in `lib/features/library/generic`
-- formalize `KindWorkspaceConfig` so generic workspace rendering stops branching on kind names
-- upgrade folder sidebar to an optional CLZ-like tree view with persisted expand state
-- converge add/edit/admin dialogs on a shared UI shell
-- create one panel grammar for titles, actions, scrolling, and footers
-- add a density system for airy-to-dense power-user layouts
-- standardize inspector/detail/edit section ordering across kinds
-- add a global activity/history page alongside the existing per-item activity timeline
+- complete the remaining typed-kind vertical migrations from the active plan
+- keep the full-repository semantic checker allowlist shrinking every slice
+- finish kind-owned tracking state and remove generic tracking compatibility fields
+- move remaining Collection, Calendar, Barcode, import, and Admin semantics to kind contributions
+- keep seed scripts and contract tests synchronized with every typed persistence graph
 - extend calendar support with a live subscribable ICS feed and reminders
 - add local notifications for loans, releases, sync conflicts, and imports
 - keep Plex/Jellyfin/Emby watched sync as a low-priority follow-up to the local watch-session flow
