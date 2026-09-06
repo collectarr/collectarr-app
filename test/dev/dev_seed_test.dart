@@ -43,6 +43,11 @@ void main() {
     addTearDown(db.close);
 
     await seedLocalDatabase(db);
+    final verification = await verifyDevSeedDatabase(db);
+    expect(
+      verification.seededCatalogCount,
+      devSeedCatalogCounts.values.fold<int>(0, (total, count) => total + count),
+    );
 
     final catalogRows = await LibraryCatalogRepository(db).findAll();
     final typedGraphCounts = await devSeedTypedGraphCounts(db);

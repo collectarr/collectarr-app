@@ -75,6 +75,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 export 'package:collectarr_app/dev/seeds/anime_seeds.dart';
 export 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
@@ -534,6 +535,366 @@ Future<Map<String, int>> devSeedAuxiliaryCounts(LocalDatabase db) async {
     'custom_field.values': customFieldValues.length,
     'pick_list.values': pickListValues.length,
   };
+}
+
+/// Summary returned after validating the complete development fixture graph.
+///
+/// The CLI seed script and the Flutter seed test intentionally call the same
+/// verifier. Keeping the checks here prevents a new kind-owned table or seed
+/// invariant from being added to one entry point and forgotten by the other.
+final class DevSeedVerificationReport {
+  const DevSeedVerificationReport({
+    required this.catalogCount,
+    required this.seededCatalogCount,
+    required this.ownedCount,
+    required this.trackingCount,
+    required this.imageCount,
+    required this.typedGraphCounts,
+    required this.typedOwnedCounts,
+    required this.typedTrackingCounts,
+    required this.typedTrackingUnitCounts,
+    required this.auxiliaryCounts,
+  });
+
+  final int catalogCount;
+  final int seededCatalogCount;
+  final int ownedCount;
+  final int trackingCount;
+  final int imageCount;
+  final Map<String, int> typedGraphCounts;
+  final Map<String, int> typedOwnedCounts;
+  final Map<String, int> typedTrackingCounts;
+  final Map<String, int> typedTrackingUnitCounts;
+  final Map<String, int> auxiliaryCounts;
+}
+
+/// Verifies the complete persisted development fixture graph.
+///
+/// This is deliberately a composition-root/dev helper. It may enumerate all
+/// kind-owned tables to verify the fixture, while runtime library code must
+/// continue to use the owning kind repositories and codecs.
+Future<DevSeedVerificationReport> verifyDevSeedDatabase(
+    LocalDatabase db) async {
+  final catalogRows = await LibraryCatalogRepository(db).findAll();
+  final ownedRows = await db.select(db.ownedItemsCache).get();
+  final trackingRows = await db.select(db.trackingEntriesCache).get();
+  final imageRows = await db.select(db.itemImagesCache).get();
+  final typedGraphCounts = await devSeedTypedGraphCounts(db);
+  final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
+  final typedTrackingCounts = await devSeedTypedTrackingCounts(db);
+  final typedTrackingUnitCounts = await devSeedTypedTrackingUnitCounts(db);
+  final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
+  final issues = <String>[];
+
+  void require(bool condition, String message) {
+    if (!condition) issues.add(message);
+  }
+
+  final expectedSeedCount =
+      devSeedCatalogCounts.values.fold<int>(0, (total, count) => total + count);
+  final seededCatalogRows = catalogRows
+      .where((row) => row.id.startsWith('seed-'))
+      .toList(growable: false);
+  final seededOwnedRows = ownedRows
+      .where((row) => row.itemId.startsWith('seed-'))
+      .toList(growable: false);
+  final seededTrackingRows = trackingRows
+      .where((row) => row.itemId.startsWith('seed-'))
+      .toList(growable: false);
+
+  require(
+    seededCatalogRows.length == expectedSeedCount,
+    'expected $expectedSeedCount seed catalog rows, found '
+    '${seededCatalogRows.length}',
+  );
+  require(
+    seededOwnedRows.length == expectedSeedCount,
+    'expected $expectedSeedCount seed owned rows, found '
+    '${seededOwnedRows.length}',
+  );
+  require(
+    seededTrackingRows.length == expectedSeedCount,
+    'expected $expectedSeedCount seed tracking rows, found '
+    '${seededTrackingRows.length}',
+  );
+  require(
+    seededCatalogRows.map((row) => row.id).toSet().length ==
+        seededCatalogRows.length,
+    'seed catalog IDs are not unique',
+  );
+  require(
+    seededOwnedRows.map((row) => row.id).toSet().length ==
+        seededOwnedRows.length,
+    'seed owned IDs are not unique',
+  );
+  require(
+    seededTrackingRows.map((row) => row.id).toSet().length ==
+        seededTrackingRows.length,
+    'seed tracking IDs are not unique',
+  );
+
+  for (final entry in devSeedCatalogCounts.entries) {
+    final catalogCount =
+        seededCatalogRows.where((row) => row.kind == entry.key).length;
+    final ownedCount = seededOwnedRows
+        .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+        .length;
+    final trackingCount = seededTrackingRows
+        .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+        .length;
+    require(
+      catalogCount == entry.value,
+      '${entry.key}: expected ${entry.value} catalog rows, found $catalogCount',
+    );
+    require(
+      ownedCount == entry.value,
+      '${entry.key}: expected ${entry.value} owned rows, found $ownedCount',
+    );
+    require(
+      trackingCount == entry.value,
+      '${entry.key}: expected ${entry.value} tracking rows, found $trackingCount',
+    );
+  }
+
+  final catalogById = {
+    for (final row in seededCatalogRows) row.id: row,
+  };
+  final ownedById = {
+    for (final row in seededOwnedRows) row.id: row,
+  };
+  for (final row in seededCatalogRows) {
+    final kind = catalogMediaKindFromApiValue(row.kind);
+    require(row.title.trim().isNotEmpty, 'catalog ${row.id} has no title');
+    require(
+        kind != CatalogMediaKind.unknown, 'catalog ${row.id} has unknown kind');
+    require(
+      row.coverImageUrl?.trim().isNotEmpty == true &&
+          row.thumbnailImageUrl?.trim().isNotEmpty == true,
+      'catalog ${row.id} is missing cover image URLs',
+    );
+    final barcode = row.barcode;
+    require(barcode != null && barcode.trim().isNotEmpty,
+        'catalog ${row.id} is missing a barcode');
+    if (barcode != null && barcode.trim().isNotEmpty) {
+      require(
+        resolveLibraryBarcodeForKind(kind, barcode) != null,
+        'catalog ${row.id} has a barcode rejected by ${row.kind}',
+      );
+    }
+    if (row.kind == 'movie' || row.kind == 'tv' || row.kind == 'anime') {
+      require(
+        row.payload['runtime_minutes'] is int && row.payload['nr_discs'] is int,
+        'video catalog ${row.id} is missing runtime/disc seed metadata',
+      );
+    }
+    if (row.kind == 'music') {
+      require(
+        row.payload['track_count'] is int &&
+            (row.payload['tracks'] as List?)?.isNotEmpty == true,
+        'music catalog ${row.id} is missing track seed metadata',
+      );
+    }
+  }
+  for (final row in seededOwnedRows) {
+    final catalog = catalogById[row.itemId];
+    require(
+        catalog != null, 'owned ${row.id} references missing ${row.itemId}');
+    require(
+      row.kind == catalog?.kind,
+      'owned ${row.id} kind ${row.kind} does not match catalog ${row.itemId}',
+    );
+    require(
+      row.rating == null &&
+          row.readStatus == null &&
+          row.startedAt == null &&
+          row.finishedAt == null,
+      'owned ${row.id} still stores denormalized tracking state',
+    );
+  }
+  for (final row in seededTrackingRows) {
+    require(
+      row.ownedItemId != null && ownedById.containsKey(row.ownedItemId),
+      'tracking ${row.id} references missing owned item',
+    );
+    require(
+      row.status != null && row.rating != null && row.startedAt != null,
+      'tracking ${row.id} is missing typed status/rating/start data',
+    );
+  }
+
+  for (final entry in devSeedTypedGraphMinimumCounts.entries) {
+    require(
+      (typedGraphCounts[entry.key] ?? 0) >= entry.value,
+      'typed graph ${entry.key}: expected at least ${entry.value}, found '
+      '${typedGraphCounts[entry.key] ?? 0}',
+    );
+  }
+  for (final entry in devSeedTypedOwnedMinimumCounts.entries) {
+    require(
+      (typedOwnedCounts[entry.key] ?? 0) >= entry.value,
+      'typed owned ${entry.key}: expected at least ${entry.value}, found '
+      '${typedOwnedCounts[entry.key] ?? 0}',
+    );
+  }
+  for (final entry in devSeedTypedTrackingMinimumCounts.entries) {
+    require(
+      (typedTrackingCounts[entry.key] ?? 0) >= entry.value,
+      'typed tracking ${entry.key}: expected at least ${entry.value}, found '
+      '${typedTrackingCounts[entry.key] ?? 0}',
+    );
+  }
+  for (final entry in devSeedTypedTrackingUnitMinimumCounts.entries) {
+    require(
+      (typedTrackingUnitCounts[entry.key] ?? 0) >= entry.value,
+      'typed tracking units ${entry.key}: expected at least ${entry.value}, '
+      'found ${typedTrackingUnitCounts[entry.key] ?? 0}',
+    );
+  }
+  for (final entry in devSeedAuxiliaryMinimumCounts.entries) {
+    require(
+      (auxiliaryCounts[entry.key] ?? 0) >= entry.value,
+      'auxiliary ${entry.key}: expected at least ${entry.value}, found '
+      '${auxiliaryCounts[entry.key] ?? 0}',
+    );
+  }
+
+  final graphIssues = await devSeedTypedGraphIntegrityIssues(db);
+  final ownedIssues = await devSeedTypedOwnedIntegrityIssues(db);
+  issues.addAll(graphIssues);
+  issues.addAll(ownedIssues);
+
+  final comicTrackingUnits = (await db.select(db.comicTrackingUnitRows).get())
+      .where((row) => row.id.startsWith('seed-'));
+  require(
+    comicTrackingUnits
+        .every((row) => row.issueNumber?.trim().isNotEmpty == true),
+    'comic seed tracking units are missing issue coordinates',
+  );
+  final mangaTrackingUnits = (await db.select(db.mangaTrackingUnitRows).get())
+      .where((row) => row.id.startsWith('seed-'));
+  require(
+    mangaTrackingUnits
+        .every((row) => row.chapterNumber != null && row.chapterNumber! > 0),
+    'manga seed tracking units are missing chapter coordinates',
+  );
+  final bookTrackingUnits = (await db.select(db.bookTrackingUnitRows).get())
+      .where((row) => row.id.startsWith('seed-'));
+  require(
+    bookTrackingUnits
+        .every((row) => row.volumeNumber != null && row.volumeNumber! > 0),
+    'book seed tracking units are missing volume coordinates',
+  );
+  final tvTrackingUnits = (await db.select(db.tvTrackingUnitRows).get())
+      .where((row) => row.id.startsWith('seed-'));
+  require(
+    tvTrackingUnits.every(
+      (row) =>
+          row.seasonNumber != null &&
+          row.seasonNumber! > 0 &&
+          row.episodeNumber != null &&
+          row.episodeNumber! > 0,
+    ),
+    'tv seed tracking units are missing season/episode coordinates',
+  );
+  final animeTrackingUnits = (await db.select(db.animeTrackingUnitRows).get())
+      .where((row) => row.id.startsWith('seed-'));
+  require(
+    animeTrackingUnits.every(
+      (row) =>
+          row.seasonNumber != null &&
+          row.seasonNumber! > 0 &&
+          row.episodeNumber != null &&
+          row.episodeNumber! > 0,
+    ),
+    'anime seed tracking units are missing season/episode coordinates',
+  );
+
+  final bookReleases = (await db.select(db.bookReleaseRows).get())
+      .where((row) => row.id.startsWith('seed-'));
+  require(
+    bookReleases.every(
+      (row) =>
+          row.workId?.startsWith('seed-book-') == true &&
+          row.displayTitle?.trim().isNotEmpty == true &&
+          row.isbn?.trim().isNotEmpty == true,
+    ),
+    'book seed editions are missing typed edition metadata',
+  );
+  final boardGameEditions = (await db.select(db.boardGameEditionRows).get())
+      .where((row) => row.id.startsWith('seed-'));
+  require(
+    boardGameEditions.every(
+      (row) =>
+          row.workId?.startsWith('seed-boardgame-') == true &&
+          row.editionTitle?.trim().isNotEmpty == true &&
+          row.minPlayers != null &&
+          row.maxPlayers != null &&
+          row.playingTimeMinutes != null,
+    ),
+    'boardgame seed editions are missing typed edition metadata',
+  );
+  final tvReleases = (await db.select(db.tvReleaseRows).get())
+      .where((row) => row.id.startsWith('seed-'));
+  require(
+    tvReleases.every(
+      (row) =>
+          row.seriesId.startsWith('seed-tv-') &&
+          row.title.trim().isNotEmpty &&
+          row.episodeCount == 2,
+    ),
+    'tv seed releases are missing series/episode metadata',
+  );
+  final musicTracks = (await db.select(db.musicTrackRows).get())
+      .where((row) => row.id.startsWith('seed-'));
+  require(
+    musicTracks.every(
+      (row) => row.mediaId.startsWith('seed-music-') && row.durationMs != null,
+    ),
+    'music seed tracks are missing media/duration metadata',
+  );
+
+  final seedImages = imageRows
+      .where((row) => ownedById.containsKey(row.ownedItemId))
+      .toList(growable: false);
+  for (final entry in devSeedAuxiliaryMinimumCounts.entries.where(
+    (entry) => entry.key.startsWith('images.'),
+  )) {
+    final imageType = entry.key.substring('images.'.length);
+    final count = seedImages.where((row) => row.imageType == imageType).length;
+    require(
+      count >= entry.value,
+      '$imageType seed images: expected at least ${entry.value}, found $count',
+    );
+  }
+
+  final customFieldValues = await db.select(db.customFieldValuesCache).get();
+  final ownedIds = ownedRows.map((row) => row.id).toSet();
+  require(
+    customFieldValues
+        .where((row) => row.targetId.startsWith('seed-'))
+        .every((row) => ownedIds.contains(row.targetId)),
+    'a seed custom-field value targets a missing owned item',
+  );
+
+  if (issues.isNotEmpty) {
+    throw StateError(
+      'Development seed verification failed:\n'
+      '${issues.map((issue) => '- $issue').join('\n')}',
+    );
+  }
+
+  return DevSeedVerificationReport(
+    catalogCount: catalogRows.length,
+    seededCatalogCount: seededCatalogRows.length,
+    ownedCount: ownedRows.length,
+    trackingCount: trackingRows.length,
+    imageCount: imageRows.length,
+    typedGraphCounts: typedGraphCounts,
+    typedOwnedCounts: typedOwnedCounts,
+    typedTrackingCounts: typedTrackingCounts,
+    typedTrackingUnitCounts: typedTrackingUnitCounts,
+    auxiliaryCounts: auxiliaryCounts,
+  );
 }
 
 /// Returns `true` if all typed local catalog graphs are empty.
