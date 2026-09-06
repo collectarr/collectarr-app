@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -30,7 +29,6 @@ final class OwnedItemMutations {
     required this.trackingEntries,
     required this.syncQueue,
     required this.mutationRunner,
-    this.typedOwnedItems,
     this.userId,
     this.userEmail,
     this.idGenerator = _defaultIdGenerator,
@@ -42,7 +40,6 @@ final class OwnedItemMutations {
   final TrackingEntriesCacheRepository trackingEntries;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
-  final CollectarrOwnedItemPersistence? typedOwnedItems;
   final String? userId;
   final String? userEmail;
   final IdGenerator idGenerator;
@@ -96,7 +93,6 @@ final class OwnedItemMutations {
         );
 
         await ownedItems.upsert(ownedItem);
-        await typedOwnedItems?.upsert(ownedItem);
         await syncQueue
             .enqueue(_syncChangeForOwnedItem(ownedItem, 'upsert', now));
 
@@ -156,7 +152,6 @@ final class OwnedItemMutations {
                   );
 
         await ownedItems.upsert(updatedItem);
-        await typedOwnedItems?.upsert(updatedItem);
         await syncQueue
             .enqueue(_syncChangeForOwnedItem(updatedItem, 'upsert', now));
         return updatedItem;
@@ -328,9 +323,6 @@ final class OwnedItemMutations {
     await mutationRunner.run(
       action: () async {
         await ownedItems.markDeleted(item, now);
-        await typedOwnedItems?.upsert(
-          item.copyWith(updatedAt: now, deletedAt: now),
-        );
         await syncQueue.enqueue(
           _syncChangeForOwnedItem(
             item.copyWith(updatedAt: now, deletedAt: now),

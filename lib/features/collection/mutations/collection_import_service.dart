@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_repo
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
@@ -35,7 +34,6 @@ final class CollectionImportService {
     required this.trackingEntries,
     required this.syncQueue,
     required this.mutationRunner,
-    this.typedOwnedItems,
     this.idGenerator = _defaultIdGenerator,
   });
 
@@ -46,7 +44,6 @@ final class CollectionImportService {
   final TrackingEntriesCacheRepository trackingEntries;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
-  final CollectarrOwnedItemPersistence? typedOwnedItems;
   final IdGenerator idGenerator;
 
   Future<int> importRows(
@@ -225,7 +222,6 @@ final class CollectionImportService {
         }
         if (ownedItemsList.isNotEmpty) {
           await ownedItems.upsertAll(ownedItemsList);
-          await typedOwnedItems?.upsertAll(ownedItemsList);
         }
         if (trackingEntriesList.isNotEmpty) {
           await trackingEntries.upsertAll(trackingEntriesList);

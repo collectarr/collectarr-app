@@ -23,7 +23,6 @@ import 'package:collectarr_app/features/collection/repositories/custom_episodes_
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
@@ -50,7 +49,6 @@ class SyncApplyService {
     required this.ownedItems,
     required this.trackingEntries,
     required this.wishlistItems,
-    this.typedOwnedItems,
     LocationRepository? locations,
   }) : locations = locations ?? LocationRepository(db);
 
@@ -61,7 +59,6 @@ class SyncApplyService {
   final OwnedItemsRepository ownedItems;
   final TrackingEntriesCacheRepository trackingEntries;
   final WishlistItemsCacheRepository wishlistItems;
-  final CollectarrOwnedItemPersistence? typedOwnedItems;
   final LocationRepository locations;
 
   Future<SyncResult> syncNow(String deviceId, {DateTime? since}) async {
@@ -155,7 +152,6 @@ class SyncApplyService {
         await locations.applySyncedUpsert(location);
       }
       await ownedItems.upsertAll(owned);
-      await typedOwnedItems?.upsertAll(owned);
       await trackingEntries.upsertAll(tracking);
       await wishlistItems.upsertAll(wishlist);
       if (watchSessions.isNotEmpty) {
