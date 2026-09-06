@@ -104,12 +104,7 @@ Future<void> addLibraryItemsToTarget({
       collectionStatus: baseCommon.collectionStatus,
       isDigital: digitalOwnedItem ?? baseCommon.isDigital,
     );
-    final itemAnchor = PersonalItemAnchor.fromRaw(
-      anchorType: reference.anchorType,
-      editionId: reference.editionId,
-      variantId: reference.variantId,
-      bundleReleaseId: reference.bundleReleaseId,
-    );
+    final itemAnchor = reference.anchor;
 
     switch (target) {
       case LibraryAddTarget.owned:
@@ -193,18 +188,22 @@ _ResolvedAddReference _resolveReferenceForItem(
       return const _ResolvedAddReference();
     case LibraryAddReferenceType.bundleRelease:
       return _ResolvedAddReference(
-        anchorType: 'bundle_release',
-        bundleReleaseId: bundleReleaseId,
+        anchor: PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
+          bundleReleaseId: bundleReleaseId,
+        ),
       );
     case LibraryAddReferenceType.edition:
       final explicitEditionId = editionSelection?.editionId.trim();
       if (explicitEditionId != null && explicitEditionId.isNotEmpty) {
         return _ResolvedAddReference(
-          anchorType: 'edition',
-          editionId: explicitEditionId,
-          variantId: editionSelection?.variantId?.trim().isEmpty == true
-              ? null
-              : editionSelection?.variantId?.trim(),
+          anchor: PersonalItemAnchor.fromRaw(
+            anchorType: PersonalItemAnchorType.edition.apiValue,
+            editionId: explicitEditionId,
+            variantId: editionSelection?.variantId?.trim().isEmpty == true
+                ? null
+                : editionSelection?.variantId?.trim(),
+          ),
         );
       }
       final editions = libraryKindEditions(item);
@@ -214,24 +213,18 @@ _ResolvedAddReference _resolveReferenceForItem(
       final firstEdition = editions.first;
       final explicitVariantId = editionSelection?.variantId?.trim();
       return _ResolvedAddReference(
-        anchorType: 'edition',
-        editionId: firstEdition.id,
-        variantId:
-            explicitVariantId?.isEmpty == true ? null : explicitVariantId,
+        anchor: PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.edition.apiValue,
+          editionId: firstEdition.id,
+          variantId:
+              explicitVariantId?.isEmpty == true ? null : explicitVariantId,
+        ),
       );
   }
 }
 
 class _ResolvedAddReference {
-  const _ResolvedAddReference({
-    this.anchorType,
-    this.editionId,
-    this.variantId,
-    this.bundleReleaseId,
-  });
+  const _ResolvedAddReference({this.anchor});
 
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final PersonalItemAnchor? anchor;
 }
