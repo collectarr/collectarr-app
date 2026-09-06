@@ -201,10 +201,10 @@ void main() {
     );
   });
 
-  test('Music schema exposes dedicated graph tables at schema version 31', () {
+  test('Music schema exposes dedicated graph tables at schema version 32', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 31);
+    expect(db.schemaVersion, 32);
   });
 }
 

@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/local/board
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_migration.dart';
@@ -56,6 +57,7 @@ part 'local_database.g.dart';
   GameMediaRows,
   GameReleaseRows,
   GameOwnedDetailsRows,
+  GameOwnedItemsRows,
   BoardGameMediaRows,
   BoardGameEditionRows,
   BoardGameOwnedDetailsRows,
@@ -99,7 +101,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 31;
+  int get schemaVersion => 32;
 
   @override
   MigrationStrategy get migration {
@@ -257,6 +259,12 @@ class LocalDatabase extends _$LocalDatabase {
             await m.createTable(musicOwnedItemsRows);
           }
           await migrateMusicOwnedItems(this);
+        }
+        if (from < 32) {
+          if (!await _hasTable(gameOwnedItemsRows.actualTableName)) {
+            await m.createTable(gameOwnedItemsRows);
+          }
+          await migrateGameOwnedItems(this);
         }
       },
       beforeOpen: (details) async {

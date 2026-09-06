@@ -55,3 +55,45 @@ class GameOwnedDetailsRows extends Table {
   @override
   Set<Column> get primaryKey => {ownedItemId};
 }
+
+/// Complete Game-owned copy state. The common ownership cache remains only
+/// as a migration/read compatibility surface while callers are moved here.
+class GameOwnedItemsRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  DateTimeColumn get createdAt => dateTime().nullable()();
+  BoolColumn get isDigital => boolean().nullable()();
+  TextColumn get anchorType => text().nullable()();
+  TextColumn get editionId => text().nullable()();
+  TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
+  TextColumn get condition => text().nullable()();
+  TextColumn get grade => text().nullable()();
+  DateTimeColumn get purchaseDate => dateTime().nullable()();
+  IntColumn get pricePaidCents => integer().nullable()();
+  TextColumn get currency => text().nullable()();
+  TextColumn get personalNotes => text().nullable()();
+  IntColumn get quantity => integer().withDefault(const Constant(1))();
+  IntColumn get indexNumber => integer().nullable()();
+  TextColumn get tags => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+  DateTimeColumn get soldAt => dateTime().nullable()();
+  IntColumn get sellPriceCents => integer().nullable()();
+  TextColumn get soldTo => text().nullable()();
+  TextColumn get ownerUserId => text().nullable()();
+  TextColumn get ownerLabel => text().nullable()();
+  TextColumn get locationId => text().nullable()();
+  TextColumn get purchaseStore => text().nullable()();
+  TextColumn get collectionStatus => text().nullable()();
+  IntColumn get marketValueCents => integer().nullable()();
+  TextColumn get completeness => text().nullable()();
+  BoolColumn get hasBox => boolean().nullable()();
+  BoolColumn get hasManual => boolean().nullable()();
+  TextColumn get priceChartingId => text().nullable()();
+  TextColumn get coreRegion => text().nullable()();
+  BoolColumn get valueIsLocked => boolean().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

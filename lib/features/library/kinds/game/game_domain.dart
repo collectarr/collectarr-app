@@ -4,11 +4,13 @@ export 'package:collectarr_app/features/library/kinds/game/contracts/game_contra
 export 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
+export 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/remote/game_core_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/remote/game_remote_source.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/local/game_local_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
+export 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 export 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';

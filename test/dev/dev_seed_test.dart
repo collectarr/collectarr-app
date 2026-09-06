@@ -319,6 +319,21 @@ void main() {
       reason: 'Music seed copies must retain complete typed ownership data',
     );
 
+    final gameOwnedRows = await db.select(db.gameOwnedItemsRows).get();
+    expect(gameOwnedRows, hasLength(15));
+    expect(
+      gameOwnedRows.every(
+        (row) =>
+            row.itemId.startsWith('seed-game-') &&
+            row.completeness?.trim().isNotEmpty == true &&
+            row.hasBox == true &&
+            row.hasManual == true &&
+            row.coreRegion?.trim().isNotEmpty == true,
+      ),
+      isTrue,
+      reason: 'Game seed copies must retain complete typed ownership data',
+    );
+
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows

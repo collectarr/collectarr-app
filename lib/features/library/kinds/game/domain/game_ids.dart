@@ -35,3 +35,20 @@ final class GameReleaseId {
 }
 
 typedef GameEditionId = GameReleaseId;
+
+@immutable
+final class GameOwnedItemId {
+  const GameOwnedItemId(this.value);
+
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is GameOwnedItemId && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}
