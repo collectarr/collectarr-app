@@ -225,7 +225,7 @@ void main() {
 }
 
 LibraryProjection _projection(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   List<ShelfEntry> sources,
 ) {
   final items = [
@@ -295,7 +295,7 @@ final class _CoordinatorHarness {
     );
   }
 
-  LibraryPageCoordinatorContext contextFor(LibraryKindRuntime type) {
+  LibraryPageCoordinatorContext contextFor(LibraryKindModule type) {
     return LibraryPageCoordinatorContext(
       context: buildContext,
       ref: ref,

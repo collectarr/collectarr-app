@@ -11,8 +11,8 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('Isolated Runtime Type Erasure Tests', () {
-    final comicModule = libraryKindRuntimeForKind(CatalogMediaKind.comic);
-    final bookModule = libraryKindRuntimeForKind(CatalogMediaKind.book);
+    final comicModule = libraryKindModuleForKind(CatalogMediaKind.comic);
+    final bookModule = libraryKindModuleForKind(CatalogMediaKind.book);
 
     LibraryProjectionRuntime createComicItem(String id, String title) {
       final source = ShelfEntry(
@@ -44,7 +44,8 @@ void main() {
       final itemA = createComicItem('1', 'Amazing Spider-Man');
       final itemB = createComicItem('2', 'Batman');
 
-      final result = comicModule.workspace.compare(itemA, itemB, ComicSortIds.title);
+      final result =
+          comicModule.workspace.compare(itemA, itemB, ComicSortIds.title);
       expect(result, isNegative);
 
       final items = [itemB, itemA];
@@ -55,7 +56,8 @@ void main() {
 
     test('runtime extracts group value without caller recovering types', () {
       final item = createComicItem('1', 'Saga');
-      final groupVal = comicModule.workspace.groupValue(item, ComicGroupIds.series);
+      final groupVal =
+          comicModule.workspace.groupValue(item, ComicGroupIds.series);
       expect(groupVal, isA<String?>());
       expect(
         comicModule.fields.findGroupDefinition(
@@ -85,7 +87,8 @@ void main() {
         throwsArgumentError,
       );
       expect(
-        () => bookModule.workspace.compare(bookItem, comicItem, BookSortIds.title),
+        () => bookModule.workspace
+            .compare(bookItem, comicItem, BookSortIds.title),
         throwsArgumentError,
       );
       expect(
@@ -104,7 +107,7 @@ void main() {
         () {
       for (final kind in CatalogMediaKind.values
           .where((k) => k != CatalogMediaKind.unknown)) {
-        final runtime = libraryKindRuntimeForKind(kind);
+        final runtime = libraryKindModuleForKind(kind);
         expect(runtime.kind, kind);
         expect(runtime.fields, isNotNull);
         expect(runtime.projector, isNotNull);

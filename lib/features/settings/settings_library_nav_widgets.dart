@@ -506,7 +506,7 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
         type.kind: type,
   };
   final defaultKinds = [
-    for (final runtime in defaultLibraryKindRegistry.allRuntimes)
+    for (final runtime in defaultLibraryKindRegistry.allModules)
       runtime.kind.apiValue,
   ];
   for (final kind in defaultKinds) {

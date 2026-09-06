@@ -8,7 +8,7 @@ class LibraryToolbarStatsCalculator {
   LibraryToolbarCounts calculate({
     required List<LibraryProjectionItem> allItems,
     required int shownCount,
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
   }) {
     var owned = 0;
     var wishlist = 0;

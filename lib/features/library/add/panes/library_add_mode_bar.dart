@@ -9,7 +9,7 @@ class LibraryAddBarcodePrefillBanner extends StatelessWidget {
     required this.barcode,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final String barcode;
 
   @override
@@ -76,7 +76,7 @@ class LibraryAddModeBar extends StatefulWidget {
     this.kindSpecificPaneBuilder,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddDialogMode mode;
@@ -497,7 +497,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
     required this.onScan,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;

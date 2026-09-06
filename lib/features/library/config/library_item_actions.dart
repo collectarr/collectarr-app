@@ -103,7 +103,7 @@ class LibraryAddDialogRequest {
     this.initialBarcode,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color? accent;
   final String? initialQuery;
   final String? initialBarcode;
@@ -143,7 +143,7 @@ class LibraryEditDialogRequest {
     this.openMetadataCompareOnOpen = false,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final CatalogItem item;
   final OwnedItem? ownedItem;
   final Color accent;
@@ -163,7 +163,7 @@ class LibraryEditDialogRequest {
   final bool openMetadataCompareOnOpen;
 
   LibraryEditDialogRequest copyWith({
-    LibraryKindRuntime? type,
+    LibraryKindModule? type,
     CatalogItem? item,
     OwnedItem? ownedItem,
     Color? accent,
@@ -226,7 +226,7 @@ class LibraryDetailPageRequest {
         _onRemoveWishlist = onRemoveWishlist,
         _onEdit = onEdit;
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final Color accent;
@@ -277,7 +277,7 @@ class LibraryInspectorRequest {
     this.searchTarget = LibrarySearchTarget.all,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final VoidCallback? onEdit;

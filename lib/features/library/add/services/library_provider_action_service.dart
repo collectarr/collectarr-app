@@ -30,7 +30,7 @@ class LibraryProviderActionService {
 
   Future<void> proposeMetadata({
     required ApiClient api,
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required ProviderCandidate candidate,
     required CatalogItem proposalItem,
   }) {

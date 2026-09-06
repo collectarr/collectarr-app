@@ -37,7 +37,7 @@ class LibraryBulkEditDialog extends ConsumerStatefulWidget {
     required this.selectedCount,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final int selectedCount;
 
   @override

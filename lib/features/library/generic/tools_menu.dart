@@ -37,7 +37,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.extraActions = const [],
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryToolbarCounts counts;
   final String? selectedBucket;
   final LibraryQuickView? quickView;
@@ -251,7 +251,7 @@ class LibraryToolsButton extends StatelessWidget {
 
 void _showGenericStatsDialog(
   BuildContext context,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   LibraryToolbarCounts counts,
 ) {
   final collectionValue = counts.collectionValue;

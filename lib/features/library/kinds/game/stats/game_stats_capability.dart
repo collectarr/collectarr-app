@@ -18,7 +18,7 @@ class GameStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
   ) =>
       const [];
 
@@ -26,7 +26,7 @@ class GameStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
   ) =>
       const [];
 }

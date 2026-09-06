@@ -12,7 +12,7 @@ class LibraryToolbarActionContext {
     required this.onMissingSequenceReport,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjection? projection;
   final ValueChanged<String>? onJumpToNumberSubmitted;
   final ValueChanged<LibraryProjection?>? onMissingSequenceReport;
@@ -132,7 +132,7 @@ class LibraryToolbarActionAvailability {
       declaredActions.contains(action);
 }
 
-extension LibraryKindRuntimeToolbarAvailability on LibraryKindRuntime {
+extension LibraryKindModuleToolbarAvailability on LibraryKindModule {
   LibraryToolbarActionAvailability get toolbarActionAvailability {
     return LibraryToolbarActionAvailability(
       declaredActions: identity.toolbarActions.toSet(),

@@ -25,7 +25,7 @@ enum ExportFormat {
 /// Shows an export dialog with multiple format options.
 Future<void> showIntegrationExportDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required ShelfState shelfState,
 }) {
   return showDialog<void>(
@@ -43,7 +43,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     required this.shelfState,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final ShelfState shelfState;
 
   @override
@@ -102,7 +102,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     Navigator.pop(context);
   }
 
-  String _toCsv(LibraryKindRuntime module) {
+  String _toCsv(LibraryKindModule module) {
     final buffer = StringBuffer();
     buffer.writeln('Title,Number,Series,Publisher,Barcode,Condition,Grade');
     for (final entry in shelfState.entries) {
@@ -128,7 +128,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     return buffer.toString();
   }
 
-  String _toJson(LibraryKindRuntime module) {
+  String _toJson(LibraryKindModule module) {
     final items = shelfState.entries.map((e) {
       final projection = module.workspace.project(
         source: e,
@@ -159,7 +159,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     });
   }
 
-  String _toXml(LibraryKindRuntime module) {
+  String _toXml(LibraryKindModule module) {
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln(
@@ -202,7 +202,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     return buffer.toString();
   }
 
-  String _toMarkdown(LibraryKindRuntime module) {
+  String _toMarkdown(LibraryKindModule module) {
     final buffer = StringBuffer();
     buffer.writeln('# ${type.identity.title}');
     buffer.writeln('');

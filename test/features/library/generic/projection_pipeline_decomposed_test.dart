@@ -18,7 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Decomposed Projection Pipeline Parity & Performance Tests', () {
-    late LibraryKindRuntime comicType;
+    late LibraryKindModule comicType;
     late final comicModule = comicKindModule;
 
     setUp(() {

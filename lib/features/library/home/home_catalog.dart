@@ -20,7 +20,7 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
         type.kind: type,
   };
   final defaultKinds = [
-    for (final runtime in defaultLibraryKindRegistry.allRuntimes)
+    for (final runtime in defaultLibraryKindRegistry.allModules)
       if (!runtime.kind.isUnknown) runtime.kind.apiValue,
   ];
   for (final kind in defaultKinds) {
@@ -91,7 +91,7 @@ CatalogMediaType selectedLibraryHomeType(
   return types.first;
 }
 
-LibraryKindRuntime libraryRuntimeForCatalogType(
+LibraryKindModule libraryRuntimeForCatalogType(
   CatalogMediaType type,
   LibraryKindRegistry registry,
 ) {

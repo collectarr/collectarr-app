@@ -21,7 +21,7 @@ final class LibraryPageActionCoordinator {
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
   final LibraryCatalogRepository catalogCache;
-  final LibraryKindRuntime kindRuntime;
+  final LibraryKindModule kindRuntime;
 
   void updateSearch(String query) => session.updateSearch(query);
 

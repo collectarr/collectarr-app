@@ -25,7 +25,7 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
   ) {
     final episodes = totalEpisodes(state.entries);
     return [
@@ -42,7 +42,7 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
   ) {
     return [
       LibraryStatsRankedCard(

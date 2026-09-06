@@ -179,7 +179,7 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
     this.providerMatchSummary,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryAddUnifiedSearchGroup group;
   final Color accent;
   final String? selectedResultId;
@@ -569,7 +569,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
     required this.onToggleCheck,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final CatalogItem item;
   final Color accent;
   final bool selected;

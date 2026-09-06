@@ -16,7 +16,7 @@ Future<void> showMetadataCorrectionDialog({
   required BuildContext context,
   required WidgetRef ref,
   required Object item,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
 }) async {
   final draft = await showDialog<_MetadataCorrectionDraft>(
     context: context,

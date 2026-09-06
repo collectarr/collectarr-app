@@ -88,7 +88,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.showBottomBorder = true,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
@@ -704,7 +704,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
     this.onSearchTargetChanged,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final TextEditingController searchController;
   final LibraryCollectionStatusScope collectionStatusScope;
@@ -1010,7 +1010,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.searchActive = false,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final TextEditingController searchController;
   final Color accent;
   final LibraryToolbarCounts counts;

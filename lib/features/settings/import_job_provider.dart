@@ -898,13 +898,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     }
   }
 
-  LibraryKindRuntime _resolvedTypeForTmdbEntry(TmdbImportEntry entry) {
+  LibraryKindModule _resolvedTypeForTmdbEntry(TmdbImportEntry entry) {
     final runtime = entry.looksLikeAnime
-        ? libraryKindRuntimeForKind(CatalogMediaKind.movie)
+        ? libraryKindModuleForKind(CatalogMediaKind.movie)
         : switch (entry.mediaType) {
             TmdbMediaType.movie =>
-              libraryKindRuntimeForKind(CatalogMediaKind.movie),
-            TmdbMediaType.tv => libraryKindRuntimeForKind(CatalogMediaKind.tv),
+              libraryKindModuleForKind(CatalogMediaKind.movie),
+            TmdbMediaType.tv => libraryKindModuleForKind(CatalogMediaKind.tv),
           };
     return ref.read(resolvedLibraryTypeProvider(runtime));
   }
@@ -977,12 +977,12 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     return value.round().clamp(1, 10);
   }
 
-  LibraryKindRuntime? _resolvedTypeForEntry(ProviderPersonalEntry entry) {
+  LibraryKindModule? _resolvedTypeForEntry(ProviderPersonalEntry entry) {
     if (entry.kind.isUnknown) {
       return null;
     }
     return ref.read(
-      resolvedLibraryTypeProvider(libraryKindRuntimeForKind(entry.kind)),
+      resolvedLibraryTypeProvider(libraryKindModuleForKind(entry.kind)),
     );
   }
 

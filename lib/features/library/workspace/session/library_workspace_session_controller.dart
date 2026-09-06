@@ -26,7 +26,7 @@ class LibraryWorkspaceSessionController
   LibraryWorkspaceSessionState get value => state;
 
   LibraryWorkspaceSessionState _defaultState() {
-    final module = libraryKindRuntimeForKind(_key.kind);
+    final module = libraryKindModuleForKind(_key.kind);
     final initial = const LibraryWorkspaceSessionState();
     return initial.copyWith(
       filters: const LibrarySessionFilterState().copyWith(
@@ -509,7 +509,7 @@ class LibraryWorkspaceSessionController
   }
 
   void applyColumnPreset(LibraryTableColumnPreset preset) {
-    final fields = libraryKindRuntimeForKind(_key.kind).fields;
+    final fields = libraryKindModuleForKind(_key.kind).fields;
     setVisibleColumns({
       for (final column in preset.columns) fields.decodeColumnId(column),
     });

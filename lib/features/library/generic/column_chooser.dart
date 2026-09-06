@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 Future<Set<String>?> showGenericLibraryColumnChooser({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryWorkspaceViewState viewState,
   Set<String> pinnedFavoriteKeys = const {},
   ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite,

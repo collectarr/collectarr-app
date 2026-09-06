@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -199,12 +201,12 @@ void main() {
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
 
-    expect(
-      wishlistRows.single.anchorType,
-      PersonalItemAnchorType.variant.apiValue,
+    final variantAnchor = PersonalItemAnchor.fromJson(
+      jsonDecode(wishlistRows.single.anchorJson!) as Map<String, dynamic>,
     );
-    expect(wishlistRows.single.editionId, 'edition-2');
-    expect(wishlistRows.single.variantId, 'variant-2b');
+    expect(variantAnchor?.apiValue, PersonalItemAnchorType.variant.apiValue);
+    expect(variantAnchor?.editionId, 'edition-2');
+    expect(variantAnchor?.variantId, 'variant-2b');
   });
 
   test('adds wishlist item against a bundle release anchor', () async {
@@ -225,11 +227,14 @@ void main() {
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
 
+    final bundleAnchor = PersonalItemAnchor.fromJson(
+      jsonDecode(wishlistRows.single.anchorJson!) as Map<String, dynamic>,
+    );
     expect(
-      wishlistRows.single.anchorType,
+      bundleAnchor?.apiValue,
       PersonalItemAnchorType.bundleRelease.apiValue,
     );
-    expect(wishlistRows.single.bundleReleaseId, 'bundle-1');
+    expect(bundleAnchor?.bundleReleaseId, 'bundle-1');
   });
 
   test('adds tracking-only entry when target is track', () async {

@@ -47,7 +47,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.onFolderDisplayModeChanged,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final String groupMode;
   final LibraryFolderPreset? folderPreset;
   final Color accent;

@@ -134,23 +134,22 @@ class WishlistItemsCacheRepository {
         'Wishlist row ${row.id} contains an invalid catalog reference',
       );
     }
-    final rawAnchor = row.anchorJson == null ? null : jsonDecode(row.anchorJson!);
+    final rawAnchor =
+        row.anchorJson == null ? null : jsonDecode(row.anchorJson!);
     if (rawAnchor != null && rawAnchor is! Map) {
       throw FormatException(
         'Wishlist row ${row.id} contains an invalid target anchor',
       );
     }
-    final anchorJson = rawAnchor is Map
-        ? Map<String, dynamic>.from(rawAnchor)
-        : null;
+    final anchorJson =
+        rawAnchor is Map ? Map<String, dynamic>.from(rawAnchor) : null;
     return WishlistItem(
       id: row.id,
       catalogRef: CatalogEntityRef.fromJson(
         Map<String, dynamic>.from(rawCatalogRef),
       ),
-      anchor: anchorJson == null
-          ? null
-          : PersonalItemAnchor.fromJson(anchorJson),
+      anchor:
+          anchorJson == null ? null : PersonalItemAnchor.fromJson(anchorJson),
       targetPriceCents: row.targetPriceCents,
       currency: row.currency,
       notes: row.notes,

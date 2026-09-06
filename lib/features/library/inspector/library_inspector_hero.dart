@@ -14,7 +14,7 @@ class InspectorHero extends StatelessWidget {
     this.contextLabel,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final Color accent;

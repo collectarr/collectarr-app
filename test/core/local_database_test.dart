@@ -12,7 +12,7 @@ void main() {
     expect(version.data.values.single, 1);
 
     final tables = await db.customSelect(
-      "SELECT name FROM sqlite_master WHERE type = 'table'",
+          "SELECT name FROM sqlite_master WHERE type = 'table'",
     ).get();
     final names = tables.map((row) => row.data['name']).whereType<String>();
 
@@ -40,7 +40,7 @@ void main() {
       'music_media_rows',
     ];
     final tables = await db.customSelect(
-      "SELECT name FROM sqlite_master WHERE type = 'table'",
+          "SELECT name FROM sqlite_master WHERE type = 'table'",
     ).get();
     final names = tables.map((row) => row.data['name']).whereType<String>();
 

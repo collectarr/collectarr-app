@@ -51,20 +51,20 @@ abstract class LibraryKindBrowserDelegate {
   }
 
   bool canOpenItemDetailDrilldown(
-    LibraryKindRuntime type,
+    LibraryKindModule type,
     LibraryProjectionItem item,
   ) {
     return false;
   }
 
   void openItemDetailDrilldown(
-    LibraryKindRuntime type,
+    LibraryKindModule type,
     LibraryProjectionItem item,
   ) {}
 
   Widget? buildWorkspaceOverride({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required LibraryProjection projection,
     required LibraryProjectionItem selectedItem,
     required LibraryWorkspaceViewState viewState,
@@ -79,7 +79,7 @@ abstract class LibraryKindBrowserDelegate {
 
   Widget? buildDrilldown({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required LibraryProjectionItem selectedItem,
     required double coverSize,
     required Color accent,

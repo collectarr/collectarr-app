@@ -28,8 +28,8 @@ class LibraryViewPreferenceStore {
 
   final Object? kind;
 
-  LibraryKindRuntime get _type =>
-      libraryKindRuntimeForKind(catalogMediaKindFromValue(kind));
+  LibraryKindModule get _type =>
+      libraryKindModuleForKind(catalogMediaKindFromValue(kind));
 
   String _key(String suffix) =>
       'library.${catalogMediaKindFromValue(kind).apiValue}.$suffix';

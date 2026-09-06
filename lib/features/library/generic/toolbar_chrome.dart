@@ -100,7 +100,7 @@ String libraryColumnFavoriteKey(LibraryTableColumnPreset preset) {
 }
 
 Set<LibraryWorkspacePreset> libraryDefaultPinnedViewPresetsForType(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   return const {
     LibraryWorkspacePreset.cover,
@@ -109,13 +109,13 @@ Set<LibraryWorkspacePreset> libraryDefaultPinnedViewPresetsForType(
 }
 
 List<LibrarySortFavorite> librarySortFavoritesForType(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   return type.presentation.sortFavorites;
 }
 
 Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   final favorites = librarySortFavoritesForType(type);
   return {
@@ -124,13 +124,13 @@ Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
 }
 
 List<LibraryTableColumnPreset> libraryColumnFavoritesForType(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   return type.presentation.columnFavorites;
 }
 
 Set<String> libraryDefaultPinnedColumnFavoriteKeysForType(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   final presets = libraryColumnFavoritesForType(type);
   return {

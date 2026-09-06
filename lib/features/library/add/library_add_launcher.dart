@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 Future<LibraryAddDialogResult?> showLibraryAddDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   Color? accent,
   String? initialQuery,
   String? initialBarcode,

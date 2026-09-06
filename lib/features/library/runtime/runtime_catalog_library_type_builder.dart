@@ -5,10 +5,10 @@ import 'package:collectarr_app/features/library/config/library_metadata_provider
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
-LibraryKindRuntime buildRuntimeCatalogLibraryRuntime(CatalogMediaType type) {
+LibraryKindModule buildRuntimeCatalogLibraryRuntime(CatalogMediaType type) {
   final normalizedType = normalizeCatalogMediaTypeDefaults(type);
   final mediaKind = catalogMediaKindFromApiValue(normalizedType.kind);
-  final base = libraryKindRuntimeForKind(mediaKind);
+  final base = libraryKindModuleForKind(mediaKind);
   final singularLabel = _runtimeCatalogDisplayLabel(
     normalizedType.singularLabel,
     normalizedType.kind,

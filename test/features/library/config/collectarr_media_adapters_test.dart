@@ -5,22 +5,22 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('registry resolves runtime for normalized kind values', () {
-    final comicRuntime = libraryKindRuntime(CatalogMediaKind.comic);
+    final comicRuntime = libraryKindModule(CatalogMediaKind.comic);
     expect(comicRuntime.identity.kind, equals(CatalogMediaKind.comic));
   });
 
   test('music uses square cover grid factor while comics keep portrait factor',
       () {
-    final music = libraryKindRuntime(CatalogMediaKind.music);
-    final comics = libraryKindRuntime(CatalogMediaKind.comic);
+    final music = libraryKindModule(CatalogMediaKind.music);
+    final comics = libraryKindModule(CatalogMediaKind.comic);
 
     expect(music.viewProfile.coverGridHeightFactor, equals(1.0));
     expect(comics.viewProfile.coverGridHeightFactor, equals(1.53));
   });
 
   test('workspace grid height follows the view profile', () {
-    final music = libraryKindRuntime(CatalogMediaKind.music);
-    final comics = libraryKindRuntime(CatalogMediaKind.comic);
+    final music = libraryKindModule(CatalogMediaKind.music);
+    final comics = libraryKindModule(CatalogMediaKind.comic);
 
     expect(
       libraryWorkspaceGridMainAxisExtent(type: music, coverSize: 128),

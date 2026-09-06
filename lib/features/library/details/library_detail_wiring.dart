@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailEditorSections({
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryProjectionRuntime item,
   required Color accent,
   OwnedItem? ownedItem,
@@ -37,7 +37,7 @@ List<Widget> buildLibraryDetailEditorSections({
 }
 
 List<Widget> buildLibraryInspectorEditorSections({
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryProjectionRuntime item,
   required Color accent,
   OwnedItem? ownedItem,
@@ -54,7 +54,7 @@ List<Widget> buildLibraryInspectorEditorSections({
 
 List<Widget> buildLibraryDetailKindSections({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryProjectionRuntime item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
@@ -69,7 +69,7 @@ List<Widget> buildLibraryDetailKindSections({
 
 List<Widget> buildLibraryInspectorKindSections({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryProjectionRuntime item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,

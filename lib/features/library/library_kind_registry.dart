@@ -65,15 +65,15 @@ export 'package:collectarr_app/features/library/kinds/registry/library_kind_regi
 
 final class LibraryKindRegistry {
   LibraryKindRegistry(
-    Iterable<LibraryKindRuntime> specs,
+    Iterable<LibraryKindModule> specs,
   ) : _byKind = _buildValidatedRegistry(specs);
 
-  final Map<CatalogMediaKind, LibraryKindRuntime> _byKind;
+  final Map<CatalogMediaKind, LibraryKindModule> _byKind;
 
-  static Map<CatalogMediaKind, LibraryKindRuntime> _buildValidatedRegistry(
-    Iterable<LibraryKindRuntime> specs,
+  static Map<CatalogMediaKind, LibraryKindModule> _buildValidatedRegistry(
+    Iterable<LibraryKindModule> specs,
   ) {
-    final map = <CatalogMediaKind, LibraryKindRuntime>{};
+    final map = <CatalogMediaKind, LibraryKindModule>{};
     for (final spec in specs) {
       if (map.containsKey(spec.kind)) {
         throw StateError(
@@ -86,19 +86,19 @@ final class LibraryKindRegistry {
     return Map.unmodifiable(map);
   }
 
-  LibraryKindRuntime require(CatalogMediaKind kind) {
+  LibraryKindModule require(CatalogMediaKind kind) {
     final runtime = _byKind[kind];
     if (runtime == null) {
-      throw ArgumentError('No LibraryKindRuntime registered for kind: $kind');
+      throw ArgumentError('No LibraryKindModule registered for kind: $kind');
     }
     return runtime;
   }
 
-  LibraryKindRuntime? tryGet(CatalogMediaKind kind) => _byKind[kind];
+  LibraryKindModule? tryGet(CatalogMediaKind kind) => _byKind[kind];
 
-  LibraryKindRuntime getByKind(CatalogMediaKind kind) => require(kind);
+  LibraryKindModule getByKind(CatalogMediaKind kind) => require(kind);
 
-  List<LibraryKindRuntime> get allRuntimes => List.unmodifiable(_byKind.values);
+  List<LibraryKindModule> get allModules => List.unmodifiable(_byKind.values);
 }
 
 final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
@@ -276,13 +276,13 @@ final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {
   return defaultLibraryKindRegistry;
 });
 
-LibraryKindRuntime libraryKindRuntime(
+LibraryKindModule libraryKindModule(
   CatalogMediaKind kind, {
   LibraryKindRegistry? registry,
 }) =>
-    libraryKindRuntimeForKind(kind, registry: registry);
+    libraryKindModuleForKind(kind, registry: registry);
 
-LibraryKindRuntime libraryKindRuntimeForKind(
+LibraryKindModule libraryKindModuleForKind(
   CatalogMediaKind kind, {
   LibraryKindRegistry? registry,
 }) {
@@ -299,7 +299,7 @@ LibraryKindRuntime libraryKindRuntimeForKind(
 
 /// Composition-root dispatch for kind-owned facet extraction and remote facet
 /// loading. The generic library only receives the structural facet module;
-/// it does not read facet semantics from [LibraryKindRuntime].
+/// it does not read facet semantics from [LibraryKindModule].
 LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
   return switch (kind) {
     CatalogMediaKind.anime => animeKindModule.facets,
@@ -367,7 +367,7 @@ OwnedDetailsDraft libraryKindPersonalDetailsDraftForKind(
 }
 
 bool libraryGroupModeSupportsCompletion(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   String groupMode,
 ) {
   return type.workspace.groupModeSupportsCompletion(

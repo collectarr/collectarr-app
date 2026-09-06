@@ -159,7 +159,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
     // Resolve the kind-supplied card presentation (or fall back to default).
     final kind = catalogMediaKindFromValue(item.source.catalogItem?.kind);
-    final module = libraryKindRuntimeForKind(kind);
+    final module = libraryKindModuleForKind(kind);
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
     final presentation = module.buildCard(
       item,

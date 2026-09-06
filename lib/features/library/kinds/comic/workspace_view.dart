@@ -16,13 +16,13 @@ const double kLibraryTableRowHeight = 38;
 const double kLibraryTableSelectionRailWidth = 3;
 
 final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
-  runtimeResolver: () => libraryKindRuntimeForKind(CatalogMediaKind.comic),
+  runtimeResolver: () => libraryKindModuleForKind(CatalogMediaKind.comic),
   defaultCoverSize: kComicsDefaultCoverSize,
   minCoverSize: kComicsMinCoverSize,
   maxCoverSize: kComicsMaxCoverSize,
   presetConfig: comicsViewPresetConfig,
   clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
-    libraryKindRuntimeForKind(CatalogMediaKind.comic).fields,
+    libraryKindModuleForKind(CatalogMediaKind.comic).fields,
     column,
     width,
   ),
@@ -86,7 +86,7 @@ const comicsTableColumnPresets = [
 ];
 
 bool comicInitialSortAscending(LibrarySortIdRuntime sortId) {
-  final module = libraryKindRuntimeForKind(CatalogMediaKind.comic);
+  final module = libraryKindModuleForKind(CatalogMediaKind.comic);
   final definition = module.fields.findSortDefinition(
     sortId,
   );
@@ -133,7 +133,7 @@ List<LibraryFieldIdRuntime> orderedComicTableColumns(
     );
 
 Set<LibraryFieldIdRuntime> defaultComicTableColumns() =>
-    Set.of(libraryKindRuntimeForKind(CatalogMediaKind.comic)
+    Set.of(libraryKindModuleForKind(CatalogMediaKind.comic)
         .fields
         .defaultVisibleColumns);
 
@@ -142,7 +142,7 @@ double comicTableWidthForColumns(
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableWidthForColumns(
-    fields: libraryKindRuntimeForKind(CatalogMediaKind.comic).fields,
+    fields: libraryKindModuleForKind(CatalogMediaKind.comic).fields,
     columns: columns,
     customWidths: customWidths,
   );
@@ -153,7 +153,7 @@ double comicTableColumnWidth(
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableColumnWidth(
-      libraryKindRuntimeForKind(CatalogMediaKind.comic).fields,
+      libraryKindModuleForKind(CatalogMediaKind.comic).fields,
       column,
       customWidths);
 }

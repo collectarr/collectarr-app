@@ -17,7 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('VideoReleaseProjectionCapability', () {
     const capability = VideoReleaseProjectionCapability<LibraryWorkspaceDto>();
-    final typeConfig = libraryKindRuntimeForKind(CatalogMediaKind.movie);
+    final typeConfig = libraryKindModuleForKind(CatalogMediaKind.movie);
 
     test('no edition returns empty list', () {
       final catalogItem = testCatalogItem(
@@ -355,7 +355,7 @@ void main() {
     });
 
     test('unsupported scope fails explicitly for non-release kinds', () {
-      final comicConfig = libraryKindRuntimeForKind(CatalogMediaKind.comic);
+      final comicConfig = libraryKindModuleForKind(CatalogMediaKind.comic);
       expect(comicConfig.releaseCapability, isNull);
 
       final shelf = ShelfState(

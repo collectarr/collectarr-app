@@ -20,7 +20,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
     required this.releaseMediaEdit,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final CatalogItem item;
   final Color accent;
   final TvReleaseMediaEditController releaseMediaEdit;
@@ -201,7 +201,7 @@ Widget _manualEpisodeFallbackSection(
   BuildContext context, {
   required Color accent,
   required AsyncValue<Map<int, List<CustomEpisode>>> customEpisodesAsync,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required String itemId,
   required WidgetRef ref,
 }) {

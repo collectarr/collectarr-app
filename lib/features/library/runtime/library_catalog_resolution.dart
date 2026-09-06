@@ -12,14 +12,14 @@ extension LibraryKindRegistryCatalogResolution on LibraryKindRegistry {
     ProviderConnectorRegistry? providerRegistry,
   }) {
     return LibraryKindRegistry([
-      for (final type in allRuntimes)
+      for (final type in allModules)
         type.resolveWithCatalog(catalog, providerRegistry: providerRegistry),
     ]);
   }
 }
 
-extension LibraryKindRuntimeCatalogResolution on LibraryKindRuntime {
-  LibraryKindRuntime resolveWithCatalog(
+extension LibraryKindModuleCatalogResolution on LibraryKindModule {
+  LibraryKindModule resolveWithCatalog(
     Iterable<CatalogMediaType> catalog, {
     ProviderConnectorRegistry? providerRegistry,
   }) {

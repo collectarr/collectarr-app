@@ -24,7 +24,7 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
 
   static LibraryProjectionItem<LibraryWorkspaceDto> fromShelf(
     ShelfEntry source,
-    LibraryKindRuntime type, {
+    LibraryKindModule type, {
     List<String> customFieldBadges = const <String>[],
   }) {
     final item = source.catalogItem!;
@@ -73,7 +73,7 @@ Set<String> customFieldTargetIds({
 
 List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   ShelfState shelf,
-  LibraryKindRuntime type, {
+  LibraryKindModule type, {
   List<CustomFieldDefinition> customFieldDefinitions = const [],
   Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
       const {},

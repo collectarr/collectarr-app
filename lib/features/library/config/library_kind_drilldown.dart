@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:flutter/material.dart';
 
 bool canOpenKindDrilldown(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   LibraryProjectionRuntime item,
 ) {
   return type.presentation.builder.canOpenKindDrilldown(item);
@@ -13,7 +13,7 @@ bool canOpenKindDrilldown(
 
 Widget? buildLibraryKindDrilldown({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryProjectionRuntime selectedItem,
   required Color accent,
   required double coverSize,

@@ -24,7 +24,7 @@ class LibraryCollectionActions {
       wishlistItem: item.source.wishlistItem,
     );
     final catalogItem = item.source.catalogItem!;
-    final runtime = libraryKindRuntimeForKind(
+    final runtime = libraryKindModuleForKind(
       catalogMediaKindFromApiValue(catalogItem.kind),
     );
     return coordinator.addOwnedItem(

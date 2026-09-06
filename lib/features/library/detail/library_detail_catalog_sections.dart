@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailCatalogSections({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryProjectionRuntime item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
@@ -34,7 +34,7 @@ class LibraryDetailMetadataSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -61,7 +61,7 @@ class LibraryDetailContextSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -87,7 +87,7 @@ class LibraryDetailCreditsSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -112,7 +112,7 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final Color accent;
 
@@ -150,7 +150,7 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -246,7 +246,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -355,7 +355,7 @@ class _MetadataHealth {
 }
 
 _MetadataHealth _buildMetadataHealth(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   LibraryProjectionRuntime item,
 ) {
   var score = 0;

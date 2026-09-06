@@ -24,7 +24,7 @@ Future<LibraryFilterState> loadPersistedFilterState(
   LibraryWorkspaceKey key,
 ) async {
   final prefs = await SharedPreferences.getInstance();
-  final module = libraryKindRuntimeForKind(key.kind);
+  final module = libraryKindModuleForKind(key.kind);
 
   final storedSortId = prefs.getString(_k(key, 'sort_id'));
   final sortDefinition = storedSortId == null
@@ -92,7 +92,7 @@ Future<void> persistFilterState(
   LibraryFilterState state,
 ) async {
   final prefs = await SharedPreferences.getInstance();
-  final module = libraryKindRuntimeForKind(key.kind);
+  final module = libraryKindModuleForKind(key.kind);
   final sortDefinition = state.sortId == null
       ? null
       : module.fields.findSortDefinition(

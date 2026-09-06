@@ -24,8 +24,8 @@ void main() {
     test(
         'field IDs across different kinds are distinctly namespaced (no collision)',
         () {
-      final movieModule = libraryKindRuntimeForKind(CatalogMediaKind.movie);
-      final gameModule = libraryKindRuntimeForKind(CatalogMediaKind.game);
+      final movieModule = libraryKindModuleForKind(CatalogMediaKind.movie);
+      final gameModule = libraryKindModuleForKind(CatalogMediaKind.game);
 
       final movieReleaseSort = movieModule.fields.sortDefinitionForId(
         movieModule.fields.decodeSortId('movie.release_date'),

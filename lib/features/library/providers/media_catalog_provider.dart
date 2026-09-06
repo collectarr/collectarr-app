@@ -49,7 +49,7 @@ final resolvedLibraryTypesProvider = Provider<LibraryKindRegistry>((ref) {
 });
 
 final resolvedLibraryTypeProvider =
-    Provider.family<LibraryKindRuntime, LibraryKindRuntime>((ref, type) {
+    Provider.family<LibraryKindModule, LibraryKindModule>((ref, type) {
   final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
   return type.resolveWithCatalog(catalog);
 });

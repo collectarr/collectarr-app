@@ -27,7 +27,7 @@ class LibraryProjectionRequest {
   });
 
   final ShelfState shelf;
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryWorkspaceViewState viewState;
   final LibraryWorkspaceBrowserMode browserMode;
   final String? releaseFolderTitleItemId;

@@ -77,7 +77,7 @@ void main() {
 
     test('immutable registry requires and tryGets specs correctly', () {
       final registry = LibraryKindRegistry(collectarrKindModules);
-      expect(registry.allRuntimes.length, 9);
+      expect(registry.allModules.length, 9);
       expect(registry.require(CatalogMediaKind.comic), comicKindModule);
       expect(registry.tryGet(CatalogMediaKind.comic), comicKindModule);
       expect(registry.tryGet(CatalogMediaKind.unknown), isNull);

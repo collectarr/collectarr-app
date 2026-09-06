@@ -97,7 +97,7 @@ class _AddManualParityHarness extends StatelessWidget {
     required this.density,
   });
 
-  final LibraryKindRuntime runtime;
+  final LibraryKindModule runtime;
   final LibraryAddManualPaneRequest request;
   final LibraryDensity density;
 

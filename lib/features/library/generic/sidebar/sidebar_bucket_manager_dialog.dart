@@ -19,7 +19,7 @@ class LibraryBucketManagerEntry {
 }
 
 bool libraryGroupModeSupportsBucketManagement(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   String mode,
 ) {
   return libraryGroupModeDefinitionOrNull(mode, type)
@@ -29,7 +29,7 @@ bool libraryGroupModeSupportsBucketManagement(
 
 String libraryBucketManagerListLabel(
   String mode,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   return libraryGroupModeDefinitionOrNull(mode, type)
           ?.resolvedBucketManagerListLabel ??
@@ -38,7 +38,7 @@ String libraryBucketManagerListLabel(
 
 Future<void> showLibraryBucketManagerDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required String groupMode,
   required Color accent,
   required List<LibraryBucketManagerEntry> entries,
@@ -73,7 +73,7 @@ class _LibraryBucketManagerDialog extends StatefulWidget {
     required this.onDeleteBucket,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final String groupMode;
   final Color accent;
   final List<LibraryBucketManagerEntry> entries;

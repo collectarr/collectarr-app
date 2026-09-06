@@ -9,7 +9,7 @@ import 'package:printing/printing.dart';
 
 Future<void> showComicMissingComicsDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryProjection projection,
   required Color accent,
 }) async {
@@ -30,7 +30,7 @@ class _MissingComicsDialog extends StatefulWidget {
     required this.accent,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjection projection;
   final Color accent;
 
@@ -182,7 +182,7 @@ class _MissingComicsSeriesCard extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final MissingComicSeriesReport report;
   final bool includeVariants;
   final bool verbose;
@@ -258,7 +258,7 @@ class _CompactRangeView extends StatelessWidget {
 
   final String compactRanges;
   final MissingComicSeriesReport report;
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
 
   @override
@@ -298,7 +298,7 @@ class _VerboseIssueRow extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final MissingComicSeriesReport report;
   final MissingComicIssueGroup group;
   final bool includeVariants;
@@ -339,7 +339,7 @@ class _VerboseIssueRow extends StatelessWidget {
 
 Future<void> _quickAddComicIssue(
   BuildContext context, {
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required String seriesTitle,
   required String issueLabel,
   required Color accent,

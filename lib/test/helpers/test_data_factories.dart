@@ -170,7 +170,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       tracking: tracking,
     );
   }
-  final add = libraryKindRuntimeForKind(
+  final add = libraryKindModuleForKind(
     catalogMediaKindFromApiValue(catalogRef.kind),
   ).add;
   return add.buildCommandFromDetails(

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 const libraryAddVideoKindFilterId = LibraryAddFilterId('video.provider-kinds');
 
 Map<LibraryAddFilterId, Object?> buildLibraryAddVideoInitialFilters(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   return {
     libraryAddVideoKindFilterId:
@@ -17,7 +17,7 @@ Map<LibraryAddFilterId, Object?> buildLibraryAddVideoInitialFilters(
 }
 
 Iterable<String> libraryAddVideoKindOverrides(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   LibraryAddSearchContext context,
 ) {
   return libraryAddVideoKindOverridesForChrome(type.addChrome, context);

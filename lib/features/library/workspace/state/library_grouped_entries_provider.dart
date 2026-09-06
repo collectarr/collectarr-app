@@ -43,7 +43,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
 
   void emit(List<LibraryProjectionRuntime> items) {
     final filters = ref.read(libraryFiltersProvider(key));
-    final module = libraryKindRuntimeForKind(key.kind);
+    final module = libraryKindModuleForKind(key.kind);
     final groupId = filters.groupId;
 
     if (groupId == null) {

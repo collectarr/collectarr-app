@@ -44,7 +44,7 @@ void main() {
     test('all 9 active kinds have explicit add capability and correct drafts',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
+        final runtime = libraryKindModuleForKind(kind);
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
 
@@ -169,8 +169,8 @@ void main() {
             expect(command.typedPayload!.detailsDraft,
                 isA<MovieOwnedDetailsDraft>());
           case CatalogMediaKind.tv:
-            expect(command.typedPayload!.detailsDraft,
-                isA<TvOwnedDetailsDraft>());
+            expect(
+                command.typedPayload!.detailsDraft, isA<TvOwnedDetailsDraft>());
           case CatalogMediaKind.anime:
             expect(command.typedPayload!.detailsDraft,
                 isA<AnimeOwnedDetailsDraft>());
@@ -196,7 +196,7 @@ void main() {
         'no supported kind resolves to unknown or generic fallback in registry',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
+        final runtime = libraryKindModuleForKind(kind);
         expect(runtime.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.createInitialDraft(), isNot(isA<GenericAddDraft>()));
@@ -205,7 +205,7 @@ void main() {
 
     testWidgets('ComicAddManualPane uses standard visual primitives',
         (tester) async {
-      final comicRuntime = libraryKindRuntimeForKind(CatalogMediaKind.comic);
+      final comicRuntime = libraryKindModuleForKind(CatalogMediaKind.comic);
       final draft = comicRuntime.add.createManualDraft() as ComicAddManualDraft;
 
       final request = LibraryAddManualPaneRequest(

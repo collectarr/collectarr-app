@@ -2539,7 +2539,7 @@ class _FakeCoverImagePreprocessor implements LibraryCoverImagePreprocessor {
 
   @override
   Future<LibraryCoverPreparedImage> prepareImage({
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required LibraryCoverReviewedImage image,
   }) async {
     return LibraryCoverPreparedImage(
@@ -2556,7 +2556,7 @@ class _FakeCoverTextRecognizer implements LibraryCoverTextRecognizer {
 
   @override
   Future<String?> recognizeText({
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required LibraryCoverPreparedImage image,
   }) async {
     return text;

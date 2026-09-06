@@ -25,7 +25,7 @@ class TvEpisodesTab extends ConsumerWidget {
     required this.releaseMediaEdit,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final CatalogItem item;
   final Color accent;
   final TvReleaseMediaEditController releaseMediaEdit;
@@ -293,7 +293,7 @@ Widget _buildSeasonCard(
   required List<TrackingUnit> trackedUnits,
   required List<WatchSession> watchSessions,
   required Color accent,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required String itemId,
   required WidgetRef ref,
 }) {

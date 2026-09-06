@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required List<LibrarySortRule> currentRules,
   bool Function(String column)? defaultAscendingForColumn,
   List<String>? availableColumns,
@@ -34,7 +34,7 @@ class _LibrarySortDialog extends StatefulWidget {
     this.availableColumns,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final List<LibrarySortRule> currentRules;
   final bool Function(String column)? defaultAscendingForColumn;
   final List<String>? availableColumns;
@@ -1126,7 +1126,7 @@ bool _sameSortRules(List<LibrarySortRule> first, List<LibrarySortRule> second) {
   return true;
 }
 
-String _sortRuleSummary(LibraryKindRuntime type, List<LibrarySortRule> rules) {
+String _sortRuleSummary(LibraryKindModule type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
@@ -1136,7 +1136,7 @@ String _sortRuleSummary(LibraryKindRuntime type, List<LibrarySortRule> rules) {
 }
 
 LibraryTableColumnGroup _sortFieldGroup(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   String column,
 ) {
   final fields = type.fields;
@@ -1157,7 +1157,7 @@ String _groupLabel(LibraryTableColumnGroup group) {
   };
 }
 
-bool _defaultSortAscending(LibraryKindRuntime type, String column) {
+bool _defaultSortAscending(LibraryKindModule type, String column) {
   final fields = type.fields;
   return fields.sortDefinitionFor(fields.decodeSortId(column)).defaultAscending;
 }
@@ -1173,7 +1173,7 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
   return deduped;
 }
 
-String _sortColumnLabel(LibraryKindRuntime type, String column) {
+String _sortColumnLabel(LibraryKindModule type, String column) {
   try {
     final fields = type.fields;
     return fields.sortDefinitionFor(fields.decodeSortId(column)).label;

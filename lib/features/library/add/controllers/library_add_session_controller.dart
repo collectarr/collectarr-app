@@ -46,7 +46,7 @@ class LibraryAddSessionController
     extends ValueNotifier<LibraryAddSessionState> {
   LibraryAddSessionController({
     required this.kind,
-    LibraryKindRuntime? type,
+    LibraryKindModule? type,
     required this.ownedMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
@@ -71,20 +71,20 @@ class LibraryAddSessionController
                 search: LibraryAddSearchState.initial(
                   selectedProvider:
                       type?.metadata.defaultSupportedOption(kind)?.id ??
-                          libraryKindRuntimeForKind(kind)
+                          libraryKindModuleForKind(kind)
                               .metadata
                               .defaultSupportedOption(kind)
                               ?.id ??
-                          libraryKindRuntimeForKind(kind)
+                          libraryKindModuleForKind(kind)
                               .metadata
                               .defaultProviderId,
-                  advancedFilters: libraryKindRuntimeForKind(kind)
+                  advancedFilters: libraryKindModuleForKind(kind)
                       .add
                       .search
                       .initialAdvancedFilters,
                 ),
                 selection: LibraryAddSelectionState(
-                  resultPolicyState: libraryKindRuntimeForKind(kind)
+                  resultPolicyState: libraryKindModuleForKind(kind)
                       .add
                       .resultPolicy
                       .initialState,
@@ -93,18 +93,18 @@ class LibraryAddSessionController
                 commonDraft: const LibraryAddCommonDraft(),
                 trackingDraft: const LibraryAddTrackingDraft(),
                 manualDraft:
-                    libraryKindRuntimeForKind(kind).add.createInitialDraft(),
+                    libraryKindModuleForKind(kind).add.createInitialDraft(),
                 submitState: const AsyncValue.data(null),
-                defaultCondition: (type ?? libraryKindRuntimeForKind(kind))
+                defaultCondition: (type ?? libraryKindModuleForKind(kind))
                     .edit
                     .defaultCondition,
                 defaultGrade:
-                    (type ?? libraryKindRuntimeForKind(kind)).edit.defaultGrade,
+                    (type ?? libraryKindModuleForKind(kind)).edit.defaultGrade,
               ),
         );
 
   final CatalogMediaKind kind;
-  final LibraryKindRuntime? _runtime;
+  final LibraryKindModule? _runtime;
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
@@ -138,7 +138,7 @@ class LibraryAddSessionController
   final Future<bool> Function(Object error, String action)?
       onAuthSessionExpired;
 
-  LibraryKindRuntime get type => _runtime ?? libraryKindRuntimeForKind(kind);
+  LibraryKindModule get type => _runtime ?? libraryKindModuleForKind(kind);
 
   Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;
@@ -168,7 +168,7 @@ class LibraryAddSessionController
   }
 
   LibraryAddSearchCapability get _searchCapability =>
-      libraryKindRuntimeForKind(kind).add.search;
+      libraryKindModuleForKind(kind).add.search;
 
   LibraryAddSearchContext _searchContext({String? query}) {
     return LibraryAddSearchContext(
@@ -1296,7 +1296,7 @@ class LibraryAddSessionController
       submitState: const AsyncValue.loading(),
     );
     try {
-      final capability = libraryKindRuntimeForKind(kind).add;
+      final capability = libraryKindModuleForKind(kind).add;
       final command = capability.buildCommand(
         item,
         state.commonDraft,
@@ -1421,7 +1421,7 @@ class LibraryAddSessionController
             await catalog!.upsertMetadataItems([metadataItem]);
           }
 
-          final capability = libraryKindRuntimeForKind(kind).add;
+          final capability = libraryKindModuleForKind(kind).add;
           final command = capability.buildCommand(
             metadataItem,
             state.commonDraft,
@@ -1483,7 +1483,7 @@ class LibraryAddSessionController
           );
         }
       } else if (selectedResult != null) {
-        final capability = libraryKindRuntimeForKind(kind).add;
+        final capability = libraryKindModuleForKind(kind).add;
         final command = capability.buildCommand(
           selectedResult,
           state.commonDraft,
@@ -1569,12 +1569,12 @@ class LibraryAddSessionController
       ),
       selection: LibraryAddSelectionState(
         resultPolicyState:
-            libraryKindRuntimeForKind(kind).add.resultPolicy.initialState,
+            libraryKindModuleForKind(kind).add.resultPolicy.initialState,
       ),
       preview: const LibraryAddPreviewState.initial(),
       commonDraft: const LibraryAddCommonDraft(),
       trackingDraft: const LibraryAddTrackingDraft(),
-      manualDraft: libraryKindRuntimeForKind(kind).add.createInitialDraft(),
+      manualDraft: libraryKindModuleForKind(kind).add.createInitialDraft(),
       submitState: const AsyncValue.data(null),
       defaultCondition: type.edit.defaultCondition,
       defaultGrade: type.edit.defaultGrade,

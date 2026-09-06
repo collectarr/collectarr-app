@@ -19,7 +19,7 @@ class BookStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
   ) =>
       const [];
 
@@ -27,7 +27,7 @@ class BookStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
   ) {
     final volumeGap = _numberedGapSummary(
       state.entries,

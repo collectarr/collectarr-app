@@ -61,7 +61,7 @@ class LibraryBarcodeLookupResult {
 
 Future<List<CatalogItem>> searchAndCacheLibraryMetadata({
   required ApiClient api,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryCatalogRepository catalog,
   required LibraryMetadataSearchInput input,
 }) async {
@@ -82,7 +82,7 @@ Future<List<CatalogItem>> searchAndCacheLibraryMetadata({
 
 Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   required ApiClient api,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryCatalogRepository catalog,
   required Iterable<String> barcodes,
   LibraryBarcodeLookupResultCallback? onResult,

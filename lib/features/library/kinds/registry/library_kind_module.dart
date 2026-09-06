@@ -59,7 +59,7 @@ typedef CatalogMetadataDecoder = Object? Function(
 ///
 /// Do not add members here. New dispatch contracts belong in
 /// [LibraryKindRegistration] or in the concrete kind module that owns them.
-abstract interface class LibraryKindRuntime {
+abstract interface class LibraryKindModule {
   CatalogMediaKind get kind;
   LibraryKindIdentity get identity;
   LibraryMediaPresentation get presentation;
@@ -97,7 +97,7 @@ abstract interface class LibraryKindRuntime {
     required bool musicVertical,
   });
 
-  LibraryKindRuntime withCatalogMetadata({
+  LibraryKindModule withCatalogMetadata({
     required LibraryKindIdentity identity,
     required LibraryMetadataCapability metadata,
   });
@@ -106,7 +106,7 @@ abstract interface class LibraryKindRuntime {
 class LibraryKindSpec<
     TDto extends LibraryWorkspaceDto,
     TDetails extends OwnedItemDetails,
-    TDetailsDraft extends OwnedDetailsDraft> implements LibraryKindRuntime {
+    TDetailsDraft extends OwnedDetailsDraft> implements LibraryKindModule {
   const LibraryKindSpec({
     required this.fields,
     required this.projector,
@@ -179,7 +179,7 @@ class LibraryKindSpec<
   LibraryAddChromeConfig get addChrome => add.chrome;
 
   @override
-  LibraryKindRuntime withCatalogMetadata({
+  LibraryKindModule withCatalogMetadata({
     required LibraryKindIdentity identity,
     required LibraryMetadataCapability metadata,
   }) {
@@ -270,7 +270,7 @@ class LibraryKindSpec<
   }
 }
 
-void validateKindRuntime(LibraryKindRuntime runtime) {
+void validateKindRuntime(LibraryKindModule runtime) {
   if (runtime.fields.kindNamespace != runtime.kind.apiValue) {
     throw StateError(
       'Namespace mismatch in spec for "${runtime.identity.title}": fields.kindNamespace=${runtime.fields.kindNamespace}, expected=${runtime.kind.apiValue}',

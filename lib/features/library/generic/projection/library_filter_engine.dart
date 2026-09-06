@@ -17,7 +17,7 @@ class LibraryFilterEngine {
     required LibraryProjectionItem item,
     required LibraryProjectionQuery query,
     required LibrarySearchDocument searchDoc,
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     LibraryProjectionIndex? index,
     Set<String> activeLoanOwnedItemIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
@@ -62,7 +62,7 @@ class LibraryFilterEngine {
 
   bool _matchesBucket(
     LibraryProjectionItem item,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
     LibraryGroupIdRuntime groupId,
     String? selectedBucket,
     LibraryProjectionIndex? index,
@@ -80,7 +80,7 @@ class LibraryFilterEngine {
 
   bool _matchesBucketScopeFilters(
     LibraryProjectionItem item,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
     List<LibraryBucketScopeFilter> filters,
     LibraryProjectionIndex? index,
   ) {
@@ -101,7 +101,7 @@ class LibraryFilterEngine {
   }
 
   LibraryGroupIdRuntime _defaultGroupId(
-    LibraryKindRuntime type,
+    LibraryKindModule type,
     LibraryProjectionQuery query,
   ) {
     final fields = type.fields;
@@ -152,7 +152,7 @@ class LibraryFilterEngine {
 
   bool _matchesFilter(
     LibraryProjectionItem item,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
     LibraryFilterSelection filters,
     Set<String> activeLoanOwnedItemIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
@@ -286,7 +286,7 @@ class LibraryFilterEngine {
   bool _matchesLinkedMetadata(
     LibraryProjectionItem item,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
   ) {
     if (linkedMetadataFilter == null) {
       return true;

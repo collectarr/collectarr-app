@@ -16,7 +16,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;

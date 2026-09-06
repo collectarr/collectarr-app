@@ -60,7 +60,7 @@ void main() {
 
   group('Kind-owned Transfer Capabilities', () {
     test('comic kind provides comic-specific transferable fields', () {
-      final comicKind = libraryKindRuntimeForKind(CatalogMediaKind.comic);
+      final comicKind = libraryKindModuleForKind(CatalogMediaKind.comic);
       final fields = comicKind.transfer.fieldsWithCustomFields(
         const [],
         LibraryEditScope.all,
@@ -95,7 +95,7 @@ void main() {
     });
 
     test('movie kind provides movie-specific transferable fields', () {
-      final movieKind = libraryKindRuntimeForKind(CatalogMediaKind.movie);
+      final movieKind = libraryKindModuleForKind(CatalogMediaKind.movie);
       final fields = movieKind.transfer.fieldsWithCustomFields(
         const [],
         LibraryEditScope.all,

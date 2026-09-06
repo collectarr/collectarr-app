@@ -34,7 +34,7 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final Color accent;
@@ -258,7 +258,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
     required this.onAssignFolders,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final OwnedItem? activeOwnedItem;
   final List<OwnedItem> ownedCopies;
@@ -419,7 +419,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
 }
 
 List<CatalogEditionDto> _releaseEditions(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   LibraryProjectionRuntime item,
 ) {
   final catalogItem = item.source.catalogItem;

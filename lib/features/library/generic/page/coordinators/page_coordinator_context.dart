@@ -46,7 +46,7 @@ class LibraryPageCoordinatorContext {
   LibraryPageCoordinatorContext({
     required this.context,
     required this.ref,
-    required LibraryKindRuntime Function() getType,
+    required LibraryKindModule Function() getType,
     required Color Function() getAccent,
     required bool Function() getMounted,
     required LibraryViewPreferenceStore Function() getViewPrefs,
@@ -115,7 +115,7 @@ class LibraryPageCoordinatorContext {
     }) confirmSingleRemove,
     required Future<LibraryBulkEditSelection?> Function(
       BuildContext context, {
-      required LibraryKindRuntime type,
+      required LibraryKindModule type,
       required int selectedCount,
     }) showBulkEditDialog,
   })  : _getType = getType,
@@ -177,7 +177,7 @@ class LibraryPageCoordinatorContext {
   final BuildContext context;
   final WidgetRef ref;
 
-  final LibraryKindRuntime Function() _getType;
+  final LibraryKindModule Function() _getType;
   final Color Function() _getAccent;
   final bool Function() _getMounted;
   final LibraryViewPreferenceStore Function() _getViewPrefs;
@@ -245,11 +245,11 @@ class LibraryPageCoordinatorContext {
   }) _confirmSingleRemove;
   final Future<LibraryBulkEditSelection?> Function(
     BuildContext context, {
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required int selectedCount,
   }) _showBulkEditDialog;
 
-  LibraryKindRuntime get type => _getType();
+  LibraryKindModule get type => _getType();
   Color get accent => _getAccent();
   bool get mounted => _getMounted();
   LibraryWorkspaceViewProfile get viewProfile => type.viewProfile;
@@ -365,7 +365,7 @@ class LibraryPageCoordinatorContext {
 
   Future<LibraryBulkEditSelection?> showBulkEditDialog(
     BuildContext context, {
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required int selectedCount,
   }) {
     return _showBulkEditDialog(

@@ -17,7 +17,7 @@ void main() {
   test('registration interface stays smaller than the runtime aggregate', () {
     final source = File(registrationPath).readAsStringSync();
 
-    expect(source, isNot(contains('LibraryKindRuntime')));
+    expect(source, isNot(contains('LibraryKindModule')));
     expect(source, contains('buildLibraryPage'));
     expect(source, contains('buildAdd'));
     expect(source, contains('openMediaEdit'));
@@ -28,7 +28,7 @@ void main() {
   test('page dispatch has no concrete-kind switch or imports', () {
     final source = File(pagesPath).readAsStringSync();
 
-    expect(source, isNot(contains('LibraryKindRuntime')));
+    expect(source, isNot(contains('LibraryKindModule')));
     expect(source, isNot(contains('CatalogMediaKind')));
     expect(source, isNot(contains('kinds/anime/page.dart')));
     expect(source, isNot(contains('kinds/movie/page.dart')));

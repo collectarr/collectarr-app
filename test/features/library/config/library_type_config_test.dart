@@ -38,13 +38,13 @@ import 'package:collectarr_app/features/library/add/models/library_add_reference
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-LibraryFieldIdRuntime _field(LibraryKindRuntime runtime, String value) =>
+LibraryFieldIdRuntime _field(LibraryKindModule runtime, String value) =>
     runtime.fields.decodeColumnId(value);
 
-LibrarySortIdRuntime _sort(LibraryKindRuntime runtime, String value) =>
+LibrarySortIdRuntime _sort(LibraryKindModule runtime, String value) =>
     runtime.fields.decodeSortId(value);
 
-LibraryGroupIdRuntime _group(LibraryKindRuntime runtime, String value) =>
+LibraryGroupIdRuntime _group(LibraryKindModule runtime, String value) =>
     runtime.fields.decodeGroupId(value);
 
 void main() {
@@ -181,8 +181,8 @@ void main() {
     );
 
     expect(
-      bookKindModule.workspace.subgroupKeyForEntry(
-          item, _group(bookKindModule, 'series')),
+      bookKindModule.workspace
+          .subgroupKeyForEntry(item, _group(bookKindModule, 'series')),
       isNull,
     );
   });
@@ -364,21 +364,18 @@ void main() {
       comicKindModule.hierarchy.scopesOptionsByBrowserMode,
       isFalse,
     );
-    final comicMediaGroups = comicRuntime
-        .workspace
+    final comicMediaGroups = comicRuntime.workspace
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
         .map((id) => id.value)
         .toSet();
     expect(comicMediaGroups, containsAll(['comic.series', 'comic.publisher']));
 
     final movieRuntime = movieKindModule;
-    final movieMediaGroups = movieRuntime
-        .workspace
+    final movieMediaGroups = movieRuntime.workspace
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
         .map((id) => id.value)
         .toSet();
-    final movieReleaseGroups = movieRuntime
-        .workspace
+    final movieReleaseGroups = movieRuntime.workspace
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.releases)
         .map((id) => id.value)
         .toSet();
@@ -415,7 +412,7 @@ void main() {
   });
 
   test('library kind registry resolves runtimes and providers', () {
-    final runtimes = defaultLibraryKindRegistry.allRuntimes;
+    final runtimes = defaultLibraryKindRegistry.allModules;
     expect(runtimes.map((runtime) => runtime.kind.apiValue).toList(), [
       'comic',
       'manga',
@@ -552,17 +549,17 @@ void main() {
     );
     expect(movieKindModule.add.dialogLauncher, same(showMovieLibraryAddDialog));
     expect(
-      libraryKindRuntime(CatalogMediaKind.movie).edit.editDialogBuilder,
+      libraryKindModule(CatalogMediaKind.movie).edit.editDialogBuilder,
       isNotNull,
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.movie).inspector.detailPageBuilder,
+      libraryKindModule(CatalogMediaKind.movie).inspector.detailPageBuilder,
       isNotNull,
     );
   });
 
   test('all registered kinds declare an explicit edit dialog builder', () {
-    for (final runtime in defaultLibraryKindRegistry.allRuntimes) {
+    for (final runtime in defaultLibraryKindRegistry.allModules) {
       expect(
         runtime.edit.editDialogBuilder,
         isNotNull,
@@ -573,7 +570,7 @@ void main() {
   });
 
   test('library kind registry covers all active kinds', () {
-    final registeredKinds = defaultLibraryKindRegistry.allRuntimes
+    final registeredKinds = defaultLibraryKindRegistry.allModules
         .map((runtime) => runtime.kind.apiValue)
         .toList();
     expect(
@@ -590,7 +587,7 @@ void main() {
         'music',
       ]),
     );
-    for (final runtime in defaultLibraryKindRegistry.allRuntimes) {
+    for (final runtime in defaultLibraryKindRegistry.allModules) {
       expect(
         defaultLibraryKindRegistry.getByKind(runtime.kind),
         same(runtime),
@@ -692,7 +689,7 @@ void main() {
   });
 
   test('comics runtime exposes reusable workspace table behavior', () {
-    final comicRuntime = libraryKindRuntime(CatalogMediaKind.comic);
+    final comicRuntime = libraryKindModule(CatalogMediaKind.comic);
     expect(comicRuntime, same(comicKindModule));
     expect(comicRuntime.kind, CatalogMediaKind.comic);
     expect(
@@ -700,7 +697,8 @@ void main() {
           .columnDisplayName(_field(comicKindModule, 'comic.series')),
       'Series',
     );
-    expect(comicRuntime.workspace.columnLabel(_field(comicKindModule, 'cover')), '');
+    expect(comicRuntime.workspace.columnLabel(_field(comicKindModule, 'cover')),
+        '');
     expect(
       comicRuntime.workspace.columnGroup(_field(comicKindModule, 'location')),
       LibraryTableColumnGroup.personal,
@@ -727,7 +725,7 @@ void main() {
 
   test('kind runtimes cover workspace defaults', () {
     expect(
-      defaultLibraryKindRegistry.allRuntimes
+      defaultLibraryKindRegistry.allModules
           .map((runtime) => runtime.kind.apiValue)
           .toList(),
       [
@@ -742,14 +740,14 @@ void main() {
         'music',
       ],
     );
-    expect(libraryKindRuntime(CatalogMediaKind.book), same(bookKindModule));
+    expect(libraryKindModule(CatalogMediaKind.book), same(bookKindModule));
     expect(
-      libraryKindRuntime(CatalogMediaKind.boardgame),
+      libraryKindModule(CatalogMediaKind.boardgame),
       same(boardGameKindModule),
     );
-    expect(libraryKindRuntime(CatalogMediaKind.manga), same(mangaKindModule));
-    expect(libraryKindRuntime(CatalogMediaKind.tv), same(tvKindModule));
-    expect(libraryKindRuntime(CatalogMediaKind.anime), same(animeKindModule));
+    expect(libraryKindModule(CatalogMediaKind.manga), same(mangaKindModule));
+    expect(libraryKindModule(CatalogMediaKind.tv), same(tvKindModule));
+    expect(libraryKindModule(CatalogMediaKind.anime), same(animeKindModule));
     expect(
       movieKindModule.viewProfile
           .defaults()
@@ -757,38 +755,42 @@ void main() {
           .contains(_field(movieKindModule, 'movie.title')),
       isTrue,
     );
-    expect(libraryKindRuntime(CatalogMediaKind.music), same(musicKindModule));
+    expect(libraryKindModule(CatalogMediaKind.music), same(musicKindModule));
     expect(
-      libraryKindRuntime(CatalogMediaKind.game).workspace.columnSort(
-        _field(gameKindModule, 'game.release_date'),
-      ),
+      libraryKindModule(CatalogMediaKind.game).workspace.columnSort(
+            _field(gameKindModule, 'game.release_date'),
+          ),
       _sort(gameKindModule, 'game.release_date'),
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.movie)
-          .workspace.columnLabel(_field(movieKindModule, 'variant')),
+      libraryKindModule(CatalogMediaKind.movie)
+          .workspace
+          .columnLabel(_field(movieKindModule, 'variant')),
       'Variant',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.game)
-          .workspace.columnLabel(_field(gameKindModule, 'variant')),
+      libraryKindModule(CatalogMediaKind.game)
+          .workspace
+          .columnLabel(_field(gameKindModule, 'variant')),
       'Variant',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.book)
-          .workspace.columnLabel(_field(bookKindModule, 'barcode')),
+      libraryKindModule(CatalogMediaKind.book)
+          .workspace
+          .columnLabel(_field(bookKindModule, 'barcode')),
       'Barcode',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.book).workspace.tableColumnWidth(
+      libraryKindModule(CatalogMediaKind.book).workspace.tableColumnWidth(
         _field(bookKindModule, 'title'),
         {_field(bookKindModule, 'title'): 999},
       ),
       520,
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.music)
-          .workspace.availableGroupIds
+      libraryKindModule(CatalogMediaKind.music)
+          .workspace
+          .availableGroupIds
           .map((id) => id.value),
       [
         'music.artist',
@@ -805,8 +807,9 @@ void main() {
       ['title_asc', 'release_latest', 'recent', 'value_desc'],
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.book)
-          .workspace.availableGroupIds
+      libraryKindModule(CatalogMediaKind.book)
+          .workspace
+          .availableGroupIds
           .map((id) => id.value),
       [
         'book.author',
@@ -818,8 +821,9 @@ void main() {
       ],
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.game)
-          .workspace.availableGroupIds
+      libraryKindModule(CatalogMediaKind.game)
+          .workspace
+          .availableGroupIds
           .map((id) => id.value),
       [
         'game.platform',
@@ -858,8 +862,9 @@ void main() {
       ' Physical formats are tracked as editions.',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.movie)
-          .workspace.availableGroupIds
+      libraryKindModule(CatalogMediaKind.movie)
+          .workspace
+          .availableGroupIds
           .map((id) => id.value),
       [
         'movie.director',

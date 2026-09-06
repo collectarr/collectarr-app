@@ -29,7 +29,7 @@ CatalogItem _mutateGroup(
   String currentLabel, {
   String? replacement,
 }) {
-  final runtime = libraryKindRuntimeForKind(kind);
+  final runtime = libraryKindModuleForKind(kind);
   final definition = runtime.fields.findGroupDefinition(
     runtime.fields.decodeGroupId(mode),
   );

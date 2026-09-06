@@ -40,7 +40,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     List<ShelfEntry> shelfEntries,
     LibraryWorkspaceQuery query,
   ) {
-    final module = libraryKindRuntimeForKind(query.kind);
+    final module = libraryKindModuleForKind(query.kind);
 
     final items = <LibraryProjectionRuntime>[];
     for (final source in shelfEntries) {

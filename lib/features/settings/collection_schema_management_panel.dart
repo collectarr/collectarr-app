@@ -156,7 +156,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
       return const ['All libraries: 0'];
     }
     final stats = <String>['All libraries: ${data.globalCustomFieldCount}'];
-    for (final type in defaultLibraryKindRegistry.allRuntimes) {
+    for (final type in defaultLibraryKindRegistry.allModules) {
       final count = data.customFieldCountsByKind[type.kind.apiValue];
       if (count == null || count == 0) {
         continue;

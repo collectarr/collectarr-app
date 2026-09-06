@@ -23,7 +23,7 @@ export 'package:collectarr_app/features/library/kinds/music/music_kind_module.da
 export 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_registrations.dart';
 
-final List<LibraryKindRuntime> collectarrKindModules = [
+final List<LibraryKindModule> collectarrKindModules = [
   comicKindModule,
   mangaKindModule,
   bookKindModule,
@@ -35,7 +35,7 @@ final List<LibraryKindRuntime> collectarrKindModules = [
   musicKindModule,
 ];
 
-LibraryKindRuntime? lookupLibraryKind(CatalogMediaKind kind) {
+LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {
   for (final module in collectarrKindModules) {
     if (module.kind == kind) {
       return module;
@@ -44,7 +44,7 @@ LibraryKindRuntime? lookupLibraryKind(CatalogMediaKind kind) {
   return null;
 }
 
-LibraryKindRuntime libraryKindFor(CatalogMediaKind kind) {
+LibraryKindModule libraryKindFor(CatalogMediaKind kind) {
   final module = lookupLibraryKind(kind);
   if (module != null) {
     return module;
@@ -52,5 +52,5 @@ LibraryKindRuntime libraryKindFor(CatalogMediaKind kind) {
   if (kind.isUnknown) {
     return genericKindModule;
   }
-  throw ArgumentError('No LibraryKindRuntime registered for kind "$kind"');
+  throw ArgumentError('No LibraryKindModule registered for kind "$kind"');
 }

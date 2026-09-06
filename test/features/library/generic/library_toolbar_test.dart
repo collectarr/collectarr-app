@@ -176,7 +176,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     Future<void> expectScanCover({
-      required LibraryKindRuntime type,
+      required LibraryKindModule type,
       required LibraryWorkspaceViewState viewState,
       required bool expected,
     }) async {
@@ -598,7 +598,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    for (final type in defaultLibraryKindRegistry.allRuntimes) {
+    for (final type in defaultLibraryKindRegistry.allModules) {
       final runtime = type;
       await tester.pumpWidget(
         ProviderScope(

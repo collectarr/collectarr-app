@@ -151,7 +151,7 @@ class LibraryAddWorkflowService {
     required BuildContext context,
     required ApiClient api,
     required bool isAdmin,
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required ProviderCandidate candidate,
     required LibraryAddTarget target,
     required bool mounted,

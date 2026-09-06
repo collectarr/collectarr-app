@@ -78,7 +78,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.itemImages = const [],
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color? accent;
   final String? initialQuery;
   final String? initialBarcode;

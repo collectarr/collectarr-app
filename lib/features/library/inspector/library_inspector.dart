@@ -128,7 +128,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     this.contextLabel,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime? item;
   final OwnedItem? ownedItem;
   final LibraryDetailsLayout detailsLayout;
@@ -927,7 +927,7 @@ class EmptyInspector extends StatelessWidget {
     super.key,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
 
   @override

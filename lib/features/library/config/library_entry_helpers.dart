@@ -53,7 +53,7 @@ String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
   if (kind == null) {
     return null;
   }
-  return libraryKindRuntimeForKind(kind)
+  return libraryKindModuleForKind(kind)
       .hierarchy
       .contractDiagnosticLabel(item);
 }
@@ -377,7 +377,7 @@ String? _referenceScopeLabelForAnchor(
 }
 
 LibraryReferenceLabels _libraryReferenceLabelsForMediaType(String? mediaType) {
-  return libraryKindRuntimeForKind(catalogMediaKindFromValue(mediaType))
+  return libraryKindModuleForKind(catalogMediaKindFromValue(mediaType))
       .presentation
       .referenceLabels;
 }

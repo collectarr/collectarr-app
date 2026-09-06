@@ -22,7 +22,7 @@ class LibraryGroupingEngine {
 
   String getGroupBucketForItem(
     LibraryProjectionItem item,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
     LibraryGroupIdRuntime groupId,
   ) {
     final workspace = type.workspace;
@@ -47,7 +47,7 @@ class LibraryGroupingEngine {
 
   List<LibraryBucket> buildBuckets(
     List<LibraryProjectionItem> items,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
     LibraryGroupIdRuntime groupId, {
     LibraryProjectionIndex? index,
   }) {
@@ -148,7 +148,7 @@ class LibraryGroupingEngine {
 
   List<GroupShelfEntry> buildGroupEntries(
     List<LibraryProjectionItem> items,
-    LibraryKindRuntime type,
+    LibraryKindModule type,
     LibraryGroupIdRuntime groupId, {
     LibraryGroupPresentation? presentationOverride,
     LibraryProjectionIndex? index,

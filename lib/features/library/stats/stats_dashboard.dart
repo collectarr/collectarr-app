@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 /// Shows a rich statistics dashboard dialog for any media type.
 Future<void> showStatsDashboardDialog(
   BuildContext context, {
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required ShelfState state,
 }) {
   return showDialog<void>(
@@ -25,7 +25,7 @@ Future<void> showStatsDashboardDialog(
 class _GenericStatsDashboard extends StatelessWidget {
   const _GenericStatsDashboard({required this.type, required this.state});
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final ShelfState state;
 
   LibraryMediaStatsLabels get _statsLabels => type.presentation.statsLabels;
@@ -297,7 +297,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _topSeriesCounts(
     List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    LibraryKindModule module,
   ) {
     return _countBy(
       entries,
@@ -318,7 +318,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _topPublisherCounts(
     List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    LibraryKindModule module,
   ) {
     return _countBy(
       entries,
@@ -339,7 +339,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static int _missingMetadataCount(
     List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    LibraryKindModule module,
   ) {
     var count = 0;
     for (final entry in entries) {
@@ -378,7 +378,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _topInvestedSeries(
     List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    LibraryKindModule module,
   ) {
     return _sumBy(
       entries,
@@ -408,7 +408,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _topSalesSeries(
     List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    LibraryKindModule module,
   ) {
     return _sumBy(
       entries,
@@ -430,7 +430,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _metadataQualityBands(
     List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    LibraryKindModule module,
   ) {
     final counts = <String, int>{
       'Strong': 0,
@@ -447,8 +447,8 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _metadataAlertCounts(
     List<ShelfEntry> entries,
-    LibraryKindRuntime type,
-    LibraryKindRuntime module,
+    LibraryKindModule type,
+    LibraryKindModule module,
   ) {
     final labels = libraryMediaGroupLabels(type);
     final missingPublisherLabel =
@@ -494,7 +494,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     return counts;
   }
 
-  static String _metadataBand(ShelfEntry entry, LibraryKindRuntime module) {
+  static String _metadataBand(ShelfEntry entry, LibraryKindModule module) {
     final item = entry.catalogItem;
     if (item == null) {
       return 'Needs work';

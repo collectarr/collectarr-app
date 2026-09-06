@@ -49,7 +49,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   Color get comicAccent => accent;
 
   @override
-  LibraryKindRuntime get comicLibraryType => draft.type;
+  LibraryKindModule get comicLibraryType => draft.type;
 
   @override
   ComicMedia get comicMedia => media;

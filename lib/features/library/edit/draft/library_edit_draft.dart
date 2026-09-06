@@ -54,7 +54,7 @@ class LibraryEditDraft {
 
   final TextControllerGroup _textControllers;
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final CatalogItem item;
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
@@ -100,7 +100,7 @@ class LibraryEditDraft {
   }
 
   factory LibraryEditDraft.fromItem({
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required CatalogItem item,
     OwnedItem? ownedItem,
     WishlistItem? wishlistItem,
@@ -128,7 +128,7 @@ class LibraryEditDraft {
   }
 
   factory LibraryEditDraft.fromFields({
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required CatalogItem item,
     required OwnedItem? ownedItem,
     required WishlistItem? wishlistItem,
@@ -584,7 +584,7 @@ class LibraryEditDraft {
     );
   }
 
-  OwnedDetailsDraft buildDetailsDraft() => libraryKindRuntimeForKind(
+  OwnedDetailsDraft buildDetailsDraft() => libraryKindModuleForKind(
         type.kind,
       ).edit.buildDetailsDraft(kindDetails);
 
@@ -610,7 +610,7 @@ class LibraryEditDraft {
   }
 
   OwnedItemUpdateRequest toUpdateOwnedItemCommand(String ownedItemId) {
-    return libraryKindRuntimeForKind(type.kind).edit.buildUpdateCommand(
+    return libraryKindModuleForKind(type.kind).edit.buildUpdateCommand(
           session: this,
           ownedItemId: ownedItemId,
           kindDraft: kindDetails,

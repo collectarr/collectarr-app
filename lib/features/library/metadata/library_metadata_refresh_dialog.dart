@@ -30,7 +30,7 @@ class LibraryMetadataRefreshResult {
 
 Future<LibraryMetadataRefreshResult?> showLibraryMetadataRefreshDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required Color accent,
   required List<LibraryProjectionRuntime> allEntries,
   required List<LibraryProjectionRuntime> shownEntries,
@@ -58,7 +58,7 @@ class LibraryMetadataRefreshDialog extends ConsumerStatefulWidget {
     required this.selectedEntry,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final List<LibraryProjectionRuntime> allEntries;
   final List<LibraryProjectionRuntime> shownEntries;
@@ -461,7 +461,7 @@ class _RefreshSourcePanel extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
 
   @override
@@ -669,7 +669,7 @@ List<LibraryProjectionRuntime> _dedupe(
   return result;
 }
 
-String _providerSummary(LibraryKindRuntime type) {
+String _providerSummary(LibraryKindModule type) {
   final supportedProviders = type.metadata.supportedProvidersForKind(type.kind);
   if (supportedProviders.isEmpty) {
     return 'No providers are registered for this media type yet; existing Core catalog rows can still be searched.';

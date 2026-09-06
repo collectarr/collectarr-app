@@ -564,7 +564,7 @@ class _ResolveImportRowDialog extends ConsumerStatefulWidget {
     required this.row,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final CollectionCsvRow row;
 
   @override
@@ -985,8 +985,8 @@ LibraryCollectionCsvProjection? _importProjection(CollectionCsvRow row) {
   );
 }
 
-LibraryKindRuntime _runtimeForImportRow(CollectionCsvRow row) {
-  return libraryKindRuntimeForKind(
+LibraryKindModule _runtimeForImportRow(CollectionCsvRow row) {
+  return libraryKindModuleForKind(
     catalogMediaKindFromValue(row.kind),
   );
 }
@@ -1007,7 +1007,7 @@ String _friendlyImportError(Object error) {
 
 Future<List<CatalogItem>> _searchCoreForRow(
   WidgetRef ref,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   CollectionCsvRow row, {
   String? queryOverride,
   int limit = 20,

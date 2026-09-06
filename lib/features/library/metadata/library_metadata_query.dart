@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
-  LibraryKindRuntime type, {
+  LibraryKindModule type, {
   String? query,
   String? series,
   String? issueNumber,
@@ -27,7 +27,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
 
 Future<List<CatalogItem>> searchLibraryMetadata(
   ApiClient api,
-  LibraryKindRuntime type, {
+  LibraryKindModule type, {
   String? query,
   String? series,
   String? issueNumber,
@@ -53,14 +53,16 @@ Future<List<CatalogItem>> searchLibraryMetadata(
     for (final row in rows)
       () {
         final item = CatalogItem.fromJson(row);
-        return decoder == null ? item : item.withKindMetadata(decoder(item.payload));
+        return decoder == null
+            ? item
+            : item.withKindMetadata(decoder(item.payload));
       }(),
   ];
 }
 
 Future<CatalogItem> lookupLibraryBarcode(
   ApiClient api,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   String barcode,
 ) async {
   final resolvedBarcode = resolveLibraryBarcodeForKind(type.kind, barcode);

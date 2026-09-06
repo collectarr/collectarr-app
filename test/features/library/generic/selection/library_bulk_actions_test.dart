@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -267,7 +269,12 @@ void main() {
     );
 
     final rows = await db.select(db.wishlistItemsCache).get();
-    final row4k = rows.firstWhere((row) => row.editionId == 'edition-4k');
+    final row4k = rows.firstWhere(
+      (row) => PersonalItemAnchor.fromJson(
+            jsonDecode(row.anchorJson!) as Map<String, dynamic>,
+          )?.editionId ==
+          'edition-4k',
+    );
     final actions = buildActions();
 
     await actions.moveSelectedToOwned([
@@ -277,10 +284,9 @@ void main() {
         wishlistItem: WishlistItem(
           id: row4k.id,
           catalogRef: testCatalogRef(row4k.itemId, kind: 'movie'),
-          anchorType: row4k.anchorType,
-          editionId: row4k.editionId,
-          variantId: row4k.variantId,
-          bundleReleaseId: row4k.bundleReleaseId,
+          anchor: PersonalItemAnchor.fromJson(
+            jsonDecode(row4k.anchorJson!) as Map<String, dynamic>,
+          ),
           createdAt: row4k.createdAt,
           updatedAt: row4k.updatedAt,
         ),
@@ -295,6 +301,12 @@ void main() {
     expect(ownedRows, hasLength(1));
     expect(ownedRows.single.editionId, 'edition-4k');
     expect(activeWishlistRows, hasLength(1));
-    expect(activeWishlistRows.single.editionId, 'edition-bluray');
+    expect(
+      PersonalItemAnchor.fromJson(
+        jsonDecode(activeWishlistRows.single.anchorJson!)
+            as Map<String, dynamic>,
+      )?.editionId,
+      'edition-bluray',
+    );
   });
 }

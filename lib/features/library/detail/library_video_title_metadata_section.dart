@@ -18,7 +18,7 @@ class LibraryVideoTitleMetadataSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final int ownedReleaseCount;
   final ValueChanged<String>? onFilterByValue;
@@ -113,7 +113,7 @@ class LibraryVideoTitleMetadataSection extends StatelessWidget {
 }
 
 LibraryMetadataPresentation _metadataPresentationForEntry(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   LibraryProjectionRuntime item,
 ) {
   return type.presentation.builder.buildMetadataPresentation(

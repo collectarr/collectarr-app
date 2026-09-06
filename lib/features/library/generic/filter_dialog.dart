@@ -16,7 +16,7 @@ enum LibraryOwnershipFilter { all, owned, wishlist, forSale, onOrder }
 
 String libraryOwnershipFilterLabel(
   LibraryOwnershipFilter filter, {
-  LibraryKindRuntime? type,
+  LibraryKindModule? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -43,7 +43,7 @@ enum LibraryTrackingStatusFilter {
 
 String libraryTrackingStatusFilterLabel(
   LibraryTrackingStatusFilter filter, {
-  LibraryKindRuntime? type,
+  LibraryKindModule? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -89,7 +89,7 @@ enum LibraryLoanStatusFilter { all, onLoan, available }
 
 String libraryLoanStatusFilterLabel(
   LibraryLoanStatusFilter filter, {
-  LibraryKindRuntime? type,
+  LibraryKindModule? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -105,7 +105,7 @@ enum LibraryDateRangeField { updated, purchased, started, finished }
 
 String libraryDateRangeFieldLabel(
   LibraryDateRangeField field, {
-  LibraryKindRuntime? type,
+  LibraryKindModule? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -119,12 +119,12 @@ String libraryDateRangeFieldLabel(
 }
 
 LibraryFilterOptionLabels _libraryFilterOptionLabels({
-  LibraryKindRuntime? type,
+  LibraryKindModule? type,
   CatalogMediaKind? mediaType,
 }) {
   return type?.presentation.filterOptionLabels ??
       (mediaType != null
-          ? libraryKindRuntimeForKind(mediaType).presentation.filterOptionLabels
+          ? libraryKindModuleForKind(mediaType).presentation.filterOptionLabels
           : null) ??
       const LibraryFilterOptionLabels();
 }
@@ -281,7 +281,7 @@ int _fieldValuesHash(Map<String, String?> values) {
 
 LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
   LibraryFilterSelection selection,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   final supportedFields = {
     for (final definition in type.presentation.filterDefinitions) definition.id,
@@ -487,7 +487,7 @@ bool libraryFilterMatches(
 /// if the user cancels.
 Future<LibraryFilterSelection?> showLibraryFilterDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryFilterSelection current,
   required LibraryFilterOptions options,
 }) {
@@ -508,7 +508,7 @@ class _LibraryFilterDialog extends StatefulWidget {
     required this.options,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final LibraryFilterSelection initial;
   final LibraryFilterOptions options;
 

@@ -4,7 +4,7 @@ import 'library_group_mode_category_models.dart';
 export 'library_group_mode_category_models.dart';
 
 List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   List<String> modes,
 ) {
   final fields = type.fields;
@@ -23,7 +23,7 @@ List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
 }
 
 List<LibraryGroupModeCategory> libraryGroupModeCategories(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
   List<String> modes,
 ) {
   return type.presentation.builder.buildGroupModeCategories(modes) ??

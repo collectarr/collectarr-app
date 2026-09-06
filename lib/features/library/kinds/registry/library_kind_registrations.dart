@@ -30,7 +30,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_layout_
 import 'package:flutter/material.dart';
 
 Widget _buildKindAdd({
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required LibraryAddDialogRequest request,
 }) {
   return LibraryAddDialog(

@@ -34,7 +34,7 @@ class LibraryBulkActions {
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
       final ownedItem = ownedEntries[index].ownedItem!;
-      final runtime = libraryKindRuntimeForKind(
+      final runtime = libraryKindModuleForKind(
         catalogMediaKindFromApiValue(ownedItem.catalogRef.kind),
       );
       final updateCmd = runtime.edit.withTypedUpdatePayload(
@@ -115,10 +115,10 @@ class LibraryBulkActions {
           '${entry.itemId}',
         );
       }
-      final addCmd = libraryKindRuntimeForKind(resolvedKind).add.buildCommand(
+      final addCmd = libraryKindModuleForKind(resolvedKind).add.buildCommand(
             catalogItem,
             common,
-            libraryKindRuntimeForKind(resolvedKind).add.createInitialDraft(),
+            libraryKindModuleForKind(resolvedKind).add.createInitialDraft(),
             anchor: anchor,
             tracking: LibraryAddTrackingDraft(
               readStatus: defaultReadStatus,
@@ -162,7 +162,7 @@ class LibraryBulkActions {
     for (var index = 0; index < ownedEntries.length; index++) {
       final entry = ownedEntries[index];
       final src = entry.ownedItem!;
-      final runtime = libraryKindRuntimeForKind(
+      final runtime = libraryKindModuleForKind(
         catalogMediaKindFromApiValue(src.catalogRef.kind),
       );
       final catalogItem = entry.catalogItem;

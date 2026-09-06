@@ -17,7 +17,7 @@ class LibraryProviderOrchestrationService {
   static const _workflow = LibraryAddWorkflowService();
 
   CatalogItem proposalDraftFromCandidate({
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required ProviderCandidate candidate,
   }) {
     final mediaKind = type.kind;
@@ -27,12 +27,12 @@ class LibraryProviderOrchestrationService {
       providerItemId: candidate.providerItemId,
     );
     return CatalogItem.fromJson({
-        'id': id,
-        'kind': mediaKind.apiValue,
-        'title': candidate.title,
-        'synopsis': candidate.summary,
-        'cover_image_url': candidate.imageUrl,
-      });
+      'id': id,
+      'kind': mediaKind.apiValue,
+      'title': candidate.title,
+      'synopsis': candidate.summary,
+      'cover_image_url': candidate.imageUrl,
+    });
   }
 
   Future<void> applyIngestCorrections({

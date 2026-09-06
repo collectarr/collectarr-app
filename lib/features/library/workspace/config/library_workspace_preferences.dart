@@ -70,17 +70,17 @@ class LibraryWorkspacePreferences {
   static final _cachedSnapshots =
       <String, LibraryWorkspacePreferenceSnapshot>{};
 
-  final LibraryKindRuntime runtime;
+  final LibraryKindModule runtime;
 
   static LibraryWorkspaceChromePreferenceSnapshot? cachedChromeFor(
-    LibraryKindRuntime runtime,
+    LibraryKindModule runtime,
   ) =>
       _cachedChromeByConfig[runtime.identity.preferenceKey('')];
 
   /// Returns the last loaded/written snapshot for [config], or `null` if the
   /// preferences have not been loaded yet for this media type.
   static LibraryWorkspacePreferenceSnapshot? cachedSnapshot(
-    LibraryKindRuntime runtime,
+    LibraryKindModule runtime,
   ) =>
       _cachedSnapshots[runtime.identity.preferenceKey('')];
 

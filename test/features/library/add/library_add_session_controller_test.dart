@@ -336,7 +336,7 @@ void main() {
       const common = LibraryAddCommonDraft(condition: 'NM');
       const draft = ComicAddDraft(gradingCompany: 'CBCS', signedBy: 'Stan Lee');
 
-      final cap = libraryKindRuntimeForKind(CatalogMediaKind.comic).add;
+      final cap = libraryKindModuleForKind(CatalogMediaKind.comic).add;
       final command = cap.buildCommand(
         item,
         common,
@@ -358,7 +358,7 @@ void main() {
       const common = LibraryAddCommonDraft(condition: 'New');
       const draft = MovieAddDraft(packaging: 'SteelBook', region: 'Region A');
 
-      final cap = libraryKindRuntimeForKind(CatalogMediaKind.movie).add;
+      final cap = libraryKindModuleForKind(CatalogMediaKind.movie).add;
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'v1');
@@ -375,7 +375,7 @@ void main() {
       const common = LibraryAddCommonDraft(quantity: 2);
       const draft = GameAddDraft(completeness: 'CIB', hasBox: true);
 
-      final cap = libraryKindRuntimeForKind(CatalogMediaKind.game).add;
+      final cap = libraryKindModuleForKind(CatalogMediaKind.game).add;
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'g1');
@@ -392,7 +392,7 @@ void main() {
       const common = LibraryAddCommonDraft();
       const draft = MusicAddDraft(storageDevice: 'Shelf A', storageSlot: '12');
 
-      final cap = libraryKindRuntimeForKind(CatalogMediaKind.music).add;
+      final cap = libraryKindModuleForKind(CatalogMediaKind.music).add;
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'm1');
@@ -439,10 +439,10 @@ void main() {
       );
 
       final results = await runLibraryAddProviderSearch(
-        type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
+        type: libraryKindModuleForKind(CatalogMediaKind.comic),
         provider: 'all',
         query: 'Batman',
-        ranking: libraryKindRuntimeForKind(CatalogMediaKind.comic)
+        ranking: libraryKindModuleForKind(CatalogMediaKind.comic)
             .add
             .search
             .ranking,
@@ -492,10 +492,10 @@ void main() {
       registry.register(provider.toConnector());
 
       final results = await runLibraryAddProviderSearch(
-        type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
+        type: libraryKindModuleForKind(CatalogMediaKind.comic),
         provider: 'gcd',
         query: 'Absolute Batman',
-        ranking: libraryKindRuntimeForKind(CatalogMediaKind.comic)
+        ranking: libraryKindModuleForKind(CatalogMediaKind.comic)
             .add
             .search
             .ranking,

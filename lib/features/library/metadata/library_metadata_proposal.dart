@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 
 String resolveLibraryMetadataProposalProvider(
-  LibraryKindRuntime type, {
+  LibraryKindModule type, {
   String? provider,
 }) {
   final requestedProvider = provider?.trim();
@@ -23,7 +23,7 @@ String resolveLibraryMetadataProposalProvider(
 
 Future<Map<String, dynamic>> createLibraryMetadataProposal({
   required ApiClient api,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   String? provider,
   String? providerItemId,
   required String query,
@@ -49,7 +49,7 @@ Future<Map<String, dynamic>> createLibraryMetadataProposal({
 Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
   MetadataProposalStore store = const MetadataProposalStore(),
   required ApiClient api,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   String? provider,
   String? providerItemId,
   required String query,
@@ -85,7 +85,7 @@ Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
 Future<void> recordLibraryMetadataProposalResponse({
   MetadataProposalStore store = const MetadataProposalStore(),
   required Map<String, dynamic> response,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   String? provider,
   required String query,
   String? title,

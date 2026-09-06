@@ -400,7 +400,7 @@ class _InspectorPersonalDetailsEditorState
           : const Patch.unchanged(),
     );
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          libraryKindRuntimeForKind(
+          libraryKindModuleForKind(
             catalogMediaKindFromApiValue(widget.ownedItem.catalogRef.kind),
           ).edit.withTypedUpdatePayload(command),
         );

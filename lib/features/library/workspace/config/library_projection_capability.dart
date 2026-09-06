@@ -20,7 +20,7 @@ abstract interface class ReleaseProjectionCapability<
     TDto extends LibraryWorkspaceDto> {
   List<LibraryProjectionItem<TDto>> projectReleases({
     required ShelfEntry source,
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
     required Map<String, Map<String, String>>
@@ -34,7 +34,7 @@ abstract interface class CopyProjectionCapability<
     TDto extends LibraryWorkspaceDto> {
   List<LibraryProjectionItem<TDto>> projectCopies({
     required ShelfEntry source,
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
     required Map<String, Map<String, String>>

@@ -58,7 +58,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
@@ -482,7 +482,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
@@ -520,19 +520,19 @@ class LibraryAddReferenceSelector extends StatelessWidget {
 
 List<(String, String?)> libraryAddMetadataRowsForItem(
   CatalogItem item,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) =>
     _metadataRowsForItem(item, type);
 
 List<(String, String?)> libraryAddMetadataRowsForCandidate(
   ProviderCandidate candidate,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) =>
     _metadataRowsForCandidate(candidate, type);
 
 List<(String, String?)> libraryAddMetadataRowsForFullPreview(
   AdminProviderPreview preview,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) =>
     _metadataRowsForFullPreview(preview, type);
 
@@ -734,7 +734,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
@@ -1160,7 +1160,7 @@ Widget _buildPreviewFormatBadges(CatalogItem? item) {
 
 List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   final previewLabels = type.presentation.previewLabels;
   return [
@@ -1196,7 +1196,7 @@ List<(String, String?)> _metadataRowsForCandidate(
 
 List<(String, String?)> _metadataRowsForItem(
   CatalogItem item,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   final previewLabels = type.presentation.previewLabels;
   final payload = item.payload;
@@ -1296,7 +1296,7 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
 
 List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   final previewLabels = type.presentation.previewLabels;
   final series = preview.series;

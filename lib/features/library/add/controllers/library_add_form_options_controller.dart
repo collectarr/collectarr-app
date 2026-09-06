@@ -14,7 +14,7 @@ class LibraryAddFormOptionsController {
 
   Future<LibraryAddFormPickListOptions> loadPickLists({
     required LocalDatabase database,
-    required LibraryKindRuntime type,
+    required LibraryKindModule type,
     required String selectedCondition,
     required String selectedGrade,
     String? selectedTags,

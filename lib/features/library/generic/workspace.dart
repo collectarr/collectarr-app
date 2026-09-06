@@ -29,7 +29,7 @@ typedef LibraryItemContextMenuCallback = void Function(
 );
 
 double libraryWorkspaceGridMainAxisExtent({
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required double coverSize,
 }) {
   return coverSize * type.viewProfile.coverGridHeightFactor;
@@ -69,7 +69,7 @@ class LibraryWorkspace extends ConsumerWidget {
     this.initialCrossAxisCount,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final List<LibraryProjectionItem> items;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;

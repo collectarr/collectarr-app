@@ -24,7 +24,7 @@ class LibrarySidebarFilteringPanel extends StatelessWidget {
     this.onCollectionStatusScopeChanged,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final String? activeSmartListName;
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;

@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('exact core match suppresses provider fallback', () {
-    final shouldFallback = libraryKindRuntimeForKind(CatalogMediaKind.comic)
+    final shouldFallback = libraryKindModuleForKind(CatalogMediaKind.comic)
         .add
         .search
         .ranking
@@ -44,7 +44,7 @@ void main() {
   });
 
   test('weak core top match keeps provider fallback enabled', () {
-    final shouldFallback = libraryKindRuntimeForKind(CatalogMediaKind.movie)
+    final shouldFallback = libraryKindModuleForKind(CatalogMediaKind.movie)
         .add
         .search
         .ranking
@@ -66,7 +66,7 @@ void main() {
 
   test('empty core results still trigger provider fallback', () {
     expect(
-      libraryKindRuntimeForKind(CatalogMediaKind.anime)
+      libraryKindModuleForKind(CatalogMediaKind.anime)
           .add
           .search
           .ranking

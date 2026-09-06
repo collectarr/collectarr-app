@@ -30,7 +30,7 @@ class TransferFieldResult {
 Future<TransferFieldResult?> showTransferFieldDataDialog({
   required BuildContext context,
   required LocalDatabase db,
-  required LibraryKindRuntime type,
+  required LibraryKindModule type,
   required List<OwnedItem> items,
   required OwnedItemMutations mutations,
   required List<CustomFieldDefinition> customFieldDefinitions,
@@ -58,7 +58,7 @@ class _TransferFieldDataDialog extends StatefulWidget {
   });
 
   final LocalDatabase db;
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final List<OwnedItem> items;
   final OwnedItemMutations mutations;
   final List<CustomFieldDefinition> customFieldDefinitions;

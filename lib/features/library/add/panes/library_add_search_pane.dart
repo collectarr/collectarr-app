@@ -38,7 +38,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.onSearchCore,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final bool isBusy;
   final String? error;
   final Color accent;
@@ -355,7 +355,7 @@ class _SearchResultsList extends StatelessWidget {
     required this.onToggleProviderCheck,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final bool useGridResults;
   final String selectedProvider;
@@ -514,7 +514,7 @@ class _SearchResultsGrid extends StatelessWidget {
     required this.onToggleResultCheck,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final List<CatalogItem> results;
   final List<ProviderCandidate> providerResults;
@@ -919,7 +919,7 @@ class SearchResultTile extends StatelessWidget {
     required this.onToggleCheck,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final CatalogItem item;
   final Color accent;
   final String? Function(CatalogItem item)? matchSummary;
@@ -1128,7 +1128,7 @@ class ProviderCandidateTile extends StatelessWidget {
     required this.onSelect,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final ProviderCandidate candidate;
   final Color accent;
   final String providerLabel;
@@ -1263,7 +1263,7 @@ class _NoSearchResults extends StatelessWidget {
     required this.searchedProvider,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindModule type;
   final Color accent;
   final String selectedProvider;
   final bool searchedProvider;

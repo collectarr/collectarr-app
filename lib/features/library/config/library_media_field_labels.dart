@@ -10,19 +10,19 @@ export 'package:collectarr_app/features/library/config/library_media_presentatio
         LibraryMediaSearchFieldLabels;
 
 LibraryMediaSearchFieldLabels libraryMediaSearchFieldLabels(
-  LibraryKindRuntime type,
+  LibraryKindModule type,
 ) {
   return type.presentation.searchFieldLabels;
 }
 
-LibraryMediaFilterLabels libraryMediaFilterLabels(LibraryKindRuntime type) {
+LibraryMediaFilterLabels libraryMediaFilterLabels(LibraryKindModule type) {
   return type.presentation.filterLabels;
 }
 
-LibraryMediaGroupLabels libraryMediaGroupLabels(LibraryKindRuntime type) {
+LibraryMediaGroupLabels libraryMediaGroupLabels(LibraryKindModule type) {
   return type.presentation.groupLabels;
 }
 
-LibraryMediaPreviewLabels libraryMediaPreviewLabels(LibraryKindRuntime type) {
+LibraryMediaPreviewLabels libraryMediaPreviewLabels(LibraryKindModule type) {
   return type.presentation.previewLabels;
 }

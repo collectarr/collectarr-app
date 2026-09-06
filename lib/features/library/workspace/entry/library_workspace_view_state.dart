@@ -51,7 +51,7 @@ class LibraryWorkspaceViewProfile {
     this.sortAscendingForColumn,
   });
 
-  final LibraryKindRuntime Function() runtimeResolver;
+  final LibraryKindModule Function() runtimeResolver;
   final double defaultCoverSize;
   final double minCoverSize;
   final double maxCoverSize;
@@ -419,7 +419,7 @@ List<LibrarySortRuleRuntime> _normalizedSortRules(
 }
 
 List<LibrarySortRuleRuntime> _decodeSortRules(
-  LibraryKindRuntime module,
+  LibraryKindModule module,
   Iterable<LibrarySortRule>? rules,
 ) {
   if (rules == null) {
@@ -439,7 +439,7 @@ List<LibrarySortRuleRuntime> _decodeSortRules(
 }
 
 Set<LibraryFieldIdRuntime> _decodeVisibleColumns(
-  LibraryKindRuntime module,
+  LibraryKindModule module,
   Iterable<String> columns,
 ) {
   final decoded = <LibraryFieldIdRuntime>{};
@@ -455,7 +455,7 @@ Set<LibraryFieldIdRuntime> _decodeVisibleColumns(
 }
 
 Map<LibraryFieldIdRuntime, double> _decodeColumnWidths(
-  LibraryKindRuntime module,
+  LibraryKindModule module,
   Map<String, double> widths,
 ) {
   final decoded = <LibraryFieldIdRuntime, double>{};
