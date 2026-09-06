@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_hero
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -377,6 +378,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorPersonalSection(
+            type: movieKindModule,
             item: testProjectionItem(
               id: 'movie-1',
               kind: 'movie',
@@ -412,6 +414,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorPersonalSection(
+            type: movieKindModule,
             item: testProjectionItem(
               id: 'movie-1',
               kind: 'movie',

@@ -66,7 +66,12 @@ class LibraryDetailActionStrip extends StatelessWidget {
                         value: ownedCopies[index].id,
                         child: Text(
                           buildOwnedCopyLabel(
-                              ownedCopies[index], const [], index),
+                            ownedCopies[index],
+                            const [],
+                            index,
+                            digitalFlagResolver:
+                                type.edit.resolveOwnedDigitalFlag,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

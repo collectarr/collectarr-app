@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector.dart
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -165,6 +166,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
+              type: bookKindModule,
               item: bookItem,
               ownedItem: testOwnedItem(
                 id: 'owned-1',
@@ -210,6 +212,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
+              type: bookKindModule,
               item: bookItem,
               ownedItem: testOwnedItem(
                 id: 'owned-1',
@@ -245,6 +248,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
+              type: bookKindModule,
               item: bookItem,
               ownedItem: testOwnedItem(
                 id: 'owned-1',
@@ -285,6 +289,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
+              type: bookKindModule,
               item: bookItem,
               ownedItem: testOwnedItem(
                 id: 'owned-1',

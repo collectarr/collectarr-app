@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/generic/vocabulary/generic
 import 'package:collectarr_app/features/library/kinds/generic/tracking/generic_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,7 @@ final genericKindModule = LibraryKindSpec<GenericWorkspaceDto,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createGenericEditDraft,
+    ownedDigitalFlagResolver: resolveGenericOwnedDigitalFlag,
   ),
   buildCardPresentation: (item, {required musicVertical}) =>
       const LibraryCardPresentation(),

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 
 const fallbackVideoCatalogPhysicalFormats = <CatalogPhysicalFormat>[
@@ -153,6 +155,76 @@ bool? digitalPhysicalMediaFormatFlag(
         formats: formats,
       );
   return format == null ? null : format.variantType == 'digital';
+}
+
+/// Technical release/format resolution shared by kind-owned semantics.
+///
+/// This helper deliberately receives primitive identity and explicit values;
+/// it does not inspect an Owned domain object or decide which kind's formats
+/// are valid.
+bool? resolveDigitalMediaFormatFlag({
+  required bool? explicitDigital,
+  required String? editionId,
+  required String? variantId,
+  required List<CatalogEdition> editions,
+  String? fallbackFormat,
+  String? fallbackLabel,
+  required Iterable<PhysicalMediaFormat> formats,
+}) {
+  if (explicitDigital != null) {
+    return explicitDigital;
+  }
+
+  CatalogEdition? matchedEdition;
+  CatalogVariantDto? matchedVariant;
+  if (editionId != null) {
+    for (final edition in editions) {
+      if (edition.id == editionId) {
+        matchedEdition = edition;
+        break;
+      }
+    }
+  }
+  if (variantId != null) {
+    final editionPool =
+        matchedEdition == null ? editions : <CatalogEdition>[matchedEdition];
+    for (final edition in editionPool) {
+      for (final variant in edition.variants) {
+        if (variant.id == variantId) {
+          matchedEdition ??= edition;
+          matchedVariant = variant;
+          break;
+        }
+      }
+      if (matchedVariant != null) {
+        break;
+      }
+    }
+  }
+
+  final variantFlag = digitalPhysicalMediaFormatFlag(
+    matchedVariant?.physicalFormat,
+    label: matchedVariant?.physicalFormatLabel ?? matchedVariant?.name,
+    formats: formats,
+  );
+  if (variantFlag != null) {
+    return variantFlag;
+  }
+
+  final editionFlag = digitalPhysicalMediaFormatFlag(
+    matchedEdition?.physicalFormat,
+    label: matchedEdition?.physicalFormatLabel ?? matchedEdition?.title,
+    formats: formats,
+  );
+  if (editionFlag != null) {
+    return editionFlag;
+  }
+
+  return digitalPhysicalMediaFormatFlag(
+    fallbackFormat,
+    label: fallbackLabel,
+    formats: formats,
+  );
 }
 
 String? ownedCopyTypeLabel(bool? isDigital) {

@@ -70,6 +70,7 @@ List<Widget> buildMovieInspectorSections(
       InspectorLinksTrailersSection(request: request),
     if (request.ownedItem != null || request.trackingEntry != null)
       InspectorPersonalStatusSection(
+        type: request.type,
         item: item,
         ownedItem: request.ownedItem,
         trackingEntry: request.trackingEntry,

@@ -603,6 +603,8 @@ class ComicFeature {}
         defaultCondition: genericKindModule.edit.defaultCondition,
         defaultGrade: genericKindModule.edit.defaultGrade,
         createDraft: genericKindModule.edit.createDraft,
+        ownedDigitalFlagResolver:
+            genericKindModule.edit.ownedDigitalFlagResolver,
       ),
       buildCardPresentation: (item, {required musicVertical}) =>
           const LibraryCardPresentation(),

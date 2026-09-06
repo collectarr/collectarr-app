@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardg
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 import 'package:flutter/material.dart';
@@ -205,6 +206,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createBoardGameEditDraft,
+    ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: BoardgameOwnedItemUpdatePayload.fromCommand,
   ),
   providerMapper: const BoardGameLibraryKindProviderMapper(),

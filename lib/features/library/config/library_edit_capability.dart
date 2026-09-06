@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/config/library_chrome_config.dar
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -15,6 +17,7 @@ export 'package:collectarr_app/features/library/config/library_chrome_config.dar
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
+export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 
 typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required CatalogItem item,
@@ -42,6 +45,7 @@ class LibraryEditCapability {
     required this.defaultCondition,
     required this.defaultGrade,
     required this.createDraft,
+    required this.ownedDigitalFlagResolver,
     this.ownedUpdatePayloadBuilder,
   });
 
@@ -56,10 +60,27 @@ class LibraryEditCapability {
   final String defaultCondition;
   final String defaultGrade;
   final LibraryEditKindDraftFactory createDraft;
+  final LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver;
   final LibraryOwnedUpdatePayloadBuilder? ownedUpdatePayloadBuilder;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
+
+  bool? resolveOwnedDigitalFlag(
+    OwnedItem? ownedItem,
+    List<CatalogEdition> editions, {
+    String? fallbackFormat,
+    String? fallbackLabel,
+    Iterable<PhysicalMediaFormat> formats = const [],
+  }) {
+    return ownedDigitalFlagResolver(
+      ownedItem,
+      editions,
+      fallbackFormat: fallbackFormat,
+      fallbackLabel: fallbackLabel,
+      formats: formats,
+    );
+  }
 
   OwnedDetailsDraft buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
       kindDraft.toDetailsDraft();

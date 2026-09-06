@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
@@ -283,6 +284,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createMovieEditDraft,
+    ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MovieOwnedItemUpdatePayload.fromCommand,
   ),
   providerMapper: const MovieLibraryKindProviderMapper(),

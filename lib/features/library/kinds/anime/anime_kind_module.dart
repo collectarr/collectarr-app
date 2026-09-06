@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
@@ -253,6 +254,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails,
     defaultGrade: 'Ungraded',
     vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
     createDraft: createAnimeEditDraft,
+    ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: AnimeOwnedItemUpdatePayload.fromCommand,
   ),
   providerMapper: const AnimeLibraryKindProviderMapper(),

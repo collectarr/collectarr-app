@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
@@ -153,6 +154,7 @@ final gameKindModule =
     defaultGrade: 'Ungraded',
     presentation: gameLibraryEditPresentation,
     createDraft: createGameEditDraft,
+    ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: GameOwnedItemUpdatePayload.fromCommand,
   ),
   providerMapper: const GameLibraryKindProviderMapper(),

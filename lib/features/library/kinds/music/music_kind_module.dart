@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
@@ -187,6 +188,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createMusicEditDraft,
+    ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MusicOwnedItemUpdatePayload.fromCommand,
   ),
   providerMapper: const MusicLibraryKindProviderMapper(),

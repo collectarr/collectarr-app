@@ -336,11 +336,13 @@ class _LibraryDetailToolbar extends StatelessWidget {
                       LibraryDenseMenuEntry<String>(
                         value: ownedCopies[index].id,
                         label: ownedCopies[index].id == selectedOwnedItemId
-                            ? 'Viewing ${buildOwnedCopyLabel(ownedCopies[index], _releaseEditions(type, item), index)}'
+                            ? 'Viewing ${buildOwnedCopyLabel(ownedCopies[index], _releaseEditions(type, item), index, digitalFlagResolver: type.edit.resolveOwnedDigitalFlag)}'
                             : buildOwnedCopyLabel(
                                 ownedCopies[index],
                                 _releaseEditions(type, item),
                                 index,
+                                digitalFlagResolver:
+                                    type.edit.resolveOwnedDigitalFlag,
                               ),
                         icon: ownedCopies[index].id == selectedOwnedItemId
                             ? Icons.check_circle

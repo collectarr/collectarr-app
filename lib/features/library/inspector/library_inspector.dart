@@ -377,6 +377,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
         editions: selected.source.catalogItem?.editions ?? const [],
+        digitalFlagResolver: widget.type.edit.resolveOwnedDigitalFlag,
         selectedOwnedItemId: activeOwnedItem?.id,
         accent: widget.accent,
         onAddCopy: () => _addOwnedCopy(
@@ -399,7 +400,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         activeOwnedItem != null &&
         (editCapability.conditions.isNotEmpty ||
             editCapability.grades.isNotEmpty) &&
-        resolveOwnedDigitalFlag(
+        widget.type.edit.resolveOwnedDigitalFlag(
               activeOwnedItem,
               selected.source.catalogItem?.editions ?? const [],
               fallbackLabel: selected.dto is WorkspaceDtoAdapter
@@ -483,6 +484,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       if (inspectorCapability.showsDefaultPersonalSection)
         InspectorPersonalSection(
+          type: widget.type,
           item: selected,
           ownedItem: activeOwnedItem,
           trackingEntry: activeTrackingEntry,
@@ -569,7 +571,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           if (activeOwnedItem != null &&
               (editCapability.conditions.isNotEmpty ||
                   editCapability.grades.isNotEmpty) &&
-              resolveOwnedDigitalFlag(
+              widget.type.edit.resolveOwnedDigitalFlag(
                     activeOwnedItem,
                     selected.source.catalogItem?.editions ?? const [],
                     fallbackLabel: selected.dto is WorkspaceDtoAdapter
@@ -762,6 +764,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
   const _InspectorOwnedCopiesSection({
     required this.copies,
     required this.editions,
+    required this.digitalFlagResolver,
     required this.selectedOwnedItemId,
     required this.accent,
     required this.onAddCopy,
@@ -770,6 +773,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
 
   final List<OwnedItem> copies;
   final List<CatalogEdition> editions;
+  final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
   final String? selectedOwnedItemId;
   final Color accent;
   final VoidCallback onAddCopy;
@@ -807,6 +811,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                                 copies[index],
                                 editions,
                                 index,
+                                digitalFlagResolver: digitalFlagResolver,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

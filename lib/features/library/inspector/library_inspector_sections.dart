@@ -43,6 +43,7 @@ class InspectorMetadataSection extends StatelessWidget {
 class InspectorPersonalSection extends StatelessWidget {
   const InspectorPersonalSection({
     super.key,
+    required this.type,
     required this.item,
     this.ownedItem,
     this.trackingEntry,
@@ -51,6 +52,7 @@ class InspectorPersonalSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
+  final LibraryKindRuntime type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
@@ -79,9 +81,10 @@ class InspectorPersonalSection extends StatelessWidget {
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
       ownedItem,
       catalogEditions,
+      digitalFlagResolver: type.edit.resolveOwnedDigitalFlag,
       fallbackLabel: adapter?.variant,
     );
-    final ownedIsDigital = resolveOwnedDigitalFlag(
+    final ownedIsDigital = type.edit.resolveOwnedDigitalFlag(
       ownedItem,
       catalogEditions,
       fallbackLabel: adapter?.variant,

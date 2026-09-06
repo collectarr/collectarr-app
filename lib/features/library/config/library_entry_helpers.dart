@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -386,14 +385,19 @@ LibraryReferenceLabels _libraryReferenceLabelsForMediaType(String? mediaType) {
 String buildOwnedCopyLabel(
   OwnedItem item,
   List<CatalogEdition> editions,
-  int index,
-) {
+  int index, {
+  required LibraryOwnedDigitalFlagResolver digitalFlagResolver,
+}) {
   final parts = <String>['Copy ${index + 1}'];
   final editionLabel = _ownedCopyEditionLabel(item, editions);
   if (editionLabel != null) {
     parts.add(editionLabel);
   }
-  final copyTypeLabel = libraryOwnedCopyTypeLabel(item, editions);
+  final copyTypeLabel = libraryOwnedCopyTypeLabel(
+    item,
+    editions,
+    digitalFlagResolver: digitalFlagResolver,
+  );
   if (copyTypeLabel != null) {
     parts.add(copyTypeLabel);
   }
@@ -416,58 +420,18 @@ String buildOwnedCopyLabel(
 String? libraryOwnedCopyTypeLabel(
   OwnedItem? ownedItem,
   List<CatalogEdition> editions, {
+  required LibraryOwnedDigitalFlagResolver digitalFlagResolver,
   String? fallbackFormat,
   String? fallbackLabel,
 }) {
-  final digital = resolveOwnedDigitalFlag(
+  final digital = digitalFlagResolver(
     ownedItem,
     editions,
     fallbackFormat: fallbackFormat,
     fallbackLabel: fallbackLabel,
+    formats: const [],
   );
   return ownedCopyTypeLabel(digital);
-}
-
-bool? resolveOwnedDigitalFlag(
-  OwnedItem? ownedItem,
-  List<CatalogEdition> editions, {
-  String? fallbackFormat,
-  String? fallbackLabel,
-}) {
-  if (ownedItem == null) {
-    return null;
-  }
-  if (ownedItem.isDigital != null) {
-    return ownedItem.isDigital;
-  }
-
-  final matchedRelease = _resolveOwnedCopyRelease(ownedItem, editions);
-  final matchedEdition = matchedRelease.edition;
-  final matchedVariant = matchedRelease.variant;
-
-  final variantFlag = digitalPhysicalMediaFormatFlag(
-    matchedVariant?.physicalFormat,
-    label: matchedVariant?.physicalFormatLabel ?? matchedVariant?.name,
-    formats: allKnownPhysicalMediaFormats,
-  );
-  if (variantFlag != null) {
-    return variantFlag;
-  }
-
-  final editionFlag = digitalPhysicalMediaFormatFlag(
-    matchedEdition?.physicalFormat,
-    label: matchedEdition?.physicalFormatLabel ?? matchedEdition?.title,
-    formats: allKnownPhysicalMediaFormats,
-  );
-  if (editionFlag != null) {
-    return editionFlag;
-  }
-
-  return digitalPhysicalMediaFormatFlag(
-    fallbackFormat,
-    label: fallbackLabel,
-    formats: allKnownPhysicalMediaFormats,
-  );
 }
 
 String? _normalizedEntryAnchorId(String? value) {

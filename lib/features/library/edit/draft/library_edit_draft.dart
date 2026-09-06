@@ -8,7 +8,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -378,14 +377,14 @@ class LibraryEditDraft {
         physicalFormat ??
         libraryKindTitleExtension(item) ??
         '';
-    return format.toLowerCase() == 'digital' ||
-        isDigitalPhysicalMediaFormat(
-          physicalFormat,
-          label: format,
-          formats: physicalFormats.isEmpty
-              ? allKnownPhysicalMediaFormats
-              : physicalFormats,
-        );
+    return type.edit.resolveOwnedDigitalFlag(
+          ownedItem,
+          libraryKindEditions(item),
+          fallbackFormat: physicalFormat,
+          fallbackLabel: format,
+          formats: physicalFormats,
+        ) ??
+        false;
   }
 
   bool get showPhysicalOwnedFields => isOwned && !isDigitalFormat;
