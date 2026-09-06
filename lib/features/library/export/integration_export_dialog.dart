@@ -13,7 +13,7 @@ import 'package:flutter/services.dart';
 enum ExportFormat {
   csv('CSV', 'Spreadsheet-compatible', Icons.table_chart_outlined),
   json('JSON', 'Structured data for APIs', Icons.data_object),
-  xml('XML', 'For CLZ/legacy import', Icons.code),
+  xml('XML', 'For CLZ import', Icons.code),
   markdown('Markdown', 'Readable checklist', Icons.text_snippet_outlined);
 
   const ExportFormat(this.label, this.description, this.icon);

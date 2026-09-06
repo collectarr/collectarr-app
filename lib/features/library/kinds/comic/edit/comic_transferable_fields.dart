@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_ite
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:flutter/material.dart';
 
-/// Comic-owned transfer semantics stay typed until the old generic transfer
+/// Comic-owned transfer semantics stay typed until the generic transfer
 /// dialog boundary. The adapter is deliberately created here, inside Comic.
 final class ComicTransferableField {
   const ComicTransferableField({
@@ -25,21 +25,21 @@ final class ComicTransferableField {
   final String? Function(ComicOwnedItem item) read;
   final ComicOwnedItem Function(ComicOwnedItem item, String? value) write;
 
-  TransferableField toLegacyField() {
+  TransferableField toTransferableField() {
     return TransferableField(
       key: key,
       label: label,
       icon: icon,
       type: type,
       scope: scope,
-      read: (legacy) {
-        final typed = ComicOwnedItemProjection.tryFromOwnedItem(legacy);
+      read: (item) {
+        final typed = ComicOwnedItemProjection.tryFromOwnedItem(item);
         return typed == null ? null : read(typed);
       },
-      write: (legacy, value) {
-        final typed = ComicOwnedItemProjection.tryFromOwnedItem(legacy);
+      write: (item, value) {
+        final typed = ComicOwnedItemProjection.tryFromOwnedItem(item);
         return typed == null
-            ? legacy
+            ? item
             : ComicOwnedItemProjection.toOwnedItem(write(typed, value));
       },
     );
@@ -122,6 +122,6 @@ final comicTransferableFields = <ComicTransferableField>[
   ),
 ];
 
-final legacyComicTransferableFields = [
-  for (final field in comicTransferableFields) field.toLegacyField(),
+final comicTransferableFieldDefinitions = [
+  for (final field in comicTransferableFields) field.toTransferableField(),
 ];

@@ -62,8 +62,7 @@ class MovieOwnedDetailsRows extends Table {
   Set<Column> get primaryKey => {ownedItemId};
 }
 
-/// Complete Movie-owned copy state. The common ownership cache remains only
-/// as a migration/read compatibility surface while callers are moved here.
+/// Complete Movie-owned copy state.
 class MovieOwnedItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();

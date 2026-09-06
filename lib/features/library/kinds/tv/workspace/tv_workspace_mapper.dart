@@ -4,9 +4,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 /// Builds the TV-owned workspace graph from the catalog snapshot.
 ///
-/// The catalog cache still contains the legacy [TvSeriesMetadata] shape. This
-/// mapper is the boundary that translates that snapshot into the typed TV
-/// domain graph used by workspace fields and hierarchy code.
+/// Translates the catalog snapshot into the typed TV domain graph used by
+/// workspace fields and hierarchy code.
 final class TvWorkspaceMapper {
   const TvWorkspaceMapper._();
 

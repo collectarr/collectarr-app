@@ -4,9 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 /// Builds the Anime-owned workspace graph from the catalog snapshot.
 ///
-/// The catalog cache still contains the legacy [AnimeMetadata] payload. This
-/// boundary converts that payload into typed Anime media and release values;
-/// the legacy metadata remains available to fields that have not migrated yet.
+/// Converts the catalog snapshot into typed Anime media and release values.
 final class AnimeWorkspaceMapper {
   const AnimeWorkspaceMapper._();
 

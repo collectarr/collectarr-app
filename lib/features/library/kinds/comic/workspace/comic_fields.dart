@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
@@ -8,10 +7,10 @@ import 'package:collectarr_app/features/library/config/library_facet_types.dart'
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
-export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_preference_codec.dart';
 
 ComicOwnedItem? _owned(LibraryProjectionContext<ComicWorkspaceDto> context) =>
     context.dto.ownedItem;
@@ -579,7 +578,7 @@ final comicLibraryKindSchema = LibraryKindSchema<ComicKind, ComicWorkspaceDto>(
   defaultVisibleColumns: comicLibraryDefaultVisibleColumns,
   defaultSort: ComicSortIds.series,
   defaultGroup: ComicGroupIds.series,
-  preferenceCodec: const ComicPreferenceCodec(),
+  preferenceCodec: const IdentityLibraryWorkspacePreferenceCodec<ComicKind>(),
 );
 
 String _formatDate(DateTime? value) {

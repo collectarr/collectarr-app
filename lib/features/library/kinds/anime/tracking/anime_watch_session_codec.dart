@@ -127,23 +127,16 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   }
 
   CatalogEntityRef _targetRef(String? rawJson, {required String itemId}) {
-    if (rawJson != null && rawJson.isNotEmpty) {
-      try {
-        final decoded = jsonDecode(rawJson);
-        if (decoded is Map) {
-          return CatalogEntityRef.fromJson(
-            Map<String, dynamic>.from(decoded),
-          );
-        }
-      } on Object {
-        // Fall through to the typed owner fallback for malformed legacy data.
-      }
+    if (rawJson == null || rawJson.isEmpty) {
+      throw StateError('Anime watch session $itemId is missing target_ref.');
     }
-    return CatalogEntityRef(
-      kind: kind,
-      entityType: CatalogEntityType.work,
-      id: itemId,
-    );
+    final decoded = jsonDecode(rawJson);
+    if (decoded is! Map) {
+      throw FormatException(
+        'Anime watch session $itemId has invalid target_ref.',
+      );
+    }
+    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(decoded));
   }
 
   void _validateKind(WatchSession session) {

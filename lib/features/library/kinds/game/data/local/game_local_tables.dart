@@ -56,8 +56,7 @@ class GameOwnedDetailsRows extends Table {
   Set<Column> get primaryKey => {ownedItemId};
 }
 
-/// Complete Game-owned copy state. The common ownership cache remains only
-/// as a migration/read compatibility surface while callers are moved here.
+/// Complete Game-owned copy state.
 class GameOwnedItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();

@@ -11,9 +11,9 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
 /// Reads and writes the kind-owned catalog graphs.
 ///
-/// This is the migration boundary for callers that still need a common
-/// [CatalogItem] projection. No catalog payload is stored by this class; the
-/// typed kind repositories own the durable representation.
+/// Generic catalog orchestration over the typed kind repositories. No catalog
+/// payload is stored by this class; typed kind repositories own the durable
+/// representation.
 final class LibraryCatalogRepository {
   LibraryCatalogRepository(
     this._db, {

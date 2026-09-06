@@ -267,11 +267,11 @@ class LibraryPageDialogCoordinator {
     final queuedOwnedItems = ownedItems
         .where((item) => queueIds.contains(item.ref.id.value))
         .toList(growable: false);
-    final legacyCatalogItemsById = await LibraryCatalogRepository(db).findByIds(
+    final catalogItemsById = await LibraryCatalogRepository(db).findByIds(
       queuedOwnedItems.map((item) => item.catalogRef?.id).whereType<String>(),
     );
-    final catalogItemsById = {
-      for (final entry in legacyCatalogItemsById.entries)
+    final typedCatalogItemsById = {
+      for (final entry in catalogItemsById.entries)
         entry.key: typedCatalogItemFromCatalogItem(entry.value),
     };
     if (!_page.mounted) {
@@ -286,7 +286,7 @@ class LibraryPageDialogCoordinator {
       mediaKind: _page.type.kind.apiValue,
       ownedItems: queuedOwnedItems,
       trackingEntries: trackingEntries,
-      catalogItemsById: catalogItemsById,
+      catalogItemsById: typedCatalogItemsById,
       onSelectItem: _page.selectItem,
     );
   }

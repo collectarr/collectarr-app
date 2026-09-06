@@ -8,9 +8,8 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 /// Comic-owned update values.
 ///
 /// The common-looking personal fields intentionally live in this Comic
-/// payload while the legacy cache model is still being retired. This keeps
-/// Comic detail validation and persistence reconstruction in the Comic
-/// vertical.
+/// payload. This keeps Comic detail validation and persistence reconstruction
+/// in the Comic vertical.
 final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const ComicOwnedItemUpdatePayload({
     required this.anchor,

@@ -69,7 +69,7 @@ class MusicCatalogItem {
   String? get barcode => releases.isEmpty ? null : releases.first.upc;
   bool get hasMissingCoreMetadata => work.title.isEmpty;
 
-  // Extended getters for workspace_entry_builder compatibility
+  // Presentation getters used by the Music workspace entry builder.
   String? get displayTitle => null;
   String? get localizedTitle => null;
   List<String>? get searchAliases => null;

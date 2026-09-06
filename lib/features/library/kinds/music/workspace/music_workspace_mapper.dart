@@ -4,9 +4,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 /// Converts the current catalog projection into the Music-owned workspace
 /// release graph.
 ///
-/// Catalog payloads can still contain legacy release/track shapes. This
-/// boundary gives those values stable Music IDs and parent references before
-/// they reach Music workspace fields.
+/// Converts catalog release and track values into stable Music IDs and parent
+/// references before they reach Music workspace fields.
 final class MusicWorkspaceMapper {
   const MusicWorkspaceMapper._();
 
@@ -16,18 +15,18 @@ final class MusicWorkspaceMapper {
     CatalogEdition? edition,
   }) {
     final payload = item.toSyncPayload();
-    final selectedLegacyRelease = _selectRelease(
+    final selectedRelease = _selectRelease(
       payload['releases'],
       releaseId,
     );
     final selectedEdition = edition ?? item.editions.firstOrNull;
     final source = <String, dynamic>{
       ...payload,
-      if (selectedLegacyRelease != null) ...selectedLegacyRelease,
+      if (selectedRelease != null) ...selectedRelease,
     };
     final resolvedId = releaseId ??
         selectedEdition?.id ??
-        _text(selectedLegacyRelease?['id']) ??
+        _text(selectedRelease?['id']) ??
         item.id;
     final resolvedMedia = _resolveMedia(
       releaseId: resolvedId,

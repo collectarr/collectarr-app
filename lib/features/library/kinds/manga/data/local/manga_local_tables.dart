@@ -50,8 +50,7 @@ class MangaOwnedDetailsRows extends Table {
   Set<Column> get primaryKey => {ownedItemId};
 }
 
-/// Complete Manga-owned copy state. The common ownership cache remains only
-/// as a migration/read compatibility surface while callers are moved here.
+/// Complete Manga-owned copy state.
 class MangaOwnedItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();

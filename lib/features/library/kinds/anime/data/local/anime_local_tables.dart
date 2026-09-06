@@ -74,8 +74,7 @@ class AnimeOwnedDetailsRows extends Table {
   Set<Column> get primaryKey => {ownedItemId};
 }
 
-/// Complete Anime-owned copy state. The common ownership cache remains only
-/// as a migration/read compatibility surface while callers are moved here.
+/// Complete Anime-owned copy state.
 class AnimeOwnedItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();

@@ -59,7 +59,7 @@ typedef CatalogMetadataDecoder = Object? Function(
   Map<String, dynamic> payload,
 );
 
-/// Migration-only compatibility surface for existing generic callers.
+/// Typed capability surface used by generic navigation and orchestration.
 ///
 /// Do not add members here. New dispatch contracts belong in
 /// [LibraryKindRegistration] or in the concrete kind module that owns them.

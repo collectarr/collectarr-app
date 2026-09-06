@@ -75,8 +75,7 @@ class MusicOwnedDetailsRows extends Table {
   Set<Column> get primaryKey => {ownedItemId};
 }
 
-/// Complete Music-owned copy state. The common ownership cache remains only
-/// as a migration/read compatibility surface while callers are moved here.
+/// Complete Music-owned copy state.
 class MusicOwnedItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();

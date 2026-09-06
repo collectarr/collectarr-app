@@ -51,7 +51,7 @@ final class ComicOwnedItemProjection {
     );
   }
 
-  /// Returns a typed Comic copy only when the legacy value is actually Comic.
+  /// Returns a typed Comic copy only when the value is actually Comic.
   ///
   /// Generic shelf/inspector capabilities can receive entries for other kinds
   /// while the common persistence bridge is still active, so those callers

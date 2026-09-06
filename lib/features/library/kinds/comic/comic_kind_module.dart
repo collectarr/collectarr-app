@@ -151,7 +151,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
   relations: comicRelationCapability,
   transfer: LibraryTransferCapability(
     transferableFieldKeys: _comicTransferableFieldKeys,
-    kindFields: legacyComicTransferableFields,
+    kindFields: comicTransferableFieldDefinitions,
   ),
   stats: const ComicStatsCapability(),
   value: const ComicValueCapability(),

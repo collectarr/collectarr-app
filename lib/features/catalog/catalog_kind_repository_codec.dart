@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 
 /// Persistence adapter for one catalog kind.
 ///
-/// The catalog feature only aggregates the compatibility [CatalogItem]
+/// The catalog feature only aggregates the structural [CatalogItem]
 /// projection. Each adapter owns the mapping to and from its typed domain
 /// repository.
 abstract interface class CatalogKindRepositoryCodec {

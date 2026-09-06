@@ -29,7 +29,7 @@ String _defaultIdGenerator() => const Uuid().v4();
 /// Structural hook for kind-owned tracking fields during mutation.
 ///
 /// Collection owns persistence and mutation mechanics. A kind may enrich the
-/// common compatibility entry before it is stored, without making the
+/// common lifecycle entry before it is stored, without making the
 /// collection API depend on that kind's semantic fields.
 typedef TrackingEntryCustomizer = TrackingEntry Function(
   TrackingEntry entry,

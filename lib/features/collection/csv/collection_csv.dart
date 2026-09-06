@@ -327,7 +327,7 @@ class CollectionCsv {
       return _validatedCatalogCells(projection.catalogCells(entry));
     }
 
-    // Unknown/legacy kinds get only structural catalog cells. Semantic
+    // Unknown kinds get only structural catalog cells. Semantic
     // columns are supplied by a kind-owned projection when supported.
     return [
       entry.itemId,

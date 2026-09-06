@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
 
-/// TV-owned tracking-entry coordinates kept during the shared-table migration.
+/// TV-owned tracking-entry coordinates stored beside the shared lifecycle row.
 final class TvTrackingEntryCodec implements TrackingEntryCodec {
   const TvTrackingEntryCodec();
 

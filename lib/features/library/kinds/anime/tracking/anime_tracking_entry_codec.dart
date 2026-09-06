@@ -6,8 +6,8 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
 
-/// Anime-owned tracking-entry coordinates kept during the shared-table
-/// migration.
+/// Anime-owned tracking-entry coordinates stored beside the shared lifecycle
+/// row.
 final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
   const AnimeTrackingEntryCodec();
 

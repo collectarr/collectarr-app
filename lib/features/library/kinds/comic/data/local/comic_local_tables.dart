@@ -69,7 +69,7 @@ class ComicReleaseRows extends Table {
 }
 
 /// Complete Comic-owned copy state. Generic owned storage is retained only
-/// as a migration/read compatibility surface while kinds move to this table.
+/// as the kind-owned local persistence surface.
 class ComicOwnedItemsRows extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();

@@ -50,7 +50,6 @@ final class TrackingEntryStorageRow {
 /// Kind-owned tracking-entry storage and reconstruction behavior.
 ///
 /// The generic repository owns transaction and query mechanics only. A codec
-/// may continue to read a legacy shared table during migration, but the
 /// semantic columns and their interpretation live in the kind adapter.
 abstract interface class TrackingEntryCodec {
   const TrackingEntryCodec();

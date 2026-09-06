@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_m
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -49,7 +51,8 @@ void main() {
           groups: const [],
           defaultVisibleColumns: const {},
           defaultSort: ComicSortIds.series,
-          preferenceCodec: const ComicPreferenceCodec(),
+          preferenceCodec:
+              const IdentityLibraryWorkspacePreferenceCodec<ComicKind>(),
         ),
         throwsStateError,
       );
@@ -67,7 +70,8 @@ void main() {
           groups: const [],
           defaultVisibleColumns: const {},
           defaultSort: ComicSortIds.series,
-          preferenceCodec: const ComicPreferenceCodec(),
+          preferenceCodec:
+              const IdentityLibraryWorkspacePreferenceCodec<ComicKind>(),
         ),
         throwsStateError,
       );

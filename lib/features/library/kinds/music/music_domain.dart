@@ -33,6 +33,3 @@ export 'package:collectarr_app/features/library/kinds/music/edit/music_release_e
 export 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_schema.dart';
 export 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
-
-// Transitional typedefs to avoid parallel domain models while existing components migrate.
-typedef MusicWork = MusicCatalogItem;

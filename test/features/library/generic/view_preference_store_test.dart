@@ -51,49 +51,6 @@ void main() {
     expect(movieStore.cachedFolderPreset, isNull);
   });
 
-  test('legacy bare group preferences resolve for the active kind', () async {
-    SharedPreferences.setMockInitialValues({
-      'library.movie.folderPreset': 'group.publisher',
-      'library.movie.pinnedGroupModes': ['group.publisher'],
-    });
-
-    expect(
-      await movieStore.readFolderPreset(
-        allowedModes: ['movie.publisher'],
-      ),
-      LibraryFolderPreset.single('movie.publisher'),
-    );
-    expect(
-      await movieStore.readPinnedFolderPresets(
-        allowedModes: ['movie.publisher'],
-      ),
-      [LibraryFolderPreset.single('movie.publisher')],
-    );
-  });
-
-  test('pinned group modes preserve persisted order', () async {
-    await movieStore.writePinnedGroupModes({
-      'director',
-      'release_year',
-      'title',
-    });
-
-    final restored = await movieStore.readPinnedGroupModes();
-
-    expect(restored.toList(), [
-      'director',
-      'release_year',
-      'title',
-    ]);
-
-    final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getStringList('library.movie.pinnedGroupModes'), [
-      'group.director',
-      'group.release_year',
-      'group.title',
-    ]);
-  });
-
   test('folder preset caches and restores composite modes', () async {
     final preset = LibraryFolderPreset(
       modes: [
@@ -130,25 +87,6 @@ void main() {
     final restored = await movieStore.readPinnedFolderPresets();
 
     expect(restored, presets);
-  });
-
-  test('pinned folder presets migrate legacy single-mode favorites', () async {
-    SharedPreferences.setMockInitialValues({
-      'library.movie.pinnedGroupModes': [
-        'director',
-        'release_year',
-      ],
-    });
-
-    final restored = await movieStore.readPinnedFolderPresets();
-
-    expect(
-      restored,
-      [
-        LibraryFolderPreset.single('director'),
-        LibraryFolderPreset.single('release_year'),
-      ],
-    );
   });
 
   test('folder tree state is cached per preset', () async {
