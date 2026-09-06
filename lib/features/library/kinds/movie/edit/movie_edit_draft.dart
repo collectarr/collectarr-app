@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/edit/video/video_edit_controller
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -72,12 +73,45 @@ class MovieEditDraft extends LibraryEditKindDraft
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = videoEdit.applyVideoSelectionEdits(selection);
-    final meta = result.item.kindMetadata is MovieCatalogMetadata
-        ? result.item.kindMetadata as MovieCatalogMetadata
-        : null;
-    if (meta != null) {
+    var result = selection;
+    final meta = result.item.kindMetadata;
+    if (meta is MovieCatalogMetadata) {
+      final parsedGenres = videoEdit.genresEditController.text
+          .split(RegExp(r'[,\r\n]+'))
+          .map((value) => value.trim())
+          .where((value) => value.isNotEmpty)
+          .toList();
       final updatedMeta = meta.copyWith(
+        runtimeMinutes: int.tryParse(videoEdit.runtimeController.text),
+        genres: parsedGenres.isNotEmpty ? parsedGenres : meta.genres,
+        cast: videoEdit.castCredits
+            .map((credit) => MoviePersonCredit(
+                  name: credit.nameController.text.trim(),
+                  role: emptyToNull(credit.roleController.text.trim()),
+                ))
+            .where((credit) => credit.name.isNotEmpty)
+            .toList(),
+        crew: videoEdit.crewCredits
+            .map((credit) => MoviePersonCredit(
+                  name: credit.nameController.text.trim(),
+                  role: emptyToNull(credit.roleController.text.trim()),
+                ))
+            .where((credit) => credit.name.isNotEmpty)
+            .toList(),
+        ageRating: emptyToNull(videoEdit.ageRatingController.text),
+        audienceRating: emptyToNull(videoEdit.audienceRatingController.text),
+        editionTitle: emptyToNull(videoEdit.editionTitleController.text),
+        variant: emptyToNull(videoEdit.variantController.text),
+        barcode: emptyToNull(videoEdit.barcodeController.text),
+        physicalFormat: videoEdit.physicalFormatId,
+        physicalFormatLabel:
+            emptyToNull(videoEdit.physicalFormatLabelController.text),
+        publisher: emptyToNull(videoEdit.publisherController.text),
+        country: emptyToNull(videoEdit.countryController.text) ?? meta.country,
+        language:
+            emptyToNull(videoEdit.languageController.text) ?? meta.language,
+        releaseDate: parseDate(videoEdit.releaseDateController.text),
+        links: videoEdit.buildUpdatedTrailerUrls(meta.links),
         screenRatio: emptyToNull(screenRatioController.text),
         audioTracks: emptyToNull(audioTracksController.text),
         subtitles: emptyToNull(subtitlesController.text),
@@ -134,9 +168,26 @@ LibraryEditKindDraft createMovieEditDraft({
   final metadata = item.kindMetadata;
   final movie = metadata is MovieCatalogMetadata ? metadata : null;
   final videoEdit = VideoEditController(
-    item: item,
+    itemId: item.id,
+    initialRuntime: movie?.runtimeMinutes?.toString() ?? '',
+    initialAgeRating: movie?.ageRating ?? '',
+    initialAudienceRating: movie?.audienceRating ?? '',
+    initialGenres: movie?.genres.join(', ') ?? '',
+    initialEditionTitle:
+        movie?.editionTitle ?? libraryKindTitleExtension(item) ?? '',
+    initialVariant: movie?.variant ?? '',
+    initialBarcode: movie?.barcode ?? '',
+    initialPhysicalFormatLabel:
+        movie?.physicalFormatLabel ?? movie?.variant ?? '',
+    initialPhysicalFormatId: movie?.physicalFormat,
+    initialPublisher: movie?.publisher ?? movie?.studio ?? '',
+    initialCountry: movie?.country ?? '',
+    initialLanguage: movie?.language ?? movie?.originalLanguage ?? '',
+    initialReleaseDate:
+        movie?.releaseDate == null ? '' : formatDate(movie!.releaseDate!),
+    initialReleaseYear: movie?.releaseDate?.year.toString() ?? '',
     initialCreators: movie?.creators ?? const <Map<String, dynamic>>[],
-    initialDiscCount: movie?.nrDiscs,
+    initialTrailerLinks: movie?.links ?? const <TrailerLink>[],
   );
   videoEdit.initializeVideoEditors();
 

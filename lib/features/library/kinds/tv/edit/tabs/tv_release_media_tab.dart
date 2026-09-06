@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,11 +9,11 @@ class TvReleaseMediaTab extends ConsumerWidget {
   const TvReleaseMediaTab({
     super.key,
     required this.accent,
-    required this.videoEdit,
+    required this.releaseMediaEdit,
   });
 
   final Color accent;
-  final VideoEditController videoEdit;
+  final TvReleaseMediaEditController releaseMediaEdit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,10 +23,10 @@ class TvReleaseMediaTab extends ConsumerWidget {
           title: 'Release media',
           accent: accent,
           child: FutureBuilder<TvSeries?>(
-            future: videoEdit.tvSeriesFuture ??=
-                videoEdit.loadTvSeriesSnapshot(),
+            future: releaseMediaEdit.tvSeriesFuture ??=
+                releaseMediaEdit.loadTvSeriesSnapshot(),
             builder: (context, snapshot) {
-              final series = snapshot.data ?? videoEdit.tvSeriesSnapshot;
+              final series = snapshot.data ?? releaseMediaEdit.tvSeriesSnapshot;
               if (snapshot.connectionState == ConnectionState.waiting &&
                   series == null) {
                 return const EditSectionStateMessage(
@@ -40,9 +40,9 @@ class TvReleaseMediaTab extends ConsumerWidget {
                   icon: Icons.tv_off_outlined,
                 );
               }
-              final media = videoEdit.tvReleaseMediaDraft.isEmpty
-                  ? videoEdit.buildFallbackTvReleaseMedia(series)
-                  : videoEdit.tvReleaseMediaDraft;
+              final media = releaseMediaEdit.tvReleaseMediaDraft.isEmpty
+                  ? releaseMediaEdit.buildFallbackTvReleaseMedia(series)
+                  : releaseMediaEdit.tvReleaseMediaDraft;
               if (media.isEmpty) {
                 return const EditSectionStateMessage(
                   message: 'No release media is available for this series.',

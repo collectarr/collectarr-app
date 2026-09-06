@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/tv/edit/dialogs/tv_custom_
 import 'package:collectarr_app/features/library/kinds/tv/edit/widgets/tv_episode_row.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -22,13 +22,13 @@ class TvEpisodesTab extends ConsumerWidget {
     required this.type,
     required this.item,
     required this.accent,
-    required this.videoEdit,
+    required this.releaseMediaEdit,
   });
 
   final LibraryKindRuntime type;
   final CatalogItem item;
   final Color accent;
-  final VideoEditController videoEdit;
+  final TvReleaseMediaEditController releaseMediaEdit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,8 +43,8 @@ class TvEpisodesTab extends ConsumerWidget {
         ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
     final watchSessions =
         ref.watch(watchSessionsByCatalogRefProvider(seriesRef));
-    final future =
-        videoEdit.tvSeriesFuture ??= videoEdit.loadTvSeriesSnapshot();
+    final future = releaseMediaEdit.tvSeriesFuture ??=
+        releaseMediaEdit.loadTvSeriesSnapshot();
 
     return EditTabShell(
       children: [
@@ -54,17 +54,17 @@ class TvEpisodesTab extends ConsumerWidget {
           child: FutureBuilder<TvSeries?>(
             future: future,
             builder: (context, snapshot) {
-              final series = snapshot.data ?? videoEdit.tvSeriesSnapshot;
+              final series = snapshot.data ?? releaseMediaEdit.tvSeriesSnapshot;
               final providerEpisodes = series == null
                   ? const <TvEpisode>[]
-                  : videoEdit.flattenTvEpisodes(series);
+                  : releaseMediaEdit.flattenTvEpisodes(series);
               final customEpisodes = _sortedCustomEpisodes(customEpisodesAsync);
               final rows = _mergedEpisodeRows(
                 providerEpisodes: providerEpisodes,
                 customEpisodes: customEpisodes,
                 trackedUnits: trackedUnits,
                 watchSessions: watchSessions,
-                videoEdit: videoEdit,
+                releaseMediaEdit: releaseMediaEdit,
               );
 
               if (snapshot.connectionState == ConnectionState.waiting &&
@@ -204,7 +204,7 @@ List<_EpisodeRowData> _mergedEpisodeRows({
   required List<CustomEpisode> customEpisodes,
   required List<TrackingUnit> trackedUnits,
   required List<WatchSession> watchSessions,
-  required VideoEditController videoEdit,
+  required TvReleaseMediaEditController releaseMediaEdit,
 }) {
   final rowsByKey = <String, _EpisodeRowData>{};
 
@@ -220,7 +220,7 @@ List<_EpisodeRowData> _mergedEpisodeRows({
       stillImageUrl: episode.coverImageUrl,
       localImagePath: null,
       thumbnailImageUrl: null,
-      discNumber: videoEdit.discAssignmentForEpisode(
+      discNumber: releaseMediaEdit.discAssignmentForEpisode(
         episodeId: episode.id,
         seasonNumber: episode.seasonNumber ?? 0,
         episodeNumber: episode.episodeNumber?.toInt() ?? 0,
@@ -248,7 +248,7 @@ List<_EpisodeRowData> _mergedEpisodeRows({
       stillImageUrl: episode.stillImageUrl,
       localImagePath: episode.localImagePath,
       thumbnailImageUrl: episode.thumbnailImageUrl,
-      discNumber: videoEdit.discAssignmentForEpisode(
+      discNumber: releaseMediaEdit.discAssignmentForEpisode(
         episodeId: episode.id,
         seasonNumber: episode.seasonNumber,
         episodeNumber: episode.episodeNumber,

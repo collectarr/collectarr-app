@@ -6,9 +6,11 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +35,7 @@ class TvEditDraft extends LibraryEditKindDraft
     required this.episodeNumberController,
     required this.episodeRatings,
     required this.videoEdit,
+    required this.releaseMediaEdit,
   });
 
   @override
@@ -65,6 +68,7 @@ class TvEditDraft extends LibraryEditKindDraft
   final Map<String, int> episodeRatings;
   @override
   final VideoEditController videoEdit;
+  final TvReleaseMediaEditController releaseMediaEdit;
 
   @override
   OwnedDetailsDraft toDetailsDraft() => TvOwnedDetailsDraft(
@@ -78,14 +82,49 @@ class TvEditDraft extends LibraryEditKindDraft
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = videoEdit.applyVideoSelectionEdits(selection);
+    var result = selection;
     final seasonNumber = int.tryParse(seasonNumberController.text);
     final episodeNumber = int.tryParse(episodeNumberController.text);
     final metadata = result.item.kindMetadata;
     if (metadata is TvSeriesMetadata) {
+      final parsedGenres = videoEdit.genresEditController.text
+          .split(RegExp(r'[,\r\n]+'))
+          .map((value) => value.trim())
+          .where((value) => value.isNotEmpty)
+          .toList();
       result = result.copyWith(
         item: result.item.copyWith(
           kindMetadata: metadata.copyWith(
+            episodeRuntimeMinutes:
+                int.tryParse(videoEdit.runtimeController.text),
+            genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
+            cast: videoEdit.castCredits
+                .map((credit) => TvPersonCredit(
+                      name: credit.nameController.text.trim(),
+                      role: emptyToNull(credit.roleController.text.trim()),
+                    ))
+                .where((credit) => credit.name.isNotEmpty)
+                .toList(),
+            crew: videoEdit.crewCredits
+                .map((credit) => TvPersonCredit(
+                      name: credit.nameController.text.trim(),
+                      role: emptyToNull(credit.roleController.text.trim()),
+                    ))
+                .where((credit) => credit.name.isNotEmpty)
+                .toList(),
+            contentRating: emptyToNull(videoEdit.ageRatingController.text),
+            variant: emptyToNull(videoEdit.variantController.text),
+            barcode: emptyToNull(videoEdit.barcodeController.text),
+            physicalFormat: videoEdit.physicalFormatId,
+            physicalFormatLabel:
+                emptyToNull(videoEdit.physicalFormatLabelController.text),
+            publisher: emptyToNull(videoEdit.publisherController.text),
+            country: emptyToNull(videoEdit.countryController.text) ??
+                metadata.country,
+            originalLanguage: emptyToNull(videoEdit.languageController.text) ??
+                metadata.originalLanguage,
+            firstAirDate: parseDate(videoEdit.releaseDateController.text),
+            links: videoEdit.buildUpdatedTrailerUrls(metadata.links),
             seasonNumber: seasonNumber ?? metadata.seasonNumber,
             episodeNumber: episodeNumber ?? metadata.episodeNumber,
           ),
@@ -151,8 +190,26 @@ LibraryEditKindDraft createTvEditDraft({
   final metadata = item.kindMetadata;
   final tv = metadata is TvSeriesMetadata ? metadata : null;
   final videoEdit = VideoEditController(
-    item: item,
+    itemId: item.id,
+    initialRuntime: tv?.episodeRuntimeMinutes?.toString() ?? '',
+    initialAgeRating: tv?.contentRating ?? '',
+    initialGenres: tv?.genres.join(', ') ?? '',
+    initialEditionTitle: libraryKindTitleExtension(item) ?? '',
+    initialVariant: tv?.variant ?? '',
+    initialBarcode: tv?.barcode ?? '',
+    initialPhysicalFormatLabel: tv?.physicalFormatLabel ?? tv?.variant ?? '',
+    initialPhysicalFormatId: tv?.physicalFormat,
+    initialPublisher: tv?.publisher ?? tv?.network ?? '',
+    initialCountry: tv?.country ?? '',
+    initialLanguage: tv?.originalLanguage ?? '',
+    initialReleaseDate:
+        tv?.firstAirDate == null ? '' : formatDate(tv!.firstAirDate!),
+    initialReleaseYear: tv?.firstAirDate?.year.toString() ?? '',
     initialCreators: tv?.creators ?? const <Map<String, dynamic>>[],
+    initialTrailerLinks: tv?.links ?? const <TrailerLink>[],
+  );
+  final releaseMediaEdit = TvReleaseMediaEditController(
+    item: item,
     initialDiscCount: tv?.releases
         .map((release) => release.discCount ?? 0)
         .fold<int>(0, (max, count) => count > max ? count : max),
@@ -181,5 +238,6 @@ LibraryEditKindDraft createTvEditDraft({
     ),
     episodeRatings: const <String, int>{},
     videoEdit: videoEdit,
+    releaseMediaEdit: releaseMediaEdit,
   );
 }

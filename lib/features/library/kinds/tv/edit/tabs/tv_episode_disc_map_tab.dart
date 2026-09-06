@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -17,13 +17,13 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
     required this.type,
     required this.item,
     required this.accent,
-    required this.videoEdit,
+    required this.releaseMediaEdit,
   });
 
   final LibraryKindRuntime type;
   final CatalogItem item;
   final Color accent;
-  final VideoEditController videoEdit;
+  final TvReleaseMediaEditController releaseMediaEdit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,10 +42,10 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
           title: 'Episode map',
           accent: accent,
           child: FutureBuilder<TvSeries?>(
-            future: videoEdit.tvSeriesFuture ??=
-                videoEdit.loadTvSeriesSnapshot(),
+            future: releaseMediaEdit.tvSeriesFuture ??=
+                releaseMediaEdit.loadTvSeriesSnapshot(),
             builder: (context, snapshot) {
-              final series = snapshot.data ?? videoEdit.tvSeriesSnapshot;
+              final series = snapshot.data ?? releaseMediaEdit.tvSeriesSnapshot;
               if (snapshot.connectionState == ConnectionState.waiting &&
                   series == null) {
                 return const EditSectionStateMessage(
@@ -63,7 +63,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                   ref: ref,
                 );
               }
-              final episodes = videoEdit.flattenTvEpisodes(series);
+              final episodes = releaseMediaEdit.flattenTvEpisodes(series);
               if (episodes.isEmpty) {
                 return _manualEpisodeFallbackSection(
                   context,
@@ -75,11 +75,11 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                 );
               }
               final discNumbers = <int>{
-                for (final media in videoEdit.tvReleaseMediaDraft)
+                for (final media in releaseMediaEdit.tvReleaseMediaDraft)
                   media.mediaNumber ?? 1,
-                if (videoEdit.tvReleaseMediaDraft.isEmpty) 1,
+                if (releaseMediaEdit.tvReleaseMediaDraft.isEmpty) 1,
                 for (final assignment
-                    in videoEdit.tvEpisodeDiscAssignments.values)
+                    in releaseMediaEdit.tvEpisodeDiscAssignments.values)
                   assignment,
               }.toList()
                 ..sort();
@@ -135,7 +135,8 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                       Expanded(
                                         flex: 4,
                                         child: Text(
-                                          videoEdit.tvEpisodeLabel(episode),
+                                          releaseMediaEdit
+                                              .tvEpisodeLabel(episode),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
@@ -143,7 +144,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                       Expanded(
                                         flex: 2,
                                         child: DropdownButtonFormField<int>(
-                                          initialValue: videoEdit
+                                          initialValue: releaseMediaEdit
                                                       .tvEpisodeDiscAssignments[
                                                   episode.id] ??
                                               (discNumbers.isEmpty
@@ -164,7 +165,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                             if (value == null) {
                                               return;
                                             }
-                                            videoEdit
+                                            releaseMediaEdit
                                                 .updateTvEpisodeDiscAssignment(
                                               episode.id,
                                               seasonNumber:

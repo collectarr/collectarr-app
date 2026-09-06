@@ -1,4 +1,9 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_schema.dart';
@@ -147,6 +152,67 @@ void main() {
         packaging: 'Steelbook Season',
       ),
     );
+  });
+
+  test('TV release-media editor owns fallback discs and episode mapping', () {
+    final item = CatalogItem(
+      identity: const LibraryItemIdentity(
+        id: 'series-1',
+        mediaKind: CatalogMediaKind.tv,
+      ),
+      kindMetadata: const TvSeriesMetadata(title: 'The Expanse'),
+    );
+    final editor = TvReleaseMediaEditController(
+      item: item,
+      initialDiscCount: 2,
+    );
+    final episode = const TvEpisode(
+      id: 'episode-1',
+      seriesId: 'series-1',
+      seasonId: 'season-1',
+      seasonNumber: 1,
+      episodeNumber: 1,
+      title: 'Dulcinea',
+    );
+    final series = TvSeries(
+      id: 'series-1',
+      title: 'The Expanse',
+      seasons: [
+        TvSeason(
+          id: 'season-1',
+          seriesId: 'series-1',
+          seasonNumber: 1,
+          episodes: [episode],
+        ),
+      ],
+    );
+
+    editor.primeTvSeriesDraft(series);
+
+    expect(editor.tvReleaseMediaDraft, hasLength(2));
+    expect(
+      editor.discAssignmentForEpisode(
+        episodeId: episode.id,
+        seasonNumber: 1,
+        episodeNumber: 1,
+      ),
+      1,
+    );
+    editor.updateTvEpisodeDiscAssignment(
+      episode.id,
+      seasonNumber: 1,
+      episodeNumber: 1,
+      discNumber: 2,
+    );
+    expect(
+      editor.discAssignmentForEpisode(
+        episodeId: episode.id,
+        seasonNumber: 1,
+        episodeNumber: 1,
+      ),
+      2,
+    );
+    expect(editor.tvEpisodeLabel(episode), 'S01E01 Dulcinea');
   });
 }
 

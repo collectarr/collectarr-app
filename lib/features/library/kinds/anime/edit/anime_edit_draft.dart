@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/edit/video/video_edit_controller
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -78,7 +79,37 @@ class AnimeEditDraft extends LibraryEditKindDraft
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = videoEdit.applyVideoSelectionEdits(selection);
+    var result = selection;
+    final metadata = result.item.kindMetadata;
+    if (metadata is AnimeMetadata) {
+      final parsedGenres = videoEdit.genresEditController.text
+          .split(RegExp(r'[,\r\n]+'))
+          .map((value) => value.trim())
+          .where((value) => value.isNotEmpty)
+          .toList();
+      result = result.copyWith(
+        item: result.item.copyWith(
+          kindMetadata: metadata.copyWith(
+            episodeRuntimeMinutes:
+                int.tryParse(videoEdit.runtimeController.text),
+            genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
+            editionTitle: emptyToNull(videoEdit.editionTitleController.text),
+            variant: emptyToNull(videoEdit.variantController.text),
+            barcode: emptyToNull(videoEdit.barcodeController.text),
+            physicalFormat: videoEdit.physicalFormatId,
+            physicalFormatLabel:
+                emptyToNull(videoEdit.physicalFormatLabelController.text),
+            publisher: emptyToNull(videoEdit.publisherController.text),
+            country: emptyToNull(videoEdit.countryController.text) ??
+                metadata.country,
+            language: emptyToNull(videoEdit.languageController.text) ??
+                metadata.language,
+            startDate: parseDate(videoEdit.releaseDateController.text),
+            links: videoEdit.buildUpdatedTrailerUrls(metadata.links),
+          ),
+        ),
+      );
+    }
     if (result.tracking != null) {
       final seasonNumber = int.tryParse(seasonNumberController.text);
       final episodeNumber = int.tryParse(episodeNumberController.text);
@@ -140,8 +171,26 @@ LibraryEditKindDraft createAnimeEditDraft({
   final metadata = item.kindMetadata;
   final anime = metadata is AnimeMetadata ? metadata : null;
   final videoEdit = VideoEditController(
-    item: item,
+    itemId: item.id,
+    initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
+    initialGenres: anime?.genres.join(', ') ?? '',
+    initialEditionTitle:
+        anime?.editionTitle ?? libraryKindTitleExtension(item) ?? '',
+    initialVariant: anime?.variant ?? '',
+    initialBarcode: anime?.barcode ?? '',
+    initialPhysicalFormatLabel:
+        anime?.physicalFormatLabel ?? anime?.variant ?? '',
+    initialPhysicalFormatId: anime?.physicalFormat,
+    initialPublisher: anime?.publisher ?? '',
+    initialCountry: anime?.country ?? '',
+    initialLanguage: anime?.language ?? '',
+    initialReleaseDate:
+        anime?.startDate == null ? '' : formatDate(anime!.startDate!),
+    initialReleaseYear: anime?.seasonYear?.toString() ??
+        anime?.startDate?.year.toString() ??
+        '',
     initialCreators: anime?.creators ?? const <Map<String, dynamic>>[],
+    initialTrailerLinks: anime?.links ?? const <TrailerLink>[],
   );
   videoEdit.initializeVideoEditors();
 

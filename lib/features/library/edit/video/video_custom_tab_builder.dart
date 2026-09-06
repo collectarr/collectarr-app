@@ -1,9 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_draft_contract.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_release_media_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_disc_map_tab.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/edit/video/tabs/video_cast_tab.dart';
 import 'package:collectarr_app/features/library/edit/video/tabs/video_crew_tab.dart';
@@ -26,25 +23,9 @@ Widget? buildVideoCustomTabView({
 }) {
   final videoEdit = (draft.kindDetails is VideoEditDraftContract)
       ? (draft.kindDetails as VideoEditDraftContract).videoEdit
-      : VideoEditController(item: item);
+      : VideoEditController(itemId: item.id);
 
   return switch (tabId) {
-    'episodes' || 'tv_episodes' => TvEpisodesTab(
-        type: draft.type,
-        item: item,
-        accent: accent,
-        videoEdit: videoEdit,
-      ),
-    'release_media' => TvReleaseMediaTab(
-        accent: accent,
-        videoEdit: videoEdit,
-      ),
-    'episode_map' => TvEpisodeDiscMapTab(
-        type: draft.type,
-        item: item,
-        accent: accent,
-        videoEdit: videoEdit,
-      ),
     'edition' => VideoEditEditionTab(
         draft: draft,
         accent: accent,
