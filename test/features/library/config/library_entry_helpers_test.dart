@@ -169,9 +169,9 @@ void main() {
       wishlistItem: wishlistItem,
     );
 
-    expect(resolved.anchorType, 'variant');
-    expect(resolved.editionId, 'edition-4k');
-    expect(resolved.variantId, 'variant-uhd');
-    expect(resolved.bundleReleaseId, isNull);
+    expect(resolved?.apiValue, 'variant');
+    expect(resolved?.editionId, 'edition-4k');
+    expect(resolved?.variantId, 'variant-uhd');
+    expect(resolved?.bundleReleaseId, isNull);
   });
 }

@@ -31,7 +31,7 @@ class LibraryCollectionActions {
           entityType: CatalogEntityType.ownedCopy,
           id: catalogItem.id,
         ),
-        anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+        anchor: anchor,
         common: OwnedItemCommonDraft(),
         details: defaultDetailsDraftForKind(
           catalogMediaKindFromApiValue(catalogItem.kind),
@@ -57,7 +57,7 @@ class LibraryCollectionActions {
     return wishlistMutations.addToWishlist(
       item.source.catalogItem!.id,
       fallbackKind: item.source.catalogItem?.kind,
-      anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+      anchor: anchor,
     );
   }
 
@@ -70,7 +70,7 @@ class LibraryCollectionActions {
     return wishlistMutations.removeFromWishlist(
       item.source.catalogItem!.id,
       wishlistItemId: item.source.wishlistItem?.id,
-      anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+      anchor: anchor,
     );
   }
 }

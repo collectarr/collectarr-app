@@ -260,55 +260,29 @@ String? resolveLibraryOwnedItemId(
   return ownedItem?.id ?? item.source.ownedItem?.id;
 }
 
-typedef LibraryMutationAnchor = ({
-  String? anchorType,
-  String? editionId,
-  String? variantId,
-  String? bundleReleaseId,
-});
+typedef LibraryMutationAnchor = PersonalItemAnchor?;
 
 LibraryMutationAnchor resolveLibraryMutationAnchor({
   LibraryProjectionRuntime? item,
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
 }) {
+  final existingAnchor = ownedItem?.anchor ?? wishlistItem?.anchor;
+  if (existingAnchor != null) {
+    return existingAnchor;
+  }
+
   final releaseNode = item?.node is LibraryReleaseNodeRef
       ? (item!.node as LibraryReleaseNodeRef)
       : null;
-  final editionId = _normalizedEntryAnchorId(
-    ownedItem?.editionId ?? wishlistItem?.editionId ?? releaseNode?.releaseId,
-  );
-  final variantId = _normalizedEntryAnchorId(
-    ownedItem?.variantId ??
-        wishlistItem?.variantId ??
-        (releaseNode != null
-            ? preferredVideoEditionVariantId(releaseNode.edition)
-            : null),
-  );
-  final bundleReleaseId = _normalizedEntryAnchorId(
-    ownedItem?.bundleReleaseId ?? wishlistItem?.bundleReleaseId,
-  );
-  return (
-    anchorType: resolvePersonalItemAnchorType(
-      anchorType: ownedItem?.anchorType ?? wishlistItem?.anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    ),
-    editionId: editionId,
-    variantId: variantId,
-    bundleReleaseId: bundleReleaseId,
-  );
-}
-
-PersonalItemAnchor? personalAnchorFromLibraryMutationAnchor(
-  LibraryMutationAnchor anchor,
-) {
+  if (releaseNode == null) {
+    return null;
+  }
   return PersonalItemAnchor.fromRaw(
-    anchorType: anchor.anchorType,
-    editionId: anchor.editionId,
-    variantId: anchor.variantId,
-    bundleReleaseId: anchor.bundleReleaseId,
+    editionId: _normalizedEntryAnchorId(releaseNode.releaseId),
+    variantId: _normalizedEntryAnchorId(
+      preferredVideoEditionVariantId(releaseNode.edition),
+    ),
   );
 }
 

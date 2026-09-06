@@ -656,7 +656,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               entityType: CatalogEntityType.work,
               id: item.node.titleItemId,
             ),
-            anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+            anchor: anchor,
             common: OwnedItemCommonDraft(),
             details: defaultDetailsDraftForKind(widget.type.kind),
           ),

@@ -82,7 +82,7 @@ class LibraryBulkActions {
       await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+        anchor: anchor,
       );
     }
     for (var index = 0; index < entriesToOwn.length; index++) {
@@ -101,7 +101,7 @@ class LibraryBulkActions {
           entityType: CatalogEntityType.ownedCopy,
           id: entry.itemId,
         ),
-        anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+        anchor: anchor,
         common: OwnedItemCommonDraft(
           condition: defaultCondition,
           grade: defaultGrade,
@@ -203,7 +203,7 @@ class LibraryBulkActions {
       await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+        anchor: anchor,
       );
     }
     for (var index = 0; index < trackedEntries.length; index++) {
