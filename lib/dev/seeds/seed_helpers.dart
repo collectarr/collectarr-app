@@ -87,14 +87,6 @@ CatalogItem enrichSeedItem(CatalogItem item) {
   final payload = Map<String, dynamic>.from(item.toSyncPayload());
   payload.putIfAbsent('id', () => item.id);
 
-  // Older seed payloads used a flat string for series. The typed catalog
-  // contract stores series as an object, and serial-authority discovery reads
-  // that object directly. Normalize the seed shape while enriching data so
-  // a forced re-seed cannot reintroduce an invalid payload.
-  final rawSeries = payload['series'];
-  if (rawSeries is String && rawSeries.trim().isNotEmpty) {
-    payload['series'] = <String, dynamic>{'series_title': rawSeries.trim()};
-  }
   _normalizeNestedPayload(payload, 'video', const <String>[
     'runtime_minutes',
     'color',
@@ -328,6 +320,15 @@ void validateSeedCatalogQuality(Iterable<CatalogItem> items) {
         _requirePositiveInt(
             issues, prefix, 'track_count', payload['track_count']);
         _requireTrackList(issues, prefix, payload['tracks']);
+        final tracks = payload['tracks'];
+        final trackCount = payload['track_count'];
+        if (tracks is List &&
+            trackCount is int &&
+            tracks.length != trackCount) {
+          issues.add(
+            '$prefix: track_count must equal the number of track objects',
+          );
+        }
         _requireText(
             issues, prefix, 'catalog_number', payload['catalog_number']);
       case 'game':
@@ -377,6 +378,15 @@ void _validateTypedGraph(
         parentKey: 'work_id',
         titleKey: 'title',
       );
+      for (var index = 0; index < issuesPayload.length; index++) {
+        final issue = issuesPayload[index];
+        _requireText(
+          issues,
+          prefix,
+          'issues[$index].issue_number',
+          issue['issue_number'] ?? item.itemNumber,
+        );
+      }
     case 'manga':
       final chapters = _requireObjectList(
         issues,

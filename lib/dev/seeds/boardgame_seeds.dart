@@ -343,8 +343,8 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
 List<OwnedItem> boardgameSeedOwnedItems(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         OwnedItem(
-          // Keep the original first ID so existing local seed data is updated
-          // instead of leaving an orphaned copy behind after a re-seed.
+          // Keep a deterministic first ID so repeated seed runs remain
+          // idempotent.
           id: i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-boardgame-${seedOrdinal2(i)}'),
           createdAt: now.subtract(Duration(days: 600 - (i * 25))),
@@ -378,7 +378,7 @@ List<OwnedItem> boardgameSeedOwnedItems(DateTime now) => [
 List<TrackingEntry> boardgameSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TrackingEntry(
-          // Keep the original first tracking ID for idempotent upgrades.
+          // Keep a deterministic first tracking ID for idempotent seed runs.
           id: i == 1
               ? 'seed-track-06'
               : 'seed-track-boardgame-${seedOrdinal2(i)}',

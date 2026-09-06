@@ -48,6 +48,13 @@ void main() {
       verification.seededCatalogCount,
       devSeedCatalogCounts.values.fold<int>(0, (total, count) => total + count),
     );
+    for (final entry in devSeedVocabularyMinimumCounts().entries) {
+      expect(
+        verification.vocabularyCounts[entry.key],
+        greaterThanOrEqualTo(entry.value),
+        reason: 'Incomplete ${entry.key} seed vocabulary',
+      );
+    }
 
     final catalogRows = await LibraryCatalogRepository(db).findAll();
     final typedGraphCounts = await devSeedTypedGraphCounts(db);

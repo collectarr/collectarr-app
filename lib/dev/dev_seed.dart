@@ -536,6 +536,24 @@ Future<Map<String, int>> devSeedAuxiliaryCounts(LocalDatabase db) async {
   };
 }
 
+/// Counts each kind-owned vocabulary independently so a missing list cannot
+/// be hidden by the aggregate pick-list total.
+Future<Map<String, int>> devSeedVocabularyCounts(LocalDatabase db) async {
+  final repository = PickListRepository(db);
+  final counts = <String, int>{};
+  for (final key in devSeedVocabularyMinimumCounts().keys) {
+    final separator = key.indexOf('.');
+    if (separator <= 0) continue;
+    final kind = key.substring(0, separator);
+    counts[key] = (await repository.getValues(
+      key,
+      mediaKind: kind,
+    ))
+        .length;
+  }
+  return counts;
+}
+
 /// Summary returned after validating the complete development fixture graph.
 ///
 /// The CLI seed script and the Flutter seed test intentionally call the same
@@ -552,6 +570,7 @@ final class DevSeedVerificationReport {
     required this.typedOwnedCounts,
     required this.typedTrackingCounts,
     required this.typedTrackingUnitCounts,
+    required this.vocabularyCounts,
     required this.auxiliaryCounts,
   });
 
@@ -564,6 +583,7 @@ final class DevSeedVerificationReport {
   final Map<String, int> typedOwnedCounts;
   final Map<String, int> typedTrackingCounts;
   final Map<String, int> typedTrackingUnitCounts;
+  final Map<String, int> vocabularyCounts;
   final Map<String, int> auxiliaryCounts;
 }
 
@@ -582,6 +602,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
   final typedTrackingCounts = await devSeedTypedTrackingCounts(db);
   final typedTrackingUnitCounts = await devSeedTypedTrackingUnitCounts(db);
+  final vocabularyCounts = await devSeedVocabularyCounts(db);
   final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
   final issues = <String>[];
 
@@ -749,6 +770,13 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
       'found ${typedTrackingUnitCounts[entry.key] ?? 0}',
     );
   }
+  for (final entry in devSeedVocabularyMinimumCounts().entries) {
+    require(
+      (vocabularyCounts[entry.key] ?? 0) >= entry.value,
+      'vocabulary ${entry.key}: expected at least ${entry.value}, found '
+      '${vocabularyCounts[entry.key] ?? 0}',
+    );
+  }
   for (final entry in devSeedAuxiliaryMinimumCounts.entries) {
     require(
       (auxiliaryCounts[entry.key] ?? 0) >= entry.value,
@@ -892,6 +920,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     typedOwnedCounts: typedOwnedCounts,
     typedTrackingCounts: typedTrackingCounts,
     typedTrackingUnitCounts: typedTrackingUnitCounts,
+    vocabularyCounts: vocabularyCounts,
     auxiliaryCounts: auxiliaryCounts,
   );
 }

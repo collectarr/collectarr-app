@@ -20,7 +20,11 @@ CatalogItem enrichMusicSeedItem(CatalogItem item) {
         ]
       : [
           _musicSeedTrack(
-            {'title': '${item.title} — Track 1', 'track_number': '1'},
+            {
+              'title': '${item.title} — Track 1',
+              'track_number': '1',
+              'duration_seconds': 180,
+            },
             item,
             mediaId,
             0,
