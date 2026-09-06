@@ -179,16 +179,11 @@ void main() {
       }
     });
 
-    test('unknown kind resolves to GenericOwnedDetails cleanly', () {
-      const unknownDetails = GenericOwnedDetails();
-      expect(unknownDetails, isA<GenericOwnedDetails>());
-
-      final unknownDraft =
-          libraryKindOwnedDetailsDraftForKind(CatalogMediaKind.unknown);
-      expect(unknownDraft, isA<GenericOwnedDetailsDraft>());
-
-      const parsed = GenericOwnedDetails();
-      expect(parsed, isA<GenericOwnedDetails>());
+    test('unknown kind has no owned details registration', () {
+      expect(
+        () => libraryKindOwnedDetailsDraftForKind(CatalogMediaKind.unknown),
+        throwsArgumentError,
+      );
     });
 
     test(

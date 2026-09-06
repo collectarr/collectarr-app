@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardg
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
@@ -27,12 +26,14 @@ final collectarrOwnedDetailsCodecs =
   CatalogMediaKind.tv: const TvOwnedDetailsCodec(),
   CatalogMediaKind.anime: const AnimeOwnedDetailsCodec(),
   CatalogMediaKind.music: const MusicOwnedDetailsCodec(),
-  CatalogMediaKind.unknown: const GenericOwnedDetailsCodec(),
 };
 
 OwnedDetailsPersistenceCodec collectarrOwnedDetailsCodecForKind(
   CatalogMediaKind kind,
 ) {
-  return collectarrOwnedDetailsCodecs[kind] ??
-      collectarrOwnedDetailsCodecs[CatalogMediaKind.unknown]!;
+  final codec = collectarrOwnedDetailsCodecs[kind];
+  if (codec == null) {
+    throw ArgumentError('No owned-details codec registered for kind: $kind');
+  }
+  return codec;
 }

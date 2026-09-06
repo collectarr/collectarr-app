@@ -110,9 +110,8 @@ void main() {
 
       expect(decodedTypes, hasLength(activeKinds.length));
       expect(
-        collectarrOwnedDetailsCodecForKind(CatalogMediaKind.unknown)
-            .defaultDetails(),
-        isA<GenericOwnedDetails>(),
+        () => collectarrOwnedDetailsCodecForKind(CatalogMediaKind.unknown),
+        throwsArgumentError,
       );
     });
 
@@ -124,7 +123,6 @@ void main() {
         final defaultDetails =
             collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
         expect(defaultDetails, isNotNull);
-        expect(defaultDetails.runtimeType, isNot(equals(GenericOwnedDetails)));
         detailsTypes.add(defaultDetails.runtimeType);
       }
       expect(detailsTypes.length, equals(9),

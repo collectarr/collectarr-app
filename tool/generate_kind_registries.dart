@@ -116,8 +116,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_regi
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
-import 'package:collectarr_app/features/library/generic/page.dart';
 ''');
   for (final descriptor in descriptors) {
     buffer.writeln(
@@ -157,25 +155,6 @@ import 'package:collectarr_app/features/library/generic/page.dart';
   );
   buffer.writeln('  for (final registration in collectarrKindRegistrations) {');
   buffer.writeln('    if (registration.kind == kind) return registration;');
-  buffer.writeln('  }');
-  buffer.writeln('  if (kind == CatalogMediaKind.unknown) {');
-  buffer.writeln('    return LibraryKindRegistrationAdapter(');
-  buffer.writeln('      kind: CatalogMediaKind.unknown,');
-  buffer.writeln('      module: genericKindModule,');
-  buffer.writeln('      pageBuilder: ({');
-  buffer.writeln('        required LibraryKindModule type,');
-  buffer.writeln('        required Widget topBar,');
-  buffer.writeln('        required Color accent,');
-  buffer.writeln('        required Uri routeUri,');
-  buffer.writeln('        LibraryLayoutSnapshot? switchLayoutSnapshot,');
-  buffer.writeln('      }) => GenericLibraryPage(');
-  buffer.writeln('        type: type,');
-  buffer.writeln('        topBar: topBar,');
-  buffer.writeln('        accent: accent,');
-  buffer.writeln('        routeUri: routeUri,');
-  buffer.writeln('        switchLayoutSnapshot: switchLayoutSnapshot,');
-  buffer.writeln('      ),');
-  buffer.writeln('    );');
   buffer.writeln('  }');
   buffer.writeln('  throw ArgumentError(');
   buffer.writeln(

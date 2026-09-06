@@ -261,8 +261,9 @@ class SyncApplyService {
     }, decodeDetails: (json) {
       final rawCatalogRef = json['catalog_ref'];
       if (rawCatalogRef is! Map) {
-        return collectarrOwnedDetailsCodecForKind(CatalogMediaKind.unknown)
-            .defaultDetails();
+        throw const FormatException(
+          'Owned item sync payload is missing catalog_ref',
+        );
       }
       final catalogRef = CatalogEntityRef.fromJson(
         Map<String, dynamic>.from(rawCatalogRef),

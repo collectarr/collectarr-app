@@ -7,8 +7,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_regi
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
-import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
@@ -196,26 +194,6 @@ final List<LibraryKindRegistration> collectarrKindRegistrations = [
 LibraryKindRegistration libraryKindRegistrationForKind(CatalogMediaKind kind) {
   for (final registration in collectarrKindRegistrations) {
     if (registration.kind == kind) return registration;
-  }
-  if (kind == CatalogMediaKind.unknown) {
-    return LibraryKindRegistrationAdapter(
-      kind: CatalogMediaKind.unknown,
-      module: genericKindModule,
-      pageBuilder: ({
-        required LibraryKindModule type,
-        required Widget topBar,
-        required Color accent,
-        required Uri routeUri,
-        LibraryLayoutSnapshot? switchLayoutSnapshot,
-      }) =>
-          GenericLibraryPage(
-        type: type,
-        topBar: topBar,
-        accent: accent,
-        routeUri: routeUri,
-        switchLayoutSnapshot: switchLayoutSnapshot,
-      ),
-    );
   }
   throw ArgumentError(
     'No LibraryKindRegistration registered for kind "$kind"',

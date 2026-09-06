@@ -213,9 +213,7 @@ void main() {
     expect(dialog.scope, LibraryEditScope.all);
   });
 
-  test(
-      'library kind page builder dispatches known kinds and falls back to generic',
-      () {
+  test('library kind page builder dispatches known kinds', () {
     expect(
       buildLibraryKindPage(
         registration: libraryKindRegistrationForKind(CatalogMediaKind.comic),
@@ -244,13 +242,8 @@ void main() {
       isA<TvLibraryPage>(),
     );
     expect(
-      buildLibraryKindPage(
-        registration: libraryKindRegistrationForKind(CatalogMediaKind.unknown),
-        topBar: const SizedBox(),
-        accent: Colors.blue,
-        routeUri: Uri(path: '/unknown'),
-      ),
-      isA<GenericLibraryPage>(),
+      () => libraryKindRegistrationForKind(CatalogMediaKind.unknown),
+      throwsArgumentError,
     );
   });
 }
