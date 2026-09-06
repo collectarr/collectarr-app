@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_units_c
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_import_contributions.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -213,7 +213,7 @@ void main() {
         title: 'Season 2',
       );
 
-      await const TvTrackingImportContribution().addLocalOnlySeasonEntry(
+      await tvTrackingImportContribution.addLocalOnlySeasonEntry(
         trackingMutations,
         seasonItem,
         seasonNumber: 2,

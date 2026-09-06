@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_runner.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_import_contributions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
@@ -934,7 +934,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       final seasonNumber =
           (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
       if (seriesEntry.collection.isRated) {
-        await const TvTrackingImportContribution().addLocalOnlySeasonEntry(
+        await tvTrackingImportContribution.addLocalOnlySeasonEntry(
           trackingMutations,
           seasonItem,
           sourceType: TrackingSourceType.streaming,
