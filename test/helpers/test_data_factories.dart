@@ -1,14 +1,22 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 
 /// Builds a [CatalogItem] with sensible defaults for testing.
 ///
@@ -126,6 +134,58 @@ CatalogEntityRef testCatalogRef(
     kind: kind,
     entityType: entityType,
     id: id,
+  );
+}
+
+AddOwnedItemCommand typedAddOwnedItemCommand({
+  required CatalogEntityRef catalogRef,
+  required OwnedItemCommonDraft common,
+  required OwnedDetailsDraft details,
+  OwnedItemCreatePayload? typedPayload,
+  PersonalItemAnchor? anchor,
+  OwnedItemTrackingDraft? tracking,
+}) {
+  if (typedPayload != null) {
+    return AddOwnedItemCommand(
+      catalogRef: catalogRef,
+      common: common,
+      details: details,
+      typedPayload: typedPayload,
+      anchor: anchor,
+      tracking: tracking,
+    );
+  }
+  final add = libraryKindRuntimeForKind(
+    catalogMediaKindFromApiValue(catalogRef.kind),
+  ).add;
+  return add.buildCommandFromDetails(
+    testCatalogItem(
+      id: catalogRef.id,
+      kind: catalogRef.kind,
+    ),
+    LibraryAddCommonDraft(
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
+    details,
+    anchor: anchor,
+    tracking: LibraryAddTrackingDraft(
+      readStatus: mediaTrackingStatusToStorageValue(tracking?.status),
+      rating: tracking?.rating,
+      startedAt: tracking?.startedAt,
+      finishedAt: tracking?.finishedAt,
+      notes: tracking?.notes,
+    ),
   );
 }
 

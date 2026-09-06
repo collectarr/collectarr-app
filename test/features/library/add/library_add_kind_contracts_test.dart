@@ -143,7 +143,7 @@ void main() {
         expect(duplicate, isNotNull,
             reason: '$kind must support typed Owned duplication');
         expect(duplicate!.typedPayload, isNotNull);
-        final duplicatedOwned = duplicate.typedPayload!.toLegacyOwnedItem(
+        final duplicatedOwned = duplicate.typedPayload!.toOwnedItem(
           resolvedCatalogRef: duplicate.catalogRef,
           id: 'duplicate-${kind.apiValue}',
           createdAt: DateTime.utc(2026, 1, 2),

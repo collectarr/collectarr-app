@@ -82,32 +82,26 @@ final class OwnedItemMutations {
 
         final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
         final typedPayload = command.typedPayload;
-        final details =
-            (typedPayload?.detailsDraft ?? command.details).toDetails();
+        if (typedPayload == null) {
+          throw StateError(
+            'Owned item add requires a typed payload for kind '
+            '${catalogRef.kind}.',
+          );
+        }
+        final details = typedPayload.detailsDraft.toDetails();
         if (mediaKind != CatalogMediaKind.unknown) {
           collectarrOwnedDetailsCodecForKind(mediaKind).validate(details);
         }
 
-        final ownedItem = typedPayload?.toOwnedItem(
-              resolvedCatalogRef: resolvedCatalogRef,
-              id: newItemId,
-              createdAt: now,
-              existingCatalog: existingCatalog,
-              anchor: anchor,
-              ownerUserId: userId,
-              ownerLabel: userEmail,
-            ) ??
-            _buildOwnedItem(
-              command,
-              resolvedCatalogRef: resolvedCatalogRef,
-              details: details,
-              id: newItemId,
-              createdAt: now,
-              anchor: anchor,
-              existingCatalog: existingCatalog,
-              ownerUserId: userId,
-              ownerLabel: userEmail,
-            );
+        final ownedItem = typedPayload.toOwnedItem(
+          resolvedCatalogRef: resolvedCatalogRef,
+          id: newItemId,
+          createdAt: now,
+          existingCatalog: existingCatalog,
+          anchor: anchor,
+          ownerUserId: userId,
+          ownerLabel: userEmail,
+        );
 
         await ownedItems.upsert(ownedItem);
         await typedOwnedItems?.upsert(ownedItem);
@@ -163,7 +157,7 @@ final class OwnedItemMutations {
                     fallbackOwnerUserId: userId,
                     fallbackOwnerLabel: userEmail,
                   )
-                    : _applyOwnedPatch(
+                : _applyOwnedPatch(
                     existing,
                     command as OwnedItemPatchCommand,
                     updatedAt: now,
@@ -179,43 +173,6 @@ final class OwnedItemMutations {
     );
 
     return updated;
-  }
-
-  OwnedItem _buildOwnedItem(
-    AddOwnedItemCommand command, {
-    required CatalogEntityRef resolvedCatalogRef,
-    required OwnedItemDetails details,
-    required String id,
-    required DateTime createdAt,
-    required PersonalItemAnchor? anchor,
-    required CatalogItem? existingCatalog,
-    required String? ownerUserId,
-    required String? ownerLabel,
-  }) {
-    final common = command.common;
-    return OwnedItem(
-      id: id,
-      catalogRef: resolvedCatalogRef,
-      createdAt: createdAt,
-      isDigital:
-          common.isDigital ?? existingCatalog?.physicalFormat == 'digital',
-      anchor: anchor,
-      details: details,
-      condition: common.condition,
-      grade: common.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      tags: common.tags,
-      ownerUserId: ownerUserId,
-      ownerLabel: ownerLabel,
-      updatedAt: createdAt,
-    );
   }
 
   OwnedItem _applyOwnedPatch(

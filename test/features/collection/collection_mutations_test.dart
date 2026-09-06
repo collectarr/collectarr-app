@@ -41,7 +41,7 @@ void main() {
     addTearDown(container.dispose);
 
     await container.read(ownedItemMutationsProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             anchor: PersonalItemAnchor.fromRaw(
               anchorType: PersonalItemAnchorType.variant.apiValue,
@@ -78,7 +78,7 @@ void main() {
     addTearDown(container.dispose);
 
     await container.read(ownedItemMutationsProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-typed-payload', kind: 'comic'),
             common: const OwnedItemCommonDraft(
               condition: 'Legacy condition',
@@ -118,7 +118,7 @@ void main() {
     addTearDown(container.dispose);
 
     await container.read(ownedItemMutationsProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
             common: const OwnedItemCommonDraft(),
             details: const MovieOwnedDetailsDraft(),
@@ -152,7 +152,7 @@ void main() {
     addTearDown(container.dispose);
 
     await container.read(ownedItemMutationsProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(),
             details: const ComicOwnedDetailsDraft(),
@@ -174,7 +174,7 @@ void main() {
       testCatalogItem(id: 'comic-1', kind: 'comic', title: 'Original'),
     ]);
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(
               condition: 'Near Mint',
@@ -211,7 +211,7 @@ void main() {
     addTearDown(container.dispose);
 
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
             common: OwnedItemCommonDraft(),
             tracking: OwnedItemTrackingDraft(
@@ -263,7 +263,7 @@ void main() {
     ]);
 
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-digital-1', kind: 'movie'),
             common: const OwnedItemCommonDraft(),
             tracking: const OwnedItemTrackingDraft(
@@ -292,7 +292,7 @@ void main() {
 
     final owned =
         await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
-              AddOwnedItemCommand(
+              typedAddOwnedItemCommand(
                 catalogRef: testCatalogRef('movie-2', kind: 'movie'),
                 anchor: PersonalItemAnchor.fromRaw(
                   anchorType: PersonalItemAnchorType.variant.apiValue,
@@ -447,7 +447,7 @@ void main() {
     ]);
 
     await container.read(ownedItemMutationsProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(),
             details: const ComicOwnedDetailsDraft(),
@@ -482,7 +482,7 @@ void main() {
     addTearDown(container.dispose);
 
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: OwnedItemCommonDraft(
               condition: 'Near Mint',
@@ -525,7 +525,7 @@ void main() {
     addTearDown(container.dispose);
 
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(
               locationId: 'loc-box-6',
@@ -1059,11 +1059,13 @@ void main() {
       const [
         CollectionCsvRow(
           itemId: 'comic-1',
+          kind: 'comic',
           status: 'owned',
           grade: '9.8',
         ),
         CollectionCsvRow(
           itemId: 'comic-1',
+          kind: 'comic',
           status: 'owned',
           grade: '7.5',
         ),
@@ -1129,7 +1131,7 @@ void main() {
     final importService = container.read(collectionImportServiceProvider);
 
     await coordinator.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
         common: const OwnedItemCommonDraft(grade: '4.0'),
         details: const ComicOwnedDetailsDraft(),
@@ -1163,7 +1165,7 @@ void main() {
     final importService = container.read(collectionImportServiceProvider);
 
     await coordinator.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
         common: const OwnedItemCommonDraft(condition: 'Good', grade: '4.0'),
         details: const ComicOwnedDetailsDraft(),
@@ -1204,6 +1206,7 @@ void main() {
       const [
         CollectionCsvRow(
           itemId: 'comic-1',
+          kind: 'comic',
           status: 'owned',
           locationId: 'loc-short-box-6',
         ),

@@ -122,7 +122,7 @@ void main() {
         'addOwnedItem with missing catalog cache item uses command catalogRef kind and never defaults to comic',
         () async {
       final owned = await ownedMutations.addOwnedItem(
-        const AddOwnedItemCommand(
+        typedAddOwnedItemCommand(
           catalogRef: CatalogEntityRef(
             kind: 'music',
             entityType: CatalogEntityType.work,

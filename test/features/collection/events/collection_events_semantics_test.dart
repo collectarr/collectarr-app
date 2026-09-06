@@ -98,7 +98,7 @@ void main() {
     final sub = eventBus.stream.listen(events.add);
 
     final item = await ownedMutations.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-100', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
@@ -119,7 +119,7 @@ void main() {
     final sub = eventBus.stream.listen(events.add);
 
     final item = await ownedMutations.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-200', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
         details: const MovieOwnedDetailsDraft(),

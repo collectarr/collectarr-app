@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -94,7 +95,7 @@ void main() {
     addTearDown(container.dispose);
 
     final coordinator = container.read(collectionCommandCoordinatorProvider);
-    final command = AddOwnedItemCommand(
+    final command = typedAddOwnedItemCommand(
       catalogRef: const CatalogEntityRef(
         kind: 'comic',
         entityType: CatalogEntityType.ownedCopy,
@@ -150,7 +151,7 @@ void main() {
 
     final coordinator = container.read(collectionCommandCoordinatorProvider);
     final initial = await coordinator.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: const CatalogEntityRef(
           kind: 'comic',
           entityType: CatalogEntityType.ownedCopy,

@@ -57,7 +57,7 @@ void main() {
         );
 
     await coordinator.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const OwnedItemCommonDraft(locationId: 'loc-a'),
         details: const MovieOwnedDetailsDraft(),
@@ -68,6 +68,7 @@ void main() {
     final owned = testOwnedItem(
       id: row.id,
       itemId: row.itemId,
+      kind: 'movie',
       locationId: row.locationId,
       updatedAt: row.updatedAt,
     );
@@ -106,7 +107,7 @@ void main() {
         );
 
     await coordinator.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
@@ -155,7 +156,7 @@ void main() {
         );
 
     await coordinator.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
@@ -268,6 +269,7 @@ void main() {
     await actions.moveSelectedToOwned([
       ShelfEntry(
         itemId: 'movie-1',
+        catalogItem: testCatalogItem(id: 'movie-1', kind: 'movie'),
         wishlistItem: WishlistItem(
           id: row4k.id,
           catalogRef: testCatalogRef(row4k.itemId, kind: 'movie'),

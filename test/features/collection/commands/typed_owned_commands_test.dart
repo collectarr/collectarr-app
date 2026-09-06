@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +41,7 @@ void main() {
 
   group('Typed Owned Commands & Details', () {
     test(
-        'every registered active kind accepts valid details and rejects wrong details',
+        'every registered active kind accepts valid typed details and rejects missing payloads',
         () async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
@@ -71,7 +72,7 @@ void main() {
         final validDraft = entry.value;
 
         final item = await coordinator.addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
               kind: kind.apiValue,
               entityType: CatalogEntityType.ownedCopy,
@@ -101,7 +102,7 @@ void main() {
                 details: const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
               ),
             ),
-            throwsA(isA<ArgumentError>()),
+            throwsA(isA<StateError>()),
           );
         } else {
           // Comic/manga kind with MovieOwnedDetailsDraft
@@ -117,7 +118,7 @@ void main() {
                 details: const MovieOwnedDetailsDraft(region: 'A'),
               ),
             ),
-            throwsA(isA<ArgumentError>()),
+            throwsA(isA<StateError>()),
           );
         }
       }
@@ -137,7 +138,7 @@ void main() {
 
       for (final kind in allActiveKinds) {
         final initial = await coordinator.addOwnedItem(
-          AddOwnedItemCommand(
+          typedAddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
               kind: kind.apiValue,
               entityType: CatalogEntityType.ownedCopy,

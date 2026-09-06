@@ -8,6 +8,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('collection add writes every active kind to its typed owned table',
@@ -34,7 +35,7 @@ void main() {
 
     for (final kind in kinds) {
       await coordinator.addOwnedItem(
-        AddOwnedItemCommand(
+        typedAddOwnedItemCommand(
           catalogRef: CatalogEntityRef(
             kind: kind.apiValue,
             entityType: CatalogEntityType.ownedCopy,

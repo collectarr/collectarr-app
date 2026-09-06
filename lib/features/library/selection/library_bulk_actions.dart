@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -109,34 +108,22 @@ class LibraryBulkActions {
         locationId: defaultLocationId,
         tags: defaultTags,
       );
-      final tracking = OwnedItemTrackingDraft(
-        status: mediaTrackingStatusFromValue(defaultReadStatus),
-      );
       final catalogItem = entry.catalogItem;
-      final addCmd =
-          catalogItem == null || resolvedKind == CatalogMediaKind.unknown
-              ? AddOwnedItemCommand(
-                  catalogRef: CatalogEntityRef(
-                    kind: resolvedKindStr ?? 'comic',
-                    entityType: CatalogEntityType.ownedCopy,
-                    id: entry.itemId,
-                  ),
-                  anchor: anchor,
-                  common: common.toOwnedItemCommonDraft(),
-                  tracking: tracking,
-                  details: libraryKindOwnedDetailsDraftForKind(resolvedKind),
-                )
-              : libraryKindRuntimeForKind(resolvedKind).add.buildCommand(
-                    catalogItem,
-                    common,
-                    libraryKindRuntimeForKind(resolvedKind)
-                        .add
-                        .createInitialDraft(),
-                    anchor: anchor,
-                    tracking: LibraryAddTrackingDraft(
-                      readStatus: defaultReadStatus,
-                    ),
-                  );
+      if (catalogItem == null || resolvedKind == CatalogMediaKind.unknown) {
+        throw StateError(
+          'Cannot add selected item without a typed catalog kind: '
+          '${entry.itemId}',
+        );
+      }
+      final addCmd = libraryKindRuntimeForKind(resolvedKind).add.buildCommand(
+            catalogItem,
+            common,
+            libraryKindRuntimeForKind(resolvedKind).add.createInitialDraft(),
+            anchor: anchor,
+            tracking: LibraryAddTrackingDraft(
+              readStatus: defaultReadStatus,
+            ),
+          );
       await coordinator.addOwnedItem(addCmd);
     }
   }
@@ -181,7 +168,6 @@ class LibraryBulkActions {
               finishedAt: entry.trackingEntry!.finishedAt,
               notes: entry.trackingEntry!.notes,
             );
-      final details = runtime.ownedDetailsDraftFromDetails(src.details);
       final typedCommand = catalogItem == null
           ? null
           : runtime.add.buildCommandFromOwnedItem(
@@ -190,37 +176,13 @@ class LibraryBulkActions {
               anchor: src.anchor,
               tracking: tracking ?? const LibraryAddTrackingDraft(),
             );
-      final addCmd = typedCommand ??
-          AddOwnedItemCommand(
-            catalogRef: CatalogEntityRef(
-              kind: src.catalogRef.kind,
-              entityType: CatalogEntityType.ownedCopy,
-              id: src.itemId,
-            ),
-            anchor: src.anchor,
-            common: OwnedItemCommonDraft(
-              isDigital: src.isDigital,
-              condition: src.condition,
-              grade: src.grade,
-              purchaseDate: src.purchaseDate,
-              pricePaidCents: src.pricePaidCents,
-              currency: src.currency,
-              personalNotes: src.personalNotes,
-              quantity: src.quantity,
-              locationId: src.locationId,
-              tags: src.tags,
-            ),
-            tracking: entry.trackingEntry == null
-                ? null
-                : OwnedItemTrackingDraft(
-                    status: entry.trackingEntry!.status,
-                    rating: entry.trackingEntry!.rating,
-                    startedAt: entry.trackingEntry!.startedAt,
-                    finishedAt: entry.trackingEntry!.finishedAt,
-                    notes: entry.trackingEntry!.notes,
-                  ),
-            details: details,
-          );
+      if (typedCommand == null) {
+        throw StateError(
+          'Cannot duplicate ${src.catalogRef.kind} item without a typed '
+          'catalog payload: ${src.itemId}',
+        );
+      }
+      final addCmd = typedCommand;
       await coordinator.addOwnedItem(addCmd);
     }
     return ownedEntries.length;
