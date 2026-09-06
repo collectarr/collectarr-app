@@ -59,6 +59,14 @@ Future<void> main() async {
         '${typedGraphIntegrityIssues.map((issue) => '- $issue').join('\n')}',
       );
     }
+    final typedOwnedIntegrityIssues =
+        await devSeedTypedOwnedIntegrityIssues(db);
+    if (typedOwnedIntegrityIssues.isNotEmpty) {
+      throw StateError(
+        'Seed verification failed for kind-owned rows:\n'
+        '${typedOwnedIntegrityIssues.map((issue) => '- $issue').join('\n')}',
+      );
+    }
     final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
     for (final entry in devSeedTypedOwnedMinimumCounts.entries) {
       final actual = typedOwnedCounts[entry.key] ?? 0;

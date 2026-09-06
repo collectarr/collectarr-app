@@ -25,6 +25,18 @@ void main() {
     );
   });
 
+  test('seed quality guard rejects owned details under the wrong kind', () {
+    final movie = movieSeedOwnedItems(DateTime.utc(2024, 1, 1)).first;
+    final mismatched = movie.copyWith(
+      catalogRef: seedCatalogRef('seed-comic-01'),
+    );
+
+    expect(
+      () => validateSeedOwnedQuality([mismatched]),
+      throwsA(isA<StateError>()),
+    );
+  });
+
   test('dev seed populates new libraries and image sets, and is idempotent',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
@@ -44,6 +56,13 @@ void main() {
       typedGraphIntegrityIssues,
       isEmpty,
       reason: 'Typed seed graph relationships must remain intact',
+    );
+    final typedOwnedIntegrityIssues =
+        await devSeedTypedOwnedIntegrityIssues(db);
+    expect(
+      typedOwnedIntegrityIssues,
+      isEmpty,
+      reason: 'Kind-owned seed rows must remain linked to common copies',
     );
     for (final entry in devSeedTypedGraphMinimumCounts.entries) {
       expect(

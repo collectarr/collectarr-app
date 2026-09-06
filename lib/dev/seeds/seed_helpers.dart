@@ -7,6 +7,15 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 
 const String seedCoverImageData =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+XbL0AAAAASUVORK5CYII=';
@@ -757,8 +766,135 @@ void validateSeedOwnedQuality(Iterable<OwnedItem> items) {
     if (item.currency?.trim().isEmpty != false) {
       issues.add('$prefix: currency is required when a purchase price exists');
     }
+    _validateSeedOwnedDetails(issues, prefix, item);
   }
   _throwSeedQualityIssues('owned', issues);
+}
+
+/// Ensures every development copy exercises the complete typed details
+/// boundary for its owning kind. A common Owned row with an arbitrary details
+/// payload would make the fixture look populated while leaving the kind-owned
+/// table empty or incorrectly decoded.
+void _validateSeedOwnedDetails(
+  List<String> issues,
+  String prefix,
+  OwnedItem item,
+) {
+  switch (item.catalogRef.kind) {
+    case 'comic':
+      final details = item.details;
+      if (details is! ComicOwnedDetails) {
+        issues.add('$prefix: expected ComicOwnedDetails');
+        return;
+      }
+      _requireText(
+          issues, prefix, 'comic.raw_or_slabbed', details.rawOrSlabbed);
+      _requireText(issues, prefix, 'comic.page_quality', details.pageQuality);
+      if (details.lastBagBoardDate == null) {
+        issues.add('$prefix: comic.last_bag_board_date is required');
+      }
+    case 'manga':
+      final details = item.details;
+      if (details is! MangaOwnedDetails) {
+        issues.add('$prefix: expected MangaOwnedDetails');
+        return;
+      }
+      _requireText(issues, prefix, 'manga.printing', details.printing);
+      _requireText(
+          issues, prefix, 'manga.localized_edition', details.localizedEdition);
+      if (!details.dustJacketPresent) {
+        issues.add('$prefix: manga.dust_jacket_present must be true');
+      }
+    case 'book':
+      final details = item.details;
+      if (details is! BookOwnedDetails) {
+        issues.add('$prefix: expected BookOwnedDetails');
+        return;
+      }
+      _requireText(issues, prefix, 'book.signed_by', details.signedBy);
+      if (!details.dustJacketPresent) {
+        issues.add('$prefix: book.dust_jacket_present must be true');
+      }
+    case 'game':
+      final details = item.details;
+      if (details is! GameOwnedDetails) {
+        issues.add('$prefix: expected GameOwnedDetails');
+        return;
+      }
+      _requireText(issues, prefix, 'game.completeness', details.completeness);
+      _requireText(issues, prefix, 'game.core_region', details.coreRegion);
+      _requireText(
+          issues, prefix, 'game.pricecharting_id', details.priceChartingId);
+      if (details.hasBox != true || details.hasManual != true) {
+        issues.add('$prefix: game copy must include box and manual');
+      }
+    case 'boardgame':
+      final details = item.details;
+      if (details is! BoardgameOwnedDetails) {
+        issues.add('$prefix: expected BoardgameOwnedDetails');
+        return;
+      }
+      _requireText(issues, prefix, 'boardgame.edition_language',
+          details.editionLanguage);
+      _requireText(
+          issues, prefix, 'boardgame.edition_region', details.editionRegion);
+      _requireText(issues, prefix, 'boardgame.component_condition',
+          details.componentCondition);
+      _requireText(issues, prefix, 'boardgame.component_completeness',
+          details.componentCompleteness);
+    case 'movie':
+      final details = item.details;
+      if (details is! MovieOwnedDetails) {
+        issues.add('$prefix: expected MovieOwnedDetails');
+        return;
+      }
+      _requireText(issues, prefix, 'movie.region', details.region);
+      _requireText(issues, prefix, 'movie.packaging', details.packaging);
+      _requireText(issues, prefix, 'movie.distributor', details.distributor);
+    case 'tv':
+      final details = item.details;
+      if (details is! TvOwnedDetails) {
+        issues.add('$prefix: expected TvOwnedDetails');
+        return;
+      }
+      _requireText(issues, prefix, 'tv.region', details.region);
+      _requireText(issues, prefix, 'tv.packaging', details.packaging);
+      _requireText(issues, prefix, 'tv.distributor', details.distributor);
+    case 'anime':
+      final details = item.details;
+      if (details is! AnimeOwnedDetails) {
+        issues.add('$prefix: expected AnimeOwnedDetails');
+        return;
+      }
+      _requireText(issues, prefix, 'anime.region', details.region);
+      _requireText(issues, prefix, 'anime.packaging', details.packaging);
+      _requireText(issues, prefix, 'anime.distributor', details.distributor);
+    case 'music':
+      final details = item.details;
+      if (details is! MusicOwnedDetails) {
+        issues.add('$prefix: expected MusicOwnedDetails');
+        return;
+      }
+      _requireText(
+          issues, prefix, 'music.storage_device', details.storageDevice);
+      _requireText(issues, prefix, 'music.storage_slot', details.storageSlot);
+      if (details.matrixRunouts.isEmpty) {
+        issues.add('$prefix: music.matrix_runouts must not be empty');
+      }
+      for (var index = 0; index < details.matrixRunouts.length; index++) {
+        final runout = details.matrixRunouts[index];
+        _requireText(
+            issues, prefix, 'music.matrix_runouts[$index].side', runout.side);
+        _requireText(issues, prefix, 'music.matrix_runouts[$index].runout_text',
+            runout.runoutText);
+        if (runout.mediumIndex < 1) {
+          issues.add(
+              '$prefix: music.matrix_runouts[$index].medium_index must be positive');
+        }
+      }
+    default:
+      issues.add('$prefix: no typed owned details validator exists');
+  }
 }
 
 void validateSeedTrackingQuality(Iterable<TrackingEntry> entries) {

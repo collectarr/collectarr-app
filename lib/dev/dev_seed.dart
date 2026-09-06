@@ -380,6 +380,85 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
   return issues;
 }
 
+/// Returns ownership relationship errors in the kind-owned tables written by
+/// the development fixture. Only deterministic seed rows are inspected so a
+/// developer can run this against a database that also contains local data.
+///
+/// The common ownership cache and every kind-owned table must agree on the
+/// same copy IDs. Counts alone are not enough: a wrongly typed row can keep
+/// the totals green while disconnecting one catalog kind from its copy data.
+Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
+  final issues = <String>[];
+  final ownedRows = await db.select(db.ownedItemsCache).get();
+  final ownedById = <String, OwnedItemsCacheData>{
+    for (final row in ownedRows) row.id: row,
+  };
+  final expectedByKind = <String, Set<String>>{};
+  for (final row in ownedRows.where((row) => row.id.startsWith('seed-'))) {
+    expectedByKind.putIfAbsent(row.kind, () => <String>{}).add(row.id);
+  }
+
+  void checkTypedRows(
+    String table,
+    String kind,
+    Iterable<String> rawIds,
+  ) {
+    final typedIds = rawIds.where((id) => id.startsWith('seed-')).toSet();
+    final expectedIds = expectedByKind[kind] ?? const <String>{};
+    for (final id in typedIds) {
+      final owned = ownedById[id];
+      if (owned == null) {
+        issues.add('$table row $id has no common owned cache row');
+        continue;
+      }
+      if (owned.kind != kind) {
+        issues.add(
+          '$table row $id belongs to kind ${owned.kind}, expected $kind',
+        );
+      }
+      if (!owned.itemId.startsWith('seed-$kind-')) {
+        issues.add(
+          '$table row $id points to ${owned.itemId}, expected a $kind seed',
+        );
+      }
+    }
+    for (final id in expectedIds) {
+      if (!typedIds.contains(id)) {
+        issues.add('$table is missing seed owned row $id');
+      }
+    }
+  }
+
+  final comicRows = await db.select(db.comicOwnedItemsRows).get();
+  checkTypedRows('comic_owned_items', 'comic', comicRows.map((row) => row.id));
+  final mangaRows = await db.select(db.mangaOwnedDetailsRows).get();
+  checkTypedRows(
+      'manga_owned_details', 'manga', mangaRows.map((row) => row.ownedItemId));
+  final bookRows = await db.select(db.bookOwnedDetailsRows).get();
+  checkTypedRows(
+      'book_owned_details', 'book', bookRows.map((row) => row.ownedItemId));
+  final gameRows = await db.select(db.gameOwnedDetailsRows).get();
+  checkTypedRows(
+      'game_owned_details', 'game', gameRows.map((row) => row.ownedItemId));
+  final boardGameRows = await db.select(db.boardGameOwnedDetailsRows).get();
+  checkTypedRows('boardgame_owned_details', 'boardgame',
+      boardGameRows.map((row) => row.ownedItemId));
+  final movieRows = await db.select(db.movieOwnedDetailsRows).get();
+  checkTypedRows(
+      'movie_owned_details', 'movie', movieRows.map((row) => row.ownedItemId));
+  final tvRows = await db.select(db.tvOwnedDetailsRows).get();
+  checkTypedRows(
+      'tv_owned_details', 'tv', tvRows.map((row) => row.ownedItemId));
+  final animeRows = await db.select(db.animeOwnedDetailsRows).get();
+  checkTypedRows(
+      'anime_owned_details', 'anime', animeRows.map((row) => row.ownedItemId));
+  final musicRows = await db.select(db.musicOwnedDetailsRows).get();
+  checkTypedRows(
+      'music_owned_details', 'music', musicRows.map((row) => row.ownedItemId));
+
+  return issues;
+}
+
 /// Counts kind-owned ownership rows written by the development seed.
 Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
   return {
