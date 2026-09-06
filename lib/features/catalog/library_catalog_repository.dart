@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_derived_data_service.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_catalog_repository_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
 /// Reads and writes the kind-owned catalog graphs.
 ///
@@ -36,13 +37,43 @@ final class LibraryCatalogRepository {
       await _upsertItem(item);
     }
     if (captureDerivedData) {
-      await LibraryCatalogDerivedDataService(
-        _db,
-        contributors: defaultPickListDefinitionContributors,
-      ).capture([
+      await _captureDerivedData([
         for (final item in catalogItems) typedCatalogItemFromCatalogItem(item),
       ]);
     }
+  }
+
+  /// Captures only derived infrastructure values from already typed catalog
+  /// projections. The owning kind contributors interpret metadata; this
+  /// repository only coordinates the persistence transaction.
+  Future<void> _captureDerivedData(Iterable<CatalogItem> items) async {
+    final list = items.toList(growable: false);
+    if (list.isEmpty) return;
+
+    final byKind = <CatalogMediaKind, List<Object?>>{};
+    for (final item in list) {
+      byKind.putIfAbsent(item.mediaKind, () => <Object?>[]).add(
+            item.kindMetadata,
+          );
+    }
+
+    final pickLists = PickListRepository(_db);
+    final serialAuthority = SerialAuthorityRepository(_db);
+    await _db.transaction(() async {
+      for (final entry in byKind.entries) {
+        for (final contributor in defaultPickListDefinitionContributors) {
+          if (contributor.kind != entry.key) continue;
+          for (final projected in contributor.catalogValues(entry.value)) {
+            await pickLists.captureValuesWithoutTransaction(
+              projected.listName,
+              projected.values,
+              mediaKind: entry.key.apiValue,
+            );
+          }
+        }
+      }
+      await serialAuthority.captureCatalogItemsWithoutTransaction(list);
+    });
   }
 
   Future<Map<String, CatalogItem>> findByIds(Iterable<String> ids) async {
