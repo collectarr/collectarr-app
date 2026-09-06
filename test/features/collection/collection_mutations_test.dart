@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -7,7 +9,9 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
@@ -863,6 +867,56 @@ void main() {
     expect(owned.soldAt?.toUtc(), DateTime.utc(2026, 8, 15));
     expect(owned.sellPriceCents, 3199);
     expect(owned.soldTo, 'collector@example.test');
+  });
+
+  test('collection import delegates kind-owned csv cells to Comic', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final csv = CollectionCsv();
+    final rows = csv.parse(
+      csv.exportShelf([
+        ShelfEntry(
+          itemId: 'comic-owned-details',
+          catalogItem: typedCatalogItemFromCatalogItem(
+            testCatalogItem(
+              id: 'comic-owned-details',
+              kind: 'comic',
+              title: 'Imported Comic',
+            ),
+          ),
+          ownedItem: testOwnedItem(
+            id: 'owned-comic-details',
+            itemId: 'comic-owned-details',
+            rawOrSlabbed: 'Slabbed',
+            gradingCompany: 'CGC',
+            graderNotes: 'Pressing preserved',
+            signedBy: 'Artist',
+            keyComic: true,
+            keyReason: 'First appearance',
+            coverPriceCents: 499,
+          ),
+        ),
+      ]),
+    );
+
+    await container.read(collectionImportServiceProvider).importRows(rows);
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final details = ComicOwnedDetails.fromJson(
+      jsonDecode(owned.detailsJson!) as Map<String, dynamic>,
+    );
+    expect(details.rawOrSlabbed, 'Slabbed');
+    expect(details.gradingCompany, 'CGC');
+    expect(details.graderNotes, 'Pressing preserved');
+    expect(details.signedBy, 'Artist');
+    expect(details.keyComic, isTrue);
+    expect(details.keyReason, 'First appearance');
+    expect(details.coverPriceCents, 499);
   });
 
   test('collection import uses media type when matching local catalog cache',

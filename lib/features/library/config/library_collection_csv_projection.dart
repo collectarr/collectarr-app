@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
@@ -48,6 +49,16 @@ abstract interface class LibraryCollectionCsvProjection {
     LibraryEntry entry, {
     required bool clzFriendly,
   });
+}
+
+/// Optional kind-owned decoder for the positional owned cells emitted by a
+/// collection CSV projection.
+///
+/// The Collection host may carry these cells through its transitional row
+/// model, but it must not interpret their meaning. Kinds that currently have
+/// semantic owned cells implement this contract next to their CSV profile.
+abstract interface class LibraryCollectionCsvOwnedDetailsDecoder {
+  OwnedItemDetails? decodeOwnedDetails(List<String> cells);
 }
 
 /// Structural presentation helpers for the collection CSV boundary.

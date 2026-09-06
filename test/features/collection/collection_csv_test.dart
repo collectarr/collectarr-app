@@ -79,6 +79,17 @@ void main() {
     expect(rows.single.locationId, 'Office › Shelf A › Short Box 6');
     expect(rows.single.indexNumber, 1310);
     expect(rows.single.coverPriceCents, 399);
+    expect(rows.single.kindOwnedCells, [
+      '399',
+      'Raw',
+      'CGC',
+      'Clean press',
+      'Stan Lee',
+      '',
+      '',
+      'true',
+      'First appearance',
+    ]);
     expect(rows.single.rawOrSlabbed, 'Raw');
     expect(rows.single.gradingCompany, 'CGC');
     expect(rows.single.graderNotes, 'Clean press');

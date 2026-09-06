@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/collection/repositories/wishlist_items_c
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
@@ -364,6 +365,7 @@ final class CollectionImportService {
     OwnedItem? existing,
   }) {
     if (existing != null) {
+      final importedDetails = _ownedDetailsFromCsvRow(row);
       return existing.copyWith(
         condition: row.condition ?? existing.condition,
         grade: row.grade ?? existing.grade,
@@ -378,11 +380,13 @@ final class CollectionImportService {
         soldAt: row.soldAt ?? existing.soldAt,
         sellPriceCents: row.sellPriceCents ?? existing.sellPriceCents,
         soldTo: row.soldTo ?? existing.soldTo,
+        details: importedDetails ?? existing.details,
         updatedAt: now,
       );
     }
     final kind = catalogMediaKindFromApiValue(row.kind);
-    final details = libraryKindRuntimeForKind(kind).defaultOwnedDetails();
+    final details = _ownedDetailsFromCsvRow(row) ??
+        libraryKindRuntimeForKind(kind).defaultOwnedDetails();
     return OwnedItem(
       id: idGenerator(),
       catalogRef: CatalogEntityRef(
@@ -407,6 +411,18 @@ final class CollectionImportService {
       soldTo: row.soldTo,
       details: details,
     );
+  }
+
+  OwnedItemDetails? _ownedDetailsFromCsvRow(CollectionCsvRow row) {
+    if (row.kindOwnedCells.length != libraryCollectionCsvOwnedCellCount) {
+      return null;
+    }
+    final kind = catalogMediaKindFromApiValue(row.kind);
+    final projection = libraryCollectionCsvProjectionForKind(kind);
+    if (projection case final LibraryCollectionCsvOwnedDetailsDecoder decoder) {
+      return decoder.decodeOwnedDetails(row.kindOwnedCells);
+    }
+    return null;
   }
 
   TrackingEntry? _trackingEntryFromCsvRow(

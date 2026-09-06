@@ -45,6 +45,7 @@ class CollectionCsvRow {
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
+    this.kindOwnedCells = const [],
     this.customFieldValues = const {},
   });
 
@@ -86,6 +87,10 @@ class CollectionCsvRow {
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
+
+  /// Positional cells owned by the selected kind at the CSV serialization
+  /// boundary. Collection carries them without interpreting their meaning.
+  final List<String> kindOwnedCells;
   final Map<String, String?> customFieldValues;
 
   bool get isOwned => status == 'owned' || status == 'both';
@@ -130,6 +135,7 @@ class CollectionCsvRow {
     DateTime? soldAt,
     int? sellPriceCents,
     String? soldTo,
+    List<String>? kindOwnedCells,
     Map<String, String?>? customFieldValues,
   }) {
     return CollectionCsvRow(
@@ -171,6 +177,7 @@ class CollectionCsvRow {
       soldAt: soldAt ?? this.soldAt,
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
+      kindOwnedCells: kindOwnedCells ?? this.kindOwnedCells,
       customFieldValues: customFieldValues ?? this.customFieldValues,
     );
   }
@@ -683,6 +690,7 @@ class CollectionCsv {
       soldAt: _parseDate(_value(index, values, 'sold_at')),
       sellPriceCents: _moneyCents(_value(index, values, 'sell_price_cents')),
       soldTo: _optionalValue(index, values, 'sold_to'),
+      kindOwnedCells: ownedCells,
       customFieldValues: cfValues,
     );
   }

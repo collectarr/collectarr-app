@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 /// Comic's semantic contribution to the generic collection CSV host.
@@ -13,7 +15,9 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 /// objects, so the type-erased boundary exists only at export.
 final class ComicCollectionCsvProjection
     with LibraryCollectionCsvProjectionPresentation
-    implements LibraryCollectionCsvProjection {
+    implements
+        LibraryCollectionCsvProjection,
+        LibraryCollectionCsvOwnedDetailsDecoder {
   const ComicCollectionCsvProjection();
 
   @override
@@ -45,6 +49,25 @@ final class ComicCollectionCsvProjection
 
   @override
   Map<String, List<String>> get columnAliases => _columnAliases;
+
+  @override
+  OwnedItemDetails? decodeOwnedDetails(List<String> cells) {
+    if (cells.length != libraryCollectionCsvOwnedCellCount ||
+        !_hasOwnedDetails(cells)) {
+      return null;
+    }
+    return ComicOwnedDetails(
+      coverPriceCents: int.tryParse(cells[0].trim()),
+      rawOrSlabbed: _optionalCell(cells[1]),
+      gradingCompany: _optionalCell(cells[2]),
+      graderNotes: _optionalCell(cells[3]),
+      signedBy: _optionalCell(cells[4]),
+      labelType: _optionalCell(cells[5]),
+      certificationNumber: _optionalCell(cells[6]),
+      keyComic: _boolCell(cells[7]),
+      keyReason: _optionalCell(cells[8]),
+    );
+  }
 
   @override
   List<String> catalogCells(LibraryEntry entry) {
@@ -106,6 +129,25 @@ final class ComicCollectionCsvProjection
     final whole = absolute ~/ 100;
     final fraction = (absolute % 100).toString().padLeft(2, '0');
     return '$sign$whole.$fraction';
+  }
+
+  bool _hasOwnedDetails(List<String> cells) {
+    return cells.asMap().entries.any((entry) {
+      if (entry.key == 7) return _boolCell(entry.value);
+      return entry.value.trim().isNotEmpty;
+    });
+  }
+
+  String? _optionalCell(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  bool _boolCell(String value) {
+    return switch (value.trim().toLowerCase()) {
+      '1' || 'true' || 'yes' || 'y' => true,
+      _ => false,
+    };
   }
 
   String _formatDate(DateTime? value) {
