@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -52,6 +53,12 @@ class TrackingEntry extends PersonalTrackingBase {
   DateTime? get finishedAt => completedAt;
 
   String get itemId => catalogRef.id;
+
+  PersonalItemAnchor? get anchor => PersonalItemAnchor.fromRaw(
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      );
 
   TrackingSourceType? get trackingSource => sourceType;
 

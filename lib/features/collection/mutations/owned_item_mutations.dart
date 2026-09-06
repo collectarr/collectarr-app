@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -52,14 +53,8 @@ final class OwnedItemMutations {
     final catalogRef = command.catalogRef;
     final anchor = command.anchor;
 
-    final normalizedAnchorType = anchor?.apiValue;
-    final existingWishlist = await wishlist.findActiveByItemAnchor(
-      catalogRef.id,
-      anchorType: normalizedAnchorType,
-      editionId: anchor?.editionId,
-      variantId: anchor?.variantId,
-      bundleReleaseId: anchor?.bundleReleaseId,
-    );
+    final existingWishlist =
+        await wishlist.findActiveByItemAnchorValue(catalogRef.id, anchor);
     final wishlistChanged = existingWishlist != null;
     final newItemId = idGenerator();
 
@@ -82,10 +77,7 @@ final class OwnedItemMutations {
           catalogRef.id,
           existingCatalog,
           fallbackKind: catalogRef.kind,
-          anchorType: normalizedAnchorType,
-          editionId: anchor?.editionId,
-          variantId: anchor?.variantId,
-          bundleReleaseId: anchor?.bundleReleaseId,
+          anchor: anchor,
         );
 
         final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
@@ -364,12 +356,7 @@ final class OwnedItemMutations {
 
         for (final item in wishlistEntries) {
           final updated = item.copyWith(
-            catalogRef: targetMetadata.catalogRefForAnchor(
-              anchorType: item.anchorType,
-              editionId: item.editionId,
-              variantId: item.variantId,
-              bundleReleaseId: item.bundleReleaseId,
-            ),
+            catalogRef: targetMetadata.catalogRefForPersonalAnchor(item.anchor),
             updatedAt: now,
           );
           await wishlist.upsert(updated);
@@ -380,11 +367,7 @@ final class OwnedItemMutations {
 
         for (final item in trackingList) {
           final updated = item.copyWith(
-            catalogRef: targetMetadata.catalogRefForAnchor(
-              editionId: item.editionId,
-              variantId: item.variantId,
-              bundleReleaseId: item.bundleReleaseId,
-            ),
+            catalogRef: targetMetadata.catalogRefForPersonalAnchor(item.anchor),
             updatedAt: now,
           );
           await trackingEntries.upsert(updated);
@@ -420,18 +403,10 @@ final class OwnedItemMutations {
     String itemId,
     CatalogItem? item, {
     String? fallbackKind,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
   }) {
     if (item != null) {
-      return item.catalogRefForAnchor(
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      );
+      return item.catalogRefForPersonalAnchor(anchor);
     }
     final resolvedKind = fallbackKind?.trim();
     if (resolvedKind == null || resolvedKind.isEmpty) {

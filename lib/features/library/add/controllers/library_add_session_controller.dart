@@ -1309,6 +1309,7 @@ class LibraryAddSessionController
           await wishlistMutations.addToWishlist(
             item.id,
             fallbackKind: item.kind,
+            anchor: _selectedAnchor,
           );
         case LibraryAddTarget.track:
           await trackingMutations.addLocalOnlyTrackingEntry(item);
@@ -1430,6 +1431,7 @@ class LibraryAddSessionController
               await wishlistMutations.addToWishlist(
                 metadataItem.id,
                 fallbackKind: metadataItem.kind,
+                anchor: _selectedAnchor,
               );
             case LibraryAddTarget.track:
               await trackingMutations.addLocalOnlyTrackingEntry(metadataItem);
@@ -1489,6 +1491,7 @@ class LibraryAddSessionController
             await wishlistMutations.addToWishlist(
               selectedResult.id,
               fallbackKind: selectedResult.kind,
+              anchor: _selectedAnchor,
             );
           case LibraryAddTarget.track:
             await trackingMutations.addLocalOnlyTrackingEntry(selectedResult);

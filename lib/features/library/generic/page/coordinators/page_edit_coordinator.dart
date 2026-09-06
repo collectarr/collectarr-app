@@ -403,10 +403,12 @@ class LibraryPageEditCoordinator {
     if (wishlist != null && result.wishlist != null) {
       await wishlistMutations.updateWishlistItem(
         wishlist,
-        anchorType: result.wishlist!.anchorType,
-        editionId: result.wishlist!.editionId,
-        variantId: result.wishlist!.variantId,
-        bundleReleaseId: result.wishlist!.bundleReleaseId,
+        anchor: PersonalItemAnchor.fromRaw(
+          anchorType: result.wishlist!.anchorType,
+          editionId: result.wishlist!.editionId,
+          variantId: result.wishlist!.variantId,
+          bundleReleaseId: result.wishlist!.bundleReleaseId,
+        ),
         targetPriceCents: result.wishlist!.targetPriceCents,
         currency: result.wishlist!.currency,
         notes: result.wishlist!.notes,

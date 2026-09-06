@@ -46,22 +46,13 @@ class WishlistItemsCacheRepository {
     return rows.map(_fromCache).toList(growable: false);
   }
 
-  Future<WishlistItem?> findActiveByItemAnchor(
-    String itemId, {
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-  }) async {
+  Future<WishlistItem?> findActiveByItemAnchorValue(
+    String itemId,
+    PersonalItemAnchor? anchor,
+  ) async {
     final items = await listActiveByItemId(itemId);
     for (final item in items) {
-      if (_matchesAnchor(
-        item,
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      )) {
+      if (_matchesAnchorValue(item, anchor)) {
         return item;
       }
     }
@@ -188,20 +179,9 @@ class WishlistItemsCacheRepository {
     );
   }
 
-  bool _matchesAnchor(
-    WishlistItem item, {
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-  }) {
+  bool _matchesAnchorValue(
+      WishlistItem item, PersonalItemAnchor? candidateAnchor) {
     final itemAnchor = item.anchor;
-    final candidateAnchor = PersonalItemAnchor.fromRaw(
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
     if (itemAnchor == null || candidateAnchor == null) {
       return itemAnchor == null && candidateAnchor == null;
     }

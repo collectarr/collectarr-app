@@ -101,9 +101,11 @@ class _LibraryVideoDetailPageState
     await ref.read(wishlistMutationsProvider).addToWishlist(
           widget.request.item.source.itemId,
           fallbackKind: widget.request.type.kind.apiValue,
-          editionId: anchor.editionId,
-          variantId: anchor.variantId,
-          bundleReleaseId: anchor.bundleReleaseId,
+          anchor: PersonalItemAnchor.fromRaw(
+            editionId: anchor.editionId,
+            variantId: anchor.variantId,
+            bundleReleaseId: anchor.bundleReleaseId,
+          ),
         );
   }
 

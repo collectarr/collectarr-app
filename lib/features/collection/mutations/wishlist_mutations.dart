@@ -40,51 +40,28 @@ final class WishlistMutations {
   Future<void> addToWishlist(
     String itemId, {
     String? fallbackKind,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
     final catalogItem = await catalogCache.findById(itemId);
-    final existing = await wishlist.findActiveByItemAnchor(
-      itemId,
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    final normalizedAnchorType = resolvePersonalItemAnchorType(
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
+    final existing = await wishlist.findActiveByItemAnchorValue(itemId, anchor);
     final localRef = existing?.catalogRef ??
         (catalogItem != null || fallbackKind != null
             ? _catalogRefForItem(
                 itemId,
                 catalogItem,
                 fallbackKind: fallbackKind,
-                anchorType: normalizedAnchorType,
-                editionId: editionId,
-                variantId: variantId,
-                bundleReleaseId: bundleReleaseId,
+                anchor: anchor,
               )
             : null);
     await mutationRunner.run(
       origin: origin,
       localRef: localRef,
       action: () async {
-        final existing = await wishlist.findActiveByItemAnchor(
-          itemId,
-          anchorType: anchorType,
-          editionId: editionId,
-          variantId: variantId,
-          bundleReleaseId: bundleReleaseId,
-        );
+        final existing =
+            await wishlist.findActiveByItemAnchorValue(itemId, anchor);
         if (existing == null) {
           final item = WishlistItem(
             id: idGenerator(),
@@ -92,15 +69,9 @@ final class WishlistMutations {
               itemId,
               catalogItem,
               fallbackKind: fallbackKind,
-              anchorType: normalizedAnchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
+              anchor: anchor,
             ),
-            anchorType: normalizedAnchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            anchor: anchor,
             createdAt: now,
             updatedAt: now,
           );
@@ -118,10 +89,7 @@ final class WishlistMutations {
 
   Future<void> addLocalOnlyWishlistItem(
     CatalogItem item, {
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
@@ -129,43 +97,19 @@ final class WishlistMutations {
     final metadataItem = typedCatalogItemFromCatalogItem(item);
     final itemId = metadataItem.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
-    final normalizedAnchorType = resolvePersonalItemAnchorType(
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    final localRef = metadataItem.catalogRefForAnchor(
-      anchorType: normalizedAnchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
+    final localRef = metadataItem.catalogRefForPersonalAnchor(anchor);
     await mutationRunner.run(
       origin: origin,
       localRef: localRef,
       action: () async {
         await catalogCache.upsertAll([item]);
-        final existing = await wishlist.findActiveByItemAnchor(
-          itemId,
-          anchorType: anchorType,
-          editionId: editionId,
-          variantId: variantId,
-          bundleReleaseId: bundleReleaseId,
-        );
+        final existing =
+            await wishlist.findActiveByItemAnchorValue(itemId, anchor);
         if (existing == null) {
           final wishlistItem = WishlistItem(
             id: idGenerator(),
-            catalogRef: metadataItem.catalogRefForAnchor(
-              anchorType: normalizedAnchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
-            ),
-            anchorType: normalizedAnchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            catalogRef: localRef,
+            anchor: anchor,
             createdAt: now,
             updatedAt: now,
           );
@@ -182,10 +126,7 @@ final class WishlistMutations {
 
   Future<WishlistItem> updateWishlistItem(
     WishlistItem item, {
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    required PersonalItemAnchor? anchor,
     int? targetPriceCents,
     String? currency,
     String? notes,
@@ -193,19 +134,10 @@ final class WishlistMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final normalizedAnchorType = resolvePersonalItemAnchorType(
-      anchorType: anchorType ?? item.anchorType,
-      editionId: editionId ?? item.editionId,
-      variantId: variantId ?? item.variantId,
-      bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
-    );
     final updated = WishlistItem(
       id: item.id,
       catalogRef: item.catalogRef,
-      anchorType: normalizedAnchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
+      anchor: anchor,
       targetPriceCents: targetPriceCents,
       currency: currency,
       notes: notes,
@@ -230,10 +162,7 @@ final class WishlistMutations {
   Future<void> removeFromWishlist(
     String itemId, {
     String? wishlistItemId,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
@@ -241,10 +170,7 @@ final class WishlistMutations {
     final items = await _wishlistItemsForMutation(
       itemId,
       wishlistItemId: wishlistItemId,
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
+      anchor: anchor,
     );
     final localRef = items.isEmpty ? null : items.first.catalogRef;
     await mutationRunner.run(
@@ -254,10 +180,7 @@ final class WishlistMutations {
         final existing = await _wishlistItemsForMutation(
           itemId,
           wishlistItemId: wishlistItemId,
-          anchorType: anchorType,
-          editionId: editionId,
-          variantId: variantId,
-          bundleReleaseId: bundleReleaseId,
+          anchor: anchor,
         );
         for (final item in existing) {
           await wishlist.markDeleted(item, now);
@@ -276,33 +199,18 @@ final class WishlistMutations {
 
   Future<void> toggleWishlist(
     String itemId, {
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
   }) async {
-    final existing = await wishlist.findActiveByItemAnchor(
-      itemId,
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
+    final existing = await wishlist.findActiveByItemAnchorValue(itemId, anchor);
     if (existing == null) {
       await addToWishlist(
         itemId,
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
+        anchor: anchor,
       );
     } else {
       await removeFromWishlist(
         itemId,
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
+        anchor: anchor,
       );
     }
   }
@@ -312,35 +220,15 @@ final class WishlistMutations {
   Future<List<WishlistItem>> _wishlistItemsForMutation(
     String itemId, {
     String? wishlistItemId,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
   }) async {
     if (wishlistItemId != null) {
       final item = await wishlist.findById(wishlistItemId);
       return item != null ? [item] : const [];
     }
 
-    final normalizedAnchorType = resolvePersonalItemAnchorType(
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    final isSpecificAnchor = normalizedAnchorType != null ||
-        editionId != null ||
-        variantId != null ||
-        bundleReleaseId != null;
-
-    if (isSpecificAnchor) {
-      final match = await wishlist.findActiveByItemAnchor(
-        itemId,
-        anchorType: normalizedAnchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      );
+    if (anchor != null) {
+      final match = await wishlist.findActiveByItemAnchorValue(itemId, anchor);
       return match != null ? [match] : const [];
     }
 
@@ -351,18 +239,10 @@ final class WishlistMutations {
     String itemId,
     CatalogItem? item, {
     String? fallbackKind,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
   }) {
     if (item != null) {
-      return item.catalogRefForAnchor(
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      );
+      return item.catalogRefForPersonalAnchor(anchor);
     }
     final resolvedKind = fallbackKind?.trim();
     if (resolvedKind == null || resolvedKind.isEmpty) {

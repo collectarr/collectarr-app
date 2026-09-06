@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -249,10 +250,16 @@ void main() {
           trackingMutations: trackingMutations,
         );
 
-    await wishlistMutations.addToWishlist('movie-1',
-        fallbackKind: 'movie', editionId: 'edition-4k');
-    await wishlistMutations.addToWishlist('movie-1',
-        fallbackKind: 'movie', editionId: 'edition-bluray');
+    await wishlistMutations.addToWishlist(
+      'movie-1',
+      fallbackKind: 'movie',
+      anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
+    );
+    await wishlistMutations.addToWishlist(
+      'movie-1',
+      fallbackKind: 'movie',
+      anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-bluray'),
+    );
 
     final rows = await db.select(db.wishlistItemsCache).get();
     final row4k = rows.firstWhere((row) => row.editionId == 'edition-4k');

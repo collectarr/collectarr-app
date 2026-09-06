@@ -57,10 +57,7 @@ class LibraryCollectionActions {
     return wishlistMutations.addToWishlist(
       item.source.catalogItem!.id,
       fallbackKind: item.source.catalogItem?.kind,
-      anchorType: anchor.anchorType,
-      editionId: anchor.editionId,
-      variantId: anchor.variantId,
-      bundleReleaseId: anchor.bundleReleaseId,
+      anchor: personalAnchorFromLibraryMutationAnchor(anchor),
     );
   }
 
@@ -73,10 +70,7 @@ class LibraryCollectionActions {
     return wishlistMutations.removeFromWishlist(
       item.source.catalogItem!.id,
       wishlistItemId: item.source.wishlistItem?.id,
-      anchorType: anchor.anchorType,
-      editionId: anchor.editionId,
-      variantId: anchor.variantId,
-      bundleReleaseId: anchor.bundleReleaseId,
+      anchor: personalAnchorFromLibraryMutationAnchor(anchor),
     );
   }
 }

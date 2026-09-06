@@ -82,10 +82,7 @@ class LibraryBulkActions {
       await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        anchorType: anchor.anchorType,
-        editionId: anchor.editionId,
-        variantId: anchor.variantId,
-        bundleReleaseId: anchor.bundleReleaseId,
+        anchor: personalAnchorFromLibraryMutationAnchor(anchor),
       );
     }
     for (var index = 0; index < entriesToOwn.length; index++) {
@@ -206,10 +203,7 @@ class LibraryBulkActions {
       await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        anchorType: anchor.anchorType,
-        editionId: anchor.editionId,
-        variantId: anchor.variantId,
-        bundleReleaseId: anchor.bundleReleaseId,
+        anchor: personalAnchorFromLibraryMutationAnchor(anchor),
       );
     }
     for (var index = 0; index < trackedEntries.length; index++) {

@@ -718,7 +718,6 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             if (enriched.collection.isRated) {
               await trackingMutations.addLocalOnlyTrackingEntry(
                 localItem,
-                anchorType: 'season',
                 sourceType: TrackingSourceType.streaming,
                 status: MediaTrackingStatus.completed,
                 rating: _normalizedRating(enriched.rating),
@@ -947,7 +946,6 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       } else {
         await wishlistMutations.addLocalOnlyWishlistItem(
           seasonItem,
-          anchorType: 'season',
           origin: origin,
         );
       }

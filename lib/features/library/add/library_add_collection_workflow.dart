@@ -140,10 +140,7 @@ Future<void> addLibraryItemsToTarget({
         await wishlistMutations.addToWishlist(
           item.id,
           fallbackKind: item.kind,
-          anchorType: reference.anchorType,
-          editionId: reference.editionId,
-          variantId: reference.variantId,
-          bundleReleaseId: reference.bundleReleaseId,
+          anchor: itemAnchor,
         );
         break;
       case LibraryAddTarget.track:
