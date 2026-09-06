@@ -16,9 +16,6 @@ class LibraryAddCommonDraft {
     this.purchaseStore,
     this.collectionStatus,
     this.isDigital,
-    this.editionId,
-    this.variantId,
-    this.bundleReleaseId,
   });
 
   final String? condition;
@@ -33,9 +30,6 @@ class LibraryAddCommonDraft {
   final String? purchaseStore;
   final String? collectionStatus;
   final bool? isDigital;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
 
   LibraryAddCommonDraft copyWith({
     String? condition,
@@ -50,9 +44,6 @@ class LibraryAddCommonDraft {
     String? purchaseStore,
     String? collectionStatus,
     bool? isDigital,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
   }) {
     return LibraryAddCommonDraft(
       condition: condition ?? this.condition,
@@ -67,9 +58,6 @@ class LibraryAddCommonDraft {
       purchaseStore: purchaseStore ?? this.purchaseStore,
       collectionStatus: collectionStatus ?? this.collectionStatus,
       isDigital: isDigital ?? this.isDigital,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
     );
   }
 
@@ -87,9 +75,6 @@ class LibraryAddCommonDraft {
       purchaseStore: purchaseStore,
       collectionStatus: collectionStatus,
       isDigital: isDigital,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
     );
   }
 }

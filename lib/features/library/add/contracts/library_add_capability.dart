@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
@@ -191,7 +192,8 @@ abstract interface class LibraryAddCapability<
 
   AddOwnedItemCommand buildCommand(
       CatalogItem item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
-      {LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
+      {PersonalItemAnchor? anchor,
+      LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
 }
 
 class _EmptyKindAddDraft implements LibraryKindAddDraft {
@@ -273,7 +275,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   @override
   AddOwnedItemCommand buildCommand(
       CatalogItem item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
-      {LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
+      {PersonalItemAnchor? anchor,
+      LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
@@ -283,6 +286,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       ),
       common: common.toOwnedItemCommonDraft(),
       details: effectiveDraft.toOwnedDetailsDraft(),
+      anchor: anchor,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,

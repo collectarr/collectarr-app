@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -100,6 +100,11 @@ void main() {
         entityType: CatalogEntityType.ownedCopy,
         id: 'comic-cmd-1',
       ),
+      anchor: PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.variant.apiValue,
+        editionId: 'edition-1',
+        variantId: 'variant-1',
+      ),
       common: const OwnedItemCommonDraft(
         condition: 'Near Mint',
         grade: '9.8',
@@ -118,6 +123,9 @@ void main() {
     final item = await coordinator.addOwnedItem(command);
 
     expect(item.itemId, 'comic-cmd-1');
+    expect(item.anchorType, 'variant');
+    expect(item.editionId, 'edition-1');
+    expect(item.variantId, 'variant-1');
     expect(item.condition, 'Near Mint');
     expect(item.grade, '9.8');
     expect(item.pricePaidCents, 1500);

@@ -1,9 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
@@ -22,7 +21,6 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -97,9 +95,14 @@ void main() {
           metadataItem,
           common,
           initialDraft,
+          anchor: PersonalItemAnchor.fromRaw(
+            anchorType: PersonalItemAnchorType.edition.apiValue,
+            editionId: 'edition-${kind.apiValue}',
+          ),
           tracking: const LibraryAddTrackingDraft(rating: 9),
         );
         expect(command.catalogRef.id, item.id);
+        expect(command.anchor?.editionId, 'edition-${kind.apiValue}');
         expect(command.common.condition, 'Near Mint');
         expect(command.tracking?.rating, 9);
         expect(command.details, isNot(isA<GenericOwnedDetailsDraft>()),

@@ -594,9 +594,6 @@ class LibraryEditDraft {
       purchaseStore: emptyToNull(personal.purchaseStoreController.text),
       collectionStatus: personal.collectionStatus,
       tags: emptyToNull(personal.tagsController.text),
-      editionId: personal.selectedEditionId,
-      variantId: personal.selectedVariantId,
-      bundleReleaseId: personal.selectedBundleReleaseId,
     );
   }
 
@@ -610,6 +607,12 @@ class LibraryEditDraft {
         kind: type.kind.apiValue,
         entityType: CatalogEntityType.ownedCopy,
         id: item.id,
+      ),
+      anchor: PersonalItemAnchor.fromRaw(
+        anchorType: personal.selectedOwnedAnchorType.apiValue,
+        editionId: personal.selectedEditionId,
+        variantId: personal.selectedVariantId,
+        bundleReleaseId: personal.selectedBundleReleaseId,
       ),
       common: buildCommonDraft(),
       details: buildDetailsDraft(),

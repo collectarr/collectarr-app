@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -51,19 +50,15 @@ final class OwnedItemMutations {
     final now = DateTime.now().toUtc();
     final common = command.common;
     final catalogRef = command.catalogRef;
+    final anchor = command.anchor;
 
-    final normalizedAnchorType = resolvePersonalItemAnchorType(
-      anchorType: null,
-      editionId: common.editionId,
-      variantId: common.variantId,
-      bundleReleaseId: common.bundleReleaseId,
-    );
+    final normalizedAnchorType = anchor?.apiValue;
     final existingWishlist = await wishlist.findActiveByItemAnchor(
       catalogRef.id,
       anchorType: normalizedAnchorType,
-      editionId: common.editionId,
-      variantId: common.variantId,
-      bundleReleaseId: common.bundleReleaseId,
+      editionId: anchor?.editionId,
+      variantId: anchor?.variantId,
+      bundleReleaseId: anchor?.bundleReleaseId,
     );
     final wishlistChanged = existingWishlist != null;
     final newItemId = idGenerator();
@@ -88,9 +83,9 @@ final class OwnedItemMutations {
           existingCatalog,
           fallbackKind: catalogRef.kind,
           anchorType: normalizedAnchorType,
-          editionId: common.editionId,
-          variantId: common.variantId,
-          bundleReleaseId: common.bundleReleaseId,
+          editionId: anchor?.editionId,
+          variantId: anchor?.variantId,
+          bundleReleaseId: anchor?.bundleReleaseId,
         );
 
         final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
@@ -105,10 +100,7 @@ final class OwnedItemMutations {
           catalogRef: resolvedCatalogRef,
           createdAt: now,
           isDigital: resolvedIsDigital,
-          anchorType: normalizedAnchorType,
-          editionId: common.editionId,
-          variantId: common.variantId,
-          bundleReleaseId: common.bundleReleaseId,
+          anchor: anchor,
           details: details,
           condition: common.condition,
           grade: common.grade,

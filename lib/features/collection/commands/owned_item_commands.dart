@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -63,9 +64,6 @@ class OwnedItemCommonDraft {
     this.collectionStatus,
     this.isDigital,
     this.tags,
-    this.editionId,
-    this.variantId,
-    this.bundleReleaseId,
   });
 
   final int quantity;
@@ -80,9 +78,6 @@ class OwnedItemCommonDraft {
   final String? collectionStatus;
   final bool? isDigital;
   final String? tags;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
 }
 
 /// Tracking state transported alongside an ownership command.
@@ -118,12 +113,14 @@ final class AddOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
     required this.catalogRef,
     required this.common,
     required this.details,
+    this.anchor,
     this.tracking,
   });
 
   final CatalogEntityRef catalogRef;
   final OwnedItemCommonDraft common;
   final TDetails details;
+  final PersonalItemAnchor? anchor;
   final OwnedItemTrackingDraft? tracking;
 }
 

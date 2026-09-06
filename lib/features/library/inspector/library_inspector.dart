@@ -656,11 +656,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               entityType: CatalogEntityType.work,
               id: item.node.titleItemId,
             ),
-            common: OwnedItemCommonDraft(
-              editionId: anchor.editionId,
-              variantId: anchor.variantId,
-              bundleReleaseId: anchor.bundleReleaseId,
-            ),
+            anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+            common: OwnedItemCommonDraft(),
             details: defaultDetailsDraftForKind(widget.type.kind),
           ),
         );
@@ -693,11 +690,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: ownedItem.catalogRef,
+            anchor: ownedItem.anchor,
             common: OwnedItemCommonDraft(
               isDigital: ownedItem.isDigital,
-              editionId: ownedItem.editionId,
-              variantId: ownedItem.variantId,
-              bundleReleaseId: ownedItem.bundleReleaseId,
               condition: ownedItem.condition,
               grade: ownedItem.grade,
               purchaseDate: ownedItem.purchaseDate,

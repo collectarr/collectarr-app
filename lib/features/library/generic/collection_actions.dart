@@ -31,11 +31,8 @@ class LibraryCollectionActions {
           entityType: CatalogEntityType.ownedCopy,
           id: catalogItem.id,
         ),
-        common: OwnedItemCommonDraft(
-          editionId: anchor.editionId,
-          variantId: anchor.variantId,
-          bundleReleaseId: anchor.bundleReleaseId,
-        ),
+        anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+        common: OwnedItemCommonDraft(),
         details: defaultDetailsDraftForKind(
           catalogMediaKindFromApiValue(catalogItem.kind),
         ),

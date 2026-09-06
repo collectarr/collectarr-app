@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -102,9 +103,12 @@ Future<void> addLibraryItemsToTarget({
       purchaseStore: baseCommon.purchaseStore,
       collectionStatus: baseCommon.collectionStatus,
       isDigital: digitalOwnedItem ?? baseCommon.isDigital,
-      editionId: reference.editionId ?? baseCommon.editionId,
-      variantId: reference.variantId ?? baseCommon.variantId,
-      bundleReleaseId: reference.bundleReleaseId ?? baseCommon.bundleReleaseId,
+    );
+    final itemAnchor = PersonalItemAnchor.fromRaw(
+      anchorType: reference.anchorType,
+      editionId: reference.editionId,
+      variantId: reference.variantId,
+      bundleReleaseId: reference.bundleReleaseId,
     );
 
     switch (target) {
@@ -115,6 +119,7 @@ Future<void> addLibraryItemsToTarget({
           item,
           itemCommon,
           kindDraftsByItemId[item.id] ?? capability.createInitialDraft(),
+          anchor: itemAnchor,
           tracking: baseTracking,
         );
         final ownedItem = await ownedMutations.addOwnedItem(addCmd);

@@ -260,12 +260,14 @@ String? resolveLibraryOwnedItemId(
   return ownedItem?.id ?? item.source.ownedItem?.id;
 }
 
-({
+typedef LibraryMutationAnchor = ({
   String? anchorType,
   String? editionId,
   String? variantId,
   String? bundleReleaseId,
-}) resolveLibraryMutationAnchor({
+});
+
+LibraryMutationAnchor resolveLibraryMutationAnchor({
   LibraryProjectionRuntime? item,
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
@@ -296,6 +298,17 @@ String? resolveLibraryOwnedItemId(
     editionId: editionId,
     variantId: variantId,
     bundleReleaseId: bundleReleaseId,
+  );
+}
+
+PersonalItemAnchor? personalAnchorFromLibraryMutationAnchor(
+  LibraryMutationAnchor anchor,
+) {
+  return PersonalItemAnchor.fromRaw(
+    anchorType: anchor.anchorType,
+    editionId: anchor.editionId,
+    variantId: anchor.variantId,
+    bundleReleaseId: anchor.bundleReleaseId,
   );
 }
 

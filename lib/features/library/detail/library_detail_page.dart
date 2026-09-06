@@ -214,11 +214,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               entityType: CatalogEntityType.work,
               id: item.node.titleItemId,
             ),
-            common: OwnedItemCommonDraft(
-              editionId: anchor.editionId,
-              variantId: anchor.variantId,
-              bundleReleaseId: anchor.bundleReleaseId,
-            ),
+            anchor: personalAnchorFromLibraryMutationAnchor(anchor),
+            common: OwnedItemCommonDraft(),
             details: defaultDetailsDraftForKind(widget.type.kind),
           ),
         );

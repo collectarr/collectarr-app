@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -149,6 +150,22 @@ class LibraryAddSessionController
 
   LibraryAddSessionState get state => value;
   set state(LibraryAddSessionState newState) => value = newState;
+
+  PersonalItemAnchor? get _selectedAnchor {
+    final selection = state.selection;
+    return switch (selection.referenceType) {
+      LibraryAddReferenceType.media => null,
+      LibraryAddReferenceType.edition => PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.edition.apiValue,
+          editionId: selection.selectedReferenceEditionId,
+          variantId: selection.selectedReferenceVariantId,
+        ),
+      LibraryAddReferenceType.bundleRelease => PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
+          bundleReleaseId: selection.selectedBundleReleaseId,
+        ),
+    };
+  }
 
   LibraryAddSearchCapability get _searchCapability =>
       libraryKindRuntimeForKind(kind).add.search;
@@ -1280,6 +1297,7 @@ class LibraryAddSessionController
         item,
         state.commonDraft,
         state.manualDraft,
+        anchor: _selectedAnchor,
         tracking: state.trackingDraft,
       );
 
@@ -1400,6 +1418,7 @@ class LibraryAddSessionController
             metadataItem,
             state.commonDraft,
             state.manualDraft,
+            anchor: _selectedAnchor,
             tracking: state.trackingDraft,
           );
 
@@ -1458,6 +1477,7 @@ class LibraryAddSessionController
           selectedResult,
           state.commonDraft,
           state.manualDraft,
+          anchor: _selectedAnchor,
           tracking: state.trackingDraft,
         );
 

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -37,9 +38,12 @@ void main() {
     await container.read(ownedItemMutationsProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-            common: const OwnedItemCommonDraft(
+            anchor: PersonalItemAnchor.fromRaw(
+              anchorType: PersonalItemAnchorType.variant.apiValue,
               editionId: 'edition-1',
               variantId: 'variant-1',
+            ),
+            common: const OwnedItemCommonDraft(
               condition: 'Near Mint',
               grade: '9.8',
             ),
@@ -249,10 +253,12 @@ void main() {
         await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
               AddOwnedItemCommand(
                 catalogRef: testCatalogRef('movie-2', kind: 'movie'),
-                common: const OwnedItemCommonDraft(
+                anchor: PersonalItemAnchor.fromRaw(
+                  anchorType: PersonalItemAnchorType.variant.apiValue,
                   editionId: 'edition-legacy',
                   variantId: 'variant-legacy',
                 ),
+                common: const OwnedItemCommonDraft(),
                 details: const MovieOwnedDetailsDraft(),
               ),
               syncTracking: false,
