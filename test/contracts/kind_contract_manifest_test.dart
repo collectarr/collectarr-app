@@ -51,6 +51,7 @@ void main() {
       'releaseEdit',
       'releasePersistence',
       'calendar',
+      'activity',
       'tracking',
       'hierarchy',
       'providerIntegration',
@@ -143,6 +144,10 @@ void main() {
     expect(
       kindContractManifest.optionalParticipants['calendar'],
       equals(kindContractManifest.activeKinds),
+    );
+    expect(
+      kindContractManifest.optionalParticipants['activity'],
+      equals({CatalogMediaKind.anime, CatalogMediaKind.tv}),
     );
   });
 }

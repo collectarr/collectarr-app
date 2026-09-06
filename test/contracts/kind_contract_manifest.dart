@@ -91,6 +91,10 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.tv,
     },
     'calendar': activeTypedKinds,
+    'activity': {
+      CatalogMediaKind.anime,
+      CatalogMediaKind.tv,
+    },
     'tracking': activeTypedKinds,
     'hierarchy': activeTypedKinds,
     'providerIntegration': activeTypedKinds,
