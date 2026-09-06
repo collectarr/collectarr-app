@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_episodes_
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,9 +34,11 @@ void main() {
         codecs: collectarrTrackingEntryCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(db),
+      typedOwnedItems: CollectarrOwnedItemPersistence(db),
     ).syncNow('android', since: since);
 
     final row = await db.select(db.ownedItemsCache).getSingle();
+    final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
     final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final locations = await LocationRepository(db).getAll();
@@ -47,6 +50,7 @@ void main() {
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
     expect(row.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
+    expect(typedOwnedRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
     expect(trackingRow.status, 'Completed');
     expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
