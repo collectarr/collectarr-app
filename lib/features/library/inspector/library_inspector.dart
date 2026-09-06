@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -23,6 +24,7 @@ import 'package:collectarr_app/features/library/details/library_detail_wiring.da
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -687,11 +689,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionRuntime item,
     OwnedItem ownedItem,
   ) async {
+    final catalogItem = item.source.catalogItem;
+    if (catalogItem == null) {
+      return;
+    }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
-            catalogRef: ownedItem.catalogRef,
-            anchor: ownedItem.anchor,
-            common: OwnedItemCommonDraft(
+          widget.type.add.buildCommandFromDetails(
+            catalogItem,
+            LibraryAddCommonDraft(
               isDigital: ownedItem.isDigital,
               condition: ownedItem.condition,
               grade: ownedItem.grade,
@@ -701,19 +706,20 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               personalNotes: ownedItem.personalNotes,
               quantity: ownedItem.quantity,
               locationId: ownedItem.locationId,
+              purchaseStore: ownedItem.purchaseStore,
+              collectionStatus: ownedItem.collectionStatus,
               tags: ownedItem.tags,
             ),
-            tracking: item.source.trackingEntry == null
-                ? null
-                : OwnedItemTrackingDraft(
-                    status: item.source.trackingEntry!.status,
-                    rating: item.source.trackingEntry!.rating,
-                    startedAt: item.source.trackingEntry!.startedAt,
-                    finishedAt: item.source.trackingEntry!.finishedAt,
-                    notes: item.source.trackingEntry!.notes,
-                  ),
-            details: widget.type.ownedDetailsDraftFromDetails(
-              ownedItem.details,
+            widget.type.ownedDetailsDraftFromDetails(ownedItem.details),
+            anchor: ownedItem.anchor,
+            tracking: LibraryAddTrackingDraft(
+              readStatus: mediaTrackingStatusToStorageValue(
+                item.source.trackingEntry?.status,
+              ),
+              rating: item.source.trackingEntry?.rating,
+              startedAt: item.source.trackingEntry?.startedAt,
+              finishedAt: item.source.trackingEntry?.finishedAt,
+              notes: item.source.trackingEntry?.notes,
             ),
           ),
         );

@@ -164,9 +164,9 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
     previewPaneBuilder: buildComicAddPreviewPane,
     searchPaneBuilder: buildComicAddSearchPane,
     bottomBarBuilder: buildComicAddBottomBar,
-    ownedPayloadBuilder: (item, common, draft) => ComicOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, details) => ComicOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
-      details: draft.toOwnedDetailsDraft() as ComicOwnedDetailsDraft,
+      details: details as ComicOwnedDetailsDraft,
       condition: common.condition,
       grade: common.grade,
       purchaseDate: common.purchaseDate,

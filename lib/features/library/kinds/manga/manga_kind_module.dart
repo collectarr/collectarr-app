@@ -201,9 +201,9 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails,
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: MangaAddDraft.new,
     manualDraftBuilder: MangaAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft) => MangaOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, details) => MangaOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
-      details: draft.toOwnedDetailsDraft() as MangaOwnedDetailsDraft,
+      details: details as MangaOwnedDetailsDraft,
       condition: common.condition,
       grade: common.grade,
       purchaseDate: common.purchaseDate,

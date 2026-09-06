@@ -166,9 +166,9 @@ final tvKindModule =
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
     manualDraftBuilder: TvAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft) => TvOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, details) => TvOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
-      details: draft.toOwnedDetailsDraft() as TvOwnedDetailsDraft,
+      details: details as TvOwnedDetailsDraft,
       condition: common.condition,
       grade: common.grade,
       purchaseDate: common.purchaseDate,

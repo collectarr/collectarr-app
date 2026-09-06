@@ -208,9 +208,9 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails,
     previewPaneBuilder: buildMovieAddPreviewPane,
     searchPaneBuilder: buildMovieAddSearchPane,
     bottomBarBuilder: buildMovieAddBottomBar,
-    ownedPayloadBuilder: (item, common, draft) => MovieOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, details) => MovieOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
-      details: draft.toOwnedDetailsDraft() as MovieOwnedDetailsDraft,
+      details: details as MovieOwnedDetailsDraft,
       condition: common.condition,
       grade: common.grade,
       purchaseDate: common.purchaseDate,

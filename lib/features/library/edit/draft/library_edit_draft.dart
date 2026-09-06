@@ -1,11 +1,9 @@
 import 'package:collectarr_app/core/models/bundle_release.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -16,6 +14,8 @@ import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
@@ -569,8 +569,8 @@ class LibraryEditDraft {
     _textControllers.dispose();
   }
 
-  OwnedItemCommonDraft buildCommonDraft() {
-    return OwnedItemCommonDraft(
+  LibraryAddCommonDraft buildCommonDraft() {
+    return LibraryAddCommonDraft(
       quantity: parseInt(personal.quantityController.text) ?? 1,
       condition: emptyToNull(personal.conditionController.text),
       grade: emptyToNull(personal.gradeController.text),
@@ -590,28 +590,22 @@ class LibraryEditDraft {
       ).edit.buildDetailsDraft(kindDetails);
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
-    return AddOwnedItemCommand(
-      catalogRef: CatalogEntityRef(
-        kind: type.kind.apiValue,
-        entityType: CatalogEntityType.ownedCopy,
-        id: item.id,
-      ),
+    return type.add.buildCommandFromDetails(
+      item,
+      buildCommonDraft(),
+      buildDetailsDraft(),
       anchor: PersonalItemAnchor.fromRaw(
         anchorType: personal.selectedOwnedAnchorType.apiValue,
         editionId: personal.selectedEditionId,
         variantId: personal.selectedVariantId,
         bundleReleaseId: personal.selectedBundleReleaseId,
       ),
-      common: buildCommonDraft(),
-      details: buildDetailsDraft(),
-      tracking: OwnedItemTrackingDraft(
-        status: mediaTrackingStatusFromValue(
-          emptyToNull(tracking.trackingController.text),
-        ),
+      tracking: LibraryAddTrackingDraft(
+        readStatus: emptyToNull(tracking.trackingController.text),
+        notes: emptyToNull(tracking.trackingNotesController.text),
         rating: parseInt(tracking.ratingController.text),
         startedAt: tracking.startedAt,
         finishedAt: tracking.finishedAt,
-        notes: emptyToNull(tracking.trackingNotesController.text),
       ),
     );
   }

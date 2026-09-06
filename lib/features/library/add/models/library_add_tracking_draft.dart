@@ -11,24 +11,28 @@ class LibraryAddTrackingDraft {
     this.readStatus,
     this.startedAt,
     this.finishedAt,
+    this.notes,
   });
 
   final int? rating;
   final String? readStatus;
   final DateTime? startedAt;
   final DateTime? finishedAt;
+  final String? notes;
 
   LibraryAddTrackingDraft copyWith({
     int? rating,
     String? readStatus,
     DateTime? startedAt,
     DateTime? finishedAt,
+    String? notes,
   }) {
     return LibraryAddTrackingDraft(
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
       startedAt: startedAt ?? this.startedAt,
       finishedAt: finishedAt ?? this.finishedAt,
+      notes: notes ?? this.notes,
     );
   }
 }

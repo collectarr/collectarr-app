@@ -61,11 +61,10 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
   LibraryAddSearchContext context,
 );
 
-typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
-    = OwnedItemCreatePayload Function(
+typedef LibraryAddOwnedPayloadBuilder = OwnedItemCreatePayload Function(
   CatalogItem item,
   LibraryAddCommonDraft common,
-  TDraft draft,
+  OwnedDetailsDraft details,
 );
 
 class LibraryAddSearchCapability {
@@ -201,6 +200,14 @@ abstract interface class LibraryAddCapability<
       CatalogItem item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {PersonalItemAnchor? anchor,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
+
+  AddOwnedItemCommand buildCommandFromDetails(
+    CatalogItem item,
+    LibraryAddCommonDraft common,
+    OwnedDetailsDraft details, {
+    PersonalItemAnchor? anchor,
+    LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+  });
 }
 
 class _EmptyKindAddDraft implements LibraryKindAddDraft {
@@ -251,7 +258,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddChromeConfig chrome;
   @override
   final LibraryAddSearchCapability search;
-  final LibraryAddOwnedPayloadBuilder<TDraft>? ownedPayloadBuilder;
+  final LibraryAddOwnedPayloadBuilder? ownedPayloadBuilder;
   @override
   final LibraryAddResultPolicy resultPolicy;
 
@@ -287,6 +294,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       {PersonalItemAnchor? anchor,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
+    final details = effectiveDraft.toOwnedDetailsDraft();
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
         kind: kind.apiValue,
@@ -294,14 +302,43 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         id: item.id,
       ),
       common: common.toOwnedItemCommonDraft(),
-      details: effectiveDraft.toOwnedDetailsDraft(),
-      typedPayload: ownedPayloadBuilder?.call(item, common, effectiveDraft),
+      details: details,
+      typedPayload: ownedPayloadBuilder?.call(item, common, details),
       anchor: anchor,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,
         startedAt: tracking.startedAt,
         finishedAt: tracking.finishedAt,
+        notes: tracking.notes,
+      ),
+    );
+  }
+
+  @override
+  AddOwnedItemCommand buildCommandFromDetails(
+    CatalogItem item,
+    LibraryAddCommonDraft common,
+    OwnedDetailsDraft details, {
+    PersonalItemAnchor? anchor,
+    LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+  }) {
+    return AddOwnedItemCommand(
+      catalogRef: CatalogEntityRef(
+        kind: kind.apiValue,
+        entityType: CatalogEntityType.ownedCopy,
+        id: item.id,
+      ),
+      common: common.toOwnedItemCommonDraft(),
+      details: details,
+      typedPayload: ownedPayloadBuilder?.call(item, common, details),
+      anchor: anchor,
+      tracking: OwnedItemTrackingDraft(
+        status: mediaTrackingStatusFromValue(tracking.readStatus),
+        rating: tracking.rating,
+        startedAt: tracking.startedAt,
+        finishedAt: tracking.finishedAt,
+        notes: tracking.notes,
       ),
     );
   }

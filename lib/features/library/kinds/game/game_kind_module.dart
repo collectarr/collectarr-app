@@ -90,9 +90,9 @@ final gameKindModule =
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
     manualDraftBuilder: GameAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft) => GameOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, details) => GameOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
-      details: draft.toOwnedDetailsDraft() as GameOwnedDetailsDraft,
+      details: details as GameOwnedDetailsDraft,
       condition: common.condition,
       grade: common.grade,
       purchaseDate: common.purchaseDate,

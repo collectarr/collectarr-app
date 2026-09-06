@@ -1,5 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -52,6 +50,8 @@ void main() {
     expect(cmd.common.pricePaidCents, 1999);
     expect(cmd.common.currency, 'USD');
     expect(cmd.tracking, isNotNull);
+    expect(cmd.tracking?.notes, isNull);
+    expect(cmd.typedPayload, isNotNull);
 
     final details = cmd.details;
     expect(details, isA<ComicOwnedDetailsDraft>());

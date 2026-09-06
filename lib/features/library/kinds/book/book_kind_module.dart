@@ -210,9 +210,9 @@ final bookKindModule =
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
     manualDraftBuilder: BookAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft) => BookOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, details) => BookOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
-      details: draft.toOwnedDetailsDraft() as BookOwnedDetailsDraft,
+      details: details as BookOwnedDetailsDraft,
       condition: common.condition,
       grade: common.grade,
       purchaseDate: common.purchaseDate,

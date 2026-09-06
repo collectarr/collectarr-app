@@ -161,38 +161,64 @@ class LibraryBulkActions {
     for (var index = 0; index < ownedEntries.length; index++) {
       final entry = ownedEntries[index];
       final src = entry.ownedItem!;
-      final addCmd = AddOwnedItemCommand(
-        catalogRef: CatalogEntityRef(
-          kind: src.catalogRef.kind,
-          entityType: CatalogEntityType.ownedCopy,
-          id: src.itemId,
-        ),
-        anchor: src.anchor,
-        common: OwnedItemCommonDraft(
-          isDigital: src.isDigital,
-          condition: src.condition,
-          grade: src.grade,
-          purchaseDate: src.purchaseDate,
-          pricePaidCents: src.pricePaidCents,
-          currency: src.currency,
-          personalNotes: src.personalNotes,
-          quantity: src.quantity,
-          locationId: src.locationId,
-          tags: src.tags,
-        ),
-        tracking: entry.trackingEntry == null
-            ? null
-            : OwnedItemTrackingDraft(
-                status: entry.trackingEntry!.status,
-                rating: entry.trackingEntry!.rating,
-                startedAt: entry.trackingEntry!.startedAt,
-                finishedAt: entry.trackingEntry!.finishedAt,
-                notes: entry.trackingEntry!.notes,
-              ),
-        details: libraryKindRuntimeForKind(
-          catalogMediaKindFromApiValue(src.catalogRef.kind),
-        ).ownedDetailsDraftFromDetails(src.details),
+      final runtime = libraryKindRuntimeForKind(
+        catalogMediaKindFromApiValue(src.catalogRef.kind),
       );
+      final catalogItem = entry.catalogItem;
+      final common = LibraryAddCommonDraft(
+        isDigital: src.isDigital,
+        condition: src.condition,
+        grade: src.grade,
+        purchaseDate: src.purchaseDate,
+        pricePaidCents: src.pricePaidCents,
+        currency: src.currency,
+        personalNotes: src.personalNotes,
+        quantity: src.quantity,
+        locationId: src.locationId,
+        purchaseStore: src.purchaseStore,
+        collectionStatus: src.collectionStatus,
+        tags: src.tags,
+      );
+      final tracking = entry.trackingEntry == null
+          ? null
+          : LibraryAddTrackingDraft(
+              readStatus: mediaTrackingStatusToStorageValue(
+                entry.trackingEntry!.status,
+              ),
+              rating: entry.trackingEntry!.rating,
+              startedAt: entry.trackingEntry!.startedAt,
+              finishedAt: entry.trackingEntry!.finishedAt,
+              notes: entry.trackingEntry!.notes,
+            );
+      final details = runtime.ownedDetailsDraftFromDetails(src.details);
+      final addCmd =
+          catalogItem == null || runtime.kind == CatalogMediaKind.unknown
+              ? AddOwnedItemCommand(
+                  catalogRef: CatalogEntityRef(
+                    kind: src.catalogRef.kind,
+                    entityType: CatalogEntityType.ownedCopy,
+                    id: src.itemId,
+                  ),
+                  anchor: src.anchor,
+                  common: common.toOwnedItemCommonDraft(),
+                  tracking: entry.trackingEntry == null
+                      ? null
+                      : OwnedItemTrackingDraft(
+                          status: entry.trackingEntry!.status,
+                          rating: entry.trackingEntry!.rating,
+                          startedAt: entry.trackingEntry!.startedAt,
+                          finishedAt: entry.trackingEntry!.finishedAt,
+                          notes: entry.trackingEntry!.notes,
+                        ),
+                  details: details,
+                )
+              : runtime.add.buildCommandFromDetails(
+                  catalogItem,
+                  common,
+                  details,
+                  anchor: src.anchor,
+                  tracking: tracking ?? const LibraryAddTrackingDraft(),
+                );
       await coordinator.addOwnedItem(addCmd);
     }
     return ownedEntries.length;

@@ -110,9 +110,9 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails,
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
     manualDraftBuilder: MusicAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft) => MusicOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, details) => MusicOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
-      details: draft.toOwnedDetailsDraft() as MusicOwnedDetailsDraft,
+      details: details as MusicOwnedDetailsDraft,
       condition: common.condition,
       grade: common.grade,
       purchaseDate: common.purchaseDate,
