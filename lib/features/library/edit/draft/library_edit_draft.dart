@@ -363,9 +363,8 @@ class LibraryEditDraft {
   }
 
   bool get isDigitalFormat {
-    final payload = libraryKindMetadataPayload(item);
-    final physicalFormatLabel = payload['physical_format_label']?.toString();
-    final physicalFormat = payload['physical_format']?.toString();
+    final physicalFormatLabel = item.physicalFormatLabel;
+    final physicalFormat = item.physicalFormat;
     final format = physicalFormatLabel ??
         physicalFormat ??
         libraryKindTitleExtension(item) ??
