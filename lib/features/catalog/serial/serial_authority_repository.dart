@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -175,72 +175,7 @@ class SerialAuthorityRepository {
         );
   }
 
-  Future<void> captureCatalogItems(Iterable<Object?> items) async {
-    await _db.transaction(() async {
-      await captureCatalogItemsWithoutTransaction(items);
-    });
-  }
-
-  Future<void> captureCatalogItemsWithoutTransaction(
-      Iterable<Object?> items) async {
-    final list = items.toList(growable: false);
-    if (list.isEmpty) {
-      return;
-    }
-    final candidates = <String, _SeriesCandidate>{};
-    for (final item in list) {
-      final metadataItem = typedCatalogItemFromUnknown(item);
-      if (metadataItem == null) {
-        continue;
-      }
-      final kind = metadataItem.kind;
-      final payload = metadataItem.payload;
-      final rawSeriesPayload = payload['series'];
-      final seriesPayload = rawSeriesPayload is Map
-          ? Map<String, dynamic>.from(rawSeriesPayload)
-          : payload;
-      final seriesTitle =
-          (seriesPayload['series_title'] ?? seriesPayload['seriesTitle'])
-              ?.toString();
-      final seriesId =
-          (seriesPayload['series_id'] ?? seriesPayload['seriesId'])?.toString();
-      final title = _emptyToNull(
-        seriesTitle ??
-            ((kind == 'comic' || kind == 'manga')
-                ? payload['title']?.toString()
-                : null),
-      );
-      final normalizedTitle = _normalize(title);
-      if (normalizedTitle == null) {
-        continue;
-      }
-      final mediaKind = kind.trim().toLowerCase();
-      final coreSeriesId = _emptyToNull(seriesId);
-      final key = _seriesKey(
-        coreSeriesId: coreSeriesId,
-        normalizedTitle: normalizedTitle,
-      );
-      candidates[key] = _SeriesCandidate(
-        mediaKind: mediaKind,
-        title: title!,
-        normalizedTitle: normalizedTitle,
-        sortTitle: title,
-        normalizedSortTitle: normalizedTitle,
-        coreSeriesId: coreSeriesId,
-      );
-    }
-    if (candidates.isEmpty) {
-      return;
-    }
-
-    await _captureSeriesCandidates(candidates.values);
-  }
-
   /// Persists candidates projected by an owning kind.
-  ///
-  /// This is the preferred path for catalog writes. [captureCatalogItems]
-  /// remains as a compatibility adapter for older callers that still provide
-  /// common CatalogItem values.
   Future<void> captureCandidatesWithoutTransaction(
     Iterable<SerialAuthorityCandidate> candidates,
   ) async {

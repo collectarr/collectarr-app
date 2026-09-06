@@ -76,8 +76,14 @@ class CustomEpisodesCacheRepository {
   }
 
   Map<String, dynamic> toSyncPayload(CustomEpisode episode) {
-    return _codecs[episode.seriesRef.kind]?.toSyncPayload(episode) ??
-        episode.toSyncPayload();
+    final codec = _codecs[episode.seriesRef.kind];
+    if (codec == null) {
+      throw StateError(
+        'No custom-episode codec is registered for kind '
+        '"${episode.seriesRef.kind}".',
+      );
+    }
+    return codec.toSyncPayload(episode);
   }
 
   Future<void> _upsert(CustomEpisode episode) {

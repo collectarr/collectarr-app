@@ -98,11 +98,8 @@ class TrackingEntriesCacheRepository {
   }
 
   Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
-    // Legacy local rows may not have a kind yet. Preserve only the common
-    // lifecycle payload until the row is re-associated with an owner; remote
-    // sync reconstruction remains strict in SyncApplyService.
-    return _codecs[entry.catalogRef.kind]?.toSyncPayload(entry) ??
-        entry.toSyncPayload();
+    final codec = _codecForKind(entry.catalogRef.kind);
+    return codec.toSyncPayload(entry);
   }
 
   TrackingEntry _fromCache(
@@ -129,30 +126,7 @@ class TrackingEntriesCacheRepository {
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
-    return _codecs[row.kind]?.fromStorageRow(storageRow, coordinates) ??
-        _fromLegacyStorageRow(storageRow);
-  }
-
-  TrackingEntry _fromLegacyStorageRow(TrackingEntryStorageRow row) {
-    return TrackingEntry(
-      id: row.id,
-      catalogRef: row.catalogRef,
-      ownedItemId: row.ownedItemId,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      bundleReleaseId: row.bundleReleaseId,
-      sourceType: row.sourceType,
-      status: row.status,
-      rating: row.rating,
-      startedAt: row.startedAt,
-      finishedAt: row.finishedAt,
-      progressCurrent: row.progressCurrent,
-      progressTotal: row.progressTotal,
-      timesCompleted: row.timesCompleted,
-      notes: row.notes,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
-    );
+    return _codecForKind(row.kind).fromStorageRow(storageRow, coordinates);
   }
 
   TrackingEntriesCacheCompanion _toCompanion(TrackingEntry item) {
@@ -182,7 +156,7 @@ class TrackingEntriesCacheRepository {
     for (final codec in _codecs.values) {
       await codec.clearCoordinates(_db, item.id);
     }
-    await _codecs[item.catalogRef.kind]?.writeCoordinates(_db, item);
+    await _codecForKind(item.catalogRef.kind).writeCoordinates(_db, item);
   }
 
   Future<Map<String, Object?>> _loadCoordinates([
@@ -214,5 +188,14 @@ class TrackingEntriesCacheRepository {
       entityType: entityType,
       id: row.itemId,
     );
+  }
+
+  TrackingEntryCodec _codecForKind(String kind) {
+    final codec = _codecs[kind];
+    if (codec == null) {
+      throw StateError(
+          'No tracking-entry codec is registered for kind "$kind".');
+    }
+    return codec;
   }
 }

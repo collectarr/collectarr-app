@@ -237,24 +237,14 @@ class LibraryRouteState {
           ? null
           : segment.substring(separatorIndex + 1).trim().toLowerCase();
 
-      final legacyParts = segment.split('.');
-      final legacyColumnToken =
-          legacyParts.length == 2 ? legacyParts.first.trim() : null;
-
-      final resolvedColumn = _sortColumnFromToken(
-        columnToken ?? legacyColumnToken,
-      );
+      final resolvedColumn = _sortColumnFromToken(columnToken);
       if (resolvedColumn == null) {
         continue;
       }
       decoded.add(
         LibrarySortRule(
           column: resolvedColumn,
-          ascending: (direction ??
-                  (legacyParts.length == 2
-                      ? legacyParts.last.trim().toLowerCase()
-                      : 'asc')) !=
-              'desc',
+          ascending: direction != 'desc',
         ),
       );
     }
@@ -267,7 +257,7 @@ class LibraryRouteState {
       return null;
     }
     // Sort column IDs are plain snake_case strings — return the token directly
-    return trimmed.split('.').last;
+    return trimmed;
   }
 
   static LibraryFolderPreset? _decodeFolderPreset(String? rawValue,

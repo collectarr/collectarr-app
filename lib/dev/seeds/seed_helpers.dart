@@ -89,7 +89,7 @@ CatalogItem enrichSeedItem(CatalogItem item) {
 
   // Older seed payloads used a flat string for series. The typed catalog
   // contract stores series as an object, and serial-authority discovery reads
-  // that object directly. Normalize the legacy shape while enriching data so
+  // that object directly. Normalize the seed shape while enriching data so
   // a forced re-seed cannot reintroduce an invalid payload.
   final rawSeries = payload['series'];
   if (rawSeries is String && rawSeries.trim().isNotEmpty) {
@@ -269,7 +269,7 @@ CatalogItem enrichSeedItem(CatalogItem item) {
 }
 
 /// Verifies that the checked-in seed data is useful to the UI and to the
-/// kind-specific migration work, not merely structurally valid JSON.
+/// kind-specific behavior, not merely structurally valid JSON.
 ///
 /// This runs after [enrichSeedItem], so defaults added at the serialization
 /// boundary are tested as well. Keep the rules here intentionally limited to

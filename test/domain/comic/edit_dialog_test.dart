@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +63,18 @@ void main() {
       ),
     ];
     await catalog.upsertAll(catalogItems);
-    await seriesRegistry.captureCatalogItems(catalogItems);
+    await seriesRegistry.captureCandidatesWithoutTransaction([
+      const SerialAuthorityCandidate(
+        mediaKind: CatalogMediaKind.comic,
+        title: 'Saga',
+        coreSeriesId: 'series-1',
+      ),
+      const SerialAuthorityCandidate(
+        mediaKind: CatalogMediaKind.comic,
+        title: 'Over the Garden Wall',
+        coreSeriesId: 'series-2',
+      ),
+    ]);
     await pickLists.setValues(
       ComicVocabularyIds.crossover.value,
       ['Annihilation', 'Image United'],

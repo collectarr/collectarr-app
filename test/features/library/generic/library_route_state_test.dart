@@ -98,14 +98,12 @@ void main() {
     expect(parsed.isSidebarVisible, isNull);
   });
 
-  test('legacy sort params still decode', () {
+  test('old sort params are ignored', () {
     final parsed = LibraryRouteState.fromUri(
       Uri.parse('/libraries?kind=movie&sort=title.asc,updated.desc'),
     );
 
-    expect(parsed.sortRules, hasLength(2));
-    expect(parsed.sortRules!.first.column, 'title');
-    expect(parsed.sortRules!.last.column, 'updated');
+    expect(parsed.sortRules, isNull);
   });
 
   test('filtered route state drops explicit state when route kind mismatches',

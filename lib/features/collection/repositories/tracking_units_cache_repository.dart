@@ -133,7 +133,14 @@ class TrackingUnitsCacheRepository {
     for (final codec in _codecs.values) {
       await codec.clearCoordinates(_db, unit.id);
     }
-    await _codecs[unit.targetRef.kind]?.writeCoordinates(_db, unit);
+    final codec = _codecs[unit.targetRef.kind];
+    if (codec == null) {
+      throw StateError(
+        'No tracking-unit codec is registered for kind '
+        '"${unit.targetRef.kind}".',
+      );
+    }
+    await codec.writeCoordinates(_db, unit);
   }
 
   Future<Map<String, Object?>> _loadCoordinates([
@@ -179,20 +186,13 @@ class TrackingUnitsCacheRepository {
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
-    return _codecs[row.kind]?.fromStorageRow(storageRow, coordinates) ??
-        TrackingUnit(
-          id: storageRow.id,
-          targetRef: storageRow.targetRef,
-          trackingEntryId: storageRow.trackingEntryId,
-          ownedItemId: storageRow.ownedItemId,
-          editionId: storageRow.editionId,
-          variantId: storageRow.variantId,
-          bundleReleaseId: storageRow.bundleReleaseId,
-          unitType: storageRow.unitType,
-          completedAt: storageRow.completedAt,
-          updatedAt: storageRow.updatedAt,
-          deletedAt: storageRow.deletedAt,
-        );
+    final codec = _codecs[row.kind];
+    if (codec == null) {
+      throw StateError(
+        'No tracking-unit codec is registered for kind "${row.kind}".',
+      );
+    }
+    return codec.fromStorageRow(storageRow, coordinates);
   }
 
   int _compareForDisplay(TrackingUnit a, TrackingUnit b) {

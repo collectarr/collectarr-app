@@ -9,8 +9,7 @@ enum MetadataFieldScope {
   media('media'),
   track('track'),
   ownedCopy('owned_copy'),
-  trackingEntry('tracking_entry'),
-  legacyProjection('legacy_projection');
+  trackingEntry('tracking_entry');
 
   const MetadataFieldScope(this.apiValue);
 
@@ -19,14 +18,14 @@ enum MetadataFieldScope {
   static MetadataFieldScope fromApiValue(String? value) {
     final normalized = value?.trim().toLowerCase();
     if (normalized == null || normalized.isEmpty) {
-      return MetadataFieldScope.legacyProjection;
+      throw FormatException('Metadata field scope is required.');
     }
     for (final scope in MetadataFieldScope.values) {
       if (scope.apiValue == normalized) {
         return scope;
       }
     }
-    return MetadataFieldScope.legacyProjection;
+    throw FormatException('Unknown metadata field scope: $value');
   }
 }
 
@@ -35,7 +34,6 @@ enum MetadataWriteTarget {
   coreAdminProposal('core_admin_proposal'),
   appPersonal('app_personal'),
   appCustom('app_custom'),
-  legacyProjection('legacy_projection'),
   readonlyComputed('readonly_computed');
 
   const MetadataWriteTarget(this.apiValue);
@@ -45,17 +43,14 @@ enum MetadataWriteTarget {
   static MetadataWriteTarget fromApiValue(String? value) {
     final normalized = value?.trim().toLowerCase();
     if (normalized == null || normalized.isEmpty) {
-      return MetadataWriteTarget.legacyProjection;
-    }
-    if (normalized == 'core_proposal') {
-      return MetadataWriteTarget.coreAdminProposal;
+      throw FormatException('Metadata write target is required.');
     }
     for (final target in MetadataWriteTarget.values) {
       if (target.apiValue == normalized) {
         return target;
       }
     }
-    return MetadataWriteTarget.legacyProjection;
+    throw FormatException('Unknown metadata write target: $value');
   }
 }
 
@@ -198,11 +193,10 @@ class MetadataFieldSpec {
     required this.section,
     required this.input,
     required this.kinds,
-    this.scope = MetadataFieldScope.legacyProjection,
-    this.writeTarget = MetadataWriteTarget.legacyProjection,
+    required this.scope,
+    required this.writeTarget,
     this.sourceEntityType,
     this.sourceTable,
-    this.isLegacyProjection = false,
   });
 
   final String key;
@@ -219,7 +213,6 @@ class MetadataFieldSpec {
   final MetadataWriteTarget writeTarget;
   final String? sourceEntityType;
   final String? sourceTable;
-  final bool isLegacyProjection;
 
   factory MetadataFieldSpec.fromJson(Map<String, dynamic> json) {
     return MetadataFieldSpec(
@@ -238,15 +231,12 @@ class MetadataFieldSpec {
       ],
       scope: MetadataFieldScope.fromApiValue(json['scope'] as String?),
       writeTarget: MetadataWriteTarget.fromApiValue(
-        json['write_target'] as String? ?? json['writeTarget'] as String?,
+        json['write_target'] as String?,
       ),
       sourceEntityType: json['source_entity_type']?.toString() ??
           json['sourceEntityType']?.toString(),
       sourceTable:
           json['source_table']?.toString() ?? json['sourceTable']?.toString(),
-      isLegacyProjection: json['is_legacy_projection'] as bool? ??
-          json['isLegacyProjection'] as bool? ??
-          false,
     );
   }
 }

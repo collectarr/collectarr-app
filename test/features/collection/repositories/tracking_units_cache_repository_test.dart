@@ -1,14 +1,12 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
@@ -106,87 +104,6 @@ void main() {
     expect(await db.select(db.bookTrackingUnitRows).get(), isEmpty);
   });
 
-  test('migrates legacy generic coordinates into the typed TV table', () async {
-    final directory = await Directory.systemTemp.createTemp(
-      'collectarr_tracking_units_v23',
-    );
-    addTearDown(() => directory.delete(recursive: true));
-    final file = File('${directory.path}/cache.sqlite');
-
-    final old = LocalDatabase(NativeDatabase(file));
-    await old.customStatement('DROP TABLE tracking_units_cache');
-    await old.customStatement('DROP TABLE tv_tracking_unit_rows');
-    await old.customStatement('DROP TABLE anime_tracking_unit_rows');
-    await old.customStatement('DROP TABLE book_tracking_unit_rows');
-    await old.customStatement('DROP TABLE manga_tracking_unit_rows');
-    await old.customStatement('DROP TABLE comic_tracking_unit_rows');
-    await old.customStatement('''
-      CREATE TABLE tracking_units_cache (
-        id TEXT NOT NULL PRIMARY KEY,
-        item_id TEXT NOT NULL,
-        tracking_entry_id TEXT,
-        owned_item_id TEXT,
-        edition_id TEXT,
-        variant_id TEXT,
-        bundle_release_id TEXT,
-        unit_type TEXT NOT NULL,
-        season_number INTEGER,
-        episode_number INTEGER,
-        volume_number INTEGER,
-        chapter_number INTEGER,
-        issue_number TEXT,
-        completed_at INTEGER NOT NULL,
-        updated_at INTEGER NOT NULL,
-        deleted_at INTEGER
-      )
-    ''');
-    await old.customStatement(
-      'INSERT INTO tracking_entries_cache '
-      '(id, item_id, kind, status, updated_at) VALUES (?, ?, ?, ?, ?)',
-      ['entry-1', 'series-legacy', 'tv', 'completed', 1000],
-    );
-    await old.customStatement(
-      'INSERT INTO tracking_units_cache '
-      '(id, item_id, tracking_entry_id, unit_type, season_number, '
-      'episode_number, completed_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        'legacy-episode',
-        'series-legacy',
-        'entry-1',
-        'episode',
-        4,
-        7,
-        1000,
-        1000
-      ],
-    );
-    await old.customStatement('PRAGMA user_version = 23');
-    await old.close();
-
-    final db = LocalDatabase(NativeDatabase(file));
-    addTearDown(db.close);
-    final repository = TrackingUnitsCacheRepository(
-      db,
-      codecs: collectarrTrackingUnitCodecs,
-    );
-    final unit = await repository.findById('legacy-episode');
-
-    expect(unit, isA<TvTrackingUnit>());
-    expect((unit! as TvTrackingUnit).seasonNumber, 4);
-    expect((unit as TvTrackingUnit).episodeNumber, 7);
-    expect((await db.select(db.trackingUnitsCache).getSingle()).kind, 'tv');
-    expect(await db.select(db.tvTrackingUnitRows).get(), hasLength(1));
-    final columns = await db
-        .customSelect(
-          'PRAGMA table_info(tracking_units_cache)',
-        )
-        .get();
-    expect(
-      columns.map((row) => row.data['name']),
-      isNot(contains('season_number')),
-    );
-  });
-
   test('routes watch sessions to the TV and Anime owner tables', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -276,109 +193,29 @@ void main() {
     );
   });
 
-  test('migrates legacy watch and custom episode rows to typed owners',
-      () async {
-    final directory = await Directory.systemTemp.createTemp(
-      'collectarr_video_personal_v24',
-    );
-    addTearDown(() => directory.delete(recursive: true));
-    final file = File('${directory.path}/cache.sqlite');
-
-    final old = LocalDatabase(NativeDatabase(file));
-    await old.customStatement('DROP TABLE anime_watch_session_rows');
-    await old.customStatement('DROP TABLE anime_custom_episode_rows');
-    await old.customStatement('''
-      CREATE TABLE watch_sessions_cache (
-        id TEXT NOT NULL PRIMARY KEY,
-        item_id TEXT NOT NULL,
-        target_ref_json TEXT,
-        tracking_entry_id TEXT,
-        season_number INTEGER,
-        episode_number INTEGER,
-        source_type TEXT,
-        seen_where TEXT,
-        watched_at INTEGER NOT NULL,
-        rating INTEGER,
-        notes TEXT,
-        updated_at INTEGER NOT NULL,
-        deleted_at INTEGER
-      )
-    ''');
-    await old.customStatement('''
-      CREATE TABLE custom_episodes_cache (
-        id TEXT NOT NULL PRIMARY KEY,
-        item_id TEXT NOT NULL,
-        season_number INTEGER NOT NULL,
-        episode_number INTEGER NOT NULL,
-        title TEXT NOT NULL,
-        overview TEXT,
-        air_date TEXT,
-        runtime_minutes INTEGER,
-        still_image_url TEXT,
-        local_image_path TEXT,
-        thumbnail_image_url TEXT,
-        updated_at INTEGER NOT NULL,
-        deleted_at INTEGER
-      )
-    ''');
-    await old.customStatement(
-      'INSERT INTO watch_sessions_cache '
-      '(id, item_id, target_ref_json, season_number, episode_number, '
-      'watched_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [
-        'legacy-anime-session',
-        'anime-legacy',
-        jsonEncode({
-          'kind': 'anime',
-          'entity_type': 'work',
-          'id': 'anime-legacy',
-        }),
-        1,
-        6,
-        1000,
-        1000,
-      ],
-    );
-    await old.customStatement(
-      'INSERT INTO custom_episodes_cache '
-      '(id, item_id, season_number, episode_number, title, air_date, '
-      'updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [
-        'legacy-custom',
-        'tv-legacy',
-        2,
-        8,
-        'Legacy special',
-        '2026-09-05',
-        1000,
-      ],
-    );
-    await old.customStatement('PRAGMA user_version = 24');
-    await old.close();
-
-    final db = LocalDatabase(NativeDatabase(file));
+  test('rejects tracking units without a registered kind codec', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final sessions = WatchSessionsCacheRepository(
+    final repository = TrackingUnitsCacheRepository(
       db,
-      codecs: collectarrWatchSessionCodecs,
-    );
-    final episodes = CustomEpisodesCacheRepository(
-      db,
-      codecs: collectarrCustomEpisodeCodecs,
+      codecs: collectarrTrackingUnitCodecs,
     );
 
-    expect((await sessions.findById('legacy-anime-session'))?.targetRef.kind,
-        'anime');
-    expect((await episodes.findById('legacy-custom'))?.title, 'Legacy special');
-    expect(await db.select(db.animeWatchSessionRows).get(), hasLength(1));
-    expect(await db.select(db.tvCustomEpisodeRows).get(), hasLength(1));
-    final tableNames = (await db
-            .customSelect(
-              "SELECT name FROM sqlite_master WHERE type = 'table'",
-            )
-            .get())
-        .map((row) => row.data['name']);
-    expect(tableNames, isNot(contains('watch_sessions_cache')));
-    expect(tableNames, isNot(contains('custom_episodes_cache')));
+    await expectLater(
+      repository.upsert(
+        TrackingUnit(
+          id: 'untyped-unit',
+          targetRef: const CatalogEntityRef(
+            kind: 'unknown',
+            entityType: CatalogEntityType.work,
+            id: 'item-1',
+          ),
+          unitType: 'unit',
+          completedAt: DateTime.utc(2026, 9, 5),
+          updatedAt: DateTime.utc(2026, 9, 5),
+        ),
+      ),
+      throwsA(isA<StateError>()),
+    );
   });
 }

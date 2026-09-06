@@ -565,13 +565,11 @@ void main() {
       'write_target': 'core_canonical',
       'source_entity_type': 'book_work',
       'source_table': 'book_works',
-      'is_legacy_projection': false,
     });
 
     expect(spec.scope, MetadataFieldScope.work);
     expect(spec.writeTarget, MetadataWriteTarget.coreCanonical);
     expect(spec.sourceEntityType, 'book_work');
     expect(spec.sourceTable, 'book_works');
-    expect(spec.isLegacyProjection, isFalse);
   });
 }

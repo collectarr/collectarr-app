@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -91,19 +92,12 @@ void main() {
     );
   });
 
-  test(
-      'captureCatalogItems uses config-driven title fallback for kinds that treat title as series',
+  test('stores kind-projected serial candidates without reading catalog maps',
       () async {
-    await registry.captureCatalogItemsWithoutTransaction([
-      testCatalogItem(
-        id: 'comic-untitled-series',
-        kind: 'comic',
+    await registry.captureCandidatesWithoutTransaction([
+      const SerialAuthorityCandidate(
+        mediaKind: CatalogMediaKind.comic,
         title: 'Batman',
-      ),
-      testCatalogItem(
-        id: 'book-no-series',
-        kind: 'book',
-        title: 'The Hobbit',
       ),
     ]);
 

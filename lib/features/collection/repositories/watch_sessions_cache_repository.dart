@@ -84,8 +84,14 @@ class WatchSessionsCacheRepository {
   }
 
   Map<String, dynamic> toSyncPayload(WatchSession session) {
-    return _codecs[session.targetRef.kind]?.toSyncPayload(session) ??
-        session.toSyncPayload();
+    final codec = _codecs[session.targetRef.kind];
+    if (codec == null) {
+      throw StateError(
+        'No watch-session codec is registered for kind '
+        '"${session.targetRef.kind}".',
+      );
+    }
+    return codec.toSyncPayload(session);
   }
 
   static int _compareSessions(WatchSession left, WatchSession right) {

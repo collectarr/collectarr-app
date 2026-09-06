@@ -137,8 +137,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
 
 /// Minimum rows expected in each kind-owned physical-copy details table.
 ///
-/// Every migrated kind is measured from its complete kind-owned copy table;
-/// the remaining detail-only tables are retained only for compatibility.
+/// Every kind is measured from its complete kind-owned copy table.
 const devSeedTypedOwnedMinimumCounts = <String, int>{
   'comic.owned': 15,
   'manga.owned': 15,

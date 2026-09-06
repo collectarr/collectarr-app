@@ -12,24 +12,9 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
 /// Seeds only vocabulary definitions owned by a concrete kind.
 ///
-/// The old unscoped names are cleared so a local database rebuilt or reseeded
-/// during development cannot keep presenting the retired semantic union.
 /// Kind values are captured rather than replaced because catalog-derived
 /// values are collected before this seed supplement runs.
 Future<void> seedPickLists(PickListRepository repo) async {
-  for (final legacyName in const [
-    'conditions',
-    'grades',
-    'physical_formats',
-    'countries',
-    'languages',
-    'age_ratings',
-    'genres',
-    'story_arcs',
-  ]) {
-    await repo.setValues(legacyName, const []);
-  }
-
   await _seedKindVocabularies(repo, 'anime', AnimeVocabularies.all);
   await _seedKindVocabularies(
     repo,
