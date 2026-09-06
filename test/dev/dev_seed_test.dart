@@ -57,6 +57,50 @@ void main() {
         reason: 'Incomplete typed tracking seed data for ${entry.key}',
       );
     }
+    final bookReleases = await db.select(db.bookReleaseRows).get();
+    expect(
+      bookReleases.every(
+        (row) =>
+            row.workId?.startsWith('seed-book-') == true &&
+            row.displayTitle?.trim().isNotEmpty == true &&
+            row.isbn?.trim().isNotEmpty == true,
+      ),
+      isTrue,
+      reason: 'Book seed editions must retain typed edition metadata',
+    );
+    final boardGameEditions = await db.select(db.boardGameEditionRows).get();
+    expect(
+      boardGameEditions.every(
+        (row) =>
+            row.workId?.startsWith('seed-boardgame-') == true &&
+            row.editionTitle?.trim().isNotEmpty == true &&
+            row.minPlayers != null &&
+            row.maxPlayers != null &&
+            row.playingTimeMinutes != null,
+      ),
+      isTrue,
+      reason: 'BoardGame seed editions must retain typed edition metadata',
+    );
+    final tvReleases = await db.select(db.tvReleaseRows).get();
+    expect(
+      tvReleases.every(
+        (row) =>
+            row.seriesId.startsWith('seed-tv-') &&
+            row.title.trim().isNotEmpty &&
+            row.episodeCount == 2,
+      ),
+      isTrue,
+      reason: 'TV seed releases must retain series and episode metadata',
+    );
+    final musicTracks = await db.select(db.musicTrackRows).get();
+    expect(
+      musicTracks.every(
+        (row) =>
+            row.mediaId.startsWith('seed-music-') && row.durationMs != null,
+      ),
+      isTrue,
+      reason: 'Music seed tracks must retain media and duration metadata',
+    );
     const expectedCatalogCounts = devSeedCatalogCounts;
     for (final entry in expectedCatalogCounts.entries) {
       expect(_countKind(catalogRows, entry.key), entry.value,
