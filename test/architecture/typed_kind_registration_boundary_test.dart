@@ -10,7 +10,7 @@ void main() {
   const compositionRootPath =
       'lib/features/library/kinds/registry/collectarr_kind_modules.dart';
   const registrationsPath =
-      'lib/features/library/kinds/registry/library_kind_registrations.dart';
+      'lib/features/library/kinds/registry/library_kind_registrations.g.dart';
   const productionRoot = 'lib';
   const homePath = 'lib/features/library/home/home_page.dart';
 

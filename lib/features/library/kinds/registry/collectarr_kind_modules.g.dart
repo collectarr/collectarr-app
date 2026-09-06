@@ -1,0 +1,48 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// Run: dart run tool/generate_kind_registries.dart
+
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
+
+final List<LibraryKindModule> collectarrKindModules = [
+  animeKindModule,
+  boardGameKindModule,
+  bookKindModule,
+  comicKindModule,
+  gameKindModule,
+  mangaKindModule,
+  movieKindModule,
+  musicKindModule,
+  tvKindModule,
+];
+
+LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {
+  for (final module in collectarrKindModules) {
+    if (module.kind == kind) return module;
+  }
+  return null;
+}
+
+LibraryKindModule libraryKindFor(CatalogMediaKind kind) {
+  final module = lookupLibraryKind(kind);
+  if (module != null) return module;
+  throw ArgumentError('No LibraryKindModule registered for kind "$kind"');
+}
