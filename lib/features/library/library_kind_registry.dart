@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_calendar_contribu
 import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/activity/anime_activity_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/admin/anime_admin_contributor.dart';
@@ -290,6 +291,15 @@ LibraryKindRuntime libraryKindRuntimeForKind(
     return genericKindModule;
   }
   return reg.require(kind);
+}
+
+/// Composition-root dispatch for the default typed Owned draft.
+///
+/// Collection commands intentionally do not depend on the kind registry. UI
+/// and integration hosts may use this helper while they still construct the
+/// transitional common command boundary.
+OwnedDetailsDraft libraryKindOwnedDetailsDraftForKind(CatalogMediaKind kind) {
+  return libraryKindRuntimeForKind(kind).defaultOwnedDetailsDraft();
 }
 
 bool libraryGroupModeSupportsCompletion(

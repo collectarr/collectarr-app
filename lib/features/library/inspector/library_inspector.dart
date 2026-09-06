@@ -658,7 +658,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             ),
             anchor: anchor,
             common: OwnedItemCommonDraft(),
-            details: defaultDetailsDraftForKind(widget.type.kind),
+            details: widget.type.defaultOwnedDetailsDraft(),
           ),
         );
     if (!mounted) {

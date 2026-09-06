@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -145,7 +144,7 @@ void main() {
               id: 'clear-test-${kind.apiValue}',
             ),
             common: const OwnedItemCommonDraft(),
-            details: defaultDetailsDraftForKind(kind),
+            details: libraryKindOwnedDetailsDraftForKind(kind),
           ),
         );
 
@@ -172,7 +171,7 @@ void main() {
         expect(defaultDetails, isNot(isA<GenericOwnedDetails>()),
             reason: '$kind default details must not be GenericOwnedDetails');
 
-        final defaultDraft = defaultDetailsDraftForKind(kind);
+        final defaultDraft = libraryKindOwnedDetailsDraftForKind(kind);
         expect(defaultDraft, isNot(isA<GenericOwnedDetailsDraft>()),
             reason: '$kind default draft must not be GenericOwnedDetailsDraft');
       }
@@ -182,7 +181,8 @@ void main() {
       const unknownDetails = GenericOwnedDetails();
       expect(unknownDetails, isA<GenericOwnedDetails>());
 
-      final unknownDraft = defaultDetailsDraftForKind(CatalogMediaKind.unknown);
+      final unknownDraft =
+          libraryKindOwnedDetailsDraftForKind(CatalogMediaKind.unknown);
       expect(unknownDraft, isA<GenericOwnedDetailsDraft>());
 
       const parsed = GenericOwnedDetails();

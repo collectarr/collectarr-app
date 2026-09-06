@@ -1,9 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/features/library/config/owned_details_draft.dart';
@@ -100,10 +98,6 @@ class OwnedItemTrackingDraft {
   final DateTime? startedAt;
   final DateTime? finishedAt;
   final String? notes;
-}
-
-OwnedDetailsDraft defaultDetailsDraftForKind(CatalogMediaKind kind) {
-  return libraryKindRuntimeForKind(kind).defaultOwnedDetailsDraft();
 }
 
 /// Command to add an owned item to collection.

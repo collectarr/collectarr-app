@@ -216,7 +216,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             ),
             anchor: anchor,
             common: OwnedItemCommonDraft(),
-            details: defaultDetailsDraftForKind(widget.type.kind),
+            details: widget.type.defaultOwnedDetailsDraft(),
           ),
         );
     if (!mounted) {

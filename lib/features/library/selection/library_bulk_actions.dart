@@ -111,7 +111,7 @@ class LibraryBulkActions {
         tracking: OwnedItemTrackingDraft(
           status: mediaTrackingStatusFromValue(defaultReadStatus),
         ),
-        details: defaultDetailsDraftForKind(resolvedKind),
+        details: libraryKindOwnedDetailsDraftForKind(resolvedKind),
       );
       await coordinator.addOwnedItem(addCmd);
     }

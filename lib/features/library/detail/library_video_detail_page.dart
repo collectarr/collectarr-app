@@ -83,7 +83,7 @@ class _LibraryVideoDetailPageState
               bundleReleaseId: anchor.bundleReleaseId,
             ),
             common: OwnedItemCommonDraft(),
-            details: defaultDetailsDraftForKind(widget.request.type.kind),
+            details: widget.request.type.defaultOwnedDetailsDraft(),
           ),
         );
   }

@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryCollectionActions {
@@ -33,7 +34,7 @@ class LibraryCollectionActions {
         ),
         anchor: anchor,
         common: OwnedItemCommonDraft(),
-        details: defaultDetailsDraftForKind(
+        details: libraryKindOwnedDetailsDraftForKind(
           catalogMediaKindFromApiValue(catalogItem.kind),
         ),
       ),
