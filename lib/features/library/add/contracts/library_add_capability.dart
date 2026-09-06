@@ -292,7 +292,6 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         rating: tracking.rating,
         startedAt: tracking.startedAt,
         finishedAt: tracking.finishedAt,
-        notes: common.personalNotes,
       ),
     );
   }

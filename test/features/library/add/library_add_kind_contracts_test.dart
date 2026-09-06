@@ -88,7 +88,10 @@ void main() {
           kind: kind.apiValue,
           title: 'Test Item',
         );
-        const common = LibraryAddCommonDraft(condition: 'Near Mint');
+        const common = LibraryAddCommonDraft(
+          condition: 'Near Mint',
+          personalNotes: 'Collection note',
+        );
 
         final metadataItem = typedCatalogItemFromCatalogItem(item);
         final command = addCap.buildCommand(
@@ -104,7 +107,9 @@ void main() {
         expect(command.catalogRef.id, item.id);
         expect(command.anchor?.editionId, 'edition-${kind.apiValue}');
         expect(command.common.condition, 'Near Mint');
+        expect(command.common.personalNotes, 'Collection note');
         expect(command.tracking?.rating, 9);
+        expect(command.tracking?.notes, isNull);
         expect(command.details, isNot(isA<GenericOwnedDetailsDraft>()),
             reason:
                 '$kind command details must not be GenericOwnedDetailsDraft');
