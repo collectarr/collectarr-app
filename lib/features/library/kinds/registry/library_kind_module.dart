@@ -343,11 +343,7 @@ class LibraryKindSpec<
 
   @override
   void validateOwnedDetails(OwnedItemDetails details) {
-    if (details is! TDetails) {
-      throw ArgumentError(
-        'Incompatible owned details type "${details.runtimeType}" for media kind "${kind.apiValue}". Expected "$TDetails".',
-      );
-    }
+    ownedDetailsCodec.validate(details);
   }
 
   @override
