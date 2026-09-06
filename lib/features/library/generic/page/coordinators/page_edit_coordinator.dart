@@ -348,12 +348,6 @@ class LibraryPageEditCoordinator {
         timesCompleted: result.tracking?.timesCompleted ??
             activeTrackingEntry?.timesCompleted,
         notes: result.tracking?.notes ?? activeTrackingEntry?.notes,
-        seasonNumber:
-            result.tracking?.seasonNumber ?? activeTrackingEntry?.seasonNumber,
-        episodeNumber: result.tracking?.episodeNumber ??
-            activeTrackingEntry?.episodeNumber,
-        episodeRatings: result.tracking?.episodeRatings ??
-            activeTrackingEntry?.episodeRatings,
       );
       // Save custom field values
       final now = DateTime.now();

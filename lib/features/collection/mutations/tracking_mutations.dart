@@ -219,9 +219,6 @@ final class TrackingMutations {
     int? timesCompleted,
     String? notes,
     TrackingSourceType? sourceType,
-    int? seasonNumber,
-    int? episodeNumber,
-    Map<String, int>? episodeRatings,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
@@ -256,9 +253,12 @@ final class TrackingMutations {
           finishedAt: finishedAt ?? item.finishedAt ?? existing?.finishedAt,
           progressCurrent: progressCurrent ?? existing?.progressCurrent,
           progressTotal: progressTotal ?? existing?.progressTotal,
-          seasonNumber: seasonNumber ?? existing?.seasonNumber,
-          episodeNumber: episodeNumber ?? existing?.episodeNumber,
-          episodeRatings: episodeRatings ?? existing?.episodeRatings,
+          // Preserve legacy episodic coordinates already attached to the
+          // entry. New episodic state is written by the owning kind adapter;
+          // this generic Owned sync path must not erase it.
+          seasonNumber: existing?.seasonNumber,
+          episodeNumber: existing?.episodeNumber,
+          episodeRatings: existing?.episodeRatings,
           sourceType: sourceType ??
               existing?.sourceType ??
               (item.isDigital == true
