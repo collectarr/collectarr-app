@@ -325,16 +325,7 @@ class LibraryPageEditCoordinator {
       if (tracking == null || activeTrackingEntry == null) {
         await trackingMutations.syncOwnedTrackingEntry(
           owned,
-          anchor: tracking == null
-              ? null
-              : PersonalItemAnchor.fromRaw(
-                  anchorType: resolvePersonalItemAnchorType(
-                    editionId: tracking.editionId,
-                    variantId: tracking.variantId,
-                  ),
-                  editionId: tracking.editionId,
-                  variantId: tracking.variantId,
-                ),
+          anchor: tracking?.anchor,
           status: mediaTrackingStatusFromValue(tracking?.readStatus),
           rating: tracking?.rating,
           startedAt: tracking?.startedAt,
@@ -347,8 +338,9 @@ class LibraryPageEditCoordinator {
         );
       } else {
         final baseTracking = activeTrackingEntry.copyWith(
-          editionId: tracking.editionId,
-          variantId: tracking.variantId,
+          editionId: tracking.anchor?.editionId,
+          variantId: tracking.anchor?.variantId,
+          bundleReleaseId: tracking.anchor?.bundleReleaseId,
           status: mediaTrackingStatusFromValue(tracking.readStatus),
           rating: tracking.rating,
           startedAt: tracking.startedAt,
@@ -403,12 +395,7 @@ class LibraryPageEditCoordinator {
     if (wishlist != null && result.wishlist != null) {
       await wishlistMutations.updateWishlistItem(
         wishlist,
-        anchor: PersonalItemAnchor.fromRaw(
-          anchorType: result.wishlist!.anchorType,
-          editionId: result.wishlist!.editionId,
-          variantId: result.wishlist!.variantId,
-          bundleReleaseId: result.wishlist!.bundleReleaseId,
-        ),
+        anchor: result.wishlist!.anchor,
         targetPriceCents: result.wishlist!.targetPriceCents,
         currency: result.wishlist!.currency,
         notes: result.wishlist!.notes,
@@ -420,10 +407,7 @@ class LibraryPageEditCoordinator {
         result.tracking != null) {
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.catalog(catalogItem.catalogRef),
-        anchor: PersonalItemAnchor.fromRaw(
-          editionId: result.tracking!.editionId,
-          variantId: result.tracking!.variantId,
-        ),
+        anchor: result.tracking!.anchor,
         sourceType: activeTrackingEntry.sourceType,
         status: mediaTrackingStatusFromValue(result.tracking!.readStatus),
         rating: result.tracking!.rating,

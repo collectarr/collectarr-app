@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -1907,13 +1908,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(
-                anchorType:
-                    (_selectedEditionId != null || _selectedVariantId != null)
-                        ? 'variant'
-                        : 'item',
-                editionId: _selectedEditionId,
-                variantId: _selectedVariantId,
-                bundleReleaseId: null,
+                anchor: PersonalItemAnchor.fromRaw(
+                  anchorType:
+                      (_selectedEditionId != null || _selectedVariantId != null)
+                          ? PersonalItemAnchorType.variant.apiValue
+                          : PersonalItemAnchorType.item.apiValue,
+                  editionId: _selectedEditionId,
+                  variantId: _selectedVariantId,
+                ),
                 condition: emptyToNull(_conditionController.text),
                 grade: emptyToNull(_gradeController.text),
                 purchaseDate: parseDate(_purchaseDateController.text),
@@ -1948,8 +1950,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         tracking: !_hasTrackingContext
             ? null
             : LibraryTrackingEditSelection(
-                editionId: _selectedEditionId,
-                variantId: _selectedVariantId,
+                anchor: PersonalItemAnchor.fromRaw(
+                  editionId: _selectedEditionId,
+                  variantId: _selectedVariantId,
+                ),
                 rating: parseInt(_ratingController.text),
                 readStatus: emptyToNull(_trackingController.text),
                 startedAt: _startedAt,
@@ -1964,13 +1968,14 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         wishlist: !_hasWishlistContext
             ? null
             : LibraryWishlistEditSelection(
-                anchorType:
-                    (_selectedEditionId != null || _selectedVariantId != null)
-                        ? 'variant'
-                        : 'item',
-                editionId: _selectedEditionId,
-                variantId: _selectedVariantId,
-                bundleReleaseId: null,
+                anchor: PersonalItemAnchor.fromRaw(
+                  anchorType:
+                      (_selectedEditionId != null || _selectedVariantId != null)
+                          ? PersonalItemAnchorType.variant.apiValue
+                          : PersonalItemAnchorType.item.apiValue,
+                  editionId: _selectedEditionId,
+                  variantId: _selectedVariantId,
+                ),
                 targetPriceCents:
                     parseMoneyCents(_wishlistPriceController.text),
                 currency: emptyToNull(_wishlistCurrencyController.text),

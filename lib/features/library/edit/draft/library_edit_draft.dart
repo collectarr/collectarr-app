@@ -464,21 +464,12 @@ class LibraryEditDraft {
       personal: ownedItem == null
           ? null
           : LibraryPersonalEditSelection(
-              anchorType: personal.selectedOwnedAnchorType.apiValue,
-              editionId: personal.selectedOwnedAnchorType ==
-                          PersonalItemAnchorType.edition ||
-                      personal.selectedOwnedAnchorType ==
-                          PersonalItemAnchorType.variant
-                  ? personal.selectedEditionId
-                  : null,
-              variantId: personal.selectedOwnedAnchorType ==
-                      PersonalItemAnchorType.variant
-                  ? personal.selectedVariantId
-                  : null,
-              bundleReleaseId: personal.selectedOwnedAnchorType ==
-                      PersonalItemAnchorType.bundleRelease
-                  ? personal.selectedBundleReleaseId
-                  : null,
+              anchor: PersonalItemAnchor.fromRaw(
+                anchorType: personal.selectedOwnedAnchorType.apiValue,
+                editionId: personal.selectedEditionId,
+                variantId: personal.selectedVariantId,
+                bundleReleaseId: personal.selectedBundleReleaseId,
+              ),
               condition: showPhysicalOwnedFields
                   ? emptyToNull(personal.conditionController.text)
                   : null,
@@ -525,21 +516,12 @@ class LibraryEditDraft {
       wishlist: wishlistItem == null
           ? null
           : LibraryWishlistEditSelection(
-              anchorType: personal.selectedWishlistAnchorType.apiValue,
-              editionId: personal.selectedWishlistAnchorType ==
-                          PersonalItemAnchorType.edition ||
-                      personal.selectedWishlistAnchorType ==
-                          PersonalItemAnchorType.variant
-                  ? personal.selectedWishlistEditionId
-                  : null,
-              variantId: personal.selectedWishlistAnchorType ==
-                      PersonalItemAnchorType.variant
-                  ? personal.selectedWishlistVariantId
-                  : null,
-              bundleReleaseId: personal.selectedWishlistAnchorType ==
-                      PersonalItemAnchorType.bundleRelease
-                  ? personal.selectedWishlistBundleReleaseId
-                  : null,
+              anchor: PersonalItemAnchor.fromRaw(
+                anchorType: personal.selectedWishlistAnchorType.apiValue,
+                editionId: personal.selectedWishlistEditionId,
+                variantId: personal.selectedWishlistVariantId,
+                bundleReleaseId: personal.selectedWishlistBundleReleaseId,
+              ),
               targetPriceCents:
                   parseMoneyCents(personal.wishlistPriceController.text),
               currency: emptyToNull(personal.wishlistCurrencyController.text),
@@ -548,8 +530,10 @@ class LibraryEditDraft {
       tracking: !hasTrackingContext
           ? null
           : LibraryTrackingEditSelection(
-              editionId: tracking.selectedTrackingEditionId,
-              variantId: tracking.selectedTrackingVariantId,
+              anchor: PersonalItemAnchor.fromRaw(
+                editionId: tracking.selectedTrackingEditionId,
+                variantId: tracking.selectedTrackingVariantId,
+              ),
               rating: parseInt(tracking.ratingController.text),
               readStatus: emptyToNull(tracking.trackingController.text),
               startedAt: tracking.startedAt,

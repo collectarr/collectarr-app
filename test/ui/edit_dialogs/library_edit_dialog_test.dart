@@ -12,15 +12,11 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 
 import '../../helpers/test_constants.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -395,9 +391,9 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.anchorType, 'edition');
-    expect(selection?.personal?.editionId, 'edition-steelbook');
-    expect(selection?.personal?.variantId, isNull);
+    expect(selection?.personal?.anchor?.apiValue, 'edition');
+    expect(selection?.personal?.anchor?.editionId, 'edition-steelbook');
+    expect(selection?.personal?.anchor?.variantId, isNull);
   }, skip: true);
 
   testWidgets('movie edit dialog hides book-style publishing fields', (
@@ -1184,8 +1180,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection?.personal, isNull);
-    expect(selection?.tracking?.editionId, 'edition-digital');
-    expect(selection?.tracking?.variantId, 'variant-stream');
+    expect(selection?.tracking?.anchor?.editionId, 'edition-digital');
+    expect(selection?.tracking?.anchor?.variantId, 'variant-stream');
     expect(selection?.tracking?.readStatus, 'Planned');
     expect(selection?.tracking?.rating, 8);
     expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 1));
@@ -1281,10 +1277,9 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.anchorType, 'bundle_release');
-    expect(selection?.personal?.bundleReleaseId, 'bundle-1');
-    expect(selection?.tracking?.editionId, isNull);
-    expect(selection?.tracking?.variantId, isNull);
+    expect(selection?.personal?.anchor?.apiValue, 'bundle_release');
+    expect(selection?.personal?.anchor?.bundleReleaseId, 'bundle-1');
+    expect(selection?.tracking?.anchor, isNull);
   }, skip: true);
 
   testWidgets(
@@ -1354,8 +1349,8 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.anchorType, 'bundle_release');
-    expect(selection?.personal?.bundleReleaseId, 'bundle-existing-1');
+    expect(selection?.personal?.anchor?.apiValue, 'bundle_release');
+    expect(selection?.personal?.anchor?.bundleReleaseId, 'bundle-existing-1');
   }, skip: true);
 
   testWidgets(
@@ -1550,8 +1545,8 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.wishlist?.anchorType, 'bundle_release');
-    expect(selection?.wishlist?.bundleReleaseId, 'bundle-akira');
+    expect(selection?.wishlist?.anchor?.apiValue, 'bundle_release');
+    expect(selection?.wishlist?.anchor?.bundleReleaseId, 'bundle-akira');
     expect(selection?.wishlist?.targetPriceCents, 5499);
     expect(selection?.wishlist?.currency, 'USD');
     expect(selection?.wishlist?.notes, 'Need the collector box.');

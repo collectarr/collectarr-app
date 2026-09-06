@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 
 // ---------------------------------------------------------------------------
@@ -67,10 +68,7 @@ class LibraryEditSelection {
 
 class LibraryPersonalEditSelection {
   const LibraryPersonalEditSelection({
-    required this.anchorType,
-    required this.editionId,
-    required this.variantId,
-    required this.bundleReleaseId,
+    required this.anchor,
     required this.condition,
     required this.grade,
     required this.purchaseDate,
@@ -127,10 +125,7 @@ class LibraryPersonalEditSelection {
     this.gameValueIsLocked,
   });
 
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final PersonalItemAnchor? anchor;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -187,10 +182,7 @@ class LibraryPersonalEditSelection {
   final bool? gameValueIsLocked;
 
   LibraryPersonalEditSelection copyWith({
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -247,10 +239,7 @@ class LibraryPersonalEditSelection {
     bool? gameValueIsLocked,
   }) {
     return LibraryPersonalEditSelection(
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      anchor: anchor ?? this.anchor,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -311,19 +300,13 @@ class LibraryPersonalEditSelection {
 
 class LibraryWishlistEditSelection {
   const LibraryWishlistEditSelection({
-    required this.anchorType,
-    required this.editionId,
-    required this.variantId,
-    required this.bundleReleaseId,
+    required this.anchor,
     required this.targetPriceCents,
     required this.currency,
     required this.notes,
   });
 
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final PersonalItemAnchor? anchor;
   final int? targetPriceCents;
   final String? currency;
   final String? notes;
@@ -331,8 +314,7 @@ class LibraryWishlistEditSelection {
 
 class LibraryTrackingEditSelection {
   const LibraryTrackingEditSelection({
-    required this.editionId,
-    required this.variantId,
+    required this.anchor,
     required this.rating,
     required this.readStatus,
     this.progressCurrent,
@@ -343,8 +325,7 @@ class LibraryTrackingEditSelection {
     this.finishedAt,
   });
 
-  final String? editionId;
-  final String? variantId;
+  final PersonalItemAnchor? anchor;
   final int? rating;
   final String? readStatus;
   final int? progressCurrent;
@@ -355,8 +336,7 @@ class LibraryTrackingEditSelection {
   final DateTime? finishedAt;
 
   LibraryTrackingEditSelection copyWith({
-    String? editionId,
-    String? variantId,
+    PersonalItemAnchor? anchor,
     int? rating,
     String? readStatus,
     int? progressCurrent,
@@ -367,8 +347,7 @@ class LibraryTrackingEditSelection {
     DateTime? finishedAt,
   }) {
     return LibraryTrackingEditSelection(
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
+      anchor: anchor ?? this.anchor,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
       progressCurrent: progressCurrent ?? this.progressCurrent,
