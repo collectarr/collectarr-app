@@ -325,8 +325,16 @@ class LibraryPageEditCoordinator {
       if (tracking == null || activeTrackingEntry == null) {
         await trackingMutations.syncOwnedTrackingEntry(
           owned,
-          editionId: tracking?.editionId,
-          variantId: tracking?.variantId,
+          anchor: tracking == null
+              ? null
+              : PersonalItemAnchor.fromRaw(
+                  anchorType: resolvePersonalItemAnchorType(
+                    editionId: tracking.editionId,
+                    variantId: tracking.variantId,
+                  ),
+                  editionId: tracking.editionId,
+                  variantId: tracking.variantId,
+                ),
           status: mediaTrackingStatusFromValue(tracking?.readStatus),
           rating: tracking?.rating,
           startedAt: tracking?.startedAt,

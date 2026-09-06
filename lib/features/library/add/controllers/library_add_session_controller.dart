@@ -118,6 +118,7 @@ class LibraryAddSessionController
     }
     await trackingMutations.syncOwnedTrackingEntry(
       ownedItem,
+      anchor: command.anchor,
       status: tracking.status,
       rating: tracking.rating,
       startedAt: tracking.startedAt,

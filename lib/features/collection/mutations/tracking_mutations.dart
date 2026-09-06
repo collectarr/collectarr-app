@@ -230,9 +230,7 @@ final class TrackingMutations {
 
   Future<void> syncOwnedTrackingEntry(
     OwnedItem item, {
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
     MediaTrackingStatus? status,
     int? rating,
     DateTime? startedAt,
@@ -255,6 +253,10 @@ final class TrackingMutations {
             orElse: () => existingEntries.first,
           );
     final entryId = existing?.id ?? idGenerator();
+    final inheritedEditionId = existing?.editionId ?? item.editionId;
+    final inheritedVariantId = existing?.variantId ?? item.variantId;
+    final inheritedBundleReleaseId =
+        existing?.bundleReleaseId ?? item.bundleReleaseId;
 
     await mutationRunner.run(
       origin: origin,
@@ -264,9 +266,10 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: item.catalogRef,
               ownedItemId: item.id,
-              editionId: editionId ?? item.editionId,
-              variantId: variantId ?? item.variantId,
-              bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
+              editionId: anchor?.editionId ?? inheritedEditionId,
+              variantId: anchor?.variantId ?? inheritedVariantId,
+              bundleReleaseId:
+                  anchor?.bundleReleaseId ?? inheritedBundleReleaseId,
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
               notes: notes ?? existing.notes,
@@ -285,9 +288,10 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: item.catalogRef,
               ownedItemId: item.id,
-              editionId: editionId ?? item.editionId,
-              variantId: variantId ?? item.variantId,
-              bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
+              editionId: anchor?.editionId ?? inheritedEditionId,
+              variantId: anchor?.variantId ?? inheritedVariantId,
+              bundleReleaseId:
+                  anchor?.bundleReleaseId ?? inheritedBundleReleaseId,
               status: status ?? MediaTrackingStatus.planned,
               rating: rating,
               notes: notes,

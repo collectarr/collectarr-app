@@ -265,8 +265,11 @@ void main() {
             );
     await container.read(trackingMutationsProvider).syncOwnedTrackingEntry(
           owned,
-          editionId: 'edition-steelbook',
-          variantId: 'variant-4k',
+          anchor: PersonalItemAnchor.fromRaw(
+            anchorType: PersonalItemAnchorType.variant.apiValue,
+            editionId: 'edition-steelbook',
+            variantId: 'variant-4k',
+          ),
           status: MediaTrackingStatus.completed,
           rating: 10,
           startedAt: DateTime.utc(2026, 5, 20),

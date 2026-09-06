@@ -127,8 +127,7 @@ Future<void> addLibraryItemsToTarget({
         if (tracking != null) {
           await trackingMutations.syncOwnedTrackingEntry(
             ownedItem,
-            editionId: reference.editionId,
-            variantId: reference.variantId,
+            anchor: itemAnchor,
             status: tracking.status,
             rating: tracking.rating,
             startedAt: tracking.startedAt,
