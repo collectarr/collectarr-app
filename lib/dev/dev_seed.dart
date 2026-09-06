@@ -77,7 +77,7 @@ const devSeedCatalogCounts = <String, int>{
   'book': 15,
   'music': 15,
   'game': 15,
-  'boardgame': 10,
+  'boardgame': 15,
   'comic': 15,
 };
 
@@ -93,8 +93,8 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'book.release': 15,
   'game.media': 15,
   'game.release': 15,
-  'boardgame.media': 10,
-  'boardgame.edition': 10,
+  'boardgame.media': 15,
+  'boardgame.edition': 15,
   'movie.media': 15,
   'movie.release': 15,
   'tv.series': 15,
@@ -120,7 +120,7 @@ const devSeedTypedOwnedMinimumCounts = <String, int>{
   'manga.owned': 15,
   'book.owned': 15,
   'game.owned': 15,
-  'boardgame.owned': 10,
+  'boardgame.owned': 15,
   'movie.owned': 15,
   'tv.owned': 15,
   'anime.owned': 15,
@@ -147,9 +147,9 @@ const devSeedTypedTrackingUnitMinimumCounts = <String, int>{
 /// Minimum coverage for the universal development fixtures that support the
 /// typed library views and settings screens.
 const devSeedAuxiliaryMinimumCounts = <String, int>{
-  'images.front_cover': 130,
-  'images.back_cover': 65,
-  'images.detail_photo': 44,
+  'images.front_cover': 135,
+  'images.back_cover': 68,
+  'images.detail_photo': 45,
   'custom_field.definitions': 9,
   'custom_field.values': 9,
   'pick_list.values': 1,

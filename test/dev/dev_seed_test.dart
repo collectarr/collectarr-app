@@ -176,7 +176,10 @@ void main() {
       expect(_countKind(catalogRows, entry.key), entry.value,
           reason: 'Unexpected ${entry.key} seed count');
     }
-    expect(catalogRows.map((row) => row.id).toSet(), hasLength(130));
+    final expectedSeedTotal = devSeedCatalogCounts.values
+        .fold<int>(0, (total, count) => total + count);
+    expect(
+        catalogRows.map((row) => row.id).toSet(), hasLength(expectedSeedTotal));
     expect(catalogRows.every((row) => row.title.trim().isNotEmpty), isTrue);
     expect(
         catalogRows.every((row) =>
@@ -222,7 +225,8 @@ void main() {
         ownedRows
             .every((row) => catalogRows.any((item) => item.id == row.itemId)),
         isTrue);
-    expect(ownedRows.map((row) => row.id).toSet(), hasLength(130));
+    expect(
+        ownedRows.map((row) => row.id).toSet(), hasLength(expectedSeedTotal));
 
     final comicOwnedRows = await db.select(db.comicOwnedItemsRows).get();
     final comicReadingRows = await db.select(db.comicReadingRows).get();
@@ -240,7 +244,8 @@ void main() {
           reason: 'Unexpected ${entry.key} tracking seed count');
     }
     final ownedIds = ownedRows.map((row) => row.id).toSet();
-    expect(trackingRows.map((row) => row.id).toSet(), hasLength(130));
+    expect(trackingRows.map((row) => row.id).toSet(),
+        hasLength(expectedSeedTotal));
     expect(
         trackingRows.every((row) =>
             row.ownedItemId == null || ownedIds.contains(row.ownedItemId)),

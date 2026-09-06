@@ -252,10 +252,95 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         characters: ['Anna & Wojtek', 'Gunter & Nacht'],
         genres: ['strategy', 'area control', 'alternate history'],
       ),
+      seedCatalogItem(
+        id: 'seed-boardgame-11',
+        kind: 'boardgame',
+        title: 'Azul',
+        synopsis:
+            'A tile-drafting game about decorating the walls of the Royal Palace of Evora.',
+        publisher: 'Plan B Games',
+        barcode: '700300000112',
+        releaseYear: 2017,
+        releaseDate: DateTime.utc(2017, 10, 1),
+        ageRating: '8+',
+        sortKey: 'azul-0001',
+        creators: [
+          {'name': 'Michael Kiesling', 'role': 'designer'},
+        ],
+        genres: ['abstract', 'tile placement', 'pattern building'],
+      ),
+      seedCatalogItem(
+        id: 'seed-boardgame-12',
+        kind: 'boardgame',
+        title: '7 Wonders',
+        synopsis:
+            'A civilization card game where players develop a city and its wonder across three ages.',
+        publisher: 'Repos Production',
+        barcode: '700300000129',
+        releaseYear: 2010,
+        releaseDate: DateTime.utc(2010, 10, 1),
+        ageRating: '10+',
+        sortKey: '7-wonders-0001',
+        creators: [
+          {'name': 'Antoine Bauza', 'role': 'designer'},
+        ],
+        genres: ['card drafting', 'civilization', 'strategy'],
+      ),
+      seedCatalogItem(
+        id: 'seed-boardgame-13',
+        kind: 'boardgame',
+        title: 'Catan',
+        synopsis:
+            'Players collect resources and build settlements, roads, and cities on the island of Catan.',
+        publisher: 'Catan Studio',
+        barcode: '700300000136',
+        releaseYear: 1995,
+        releaseDate: DateTime.utc(1995, 1, 1),
+        ageRating: '10+',
+        sortKey: 'catan-0001',
+        creators: [
+          {'name': 'Klaus Teuber', 'role': 'designer'},
+        ],
+        genres: ['trading', 'negotiation', 'strategy'],
+      ),
+      seedCatalogItem(
+        id: 'seed-boardgame-14',
+        kind: 'boardgame',
+        title: 'Ticket to Ride',
+        synopsis:
+            'A railway adventure where players claim routes and connect cities across a growing map.',
+        publisher: 'Days of Wonder',
+        barcode: '700300000143',
+        releaseYear: 2004,
+        releaseDate: DateTime.utc(2004, 5, 1),
+        ageRating: '8+',
+        sortKey: 'ticket-to-ride-0001',
+        creators: [
+          {'name': 'Alan R. Moon', 'role': 'designer'},
+        ],
+        genres: ['route building', 'family', 'strategy'],
+      ),
+      seedCatalogItem(
+        id: 'seed-boardgame-15',
+        kind: 'boardgame',
+        title: 'Everdell',
+        synopsis:
+            'A woodland worker-placement game about building a thriving city of critters.',
+        publisher: 'Starling Games',
+        barcode: '700300000150',
+        releaseYear: 2018,
+        releaseDate: DateTime.utc(2018, 3, 1),
+        ageRating: '10+',
+        sortKey: 'everdell-0001',
+        creators: [
+          {'name': 'James A. Wilson', 'role': 'designer'},
+        ],
+        genres: ['worker placement', 'tableau building', 'strategy'],
+      ),
     ];
 
 List<OwnedItem> boardgameSeedOwnedItems(DateTime now) => [
-      for (var i = 1; i <= 10; i++)
+      for (var i = 1; i <= 15; i++)
         OwnedItem(
           // Keep the original first ID so existing local seed data is updated
           // instead of leaving an orphaned copy behind after a re-seed.
@@ -294,7 +379,7 @@ List<OwnedItem> boardgameSeedOwnedItems(DateTime now) => [
     ];
 
 List<TrackingEntry> boardgameSeedTrackingEntries(DateTime now) => [
-      for (var i = 1; i <= 10; i++)
+      for (var i = 1; i <= 15; i++)
         TrackingEntry(
           // Keep the original first tracking ID for idempotent upgrades.
           id: i == 1
