@@ -367,10 +367,17 @@ final class CollectionImportService {
       return existing.copyWith(
         condition: row.condition ?? existing.condition,
         grade: row.grade ?? existing.grade,
+        purchaseDate: row.purchaseDate ?? existing.purchaseDate,
         pricePaidCents: row.pricePaidCents ?? existing.pricePaidCents,
         currency: row.currency ?? existing.currency,
+        quantity: row.quantity ?? existing.quantity,
         locationId: row.locationId ?? existing.locationId,
+        indexNumber: row.indexNumber ?? existing.indexNumber,
         personalNotes: row.notes ?? existing.personalNotes,
+        tags: row.tags ?? existing.tags,
+        soldAt: row.soldAt ?? existing.soldAt,
+        sellPriceCents: row.sellPriceCents ?? existing.sellPriceCents,
+        soldTo: row.soldTo ?? existing.soldTo,
         updatedAt: now,
       );
     }
@@ -387,10 +394,17 @@ final class CollectionImportService {
       updatedAt: now,
       condition: row.condition,
       grade: row.grade,
+      purchaseDate: row.purchaseDate,
       pricePaidCents: row.pricePaidCents,
       currency: row.currency,
+      quantity: row.quantity ?? 1,
+      indexNumber: row.indexNumber,
       locationId: row.locationId,
       personalNotes: row.notes,
+      tags: row.tags,
+      soldAt: row.soldAt,
+      sellPriceCents: row.sellPriceCents,
+      soldTo: row.soldTo,
       details: details,
     );
   }

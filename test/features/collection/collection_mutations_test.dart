@@ -814,6 +814,57 @@ void main() {
     );
   });
 
+  test('collection import preserves universal owned fields from csv', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    final imported =
+        await container.read(collectionImportServiceProvider).importRows(
+      [
+        CollectionCsvRow(
+          itemId: 'book-owned-fields',
+          kind: 'book',
+          status: 'owned',
+          title: 'Imported book',
+          condition: 'Very Good',
+          grade: '8.5',
+          purchaseDate: DateTime.utc(2026, 8, 1),
+          pricePaidCents: 2599,
+          currency: 'EUR',
+          notes: 'Imported note',
+          quantity: 3,
+          locationId: 'shelf-a',
+          indexNumber: 12,
+          tags: 'gift,read',
+          soldAt: DateTime.utc(2026, 8, 15),
+          sellPriceCents: 3199,
+          soldTo: 'collector@example.test',
+        ),
+      ],
+    );
+
+    final owned = await db.select(db.ownedItemsCache).getSingle();
+    expect(imported, 1);
+    expect(owned.itemId, 'book-owned-fields');
+    expect(owned.condition, 'Very Good');
+    expect(owned.grade, '8.5');
+    expect(owned.purchaseDate?.toUtc(), DateTime.utc(2026, 8, 1));
+    expect(owned.pricePaidCents, 2599);
+    expect(owned.currency, 'EUR');
+    expect(owned.personalNotes, 'Imported note');
+    expect(owned.quantity, 3);
+    expect(owned.locationId, 'shelf-a');
+    expect(owned.indexNumber, 12);
+    expect(owned.tags, 'gift,read');
+    expect(owned.soldAt?.toUtc(), DateTime.utc(2026, 8, 15));
+    expect(owned.sellPriceCents, 3199);
+    expect(owned.soldTo, 'collector@example.test');
+  });
+
   test('collection import uses media type when matching local catalog cache',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
