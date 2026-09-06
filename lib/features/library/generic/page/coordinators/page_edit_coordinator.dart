@@ -326,6 +326,7 @@ class LibraryPageEditCoordinator {
         await trackingMutations.syncOwnedTrackingEntry(
           owned,
           anchor: tracking?.anchor,
+          replaceAnchor: tracking != null,
           status: mediaTrackingStatusFromValue(tracking?.readStatus),
           rating: tracking?.rating,
           startedAt: tracking?.startedAt,
@@ -408,6 +409,7 @@ class LibraryPageEditCoordinator {
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.catalog(catalogItem.catalogRef),
         anchor: result.tracking!.anchor,
+        replaceAnchor: true,
         sourceType: activeTrackingEntry.sourceType,
         status: mediaTrackingStatusFromValue(result.tracking!.readStatus),
         rating: result.tracking!.rating,

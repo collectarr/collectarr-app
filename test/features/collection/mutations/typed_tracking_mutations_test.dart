@@ -154,6 +154,36 @@ void main() {
       expect(entry.variantId, 'variant-anchor');
     });
 
+    test('replaces an existing catalog anchor when explicitly cleared',
+        () async {
+      const ref = CatalogEntityRef(
+        kind: 'book',
+        entityType: CatalogEntityType.work,
+        id: 'book-anchor-clear',
+      );
+
+      await trackingMutations.upsertTrackingEntry(
+        TrackingTarget.catalog(ref),
+        anchor: PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.variant.apiValue,
+          editionId: 'edition-before-clear',
+          variantId: 'variant-before-clear',
+        ),
+      );
+      await trackingMutations.upsertTrackingEntry(
+        TrackingTarget.catalog(ref),
+        anchor: null,
+        replaceAnchor: true,
+      );
+
+      final entry =
+          (await trackingEntries.findActiveByItemIds([ref.id])).single;
+      expect(entry.anchor, isNull);
+      expect(entry.editionId, isNull);
+      expect(entry.variantId, isNull);
+      expect(entry.bundleReleaseId, isNull);
+    });
+
     test('rejects invalid or unresolvable tracking target with ArgumentError',
         () async {
       expect(
@@ -310,6 +340,42 @@ void main() {
       expect(entry.episodeNumber, 9);
       expect(entry.episodeRatings, const {'4:9': 10});
       expect(entry.progressCurrent, 9);
+    });
+
+    test('owned sync can explicitly clear an inherited anchor', () async {
+      const ref = CatalogEntityRef(
+        kind: 'book',
+        entityType: CatalogEntityType.work,
+        id: 'book-owned-anchor-clear',
+      );
+      final owned = OwnedItem(
+        id: 'owned-book-anchor-clear',
+        catalogRef: ref,
+        anchor: PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.edition.apiValue,
+          editionId: 'edition-owned-before-clear',
+        ),
+        details: const GenericOwnedDetails(),
+        updatedAt: DateTime.utc(2026, 6, 1),
+      );
+      await catalogCache.upsertAll([
+        testCatalogItem(id: ref.id, kind: ref.kind, title: 'Anchored Book'),
+      ]);
+      await ownedItems.upsert(owned);
+      await trackingMutations.syncOwnedTrackingEntry(owned);
+
+      await trackingMutations.syncOwnedTrackingEntry(
+        owned,
+        anchor: null,
+        replaceAnchor: true,
+      );
+
+      final entry =
+          (await trackingEntries.findActiveByItemIds([ref.id])).single;
+      expect(entry.anchor, isNull);
+      expect(entry.editionId, isNull);
+      expect(entry.variantId, isNull);
+      expect(entry.bundleReleaseId, isNull);
     });
 
     test('updateTrackingEntry applies explicit clears', () async {

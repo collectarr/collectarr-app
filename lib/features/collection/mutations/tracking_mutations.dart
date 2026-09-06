@@ -78,6 +78,7 @@ final class TrackingMutations {
     TrackingTarget target, {
     String? ownedItemId,
     PersonalItemAnchor? anchor,
+    bool replaceAnchor = false,
     TrackingSourceType? sourceType,
     MediaTrackingStatus? status,
     int? rating,
@@ -148,10 +149,15 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: catalogRef,
               ownedItemId: targetOwnedItemId ?? existing.ownedItemId,
-              editionId: anchor?.editionId ?? existing.editionId,
-              variantId: anchor?.variantId ?? existing.variantId,
-              bundleReleaseId:
-                  anchor?.bundleReleaseId ?? existing.bundleReleaseId,
+              editionId: replaceAnchor
+                  ? anchor?.editionId
+                  : anchor?.editionId ?? existing.editionId,
+              variantId: replaceAnchor
+                  ? anchor?.variantId
+                  : anchor?.variantId ?? existing.variantId,
+              bundleReleaseId: replaceAnchor
+                  ? anchor?.bundleReleaseId
+                  : anchor?.bundleReleaseId ?? existing.bundleReleaseId,
               sourceType: sourceType ?? existing.sourceType,
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
@@ -219,6 +225,7 @@ final class TrackingMutations {
   Future<void> syncOwnedTrackingEntry(
     OwnedItem item, {
     PersonalItemAnchor? anchor,
+    bool replaceAnchor = false,
     MediaTrackingStatus? status,
     int? rating,
     DateTime? startedAt,
@@ -254,10 +261,15 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: item.catalogRef,
               ownedItemId: item.id,
-              editionId: anchor?.editionId ?? inheritedEditionId,
-              variantId: anchor?.variantId ?? inheritedVariantId,
-              bundleReleaseId:
-                  anchor?.bundleReleaseId ?? inheritedBundleReleaseId,
+              editionId: replaceAnchor
+                  ? anchor?.editionId
+                  : anchor?.editionId ?? inheritedEditionId,
+              variantId: replaceAnchor
+                  ? anchor?.variantId
+                  : anchor?.variantId ?? inheritedVariantId,
+              bundleReleaseId: replaceAnchor
+                  ? anchor?.bundleReleaseId
+                  : anchor?.bundleReleaseId ?? inheritedBundleReleaseId,
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
               notes: notes ?? existing.notes,
@@ -276,10 +288,15 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: item.catalogRef,
               ownedItemId: item.id,
-              editionId: anchor?.editionId ?? inheritedEditionId,
-              variantId: anchor?.variantId ?? inheritedVariantId,
-              bundleReleaseId:
-                  anchor?.bundleReleaseId ?? inheritedBundleReleaseId,
+              editionId: replaceAnchor
+                  ? anchor?.editionId
+                  : anchor?.editionId ?? inheritedEditionId,
+              variantId: replaceAnchor
+                  ? anchor?.variantId
+                  : anchor?.variantId ?? inheritedVariantId,
+              bundleReleaseId: replaceAnchor
+                  ? anchor?.bundleReleaseId
+                  : anchor?.bundleReleaseId ?? inheritedBundleReleaseId,
               status: status ?? MediaTrackingStatus.planned,
               rating: rating,
               notes: notes,
