@@ -1,10 +1,47 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
+
+Iterable<MangaTrackingUnit> mangaSeedTrackingUnits(
+  Iterable<CatalogItem> items,
+  DateTime now,
+) sync* {
+  for (final item in items.where((item) => item.kind == 'manga')) {
+    final chapters = item.payload['chapters'];
+    final chapter =
+        chapters is List && chapters.isNotEmpty ? chapters.first : null;
+    final chapterMap = chapter is Map ? chapter : const <String, dynamic>{};
+    final volumeNumber = _seedMangaInt(
+      chapterMap['volume_number'] ?? item.payload['volume_number'],
+    );
+    final chapterNumber = _seedMangaInt(chapterMap['chapter_number']) ?? 1;
+    final chapterId = chapterMap['id']?.toString() ?? 'chapter-01';
+    yield MangaTrackingUnit(
+      id: 'seed-unit-manga-${item.id}-$chapterId',
+      targetRef: CatalogEntityRef(
+        kind: item.kind,
+        entityType: CatalogEntityType.work,
+        id: item.id,
+      ),
+      volumeNumber: volumeNumber,
+      chapterNumber: chapterNumber,
+      completedAt: now.subtract(const Duration(days: 3)),
+      updatedAt: now,
+    );
+  }
+}
+
+int? _seedMangaInt(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '');
+}
 
 CatalogItem enrichMangaSeedItem(CatalogItem item) {
   return withSeedPayload(item, {

@@ -1,10 +1,39 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
+
+Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
+  Iterable<CatalogItem> items,
+  DateTime now,
+) sync* {
+  for (final item in items.where((item) => item.kind == 'comic')) {
+    final issues = item.payload['issues'];
+    final issue = issues is List && issues.isNotEmpty ? issues.first : null;
+    final issueMap = issue is Map ? issue : const <String, dynamic>{};
+    final issueNumber = issueMap['issue_number']?.toString() ??
+        issueMap['number']?.toString() ??
+        item.itemNumber ??
+        '1';
+    final issueId = issueMap['id']?.toString() ?? 'issue-01';
+    yield ComicTrackingUnit(
+      id: 'seed-unit-comic-${item.id}-$issueId',
+      targetRef: CatalogEntityRef(
+        kind: item.kind,
+        entityType: CatalogEntityType.work,
+        id: item.id,
+      ),
+      issueNumber: issueNumber,
+      completedAt: now.subtract(const Duration(days: 2)),
+      updatedAt: now,
+    );
+  }
+}
 
 CatalogItem enrichComicSeedItem(CatalogItem item) {
   final issues = [

@@ -1,10 +1,47 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit.dart';
+
+Iterable<AnimeTrackingUnit> animeSeedTrackingUnits(
+  Iterable<CatalogItem> items,
+  DateTime now,
+) sync* {
+  for (final item in items.where((item) => item.kind == 'anime')) {
+    final episodes = item.payload['episodes'];
+    if (episodes is! List) continue;
+    for (final episode in episodes) {
+      if (episode is! Map) continue;
+      final episodeNumber = _seedAnimeInt(episode['episode_number']);
+      if (episodeNumber == null) continue;
+      final episodeId = episode['id']?.toString() ??
+          'episode-${episodeNumber.toString().padLeft(2, '0')}';
+      yield AnimeTrackingUnit(
+        id: 'seed-unit-anime-${item.id}-$episodeId',
+        targetRef: CatalogEntityRef(
+          kind: item.kind,
+          entityType: CatalogEntityType.work,
+          id: item.id,
+        ),
+        seasonNumber: 1,
+        episodeNumber: episodeNumber,
+        completedAt: now.subtract(Duration(days: episodeNumber + 1)),
+        updatedAt: now,
+      );
+    }
+  }
+}
+
+int? _seedAnimeInt(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '');
+}
 
 CatalogItem enrichAnimeSeedItem(CatalogItem item) {
   final episodes = [

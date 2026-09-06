@@ -61,6 +61,16 @@ Future<void> main() async {
         );
       }
     }
+    final typedTrackingUnitCounts = await devSeedTypedTrackingUnitCounts(db);
+    for (final entry in devSeedTypedTrackingUnitMinimumCounts.entries) {
+      final actual = typedTrackingUnitCounts[entry.key] ?? 0;
+      if (actual < entry.value) {
+        throw StateError(
+          'Seed verification failed for typed tracking units ${entry.key}: '
+          'expected at least ${entry.value}, found $actual',
+        );
+      }
+    }
     final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
     for (final entry in devSeedAuxiliaryMinimumCounts.entries) {
       final actual = auxiliaryCounts[entry.key] ?? 0;
@@ -131,6 +141,7 @@ Future<void> main() async {
       'typed_graph=${typedGraphCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'typed_owned=${typedOwnedCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'typed_tracking=${typedTrackingCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
+      'typed_tracking_units=${typedTrackingUnitCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'auxiliary=${auxiliaryCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'by_kind=${devSeedCatalogCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')}',
     );

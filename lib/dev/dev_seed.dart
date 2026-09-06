@@ -10,9 +10,11 @@ library;
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/dev/seeds/anime_seeds.dart';
 import 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
 import 'package:collectarr_app/dev/seeds/book_seeds.dart';
@@ -46,7 +48,9 @@ import 'package:collectarr_app/features/collection/repositories/item_images_cach
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 
 export 'package:collectarr_app/dev/seeds/anime_seeds.dart';
 export 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
@@ -129,6 +133,17 @@ const devSeedTypedTrackingMinimumCounts = <String, int>{
   'anime.tracking': 30,
 };
 
+/// Minimum kind-owned coordinate rows expected from the typed tracking-unit
+/// fixture. These rows exercise the per-kind tracking-unit codecs in addition
+/// to the TV/Anime progress repositories above.
+const devSeedTypedTrackingUnitMinimumCounts = <String, int>{
+  'comic.issue_units': 15,
+  'manga.chapter_units': 15,
+  'book.chapter_units': 15,
+  'tv.episode_units': 30,
+  'anime.episode_units': 30,
+};
+
 /// Minimum coverage for the universal development fixtures that support the
 /// typed library views and settings screens.
 const devSeedAuxiliaryMinimumCounts = <String, int>{
@@ -198,6 +213,23 @@ Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
   };
 }
 
+/// Counts kind-owned tracking-unit coordinate rows written by the seed.
+Future<Map<String, int>> devSeedTypedTrackingUnitCounts(
+  LocalDatabase db,
+) async {
+  return {
+    'comic.issue_units':
+        (await db.select(db.comicTrackingUnitRows).get()).length,
+    'manga.chapter_units':
+        (await db.select(db.mangaTrackingUnitRows).get()).length,
+    'book.chapter_units':
+        (await db.select(db.bookTrackingUnitRows).get()).length,
+    'tv.episode_units': (await db.select(db.tvTrackingUnitRows).get()).length,
+    'anime.episode_units':
+        (await db.select(db.animeTrackingUnitRows).get()).length,
+  };
+}
+
 /// Counts universal seed fixtures that are not owned by one catalog kind.
 Future<Map<String, int>> devSeedAuxiliaryCounts(LocalDatabase db) async {
   final images = await db.select(db.itemImagesCache).get();
@@ -235,6 +267,10 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   final trackingRepo = TrackingEntriesCacheRepository(
     db,
     codecs: collectarrTrackingEntryCodecs,
+  );
+  final trackingUnitsRepo = TrackingUnitsCacheRepository(
+    db,
+    codecs: collectarrTrackingUnitCodecs,
   );
   final imagesRepo = ItemImagesCacheRepository(db);
   final pickListRepo = PickListRepository(db);
@@ -282,6 +318,13 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     ...animeSeedTrackingEntries(now),
     ...mangaSeedTrackingEntries(now),
   ];
+  final trackingUnits = <TrackingUnit>[
+    ...comicSeedTrackingUnits(allItems, now),
+    ...mangaSeedTrackingUnits(allItems, now),
+    ...bookSeedTrackingUnits(allItems, now),
+    ...tvSeedTrackingUnits(allItems, now),
+    ...animeSeedTrackingUnits(allItems, now),
+  ];
 
   _validateSeedFixtures(
     catalogItems: allItems,
@@ -291,12 +334,14 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   validateSeedCatalogQuality(allItems);
   validateSeedOwnedQuality(ownedItems);
   validateSeedTrackingQuality(trackingEntries);
+  _validateSeedTrackingUnits(trackingUnits, allItems);
 
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);
   await ownedRepo.upsertAll(ownedItems);
   await _seedKindOwnedDetails(db, ownedItems);
   await _seedKindTracking(db, allItems, now);
+  await trackingUnitsRepo.upsertAll(trackingUnits);
   await comicOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.comic)
@@ -313,6 +358,47 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   // --- Custom Fields ---
   await seedCustomFields(customFieldRepo);
+}
+
+void _validateSeedTrackingUnits(
+  Iterable<TrackingUnit> units,
+  Iterable<CatalogItem> catalogItems,
+) {
+  final catalogById = {
+    for (final item in catalogItems) item.id: item,
+  };
+  final ids = <String>{};
+  for (final unit in units) {
+    if (!ids.add(unit.id)) {
+      throw StateError('Duplicate seed tracking-unit id: ${unit.id}');
+    }
+    final catalog = catalogById[unit.targetRef.id];
+    if (catalog == null) {
+      throw StateError(
+        'Seed tracking unit ${unit.id} references missing catalog '
+        '${unit.targetRef.id}',
+      );
+    }
+    if (unit.targetRef.kind != catalog.kind ||
+        unit.targetRef.entityType != CatalogEntityType.work) {
+      throw StateError(
+        'Seed tracking unit ${unit.id} has invalid catalog reference '
+        '${unit.targetRef.toJson()}',
+      );
+    }
+    if (!{
+      'comic',
+      'manga',
+      'book',
+      'tv',
+      'anime',
+    }.contains(unit.targetRef.kind)) {
+      throw StateError(
+        'Seed tracking unit ${unit.id} has no typed coordinate codec for '
+        '${unit.targetRef.kind}',
+      );
+    }
+  }
 }
 
 Future<void> _seedKindOwnedDetails(

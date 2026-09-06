@@ -1,10 +1,54 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
+
+Iterable<TvTrackingUnit> tvSeedTrackingUnits(
+  Iterable<CatalogItem> items,
+  DateTime now,
+) sync* {
+  for (final item in items.where((item) => item.kind == 'tv')) {
+    final seasons = item.payload['seasons'];
+    if (seasons is! List) continue;
+    for (final season in seasons) {
+      if (season is! Map) continue;
+      final seasonNumber = _seedTvInt(season['season_number']) ?? 1;
+      final episodes = season['episodes'];
+      if (episodes is! List) continue;
+      for (final episode in episodes) {
+        if (episode is! Map) continue;
+        final episodeNumber = _seedTvInt(episode['episode_number']);
+        if (episodeNumber == null) continue;
+        final episodeId = episode['id']?.toString() ??
+            'season-${seasonNumber.toString().padLeft(2, '0')}-episode-'
+                '${episodeNumber.toString().padLeft(2, '0')}';
+        yield TvTrackingUnit(
+          id: 'seed-unit-tv-${item.id}-$episodeId',
+          targetRef: CatalogEntityRef(
+            kind: item.kind,
+            entityType: CatalogEntityType.work,
+            id: item.id,
+          ),
+          seasonNumber: seasonNumber,
+          episodeNumber: episodeNumber,
+          completedAt: now.subtract(Duration(days: episodeNumber)),
+          updatedAt: now,
+        );
+      }
+    }
+  }
+}
+
+int? _seedTvInt(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '');
+}
 
 CatalogItem enrichTvSeedItem(CatalogItem item) {
   final seasonId = '${item.id}-season-01';

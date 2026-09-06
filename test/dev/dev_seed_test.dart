@@ -36,6 +36,7 @@ void main() {
     final typedGraphCounts = await devSeedTypedGraphCounts(db);
     final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
     final typedTrackingCounts = await devSeedTypedTrackingCounts(db);
+    final typedTrackingUnitCounts = await devSeedTypedTrackingUnitCounts(db);
     final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
     for (final entry in devSeedTypedGraphMinimumCounts.entries) {
       expect(
@@ -56,6 +57,13 @@ void main() {
         typedTrackingCounts[entry.key],
         greaterThanOrEqualTo(entry.value),
         reason: 'Incomplete typed tracking seed data for ${entry.key}',
+      );
+    }
+    for (final entry in devSeedTypedTrackingUnitMinimumCounts.entries) {
+      expect(
+        typedTrackingUnitCounts[entry.key],
+        greaterThanOrEqualTo(entry.value),
+        reason: 'Incomplete typed tracking-unit seed data for ${entry.key}',
       );
     }
     for (final entry in devSeedAuxiliaryMinimumCounts.entries) {
@@ -296,6 +304,8 @@ void main() {
     final typedOwnedCountsAfterSecondSeed = await devSeedTypedOwnedCounts(db);
     final typedTrackingCountsAfterSecondSeed =
         await devSeedTypedTrackingCounts(db);
+    final typedTrackingUnitCountsAfterSecondSeed =
+        await devSeedTypedTrackingUnitCounts(db);
     final auxiliaryCountsAfterSecondSeed = await devSeedAuxiliaryCounts(db);
 
     expect(catalogCountAfterSecondSeed, catalogCountAfterFirstSeed);
@@ -303,6 +313,7 @@ void main() {
     expect(typedGraphCountsAfterSecondSeed, typedGraphCounts);
     expect(typedOwnedCountsAfterSecondSeed, typedOwnedCounts);
     expect(typedTrackingCountsAfterSecondSeed, typedTrackingCounts);
+    expect(typedTrackingUnitCountsAfterSecondSeed, typedTrackingUnitCounts);
     expect(auxiliaryCountsAfterSecondSeed, auxiliaryCounts);
   });
 }

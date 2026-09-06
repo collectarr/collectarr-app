@@ -1,10 +1,35 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit.dart';
+
+Iterable<BookTrackingUnit> bookSeedTrackingUnits(
+  Iterable<CatalogItem> items,
+  DateTime now,
+) sync* {
+  for (final item in items.where((item) => item.kind == 'book')) {
+    final volumeNumber = _seedBookInt(item.itemNumber) ?? 1;
+    yield BookTrackingUnit(
+      id: 'seed-unit-book-${item.id}',
+      targetRef: CatalogEntityRef(
+        kind: item.kind,
+        entityType: CatalogEntityType.work,
+        id: item.id,
+      ),
+      volumeNumber: volumeNumber,
+      chapterNumber: 1,
+      completedAt: now.subtract(const Duration(days: 4)),
+      updatedAt: now,
+    );
+  }
+}
+
+int? _seedBookInt(String? value) => int.tryParse(value ?? '');
 
 CatalogItem enrichBookSeedItem(CatalogItem item) {
   final editions = [
