@@ -208,7 +208,12 @@ final class ComicCollectionCsvImportProfile {
 
     return ComicCollectionCsvImportRow(
       itemId: _value(index, values, 'item_id'),
-      kind: _optionalValue(index, values, 'kind'),
+      // Comic-specific headers are sufficient to identify a CLZ row when
+      // Media Type is omitted. Preserve that dispatch result in the
+      // structural catalog cells so later import UI can select Comic rather
+      // than falling back to an arbitrary kind.
+      kind: _optionalValue(index, values, 'kind') ??
+          CatalogMediaKind.comic.apiValue,
       title: _optionalValue(index, values, 'title'),
       issueNumber: _optionalValue(index, values, 'item_number'),
       variantDescription: _optionalValue(index, values, 'variant'),

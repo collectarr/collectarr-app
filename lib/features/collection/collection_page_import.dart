@@ -152,7 +152,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     final item = await showDialog<CatalogItem>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
-        type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
+        type: _runtimeForImportRow(row),
         row: row,
       ),
     );
@@ -193,7 +193,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
-          libraryKindRuntimeForKind(CatalogMediaKind.comic),
+          _runtimeForImportRow(row),
           row,
           limit: 5,
         );
@@ -331,7 +331,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     try {
       final type = ref.read(
         resolvedLibraryTypeProvider(
-          libraryKindRuntimeForKind(CatalogMediaKind.comic),
+          _runtimeForImportRow(row),
         ),
       );
       final response = await createLibraryMetadataProposal(
@@ -974,6 +974,12 @@ String _catalogSubtitle(CatalogItem item) {
   return libraryCollectionCsvProjectionForKind(item.mediaKind)
           ?.catalogDisplaySubtitle(item) ??
       '';
+}
+
+LibraryKindRuntime _runtimeForImportRow(CollectionCsvRow row) {
+  return libraryKindRuntimeForKind(
+    catalogMediaKindFromValue(row.kind),
+  );
 }
 
 String _friendlyImportError(Object error) {

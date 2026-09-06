@@ -364,6 +364,7 @@ void main() {
     );
 
     expect(rows.single.itemId, 'comic-1');
+    expect(rows.single.kind, 'comic');
     expect(rows.single.itemNumber, '1');
     expect(rows.single.rawOrSlabbed, 'Slabbed');
     expect(rows.single.gradingCompany, 'CGC');
