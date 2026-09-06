@@ -112,38 +112,6 @@ final class MovieLocalMapper {
     );
   }
 
-  static MovieOwnedDetailsRowsCompanion toOwnedDetailsRow(
-    String ownedItemId,
-    MovieOwnedDetails details,
-  ) {
-    if (ownedItemId.isEmpty) {
-      throw StateError('Cannot persist MovieOwnedDetails without an id');
-    }
-
-    return MovieOwnedDetailsRowsCompanion.insert(
-      ownedItemId: ownedItemId,
-      features: Value(details.features),
-      hdrFormatsJson: Value(jsonEncode(details.hdrFormats)),
-      boxSetId: Value(details.boxSetId),
-      boxSetName: Value(details.boxSetName),
-      region: Value(details.region),
-      packaging: Value(details.packaging),
-      distributor: Value(details.distributor),
-    );
-  }
-
-  static MovieOwnedDetails fromOwnedDetailsRow(MovieOwnedDetailsRow row) {
-    return MovieOwnedDetails(
-      features: row.features,
-      hdrFormats: _decodeStringList(row.hdrFormatsJson),
-      boxSetId: row.boxSetId,
-      boxSetName: row.boxSetName,
-      region: row.region,
-      packaging: row.packaging,
-      distributor: row.distributor,
-    );
-  }
-
   static MovieOwnedItemsRowsCompanion toOwnedItemRow(MovieOwnedItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.movie) {

@@ -4,12 +4,11 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/remote/boar
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('persists media, editions, and owned details', () async {
+  test('persists media and editions', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = BoardGameRepository(db);
@@ -27,22 +26,14 @@ void main() {
     );
 
     await repository.updateMedia(media);
-    await repository.updateOwnedDetails(
-      'owned-1',
-      const BoardgameOwnedDetails(isSleeved: true),
-    );
-
     final restored = await repository.getMedia(media.id);
     final edition = await repository.getEdition(
       media.id,
       const BoardGameEditionId('edition-1'),
     );
-    final details = await repository.getOwnedDetails('owned-1');
-
     expect(restored?.title, 'Catan');
     expect(restored?.editions.single.title, 'Catan Standard');
     expect(edition?.workId, 'boardgame-1');
-    expect(details, const BoardgameOwnedDetails(isSleeved: true));
   });
 
   test('searches media in deterministic sort order', () async {

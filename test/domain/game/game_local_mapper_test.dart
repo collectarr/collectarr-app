@@ -97,34 +97,6 @@ void main() {
     expect(restoredRelease.rawPayload, release.rawPayload);
   });
 
-  test('round trips all Game owned details', () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    const details = GameOwnedDetails(
-      completeness: 'Complete in box',
-      hasBox: true,
-      hasManual: false,
-      priceChartingId: 'pc-123',
-      coreRegion: 'NTSC-U',
-      valueIsLocked: true,
-    );
-
-    await db.into(db.gameOwnedDetailsRows).insert(
-          GameLocalMapper.toOwnedDetailsRow('owned-1', details),
-        );
-    final restored = GameLocalMapper.fromOwnedDetailsRow(
-      await db.select(db.gameOwnedDetailsRows).getSingle(),
-    );
-
-    expect(restored, details);
-    expect(restored.completeness, details.completeness);
-    expect(restored.hasBox, details.hasBox);
-    expect(restored.hasManual, details.hasManual);
-    expect(restored.priceChartingId, details.priceChartingId);
-    expect(restored.coreRegion, details.coreRegion);
-    expect(restored.valueIsLocked, details.valueIsLocked);
-  });
-
   test('round trips the complete Game owned copy', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -211,10 +183,6 @@ void main() {
         const GameMediaId('game-1'),
         const GameRelease(id: '', title: 'Draft'),
       ),
-      throwsStateError,
-    );
-    expect(
-      () => GameLocalMapper.toOwnedDetailsRow('', const GameOwnedDetails()),
       throwsStateError,
     );
     expect(

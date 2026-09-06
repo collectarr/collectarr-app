@@ -108,36 +108,6 @@ final class GameLocalMapper {
     );
   }
 
-  static GameOwnedDetailsRowsCompanion toOwnedDetailsRow(
-    String ownedItemId,
-    GameOwnedDetails details,
-  ) {
-    if (ownedItemId.isEmpty) {
-      throw StateError('Cannot persist GameOwnedDetails without an id');
-    }
-
-    return GameOwnedDetailsRowsCompanion.insert(
-      ownedItemId: ownedItemId,
-      completeness: Value(details.completeness),
-      hasBox: Value(details.hasBox),
-      hasManual: Value(details.hasManual),
-      priceChartingId: Value(details.priceChartingId),
-      coreRegion: Value(details.coreRegion),
-      valueIsLocked: Value(details.valueIsLocked),
-    );
-  }
-
-  static GameOwnedDetails fromOwnedDetailsRow(GameOwnedDetailsRow row) {
-    return GameOwnedDetails(
-      completeness: row.completeness,
-      hasBox: row.hasBox,
-      hasManual: row.hasManual,
-      priceChartingId: row.priceChartingId,
-      coreRegion: row.coreRegion,
-      valueIsLocked: row.valueIsLocked,
-    );
-  }
-
   static GameOwnedItemsRowsCompanion toOwnedItemRow(GameOwnedItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.game) {

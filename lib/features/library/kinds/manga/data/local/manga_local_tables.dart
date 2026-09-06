@@ -23,33 +23,6 @@ class MangaMediaRows extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-class MangaOwnedDetailsRows extends Table {
-  TextColumn get ownedItemId => text()();
-  TextColumn get rawOrSlabbed => text().nullable()();
-  TextColumn get gradingCompany => text().nullable()();
-  TextColumn get graderNotes => text().nullable()();
-  TextColumn get labelType => text().nullable()();
-  TextColumn get customLabel => text().nullable()();
-  TextColumn get pageQuality => text().nullable()();
-  TextColumn get certificationNumber => text().nullable()();
-  TextColumn get signedBy => text().nullable()();
-  BoolColumn get obiStripPresent =>
-      boolean().withDefault(const Constant(false))();
-  BoolColumn get slipcoverPresent =>
-      boolean().withDefault(const Constant(false))();
-  BoolColumn get dustJacketPresent =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get dustJacketCondition => text().nullable()();
-  TextColumn get boxSetOuterCondition => text().nullable()();
-  BoolColumn get insertsPresent =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get printing => text().nullable()();
-  TextColumn get localizedEdition => text().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {ownedItemId};
-}
-
 /// Complete Manga-owned copy state.
 class MangaOwnedItemsRows extends Table {
   TextColumn get id => text()();

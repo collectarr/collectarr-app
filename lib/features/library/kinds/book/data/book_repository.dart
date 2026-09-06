@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/book/data/remote/book_remo
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:drift/drift.dart';
 
 final class BookRepository implements ReadRepository<BookMediaId, BookMedia> {
@@ -109,22 +108,6 @@ final class BookRepository implements ReadRepository<BookMediaId, BookMedia> {
   Future<void> updateRelease(BookMediaId mediaId, BookRelease release) {
     return _db.into(_db.bookReleaseRows).insertOnConflictUpdate(
           BookLocalMapper.toReleaseRow(mediaId, release),
-        );
-  }
-
-  Future<BookOwnedDetails?> getOwnedDetails(String ownedItemId) async {
-    final row = await (_db.select(_db.bookOwnedDetailsRows)
-          ..where((table) => table.ownedItemId.equals(ownedItemId)))
-        .getSingleOrNull();
-    return row == null ? null : BookLocalMapper.fromOwnedDetailsRow(row);
-  }
-
-  Future<void> updateOwnedDetails(
-    String ownedItemId,
-    BookOwnedDetails details,
-  ) {
-    return _db.into(_db.bookOwnedDetailsRows).insertOnConflictUpdate(
-          BookLocalMapper.toOwnedDetailsRow(ownedItemId, details),
         );
   }
 }

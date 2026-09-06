@@ -155,7 +155,7 @@ void main() {
         payload: const {'estimated_value_cents': 3200},
       ),
     );
-    final projection = movieKindModule.project(
+    final projection = movieKindModule.workspace.project(
       source: source,
       node: const LibraryTitleNodeRef(titleItemId: 'movie-provider-value'),
     );

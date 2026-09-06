@@ -10,35 +10,37 @@ void main() {
 
   test('music workspace exposes album-specific columns', () {
     expect(
-      plannedMediaTableColumnLabelForType(musicKindModule, field('artist')),
+      plannedMediaTableColumnLabelForType(musicRuntime.fields, field('artist')),
       'Artist',
     );
     expect(
       plannedMediaTableColumnLabelForType(
-        musicKindModule,
+        musicRuntime.fields,
         field('front_cover'),
       ),
       'Front Cover',
     );
     expect(
       plannedMediaTableColumnLabelForType(
-        musicKindModule,
+        musicRuntime.fields,
         field('back_cover'),
       ),
       'Back Cover',
     );
-    expect(plannedMediaTableColumnLabelForType(musicKindModule, field('album')),
+    expect(
+        plannedMediaTableColumnLabelForType(
+            musicRuntime.fields, field('album')),
         'Album');
     expect(
       plannedMediaTableColumnLabelForType(
-        musicKindModule,
+        musicRuntime.fields,
         field('catalog_number'),
       ),
       'Catalog Number',
     );
     expect(
         plannedMediaTableColumnLabelForType(
-            musicKindModule, field('disc_count')),
+            musicRuntime.fields, field('disc_count')),
         'Disc Count');
     expect(
       musicRuntime.fields.defaultVisibleColumns.map((column) => column.value),

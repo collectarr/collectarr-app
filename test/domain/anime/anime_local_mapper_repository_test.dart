@@ -15,49 +15,6 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('AnimeRepository round-trips the typed graph and owned details',
-      () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    final repository = AnimeRepository(db);
-    final media = _media();
-
-    await repository.updateMedia(media);
-
-    final restored = await repository.getMedia(media.id);
-    expect(restored?.title, 'Cowboy Bebop');
-    expect(restored?.episodes.single.title, 'Asteroid Blues');
-    expect(restored?.releases.single.barcode, '123456789');
-    expect(restored?.contributions.single.name, 'Shinichiro Watanabe');
-    expect(restored?.rawPayload['provider'], 'core');
-    expect((await repository.search('bebop')).single.id, media.id);
-    expect(
-      (await repository.getEpisode(
-        media.id,
-        media.episodes.single.id,
-      ))
-          ?.episodeNumber,
-      1,
-    );
-    expect(
-      (await repository.getRelease(
-        media.id,
-        media.releases.single.id,
-      ))
-          ?.title,
-      'Complete Collection',
-    );
-
-    const owned = AnimeOwnedDetails(
-      features: 'Commentary',
-      hdrFormats: ['HDR10'],
-      boxSetName: 'Complete Series',
-      region: 'B',
-    );
-    await repository.updateOwnedDetails('owned-anime-1', owned);
-    expect(await repository.getOwnedDetails('owned-anime-1'), owned);
-  });
-
   test('AnimeRepository persists and soft-deletes typed tracking', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -75,7 +32,7 @@ void main() {
 
     await repository.updateTracking(tracking);
     expect(
-      (await repository.trackingFor(tracking.mediaId)).single.episodeId,
+      (await repository.getTracking(tracking.id!))?.episodeId,
       tracking.episodeId,
     );
     expect(
@@ -87,7 +44,7 @@ void main() {
       tracking.id!,
       DateTime.utc(2026, 9, 6),
     );
-    expect(await repository.trackingFor(tracking.mediaId), isEmpty);
+    expect(await repository.getTracking(tracking.id!), isNull);
     expect(await repository.getTracking(tracking.id!), isNull);
   });
 
@@ -197,10 +154,6 @@ void main() {
           seriesId: AnimeMediaId(''),
         ),
       ),
-      throwsStateError,
-    );
-    expect(
-      () => AnimeLocalMapper.toOwnedDetailsRow('', const AnimeOwnedDetails()),
       throwsStateError,
     );
     expect(

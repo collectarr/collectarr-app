@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_cont
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -223,49 +222,6 @@ void main() {
     expect(restored.releases, [release]);
   });
 
-  test('round trips a fully populated Comic owned details row', () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    final details = ComicOwnedDetails(
-      rawOrSlabbed: 'slabbed',
-      gradingCompany: 'CGC',
-      graderNotes: 'White pages',
-      labelType: 'Universal',
-      customLabel: 'Newsstand',
-      pageQuality: '9.8',
-      certificationNumber: '1234567',
-      signedBy: 'Stan Lee',
-      keyComic: true,
-      keyReason: 'First appearance',
-      keyCategory: 'Origin',
-      keySeverity: 'High',
-      coverPriceCents: 399,
-      lastBagBoardDate: DateTime.utc(2026, 5, 11, 12, 30),
-    );
-
-    await db.into(db.comicOwnedDetailsRows).insert(
-          ComicLocalMapper.toOwnedDetailsRow('owned-1', details),
-        );
-    final restored = ComicLocalMapper.fromOwnedDetailsRow(
-      await db.select(db.comicOwnedDetailsRows).getSingle(),
-    );
-
-    expect(restored.rawOrSlabbed, details.rawOrSlabbed);
-    expect(restored.gradingCompany, details.gradingCompany);
-    expect(restored.graderNotes, details.graderNotes);
-    expect(restored.labelType, details.labelType);
-    expect(restored.customLabel, details.customLabel);
-    expect(restored.pageQuality, details.pageQuality);
-    expect(restored.certificationNumber, details.certificationNumber);
-    expect(restored.signedBy, details.signedBy);
-    expect(restored.keyComic, isTrue);
-    expect(restored.keyReason, details.keyReason);
-    expect(restored.keyCategory, details.keyCategory);
-    expect(restored.keySeverity, details.keySeverity);
-    expect(restored.coverPriceCents, details.coverPriceCents);
-    expect(restored.lastBagBoardDate?.toUtc(), details.lastBagBoardDate);
-  });
-
   test('preserves nullable Comic fields and table defaults', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -293,24 +249,5 @@ void main() {
     expect(restored.publishing, isNull);
     expect(restored.links, isEmpty);
     expect(restored.rawPayload, isEmpty);
-  });
-
-  test('requires persisted Comic media, release, and owned detail identities',
-      () {
-    expect(
-      () => ComicLocalMapper.toMediaRow(const ComicMedia(title: 'Draft')),
-      throwsStateError,
-    );
-    expect(
-      () => ComicLocalMapper.toReleaseRow(
-        const ComicMediaId('comic-1'),
-        const ComicRelease(id: '', title: 'Invalid'),
-      ),
-      throwsStateError,
-    );
-    expect(
-      () => ComicLocalMapper.toOwnedDetailsRow('', const ComicOwnedDetails()),
-      throwsStateError,
-    );
   });
 }

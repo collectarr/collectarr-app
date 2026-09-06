@@ -60,20 +60,6 @@ class AnimeReleaseRows extends Table {
   Set<Column> get primaryKey => {seriesId, id};
 }
 
-class AnimeOwnedDetailsRows extends Table {
-  TextColumn get ownedItemId => text()();
-  TextColumn get features => text().nullable()();
-  TextColumn get hdrFormatsJson => text().withDefault(const Constant('[]'))();
-  TextColumn get boxSetId => text().nullable()();
-  TextColumn get boxSetName => text().nullable()();
-  TextColumn get region => text().nullable()();
-  TextColumn get packaging => text().nullable()();
-  TextColumn get distributor => text().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {ownedItemId};
-}
-
 /// Complete Anime-owned copy state.
 class AnimeOwnedItemsRows extends Table {
   TextColumn get id => text()();

@@ -45,17 +45,6 @@ void main() {
           ?.position,
       'A1',
     );
-
-    const owned = MusicOwnedDetails(
-      storageDevice: 'Shelf 4',
-      storageSlot: 'B-12',
-      signedBy: 'Roger Waters',
-      matrixRunouts: [
-        MusicMatrixRunout(side: 'A', runoutText: 'SHVL 804 A-2'),
-      ],
-    );
-    await repository.updateOwnedDetails('owned-music-1', owned);
-    expect(await repository.getOwnedDetails('owned-music-1'), owned);
   });
 
   test(

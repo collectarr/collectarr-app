@@ -59,60 +59,6 @@ final class MangaLocalMapper {
     );
   }
 
-  static MangaOwnedDetailsRowsCompanion toOwnedDetailsRow(
-    String ownedItemId,
-    MangaOwnedDetails details,
-  ) {
-    if (ownedItemId.isEmpty) {
-      throw StateError('Cannot persist MangaOwnedDetails without an id');
-    }
-
-    return MangaOwnedDetailsRowsCompanion.insert(
-      ownedItemId: ownedItemId,
-      rawOrSlabbed: Value(details.grading.rawOrSlabbed),
-      gradingCompany: Value(details.gradingCompany),
-      graderNotes: Value(details.graderNotes),
-      labelType: Value(details.grading.labelType),
-      customLabel: Value(details.grading.customLabel),
-      pageQuality: Value(details.grading.pageQuality),
-      certificationNumber: Value(details.grading.certificationNumber),
-      signedBy: Value(details.signedBy),
-      obiStripPresent: Value(details.obiStripPresent),
-      slipcoverPresent: Value(details.slipcoverPresent),
-      dustJacketPresent: Value(details.dustJacketPresent),
-      dustJacketCondition: Value(details.dustJacketCondition),
-      boxSetOuterCondition: Value(details.boxSetOuterCondition),
-      insertsPresent: Value(details.insertsPresent),
-      printing: Value(details.printing),
-      localizedEdition: Value(details.localizedEdition),
-    );
-  }
-
-  static MangaOwnedDetails fromOwnedDetailsRow(
-    MangaOwnedDetailsRow row,
-  ) {
-    return MangaOwnedDetails(
-      grading: MangaGradingDetails(
-        rawOrSlabbed: row.rawOrSlabbed,
-        gradingCompany: row.gradingCompany,
-        graderNotes: row.graderNotes,
-        labelType: row.labelType,
-        customLabel: row.customLabel,
-        pageQuality: row.pageQuality,
-        certificationNumber: row.certificationNumber,
-      ),
-      signature: MangaSignatureDetails(signedBy: row.signedBy),
-      obiStripPresent: row.obiStripPresent,
-      slipcoverPresent: row.slipcoverPresent,
-      dustJacketPresent: row.dustJacketPresent,
-      dustJacketCondition: row.dustJacketCondition,
-      boxSetOuterCondition: row.boxSetOuterCondition,
-      insertsPresent: row.insertsPresent,
-      printing: row.printing,
-      localizedEdition: row.localizedEdition,
-    );
-  }
-
   static MangaOwnedItemsRowsCompanion toOwnedItemRow(MangaOwnedItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.manga) {

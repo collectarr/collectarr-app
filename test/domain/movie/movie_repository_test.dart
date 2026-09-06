@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_re
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_release.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,8 +18,7 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('persists and retrieves typed Movie media, releases, and details',
-      () async {
+  test('persists and retrieves typed Movie media and releases', () async {
     final media = MovieMedia(
       id: const MovieMediaId('movie-1'),
       title: 'The Matrix',
@@ -43,24 +41,16 @@ void main() {
     );
 
     await repository.updateMedia(media);
-    await repository.updateOwnedDetails(
-      'owned-1',
-      const MovieOwnedDetails(packaging: 'SteelBook'),
-    );
-
     final loaded = await repository.getMedia(media.id);
     final release = await repository.getRelease(
       media.id,
       const MovieReleaseId('release-1'),
     );
-    final details = await repository.getOwnedDetails('owned-1');
-
     expect(loaded?.id, media.id);
     expect(loaded?.title, media.title);
     expect(loaded?.releases.single.title, '4K Edition');
     expect(loaded?.releases.single.media.single.audioTracks, 'Dolby Atmos');
     expect(release?.typedWorkId, media.id);
-    expect(details, const MovieOwnedDetails(packaging: 'SteelBook'));
   });
 
   test('searches typed Movie media in deterministic order', () async {

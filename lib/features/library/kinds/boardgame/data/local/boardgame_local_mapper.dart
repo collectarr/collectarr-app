@@ -131,44 +131,6 @@ final class BoardGameLocalMapper {
     );
   }
 
-  static BoardGameOwnedDetailsRowsCompanion toOwnedDetailsRow(
-    String ownedItemId,
-    BoardgameOwnedDetails details,
-  ) {
-    if (ownedItemId.isEmpty) {
-      throw StateError('Cannot persist BoardgameOwnedDetails without an id');
-    }
-
-    return BoardGameOwnedDetailsRowsCompanion.insert(
-      ownedItemId: ownedItemId,
-      editionLanguage: Value(details.editionLanguage),
-      editionRegion: Value(details.editionRegion),
-      componentCondition: Value(details.componentCondition),
-      componentCompleteness: Value(details.componentCompleteness),
-      missingPiecesNotes: Value(details.missingPiecesNotes),
-      isSleeved: Value(details.isSleeved),
-      hasCustomInsert: Value(details.hasCustomInsert),
-      hasPaintedMiniatures: Value(details.hasPaintedMiniatures),
-      storageNotes: Value(details.storageNotes),
-    );
-  }
-
-  static BoardgameOwnedDetails fromOwnedDetailsRow(
-    BoardGameOwnedDetailsRow row,
-  ) {
-    return BoardgameOwnedDetails(
-      editionLanguage: row.editionLanguage,
-      editionRegion: row.editionRegion,
-      componentCondition: row.componentCondition,
-      componentCompleteness: row.componentCompleteness,
-      missingPiecesNotes: row.missingPiecesNotes,
-      isSleeved: row.isSleeved,
-      hasCustomInsert: row.hasCustomInsert,
-      hasPaintedMiniatures: row.hasPaintedMiniatures,
-      storageNotes: row.storageNotes,
-    );
-  }
-
   static BoardGameOwnedItemsRowsCompanion toOwnedItemRow(
     BoardGameOwnedItem item,
   ) {

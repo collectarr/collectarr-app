@@ -62,19 +62,6 @@ class MusicTrackRows extends Table {
   Set<Column> get primaryKey => {mediaId, id};
 }
 
-class MusicOwnedDetailsRows extends Table {
-  TextColumn get ownedItemId => text()();
-  TextColumn get storageDevice => text().nullable()();
-  TextColumn get storageSlot => text().nullable()();
-  TextColumn get signedBy => text().nullable()();
-  DateTimeColumn get lastCleanedDate => dateTime().nullable()();
-  TextColumn get matrixRunoutsJson =>
-      text().withDefault(const Constant('[]'))();
-
-  @override
-  Set<Column> get primaryKey => {ownedItemId};
-}
-
 /// Complete Music-owned copy state.
 class MusicOwnedItemsRows extends Table {
   TextColumn get id => text()();

@@ -147,35 +147,6 @@ final class AnimeLocalMapper {
     );
   }
 
-  static AnimeOwnedDetailsRowsCompanion toOwnedDetailsRow(
-    String ownedItemId,
-    AnimeOwnedDetails details,
-  ) {
-    _require(ownedItemId, 'AnimeOwnedDetails.ownedItemId');
-    return AnimeOwnedDetailsRowsCompanion.insert(
-      ownedItemId: ownedItemId,
-      features: Value(details.features),
-      hdrFormatsJson: Value(jsonEncode(details.hdrFormats)),
-      boxSetId: Value(details.boxSetId),
-      boxSetName: Value(details.boxSetName),
-      region: Value(details.region),
-      packaging: Value(details.packaging),
-      distributor: Value(details.distributor),
-    );
-  }
-
-  static AnimeOwnedDetails fromOwnedDetailsRow(AnimeOwnedDetailsRow row) {
-    return AnimeOwnedDetails(
-      features: row.features,
-      hdrFormats: _decodeStrings(row.hdrFormatsJson),
-      boxSetId: row.boxSetId,
-      boxSetName: row.boxSetName,
-      region: row.region,
-      packaging: row.packaging,
-      distributor: row.distributor,
-    );
-  }
-
   static AnimeOwnedItemsRowsCompanion toOwnedItemRow(AnimeOwnedItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.anime) {

@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dar
 import 'package:collectarr_app/features/library/kinds/music/domain/music_media.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:drift/drift.dart';
 
 final class MusicRepository
@@ -167,22 +166,6 @@ final class MusicRepository
     _validateTrackBelongs(mediaId, track);
     return _db.into(_db.musicTrackRows).insertOnConflictUpdate(
           MusicLocalMapper.toTrackRow(track),
-        );
-  }
-
-  Future<MusicOwnedDetails?> getOwnedDetails(String ownedItemId) async {
-    final row = await (_db.select(_db.musicOwnedDetailsRows)
-          ..where((table) => table.ownedItemId.equals(ownedItemId)))
-        .getSingleOrNull();
-    return row == null ? null : MusicLocalMapper.fromOwnedDetailsRow(row);
-  }
-
-  Future<void> updateOwnedDetails(
-    String ownedItemId,
-    MusicOwnedDetails details,
-  ) {
-    return _db.into(_db.musicOwnedDetailsRows).insertOnConflictUpdate(
-          MusicLocalMapper.toOwnedDetailsRow(ownedItemId, details),
         );
   }
 

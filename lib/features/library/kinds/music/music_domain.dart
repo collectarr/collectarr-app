@@ -1,5 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
-
 export 'package:collectarr_app/features/library/kinds/music/contracts/music_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';

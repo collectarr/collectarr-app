@@ -146,36 +146,6 @@ final class MusicLocalMapper {
     );
   }
 
-  static MusicOwnedDetailsRowsCompanion toOwnedDetailsRow(
-    String ownedItemId,
-    MusicOwnedDetails details,
-  ) {
-    _require(ownedItemId, 'MusicOwnedDetails.ownedItemId');
-    return MusicOwnedDetailsRowsCompanion.insert(
-      ownedItemId: ownedItemId,
-      storageDevice: Value(details.storageDevice),
-      storageSlot: Value(details.storageSlot),
-      signedBy: Value(details.signedBy),
-      lastCleanedDate: Value(details.lastCleanedDate),
-      matrixRunoutsJson: Value(
-        jsonEncode(details.matrixRunouts.map((item) => item.toJson()).toList()),
-      ),
-    );
-  }
-
-  static MusicOwnedDetails fromOwnedDetailsRow(MusicOwnedDetailsRow row) {
-    return MusicOwnedDetails(
-      storageDevice: row.storageDevice,
-      storageSlot: row.storageSlot,
-      signedBy: row.signedBy,
-      lastCleanedDate: row.lastCleanedDate,
-      matrixRunouts: [
-        for (final value in _decodeMaps(row.matrixRunoutsJson))
-          MusicMatrixRunout.fromJson(value),
-      ],
-    );
-  }
-
   static MusicOwnedItemsRowsCompanion toOwnedItemRow(MusicOwnedItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.music) {

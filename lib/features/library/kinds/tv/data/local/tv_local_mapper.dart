@@ -298,35 +298,6 @@ final class TvLocalMapper {
     );
   }
 
-  static TvOwnedDetailsRowsCompanion toOwnedDetailsRow(
-    String ownedItemId,
-    TvOwnedDetails details,
-  ) {
-    _require(ownedItemId, 'TvOwnedDetails.ownedItemId');
-    return TvOwnedDetailsRowsCompanion.insert(
-      ownedItemId: ownedItemId,
-      features: Value(details.features),
-      hdrFormatsJson: Value(jsonEncode(details.hdrFormats)),
-      boxSetId: Value(details.boxSetId),
-      boxSetName: Value(details.boxSetName),
-      region: Value(details.region),
-      packaging: Value(details.packaging),
-      distributor: Value(details.distributor),
-    );
-  }
-
-  static TvOwnedDetails fromOwnedDetailsRow(TvOwnedDetailsRow row) {
-    return TvOwnedDetails(
-      features: row.features,
-      hdrFormats: _decodeStrings(row.hdrFormatsJson),
-      boxSetId: row.boxSetId,
-      boxSetName: row.boxSetName,
-      region: row.region,
-      packaging: row.packaging,
-      distributor: row.distributor,
-    );
-  }
-
   static TvOwnedItemsRowsCompanion toOwnedItemRow(TvOwnedItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.tv) {

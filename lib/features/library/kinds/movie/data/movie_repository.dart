@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/movie/data/remote/movie_re
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_release.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:drift/drift.dart';
 
 final class MovieRepository
@@ -110,22 +109,6 @@ final class MovieRepository
   Future<void> updateRelease(MovieMediaId mediaId, MovieRelease release) {
     return _db.into(_db.movieReleaseRows).insertOnConflictUpdate(
           MovieLocalMapper.toReleaseRow(mediaId, release),
-        );
-  }
-
-  Future<MovieOwnedDetails?> getOwnedDetails(String ownedItemId) async {
-    final row = await (_db.select(_db.movieOwnedDetailsRows)
-          ..where((table) => table.ownedItemId.equals(ownedItemId)))
-        .getSingleOrNull();
-    return row == null ? null : MovieLocalMapper.fromOwnedDetailsRow(row);
-  }
-
-  Future<void> updateOwnedDetails(
-    String ownedItemId,
-    MovieOwnedDetails details,
-  ) {
-    return _db.into(_db.movieOwnedDetailsRows).insertOnConflictUpdate(
-          MovieLocalMapper.toOwnedDetailsRow(ownedItemId, details),
         );
   }
 }

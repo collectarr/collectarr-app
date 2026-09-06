@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/kinds/book/data/remote/book_remo
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -71,19 +70,6 @@ void main() {
       (await repository.search('gabon')).map((media) => media.title),
       ['Vagabond'],
     );
-  });
-
-  test('persists and retrieves Book owned details', () async {
-    const details = BookOwnedDetails(
-      signedBy: 'Ursula K. Le Guin',
-      dustJacketPresent: true,
-      dustJacketCondition: 'Like new',
-    );
-
-    await repository.updateOwnedDetails('owned-1', details);
-    final loaded = await repository.getOwnedDetails('owned-1');
-
-    expect(loaded, details);
   });
 
   test('falls back to the typed remote source on a local miss', () async {

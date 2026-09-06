@@ -48,20 +48,6 @@ class MovieReleaseRows extends Table {
   Set<Column> get primaryKey => {mediaId, id};
 }
 
-class MovieOwnedDetailsRows extends Table {
-  TextColumn get ownedItemId => text()();
-  TextColumn get features => text().nullable()();
-  TextColumn get hdrFormatsJson => text().withDefault(const Constant('[]'))();
-  TextColumn get boxSetId => text().nullable()();
-  TextColumn get boxSetName => text().nullable()();
-  TextColumn get region => text().nullable()();
-  TextColumn get packaging => text().nullable()();
-  TextColumn get distributor => text().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {ownedItemId};
-}
-
 /// Complete Movie-owned copy state.
 class MovieOwnedItemsRows extends Table {
   TextColumn get id => text()();

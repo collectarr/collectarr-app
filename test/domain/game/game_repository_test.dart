@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/kinds/game/data/remote/game_remo
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -78,22 +77,6 @@ void main() {
       (await repository.search('gabon')).map((media) => media.title),
       ['Vagabond'],
     );
-  });
-
-  test('persists and retrieves Game owned details', () async {
-    const details = GameOwnedDetails(
-      completeness: 'Complete in box',
-      hasBox: true,
-      hasManual: true,
-      priceChartingId: 'pc-456',
-      coreRegion: 'PAL',
-      valueIsLocked: false,
-    );
-
-    await repository.updateOwnedDetails('owned-1', details);
-    final loaded = await repository.getOwnedDetails('owned-1');
-
-    expect(loaded, details);
   });
 
   test('falls back to the typed remote source on a local miss', () async {

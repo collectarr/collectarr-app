@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/game/data/remote/game_remo
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:drift/drift.dart';
 
 final class GameRepository implements ReadRepository<GameMediaId, GameMedia> {
@@ -109,22 +108,6 @@ final class GameRepository implements ReadRepository<GameMediaId, GameMedia> {
   Future<void> updateRelease(GameMediaId mediaId, GameRelease release) {
     return _db.into(_db.gameReleaseRows).insertOnConflictUpdate(
           GameLocalMapper.toReleaseRow(mediaId, release),
-        );
-  }
-
-  Future<GameOwnedDetails?> getOwnedDetails(String ownedItemId) async {
-    final row = await (_db.select(_db.gameOwnedDetailsRows)
-          ..where((table) => table.ownedItemId.equals(ownedItemId)))
-        .getSingleOrNull();
-    return row == null ? null : GameLocalMapper.fromOwnedDetailsRow(row);
-  }
-
-  Future<void> updateOwnedDetails(
-    String ownedItemId,
-    GameOwnedDetails details,
-  ) {
-    return _db.into(_db.gameOwnedDetailsRows).insertOnConflictUpdate(
-          GameLocalMapper.toOwnedDetailsRow(ownedItemId, details),
         );
   }
 }

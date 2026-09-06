@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/remote/boar
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_edition.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:drift/drift.dart';
 
 final class BoardGameRepository
@@ -116,22 +115,6 @@ final class BoardGameRepository
   ) {
     return _db.into(_db.boardGameEditionRows).insertOnConflictUpdate(
           BoardGameLocalMapper.toEditionRow(mediaId, edition),
-        );
-  }
-
-  Future<BoardgameOwnedDetails?> getOwnedDetails(String ownedItemId) async {
-    final row = await (_db.select(_db.boardGameOwnedDetailsRows)
-          ..where((table) => table.ownedItemId.equals(ownedItemId)))
-        .getSingleOrNull();
-    return row == null ? null : BoardGameLocalMapper.fromOwnedDetailsRow(row);
-  }
-
-  Future<void> updateOwnedDetails(
-    String ownedItemId,
-    BoardgameOwnedDetails details,
-  ) {
-    return _db.into(_db.boardGameOwnedDetailsRows).insertOnConflictUpdate(
-          BoardGameLocalMapper.toOwnedDetailsRow(ownedItemId, details),
         );
   }
 }

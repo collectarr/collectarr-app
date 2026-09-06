@@ -146,28 +146,6 @@ void main() {
     );
   });
 
-  test('round trips all Book owned details', () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    const details = BookOwnedDetails(
-      signedBy: 'Ursula K. Le Guin',
-      dustJacketPresent: true,
-      dustJacketCondition: 'Very good',
-    );
-
-    await db.into(db.bookOwnedDetailsRows).insert(
-          BookLocalMapper.toOwnedDetailsRow('owned-1', details),
-        );
-    final restored = BookLocalMapper.fromOwnedDetailsRow(
-      await db.select(db.bookOwnedDetailsRows).getSingle(),
-    );
-
-    expect(restored, details);
-    expect(restored.signedBy, details.signedBy);
-    expect(restored.dustJacketPresent, details.dustJacketPresent);
-    expect(restored.dustJacketCondition, details.dustJacketCondition);
-  });
-
   test('requires persisted Book identities', () {
     expect(
       () => BookLocalMapper.toMediaRow(
@@ -180,10 +158,6 @@ void main() {
         const BookMediaId('book-1'),
         const BookRelease(id: '', title: 'Draft'),
       ),
-      throwsStateError,
-    );
-    expect(
-      () => BookLocalMapper.toOwnedDetailsRow('', const BookOwnedDetails()),
       throwsStateError,
     );
     expect(

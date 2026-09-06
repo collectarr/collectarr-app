@@ -137,36 +137,6 @@ void main() {
     expect(restoredRelease.rawPayload, release.rawPayload);
   });
 
-  test('round trips all Movie owned details', () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    const details = MovieOwnedDetails(
-      features: 'Director commentary',
-      hdrFormats: ['HDR10', 'Dolby Vision'],
-      boxSetId: 'box-1',
-      boxSetName: 'The Matrix Collection',
-      region: 'A',
-      packaging: 'SteelBook',
-      distributor: 'Warner Home Video',
-    );
-
-    await db.into(db.movieOwnedDetailsRows).insert(
-          MovieLocalMapper.toOwnedDetailsRow('owned-1', details),
-        );
-    final restored = MovieLocalMapper.fromOwnedDetailsRow(
-      await db.select(db.movieOwnedDetailsRows).getSingle(),
-    );
-
-    expect(restored, details);
-    expect(restored.features, details.features);
-    expect(restored.hdrFormats, details.hdrFormats);
-    expect(restored.boxSetId, details.boxSetId);
-    expect(restored.boxSetName, details.boxSetName);
-    expect(restored.region, details.region);
-    expect(restored.packaging, details.packaging);
-    expect(restored.distributor, details.distributor);
-  });
-
   test('round trips the complete Movie owned copy', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -263,10 +233,6 @@ void main() {
         const MovieMediaId('movie-1'),
         const MovieRelease(id: MovieReleaseId(''), title: 'Draft'),
       ),
-      throwsStateError,
-    );
-    expect(
-      () => MovieLocalMapper.toOwnedDetailsRow('', const MovieOwnedDetails()),
       throwsStateError,
     );
     expect(

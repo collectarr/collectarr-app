@@ -43,19 +43,6 @@ class GameReleaseRows extends Table {
   Set<Column> get primaryKey => {mediaId, id};
 }
 
-class GameOwnedDetailsRows extends Table {
-  TextColumn get ownedItemId => text()();
-  TextColumn get completeness => text().nullable()();
-  BoolColumn get hasBox => boolean().nullable()();
-  BoolColumn get hasManual => boolean().nullable()();
-  TextColumn get priceChartingId => text().nullable()();
-  TextColumn get coreRegion => text().nullable()();
-  BoolColumn get valueIsLocked => boolean().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {ownedItemId};
-}
-
 /// Complete Game-owned copy state.
 class GameOwnedItemsRows extends Table {
   TextColumn get id => text()();

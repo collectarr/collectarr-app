@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_map
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:drift/drift.dart';
 
 final class TvRepository implements ReadRepository<TvSeriesId, TvSeries> {
@@ -199,22 +198,6 @@ final class TvRepository implements ReadRepository<TvSeriesId, TvSeries> {
             );
       }
     });
-  }
-
-  Future<TvOwnedDetails?> getOwnedDetails(String ownedItemId) async {
-    final row = await (_db.select(_db.tvOwnedDetailsRows)
-          ..where((table) => table.ownedItemId.equals(ownedItemId)))
-        .getSingleOrNull();
-    return row == null ? null : TvLocalMapper.fromOwnedDetailsRow(row);
-  }
-
-  Future<void> updateOwnedDetails(
-    String ownedItemId,
-    TvOwnedDetails details,
-  ) {
-    return _db.into(_db.tvOwnedDetailsRows).insertOnConflictUpdate(
-          TvLocalMapper.toOwnedDetailsRow(ownedItemId, details),
-        );
   }
 
   Future<TvSeries> _hydrateSeries(TvSeriesRow row) async {

@@ -57,17 +57,6 @@ class BookReleaseRows extends Table {
   Set<Column> get primaryKey => {mediaId, id};
 }
 
-class BookOwnedDetailsRows extends Table {
-  TextColumn get ownedItemId => text()();
-  TextColumn get signedBy => text().nullable()();
-  BoolColumn get dustJacketPresent =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get dustJacketCondition => text().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {ownedItemId};
-}
-
 /// Complete Book-owned copy state.
 class BookOwnedItemsRows extends Table {
   TextColumn get id => text()();

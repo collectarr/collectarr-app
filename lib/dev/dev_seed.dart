@@ -15,14 +15,6 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/dev/seeds/anime_seeds.dart';
 import 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
 import 'package:collectarr_app/dev/seeds/book_seeds.dart';
@@ -41,22 +33,16 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_ite
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
@@ -399,8 +385,8 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
 /// the development fixture. Only deterministic seed rows are inspected so a
 /// developer can run this against a database that also contains local data.
 ///
-/// The common ownership cache and every kind-owned table must agree on the
-/// same copy IDs. Counts alone are not enough: a wrongly typed row can keep
+/// Every kind-owned table must agree on the same copy IDs. Counts alone are
+/// not enough: a wrongly typed row can keep
 /// the totals green while disconnecting one catalog kind from its copy data.
 Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
   final issues = <String>[];
@@ -450,12 +436,11 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
   checkTypedRows('manga_owned_items', 'manga', mangaRows.map((row) => row.id));
   final bookRows = await db.select(db.bookOwnedItemsRows).get();
   checkTypedRows('book_owned_items', 'book', bookRows.map((row) => row.id));
-  final gameRows = await db.select(db.gameOwnedDetailsRows).get();
+  final gameRows = await db.select(db.gameOwnedItemsRows).get();
+  checkTypedRows('game_owned_items', 'game', gameRows.map((row) => row.id));
+  final boardGameRows = await db.select(db.boardGameOwnedItemsRows).get();
   checkTypedRows(
-      'game_owned_details', 'game', gameRows.map((row) => row.ownedItemId));
-  final boardGameRows = await db.select(db.boardGameOwnedDetailsRows).get();
-  checkTypedRows('boardgame_owned_details', 'boardgame',
-      boardGameRows.map((row) => row.ownedItemId));
+      'boardgame_owned_items', 'boardgame', boardGameRows.map((row) => row.id));
   final movieRows = await db.select(db.movieOwnedItemsRows).get();
   checkTypedRows('movie_owned_items', 'movie', movieRows.map((row) => row.id));
   final tvRows = await db.select(db.tvOwnedItemsRows).get();
@@ -1022,7 +1007,6 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);
   await ownedRepo.upsertAll(ownedItems);
-  await _seedKindOwnedDetails(db, ownedItems);
   await _seedKindTracking(db, allItems, now);
   await trackingUnitsRepo.upsertAll(trackingUnits);
   await comicOwnedRepo.upsertAll(
@@ -1121,69 +1105,6 @@ void _validateSeedTrackingUnits(
         'Seed tracking unit ${unit.id} has no typed coordinate codec for '
         '${unit.targetRef.kind}',
       );
-    }
-  }
-}
-
-Future<void> _seedKindOwnedDetails(
-  LocalDatabase db,
-  Iterable<OwnedItem> items,
-) async {
-  final anime = AnimeRepository(db);
-  final boardgame = BoardGameRepository(db);
-  final book = BookRepository(db);
-  final game = GameRepository(db);
-  final manga = MangaRepository(db);
-  final movie = MovieRepository(db);
-  final music = MusicRepository(db);
-  final tv = TvRepository(db);
-
-  for (final item in items) {
-    switch (item.catalogRef.mediaKind) {
-      case CatalogMediaKind.anime:
-        final details = item.details;
-        if (details is AnimeOwnedDetails) {
-          await anime.updateOwnedDetails(item.id, details);
-        }
-      case CatalogMediaKind.boardgame:
-        final details = item.details;
-        if (details is BoardgameOwnedDetails) {
-          await boardgame.updateOwnedDetails(item.id, details);
-        }
-      case CatalogMediaKind.book:
-        final details = item.details;
-        if (details is BookOwnedDetails) {
-          await book.updateOwnedDetails(item.id, details);
-        }
-      case CatalogMediaKind.game:
-        final details = item.details;
-        if (details is GameOwnedDetails) {
-          await game.updateOwnedDetails(item.id, details);
-        }
-      case CatalogMediaKind.manga:
-        final details = item.details;
-        if (details is MangaOwnedDetails) {
-          await manga.updateOwnedDetails(item.id, details);
-        }
-      case CatalogMediaKind.movie:
-        final details = item.details;
-        if (details is MovieOwnedDetails) {
-          await movie.updateOwnedDetails(item.id, details);
-        }
-      case CatalogMediaKind.music:
-        final details = item.details;
-        if (details is MusicOwnedDetails) {
-          await music.updateOwnedDetails(item.id, details);
-        }
-      case CatalogMediaKind.tv:
-        final details = item.details;
-        if (details is TvOwnedDetails) {
-          await tv.updateOwnedDetails(item.id, details);
-        }
-      case CatalogMediaKind.comic || CatalogMediaKind.unknown:
-        // Comic's typed owned repository persists its complete details graph
-        // below; unknown kinds are rejected by the fixture validator.
-        break;
     }
   }
 }

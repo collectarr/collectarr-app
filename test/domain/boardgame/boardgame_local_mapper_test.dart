@@ -123,31 +123,6 @@ void main() {
     expect(restoredEdition.rawPayload, edition.rawPayload);
   });
 
-  test('round trips all BoardGame owned details', () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    const details = BoardgameOwnedDetails(
-      editionLanguage: 'English',
-      editionRegion: 'US',
-      componentCondition: 'Like New',
-      componentCompleteness: 'Complete',
-      missingPiecesNotes: 'None',
-      isSleeved: true,
-      hasCustomInsert: true,
-      hasPaintedMiniatures: true,
-      storageNotes: 'Shelf 3',
-    );
-
-    await db.into(db.boardGameOwnedDetailsRows).insert(
-          BoardGameLocalMapper.toOwnedDetailsRow('owned-1', details),
-        );
-    final restored = BoardGameLocalMapper.fromOwnedDetailsRow(
-      await db.select(db.boardGameOwnedDetailsRows).getSingle(),
-    );
-
-    expect(restored, details);
-  });
-
   test('round trips the complete BoardGame owned copy', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -236,13 +211,6 @@ void main() {
       () => BoardGameLocalMapper.toEditionRow(
         const BoardGameMediaId('boardgame-1'),
         const BoardGameEdition(id: '', title: 'Draft'),
-      ),
-      throwsStateError,
-    );
-    expect(
-      () => BoardGameLocalMapper.toOwnedDetailsRow(
-        '',
-        const BoardgameOwnedDetails(),
       ),
       throwsStateError,
     );

@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dar
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:drift/drift.dart';
 
 final class AnimeRepository
@@ -138,36 +137,6 @@ final class AnimeRepository
     return _db.into(_db.animeReleaseRows).insertOnConflictUpdate(
           AnimeLocalMapper.toReleaseRow(mediaId, release),
         );
-  }
-
-  Future<AnimeOwnedDetails?> getOwnedDetails(String ownedItemId) async {
-    final row = await (_db.select(_db.animeOwnedDetailsRows)
-          ..where((table) => table.ownedItemId.equals(ownedItemId)))
-        .getSingleOrNull();
-    return row == null ? null : AnimeLocalMapper.fromOwnedDetailsRow(row);
-  }
-
-  Future<void> updateOwnedDetails(
-    String ownedItemId,
-    AnimeOwnedDetails details,
-  ) {
-    return _db.into(_db.animeOwnedDetailsRows).insertOnConflictUpdate(
-          AnimeLocalMapper.toOwnedDetailsRow(ownedItemId, details),
-        );
-  }
-
-  Future<List<AnimeTracking>> trackingFor(AnimeMediaId mediaId) async {
-    final rows = await (_db.select(_db.animeTrackingRows)
-          ..where(
-            (table) =>
-                table.mediaId.equals(mediaId.value) & table.deletedAt.isNull(),
-          )
-          ..orderBy([
-            (table) => OrderingTerm.asc(table.episodeNumber),
-            (table) => OrderingTerm.asc(table.id),
-          ]))
-        .get();
-    return rows.map(AnimeLocalMapper.fromTrackingRow).toList(growable: false);
   }
 
   Future<AnimeTracking?> getTracking(String trackingId) async {

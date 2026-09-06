@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:drift/drift.dart';
 
 final class MangaRepository implements ReadRepository<String, MangaMedia> {
@@ -51,21 +50,5 @@ final class MangaRepository implements ReadRepository<String, MangaMedia> {
     return _db
         .into(_db.mangaMediaRows)
         .insertOnConflictUpdate(MangaLocalMapper.toMediaRow(media));
-  }
-
-  Future<MangaOwnedDetails?> getOwnedDetails(String ownedItemId) async {
-    final row = await (_db.select(_db.mangaOwnedDetailsRows)
-          ..where((table) => table.ownedItemId.equals(ownedItemId)))
-        .getSingleOrNull();
-    return row == null ? null : MangaLocalMapper.fromOwnedDetailsRow(row);
-  }
-
-  Future<void> updateOwnedDetails(
-    String ownedItemId,
-    MangaOwnedDetails details,
-  ) {
-    return _db.into(_db.mangaOwnedDetailsRows).insertOnConflictUpdate(
-          MangaLocalMapper.toOwnedDetailsRow(ownedItemId, details),
-        );
   }
 }

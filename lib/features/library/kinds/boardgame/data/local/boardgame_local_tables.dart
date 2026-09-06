@@ -54,24 +54,6 @@ class BoardGameEditionRows extends Table {
   Set<Column> get primaryKey => {mediaId, id};
 }
 
-class BoardGameOwnedDetailsRows extends Table {
-  TextColumn get ownedItemId => text()();
-  TextColumn get editionLanguage => text().nullable()();
-  TextColumn get editionRegion => text().nullable()();
-  TextColumn get componentCondition => text().nullable()();
-  TextColumn get componentCompleteness => text().nullable()();
-  TextColumn get missingPiecesNotes => text().nullable()();
-  BoolColumn get isSleeved => boolean().withDefault(const Constant(false))();
-  BoolColumn get hasCustomInsert =>
-      boolean().withDefault(const Constant(false))();
-  BoolColumn get hasPaintedMiniatures =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get storageNotes => text().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {ownedItemId};
-}
-
 /// Complete BoardGame-owned copy state. Play sessions are tracking data and
 /// remain in their dedicated table rather than being embedded in a copy.
 class BoardGameOwnedItemsRows extends Table {

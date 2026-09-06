@@ -136,30 +136,6 @@ final class BookLocalMapper {
     );
   }
 
-  static BookOwnedDetailsRowsCompanion toOwnedDetailsRow(
-    String ownedItemId,
-    BookOwnedDetails details,
-  ) {
-    if (ownedItemId.isEmpty) {
-      throw StateError('Cannot persist BookOwnedDetails without an id');
-    }
-
-    return BookOwnedDetailsRowsCompanion.insert(
-      ownedItemId: ownedItemId,
-      signedBy: Value(details.signedBy),
-      dustJacketPresent: Value(details.dustJacketPresent),
-      dustJacketCondition: Value(details.dustJacketCondition),
-    );
-  }
-
-  static BookOwnedDetails fromOwnedDetailsRow(BookOwnedDetailsRow row) {
-    return BookOwnedDetails(
-      signedBy: row.signedBy,
-      dustJacketPresent: row.dustJacketPresent,
-      dustJacketCondition: row.dustJacketCondition,
-    );
-  }
-
   static BookOwnedItemsRowsCompanion toOwnedItemRow(BookOwnedItem item) {
     if (item.id.value.isEmpty ||
         item.catalogRef.mediaKind != CatalogMediaKind.book) {
