@@ -230,6 +230,9 @@ final collectionImportServiceProvider =
     trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
+    typedOwnedItems: CollectarrOwnedItemPersistence(
+      ref.watch(localDatabaseProvider),
+    ),
   );
 });
 

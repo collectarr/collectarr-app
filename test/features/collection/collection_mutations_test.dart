@@ -639,6 +639,7 @@ void main() {
       [
         CollectionCsvRow(
           itemId: 'comic-1',
+          kind: 'comic',
           status: 'owned',
           condition: 'Near Mint',
           grade: '9.8',
@@ -650,10 +651,13 @@ void main() {
     );
 
     final owned = await db.select(db.ownedItemsCache).get();
+    final typedOwned = await db.select(db.comicOwnedItemsRows).get();
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
     expect(imported, 2);
     expect(owned, hasLength(1));
+    expect(typedOwned, hasLength(1));
+    expect(typedOwned.single.grade, '9.8');
     expect(wishlist, hasLength(1));
     expect(queued, hasLength(4));
     expect(container.read(syncControllerProvider).pendingCount, 4);

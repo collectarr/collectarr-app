@@ -69,11 +69,9 @@ final class CollectarrOwnedItemPersistence {
       case CatalogMediaKind.music:
         await _music.upsert(MusicOwnedItemLegacyAdapter.fromLegacy(item));
       case CatalogMediaKind.unknown:
-        throw ArgumentError.value(
-          item.catalogRef.kind,
-          'item.catalogRef.kind',
-          'Cannot persist an unknown owned-item kind',
-        );
+        // Older collection imports may not carry a kind. The common cache
+        // remains the compatibility fallback until the item is classified.
+        return;
     }
   }
 
