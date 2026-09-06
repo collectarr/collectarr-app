@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/admin/boardgame_
 import 'package:collectarr_app/features/library/kinds/boardgame/barcode/boardgame_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/book/barcode/book_isbn_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/book/admin/book_admin_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/admin/game_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/barcode/game_barcode_resolver.dart';
@@ -93,6 +94,7 @@ final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
 
 final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
     _collectionCsvProjections = Map.unmodifiable({
+  CatalogMediaKind.book: const BookCollectionCsvProjection(),
   CatalogMediaKind.comic: const ComicCollectionCsvProjection(),
   CatalogMediaKind.movie: const MovieCollectionCsvProjection(),
 });
