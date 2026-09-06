@@ -1,9 +1,6 @@
 import 'dart:io';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
@@ -28,8 +25,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('every active kind is checked through its typed module signature', () {
-    _checkTypedKind<ComicWorkspaceDto, ComicOwnedDetails,
-        ComicOwnedDetailsDraft>(
+    _checkTypedKind<ComicWorkspaceDto>(
       name: 'Comic',
       kind: CatalogMediaKind.comic,
       spec: comicKindModule,
@@ -42,8 +38,7 @@ void main() {
         'test/domain/comic/comic_media_edit_schema_test.dart',
       ],
     );
-    _checkTypedKind<MangaWorkspaceDto, MangaOwnedDetails,
-        MangaOwnedDetailsDraft>(
+    _checkTypedKind<MangaWorkspaceDto>(
       name: 'Manga',
       kind: CatalogMediaKind.manga,
       spec: mangaKindModule,
@@ -55,7 +50,7 @@ void main() {
         'test/domain/manga/manga_media_edit_schema_test.dart',
       ],
     );
-    _checkTypedKind<BookWorkspaceDto, BookOwnedDetails, BookOwnedDetailsDraft>(
+    _checkTypedKind<BookWorkspaceDto>(
       name: 'Book',
       kind: CatalogMediaKind.book,
       spec: bookKindModule,
@@ -68,7 +63,7 @@ void main() {
         'test/domain/book/book_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<GameWorkspaceDto, GameOwnedDetails, GameOwnedDetailsDraft>(
+    _checkTypedKind<GameWorkspaceDto>(
       name: 'Game',
       kind: CatalogMediaKind.game,
       spec: gameKindModule,
@@ -81,8 +76,7 @@ void main() {
         'test/domain/game/game_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<BoardGameWorkspaceDto, BoardgameOwnedDetails,
-        BoardgameOwnedDetailsDraft>(
+    _checkTypedKind<BoardGameWorkspaceDto>(
       name: 'BoardGame',
       kind: CatalogMediaKind.boardgame,
       spec: boardGameKindModule,
@@ -94,8 +88,7 @@ void main() {
         'test/domain/boardgame/boardgame_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<MovieWorkspaceDto, MovieOwnedDetails,
-        MovieOwnedDetailsDraft>(
+    _checkTypedKind<MovieWorkspaceDto>(
       name: 'Movie',
       kind: CatalogMediaKind.movie,
       spec: movieKindModule,
@@ -108,7 +101,7 @@ void main() {
         'test/domain/movie/movie_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<TvWorkspaceDto, TvOwnedDetails, TvOwnedDetailsDraft>(
+    _checkTypedKind<TvWorkspaceDto>(
       name: 'TV',
       kind: CatalogMediaKind.tv,
       spec: tvKindModule,
@@ -120,8 +113,7 @@ void main() {
         'test/domain/tv/tv_workspace_projection_test.dart',
       ],
     );
-    _checkTypedKind<AnimeWorkspaceDto, AnimeOwnedDetails,
-        AnimeOwnedDetailsDraft>(
+    _checkTypedKind<AnimeWorkspaceDto>(
       name: 'Anime',
       kind: CatalogMediaKind.anime,
       spec: animeKindModule,
@@ -133,8 +125,7 @@ void main() {
         'test/domain/anime/anime_hierarchy_workspace_test.dart',
       ],
     );
-    _checkTypedKind<MusicWorkspaceDto, MusicOwnedDetails,
-        MusicOwnedDetailsDraft>(
+    _checkTypedKind<MusicWorkspaceDto>(
       name: 'Music',
       kind: CatalogMediaKind.music,
       spec: musicKindModule,
@@ -148,19 +139,14 @@ void main() {
   });
 }
 
-void _checkTypedKind<
-    TDto extends LibraryWorkspaceDto,
-    TDetails extends OwnedItemDetails,
-    TDetailsDraft extends OwnedDetailsDraft>({
+void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   required String name,
   required CatalogMediaKind kind,
-  required LibraryKindSpec<TDto, TDetails, TDetailsDraft> spec,
+  required LibraryKindSpec<TDto> spec,
   required List<String> contractFiles,
 }) {
   final fields = spec.fields;
   final projector = spec.projector;
-  final details = spec.ownedDetailsCodec.defaultDetails();
-  final encoded = spec.ownedDetailsCodec.toJson(details);
 
   expect(spec.identity.kind, kind, reason: '$name identity must be typed');
   expect(fields.kindNamespace, kind.apiValue);
@@ -173,8 +159,6 @@ void _checkTypedKind<
   expect(spec.add.createInitialDraft(), isNotNull);
   expect(spec.add.createManualDraft(), isNotNull);
   expect(spec.edit.createDraft, isNotNull);
-  expect(spec.ownedDetailsCodec.fromJson(encoded), isA<TDetails>());
-  expect(spec.facets, isNotNull, reason: '$name needs facet definitions');
 
   for (final path in contractFiles) {
     expect(

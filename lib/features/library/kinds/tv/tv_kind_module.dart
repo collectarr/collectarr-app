@@ -117,14 +117,12 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final tvKindModule =
-    LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails, TvOwnedDetailsDraft>(
+final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
   presentation: tvLibraryMediaPresentation,
   trackingProfile: tvTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const TvWorkspaceProjector(),
-  ownedDetailsCodec: const TvOwnedDetailsCodec(),
   fields: tvLibraryKindSchema.toRegistry(),
   catalogMetadataDecoder: TvSeriesMetadata.fromJson,
   identity: const LibraryKindIdentity(

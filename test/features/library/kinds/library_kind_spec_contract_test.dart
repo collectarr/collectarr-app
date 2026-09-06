@@ -96,8 +96,7 @@ void main() {
 
     test('validation detects kind and namespace mismatches', () {
       // Create an invalid spec with a kind/field namespace mismatch.
-      final mismatchedTypeSpec = LibraryKindSpec<ComicWorkspaceDto,
-          ComicOwnedDetails, ComicOwnedDetailsDraft>(
+      final mismatchedTypeSpec = LibraryKindSpec<ComicWorkspaceDto>(
         identity: LibraryKindIdentity(
           kind: bookKindModule.identity.kind,
           singularLabel: comicKindModule.identity.singularLabel,
@@ -114,7 +113,6 @@ void main() {
         viewProfile: comicKindModule.viewProfile,
         fields: comicKindModule.fields,
         projector: comicKindModule.projector,
-        ownedDetailsCodec: comicKindModule.ownedDetailsCodec,
         metadata: comicKindModule.metadata,
         hierarchy: comicKindModule.hierarchy,
         inspector: comicKindModule.inspector,

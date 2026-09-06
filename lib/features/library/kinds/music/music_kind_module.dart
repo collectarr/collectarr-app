@@ -65,8 +65,7 @@ Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails,
-    MusicOwnedDetailsDraft>(
+final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   presentation: musicLibraryMediaPresentation,
   searchTargetOptions: const [
     LibrarySearchTarget.all,
@@ -75,7 +74,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails,
   ],
   trackingProfile: musicTrackingProfile,
   projector: const MusicWorkspaceProjector(),
-  ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: musicLibraryKindSchema.toRegistry(),
   catalogMetadataDecoder: MusicCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(

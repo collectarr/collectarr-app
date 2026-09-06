@@ -570,10 +570,8 @@ class ComicFeature {}
   test(
       'extensibility: custom fake kind "foo" registers and operates without generic library edits',
       () {
-    final fooKindModule = LibraryKindSpec<GenericWorkspaceDto,
-        GenericOwnedDetails, GenericOwnedDetailsDraft>(
+    final fooKindModule = LibraryKindSpec<GenericWorkspaceDto>(
       projector: const GenericWorkspaceProjector(),
-      ownedDetailsCodec: const GenericOwnedDetailsCodec(),
       fields: genericLibraryKindSchema.toRegistry(),
       identity: const LibraryKindIdentity(
         kind: CatalogMediaKind.unknown,

@@ -141,8 +141,8 @@ void main() {
       expect(mangaKindModule.kind, CatalogMediaKind.manga);
       expect(mangaKindModule.add.kind, CatalogMediaKind.manga);
       expect(mangaKindModule.add.createInitialDraft(), isA<MangaAddDraft>());
-      expect(mangaKindModule.ownedDetailsCodec, isA<MangaOwnedDetailsCodec>());
-      expect(mangaKindModule.ownedDetailsCodec.defaultDetails(),
+      expect(const MangaOwnedDetailsCodec(), isA<MangaOwnedDetailsCodec>());
+      expect(const MangaOwnedDetailsCodec().defaultDetails(),
           isA<MangaOwnedDetails>());
     });
   });

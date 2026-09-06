@@ -152,12 +152,10 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails,
-    MangaOwnedDetailsDraft>(
+final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
   presentation: mangaLibraryMediaPresentation,
   trackingProfile: mangaTrackingProfile,
   projector: const MangaWorkspaceProjector(),
-  ownedDetailsCodec: const MangaOwnedDetailsCodec(),
   fields: mangaLibraryKindSchema.toRegistry(),
   catalogMetadataDecoder: MangaMetadata.fromJson,
   identity: const LibraryKindIdentity(

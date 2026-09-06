@@ -158,12 +158,10 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final bookKindModule =
-    LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails, BookOwnedDetailsDraft>(
+final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
   presentation: bookLibraryMediaPresentation,
   trackingProfile: bookTrackingProfile,
   projector: const BookWorkspaceProjector(),
-  ownedDetailsCodec: const BookOwnedDetailsCodec(),
   fields: bookLibraryKindSchema.toRegistry(),
   catalogMetadataDecoder: BookCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(

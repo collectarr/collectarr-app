@@ -144,8 +144,8 @@ void main() {
     expect(gameKindModule.kind, CatalogMediaKind.game);
     expect(gameKindModule.add.kind, CatalogMediaKind.game);
     expect(gameKindModule.add.createInitialDraft(), isA<GameAddDraft>());
-    expect(gameKindModule.ownedDetailsCodec, isA<GameOwnedDetailsCodec>());
-    expect(gameKindModule.ownedDetailsCodec.defaultDetails(),
+    expect(const GameOwnedDetailsCodec(), isA<GameOwnedDetailsCodec>());
+    expect(const GameOwnedDetailsCodec().defaultDetails(),
         isA<GameOwnedDetails>());
   });
 }

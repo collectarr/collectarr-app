@@ -116,14 +116,12 @@ Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails,
-    AnimeOwnedDetailsDraft>(
+final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
   presentation: animeLibraryMediaPresentation,
   trackingProfile: animeTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const AnimeWorkspaceProjector(),
-  ownedDetailsCodec: const AnimeOwnedDetailsCodec(),
   fields: animeLibraryKindSchema.toRegistry(),
   catalogMetadataDecoder: AnimeMetadata.fromJson,
   identity: const LibraryKindIdentity(

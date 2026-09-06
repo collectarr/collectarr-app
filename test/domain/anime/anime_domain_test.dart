@@ -154,8 +154,8 @@ void main() {
       expect(animeKindModule.kind, CatalogMediaKind.anime);
       expect(animeKindModule.add.kind, CatalogMediaKind.anime);
       expect(animeKindModule.add.createInitialDraft(), isA<AnimeAddDraft>());
-      expect(animeKindModule.ownedDetailsCodec, isA<AnimeOwnedDetailsCodec>());
-      expect(animeKindModule.ownedDetailsCodec.defaultDetails(),
+      expect(const AnimeOwnedDetailsCodec(), isA<AnimeOwnedDetailsCodec>());
+      expect(const AnimeOwnedDetailsCodec().defaultDetails(),
           isA<AnimeOwnedDetails>());
     });
   });

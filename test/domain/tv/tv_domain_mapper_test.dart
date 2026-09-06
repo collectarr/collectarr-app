@@ -292,8 +292,7 @@ void main() {
     expect(tvKindModule.kind, CatalogMediaKind.tv);
     expect(tvKindModule.add.kind, CatalogMediaKind.tv);
     expect(tvKindModule.add.createInitialDraft(), isA<TvAddDraft>());
-    expect(tvKindModule.ownedDetailsCodec, isA<TvOwnedDetailsCodec>());
-    expect(
-        tvKindModule.ownedDetailsCodec.defaultDetails(), isA<TvOwnedDetails>());
+    expect(const TvOwnedDetailsCodec(), isA<TvOwnedDetailsCodec>());
+    expect(const TvOwnedDetailsCodec().defaultDetails(), isA<TvOwnedDetails>());
   });
 }

@@ -24,12 +24,10 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_card_pre
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:flutter/material.dart';
 
-final genericKindModule = LibraryKindSpec<GenericWorkspaceDto,
-    GenericOwnedDetails, GenericOwnedDetailsDraft>(
+final genericKindModule = LibraryKindSpec<GenericWorkspaceDto>(
   presentation: genericLibraryMediaPresentation,
   trackingProfile: genericTrackingProfile,
   projector: const GenericWorkspaceProjector(),
-  ownedDetailsCodec: const GenericOwnedDetailsCodec(),
   fields: genericLibraryKindSchema.toRegistry(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.unknown,

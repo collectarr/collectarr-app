@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 
-import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
@@ -16,8 +15,6 @@ import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -103,14 +100,11 @@ abstract interface class LibraryKindModule {
   });
 }
 
-class LibraryKindSpec<
-    TDto extends LibraryWorkspaceDto,
-    TDetails extends OwnedItemDetails,
-    TDetailsDraft extends OwnedDetailsDraft> implements LibraryKindModule {
+class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
+    implements LibraryKindModule {
   const LibraryKindSpec({
     required this.fields,
     required this.projector,
-    required this.ownedDetailsCodec,
     required this.add,
     required this.edit,
     required this.identity,
@@ -140,7 +134,6 @@ class LibraryKindSpec<
   })  : _viewProfile = viewProfile,
         _buildCardPresentation = buildCardPresentation;
 
-  final OwnedDetailsCodec<TDetails, TDetailsDraft> ownedDetailsCodec;
   @override
   final CatalogMetadataDecoder? catalogMetadataDecoder;
   @override
@@ -183,10 +176,9 @@ class LibraryKindSpec<
     required LibraryKindIdentity identity,
     required LibraryMetadataCapability metadata,
   }) {
-    return LibraryKindSpec<TDto, TDetails, TDetailsDraft>(
+    return LibraryKindSpec<TDto>(
       fields: fields,
       projector: projector,
-      ownedDetailsCodec: ownedDetailsCodec,
       add: add,
       edit: edit,
       identity: identity,

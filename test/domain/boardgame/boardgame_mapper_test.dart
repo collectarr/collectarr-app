@@ -129,9 +129,9 @@ void main() {
     expect(boardGameKindModule.add.kind, CatalogMediaKind.boardgame);
     expect(
         boardGameKindModule.add.createInitialDraft(), isA<BoardGameAddDraft>());
-    expect(boardGameKindModule.ownedDetailsCodec,
-        isA<BoardgameOwnedDetailsCodec>());
-    expect(boardGameKindModule.ownedDetailsCodec.defaultDetails(),
+    expect(
+        const BoardgameOwnedDetailsCodec(), isA<BoardgameOwnedDetailsCodec>());
+    expect(const BoardgameOwnedDetailsCodec().defaultDetails(),
         isA<BoardgameOwnedDetails>());
   });
 }

@@ -99,13 +99,11 @@ Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
       ...metadata.genres,
     ];
 
-final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
-    ComicOwnedDetailsDraft>(
+final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
   presentation: comicLibraryMediaPresentation,
   trackingProfile: comicTrackingProfile,
   viewProfile: comicsWorkspaceViewProfile,
   projector: const ComicWorkspaceProjector(),
-  ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: comicLibraryKindSchema.toRegistry(),
   catalogMetadataDecoder: ComicMedia.fromJson,
   identity: const LibraryKindIdentity(

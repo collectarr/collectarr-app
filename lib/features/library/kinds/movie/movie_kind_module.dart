@@ -152,14 +152,12 @@ Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails,
-    MovieOwnedDetailsDraft>(
+final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
   presentation: moviesLibraryMediaPresentation,
   trackingProfile: movieTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const MovieWorkspaceProjector(),
-  ownedDetailsCodec: const MovieOwnedDetailsCodec(),
   fields: movieLibraryKindSchema.toRegistry(),
   catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(

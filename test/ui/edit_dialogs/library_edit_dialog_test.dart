@@ -48,10 +48,8 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails,
-        GenericOwnedDetailsDraft>(
+    final type = LibraryKindSpec<GenericWorkspaceDto>(
       projector: const GenericWorkspaceProjector(),
-      ownedDetailsCodec: const GenericOwnedDetailsCodec(),
       fields: genericKindModule.fields,
       identity: const LibraryKindIdentity(
         kind: CatalogMediaKind.unknown,

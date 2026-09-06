@@ -54,12 +54,10 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final gameKindModule =
-    LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails, GameOwnedDetailsDraft>(
+final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   presentation: gamesLibraryMediaPresentation,
   trackingProfile: gameTrackingProfile,
   projector: const GameWorkspaceProjector(),
-  ownedDetailsCodec: const GameOwnedDetailsCodec(),
   fields: gameLibraryKindSchema.toRegistry(),
   catalogMetadataDecoder: GameCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(

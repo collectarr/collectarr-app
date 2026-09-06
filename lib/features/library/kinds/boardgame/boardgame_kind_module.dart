@@ -92,12 +92,10 @@ Iterable<String?> _boardGameLinkedMetadataValues(
       ...metadata.creators.map((credit) => credit['name']?.toString()),
     ];
 
-final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto,
-    BoardgameOwnedDetails, BoardgameOwnedDetailsDraft>(
+final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
   presentation: boardGamesLibraryMediaPresentation,
   trackingProfile: boardGameTrackingProfile,
   projector: const BoardGameWorkspaceProjector(),
-  ownedDetailsCodec: const BoardgameOwnedDetailsCodec(),
   fields: boardgameLibraryKindSchema.toRegistry(),
   catalogMetadataDecoder: BoardGameMetadata.fromJson,
   identity: const LibraryKindIdentity(
