@@ -334,6 +334,24 @@ void main() {
       reason: 'Game seed copies must retain complete typed ownership data',
     );
 
+    final boardGameOwnedRows =
+        await db.select(db.boardGameOwnedItemsRows).get();
+    expect(boardGameOwnedRows, hasLength(15));
+    expect(
+      boardGameOwnedRows.every(
+        (row) =>
+            row.itemId.startsWith('seed-boardgame-') &&
+            row.componentCompleteness?.trim().isNotEmpty == true &&
+            row.editionLanguage?.trim().isNotEmpty == true &&
+            row.editionRegion?.trim().isNotEmpty == true,
+      ),
+      isTrue,
+      reason: 'BoardGame seed copies must retain complete typed ownership data',
+    );
+    expect(boardGameOwnedRows.any((row) => row.isSleeved), isTrue);
+    expect(boardGameOwnedRows.any((row) => row.hasCustomInsert), isTrue);
+    expect(boardGameOwnedRows.any((row) => row.hasPaintedMiniatures), isTrue);
+
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows

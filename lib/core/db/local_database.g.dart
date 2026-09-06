@@ -25752,6 +25752,1715 @@ class BoardGameOwnedDetailsRowsCompanion
   }
 }
 
+class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
+    with TableInfo<$BoardGameOwnedItemsRowsTable, BoardGameOwnedItemsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BoardGameOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _isDigitalMeta =
+      const VerificationMeta('isDigital');
+  @override
+  late final GeneratedColumn<bool> isDigital = GeneratedColumn<bool>(
+      'is_digital', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
+  static const VerificationMeta _anchorTypeMeta =
+      const VerificationMeta('anchorType');
+  @override
+  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
+      'anchor_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionIdMeta =
+      const VerificationMeta('editionId');
+  @override
+  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
+      'edition_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantIdMeta =
+      const VerificationMeta('variantId');
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+      'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bundleReleaseIdMeta =
+      const VerificationMeta('bundleReleaseId');
+  @override
+  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
+      'bundle_release_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _conditionMeta =
+      const VerificationMeta('condition');
+  @override
+  late final GeneratedColumn<String> condition = GeneratedColumn<String>(
+      'condition', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gradeMeta = const VerificationMeta('grade');
+  @override
+  late final GeneratedColumn<String> grade = GeneratedColumn<String>(
+      'grade', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _purchaseDateMeta =
+      const VerificationMeta('purchaseDate');
+  @override
+  late final GeneratedColumn<DateTime> purchaseDate = GeneratedColumn<DateTime>(
+      'purchase_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _pricePaidCentsMeta =
+      const VerificationMeta('pricePaidCents');
+  @override
+  late final GeneratedColumn<int> pricePaidCents = GeneratedColumn<int>(
+      'price_paid_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _currencyMeta =
+      const VerificationMeta('currency');
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+      'currency', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _personalNotesMeta =
+      const VerificationMeta('personalNotes');
+  @override
+  late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
+      'personal_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _quantityMeta =
+      const VerificationMeta('quantity');
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+      'quantity', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _indexNumberMeta =
+      const VerificationMeta('indexNumber');
+  @override
+  late final GeneratedColumn<int> indexNumber = GeneratedColumn<int>(
+      'index_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+      'tags', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _soldAtMeta = const VerificationMeta('soldAt');
+  @override
+  late final GeneratedColumn<DateTime> soldAt = GeneratedColumn<DateTime>(
+      'sold_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _sellPriceCentsMeta =
+      const VerificationMeta('sellPriceCents');
+  @override
+  late final GeneratedColumn<int> sellPriceCents = GeneratedColumn<int>(
+      'sell_price_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _soldToMeta = const VerificationMeta('soldTo');
+  @override
+  late final GeneratedColumn<String> soldTo = GeneratedColumn<String>(
+      'sold_to', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownerUserIdMeta =
+      const VerificationMeta('ownerUserId');
+  @override
+  late final GeneratedColumn<String> ownerUserId = GeneratedColumn<String>(
+      'owner_user_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownerLabelMeta =
+      const VerificationMeta('ownerLabel');
+  @override
+  late final GeneratedColumn<String> ownerLabel = GeneratedColumn<String>(
+      'owner_label', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _locationIdMeta =
+      const VerificationMeta('locationId');
+  @override
+  late final GeneratedColumn<String> locationId = GeneratedColumn<String>(
+      'location_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _purchaseStoreMeta =
+      const VerificationMeta('purchaseStore');
+  @override
+  late final GeneratedColumn<String> purchaseStore = GeneratedColumn<String>(
+      'purchase_store', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _collectionStatusMeta =
+      const VerificationMeta('collectionStatus');
+  @override
+  late final GeneratedColumn<String> collectionStatus = GeneratedColumn<String>(
+      'collection_status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _marketValueCentsMeta =
+      const VerificationMeta('marketValueCents');
+  @override
+  late final GeneratedColumn<int> marketValueCents = GeneratedColumn<int>(
+      'market_value_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _editionLanguageMeta =
+      const VerificationMeta('editionLanguage');
+  @override
+  late final GeneratedColumn<String> editionLanguage = GeneratedColumn<String>(
+      'edition_language', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionRegionMeta =
+      const VerificationMeta('editionRegion');
+  @override
+  late final GeneratedColumn<String> editionRegion = GeneratedColumn<String>(
+      'edition_region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _componentConditionMeta =
+      const VerificationMeta('componentCondition');
+  @override
+  late final GeneratedColumn<String> componentCondition =
+      GeneratedColumn<String>('component_condition', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _componentCompletenessMeta =
+      const VerificationMeta('componentCompleteness');
+  @override
+  late final GeneratedColumn<String> componentCompleteness =
+      GeneratedColumn<String>('component_completeness', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _missingPiecesNotesMeta =
+      const VerificationMeta('missingPiecesNotes');
+  @override
+  late final GeneratedColumn<String> missingPiecesNotes =
+      GeneratedColumn<String>('missing_pieces_notes', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isSleevedMeta =
+      const VerificationMeta('isSleeved');
+  @override
+  late final GeneratedColumn<bool> isSleeved = GeneratedColumn<bool>(
+      'is_sleeved', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_sleeved" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _hasCustomInsertMeta =
+      const VerificationMeta('hasCustomInsert');
+  @override
+  late final GeneratedColumn<bool> hasCustomInsert = GeneratedColumn<bool>(
+      'has_custom_insert', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("has_custom_insert" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _hasPaintedMiniaturesMeta =
+      const VerificationMeta('hasPaintedMiniatures');
+  @override
+  late final GeneratedColumn<bool> hasPaintedMiniatures = GeneratedColumn<bool>(
+      'has_painted_miniatures', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("has_painted_miniatures" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _storageNotesMeta =
+      const VerificationMeta('storageNotes');
+  @override
+  late final GeneratedColumn<String> storageNotes = GeneratedColumn<String>(
+      'storage_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        createdAt,
+        isDigital,
+        anchorType,
+        editionId,
+        variantId,
+        bundleReleaseId,
+        condition,
+        grade,
+        purchaseDate,
+        pricePaidCents,
+        currency,
+        personalNotes,
+        quantity,
+        indexNumber,
+        tags,
+        updatedAt,
+        deletedAt,
+        soldAt,
+        sellPriceCents,
+        soldTo,
+        ownerUserId,
+        ownerLabel,
+        locationId,
+        purchaseStore,
+        collectionStatus,
+        marketValueCents,
+        editionLanguage,
+        editionRegion,
+        componentCondition,
+        componentCompleteness,
+        missingPiecesNotes,
+        isSleeved,
+        hasCustomInsert,
+        hasPaintedMiniatures,
+        storageNotes
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'board_game_owned_items_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<BoardGameOwnedItemsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('is_digital')) {
+      context.handle(_isDigitalMeta,
+          isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
+    }
+    if (data.containsKey('anchor_type')) {
+      context.handle(
+          _anchorTypeMeta,
+          anchorType.isAcceptableOrUnknown(
+              data['anchor_type']!, _anchorTypeMeta));
+    }
+    if (data.containsKey('edition_id')) {
+      context.handle(_editionIdMeta,
+          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(_variantIdMeta,
+          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('bundle_release_id')) {
+      context.handle(
+          _bundleReleaseIdMeta,
+          bundleReleaseId.isAcceptableOrUnknown(
+              data['bundle_release_id']!, _bundleReleaseIdMeta));
+    }
+    if (data.containsKey('condition')) {
+      context.handle(_conditionMeta,
+          condition.isAcceptableOrUnknown(data['condition']!, _conditionMeta));
+    }
+    if (data.containsKey('grade')) {
+      context.handle(
+          _gradeMeta, grade.isAcceptableOrUnknown(data['grade']!, _gradeMeta));
+    }
+    if (data.containsKey('purchase_date')) {
+      context.handle(
+          _purchaseDateMeta,
+          purchaseDate.isAcceptableOrUnknown(
+              data['purchase_date']!, _purchaseDateMeta));
+    }
+    if (data.containsKey('price_paid_cents')) {
+      context.handle(
+          _pricePaidCentsMeta,
+          pricePaidCents.isAcceptableOrUnknown(
+              data['price_paid_cents']!, _pricePaidCentsMeta));
+    }
+    if (data.containsKey('currency')) {
+      context.handle(_currencyMeta,
+          currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta));
+    }
+    if (data.containsKey('personal_notes')) {
+      context.handle(
+          _personalNotesMeta,
+          personalNotes.isAcceptableOrUnknown(
+              data['personal_notes']!, _personalNotesMeta));
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(_quantityMeta,
+          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
+    }
+    if (data.containsKey('index_number')) {
+      context.handle(
+          _indexNumberMeta,
+          indexNumber.isAcceptableOrUnknown(
+              data['index_number']!, _indexNumberMeta));
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+          _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('sold_at')) {
+      context.handle(_soldAtMeta,
+          soldAt.isAcceptableOrUnknown(data['sold_at']!, _soldAtMeta));
+    }
+    if (data.containsKey('sell_price_cents')) {
+      context.handle(
+          _sellPriceCentsMeta,
+          sellPriceCents.isAcceptableOrUnknown(
+              data['sell_price_cents']!, _sellPriceCentsMeta));
+    }
+    if (data.containsKey('sold_to')) {
+      context.handle(_soldToMeta,
+          soldTo.isAcceptableOrUnknown(data['sold_to']!, _soldToMeta));
+    }
+    if (data.containsKey('owner_user_id')) {
+      context.handle(
+          _ownerUserIdMeta,
+          ownerUserId.isAcceptableOrUnknown(
+              data['owner_user_id']!, _ownerUserIdMeta));
+    }
+    if (data.containsKey('owner_label')) {
+      context.handle(
+          _ownerLabelMeta,
+          ownerLabel.isAcceptableOrUnknown(
+              data['owner_label']!, _ownerLabelMeta));
+    }
+    if (data.containsKey('location_id')) {
+      context.handle(
+          _locationIdMeta,
+          locationId.isAcceptableOrUnknown(
+              data['location_id']!, _locationIdMeta));
+    }
+    if (data.containsKey('purchase_store')) {
+      context.handle(
+          _purchaseStoreMeta,
+          purchaseStore.isAcceptableOrUnknown(
+              data['purchase_store']!, _purchaseStoreMeta));
+    }
+    if (data.containsKey('collection_status')) {
+      context.handle(
+          _collectionStatusMeta,
+          collectionStatus.isAcceptableOrUnknown(
+              data['collection_status']!, _collectionStatusMeta));
+    }
+    if (data.containsKey('market_value_cents')) {
+      context.handle(
+          _marketValueCentsMeta,
+          marketValueCents.isAcceptableOrUnknown(
+              data['market_value_cents']!, _marketValueCentsMeta));
+    }
+    if (data.containsKey('edition_language')) {
+      context.handle(
+          _editionLanguageMeta,
+          editionLanguage.isAcceptableOrUnknown(
+              data['edition_language']!, _editionLanguageMeta));
+    }
+    if (data.containsKey('edition_region')) {
+      context.handle(
+          _editionRegionMeta,
+          editionRegion.isAcceptableOrUnknown(
+              data['edition_region']!, _editionRegionMeta));
+    }
+    if (data.containsKey('component_condition')) {
+      context.handle(
+          _componentConditionMeta,
+          componentCondition.isAcceptableOrUnknown(
+              data['component_condition']!, _componentConditionMeta));
+    }
+    if (data.containsKey('component_completeness')) {
+      context.handle(
+          _componentCompletenessMeta,
+          componentCompleteness.isAcceptableOrUnknown(
+              data['component_completeness']!, _componentCompletenessMeta));
+    }
+    if (data.containsKey('missing_pieces_notes')) {
+      context.handle(
+          _missingPiecesNotesMeta,
+          missingPiecesNotes.isAcceptableOrUnknown(
+              data['missing_pieces_notes']!, _missingPiecesNotesMeta));
+    }
+    if (data.containsKey('is_sleeved')) {
+      context.handle(_isSleevedMeta,
+          isSleeved.isAcceptableOrUnknown(data['is_sleeved']!, _isSleevedMeta));
+    }
+    if (data.containsKey('has_custom_insert')) {
+      context.handle(
+          _hasCustomInsertMeta,
+          hasCustomInsert.isAcceptableOrUnknown(
+              data['has_custom_insert']!, _hasCustomInsertMeta));
+    }
+    if (data.containsKey('has_painted_miniatures')) {
+      context.handle(
+          _hasPaintedMiniaturesMeta,
+          hasPaintedMiniatures.isAcceptableOrUnknown(
+              data['has_painted_miniatures']!, _hasPaintedMiniaturesMeta));
+    }
+    if (data.containsKey('storage_notes')) {
+      context.handle(
+          _storageNotesMeta,
+          storageNotes.isAcceptableOrUnknown(
+              data['storage_notes']!, _storageNotesMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BoardGameOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BoardGameOwnedItemsRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
+      isDigital: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
+      anchorType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
+      editionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
+      variantId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      bundleReleaseId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      condition: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}condition']),
+      grade: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grade']),
+      purchaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}purchase_date']),
+      pricePaidCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}price_paid_cents']),
+      currency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency']),
+      personalNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
+      quantity: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
+      indexNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
+      tags: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tags']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      soldAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}sold_at']),
+      sellPriceCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sell_price_cents']),
+      soldTo: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sold_to']),
+      ownerUserId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owner_user_id']),
+      ownerLabel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owner_label']),
+      locationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location_id']),
+      purchaseStore: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}purchase_store']),
+      collectionStatus: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}collection_status']),
+      marketValueCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}market_value_cents']),
+      editionLanguage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}edition_language']),
+      editionRegion: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_region']),
+      componentCondition: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}component_condition']),
+      componentCompleteness: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}component_completeness']),
+      missingPiecesNotes: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}missing_pieces_notes']),
+      isSleeved: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_sleeved'])!,
+      hasCustomInsert: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}has_custom_insert'])!,
+      hasPaintedMiniatures: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}has_painted_miniatures'])!,
+      storageNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_notes']),
+    );
+  }
+
+  @override
+  $BoardGameOwnedItemsRowsTable createAlias(String alias) {
+    return $BoardGameOwnedItemsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BoardGameOwnedItemsRow extends DataClass
+    implements Insertable<BoardGameOwnedItemsRow> {
+  final String id;
+  final String itemId;
+  final DateTime? createdAt;
+  final bool? isDigital;
+  final String? anchorType;
+  final String? editionId;
+  final String? variantId;
+  final String? bundleReleaseId;
+  final String? condition;
+  final String? grade;
+  final DateTime? purchaseDate;
+  final int? pricePaidCents;
+  final String? currency;
+  final String? personalNotes;
+  final int quantity;
+  final int? indexNumber;
+  final String? tags;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final DateTime? soldAt;
+  final int? sellPriceCents;
+  final String? soldTo;
+  final String? ownerUserId;
+  final String? ownerLabel;
+  final String? locationId;
+  final String? purchaseStore;
+  final String? collectionStatus;
+  final int? marketValueCents;
+  final String? editionLanguage;
+  final String? editionRegion;
+  final String? componentCondition;
+  final String? componentCompleteness;
+  final String? missingPiecesNotes;
+  final bool isSleeved;
+  final bool hasCustomInsert;
+  final bool hasPaintedMiniatures;
+  final String? storageNotes;
+  const BoardGameOwnedItemsRow(
+      {required this.id,
+      required this.itemId,
+      this.createdAt,
+      this.isDigital,
+      this.anchorType,
+      this.editionId,
+      this.variantId,
+      this.bundleReleaseId,
+      this.condition,
+      this.grade,
+      this.purchaseDate,
+      this.pricePaidCents,
+      this.currency,
+      this.personalNotes,
+      required this.quantity,
+      this.indexNumber,
+      this.tags,
+      required this.updatedAt,
+      this.deletedAt,
+      this.soldAt,
+      this.sellPriceCents,
+      this.soldTo,
+      this.ownerUserId,
+      this.ownerLabel,
+      this.locationId,
+      this.purchaseStore,
+      this.collectionStatus,
+      this.marketValueCents,
+      this.editionLanguage,
+      this.editionRegion,
+      this.componentCondition,
+      this.componentCompleteness,
+      this.missingPiecesNotes,
+      required this.isSleeved,
+      required this.hasCustomInsert,
+      required this.hasPaintedMiniatures,
+      this.storageNotes});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || isDigital != null) {
+      map['is_digital'] = Variable<bool>(isDigital);
+    }
+    if (!nullToAbsent || anchorType != null) {
+      map['anchor_type'] = Variable<String>(anchorType);
+    }
+    if (!nullToAbsent || editionId != null) {
+      map['edition_id'] = Variable<String>(editionId);
+    }
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || bundleReleaseId != null) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    }
+    if (!nullToAbsent || condition != null) {
+      map['condition'] = Variable<String>(condition);
+    }
+    if (!nullToAbsent || grade != null) {
+      map['grade'] = Variable<String>(grade);
+    }
+    if (!nullToAbsent || purchaseDate != null) {
+      map['purchase_date'] = Variable<DateTime>(purchaseDate);
+    }
+    if (!nullToAbsent || pricePaidCents != null) {
+      map['price_paid_cents'] = Variable<int>(pricePaidCents);
+    }
+    if (!nullToAbsent || currency != null) {
+      map['currency'] = Variable<String>(currency);
+    }
+    if (!nullToAbsent || personalNotes != null) {
+      map['personal_notes'] = Variable<String>(personalNotes);
+    }
+    map['quantity'] = Variable<int>(quantity);
+    if (!nullToAbsent || indexNumber != null) {
+      map['index_number'] = Variable<int>(indexNumber);
+    }
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || soldAt != null) {
+      map['sold_at'] = Variable<DateTime>(soldAt);
+    }
+    if (!nullToAbsent || sellPriceCents != null) {
+      map['sell_price_cents'] = Variable<int>(sellPriceCents);
+    }
+    if (!nullToAbsent || soldTo != null) {
+      map['sold_to'] = Variable<String>(soldTo);
+    }
+    if (!nullToAbsent || ownerUserId != null) {
+      map['owner_user_id'] = Variable<String>(ownerUserId);
+    }
+    if (!nullToAbsent || ownerLabel != null) {
+      map['owner_label'] = Variable<String>(ownerLabel);
+    }
+    if (!nullToAbsent || locationId != null) {
+      map['location_id'] = Variable<String>(locationId);
+    }
+    if (!nullToAbsent || purchaseStore != null) {
+      map['purchase_store'] = Variable<String>(purchaseStore);
+    }
+    if (!nullToAbsent || collectionStatus != null) {
+      map['collection_status'] = Variable<String>(collectionStatus);
+    }
+    if (!nullToAbsent || marketValueCents != null) {
+      map['market_value_cents'] = Variable<int>(marketValueCents);
+    }
+    if (!nullToAbsent || editionLanguage != null) {
+      map['edition_language'] = Variable<String>(editionLanguage);
+    }
+    if (!nullToAbsent || editionRegion != null) {
+      map['edition_region'] = Variable<String>(editionRegion);
+    }
+    if (!nullToAbsent || componentCondition != null) {
+      map['component_condition'] = Variable<String>(componentCondition);
+    }
+    if (!nullToAbsent || componentCompleteness != null) {
+      map['component_completeness'] = Variable<String>(componentCompleteness);
+    }
+    if (!nullToAbsent || missingPiecesNotes != null) {
+      map['missing_pieces_notes'] = Variable<String>(missingPiecesNotes);
+    }
+    map['is_sleeved'] = Variable<bool>(isSleeved);
+    map['has_custom_insert'] = Variable<bool>(hasCustomInsert);
+    map['has_painted_miniatures'] = Variable<bool>(hasPaintedMiniatures);
+    if (!nullToAbsent || storageNotes != null) {
+      map['storage_notes'] = Variable<String>(storageNotes);
+    }
+    return map;
+  }
+
+  BoardGameOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return BoardGameOwnedItemsRowsCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      isDigital: isDigital == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isDigital),
+      anchorType: anchorType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(anchorType),
+      editionId: editionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionId),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      bundleReleaseId: bundleReleaseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bundleReleaseId),
+      condition: condition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(condition),
+      grade:
+          grade == null && nullToAbsent ? const Value.absent() : Value(grade),
+      purchaseDate: purchaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseDate),
+      pricePaidCents: pricePaidCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pricePaidCents),
+      currency: currency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currency),
+      personalNotes: personalNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(personalNotes),
+      quantity: Value(quantity),
+      indexNumber: indexNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(indexNumber),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      soldAt:
+          soldAt == null && nullToAbsent ? const Value.absent() : Value(soldAt),
+      sellPriceCents: sellPriceCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sellPriceCents),
+      soldTo:
+          soldTo == null && nullToAbsent ? const Value.absent() : Value(soldTo),
+      ownerUserId: ownerUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerUserId),
+      ownerLabel: ownerLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerLabel),
+      locationId: locationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationId),
+      purchaseStore: purchaseStore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseStore),
+      collectionStatus: collectionStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectionStatus),
+      marketValueCents: marketValueCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(marketValueCents),
+      editionLanguage: editionLanguage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionLanguage),
+      editionRegion: editionRegion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionRegion),
+      componentCondition: componentCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(componentCondition),
+      componentCompleteness: componentCompleteness == null && nullToAbsent
+          ? const Value.absent()
+          : Value(componentCompleteness),
+      missingPiecesNotes: missingPiecesNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(missingPiecesNotes),
+      isSleeved: Value(isSleeved),
+      hasCustomInsert: Value(hasCustomInsert),
+      hasPaintedMiniatures: Value(hasPaintedMiniatures),
+      storageNotes: storageNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageNotes),
+    );
+  }
+
+  factory BoardGameOwnedItemsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BoardGameOwnedItemsRow(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      isDigital: serializer.fromJson<bool?>(json['isDigital']),
+      anchorType: serializer.fromJson<String?>(json['anchorType']),
+      editionId: serializer.fromJson<String?>(json['editionId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      condition: serializer.fromJson<String?>(json['condition']),
+      grade: serializer.fromJson<String?>(json['grade']),
+      purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
+      pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
+      currency: serializer.fromJson<String?>(json['currency']),
+      personalNotes: serializer.fromJson<String?>(json['personalNotes']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      indexNumber: serializer.fromJson<int?>(json['indexNumber']),
+      tags: serializer.fromJson<String?>(json['tags']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      soldAt: serializer.fromJson<DateTime?>(json['soldAt']),
+      sellPriceCents: serializer.fromJson<int?>(json['sellPriceCents']),
+      soldTo: serializer.fromJson<String?>(json['soldTo']),
+      ownerUserId: serializer.fromJson<String?>(json['ownerUserId']),
+      ownerLabel: serializer.fromJson<String?>(json['ownerLabel']),
+      locationId: serializer.fromJson<String?>(json['locationId']),
+      purchaseStore: serializer.fromJson<String?>(json['purchaseStore']),
+      collectionStatus: serializer.fromJson<String?>(json['collectionStatus']),
+      marketValueCents: serializer.fromJson<int?>(json['marketValueCents']),
+      editionLanguage: serializer.fromJson<String?>(json['editionLanguage']),
+      editionRegion: serializer.fromJson<String?>(json['editionRegion']),
+      componentCondition:
+          serializer.fromJson<String?>(json['componentCondition']),
+      componentCompleteness:
+          serializer.fromJson<String?>(json['componentCompleteness']),
+      missingPiecesNotes:
+          serializer.fromJson<String?>(json['missingPiecesNotes']),
+      isSleeved: serializer.fromJson<bool>(json['isSleeved']),
+      hasCustomInsert: serializer.fromJson<bool>(json['hasCustomInsert']),
+      hasPaintedMiniatures:
+          serializer.fromJson<bool>(json['hasPaintedMiniatures']),
+      storageNotes: serializer.fromJson<String?>(json['storageNotes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'isDigital': serializer.toJson<bool?>(isDigital),
+      'anchorType': serializer.toJson<String?>(anchorType),
+      'editionId': serializer.toJson<String?>(editionId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'condition': serializer.toJson<String?>(condition),
+      'grade': serializer.toJson<String?>(grade),
+      'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
+      'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
+      'currency': serializer.toJson<String?>(currency),
+      'personalNotes': serializer.toJson<String?>(personalNotes),
+      'quantity': serializer.toJson<int>(quantity),
+      'indexNumber': serializer.toJson<int?>(indexNumber),
+      'tags': serializer.toJson<String?>(tags),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'soldAt': serializer.toJson<DateTime?>(soldAt),
+      'sellPriceCents': serializer.toJson<int?>(sellPriceCents),
+      'soldTo': serializer.toJson<String?>(soldTo),
+      'ownerUserId': serializer.toJson<String?>(ownerUserId),
+      'ownerLabel': serializer.toJson<String?>(ownerLabel),
+      'locationId': serializer.toJson<String?>(locationId),
+      'purchaseStore': serializer.toJson<String?>(purchaseStore),
+      'collectionStatus': serializer.toJson<String?>(collectionStatus),
+      'marketValueCents': serializer.toJson<int?>(marketValueCents),
+      'editionLanguage': serializer.toJson<String?>(editionLanguage),
+      'editionRegion': serializer.toJson<String?>(editionRegion),
+      'componentCondition': serializer.toJson<String?>(componentCondition),
+      'componentCompleteness':
+          serializer.toJson<String?>(componentCompleteness),
+      'missingPiecesNotes': serializer.toJson<String?>(missingPiecesNotes),
+      'isSleeved': serializer.toJson<bool>(isSleeved),
+      'hasCustomInsert': serializer.toJson<bool>(hasCustomInsert),
+      'hasPaintedMiniatures': serializer.toJson<bool>(hasPaintedMiniatures),
+      'storageNotes': serializer.toJson<String?>(storageNotes),
+    };
+  }
+
+  BoardGameOwnedItemsRow copyWith(
+          {String? id,
+          String? itemId,
+          Value<DateTime?> createdAt = const Value.absent(),
+          Value<bool?> isDigital = const Value.absent(),
+          Value<String?> anchorType = const Value.absent(),
+          Value<String?> editionId = const Value.absent(),
+          Value<String?> variantId = const Value.absent(),
+          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> condition = const Value.absent(),
+          Value<String?> grade = const Value.absent(),
+          Value<DateTime?> purchaseDate = const Value.absent(),
+          Value<int?> pricePaidCents = const Value.absent(),
+          Value<String?> currency = const Value.absent(),
+          Value<String?> personalNotes = const Value.absent(),
+          int? quantity,
+          Value<int?> indexNumber = const Value.absent(),
+          Value<String?> tags = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
+          Value<DateTime?> soldAt = const Value.absent(),
+          Value<int?> sellPriceCents = const Value.absent(),
+          Value<String?> soldTo = const Value.absent(),
+          Value<String?> ownerUserId = const Value.absent(),
+          Value<String?> ownerLabel = const Value.absent(),
+          Value<String?> locationId = const Value.absent(),
+          Value<String?> purchaseStore = const Value.absent(),
+          Value<String?> collectionStatus = const Value.absent(),
+          Value<int?> marketValueCents = const Value.absent(),
+          Value<String?> editionLanguage = const Value.absent(),
+          Value<String?> editionRegion = const Value.absent(),
+          Value<String?> componentCondition = const Value.absent(),
+          Value<String?> componentCompleteness = const Value.absent(),
+          Value<String?> missingPiecesNotes = const Value.absent(),
+          bool? isSleeved,
+          bool? hasCustomInsert,
+          bool? hasPaintedMiniatures,
+          Value<String?> storageNotes = const Value.absent()}) =>
+      BoardGameOwnedItemsRow(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        createdAt: createdAt.present ? createdAt.value : this.createdAt,
+        isDigital: isDigital.present ? isDigital.value : this.isDigital,
+        anchorType: anchorType.present ? anchorType.value : this.anchorType,
+        editionId: editionId.present ? editionId.value : this.editionId,
+        variantId: variantId.present ? variantId.value : this.variantId,
+        bundleReleaseId: bundleReleaseId.present
+            ? bundleReleaseId.value
+            : this.bundleReleaseId,
+        condition: condition.present ? condition.value : this.condition,
+        grade: grade.present ? grade.value : this.grade,
+        purchaseDate:
+            purchaseDate.present ? purchaseDate.value : this.purchaseDate,
+        pricePaidCents:
+            pricePaidCents.present ? pricePaidCents.value : this.pricePaidCents,
+        currency: currency.present ? currency.value : this.currency,
+        personalNotes:
+            personalNotes.present ? personalNotes.value : this.personalNotes,
+        quantity: quantity ?? this.quantity,
+        indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
+        tags: tags.present ? tags.value : this.tags,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        soldAt: soldAt.present ? soldAt.value : this.soldAt,
+        sellPriceCents:
+            sellPriceCents.present ? sellPriceCents.value : this.sellPriceCents,
+        soldTo: soldTo.present ? soldTo.value : this.soldTo,
+        ownerUserId: ownerUserId.present ? ownerUserId.value : this.ownerUserId,
+        ownerLabel: ownerLabel.present ? ownerLabel.value : this.ownerLabel,
+        locationId: locationId.present ? locationId.value : this.locationId,
+        purchaseStore:
+            purchaseStore.present ? purchaseStore.value : this.purchaseStore,
+        collectionStatus: collectionStatus.present
+            ? collectionStatus.value
+            : this.collectionStatus,
+        marketValueCents: marketValueCents.present
+            ? marketValueCents.value
+            : this.marketValueCents,
+        editionLanguage: editionLanguage.present
+            ? editionLanguage.value
+            : this.editionLanguage,
+        editionRegion:
+            editionRegion.present ? editionRegion.value : this.editionRegion,
+        componentCondition: componentCondition.present
+            ? componentCondition.value
+            : this.componentCondition,
+        componentCompleteness: componentCompleteness.present
+            ? componentCompleteness.value
+            : this.componentCompleteness,
+        missingPiecesNotes: missingPiecesNotes.present
+            ? missingPiecesNotes.value
+            : this.missingPiecesNotes,
+        isSleeved: isSleeved ?? this.isSleeved,
+        hasCustomInsert: hasCustomInsert ?? this.hasCustomInsert,
+        hasPaintedMiniatures: hasPaintedMiniatures ?? this.hasPaintedMiniatures,
+        storageNotes:
+            storageNotes.present ? storageNotes.value : this.storageNotes,
+      );
+  BoardGameOwnedItemsRow copyWithCompanion(
+      BoardGameOwnedItemsRowsCompanion data) {
+    return BoardGameOwnedItemsRow(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
+      anchorType:
+          data.anchorType.present ? data.anchorType.value : this.anchorType,
+      editionId: data.editionId.present ? data.editionId.value : this.editionId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      bundleReleaseId: data.bundleReleaseId.present
+          ? data.bundleReleaseId.value
+          : this.bundleReleaseId,
+      condition: data.condition.present ? data.condition.value : this.condition,
+      grade: data.grade.present ? data.grade.value : this.grade,
+      purchaseDate: data.purchaseDate.present
+          ? data.purchaseDate.value
+          : this.purchaseDate,
+      pricePaidCents: data.pricePaidCents.present
+          ? data.pricePaidCents.value
+          : this.pricePaidCents,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      personalNotes: data.personalNotes.present
+          ? data.personalNotes.value
+          : this.personalNotes,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      indexNumber:
+          data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
+      tags: data.tags.present ? data.tags.value : this.tags,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      soldAt: data.soldAt.present ? data.soldAt.value : this.soldAt,
+      sellPriceCents: data.sellPriceCents.present
+          ? data.sellPriceCents.value
+          : this.sellPriceCents,
+      soldTo: data.soldTo.present ? data.soldTo.value : this.soldTo,
+      ownerUserId:
+          data.ownerUserId.present ? data.ownerUserId.value : this.ownerUserId,
+      ownerLabel:
+          data.ownerLabel.present ? data.ownerLabel.value : this.ownerLabel,
+      locationId:
+          data.locationId.present ? data.locationId.value : this.locationId,
+      purchaseStore: data.purchaseStore.present
+          ? data.purchaseStore.value
+          : this.purchaseStore,
+      collectionStatus: data.collectionStatus.present
+          ? data.collectionStatus.value
+          : this.collectionStatus,
+      marketValueCents: data.marketValueCents.present
+          ? data.marketValueCents.value
+          : this.marketValueCents,
+      editionLanguage: data.editionLanguage.present
+          ? data.editionLanguage.value
+          : this.editionLanguage,
+      editionRegion: data.editionRegion.present
+          ? data.editionRegion.value
+          : this.editionRegion,
+      componentCondition: data.componentCondition.present
+          ? data.componentCondition.value
+          : this.componentCondition,
+      componentCompleteness: data.componentCompleteness.present
+          ? data.componentCompleteness.value
+          : this.componentCompleteness,
+      missingPiecesNotes: data.missingPiecesNotes.present
+          ? data.missingPiecesNotes.value
+          : this.missingPiecesNotes,
+      isSleeved: data.isSleeved.present ? data.isSleeved.value : this.isSleeved,
+      hasCustomInsert: data.hasCustomInsert.present
+          ? data.hasCustomInsert.value
+          : this.hasCustomInsert,
+      hasPaintedMiniatures: data.hasPaintedMiniatures.present
+          ? data.hasPaintedMiniatures.value
+          : this.hasPaintedMiniatures,
+      storageNotes: data.storageNotes.present
+          ? data.storageNotes.value
+          : this.storageNotes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameOwnedItemsRow(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isDigital: $isDigital, ')
+          ..write('anchorType: $anchorType, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('condition: $condition, ')
+          ..write('grade: $grade, ')
+          ..write('purchaseDate: $purchaseDate, ')
+          ..write('pricePaidCents: $pricePaidCents, ')
+          ..write('currency: $currency, ')
+          ..write('personalNotes: $personalNotes, ')
+          ..write('quantity: $quantity, ')
+          ..write('indexNumber: $indexNumber, ')
+          ..write('tags: $tags, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('soldAt: $soldAt, ')
+          ..write('sellPriceCents: $sellPriceCents, ')
+          ..write('soldTo: $soldTo, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('ownerLabel: $ownerLabel, ')
+          ..write('locationId: $locationId, ')
+          ..write('purchaseStore: $purchaseStore, ')
+          ..write('collectionStatus: $collectionStatus, ')
+          ..write('marketValueCents: $marketValueCents, ')
+          ..write('editionLanguage: $editionLanguage, ')
+          ..write('editionRegion: $editionRegion, ')
+          ..write('componentCondition: $componentCondition, ')
+          ..write('componentCompleteness: $componentCompleteness, ')
+          ..write('missingPiecesNotes: $missingPiecesNotes, ')
+          ..write('isSleeved: $isSleeved, ')
+          ..write('hasCustomInsert: $hasCustomInsert, ')
+          ..write('hasPaintedMiniatures: $hasPaintedMiniatures, ')
+          ..write('storageNotes: $storageNotes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        id,
+        itemId,
+        createdAt,
+        isDigital,
+        anchorType,
+        editionId,
+        variantId,
+        bundleReleaseId,
+        condition,
+        grade,
+        purchaseDate,
+        pricePaidCents,
+        currency,
+        personalNotes,
+        quantity,
+        indexNumber,
+        tags,
+        updatedAt,
+        deletedAt,
+        soldAt,
+        sellPriceCents,
+        soldTo,
+        ownerUserId,
+        ownerLabel,
+        locationId,
+        purchaseStore,
+        collectionStatus,
+        marketValueCents,
+        editionLanguage,
+        editionRegion,
+        componentCondition,
+        componentCompleteness,
+        missingPiecesNotes,
+        isSleeved,
+        hasCustomInsert,
+        hasPaintedMiniatures,
+        storageNotes
+      ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BoardGameOwnedItemsRow &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.createdAt == this.createdAt &&
+          other.isDigital == this.isDigital &&
+          other.anchorType == this.anchorType &&
+          other.editionId == this.editionId &&
+          other.variantId == this.variantId &&
+          other.bundleReleaseId == this.bundleReleaseId &&
+          other.condition == this.condition &&
+          other.grade == this.grade &&
+          other.purchaseDate == this.purchaseDate &&
+          other.pricePaidCents == this.pricePaidCents &&
+          other.currency == this.currency &&
+          other.personalNotes == this.personalNotes &&
+          other.quantity == this.quantity &&
+          other.indexNumber == this.indexNumber &&
+          other.tags == this.tags &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.soldAt == this.soldAt &&
+          other.sellPriceCents == this.sellPriceCents &&
+          other.soldTo == this.soldTo &&
+          other.ownerUserId == this.ownerUserId &&
+          other.ownerLabel == this.ownerLabel &&
+          other.locationId == this.locationId &&
+          other.purchaseStore == this.purchaseStore &&
+          other.collectionStatus == this.collectionStatus &&
+          other.marketValueCents == this.marketValueCents &&
+          other.editionLanguage == this.editionLanguage &&
+          other.editionRegion == this.editionRegion &&
+          other.componentCondition == this.componentCondition &&
+          other.componentCompleteness == this.componentCompleteness &&
+          other.missingPiecesNotes == this.missingPiecesNotes &&
+          other.isSleeved == this.isSleeved &&
+          other.hasCustomInsert == this.hasCustomInsert &&
+          other.hasPaintedMiniatures == this.hasPaintedMiniatures &&
+          other.storageNotes == this.storageNotes);
+}
+
+class BoardGameOwnedItemsRowsCompanion
+    extends UpdateCompanion<BoardGameOwnedItemsRow> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<DateTime?> createdAt;
+  final Value<bool?> isDigital;
+  final Value<String?> anchorType;
+  final Value<String?> editionId;
+  final Value<String?> variantId;
+  final Value<String?> bundleReleaseId;
+  final Value<String?> condition;
+  final Value<String?> grade;
+  final Value<DateTime?> purchaseDate;
+  final Value<int?> pricePaidCents;
+  final Value<String?> currency;
+  final Value<String?> personalNotes;
+  final Value<int> quantity;
+  final Value<int?> indexNumber;
+  final Value<String?> tags;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<DateTime?> soldAt;
+  final Value<int?> sellPriceCents;
+  final Value<String?> soldTo;
+  final Value<String?> ownerUserId;
+  final Value<String?> ownerLabel;
+  final Value<String?> locationId;
+  final Value<String?> purchaseStore;
+  final Value<String?> collectionStatus;
+  final Value<int?> marketValueCents;
+  final Value<String?> editionLanguage;
+  final Value<String?> editionRegion;
+  final Value<String?> componentCondition;
+  final Value<String?> componentCompleteness;
+  final Value<String?> missingPiecesNotes;
+  final Value<bool> isSleeved;
+  final Value<bool> hasCustomInsert;
+  final Value<bool> hasPaintedMiniatures;
+  final Value<String?> storageNotes;
+  final Value<int> rowid;
+  const BoardGameOwnedItemsRowsCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.isDigital = const Value.absent(),
+    this.anchorType = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    this.condition = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.purchaseDate = const Value.absent(),
+    this.pricePaidCents = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.personalNotes = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.indexNumber = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.soldAt = const Value.absent(),
+    this.sellPriceCents = const Value.absent(),
+    this.soldTo = const Value.absent(),
+    this.ownerUserId = const Value.absent(),
+    this.ownerLabel = const Value.absent(),
+    this.locationId = const Value.absent(),
+    this.purchaseStore = const Value.absent(),
+    this.collectionStatus = const Value.absent(),
+    this.marketValueCents = const Value.absent(),
+    this.editionLanguage = const Value.absent(),
+    this.editionRegion = const Value.absent(),
+    this.componentCondition = const Value.absent(),
+    this.componentCompleteness = const Value.absent(),
+    this.missingPiecesNotes = const Value.absent(),
+    this.isSleeved = const Value.absent(),
+    this.hasCustomInsert = const Value.absent(),
+    this.hasPaintedMiniatures = const Value.absent(),
+    this.storageNotes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BoardGameOwnedItemsRowsCompanion.insert({
+    required String id,
+    required String itemId,
+    this.createdAt = const Value.absent(),
+    this.isDigital = const Value.absent(),
+    this.anchorType = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    this.condition = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.purchaseDate = const Value.absent(),
+    this.pricePaidCents = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.personalNotes = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.indexNumber = const Value.absent(),
+    this.tags = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.soldAt = const Value.absent(),
+    this.sellPriceCents = const Value.absent(),
+    this.soldTo = const Value.absent(),
+    this.ownerUserId = const Value.absent(),
+    this.ownerLabel = const Value.absent(),
+    this.locationId = const Value.absent(),
+    this.purchaseStore = const Value.absent(),
+    this.collectionStatus = const Value.absent(),
+    this.marketValueCents = const Value.absent(),
+    this.editionLanguage = const Value.absent(),
+    this.editionRegion = const Value.absent(),
+    this.componentCondition = const Value.absent(),
+    this.componentCompleteness = const Value.absent(),
+    this.missingPiecesNotes = const Value.absent(),
+    this.isSleeved = const Value.absent(),
+    this.hasCustomInsert = const Value.absent(),
+    this.hasPaintedMiniatures = const Value.absent(),
+    this.storageNotes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        updatedAt = Value(updatedAt);
+  static Insertable<BoardGameOwnedItemsRow> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<DateTime>? createdAt,
+    Expression<bool>? isDigital,
+    Expression<String>? anchorType,
+    Expression<String>? editionId,
+    Expression<String>? variantId,
+    Expression<String>? bundleReleaseId,
+    Expression<String>? condition,
+    Expression<String>? grade,
+    Expression<DateTime>? purchaseDate,
+    Expression<int>? pricePaidCents,
+    Expression<String>? currency,
+    Expression<String>? personalNotes,
+    Expression<int>? quantity,
+    Expression<int>? indexNumber,
+    Expression<String>? tags,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<DateTime>? soldAt,
+    Expression<int>? sellPriceCents,
+    Expression<String>? soldTo,
+    Expression<String>? ownerUserId,
+    Expression<String>? ownerLabel,
+    Expression<String>? locationId,
+    Expression<String>? purchaseStore,
+    Expression<String>? collectionStatus,
+    Expression<int>? marketValueCents,
+    Expression<String>? editionLanguage,
+    Expression<String>? editionRegion,
+    Expression<String>? componentCondition,
+    Expression<String>? componentCompleteness,
+    Expression<String>? missingPiecesNotes,
+    Expression<bool>? isSleeved,
+    Expression<bool>? hasCustomInsert,
+    Expression<bool>? hasPaintedMiniatures,
+    Expression<String>? storageNotes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (isDigital != null) 'is_digital': isDigital,
+      if (anchorType != null) 'anchor_type': anchorType,
+      if (editionId != null) 'edition_id': editionId,
+      if (variantId != null) 'variant_id': variantId,
+      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (condition != null) 'condition': condition,
+      if (grade != null) 'grade': grade,
+      if (purchaseDate != null) 'purchase_date': purchaseDate,
+      if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
+      if (currency != null) 'currency': currency,
+      if (personalNotes != null) 'personal_notes': personalNotes,
+      if (quantity != null) 'quantity': quantity,
+      if (indexNumber != null) 'index_number': indexNumber,
+      if (tags != null) 'tags': tags,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (soldAt != null) 'sold_at': soldAt,
+      if (sellPriceCents != null) 'sell_price_cents': sellPriceCents,
+      if (soldTo != null) 'sold_to': soldTo,
+      if (ownerUserId != null) 'owner_user_id': ownerUserId,
+      if (ownerLabel != null) 'owner_label': ownerLabel,
+      if (locationId != null) 'location_id': locationId,
+      if (purchaseStore != null) 'purchase_store': purchaseStore,
+      if (collectionStatus != null) 'collection_status': collectionStatus,
+      if (marketValueCents != null) 'market_value_cents': marketValueCents,
+      if (editionLanguage != null) 'edition_language': editionLanguage,
+      if (editionRegion != null) 'edition_region': editionRegion,
+      if (componentCondition != null) 'component_condition': componentCondition,
+      if (componentCompleteness != null)
+        'component_completeness': componentCompleteness,
+      if (missingPiecesNotes != null)
+        'missing_pieces_notes': missingPiecesNotes,
+      if (isSleeved != null) 'is_sleeved': isSleeved,
+      if (hasCustomInsert != null) 'has_custom_insert': hasCustomInsert,
+      if (hasPaintedMiniatures != null)
+        'has_painted_miniatures': hasPaintedMiniatures,
+      if (storageNotes != null) 'storage_notes': storageNotes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BoardGameOwnedItemsRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<DateTime?>? createdAt,
+      Value<bool?>? isDigital,
+      Value<String?>? anchorType,
+      Value<String?>? editionId,
+      Value<String?>? variantId,
+      Value<String?>? bundleReleaseId,
+      Value<String?>? condition,
+      Value<String?>? grade,
+      Value<DateTime?>? purchaseDate,
+      Value<int?>? pricePaidCents,
+      Value<String?>? currency,
+      Value<String?>? personalNotes,
+      Value<int>? quantity,
+      Value<int?>? indexNumber,
+      Value<String?>? tags,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<DateTime?>? soldAt,
+      Value<int?>? sellPriceCents,
+      Value<String?>? soldTo,
+      Value<String?>? ownerUserId,
+      Value<String?>? ownerLabel,
+      Value<String?>? locationId,
+      Value<String?>? purchaseStore,
+      Value<String?>? collectionStatus,
+      Value<int?>? marketValueCents,
+      Value<String?>? editionLanguage,
+      Value<String?>? editionRegion,
+      Value<String?>? componentCondition,
+      Value<String?>? componentCompleteness,
+      Value<String?>? missingPiecesNotes,
+      Value<bool>? isSleeved,
+      Value<bool>? hasCustomInsert,
+      Value<bool>? hasPaintedMiniatures,
+      Value<String?>? storageNotes,
+      Value<int>? rowid}) {
+    return BoardGameOwnedItemsRowsCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      createdAt: createdAt ?? this.createdAt,
+      isDigital: isDigital ?? this.isDigital,
+      anchorType: anchorType ?? this.anchorType,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      condition: condition ?? this.condition,
+      grade: grade ?? this.grade,
+      purchaseDate: purchaseDate ?? this.purchaseDate,
+      pricePaidCents: pricePaidCents ?? this.pricePaidCents,
+      currency: currency ?? this.currency,
+      personalNotes: personalNotes ?? this.personalNotes,
+      quantity: quantity ?? this.quantity,
+      indexNumber: indexNumber ?? this.indexNumber,
+      tags: tags ?? this.tags,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      soldAt: soldAt ?? this.soldAt,
+      sellPriceCents: sellPriceCents ?? this.sellPriceCents,
+      soldTo: soldTo ?? this.soldTo,
+      ownerUserId: ownerUserId ?? this.ownerUserId,
+      ownerLabel: ownerLabel ?? this.ownerLabel,
+      locationId: locationId ?? this.locationId,
+      purchaseStore: purchaseStore ?? this.purchaseStore,
+      collectionStatus: collectionStatus ?? this.collectionStatus,
+      marketValueCents: marketValueCents ?? this.marketValueCents,
+      editionLanguage: editionLanguage ?? this.editionLanguage,
+      editionRegion: editionRegion ?? this.editionRegion,
+      componentCondition: componentCondition ?? this.componentCondition,
+      componentCompleteness:
+          componentCompleteness ?? this.componentCompleteness,
+      missingPiecesNotes: missingPiecesNotes ?? this.missingPiecesNotes,
+      isSleeved: isSleeved ?? this.isSleeved,
+      hasCustomInsert: hasCustomInsert ?? this.hasCustomInsert,
+      hasPaintedMiniatures: hasPaintedMiniatures ?? this.hasPaintedMiniatures,
+      storageNotes: storageNotes ?? this.storageNotes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (isDigital.present) {
+      map['is_digital'] = Variable<bool>(isDigital.value);
+    }
+    if (anchorType.present) {
+      map['anchor_type'] = Variable<String>(anchorType.value);
+    }
+    if (editionId.present) {
+      map['edition_id'] = Variable<String>(editionId.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (bundleReleaseId.present) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    }
+    if (condition.present) {
+      map['condition'] = Variable<String>(condition.value);
+    }
+    if (grade.present) {
+      map['grade'] = Variable<String>(grade.value);
+    }
+    if (purchaseDate.present) {
+      map['purchase_date'] = Variable<DateTime>(purchaseDate.value);
+    }
+    if (pricePaidCents.present) {
+      map['price_paid_cents'] = Variable<int>(pricePaidCents.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (personalNotes.present) {
+      map['personal_notes'] = Variable<String>(personalNotes.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (indexNumber.present) {
+      map['index_number'] = Variable<int>(indexNumber.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (soldAt.present) {
+      map['sold_at'] = Variable<DateTime>(soldAt.value);
+    }
+    if (sellPriceCents.present) {
+      map['sell_price_cents'] = Variable<int>(sellPriceCents.value);
+    }
+    if (soldTo.present) {
+      map['sold_to'] = Variable<String>(soldTo.value);
+    }
+    if (ownerUserId.present) {
+      map['owner_user_id'] = Variable<String>(ownerUserId.value);
+    }
+    if (ownerLabel.present) {
+      map['owner_label'] = Variable<String>(ownerLabel.value);
+    }
+    if (locationId.present) {
+      map['location_id'] = Variable<String>(locationId.value);
+    }
+    if (purchaseStore.present) {
+      map['purchase_store'] = Variable<String>(purchaseStore.value);
+    }
+    if (collectionStatus.present) {
+      map['collection_status'] = Variable<String>(collectionStatus.value);
+    }
+    if (marketValueCents.present) {
+      map['market_value_cents'] = Variable<int>(marketValueCents.value);
+    }
+    if (editionLanguage.present) {
+      map['edition_language'] = Variable<String>(editionLanguage.value);
+    }
+    if (editionRegion.present) {
+      map['edition_region'] = Variable<String>(editionRegion.value);
+    }
+    if (componentCondition.present) {
+      map['component_condition'] = Variable<String>(componentCondition.value);
+    }
+    if (componentCompleteness.present) {
+      map['component_completeness'] =
+          Variable<String>(componentCompleteness.value);
+    }
+    if (missingPiecesNotes.present) {
+      map['missing_pieces_notes'] = Variable<String>(missingPiecesNotes.value);
+    }
+    if (isSleeved.present) {
+      map['is_sleeved'] = Variable<bool>(isSleeved.value);
+    }
+    if (hasCustomInsert.present) {
+      map['has_custom_insert'] = Variable<bool>(hasCustomInsert.value);
+    }
+    if (hasPaintedMiniatures.present) {
+      map['has_painted_miniatures'] =
+          Variable<bool>(hasPaintedMiniatures.value);
+    }
+    if (storageNotes.present) {
+      map['storage_notes'] = Variable<String>(storageNotes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameOwnedItemsRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isDigital: $isDigital, ')
+          ..write('anchorType: $anchorType, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('condition: $condition, ')
+          ..write('grade: $grade, ')
+          ..write('purchaseDate: $purchaseDate, ')
+          ..write('pricePaidCents: $pricePaidCents, ')
+          ..write('currency: $currency, ')
+          ..write('personalNotes: $personalNotes, ')
+          ..write('quantity: $quantity, ')
+          ..write('indexNumber: $indexNumber, ')
+          ..write('tags: $tags, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('soldAt: $soldAt, ')
+          ..write('sellPriceCents: $sellPriceCents, ')
+          ..write('soldTo: $soldTo, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('ownerLabel: $ownerLabel, ')
+          ..write('locationId: $locationId, ')
+          ..write('purchaseStore: $purchaseStore, ')
+          ..write('collectionStatus: $collectionStatus, ')
+          ..write('marketValueCents: $marketValueCents, ')
+          ..write('editionLanguage: $editionLanguage, ')
+          ..write('editionRegion: $editionRegion, ')
+          ..write('componentCondition: $componentCondition, ')
+          ..write('componentCompleteness: $componentCompleteness, ')
+          ..write('missingPiecesNotes: $missingPiecesNotes, ')
+          ..write('isSleeved: $isSleeved, ')
+          ..write('hasCustomInsert: $hasCustomInsert, ')
+          ..write('hasPaintedMiniatures: $hasPaintedMiniatures, ')
+          ..write('storageNotes: $storageNotes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BoardGamePlaySessionsRowsTable extends BoardGamePlaySessionsRows
     with TableInfo<$BoardGamePlaySessionsRowsTable, BoardGamePlaySessionsRow> {
   @override
@@ -49746,6 +51455,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $BoardGameEditionRowsTable(this);
   late final $BoardGameOwnedDetailsRowsTable boardGameOwnedDetailsRows =
       $BoardGameOwnedDetailsRowsTable(this);
+  late final $BoardGameOwnedItemsRowsTable boardGameOwnedItemsRows =
+      $BoardGameOwnedItemsRowsTable(this);
   late final $BoardGamePlaySessionsRowsTable boardGamePlaySessionsRows =
       $BoardGamePlaySessionsRowsTable(this);
   late final $MovieMediaRowsTable movieMediaRows = $MovieMediaRowsTable(this);
@@ -49848,6 +51559,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         boardGameMediaRows,
         boardGameEditionRows,
         boardGameOwnedDetailsRows,
+        boardGameOwnedItemsRows,
         boardGamePlaySessionsRows,
         movieMediaRows,
         movieReleaseRows,
@@ -61555,6 +63267,693 @@ typedef $$BoardGameOwnedDetailsRowsTableProcessedTableManager
         ),
         BoardGameOwnedDetailsRow,
         PrefetchHooks Function()>;
+typedef $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder
+    = BoardGameOwnedItemsRowsCompanion Function({
+  required String id,
+  required String itemId,
+  Value<DateTime?> createdAt,
+  Value<bool?> isDigital,
+  Value<String?> anchorType,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  Value<String?> condition,
+  Value<String?> grade,
+  Value<DateTime?> purchaseDate,
+  Value<int?> pricePaidCents,
+  Value<String?> currency,
+  Value<String?> personalNotes,
+  Value<int> quantity,
+  Value<int?> indexNumber,
+  Value<String?> tags,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<DateTime?> soldAt,
+  Value<int?> sellPriceCents,
+  Value<String?> soldTo,
+  Value<String?> ownerUserId,
+  Value<String?> ownerLabel,
+  Value<String?> locationId,
+  Value<String?> purchaseStore,
+  Value<String?> collectionStatus,
+  Value<int?> marketValueCents,
+  Value<String?> editionLanguage,
+  Value<String?> editionRegion,
+  Value<String?> componentCondition,
+  Value<String?> componentCompleteness,
+  Value<String?> missingPiecesNotes,
+  Value<bool> isSleeved,
+  Value<bool> hasCustomInsert,
+  Value<bool> hasPaintedMiniatures,
+  Value<String?> storageNotes,
+  Value<int> rowid,
+});
+typedef $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder
+    = BoardGameOwnedItemsRowsCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<DateTime?> createdAt,
+  Value<bool?> isDigital,
+  Value<String?> anchorType,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  Value<String?> condition,
+  Value<String?> grade,
+  Value<DateTime?> purchaseDate,
+  Value<int?> pricePaidCents,
+  Value<String?> currency,
+  Value<String?> personalNotes,
+  Value<int> quantity,
+  Value<int?> indexNumber,
+  Value<String?> tags,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<DateTime?> soldAt,
+  Value<int?> sellPriceCents,
+  Value<String?> soldTo,
+  Value<String?> ownerUserId,
+  Value<String?> ownerLabel,
+  Value<String?> locationId,
+  Value<String?> purchaseStore,
+  Value<String?> collectionStatus,
+  Value<int?> marketValueCents,
+  Value<String?> editionLanguage,
+  Value<String?> editionRegion,
+  Value<String?> componentCondition,
+  Value<String?> componentCompleteness,
+  Value<String?> missingPiecesNotes,
+  Value<bool> isSleeved,
+  Value<bool> hasCustomInsert,
+  Value<bool> hasPaintedMiniatures,
+  Value<String?> storageNotes,
+  Value<int> rowid,
+});
+
+class $$BoardGameOwnedItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BoardGameOwnedItemsRowsTable> {
+  $$BoardGameOwnedItemsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDigital => $composableBuilder(
+      column: $table.isDigital, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get condition => $composableBuilder(
+      column: $table.condition, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get purchaseDate => $composableBuilder(
+      column: $table.purchaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pricePaidCents => $composableBuilder(
+      column: $table.pricePaidCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get personalNotes => $composableBuilder(
+      column: $table.personalNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get soldAt => $composableBuilder(
+      column: $table.soldAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sellPriceCents => $composableBuilder(
+      column: $table.sellPriceCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get soldTo => $composableBuilder(
+      column: $table.soldTo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownerLabel => $composableBuilder(
+      column: $table.ownerLabel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get purchaseStore => $composableBuilder(
+      column: $table.purchaseStore, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get collectionStatus => $composableBuilder(
+      column: $table.collectionStatus,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get marketValueCents => $composableBuilder(
+      column: $table.marketValueCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionLanguage => $composableBuilder(
+      column: $table.editionLanguage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionRegion => $composableBuilder(
+      column: $table.editionRegion, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get componentCondition => $composableBuilder(
+      column: $table.componentCondition,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get componentCompleteness => $composableBuilder(
+      column: $table.componentCompleteness,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get missingPiecesNotes => $composableBuilder(
+      column: $table.missingPiecesNotes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isSleeved => $composableBuilder(
+      column: $table.isSleeved, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get hasCustomInsert => $composableBuilder(
+      column: $table.hasCustomInsert,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get hasPaintedMiniatures => $composableBuilder(
+      column: $table.hasPaintedMiniatures,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageNotes => $composableBuilder(
+      column: $table.storageNotes, builder: (column) => ColumnFilters(column));
+}
+
+class $$BoardGameOwnedItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BoardGameOwnedItemsRowsTable> {
+  $$BoardGameOwnedItemsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDigital => $composableBuilder(
+      column: $table.isDigital, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get condition => $composableBuilder(
+      column: $table.condition, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get purchaseDate => $composableBuilder(
+      column: $table.purchaseDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pricePaidCents => $composableBuilder(
+      column: $table.pricePaidCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get personalNotes => $composableBuilder(
+      column: $table.personalNotes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get soldAt => $composableBuilder(
+      column: $table.soldAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sellPriceCents => $composableBuilder(
+      column: $table.sellPriceCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get soldTo => $composableBuilder(
+      column: $table.soldTo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownerLabel => $composableBuilder(
+      column: $table.ownerLabel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get purchaseStore => $composableBuilder(
+      column: $table.purchaseStore,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get collectionStatus => $composableBuilder(
+      column: $table.collectionStatus,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get marketValueCents => $composableBuilder(
+      column: $table.marketValueCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionLanguage => $composableBuilder(
+      column: $table.editionLanguage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionRegion => $composableBuilder(
+      column: $table.editionRegion,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get componentCondition => $composableBuilder(
+      column: $table.componentCondition,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get componentCompleteness => $composableBuilder(
+      column: $table.componentCompleteness,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get missingPiecesNotes => $composableBuilder(
+      column: $table.missingPiecesNotes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isSleeved => $composableBuilder(
+      column: $table.isSleeved, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get hasCustomInsert => $composableBuilder(
+      column: $table.hasCustomInsert,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get hasPaintedMiniatures => $composableBuilder(
+      column: $table.hasPaintedMiniatures,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageNotes => $composableBuilder(
+      column: $table.storageNotes,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$BoardGameOwnedItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BoardGameOwnedItemsRowsTable> {
+  $$BoardGameOwnedItemsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDigital =>
+      $composableBuilder(column: $table.isDigital, builder: (column) => column);
+
+  GeneratedColumn<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => column);
+
+  GeneratedColumn<String> get editionId =>
+      $composableBuilder(column: $table.editionId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get condition =>
+      $composableBuilder(column: $table.condition, builder: (column) => column);
+
+  GeneratedColumn<String> get grade =>
+      $composableBuilder(column: $table.grade, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get purchaseDate => $composableBuilder(
+      column: $table.purchaseDate, builder: (column) => column);
+
+  GeneratedColumn<int> get pricePaidCents => $composableBuilder(
+      column: $table.pricePaidCents, builder: (column) => column);
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<String> get personalNotes => $composableBuilder(
+      column: $table.personalNotes, builder: (column) => column);
+
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get soldAt =>
+      $composableBuilder(column: $table.soldAt, builder: (column) => column);
+
+  GeneratedColumn<int> get sellPriceCents => $composableBuilder(
+      column: $table.sellPriceCents, builder: (column) => column);
+
+  GeneratedColumn<String> get soldTo =>
+      $composableBuilder(column: $table.soldTo, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerLabel => $composableBuilder(
+      column: $table.ownerLabel, builder: (column) => column);
+
+  GeneratedColumn<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => column);
+
+  GeneratedColumn<String> get purchaseStore => $composableBuilder(
+      column: $table.purchaseStore, builder: (column) => column);
+
+  GeneratedColumn<String> get collectionStatus => $composableBuilder(
+      column: $table.collectionStatus, builder: (column) => column);
+
+  GeneratedColumn<int> get marketValueCents => $composableBuilder(
+      column: $table.marketValueCents, builder: (column) => column);
+
+  GeneratedColumn<String> get editionLanguage => $composableBuilder(
+      column: $table.editionLanguage, builder: (column) => column);
+
+  GeneratedColumn<String> get editionRegion => $composableBuilder(
+      column: $table.editionRegion, builder: (column) => column);
+
+  GeneratedColumn<String> get componentCondition => $composableBuilder(
+      column: $table.componentCondition, builder: (column) => column);
+
+  GeneratedColumn<String> get componentCompleteness => $composableBuilder(
+      column: $table.componentCompleteness, builder: (column) => column);
+
+  GeneratedColumn<String> get missingPiecesNotes => $composableBuilder(
+      column: $table.missingPiecesNotes, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSleeved =>
+      $composableBuilder(column: $table.isSleeved, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasCustomInsert => $composableBuilder(
+      column: $table.hasCustomInsert, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasPaintedMiniatures => $composableBuilder(
+      column: $table.hasPaintedMiniatures, builder: (column) => column);
+
+  GeneratedColumn<String> get storageNotes => $composableBuilder(
+      column: $table.storageNotes, builder: (column) => column);
+}
+
+class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BoardGameOwnedItemsRowsTable,
+    BoardGameOwnedItemsRow,
+    $$BoardGameOwnedItemsRowsTableFilterComposer,
+    $$BoardGameOwnedItemsRowsTableOrderingComposer,
+    $$BoardGameOwnedItemsRowsTableAnnotationComposer,
+    $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder,
+    $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder,
+    (
+      BoardGameOwnedItemsRow,
+      BaseReferences<_$LocalDatabase, $BoardGameOwnedItemsRowsTable,
+          BoardGameOwnedItemsRow>
+    ),
+    BoardGameOwnedItemsRow,
+    PrefetchHooks Function()> {
+  $$BoardGameOwnedItemsRowsTableTableManager(
+      _$LocalDatabase db, $BoardGameOwnedItemsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BoardGameOwnedItemsRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BoardGameOwnedItemsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BoardGameOwnedItemsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<bool?> isDigital = const Value.absent(),
+            Value<String?> anchorType = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> condition = const Value.absent(),
+            Value<String?> grade = const Value.absent(),
+            Value<DateTime?> purchaseDate = const Value.absent(),
+            Value<int?> pricePaidCents = const Value.absent(),
+            Value<String?> currency = const Value.absent(),
+            Value<String?> personalNotes = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<int?> indexNumber = const Value.absent(),
+            Value<String?> tags = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<DateTime?> soldAt = const Value.absent(),
+            Value<int?> sellPriceCents = const Value.absent(),
+            Value<String?> soldTo = const Value.absent(),
+            Value<String?> ownerUserId = const Value.absent(),
+            Value<String?> ownerLabel = const Value.absent(),
+            Value<String?> locationId = const Value.absent(),
+            Value<String?> purchaseStore = const Value.absent(),
+            Value<String?> collectionStatus = const Value.absent(),
+            Value<int?> marketValueCents = const Value.absent(),
+            Value<String?> editionLanguage = const Value.absent(),
+            Value<String?> editionRegion = const Value.absent(),
+            Value<String?> componentCondition = const Value.absent(),
+            Value<String?> componentCompleteness = const Value.absent(),
+            Value<String?> missingPiecesNotes = const Value.absent(),
+            Value<bool> isSleeved = const Value.absent(),
+            Value<bool> hasCustomInsert = const Value.absent(),
+            Value<bool> hasPaintedMiniatures = const Value.absent(),
+            Value<String?> storageNotes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameOwnedItemsRowsCompanion(
+            id: id,
+            itemId: itemId,
+            createdAt: createdAt,
+            isDigital: isDigital,
+            anchorType: anchorType,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            condition: condition,
+            grade: grade,
+            purchaseDate: purchaseDate,
+            pricePaidCents: pricePaidCents,
+            currency: currency,
+            personalNotes: personalNotes,
+            quantity: quantity,
+            indexNumber: indexNumber,
+            tags: tags,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            soldAt: soldAt,
+            sellPriceCents: sellPriceCents,
+            soldTo: soldTo,
+            ownerUserId: ownerUserId,
+            ownerLabel: ownerLabel,
+            locationId: locationId,
+            purchaseStore: purchaseStore,
+            collectionStatus: collectionStatus,
+            marketValueCents: marketValueCents,
+            editionLanguage: editionLanguage,
+            editionRegion: editionRegion,
+            componentCondition: componentCondition,
+            componentCompleteness: componentCompleteness,
+            missingPiecesNotes: missingPiecesNotes,
+            isSleeved: isSleeved,
+            hasCustomInsert: hasCustomInsert,
+            hasPaintedMiniatures: hasPaintedMiniatures,
+            storageNotes: storageNotes,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<bool?> isDigital = const Value.absent(),
+            Value<String?> anchorType = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> condition = const Value.absent(),
+            Value<String?> grade = const Value.absent(),
+            Value<DateTime?> purchaseDate = const Value.absent(),
+            Value<int?> pricePaidCents = const Value.absent(),
+            Value<String?> currency = const Value.absent(),
+            Value<String?> personalNotes = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<int?> indexNumber = const Value.absent(),
+            Value<String?> tags = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<DateTime?> soldAt = const Value.absent(),
+            Value<int?> sellPriceCents = const Value.absent(),
+            Value<String?> soldTo = const Value.absent(),
+            Value<String?> ownerUserId = const Value.absent(),
+            Value<String?> ownerLabel = const Value.absent(),
+            Value<String?> locationId = const Value.absent(),
+            Value<String?> purchaseStore = const Value.absent(),
+            Value<String?> collectionStatus = const Value.absent(),
+            Value<int?> marketValueCents = const Value.absent(),
+            Value<String?> editionLanguage = const Value.absent(),
+            Value<String?> editionRegion = const Value.absent(),
+            Value<String?> componentCondition = const Value.absent(),
+            Value<String?> componentCompleteness = const Value.absent(),
+            Value<String?> missingPiecesNotes = const Value.absent(),
+            Value<bool> isSleeved = const Value.absent(),
+            Value<bool> hasCustomInsert = const Value.absent(),
+            Value<bool> hasPaintedMiniatures = const Value.absent(),
+            Value<String?> storageNotes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameOwnedItemsRowsCompanion.insert(
+            id: id,
+            itemId: itemId,
+            createdAt: createdAt,
+            isDigital: isDigital,
+            anchorType: anchorType,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            condition: condition,
+            grade: grade,
+            purchaseDate: purchaseDate,
+            pricePaidCents: pricePaidCents,
+            currency: currency,
+            personalNotes: personalNotes,
+            quantity: quantity,
+            indexNumber: indexNumber,
+            tags: tags,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            soldAt: soldAt,
+            sellPriceCents: sellPriceCents,
+            soldTo: soldTo,
+            ownerUserId: ownerUserId,
+            ownerLabel: ownerLabel,
+            locationId: locationId,
+            purchaseStore: purchaseStore,
+            collectionStatus: collectionStatus,
+            marketValueCents: marketValueCents,
+            editionLanguage: editionLanguage,
+            editionRegion: editionRegion,
+            componentCondition: componentCondition,
+            componentCompleteness: componentCompleteness,
+            missingPiecesNotes: missingPiecesNotes,
+            isSleeved: isSleeved,
+            hasCustomInsert: hasCustomInsert,
+            hasPaintedMiniatures: hasPaintedMiniatures,
+            storageNotes: storageNotes,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BoardGameOwnedItemsRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $BoardGameOwnedItemsRowsTable,
+        BoardGameOwnedItemsRow,
+        $$BoardGameOwnedItemsRowsTableFilterComposer,
+        $$BoardGameOwnedItemsRowsTableOrderingComposer,
+        $$BoardGameOwnedItemsRowsTableAnnotationComposer,
+        $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder,
+        $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder,
+        (
+          BoardGameOwnedItemsRow,
+          BaseReferences<_$LocalDatabase, $BoardGameOwnedItemsRowsTable,
+              BoardGameOwnedItemsRow>
+        ),
+        BoardGameOwnedItemsRow,
+        PrefetchHooks Function()>;
 typedef $$BoardGamePlaySessionsRowsTableCreateCompanionBuilder
     = BoardGamePlaySessionsRowsCompanion Function({
   required String id,
@@ -72472,6 +74871,9 @@ class $LocalDatabaseManager {
   $$BoardGameOwnedDetailsRowsTableTableManager get boardGameOwnedDetailsRows =>
       $$BoardGameOwnedDetailsRowsTableTableManager(
           _db, _db.boardGameOwnedDetailsRows);
+  $$BoardGameOwnedItemsRowsTableTableManager get boardGameOwnedItemsRows =>
+      $$BoardGameOwnedItemsRowsTableTableManager(
+          _db, _db.boardGameOwnedItemsRows);
   $$BoardGamePlaySessionsRowsTableTableManager get boardGamePlaySessionsRows =>
       $$BoardGamePlaySessionsRowsTableTableManager(
           _db, _db.boardGamePlaySessionsRows);

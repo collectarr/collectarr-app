@@ -72,6 +72,53 @@ class BoardGameOwnedDetailsRows extends Table {
   Set<Column> get primaryKey => {ownedItemId};
 }
 
+/// Complete BoardGame-owned copy state. Play sessions are tracking data and
+/// remain in their dedicated table rather than being embedded in a copy.
+class BoardGameOwnedItemsRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  DateTimeColumn get createdAt => dateTime().nullable()();
+  BoolColumn get isDigital => boolean().nullable()();
+  TextColumn get anchorType => text().nullable()();
+  TextColumn get editionId => text().nullable()();
+  TextColumn get variantId => text().nullable()();
+  TextColumn get bundleReleaseId => text().nullable()();
+  TextColumn get condition => text().nullable()();
+  TextColumn get grade => text().nullable()();
+  DateTimeColumn get purchaseDate => dateTime().nullable()();
+  IntColumn get pricePaidCents => integer().nullable()();
+  TextColumn get currency => text().nullable()();
+  TextColumn get personalNotes => text().nullable()();
+  IntColumn get quantity => integer().withDefault(const Constant(1))();
+  IntColumn get indexNumber => integer().nullable()();
+  TextColumn get tags => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+  DateTimeColumn get soldAt => dateTime().nullable()();
+  IntColumn get sellPriceCents => integer().nullable()();
+  TextColumn get soldTo => text().nullable()();
+  TextColumn get ownerUserId => text().nullable()();
+  TextColumn get ownerLabel => text().nullable()();
+  TextColumn get locationId => text().nullable()();
+  TextColumn get purchaseStore => text().nullable()();
+  TextColumn get collectionStatus => text().nullable()();
+  IntColumn get marketValueCents => integer().nullable()();
+  TextColumn get editionLanguage => text().nullable()();
+  TextColumn get editionRegion => text().nullable()();
+  TextColumn get componentCondition => text().nullable()();
+  TextColumn get componentCompleteness => text().nullable()();
+  TextColumn get missingPiecesNotes => text().nullable()();
+  BoolColumn get isSleeved => boolean().withDefault(const Constant(false))();
+  BoolColumn get hasCustomInsert =>
+      boolean().withDefault(const Constant(false))();
+  BoolColumn get hasPaintedMiniatures =>
+      boolean().withDefault(const Constant(false))();
+  TextColumn get storageNotes => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class BoardGamePlaySessionsRows extends Table {
   TextColumn get id => text()();
   TextColumn get boardGameId => text()();
