@@ -89,29 +89,12 @@ String? normalizePersonalItemAnchorType(String? value) {
   if (normalized == null || normalized.isEmpty) {
     return null;
   }
-  switch (normalized) {
-    case 'item':
-    case 'media':
-    case 'work':
-      return PersonalItemAnchorType.item.apiValue;
-    case 'edition':
-    case 'release':
-      return PersonalItemAnchorType.edition.apiValue;
-    case 'variant':
-      return PersonalItemAnchorType.variant.apiValue;
-    case 'physical_release':
-    case 'physical-release':
-      return PersonalItemAnchorType.variant.apiValue;
-    case 'bundle_release':
-    case 'bundle-release':
-    case 'bundle':
-    case 'package':
-    case 'box_set':
-    case 'box-set':
-      return PersonalItemAnchorType.bundleRelease.apiValue;
-    default:
-      return null;
+  for (final anchor in PersonalItemAnchorType.values) {
+    if (anchor.apiValue == normalized) {
+      return anchor.apiValue;
+    }
   }
+  return null;
 }
 
 PersonalItemAnchorType? resolvePersonalItemAnchor({

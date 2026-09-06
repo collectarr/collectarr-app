@@ -22,4 +22,19 @@ void main() {
     expect(anchor?.editionId, 'edition-1');
     expect(anchor?.variantId, isNull);
   });
+
+  test('anchor type accepts only canonical schema values', () {
+    expect(
+      PersonalItemAnchor.fromRaw(anchorType: 'physical-release'),
+      isNull,
+    );
+    expect(
+      PersonalItemAnchor.fromRaw(anchorType: 'bundle-release'),
+      isNull,
+    );
+    expect(
+      PersonalItemAnchor.fromRaw(anchorType: 'release'),
+      isNull,
+    );
+  });
 }

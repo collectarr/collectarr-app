@@ -420,16 +420,15 @@ void main() {
     expect(payload['created_at'], '2026-05-11T00:00:00.000Z');
   });
 
-  test('catalog entity ref parses bundle release aliases', () {
+  test('catalog entity ref rejects non-canonical entity type aliases', () {
     final ref = CatalogEntityRef.fromJson({
       'kind': 'book',
       'entity_type': 'bundle-release',
       'id': 'bundle-1',
     });
 
-    expect(ref.entityType, CatalogEntityType.bundleRelease);
-    expect(ref.isKnown, isTrue);
-    expect(ref.toJson()['entity_type'], 'bundle_release');
+    expect(ref.entityType, CatalogEntityType.unknown);
+    expect(ref.isKnown, isFalse);
   });
 
   test('metadata field spec captures routing metadata', () {
