@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
@@ -189,10 +190,8 @@ abstract interface class LibraryAddCapability<
   );
 
   AddOwnedItemCommand buildCommand(
-    CatalogItem item,
-    LibraryAddCommonDraft common,
-    LibraryAddKindDraft draft,
-  );
+      CatalogItem item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
+      {LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
 }
 
 class _EmptyKindAddDraft implements LibraryKindAddDraft {
@@ -273,10 +272,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand buildCommand(
-    CatalogItem item,
-    LibraryAddCommonDraft common,
-    LibraryAddKindDraft draft,
-  ) {
+      CatalogItem item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
+      {LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
@@ -287,10 +284,10 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       common: common.toOwnedItemCommonDraft(),
       details: effectiveDraft.toOwnedDetailsDraft(),
       tracking: OwnedItemTrackingDraft(
-        status: mediaTrackingStatusFromValue(common.readStatus),
-        rating: common.rating,
-        startedAt: common.startedAt,
-        finishedAt: common.finishedAt,
+        status: mediaTrackingStatusFromValue(tracking.readStatus),
+        rating: tracking.rating,
+        startedAt: tracking.startedAt,
+        finishedAt: tracking.finishedAt,
         notes: common.personalNotes,
       ),
     );

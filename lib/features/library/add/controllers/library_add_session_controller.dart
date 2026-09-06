@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_reference
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
@@ -90,6 +91,7 @@ class LibraryAddSessionController
                 ),
                 preview: const LibraryAddPreviewState.initial(),
                 commonDraft: const LibraryAddCommonDraft(),
+                trackingDraft: const LibraryAddTrackingDraft(),
                 manualDraft:
                     libraryKindRuntimeForKind(kind).add.createInitialDraft(),
                 submitState: const AsyncValue.data(null),
@@ -1213,6 +1215,11 @@ class LibraryAddSessionController
     state = state.copyWith(commonDraft: update(state.commonDraft));
   }
 
+  void updateTrackingDraft(
+      LibraryAddTrackingDraft Function(LibraryAddTrackingDraft) update) {
+    state = state.copyWith(trackingDraft: update(state.trackingDraft));
+  }
+
   void updateKindDraft(
       LibraryAddKindDraft Function(LibraryAddKindDraft) update) {
     state = state.copyWith(manualDraft: update(state.manualDraft));
@@ -1273,6 +1280,7 @@ class LibraryAddSessionController
         item,
         state.commonDraft,
         state.manualDraft,
+        tracking: state.trackingDraft,
       );
 
       switch (state.target) {
@@ -1392,6 +1400,7 @@ class LibraryAddSessionController
             metadataItem,
             state.commonDraft,
             state.manualDraft,
+            tracking: state.trackingDraft,
           );
 
           switch (state.target) {
@@ -1425,6 +1434,13 @@ class LibraryAddSessionController
             trackingMutations: trackingMutations,
             items: itemsToAdd,
             target: state.target,
+            trackingDraft: LibraryAddTrackingDraft(
+              rating: state.trackingDraft.rating,
+              readStatus:
+                  state.defaultReadStatus ?? state.trackingDraft.readStatus,
+              startedAt: state.trackingDraft.startedAt,
+              finishedAt: state.trackingDraft.finishedAt,
+            ),
             referenceType: state.selection.referenceType,
             defaults: LibraryAddDefaults(
               condition: state.defaultCondition,
@@ -1442,6 +1458,7 @@ class LibraryAddSessionController
           selectedResult,
           state.commonDraft,
           state.manualDraft,
+          tracking: state.trackingDraft,
         );
 
         switch (state.target) {
@@ -1522,6 +1539,7 @@ class LibraryAddSessionController
       ),
       preview: const LibraryAddPreviewState.initial(),
       commonDraft: const LibraryAddCommonDraft(),
+      trackingDraft: const LibraryAddTrackingDraft(),
       manualDraft: libraryKindRuntimeForKind(kind).add.createInitialDraft(),
       submitState: const AsyncValue.data(null),
       defaultCondition: type.edit.defaultCondition,

@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
@@ -89,10 +90,15 @@ void main() {
           kind: kind.apiValue,
           title: 'Test Item',
         );
-        const common = LibraryAddCommonDraft(condition: 'Near Mint', rating: 9);
+        const common = LibraryAddCommonDraft(condition: 'Near Mint');
 
         final metadataItem = typedCatalogItemFromCatalogItem(item);
-        final command = addCap.buildCommand(metadataItem, common, initialDraft);
+        final command = addCap.buildCommand(
+          metadataItem,
+          common,
+          initialDraft,
+          tracking: const LibraryAddTrackingDraft(rating: 9),
+        );
         expect(command.catalogRef.id, item.id);
         expect(command.common.condition, 'Near Mint');
         expect(command.tracking?.rating, 9);

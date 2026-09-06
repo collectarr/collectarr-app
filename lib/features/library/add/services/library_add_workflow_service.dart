@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -97,6 +98,7 @@ class LibraryAddWorkflowService {
     LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
     LibraryAddDefaults defaults = const LibraryAddDefaults(),
     LibraryAddCommonDraft? commonDraft,
+    LibraryAddTrackingDraft? trackingDraft,
     Map<String, LibraryAddKindDraft> kindDraftsByItemId = const {},
     Map<String, LibraryAddEditionSelection> editionSelectionsByItemId =
         const {},
@@ -121,6 +123,7 @@ class LibraryAddWorkflowService {
         referenceType: referenceType,
         defaults: defaults,
         commonDraft: commonDraft,
+        trackingDraft: trackingDraft,
         kindDraftsByItemId: kindDraftsByItemId,
         editionSelectionsByItemId: editionSelectionsByItemId,
         bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,

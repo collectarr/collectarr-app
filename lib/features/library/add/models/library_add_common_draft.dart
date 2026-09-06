@@ -11,10 +11,6 @@ class LibraryAddCommonDraft {
     this.currency,
     this.personalNotes,
     this.quantity = 1,
-    this.rating,
-    this.readStatus,
-    this.startedAt,
-    this.finishedAt,
     this.tags,
     this.locationId,
     this.purchaseStore,
@@ -32,10 +28,6 @@ class LibraryAddCommonDraft {
   final String? currency;
   final String? personalNotes;
   final int quantity;
-  final int? rating;
-  final String? readStatus;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
   final String? tags;
   final String? locationId;
   final String? purchaseStore;
@@ -53,10 +45,6 @@ class LibraryAddCommonDraft {
     String? currency,
     String? personalNotes,
     int? quantity,
-    int? rating,
-    String? readStatus,
-    DateTime? startedAt,
-    DateTime? finishedAt,
     String? tags,
     String? locationId,
     String? purchaseStore,
@@ -74,10 +62,6 @@ class LibraryAddCommonDraft {
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
       quantity: quantity ?? this.quantity,
-      rating: rating ?? this.rating,
-      readStatus: readStatus ?? this.readStatus,
-      startedAt: startedAt ?? this.startedAt,
-      finishedAt: finishedAt ?? this.finishedAt,
       tags: tags ?? this.tags,
       locationId: locationId ?? this.locationId,
       purchaseStore: purchaseStore ?? this.purchaseStore,

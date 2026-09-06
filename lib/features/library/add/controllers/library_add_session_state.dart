@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/foundation.dart';
@@ -22,6 +23,7 @@ final class LibraryAddSessionState {
     required this.selection,
     required this.preview,
     required this.commonDraft,
+    required this.trackingDraft,
     required this.manualDraft,
     required this.submitState,
     required this.defaultCondition,
@@ -40,6 +42,7 @@ final class LibraryAddSessionState {
   final LibraryAddSelectionState selection;
   final LibraryAddPreviewState preview;
   final LibraryAddCommonDraft commonDraft;
+  final LibraryAddTrackingDraft trackingDraft;
   final LibraryAddKindDraft manualDraft;
   final AsyncValue<void> submitState;
   final String defaultCondition;
@@ -118,6 +121,7 @@ final class LibraryAddSessionState {
     LibraryAddSelectionState? selection,
     LibraryAddPreviewState? preview,
     LibraryAddCommonDraft? commonDraft,
+    LibraryAddTrackingDraft? trackingDraft,
     LibraryAddKindDraft? manualDraft,
     AsyncValue<void>? submitState,
     String? defaultCondition,
@@ -141,6 +145,7 @@ final class LibraryAddSessionState {
       selection: selection ?? this.selection,
       preview: preview ?? this.preview,
       commonDraft: commonDraft ?? this.commonDraft,
+      trackingDraft: trackingDraft ?? this.trackingDraft,
       manualDraft: manualDraft ?? this.manualDraft,
       submitState: submitState ?? this.submitState,
       defaultCondition: defaultCondition ?? this.defaultCondition,

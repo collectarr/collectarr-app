@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/collection/runner/collection_mutation_ru
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
@@ -139,11 +140,12 @@ void main() {
     });
 
     test('manual draft editing updates state', () {
-      controller.updateCommonDraft(
-        (c) => c.copyWith(condition: 'Mint', rating: 9),
+      controller.updateCommonDraft((c) => c.copyWith(condition: 'Mint'));
+      controller.updateTrackingDraft(
+        (tracking) => tracking.copyWith(rating: 9),
       );
       expect(controller.state.commonDraft.condition, 'Mint');
-      expect(controller.state.commonDraft.rating, 9);
+      expect(controller.state.trackingDraft.rating, 9);
 
       controller.updateKindDraft(
         (k) => (k as ComicAddDraft).copyWith(gradingCompany: 'CGC'),
@@ -331,11 +333,16 @@ void main() {
       final item = typedCatalogItemFromCatalogItem(
         testCatalogItem(id: 'c1', kind: 'comic', title: 'Comic 1'),
       );
-      const common = LibraryAddCommonDraft(condition: 'NM', rating: 10);
+      const common = LibraryAddCommonDraft(condition: 'NM');
       const draft = ComicAddDraft(gradingCompany: 'CBCS', signedBy: 'Stan Lee');
 
       final cap = libraryKindRuntimeForKind(CatalogMediaKind.comic).add;
-      final command = cap.buildCommand(item, common, draft);
+      final command = cap.buildCommand(
+        item,
+        common,
+        draft,
+        tracking: const LibraryAddTrackingDraft(rating: 10),
+      );
 
       expect(command.catalogRef.id, 'c1');
       expect(command.common.condition, 'NM');

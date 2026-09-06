@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 
@@ -32,9 +33,12 @@ class LibraryAddDefaults {
       grade: grade,
       purchaseDate: purchaseDate,
       locationId: locationId,
-      readStatus: readStatus,
       tags: tags,
     );
+  }
+
+  LibraryAddTrackingDraft toTrackingDraft() {
+    return LibraryAddTrackingDraft(readStatus: readStatus);
   }
 }
 
@@ -58,6 +62,7 @@ Future<void> addLibraryItemsToTarget({
   LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
   LibraryAddCommonDraft? commonDraft,
+  LibraryAddTrackingDraft? trackingDraft,
   Map<String, LibraryAddKindDraft> kindDraftsByItemId = const {},
   Map<String, LibraryAddEditionSelection> editionSelectionsByItemId = const {},
   Map<String, String> bundleReleaseIdsByItemId = const {},
@@ -70,6 +75,7 @@ Future<void> addLibraryItemsToTarget({
   await catalog.upsertMetadataItems(values);
 
   final baseCommon = commonDraft ?? defaults.toCommonDraft();
+  final baseTracking = trackingDraft ?? defaults.toTrackingDraft();
 
   for (final item in values) {
     final digitalOwnedItem = _digitalOwnedItemFlag(item);
@@ -91,10 +97,6 @@ Future<void> addLibraryItemsToTarget({
       currency: baseCommon.currency,
       personalNotes: baseCommon.personalNotes,
       quantity: baseCommon.quantity,
-      rating: baseCommon.rating,
-      readStatus: baseCommon.readStatus,
-      startedAt: baseCommon.startedAt,
-      finishedAt: baseCommon.finishedAt,
       tags: baseCommon.tags,
       locationId: isDigitalOwnedItem ? null : baseCommon.locationId,
       purchaseStore: baseCommon.purchaseStore,
@@ -113,6 +115,7 @@ Future<void> addLibraryItemsToTarget({
           item,
           itemCommon,
           kindDraftsByItemId[item.id] ?? capability.createInitialDraft(),
+          tracking: baseTracking,
         );
         final ownedItem = await ownedMutations.addOwnedItem(addCmd);
         final tracking = addCmd.tracking;
@@ -146,9 +149,9 @@ Future<void> addLibraryItemsToTarget({
           editionId: reference.editionId,
           variantId: reference.variantId,
           bundleReleaseId: reference.bundleReleaseId,
-          status: itemCommon.readStatus == null
+          status: baseTracking.readStatus == null
               ? null
-              : mediaTrackingStatusFromValue(itemCommon.readStatus),
+              : mediaTrackingStatusFromValue(baseTracking.readStatus),
           allowEmpty: true,
         );
         break;
