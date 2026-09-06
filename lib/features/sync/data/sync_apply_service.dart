@@ -24,7 +24,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
@@ -265,14 +265,14 @@ class SyncApplyService {
     }, decodeDetails: (json) {
       final rawCatalogRef = json['catalog_ref'];
       if (rawCatalogRef is! Map) {
-        return libraryKindRuntimeForKind(CatalogMediaKind.unknown)
-            .defaultOwnedDetails();
+        return collectarrOwnedDetailsCodecForKind(CatalogMediaKind.unknown)
+            .defaultDetails();
       }
       final catalogRef = CatalogEntityRef.fromJson(
         Map<String, dynamic>.from(rawCatalogRef),
       );
-      return libraryKindRuntimeForKind(catalogRef.mediaKind)
-          .decodeOwnedDetails(json);
+      return collectarrOwnedDetailsCodecForKind(catalogRef.mediaKind)
+          .fromJson(json);
     });
   }
 
