@@ -45,6 +45,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_r
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/legacy/boardgame_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/legacy/book_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/legacy/game_owned_item_legacy_adapter.dart';
@@ -132,9 +134,8 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
 
 /// Minimum rows expected in each kind-owned physical-copy details table.
 ///
-/// Comic owns its complete copy graph, so its count is measured from the
-/// typed Comic owned table. The other kinds are still being migrated from the
-/// common ownership cache and currently persist their typed details separately.
+/// Every migrated kind is measured from its complete kind-owned copy table;
+/// the remaining detail-only tables are retained only for compatibility.
 const devSeedTypedOwnedMinimumCounts = <String, int>{
   'comic.owned': 15,
   'manga.owned': 15,
@@ -446,9 +447,8 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
   final mangaRows = await db.select(db.mangaOwnedDetailsRows).get();
   checkTypedRows(
       'manga_owned_details', 'manga', mangaRows.map((row) => row.ownedItemId));
-  final bookRows = await db.select(db.bookOwnedDetailsRows).get();
-  checkTypedRows(
-      'book_owned_details', 'book', bookRows.map((row) => row.ownedItemId));
+  final bookRows = await db.select(db.bookOwnedItemsRows).get();
+  checkTypedRows('book_owned_items', 'book', bookRows.map((row) => row.id));
   final gameRows = await db.select(db.gameOwnedDetailsRows).get();
   checkTypedRows(
       'game_owned_details', 'game', gameRows.map((row) => row.ownedItemId));
@@ -478,7 +478,7 @@ Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
   return {
     'comic.owned': (await db.select(db.comicOwnedItemsRows).get()).length,
     'manga.owned': (await db.select(db.mangaOwnedDetailsRows).get()).length,
-    'book.owned': (await db.select(db.bookOwnedDetailsRows).get()).length,
+    'book.owned': (await db.select(db.bookOwnedItemsRows).get()).length,
     'game.owned': (await db.select(db.gameOwnedItemsRows).get()).length,
     'boardgame.owned':
         (await db.select(db.boardGameOwnedItemsRows).get()).length,
@@ -554,6 +554,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   final musicOwnedRepo = MusicOwnedRepository(db);
   final gameOwnedRepo = GameOwnedRepository(db);
   final boardGameOwnedRepo = BoardGameOwnedRepository(db);
+  final bookOwnedRepo = BookOwnedRepository(db);
   final ownedRepo = OwnedItemsCacheRepository(db);
   final trackingRepo = TrackingEntriesCacheRepository(
     db,
@@ -668,6 +669,11 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
         .where(
             (item) => item.catalogRef.mediaKind == CatalogMediaKind.boardgame)
         .map(BoardGameOwnedItemLegacyAdapter.fromLegacy),
+  );
+  await bookOwnedRepo.upsertAll(
+    ownedItems
+        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.book)
+        .map(BookOwnedItemLegacyAdapter.fromLegacy),
   );
 
   // --- Item Images (front/back + extras) ---

@@ -35,3 +35,20 @@ final class BookReleaseId {
 }
 
 typedef BookEditionId = BookReleaseId;
+
+@immutable
+final class BookOwnedItemId {
+  const BookOwnedItemId(this.value);
+
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BookOwnedItemId && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}

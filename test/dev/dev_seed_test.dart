@@ -352,6 +352,20 @@ void main() {
     expect(boardGameOwnedRows.any((row) => row.hasCustomInsert), isTrue);
     expect(boardGameOwnedRows.any((row) => row.hasPaintedMiniatures), isTrue);
 
+    final bookOwnedRows = await db.select(db.bookOwnedItemsRows).get();
+    expect(bookOwnedRows, hasLength(15));
+    expect(
+      bookOwnedRows.every(
+        (row) =>
+            row.itemId.startsWith('seed-book-') &&
+            row.signedBy?.trim().isNotEmpty == true &&
+            row.dustJacketPresent == true &&
+            row.dustJacketCondition?.trim().isNotEmpty == true,
+      ),
+      isTrue,
+      reason: 'Book seed copies must retain complete typed ownership data',
+    );
+
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows

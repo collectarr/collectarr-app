@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/local/book_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/local/book_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/local/boardgame_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/local/boardgame_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
@@ -55,6 +56,7 @@ part 'local_database.g.dart';
   BookMediaRows,
   BookReleaseRows,
   BookOwnedDetailsRows,
+  BookOwnedItemsRows,
   GameMediaRows,
   GameReleaseRows,
   GameOwnedDetailsRows,
@@ -103,7 +105,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 33;
+  int get schemaVersion => 34;
 
   @override
   MigrationStrategy get migration {
@@ -273,6 +275,12 @@ class LocalDatabase extends _$LocalDatabase {
             await m.createTable(boardGameOwnedItemsRows);
           }
           await migrateBoardGameOwnedItems(this);
+        }
+        if (from < 34) {
+          if (!await _hasTable(bookOwnedItemsRows.actualTableName)) {
+            await m.createTable(bookOwnedItemsRows);
+          }
+          await migrateBookOwnedItems(this);
         }
       },
       beforeOpen: (details) async {
