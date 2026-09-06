@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_import_profile.dart';
@@ -42,6 +42,27 @@ final class MangaCollectionCsvProjection
   @override
   Map<String, List<String>> get columnAliases =>
       MangaCollectionCsvImportProfile.columnAliases;
+
+  @override
+  CatalogItem? catalogItemFromImportCells(List<String> cells) {
+    if (cells.length != libraryCollectionCsvCatalogCellCount ||
+        cells[0].trim().isEmpty) {
+      return null;
+    }
+    return CatalogItemDto.fromJson({
+      'id': cells[0],
+      'kind': kind.apiValue,
+      'title': cells[2],
+      if (cells[3].trim().isNotEmpty) 'item_number': cells[3],
+      if (cells[4].trim().isNotEmpty) 'variant': cells[4],
+      if (cells[5].trim().isNotEmpty) 'edition_title': cells[5],
+      if (cells[6].trim().isNotEmpty) 'physical_format': cells[6],
+      if (cells[7].trim().isNotEmpty) 'physical_format_label': cells[7],
+      if (cells[8].trim().isNotEmpty) 'publisher': cells[8],
+      if (cells[9].trim().isNotEmpty) 'release_date': cells[9],
+      if (cells[10].trim().isNotEmpty) 'barcode': cells[10],
+    });
+  }
 
   @override
   List<String> catalogCells(LibraryEntry entry) {

@@ -100,6 +100,23 @@ void main() {
         contains('Contract publisher'),
         reason: kind.apiValue,
       );
+      final imported = projection.catalogItemFromImportCells([
+        'import-${kind.apiValue}',
+        kind.apiValue,
+        'Imported item',
+        '7',
+        'Primary',
+        '',
+        '',
+        '',
+        'Contract publisher',
+        '2024-01-01',
+        '0123456789',
+      ]);
+      expect(imported, isNotNull, reason: kind.apiValue);
+      expect(imported!.id, 'import-${kind.apiValue}', reason: kind.apiValue);
+      expect(imported.kind, kind.apiValue, reason: kind.apiValue);
+      expect(imported.title, 'Imported item', reason: kind.apiValue);
       expect(
         projection.catalogMatchesBarcode(item, '0123456789'),
         isTrue,

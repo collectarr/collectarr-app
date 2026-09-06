@@ -20,6 +20,8 @@ abstract interface class LibraryCollectionCsvProjection {
 
   String importDisplaySubtitle(List<String> catalogCells);
 
+  CatalogItem? catalogItemFromImportCells(List<String> catalogCells);
+
   bool catalogMatchesBarcode(CatalogItem item, String normalizedBarcode);
 
   /// The complete CLZ-compatible header for a single-kind export.

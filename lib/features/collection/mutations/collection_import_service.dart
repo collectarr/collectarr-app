@@ -347,6 +347,17 @@ final class CollectionImportService {
     if (existing != null) {
       return typedCatalogItemFromCatalogItem(existing);
     }
+    final projection = libraryCollectionCsvProjectionForKind(
+      catalogMediaKindFromValue(row.kind),
+    );
+    if (projection != null &&
+        row.kindCatalogCells.length == libraryCollectionCsvCatalogCellCount) {
+      final imported =
+          projection.catalogItemFromImportCells(row.kindCatalogCells);
+      if (imported != null) {
+        return imported;
+      }
+    }
     return typedCatalogItemFromMap({
       'id': row.itemId,
       'kind': row.kind ?? CatalogMediaKind.unknown.apiValue,
