@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/features/calendar/calendar_event_contributor.dart';
 
 typedef CalendarTitleForItem = String Function(String itemId);
 
@@ -20,8 +21,10 @@ final class LibraryCalendarContext {
   final CalendarTitleForItem titleForItem;
 }
 
-abstract interface class LibraryCalendarContributor {
+abstract interface class LibraryCalendarContributor
+    implements CalendarEventContributor<LibraryCalendarContext> {
   CatalogMediaKind get kind;
 
+  @override
   Iterable<CalendarEvent> contribute(LibraryCalendarContext context);
 }
