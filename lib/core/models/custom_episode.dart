@@ -48,28 +48,6 @@ final class CustomEpisode {
     };
   }
 
-  factory CustomEpisode.fromJson(Map<String, dynamic> json) {
-    final seriesRef =
-        CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>);
-    return CustomEpisode(
-      id: json['id'] as String,
-      seriesRef: seriesRef,
-      seasonNumber: json['season_number'] as int,
-      episodeNumber: json['episode_number'] as int,
-      title: json['title'] as String,
-      overview: json['overview'] as String?,
-      airDate: json['air_date'] as String?,
-      runtimeMinutes: json['runtime_minutes'] as int?,
-      stillImageUrl: json['still_image_url'] as String?,
-      localImagePath: json['local_image_path'] as String?,
-      thumbnailImageUrl: json['thumbnail_image_url'] as String?,
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      deletedAt: json['deleted_at'] != null
-          ? DateTime.parse(json['deleted_at'] as String)
-          : null,
-    );
-  }
-
   CustomEpisode copyWith({
     CatalogEntityRef? seriesRef,
     String? title,

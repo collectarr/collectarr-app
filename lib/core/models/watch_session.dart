@@ -55,28 +55,6 @@ class WatchSession {
     };
   }
 
-  factory WatchSession.fromJson(Map<String, dynamic> json) {
-    final targetRefJson = json['target_ref'] ?? json['catalog_ref'];
-    return WatchSession(
-      id: json['id'] as String,
-      targetRef: targetRefJson is Map<String, dynamic>
-          ? CatalogEntityRef.fromJson(targetRefJson)
-          : throw const FormatException('Watch session is missing catalog_ref'),
-      trackingEntryId: json['tracking_entry_id'] as String?,
-      seasonNumber: json['season_number'] as int?,
-      episodeNumber: json['episode_number'] as int?,
-      sourceType: json['source_type'] as String?,
-      seenWhere: json['seen_where'] as String?,
-      watchedAt: DateTime.parse(json['watched_at'] as String),
-      rating: json['rating'] as int?,
-      notes: json['notes'] as String?,
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      deletedAt: json['deleted_at'] == null
-          ? null
-          : DateTime.parse(json['deleted_at'] as String),
-    );
-  }
-
   WatchSession copyWith({
     String? id,
     CatalogEntityRef? targetRef,

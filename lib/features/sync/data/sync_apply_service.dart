@@ -334,12 +334,9 @@ class SyncApplyService {
             deletedAt == null ? null : DateTime.parse(deletedAt as String),
       );
     }
-    return WatchSession.fromJson({
-      ...payload,
-      'id': entity['entity_id'],
-      'updated_at': entity['client_changed_at'],
-      'deleted_at': deletedAt,
-    });
+    throw UnsupportedError(
+      'No kind-owned watch-session codec is registered for ${kind ?? 'unknown'}',
+    );
   }
 
   UserMetadataOverride _metadataOverrideFromEntity(
@@ -385,12 +382,9 @@ class SyncApplyService {
             deletedAt == null ? null : DateTime.parse(deletedAt as String),
       );
     }
-    return CustomEpisode.fromJson({
-      ...payload,
-      'id': entity['entity_id'],
-      'updated_at': entity['client_changed_at'],
-      'deleted_at': deletedAt,
-    });
+    throw UnsupportedError(
+      'No kind-owned custom-episode codec is registered for ${kind ?? 'unknown'}',
+    );
   }
 
   StorageLocation _locationFromEntity(Map<String, dynamic> entity) {
