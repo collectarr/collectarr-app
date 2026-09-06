@@ -35,4 +35,31 @@ void main() {
     expect(await db.select(db.animeOwnedItemsRows).get(), hasLength(1));
     expect(await db.select(db.musicOwnedItemsRows).get(), hasLength(1));
   });
+
+  test('preserves the complete seeded owned payload through each kind table',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final persistence = CollectarrOwnedItemPersistence(db);
+    final now = DateTime.utc(2026, 9, 6, 12);
+    final items = [
+      comicSeedOwnedItems(now).first,
+      mangaSeedOwnedItems(now).first,
+      bookSeedOwnedItems(now).first,
+      gameSeedOwnedItems(now).first,
+      boardgameSeedOwnedItems(now).first,
+      movieSeedOwnedItems(now).first,
+      tvSeedOwnedItems(now).first,
+      animeSeedOwnedItems(now).first,
+      musicSeedOwnedItems(now).first,
+    ];
+
+    for (final item in items) {
+      await persistence.upsert(item);
+      final roundTrip = await persistence.findById(item.id);
+      expect(roundTrip, isNotNull, reason: item.catalogRef.kind);
+      expect(roundTrip!.toJson(), equals(item.toJson()),
+          reason: 'owned payload was not lossless for ${item.catalogRef.kind}');
+    }
+  });
 }

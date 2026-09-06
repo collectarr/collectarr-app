@@ -71,17 +71,18 @@ class MusicOwnedDetails extends OwnedItemDetails {
         if (storageSlot != null) 'storage_slot': storageSlot,
         if (signedBy != null) 'signed_by': signedBy,
         if (lastCleanedDate != null)
-          'last_cleaned_date': lastCleanedDate!.toIso8601String(),
+          'last_cleaned_date': lastCleanedDate!.toUtc().toIso8601String(),
         if (matrixRunouts.isNotEmpty)
           'matrix_runouts': matrixRunouts.map((e) => e.toJson()).toList(),
       };
 
   factory MusicOwnedDetails.fromJson(Map<String, dynamic> json) {
+    final lastCleanedDate = json['last_cleaned_date'];
     return MusicOwnedDetails(
       storage: StorageDetails.fromJson(json),
       signedBy: json['signed_by'] as String?,
-      lastCleanedDate: json['last_cleaned_date'] != null
-          ? DateTime.tryParse(json['last_cleaned_date'] as String)
+      lastCleanedDate: lastCleanedDate is String
+          ? DateTime.tryParse(lastCleanedDate)?.toUtc()
           : null,
       matrixRunouts: (json['matrix_runouts'] as List<dynamic>?)
               ?.map(
