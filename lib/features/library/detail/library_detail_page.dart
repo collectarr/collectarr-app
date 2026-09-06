@@ -1,11 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
@@ -207,16 +206,16 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       item: item,
       ownedItem: ownedItem,
     );
+    final catalogItem = item.source.catalogItem;
+    if (catalogItem == null) {
+      return;
+    }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
-            catalogRef: CatalogEntityRef(
-              kind: widget.type.kind.apiValue,
-              entityType: CatalogEntityType.work,
-              id: item.node.titleItemId,
-            ),
+          widget.type.add.buildCommand(
+            catalogItem,
+            const LibraryAddCommonDraft(),
+            widget.type.add.createInitialDraft(),
             anchor: anchor,
-            common: OwnedItemCommonDraft(),
-            details: widget.type.defaultOwnedDetailsDraft(),
           ),
         );
     if (!mounted) {

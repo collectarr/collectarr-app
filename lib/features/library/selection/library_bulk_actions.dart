@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -5,6 +6,8 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
@@ -95,24 +98,40 @@ class LibraryBulkActions {
           entry.wishlistItem?.catalogRef.kind ??
           entry.trackingEntry?.catalogRef.kind;
       final resolvedKind = catalogMediaKindFromApiValue(resolvedKindStr);
-      final addCmd = AddOwnedItemCommand(
-        catalogRef: CatalogEntityRef(
-          kind: resolvedKindStr ?? 'comic',
-          entityType: CatalogEntityType.ownedCopy,
-          id: entry.itemId,
-        ),
-        anchor: anchor,
-        common: OwnedItemCommonDraft(
-          condition: defaultCondition,
-          grade: defaultGrade,
-          locationId: defaultLocationId,
-          tags: defaultTags,
-        ),
-        tracking: OwnedItemTrackingDraft(
-          status: mediaTrackingStatusFromValue(defaultReadStatus),
-        ),
-        details: libraryKindOwnedDetailsDraftForKind(resolvedKind),
+      final common = LibraryAddCommonDraft(
+        condition: defaultCondition,
+        grade: defaultGrade,
+        locationId: defaultLocationId,
+        tags: defaultTags,
       );
+      final tracking = OwnedItemTrackingDraft(
+        status: mediaTrackingStatusFromValue(defaultReadStatus),
+      );
+      final catalogItem = entry.catalogItem;
+      final addCmd =
+          catalogItem == null || resolvedKind == CatalogMediaKind.unknown
+              ? AddOwnedItemCommand(
+                  catalogRef: CatalogEntityRef(
+                    kind: resolvedKindStr ?? 'comic',
+                    entityType: CatalogEntityType.ownedCopy,
+                    id: entry.itemId,
+                  ),
+                  anchor: anchor,
+                  common: common.toOwnedItemCommonDraft(),
+                  tracking: tracking,
+                  details: libraryKindOwnedDetailsDraftForKind(resolvedKind),
+                )
+              : libraryKindRuntimeForKind(resolvedKind).add.buildCommand(
+                    catalogItem,
+                    common,
+                    libraryKindRuntimeForKind(resolvedKind)
+                        .add
+                        .createInitialDraft(),
+                    anchor: anchor,
+                    tracking: LibraryAddTrackingDraft(
+                      readStatus: defaultReadStatus,
+                    ),
+                  );
       await coordinator.addOwnedItem(addCmd);
     }
   }

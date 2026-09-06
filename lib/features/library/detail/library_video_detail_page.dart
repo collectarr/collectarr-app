@@ -3,10 +3,10 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
@@ -65,13 +65,15 @@ class _LibraryVideoDetailPageState
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
+    final catalogItem = widget.request.item.source.catalogItem;
+    if (catalogItem == null) {
+      return;
+    }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
-            catalogRef: CatalogEntityRef(
-              kind: widget.request.type.kind.apiValue,
-              entityType: CatalogEntityType.work,
-              id: widget.request.item.source.itemId,
-            ),
+          widget.request.type.add.buildCommand(
+            catalogItem,
+            const LibraryAddCommonDraft(),
+            widget.request.type.add.createInitialDraft(),
             anchor: PersonalItemAnchor.fromRaw(
               anchorType: resolvePersonalItemAnchorType(
                 editionId: anchor.editionId,
@@ -82,8 +84,6 @@ class _LibraryVideoDetailPageState
               variantId: anchor.variantId,
               bundleReleaseId: anchor.bundleReleaseId,
             ),
-            common: OwnedItemCommonDraft(),
-            details: widget.request.type.defaultOwnedDetailsDraft(),
           ),
         );
   }
