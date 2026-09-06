@@ -276,9 +276,10 @@ class LibraryFilterEngine {
       LibraryDateRangeField.updated => item.source.updatedAt,
       LibraryDateRangeField.purchased => ownedItem?.purchaseDate,
       LibraryDateRangeField.started =>
-        trackingEntry?.startedAt ?? ownedItem?.startedAt,
-      LibraryDateRangeField.finished =>
-        trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
+        trackingEntry == null ? ownedItem?.startedAt : trackingEntry.startedAt,
+      LibraryDateRangeField.finished => trackingEntry == null
+          ? ownedItem?.finishedAt
+          : trackingEntry.finishedAt,
     };
   }
 

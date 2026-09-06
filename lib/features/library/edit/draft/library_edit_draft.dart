@@ -183,12 +183,15 @@ class LibraryEditDraft {
     );
     final wishlistCurrencyController = create(wishlistItem?.currency ?? '');
     final wishlistNotesController = create(wishlistItem?.notes ?? '');
+    final trackingRating =
+        trackingEntry == null ? ownedItem?.rating : trackingEntry.rating;
+    final trackingStatus = trackingEntry == null
+        ? ownedItem?.readStatus
+        : trackingEntry.statusStorageValue;
     final ratingController = create(
-      (trackingEntry?.rating ?? ownedItem?.rating)?.toString() ?? '',
+      trackingRating?.toString() ?? '',
     );
-    final trackingController = create(
-      trackingEntry?.statusStorageValue ?? ownedItem?.readStatus ?? '',
-    );
+    final trackingController = create(trackingStatus ?? '');
     final progressCurrentController = create(
       trackingEntry?.progressCurrent?.toString() ?? '',
     );
@@ -293,8 +296,12 @@ class LibraryEditDraft {
           trackingEntry?.editionId ?? editionSelection.edition?.id,
       selectedTrackingVariantId:
           trackingEntry?.variantId ?? editionSelection.variant?.id,
-      startedAt: trackingEntry?.startedAt ?? ownedItem?.startedAt,
-      finishedAt: trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
+      startedAt: trackingEntry == null
+          ? ownedItem?.startedAt
+          : trackingEntry.startedAt,
+      finishedAt: trackingEntry == null
+          ? ownedItem?.finishedAt
+          : trackingEntry.finishedAt,
     );
 
     final kindDetails = type.edit.createDraft(

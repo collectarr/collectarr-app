@@ -412,6 +412,7 @@ class CollectionCsv {
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
     final o = entry.ownedItem;
+    final tracking = entry.trackingEntry;
     final cfValues = o != null
         ? _customFieldCells(
             o.id, customFieldDefinitions, customFieldValuesByItem)
@@ -429,10 +430,10 @@ class CollectionCsv {
       _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: false),
-      o?.rating?.toString() ?? '',
-      o?.readStatus ?? '',
-      _formatDate(o?.startedAt),
-      _formatDate(o?.finishedAt),
+      (tracking == null ? o?.rating : tracking.rating)?.toString() ?? '',
+      (tracking == null ? o?.readStatus : tracking.statusStorageValue) ?? '',
+      _formatDate(tracking == null ? o?.startedAt : tracking.startedAt),
+      _formatDate(tracking == null ? o?.finishedAt : tracking.finishedAt),
       o?.tags ?? '',
       _formatDate(o?.soldAt),
       o?.sellPriceCents?.toString() ?? '',
@@ -447,6 +448,7 @@ class CollectionCsv {
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
     final o = entry.ownedItem;
+    final tracking = entry.trackingEntry;
     final cfValues = o != null
         ? _customFieldCells(
             o.id, customFieldDefinitions, customFieldValuesByItem)
@@ -464,10 +466,10 @@ class CollectionCsv {
       _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: true),
-      o?.rating?.toString() ?? '',
-      o?.readStatus ?? '',
-      _formatDate(o?.startedAt),
-      _formatDate(o?.finishedAt),
+      (tracking == null ? o?.rating : tracking.rating)?.toString() ?? '',
+      (tracking == null ? o?.readStatus : tracking.statusStorageValue) ?? '',
+      _formatDate(tracking == null ? o?.startedAt : tracking.startedAt),
+      _formatDate(tracking == null ? o?.finishedAt : tracking.finishedAt),
       o?.tags ?? '',
       o?.personalNotes ?? entry.wishlistItem?.notes ?? '',
       _formatDate(o?.soldAt),

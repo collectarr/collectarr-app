@@ -73,9 +73,11 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final totalCurrentValue = totalMarketValueCents == null
         ? ''
         : formatMoney(totalMarketValueCents, totalsCurrency);
+    final tracking = trackingEntry;
     final trackingStatus =
-        trackingEntry?.statusStorageValue ?? ownedItem?.readStatus;
-    final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
+        tracking == null ? ownedItem?.readStatus : tracking.statusStorageValue;
+    final trackingRating =
+        tracking == null ? ownedItem?.rating : tracking.rating;
     final trackingProgress = _detailTrackingProgressLabel(trackingEntry);
     return LibraryDetailSection(
       title: 'Local collection',

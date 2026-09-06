@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -153,6 +154,41 @@ void main() {
       rows.single.customFieldValues['Favorite Formats'],
       '["Hardcover","Digital"]',
     );
+  });
+
+  test('collection csv exports typed tracking values before legacy columns',
+      () {
+    final source = ShelfEntry(
+      itemId: 'book-1',
+      catalogItem: typedCatalogItemFromCatalogItem(
+        testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
+      ),
+      ownedItem: testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        rating: 3,
+        readStatus: 'completed',
+        startedAt: DateTime.utc(2020, 1, 1),
+        finishedAt: DateTime.utc(2020, 1, 2),
+        updatedAt: DateTime.utc(2026, 1, 1),
+      ),
+      trackingEntry: TrackingEntry(
+        id: 'tracking-1',
+        catalogRef: testCatalogRef('book-1', kind: 'book'),
+        ownedItemId: 'owned-1',
+        status: MediaTrackingStatus.inProgress,
+        rating: 8,
+        startedAt: DateTime.utc(2026, 1, 3),
+        updatedAt: DateTime.utc(2026, 1, 3),
+      ),
+    );
+
+    final rows = CollectionCsv().parse(CollectionCsv().exportShelf([source]));
+
+    expect(rows.single.rating, 8);
+    expect(rows.single.readStatus, 'In progress');
+    expect(rows.single.startedAt, DateTime.utc(2026, 1, 3));
+    expect(rows.single.finishedAt, isNull);
   });
 
   test('collection csv exports clz-friendly shelf rows', () {

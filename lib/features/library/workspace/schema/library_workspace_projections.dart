@@ -138,8 +138,9 @@ class PersonalCopyProjection {
       isTracked: releaseState?.isTracked ?? source.isTracked,
       condition: owned?.condition,
       locationPath: owned?.locationId,
-      trackingStatus: tracking?.statusStorageValue ?? owned?.readStatus,
-      rating: tracking?.rating ?? owned?.rating,
+      trackingStatus:
+          tracking == null ? owned?.readStatus : tracking.statusStorageValue,
+      rating: tracking == null ? owned?.rating : tracking.rating,
       pricePaidCents: owned?.pricePaidCents,
       addedAt: owned?.createdAt,
       updatedAt: source.updatedAt,
