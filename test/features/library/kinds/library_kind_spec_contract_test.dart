@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -52,22 +52,23 @@ void main() {
         'owned details codec encodes matching details and rejects invalid details',
         () {
       for (final spec in collectarrKindModules) {
-        final defaultDetails = spec.defaultOwnedDetails();
+        final codec = collectarrOwnedDetailsCodecForKind(spec.kind);
+        final defaultDetails = codec.defaultDetails();
         expect(defaultDetails, isNotNull);
 
         // Encoding valid details must succeed
-        final encoded = spec.encodeOwnedDetails(defaultDetails);
+        final encoded = defaultDetails.toJson();
         expect(encoded, isA<Map<String, dynamic>>());
 
         // Encoding an invalid details type must throw ArgumentError
         if (spec.kind == CatalogMediaKind.comic) {
           expect(
-            () => spec.encodeOwnedDetails(const BookOwnedDetails()),
+            () => codec.validate(const BookOwnedDetails()),
             throwsArgumentError,
           );
         } else if (spec.kind == CatalogMediaKind.movie) {
           expect(
-            () => spec.encodeOwnedDetails(const ComicOwnedDetails()),
+            () => codec.validate(const ComicOwnedDetails()),
             throwsArgumentError,
           );
         }

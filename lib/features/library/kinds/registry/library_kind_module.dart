@@ -18,7 +18,6 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -89,15 +88,6 @@ abstract interface class LibraryKindRuntime {
   List<LibrarySearchTarget> get searchTargetOptions;
 
   LibraryWorkspaceViewProfile get viewProfile;
-
-  OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
-  OwnedItemDetails defaultOwnedDetails();
-  OwnedDetailsDraft defaultOwnedDetailsDraft();
-  OwnedDetailsDraft ownedDetailsDraftFromDetails(OwnedItemDetails details);
-  OwnedDetailsDraft buildPersonalDetailsDraft(
-      LibraryPersonalEditSelection personal);
-  Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details);
-  void validateOwnedDetails(OwnedItemDetails details);
 
   LibraryCardPresentation buildCard(
     LibraryProjectionRuntime item, {
@@ -226,39 +216,6 @@ class LibraryKindSpec<
   }
 
   @override
-  OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json) =>
-      ownedDetailsCodec.fromJson(json);
-
-  @override
-  OwnedItemDetails defaultOwnedDetails() => ownedDetailsCodec.defaultDetails();
-
-  @override
-  OwnedDetailsDraft defaultOwnedDetailsDraft() =>
-      ownedDetailsCodec.defaultDraft();
-
-  @override
-  OwnedDetailsDraft ownedDetailsDraftFromDetails(OwnedItemDetails details) {
-    validateOwnedDetails(details);
-    return ownedDetailsCodec.draftFromDetails(details as TDetails);
-  }
-
-  @override
-  OwnedDetailsDraft buildPersonalDetailsDraft(
-          LibraryPersonalEditSelection personal) =>
-      ownedDetailsCodec.buildDraft(personal);
-
-  @override
-  Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details) {
-    validateOwnedDetails(details);
-    return ownedDetailsCodec.toJson(details as TDetails);
-  }
-
-  @override
-  void validateOwnedDetails(OwnedItemDetails details) {
-    ownedDetailsCodec.validate(details);
-  }
-
-  @override
   CatalogMediaKind get kind => identity.kind;
 
   final LibraryWorkspaceViewProfile? _viewProfile;
@@ -372,8 +329,6 @@ void validateKindRuntime(LibraryKindRuntime runtime) {
       'Default group ID "${runtime.fields.defaultGroup!.value}" not found in groups for kind spec "${runtime.identity.title}"',
     );
   }
-
-  runtime.validateOwnedDetails(runtime.defaultOwnedDetails());
 }
 
 class LibraryKindToolbarModule {

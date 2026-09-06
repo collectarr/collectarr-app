@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
@@ -233,7 +233,10 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
               purchaseDate: Patch.set(updated.purchaseDate),
               soldAt: Patch.set(updated.soldAt),
               details: Patch.set(
-                widget.type.ownedDetailsDraftFromDetails(updated.details),
+                libraryKindOwnedDetailsDraftFromDetailsForKind(
+                  widget.type.kind,
+                  updated.details,
+                ),
               ),
             ),
           ),
@@ -273,7 +276,10 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                 currency: Patch.set(updated.currency),
                 soldTo: Patch.set(updated.soldTo),
                 details: Patch.set(
-                  widget.type.ownedDetailsDraftFromDetails(updated.details),
+                  libraryKindOwnedDetailsDraftFromDetailsForKind(
+                    widget.type.kind,
+                    updated.details,
+                  ),
                 ),
               ),
             ),

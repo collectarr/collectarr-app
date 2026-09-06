@@ -285,6 +285,7 @@ void main() {
     expect(bookKindModule.add.kind, CatalogMediaKind.book);
     expect(bookKindModule.add.createInitialDraft(), isA<BookAddDraft>());
     expect(bookKindModule.ownedDetailsCodec, isA<BookOwnedDetailsCodec>());
-    expect(bookKindModule.defaultOwnedDetails(), isA<BookOwnedDetails>());
+    expect(bookKindModule.ownedDetailsCodec.defaultDetails(),
+        isA<BookOwnedDetails>());
   });
 }

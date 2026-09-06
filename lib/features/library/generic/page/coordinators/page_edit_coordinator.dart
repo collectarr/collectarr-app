@@ -314,7 +314,10 @@ class LibraryPageEditCoordinator {
             ? Patch.set(personal.marketValueCents)
             : const Patch.clear(),
         details: Patch.set(
-          _s.widget.type.buildPersonalDetailsDraft(personal),
+          libraryKindPersonalDetailsDraftForKind(
+            _s.widget.type.kind,
+            personal,
+          ),
         ),
       );
       await coordinator.updateOwnedItem(

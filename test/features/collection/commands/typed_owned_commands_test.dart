@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -84,10 +85,10 @@ void main() {
           ),
         );
 
-        final runtime = libraryKindRuntimeForKind(kind);
+        final defaultDetails =
+            collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
         expect(item.details, isNot(isA<GenericOwnedDetails>()));
-        expect(item.details.runtimeType,
-            runtime.defaultOwnedDetails().runtimeType);
+        expect(item.details.runtimeType, defaultDetails.runtimeType);
 
         // Mismatched details test: non-comic kind with ComicOwnedDetailsDraft
         if (kind != CatalogMediaKind.comic && kind != CatalogMediaKind.manga) {
@@ -157,8 +158,8 @@ void main() {
           ),
         );
 
-        final runtime = libraryKindRuntimeForKind(kind);
-        final defaultDetails = runtime.defaultOwnedDetails();
+        final defaultDetails =
+            collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
 
         expect(updated.details, isNot(isA<GenericOwnedDetails>()));
         expect(updated.details.runtimeType, defaultDetails.runtimeType);
@@ -167,9 +168,8 @@ void main() {
 
     test('default details for all 9 kinds resolves to non-generic details', () {
       for (final kind in allActiveKinds) {
-        final defaultDetails = kind == CatalogMediaKind.unknown
-            ? const GenericOwnedDetails()
-            : libraryKindRuntimeForKind(kind).defaultOwnedDetails();
+        final defaultDetails =
+            collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
         expect(defaultDetails, isNot(isA<GenericOwnedDetails>()),
             reason: '$kind default details must not be GenericOwnedDetails');
 
@@ -200,23 +200,28 @@ void main() {
       expect(book.toJson(), isEmpty);
       expect(boardgame.toJson(), isEmpty);
 
-      final parsedBook = libraryKindRuntimeForKind(CatalogMediaKind.book)
-          .decodeOwnedDetails({});
-      final parsedBoardgame = libraryKindRuntimeForKind(
+      final parsedBook = collectarrOwnedDetailsCodecForKind(
+        CatalogMediaKind.book,
+      ).fromJson({});
+      final parsedBoardgame = collectarrOwnedDetailsCodecForKind(
         CatalogMediaKind.boardgame,
-      ).decodeOwnedDetails({});
+      ).fromJson({});
 
       expect(parsedBook, isA<BookOwnedDetails>());
       expect(parsedBoardgame, isA<BoardgameOwnedDetails>());
 
       expect(
-        libraryKindRuntimeForKind(CatalogMediaKind.book)
-            .ownedDetailsDraftFromDetails(parsedBook),
+        libraryKindOwnedDetailsDraftFromDetailsForKind(
+          CatalogMediaKind.book,
+          parsedBook,
+        ),
         isA<BookOwnedDetailsDraft>(),
       );
       expect(
-        libraryKindRuntimeForKind(CatalogMediaKind.boardgame)
-            .ownedDetailsDraftFromDetails(parsedBoardgame),
+        libraryKindOwnedDetailsDraftFromDetailsForKind(
+          CatalogMediaKind.boardgame,
+          parsedBoardgame,
+        ),
         isA<BoardgameOwnedDetailsDraft>(),
       );
     });

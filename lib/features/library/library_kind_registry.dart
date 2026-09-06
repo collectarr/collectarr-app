@@ -9,6 +9,10 @@ import 'package:collectarr_app/features/library/config/library_activity_contribu
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/activity/anime_activity_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/admin/anime_admin_contributor.dart';
@@ -293,13 +297,37 @@ LibraryKindRuntime libraryKindRuntimeForKind(
   return reg.require(kind);
 }
 
-/// Composition-root dispatch for the default typed Owned draft.
+/// Composition-root access to the kind-owned serialization codec.
 ///
-/// Collection commands intentionally do not depend on the kind registry. UI
-/// and integration hosts may use this helper while they still construct the
-/// transitional common command boundary.
+/// The codec is used only at persistence/import boundaries. Generic callers
+/// must not inspect the concrete details returned by it.
+OwnedDetailsCodec<dynamic, dynamic> libraryKindOwnedDetailsCodecForKind(
+  CatalogMediaKind kind,
+) {
+  return collectarrOwnedDetailsCodecForKind(kind)
+      as OwnedDetailsCodec<dynamic, dynamic>;
+}
+
 OwnedDetailsDraft libraryKindOwnedDetailsDraftForKind(CatalogMediaKind kind) {
-  return libraryKindRuntimeForKind(kind).defaultOwnedDetailsDraft();
+  return libraryKindOwnedDetailsCodecForKind(kind).defaultDraft()
+      as OwnedDetailsDraft;
+}
+
+OwnedDetailsDraft libraryKindOwnedDetailsDraftFromDetailsForKind(
+  CatalogMediaKind kind,
+  OwnedItemDetails details,
+) {
+  final codec = libraryKindOwnedDetailsCodecForKind(kind);
+  codec.validate(details);
+  return codec.draftFromDetails(details) as OwnedDetailsDraft;
+}
+
+OwnedDetailsDraft libraryKindPersonalDetailsDraftForKind(
+  CatalogMediaKind kind,
+  LibraryPersonalEditSelection personal,
+) {
+  return libraryKindOwnedDetailsCodecForKind(kind).buildDraft(personal)
+      as OwnedDetailsDraft;
 }
 
 bool libraryGroupModeSupportsCompletion(

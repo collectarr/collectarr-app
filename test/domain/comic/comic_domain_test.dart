@@ -209,6 +209,7 @@ void main() {
     expect(comicKindModule.add.kind, CatalogMediaKind.comic);
     expect(comicKindModule.add.createInitialDraft(), isA<ComicAddDraft>());
     expect(comicKindModule.ownedDetailsCodec, isA<ComicOwnedDetailsCodec>());
-    expect(comicKindModule.defaultOwnedDetails(), isA<ComicOwnedDetails>());
+    expect(comicKindModule.ownedDetailsCodec.defaultDetails(),
+        isA<ComicOwnedDetails>());
   });
 }

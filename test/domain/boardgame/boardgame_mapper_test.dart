@@ -131,7 +131,7 @@ void main() {
         boardGameKindModule.add.createInitialDraft(), isA<BoardGameAddDraft>());
     expect(boardGameKindModule.ownedDetailsCodec,
         isA<BoardgameOwnedDetailsCodec>());
-    expect(boardGameKindModule.defaultOwnedDetails(),
+    expect(boardGameKindModule.ownedDetailsCodec.defaultDetails(),
         isA<BoardgameOwnedDetails>());
   });
 }

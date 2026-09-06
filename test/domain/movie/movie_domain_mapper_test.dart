@@ -200,6 +200,7 @@ void main() {
     expect(movieKindModule.add.kind, CatalogMediaKind.movie);
     expect(movieKindModule.add.createInitialDraft(), isA<MovieAddDraft>());
     expect(movieKindModule.ownedDetailsCodec, isA<MovieOwnedDetailsCodec>());
-    expect(movieKindModule.defaultOwnedDetails(), isA<MovieOwnedDetails>());
+    expect(movieKindModule.ownedDetailsCodec.defaultDetails(),
+        isA<MovieOwnedDetails>());
   });
 }

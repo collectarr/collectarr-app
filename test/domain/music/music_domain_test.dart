@@ -180,6 +180,7 @@ void main() {
     expect(musicKindModule.add.kind, CatalogMediaKind.music);
     expect(musicKindModule.add.createInitialDraft(), isA<MusicAddDraft>());
     expect(musicKindModule.ownedDetailsCodec, isA<MusicOwnedDetailsCodec>());
-    expect(musicKindModule.defaultOwnedDetails(), isA<MusicOwnedDetails>());
+    expect(musicKindModule.ownedDetailsCodec.defaultDetails(),
+        isA<MusicOwnedDetails>());
   });
 }

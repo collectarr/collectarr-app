@@ -48,10 +48,11 @@ void main() {
         expect(editCap.createDraft, isNotNull,
             reason: '$kind must have explicit edit draft factory');
 
-        // Owned details and codec
-        expect(runtime.defaultOwnedDetails(), isNotNull,
+        // Owned details and codec live in the kind-owned serialization registry.
+        final ownedCodec = collectarrOwnedDetailsCodecForKind(kind);
+        expect(ownedCodec.defaultDetails(), isNotNull,
             reason: '$kind defaultOwnedDetails must not be null');
-        expect(runtime.defaultOwnedDetailsDraft(), isNotNull,
+        expect(libraryKindOwnedDetailsDraftForKind(kind), isNotNull,
             reason: '$kind defaultOwnedDetailsDraft must not be null');
 
         // Fields & Schema
@@ -120,8 +121,8 @@ void main() {
         () {
       final detailsTypes = <Type>{};
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
-        final defaultDetails = runtime.defaultOwnedDetails();
+        final defaultDetails =
+            collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
         expect(defaultDetails, isNotNull);
         expect(defaultDetails.runtimeType, isNot(equals(GenericOwnedDetails)));
         detailsTypes.add(defaultDetails.runtimeType);
