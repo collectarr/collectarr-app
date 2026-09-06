@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/registry/owned_details_exp
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -91,6 +92,7 @@ void main() {
     expect(cmd.condition.valueOrNull(), 'Mint');
     expect(cmd.grade.valueOrNull(), '9.9');
     expect(cmd.pricePaidCents.valueOrNull(), 4999);
+    expect(cmd.typedPayload, isA<ComicOwnedItemUpdatePayload>());
 
     final detailsPatch = cmd.details.valueOrNull();
     expect(detailsPatch, isA<ComicOwnedDetailsDraft>());

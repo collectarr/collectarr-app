@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
@@ -264,6 +265,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
       showsPhysicalFormatBadge: true,
     ),
     createDraft: createComicEditDraft,
+    ownedUpdatePayloadBuilder: ComicOwnedItemUpdatePayload.fromCommand,
   ),
   toolbar: LibraryKindToolbarModule(
     actions: [

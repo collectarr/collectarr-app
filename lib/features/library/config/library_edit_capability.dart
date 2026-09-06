@@ -14,6 +14,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
+export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 
 typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required CatalogItem item,
@@ -21,6 +22,10 @@ typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 });
+
+typedef LibraryOwnedUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
+  UpdateOwnedItemCommand<OwnedDetailsDraft> command,
+);
 
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
 /// kind-owned draft creation, and update command building.
@@ -37,6 +42,7 @@ class LibraryEditCapability {
     required this.defaultCondition,
     required this.defaultGrade,
     required this.createDraft,
+    this.ownedUpdatePayloadBuilder,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -50,6 +56,7 @@ class LibraryEditCapability {
   final String defaultCondition;
   final String defaultGrade;
   final LibraryEditKindDraftFactory createDraft;
+  final LibraryOwnedUpdatePayloadBuilder? ownedUpdatePayloadBuilder;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
@@ -63,7 +70,7 @@ class LibraryEditCapability {
     required LibraryEditKindDraft kindDraft,
   }) {
     final personal = session.personal;
-    return UpdateOwnedItemCommand(
+    final command = UpdateOwnedItemCommand<OwnedDetailsDraft>(
       ownedItemId: ownedItemId,
       anchor: Patch.set(
         PersonalItemAnchor.fromRaw(
@@ -115,5 +122,9 @@ class LibraryEditCapability {
           : Patch.set(personal.soldToController.text.trim()),
       details: Patch.set(buildDetailsDraft(kindDraft)),
     );
+    final builder = ownedUpdatePayloadBuilder;
+    return builder == null
+        ? command
+        : command.withTypedPayload(builder(command));
   }
 }

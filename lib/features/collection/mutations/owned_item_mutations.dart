@@ -165,127 +165,17 @@ final class OwnedItemMutations {
           throw StateError('OwnedItem not found: ${command.ownedItemId}');
         }
 
-        final mediaKind =
-            catalogMediaKindFromApiValue(existing.catalogRef.kind);
-        final detailsCodec = collectarrOwnedDetailsCodecForKind(mediaKind);
-
-        final resolvedDetails = command.details.when(
-          unchanged: () => existing.details,
-          set: (draft) {
-            final details = draft.toDetails();
-            detailsCodec.validate(details);
-            return details;
-          },
-          clear: () => detailsCodec.defaultDetails(),
-        );
-
-        final updatedItem = OwnedItem(
-          id: existing.id,
-          catalogRef: existing.catalogRef,
-          createdAt: existing.createdAt ?? now,
-          isDigital: command.isDigital.when(
-            unchanged: () => existing.isDigital,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          anchor: command.anchor.when(
-            unchanged: () => existing.anchor,
-            set: (value) => value,
-            clear: () => null,
-          ),
-          details: resolvedDetails,
-          condition: command.condition.when(
-            unchanged: () => existing.condition,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          grade: command.grade.when(
-            unchanged: () => existing.grade,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          purchaseDate: command.purchaseDate.when(
-            unchanged: () => existing.purchaseDate,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          pricePaidCents: command.pricePaidCents.when(
-            unchanged: () => existing.pricePaidCents,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          currency: command.currency.when(
-            unchanged: () => existing.currency,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          personalNotes: command.personalNotes.when(
-            unchanged: () => existing.personalNotes,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          quantity: command.quantity.when(
-            unchanged: () => existing.quantity,
-            set: (v) => v,
-            clear: () => 1,
-          ),
-          locationId: command.locationId.when(
-            unchanged: () => existing.locationId,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          purchaseStore: command.purchaseStore.when(
-            unchanged: () => existing.purchaseStore,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          collectionStatus: command.collectionStatus.when(
-            unchanged: () => existing.collectionStatus,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          tags: command.tags.when(
-            unchanged: () => existing.tags,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          // Preserve legacy denormalized tracking columns while their typed
-          // tracking rows are migrated. New writes are routed by the
-          // coordinator to TrackingMutations instead.
-          rating: existing.rating,
-          readStatus: existing.readStatus,
-          startedAt: existing.startedAt,
-          finishedAt: existing.finishedAt,
-          soldAt: command.soldAt.when(
-            unchanged: () => existing.soldAt,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          sellPriceCents: command.sellPriceCents.when(
-            unchanged: () => existing.sellPriceCents,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          soldTo: command.soldTo.when(
-            unchanged: () => existing.soldTo,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          marketValueCents: command.marketValueCents.when(
-            unchanged: () => existing.marketValueCents,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          ownerUserId: existing.ownerUserId ?? userId,
-          ownerLabel: existing.ownerLabel ?? userEmail,
-          indexNumber: command.indexNumber.when(
-            unchanged: () => existing.indexNumber,
-            set: (v) => v,
-            clear: () => null,
-          ),
-          updatedAt: now,
-          deletedAt: existing.deletedAt,
-        );
+        final updatedItem = command.typedPayload?.applyTo(
+              existing,
+              updatedAt: now,
+              fallbackOwnerUserId: userId,
+              fallbackOwnerLabel: userEmail,
+            ) ??
+            _applyLegacyOwnedUpdate(
+              existing,
+              command,
+              updatedAt: now,
+            );
 
         await ownedItems.upsert(updatedItem);
         await typedOwnedItems?.upsert(updatedItem);
@@ -297,6 +187,132 @@ final class OwnedItemMutations {
     );
 
     return updated;
+  }
+
+  OwnedItem _applyLegacyOwnedUpdate(
+    OwnedItem existing,
+    UpdateOwnedItemCommand command, {
+    required DateTime updatedAt,
+  }) {
+    final mediaKind = catalogMediaKindFromApiValue(existing.catalogRef.kind);
+    final detailsCodec = collectarrOwnedDetailsCodecForKind(mediaKind);
+    final resolvedDetails = command.details.when(
+      unchanged: () => existing.details,
+      set: (draft) {
+        final details = draft.toDetails();
+        detailsCodec.validate(details);
+        return details;
+      },
+      clear: () => detailsCodec.defaultDetails(),
+    );
+
+    return OwnedItem(
+      id: existing.id,
+      catalogRef: existing.catalogRef,
+      createdAt: existing.createdAt ?? updatedAt,
+      isDigital: command.isDigital.when(
+        unchanged: () => existing.isDigital,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      anchor: command.anchor.when(
+        unchanged: () => existing.anchor,
+        set: (value) => value,
+        clear: () => null,
+      ),
+      details: resolvedDetails,
+      condition: command.condition.when(
+        unchanged: () => existing.condition,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      grade: command.grade.when(
+        unchanged: () => existing.grade,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      purchaseDate: command.purchaseDate.when(
+        unchanged: () => existing.purchaseDate,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      pricePaidCents: command.pricePaidCents.when(
+        unchanged: () => existing.pricePaidCents,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      currency: command.currency.when(
+        unchanged: () => existing.currency,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      personalNotes: command.personalNotes.when(
+        unchanged: () => existing.personalNotes,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      quantity: command.quantity.when(
+        unchanged: () => existing.quantity,
+        set: (v) => v,
+        clear: () => 1,
+      ),
+      locationId: command.locationId.when(
+        unchanged: () => existing.locationId,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      purchaseStore: command.purchaseStore.when(
+        unchanged: () => existing.purchaseStore,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      collectionStatus: command.collectionStatus.when(
+        unchanged: () => existing.collectionStatus,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      tags: command.tags.when(
+        unchanged: () => existing.tags,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      // Preserve legacy denormalized tracking columns while their typed
+      // tracking rows are migrated. New writes are routed by the
+      // coordinator to TrackingMutations instead.
+      rating: existing.rating,
+      readStatus: existing.readStatus,
+      startedAt: existing.startedAt,
+      finishedAt: existing.finishedAt,
+      soldAt: command.soldAt.when(
+        unchanged: () => existing.soldAt,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      sellPriceCents: command.sellPriceCents.when(
+        unchanged: () => existing.sellPriceCents,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      soldTo: command.soldTo.when(
+        unchanged: () => existing.soldTo,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      marketValueCents: command.marketValueCents.when(
+        unchanged: () => existing.marketValueCents,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      ownerUserId: existing.ownerUserId ?? userId,
+      ownerLabel: existing.ownerLabel ?? userEmail,
+      indexNumber: command.indexNumber.when(
+        unchanged: () => existing.indexNumber,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      updatedAt: updatedAt,
+      deletedAt: existing.deletedAt,
+    );
   }
 
   Future<void> updateCatalogSnapshot(

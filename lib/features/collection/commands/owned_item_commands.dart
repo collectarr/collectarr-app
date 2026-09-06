@@ -3,10 +3,12 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 export 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 
 /// Represents a tri-state patch operation: unchanged, set new value, or clear value.
 @immutable
@@ -146,6 +148,7 @@ final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
     this.marketValueCents = const Patch.unchanged(),
     this.indexNumber = const Patch.unchanged(),
     this.details = const Patch.unchanged(),
+    this.typedPayload,
   });
 
   final String ownedItemId;
@@ -168,4 +171,33 @@ final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
   final Patch<int?> marketValueCents;
   final Patch<int?> indexNumber;
   final Patch<TDetails> details;
+  final OwnedItemUpdatePayload? typedPayload;
+
+  UpdateOwnedItemCommand<TDetails> withTypedPayload(
+    OwnedItemUpdatePayload payload,
+  ) {
+    return UpdateOwnedItemCommand<TDetails>(
+      ownedItemId: ownedItemId,
+      anchor: anchor,
+      quantity: quantity,
+      condition: condition,
+      grade: grade,
+      purchaseDate: purchaseDate,
+      pricePaidCents: pricePaidCents,
+      currency: currency,
+      personalNotes: personalNotes,
+      locationId: locationId,
+      purchaseStore: purchaseStore,
+      collectionStatus: collectionStatus,
+      isDigital: isDigital,
+      tags: tags,
+      soldAt: soldAt,
+      sellPriceCents: sellPriceCents,
+      soldTo: soldTo,
+      marketValueCents: marketValueCents,
+      indexNumber: indexNumber,
+      details: details,
+      typedPayload: payload,
+    );
+  }
 }
