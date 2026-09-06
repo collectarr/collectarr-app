@@ -69,9 +69,6 @@ class ComicCreatorCredit {
   }
 }
 
-typedef ComicMetadata = ComicMedia;
-typedef ComicCatalogMetadata = ComicMedia;
-
 @immutable
 class ComicMedia {
   const ComicMedia({

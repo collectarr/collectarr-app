@@ -22,7 +22,7 @@ void main() {
     expect(tracking.notes, 'Second pass');
   });
 
-  test('TrackingEntry exposes completedAt through legacy finishedAt', () {
+  test('TrackingEntry preserves completedAt in its personal state', () {
     final entry = TrackingEntry(
       id: 'tracking-1',
       catalogRef: const CatalogEntityRef(
@@ -35,6 +35,5 @@ void main() {
     );
 
     expect(entry.completedAt, DateTime.utc(2026, 2, 3));
-    expect(entry.finishedAt, entry.completedAt);
   });
 }

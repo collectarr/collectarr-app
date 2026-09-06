@@ -133,7 +133,7 @@ class EditableComicCharacter {
   }
 }
 
-List<EditableComicCreator> initComicCreators(ComicCatalogMetadata item) {
+List<EditableComicCreator> initComicCreators(ComicMedia item) {
   final payload = item.toSyncPayload();
   final creators = payload['creators'];
   if (creators is List) {
@@ -145,7 +145,7 @@ List<EditableComicCreator> initComicCreators(ComicCatalogMetadata item) {
   return const [];
 }
 
-List<EditableComicCharacter> initComicCharacters(ComicCatalogMetadata item) {
+List<EditableComicCharacter> initComicCharacters(ComicMedia item) {
   final payload = item.toSyncPayload();
   final characterDetails = payload['character_details'];
   if (characterDetails is List && characterDetails.isNotEmpty) {
@@ -187,10 +187,9 @@ LibraryEditSelection applyComicSelectionEdits(
   final characterNames = characterDetails
       .map((character) => character['name']!.toString())
       .toList(growable: false);
-  final current = selection.item.kindMetadata is ComicCatalogMetadata
-      ? selection.item.kindMetadata as ComicCatalogMetadata
-      : ComicCatalogMetadata.fromJson(
-          selection.item.payload);
+  final current = selection.item.kindMetadata is ComicMedia
+      ? selection.item.kindMetadata as ComicMedia
+      : ComicMedia.fromJson(selection.item.payload);
 
   final existingTrailerLinks = current.links.where((l) => l.isTrailerLink);
   final newComicLinks = <ComicLink>[

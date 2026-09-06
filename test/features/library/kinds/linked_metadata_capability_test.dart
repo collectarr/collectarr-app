@@ -13,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('kind runtime projects linked metadata from typed catalog values', () {
-    const metadata = ComicCatalogMetadata(
+    const metadata = ComicMedia(
       title: 'Common Title',
       searchAliases: ['Alias'],
       seriesTitle: 'Typed Series',
@@ -50,8 +50,7 @@ void main() {
   });
 
   test('typed capability ignores incompatible metadata runtimes', () {
-    const capability =
-        TypedLibraryLinkedMetadataCapability<ComicCatalogMetadata>(
+    const capability = TypedLibraryLinkedMetadataCapability<ComicMedia>(
       _comicPublisher,
     );
     final candidates = capability
@@ -71,7 +70,7 @@ void main() {
     final item = LibraryProjectionItem.fromShelf(
       _shelfEntry(
         CatalogMediaKind.comic,
-        const ComicCatalogMetadata(
+        const ComicMedia(
           title: 'Typed Comic',
           publisher: 'Typed Publisher',
         ),
@@ -123,7 +122,7 @@ void main() {
   });
 }
 
-Iterable<String?> _comicPublisher(ComicCatalogMetadata metadata) => [
+Iterable<String?> _comicPublisher(ComicMedia metadata) => [
       metadata.publisher,
     ];
 

@@ -40,7 +40,7 @@ abstract class OwnedDetailsCodec<TDetails extends OwnedItemDetails,
   void validate(OwnedItemDetails details) {
     if (details is! TDetails) {
       throw ArgumentError(
-        'Incompatible owned details type "${details.runtimeType}". '
+        'Invalid owned details type "${details.runtimeType}". '
         'Expected "$TDetails".',
       );
     }

@@ -2,12 +2,12 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 
-/// Compatibility facade over kind-owned watch-session tables.
+/// Aggregates kind-owned watch-session tables at the collection boundary.
 ///
-/// The shared host only aggregates lifecycle projections. TV/Anime coordinate
-/// mapping and persistence are supplied through explicit codecs.
-class WatchSessionsCacheRepository {
-  WatchSessionsCacheRepository(
+/// The shared host only aggregates lifecycle projections. TV/Anime mapping and
+/// persistence are supplied through their explicit codecs.
+class WatchSessionsRepository {
+  WatchSessionsRepository(
     this._db, {
     required Iterable<WatchSessionCodec> codecs,
   }) : _codecs = {

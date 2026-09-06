@@ -20,8 +20,8 @@ Widget? buildComicCustomTabView({
   required VoidCallback markDirty,
 }) {
   final metadata = item.kindMetadata;
-  if (metadata is! ComicCatalogMetadata) {
-    throw StateError('Expected ComicCatalogMetadata for comic edit tabs');
+  if (metadata is! ComicMedia) {
+    throw StateError('Expected ComicMedia for comic edit tabs');
   }
   final media = metadata.id?.value == item.identity.id
       ? metadata

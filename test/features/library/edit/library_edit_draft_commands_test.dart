@@ -20,7 +20,7 @@ void main() {
         id: 'comic-draft-1',
         mediaKind: CatalogMediaKind.comic,
       ),
-      kindMetadata: const ComicCatalogMetadata(
+      kindMetadata: const ComicMedia(
         title: 'Spider-Man #1',
       ),
     );
@@ -69,7 +69,7 @@ void main() {
         id: 'comic-draft-2',
         mediaKind: CatalogMediaKind.comic,
       ),
-      kindMetadata: const ComicCatalogMetadata(
+      kindMetadata: const ComicMedia(
         title: 'X-Men #1',
       ),
     );

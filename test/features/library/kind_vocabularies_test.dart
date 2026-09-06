@@ -90,11 +90,10 @@ void main() {
       final projector = ComicVocabularies.publisher.valuesFrom;
 
       expect(projector, isNotNull);
-      expect(
-          projector!(const Object()), isEmpty);
+      expect(projector!(const Object()), isEmpty);
       expect(
         projector(
-          const ComicCatalogMetadata(
+          const ComicMedia(
             title: 'Typed Comic',
             publisher: 'Image Comics',
           ),

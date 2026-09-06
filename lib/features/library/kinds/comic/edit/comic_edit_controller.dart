@@ -66,7 +66,7 @@ class ComicEditController {
         releaseYearController = TextEditingController(
             text: item.releaseDate?.year.toString() ?? '');
 
-  final ComicCatalogMetadata item;
+  final ComicMedia item;
   final List<ItemImage> itemImages;
 
   final TextEditingController crossoverController;
@@ -176,8 +176,8 @@ class ComicEditController {
         .where((s) => s.isNotEmpty)
         .toList();
 
-    final currentMeta = selection.item.kindMetadata is ComicCatalogMetadata
-        ? selection.item.kindMetadata as ComicCatalogMetadata
+    final currentMeta = selection.item.kindMetadata is ComicMedia
+        ? selection.item.kindMetadata as ComicMedia
         : item;
 
     final updatedSeries = (currentMeta.series != null ||

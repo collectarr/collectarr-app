@@ -4,13 +4,13 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:uuid/uuid.dart';
 
 class SyncRetryMapper {
@@ -87,7 +87,7 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'watch_session':
-        final session = await WatchSessionsCacheRepository(
+        final session = await WatchSessionsRepository(
           db,
           codecs: collectarrWatchSessionCodecs,
         ).findById(change.entityId);
@@ -99,7 +99,7 @@ class SyncRetryMapper {
           entityType: change.entityType,
           entityId: session.id,
           action: session.isDeleted ? 'delete' : 'upsert',
-          payload: WatchSessionsCacheRepository(
+          payload: WatchSessionsRepository(
             db,
             codecs: collectarrWatchSessionCodecs,
           ).toSyncPayload(session),
@@ -122,7 +122,7 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'custom_episode':
-        final episode = await CustomEpisodesCacheRepository(
+        final episode = await CustomEpisodesRepository(
           db,
           codecs: collectarrCustomEpisodeCodecs,
         ).findById(change.entityId);
@@ -134,7 +134,7 @@ class SyncRetryMapper {
           entityType: change.entityType,
           entityId: episode.id,
           action: episode.isDeleted ? 'delete' : 'upsert',
-          payload: CustomEpisodesCacheRepository(
+          payload: CustomEpisodesRepository(
             db,
             codecs: collectarrCustomEpisodeCodecs,
           ).toSyncPayload(episode),

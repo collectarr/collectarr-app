@@ -84,7 +84,7 @@ const _comicTransferableFieldKeys = <String>[
   'coverPriceCents',
 ];
 
-Iterable<String?> _comicLinkedMetadataValues(ComicCatalogMetadata metadata) => [
+Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
       metadata.seriesTitle,
       metadata.series?.seriesTitle,
       metadata.issueNumber,
@@ -107,7 +107,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
   projector: const ComicWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: comicLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: ComicCatalogMetadata.fromJson,
+  catalogMetadataDecoder: ComicMedia.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.comic,
     singularLabel: 'Comic',
@@ -145,7 +145,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
     sectionsBuilder: buildComicInspectorSections,
     showsDefaultPersonalSection: false,
   ),
-  linkedMetadata: TypedLibraryLinkedMetadataCapability<ComicCatalogMetadata>(
+  linkedMetadata: TypedLibraryLinkedMetadataCapability<ComicMedia>(
     _comicLinkedMetadataValues,
   ),
   relations: comicRelationCapability,
@@ -195,7 +195,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
             containsWeight: 48,
             metadataValues: (item) {
               final metadata = item.kindMetadata;
-              return metadata is ComicCatalogMetadata
+              return metadata is ComicMedia
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const [];
             },
@@ -207,9 +207,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
             containsWeight: 36,
             metadataValues: (item) {
               final metadata = item.kindMetadata;
-              return metadata is ComicCatalogMetadata
-                  ? [metadata.issueNumber]
-                  : const [];
+              return metadata is ComicMedia ? [metadata.issueNumber] : const [];
             },
             providerValues: (candidate) => [candidate.issueNumber],
           ),
@@ -219,7 +217,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
             containsWeight: 24,
             metadataValues: (item) {
               final metadata = item.kindMetadata;
-              return metadata is ComicCatalogMetadata
+              return metadata is ComicMedia
                   ? [metadata.publisher, metadata.imprint]
                   : const [];
             },
@@ -231,7 +229,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
             containsWeight: 20,
             metadataValues: (item) {
               final metadata = item.kindMetadata;
-              return metadata is ComicCatalogMetadata
+              return metadata is ComicMedia
                   ? [
                       metadata.releaseDate?.year,
                       metadata.coverDate?.year,

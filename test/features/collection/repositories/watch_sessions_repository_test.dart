@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +10,7 @@ void main() {
   test('TV codec owns episode coordinates in sync payloads', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = WatchSessionsCacheRepository(
+    final repository = WatchSessionsRepository(
       db,
       codecs: collectarrWatchSessionCodecs,
     );
@@ -49,11 +49,10 @@ void main() {
     expect(decoded.episodeNumber, 2);
   });
 
-  test('common fallback does not serialize coordinates for unregistered kind',
-      () {
+  test('unregistered watch-session kinds are rejected', () {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = WatchSessionsCacheRepository(
+    final repository = WatchSessionsRepository(
       db,
       codecs: collectarrWatchSessionCodecs,
     );
@@ -70,8 +69,9 @@ void main() {
       updatedAt: DateTime.utc(2026, 9, 6, 18),
     );
 
-    final payload = repository.toSyncPayload(session);
-    expect(payload, isNot(contains('season_number')));
-    expect(payload, isNot(contains('episode_number')));
+    expect(
+      () => repository.toSyncPayload(session),
+      throwsStateError,
+    );
   });
 }

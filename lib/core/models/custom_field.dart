@@ -94,8 +94,7 @@ class CustomFieldDefinition {
   final String name;
   final String fieldType; // see CustomFieldValueType
   final String? mediaKind; // null = all media types
-  final String?
-      editScope; // legacy column; now stores custom field target scope
+  final String? editScope; // custom field target scope
   final int sortOrder;
   final String? options; // JSON array for select type
   final DateTime createdAt;

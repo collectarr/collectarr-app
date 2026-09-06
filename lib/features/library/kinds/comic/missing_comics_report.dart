@@ -270,7 +270,7 @@ String _verboseGroupLabel(MissingComicIssueGroup group) {
   return '${formatComicIssueLabel(group.issueNumber)} (${variants.join(' / ')})';
 }
 
-String _missingComicVariantLabel(ComicCatalogMetadata metadata) {
+String _missingComicVariantLabel(ComicMedia metadata) {
   final variant = metadata.variant?.trim();
   if (variant != null && variant.isNotEmpty) {
     return variant;

@@ -15,7 +15,7 @@ final class ComicSerialAuthorityContributor
     Iterable<Object?> metadata,
   ) sync* {
     for (final value in metadata) {
-      if (value is! ComicCatalogMetadata) continue;
+      if (value is! ComicMedia) continue;
       final title =
           (value.seriesTitle ?? value.series?.seriesTitle ?? '').trim();
       if (title.isEmpty) {

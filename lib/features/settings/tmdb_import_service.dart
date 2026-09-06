@@ -568,7 +568,7 @@ class TmdbImportService {
   }
 
   /// Enrich a single entry using structured data from the backend provider
-  /// preview, building a rawPayload compatible with [mergeMatchedCatalogItem].
+  /// preview, building the raw payload consumed by [mergeMatchedCatalogItem].
   TmdbImportEntry enrichEntryFromPreview(
     TmdbImportEntry entry,
     AdminProviderPreview preview,

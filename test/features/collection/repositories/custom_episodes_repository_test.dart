@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +10,7 @@ void main() {
   test('TV custom episode sync payload is owned by the TV codec', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = CustomEpisodesCacheRepository(
+    final repository = CustomEpisodesRepository(
       db,
       codecs: collectarrCustomEpisodeCodecs,
     );
@@ -53,11 +53,10 @@ void main() {
     expect(decoded.localImagePath, episode.localImagePath);
   });
 
-  test('unregistered custom episode kinds retain the compatibility payload',
-      () async {
+  test('unregistered custom episode kinds are rejected', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = CustomEpisodesCacheRepository(
+    final repository = CustomEpisodesRepository(
       db,
       codecs: collectarrCustomEpisodeCodecs,
     );
@@ -70,10 +69,13 @@ void main() {
       ),
       seasonNumber: 1,
       episodeNumber: 1,
-      title: 'Compatibility payload',
+      title: 'Unsupported payload',
       updatedAt: DateTime.utc(2026, 5, 21),
     );
 
-    expect(repository.toSyncPayload(episode), episode.toSyncPayload());
+    expect(
+      () => repository.toSyncPayload(episode),
+      throwsStateError,
+    );
   });
 }

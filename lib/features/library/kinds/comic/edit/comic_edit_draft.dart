@@ -97,7 +97,7 @@ LibraryEditKindDraft createComicEditDraft({
     comic ?? const ComicOwnedDetails(),
   );
   final comicEdit = ComicEditController(
-    item: item.kindMetadata as ComicCatalogMetadata,
+    item: item.kindMetadata as ComicMedia,
     itemImages: const [],
   );
   comicEdit.initialize();

@@ -22,12 +22,12 @@ import 'package:collectarr_app/features/collection/mutations/owned_item_mutation
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
@@ -75,8 +75,8 @@ final trackingUnitsCacheRepositoryProvider =
 });
 
 final watchSessionsCacheRepositoryProvider =
-    Provider<WatchSessionsCacheRepository>((ref) {
-  return WatchSessionsCacheRepository(
+    Provider<WatchSessionsRepository>((ref) {
+  return WatchSessionsRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrWatchSessionCodecs,
   );
@@ -88,8 +88,8 @@ final userMetadataOverridesCacheRepositoryProvider =
 });
 
 final customEpisodesCacheRepositoryProvider =
-    Provider<CustomEpisodesCacheRepository>((ref) {
-  return CustomEpisodesCacheRepository(
+    Provider<CustomEpisodesRepository>((ref) {
+  return CustomEpisodesRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrCustomEpisodeCodecs,
   );

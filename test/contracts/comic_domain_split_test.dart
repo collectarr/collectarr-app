@@ -30,8 +30,8 @@ void main() {
     expect(ownedDetails, isA<ComicOwnedDetails>());
   });
 
-  test('ComicCatalogMetadata remains a compatibility alias for ComicMedia', () {
-    final media = ComicCatalogMetadata.fromJson({
+  test('ComicMedia decodes its canonical domain payload', () {
+    final media = ComicMedia.fromJson({
       'id': 'media-2',
       'title': 'Decoded Comic',
     });

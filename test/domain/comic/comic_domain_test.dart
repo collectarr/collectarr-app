@@ -136,8 +136,8 @@ void main() {
         DateTime.utc(2025, 6, 1));
   });
 
-  test('ComicCatalogMetadata and structured ComicKeyEvent roundtrip', () {
-    final meta = ComicCatalogMetadata(
+  test('ComicMedia and structured ComicKeyEvent roundtrip', () {
+    final meta = ComicMedia(
       title: 'Amazing Fantasy #15',
       seriesTitle: 'Amazing Fantasy',
       issueNumber: '15',
@@ -176,7 +176,7 @@ void main() {
     );
 
     final json = meta.toJson();
-    final fromJson = ComicCatalogMetadata.fromJson(json);
+    final fromJson = ComicMedia.fromJson(json);
 
     expect(fromJson.title, 'Amazing Fantasy #15');
     expect(fromJson.writers, contains('Stan Lee'));

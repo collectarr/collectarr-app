@@ -2,12 +2,12 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 
-/// Compatibility facade over kind-owned custom-episode tables.
+/// Aggregates kind-owned custom-episode tables at the collection boundary.
 ///
-/// This class only aggregates codec results and owns transaction mechanics.
-/// TV/Anime coordinates and Drift table mappings live in their codecs.
-class CustomEpisodesCacheRepository {
-  CustomEpisodesCacheRepository(
+/// This class coordinates transactions. TV/Anime mapping and Drift table
+/// persistence are supplied through their explicit codecs.
+class CustomEpisodesRepository {
+  CustomEpisodesRepository(
     this._db, {
     required Iterable<CustomEpisodeCodec> codecs,
   }) : _codecs = {

@@ -17,13 +17,13 @@ final class ComicWorkspaceProjector
   }) {
     final catalog = source.catalogItem;
     final rawMetadata = catalog?.kindMetadata;
-    final ComicCatalogMetadata metadata;
-    if (rawMetadata is ComicCatalogMetadata) {
+    final ComicMedia metadata;
+    if (rawMetadata is ComicMedia) {
       metadata = rawMetadata;
     } else if (rawMetadata != null) {
-      metadata = ComicCatalogMetadata.fromJson(catalog!.payload);
+      metadata = ComicMedia.fromJson(catalog!.payload);
     } else {
-      throw StateError('Expected ComicCatalogMetadata for comic workspace');
+      throw StateError('Expected ComicMedia for comic workspace');
     }
     final ownedItem =
         ComicOwnedItemProjection.tryFromOwnedItem(source.ownedItem);

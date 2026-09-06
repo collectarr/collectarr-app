@@ -10,10 +10,10 @@ import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
@@ -141,11 +141,11 @@ final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
 
 final watchSessionsProvider = FutureProvider<List<WatchSession>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
-  final cache = WatchSessionsCacheRepository(
+  final repository = WatchSessionsRepository(
     db,
     codecs: collectarrWatchSessionCodecs,
   );
-  return cache.listActive();
+  return repository.listActive();
 });
 
 final watchSessionsByItemProvider =
@@ -231,7 +231,7 @@ final customEpisodesByItemProvider =
     FutureProvider.family<Map<int, List<CustomEpisode>>, String>(
         (ref, itemId) async {
   final db = ref.watch(localDatabaseProvider);
-  return CustomEpisodesCacheRepository(
+  return CustomEpisodesRepository(
     db,
     codecs: collectarrCustomEpisodeCodecs,
   ).listByItemIdGrouped(itemId);
@@ -241,7 +241,7 @@ final customEpisodesByCatalogRefProvider =
     FutureProvider.family<Map<int, List<CustomEpisode>>, CatalogEntityRef>(
         (ref, catalogRef) async {
   final db = ref.watch(localDatabaseProvider);
-  return CustomEpisodesCacheRepository(
+  return CustomEpisodesRepository(
     db,
     codecs: collectarrCustomEpisodeCodecs,
   ).listByItemIdGrouped(catalogRef.id);

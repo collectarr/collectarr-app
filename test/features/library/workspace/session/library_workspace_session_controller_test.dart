@@ -20,7 +20,7 @@ void main() {
       expect(state.filters.searchQuery, '');
       expect(state.filters.sortId, null);
       expect(state.filters.groupId, null);
-      expect(state.selection.itemIds, isEmpty);
+      expect(state.selection.selectedIds, isEmpty);
       expect(state.folder.treeSelectedNodeId, null);
       expect(state.asyncState.isLoading, false);
       expect(state.asyncState.error, null);
@@ -56,18 +56,18 @@ void main() {
 
     test('selectItem handles single and multi selection', () {
       controller.selectItem('item-1');
-      expect(controller.value.selection.itemIds, {'item-1'});
+      expect(controller.value.selection.selectedIds, {'item-1'});
 
       // Single select replaces previous selection
       controller.selectItem('item-2');
-      expect(controller.value.selection.itemIds, {'item-2'});
+      expect(controller.value.selection.selectedIds, {'item-2'});
 
       // Multi select toggles / adds to selection
       controller.selectItem('item-3', multiSelect: true);
-      expect(controller.value.selection.itemIds, {'item-2', 'item-3'});
+      expect(controller.value.selection.selectedIds, {'item-2', 'item-3'});
 
       controller.clearSelection();
-      expect(controller.value.selection.itemIds, isEmpty);
+      expect(controller.value.selection.selectedIds, isEmpty);
     });
 
     test('setFolder updates selected folder node and display mode', () {
@@ -107,7 +107,7 @@ void main() {
       controller.reset();
       expect(controller.value.filters.searchQuery, '');
       expect(controller.value.filters.sortId, null);
-      expect(controller.value.selection.itemIds, isEmpty);
+      expect(controller.value.selection.selectedIds, isEmpty);
       expect(controller.value.asyncState.error, null);
     });
   });

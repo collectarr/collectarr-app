@@ -650,7 +650,7 @@ class LibraryKindSpec<
   void validateProjection(LibraryProjectionRuntime item) {
     if (item.dto is! TDto) {
       throw ArgumentError(
-        'Incompatible projection item DTO "${item.dto.runtimeType}" for media kind "${kind.apiValue}". Expected "$TDto".',
+        'Invalid projection item DTO "${item.dto.runtimeType}" for media kind "${kind.apiValue}". Expected "$TDto".',
       );
     }
   }

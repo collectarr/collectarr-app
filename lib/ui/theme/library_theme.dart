@@ -30,6 +30,7 @@ ThemeData buildLibraryDialogTheme({
   );
 }
 
-/// Legacy dark-only cached themes – prefer passing palette for theme-aware usage.
+/// Default cached themes; callers with a custom palette should use the
+/// theme builders above.
 final ThemeData kLibraryTheme = buildLibraryTheme();
 final ThemeData kLibraryDialogTheme = buildLibraryDialogTheme();

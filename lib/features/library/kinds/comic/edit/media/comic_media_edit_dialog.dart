@@ -28,13 +28,13 @@ class _ComicMediaSchemaEditDialog extends StatefulWidget {
 class _ComicMediaSchemaEditDialogState
     extends State<_ComicMediaSchemaEditDialog> {
   late final LibraryEditDraft _editDraft;
-  late final ComicCatalogMetadata _metadata;
+  late final ComicMedia _metadata;
   late final ComicMediaEditDraft _mediaDraft;
 
   @override
   void initState() {
     super.initState();
-    _metadata = widget.request.item.kindMetadata as ComicCatalogMetadata;
+    _metadata = widget.request.item.kindMetadata as ComicMedia;
     _editDraft = LibraryEditDraft.fromRequest(widget.request);
     final kindDraft = _editDraft.kindDetails;
     if (kindDraft is! ComicEditDraft) {
@@ -51,7 +51,7 @@ class _ComicMediaSchemaEditDialogState
 
   @override
   Widget build(BuildContext context) {
-    return EditSchemaRenderer<ComicCatalogMetadata, ComicMediaEditDraft>(
+    return EditSchemaRenderer<ComicMedia, ComicMediaEditDraft>(
       schema: comicMediaEditSchema,
       model: _metadata,
       draft: _mediaDraft,

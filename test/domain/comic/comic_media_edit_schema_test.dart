@@ -8,8 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../contracts/media_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<
-      EditSchema<ComicCatalogMetadata, ComicMediaEditDraft>>(
+  defineMediaEditContract<EditSchema<ComicMedia, ComicMediaEditDraft>>(
     name: 'Comic',
     create: () => comicMediaEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),

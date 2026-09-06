@@ -1,2 +1,1 @@
-export 'comic_metadata.dart'
-    show ComicCatalogMetadata, ComicMedia, ComicMetadata;
+export 'comic_metadata.dart' show ComicMedia;

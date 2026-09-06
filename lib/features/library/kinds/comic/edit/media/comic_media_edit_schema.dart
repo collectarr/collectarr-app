@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/media/comic_med
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<ComicCatalogMetadata, ComicMediaEditDraft>
-    comicMediaEditSchema = EditSchema(
+final EditSchema<ComicMedia, ComicMediaEditDraft> comicMediaEditSchema =
+    EditSchema(
   title: (_) => 'Edit comic',
   validate: (_, draft) {
     if (draft.pageCount case final pageCount? when pageCount < 0) {

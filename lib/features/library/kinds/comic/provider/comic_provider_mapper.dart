@@ -40,7 +40,7 @@ class ComicLibraryKindProviderMapper
     final coverImageUrl = norm['cover_image_url']?.toString() ??
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
 
-    final comicMetadata = ComicCatalogMetadata.fromJson({
+    final comicMetadata = ComicMedia.fromJson({
       ...norm,
       'title': title,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,

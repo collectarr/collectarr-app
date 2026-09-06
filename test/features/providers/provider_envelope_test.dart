@@ -163,7 +163,7 @@ void main() {
 
       final mapper = const ComicLibraryKindProviderMapper();
       final item = mapper.metadataItemFromEnvelope(comicEnvelope);
-      final meta = item.kindMetadata as ComicCatalogMetadata;
+      final meta = item.kindMetadata as ComicMedia;
 
       expect(item.title, 'Spider-Man');
       expect(meta.issueNumber, '300');

@@ -205,12 +205,12 @@ class TestValue {}
     );
   });
   test(
-      'architecture boundary checker rejects generic referencing concrete ComicMetadata',
+      'architecture boundary checker rejects generic referencing concrete ComicMedia',
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 class GenericClass {
-  void doSomething(ComicMetadata metadata) {}
+  void doSomething(ComicMedia metadata) {}
 }
 ''';
     final parseResult = parseString(

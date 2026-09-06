@@ -225,9 +225,6 @@ final class LibrarySessionSelectionState {
   final Set<String> selectedIds;
   final String? anchorId;
 
-  /// Compatibility alias for [selectedIds].
-  Set<String> get itemIds => selectedIds;
-
   bool get isMultiSelecting => selectedIds.isNotEmpty;
   int get selectedCount => selectedIds.length;
 

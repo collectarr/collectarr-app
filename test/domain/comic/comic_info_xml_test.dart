@@ -33,7 +33,7 @@ void main() {
   });
 
   test('ComicInfo XML serializes comic-owned metadata and personal state', () {
-    final metadata = ComicCatalogMetadata(
+    final metadata = ComicMedia(
       title: 'Amazing Fantasy',
       seriesTitle: 'Amazing Fantasy',
       issueNumber: '15',

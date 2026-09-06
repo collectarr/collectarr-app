@@ -20,9 +20,9 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Comic Kind Vertical Slice Tests (C9)', () {
     test(
-        'ComicCatalogMetadata and ComicKeyEvent serialize and deserialize full domain fields',
+        'ComicMedia and ComicKeyEvent serialize and deserialize full domain fields',
         () {
-      final metadata = ComicCatalogMetadata(
+      final metadata = ComicMedia(
         title: 'Amazing Fantasy #15',
         seriesTitle: 'Amazing Fantasy',
         issueNumber: '15',
@@ -65,7 +65,7 @@ void main() {
       );
 
       final json = metadata.toJson();
-      final restored = ComicCatalogMetadata.fromJson(json);
+      final restored = ComicMedia.fromJson(json);
 
       expect(restored.title, 'Amazing Fantasy #15');
       expect(restored.seriesTitle, 'Amazing Fantasy');
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('ComicWorkspaceProjector projects metadata and schema fields', () {
-      const comicMeta = ComicCatalogMetadata(
+      const comicMeta = ComicMedia(
         title: 'Amazing Fantasy #15',
         seriesTitle: 'Amazing Fantasy',
         issueNumber: '15',
@@ -169,7 +169,7 @@ void main() {
     });
 
     test(
-        'ComicLibraryKindProviderMapper parses ComicVine/GCD envelope into ComicCatalogMetadata',
+        'ComicLibraryKindProviderMapper parses ComicVine/GCD envelope into ComicMedia',
         () {
       const mapper = ComicLibraryKindProviderMapper();
       final item = mapper.metadataItemFromEnvelope(
@@ -199,8 +199,8 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<ComicCatalogMetadata>());
-      final meta = item.kindMetadata as ComicCatalogMetadata;
+      expect(item.kindMetadata, isA<ComicMedia>());
+      final meta = item.kindMetadata as ComicMedia;
       expect(meta.title, 'Amazing Fantasy #15');
       expect(meta.seriesTitle, 'Amazing Fantasy');
       expect(meta.issueNumber, '15');
@@ -339,13 +339,13 @@ void main() {
         ],
       );
 
-      final metadata = ComicCatalogMetadata.fromJson(comic.toJson());
+      final metadata = ComicMedia.fromJson(comic.toJson());
       final item = CatalogItem(
         identity: comic.identity,
         kindMetadata: metadata,
       );
 
-      final itemMeta = item.kindMetadata as ComicCatalogMetadata;
+      final itemMeta = item.kindMetadata as ComicMedia;
       expect(itemMeta.issueNumber, '1');
       expect(itemMeta.publisher, 'Image Comics');
       expect(itemMeta.country, 'US');

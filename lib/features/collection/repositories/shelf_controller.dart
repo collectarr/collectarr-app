@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
@@ -33,7 +33,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
       entry.key: typedCatalogItemFromCatalogItem(entry.value),
   };
   final locations = await LocationRepository(db).getAll();
-  final watchSessions = await WatchSessionsCacheRepository(
+  final watchSessions = await WatchSessionsRepository(
     db,
     codecs: collectarrWatchSessionCodecs,
   ).listActiveByItemIds(ids);
@@ -208,8 +208,8 @@ class ShelfState {
   final List<ShelfEntry> entries;
   final int ownedCount;
 
-  /// Compatibility aggregate for the Stats dashboard. Do not expose this as
-  /// a universal Shelf filter; migrate the calculation to kind contributors.
+  /// Aggregate projection for the Stats dashboard. Keep kind semantics in
+  /// their contributors rather than exposing them as universal Shelf filters.
   final int missingGradeCount;
   final int wishlistCount;
   final int pricedCount;

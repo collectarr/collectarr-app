@@ -250,7 +250,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     return ComicOwnedItemProjection.tryFromOwnedItem(owned);
   }
 
-  static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {
+  static ComicMedia? _comicMetadata(ShelfEntry entry) {
     final catalog = entry.catalogItem;
     if (catalog == null || catalog.kind != 'comic') {
       return null;

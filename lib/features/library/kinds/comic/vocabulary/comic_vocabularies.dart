@@ -19,8 +19,7 @@ abstract final class ComicVocabularies {
   static const publisher = VocabularyDefinition<String>(
     id: ComicVocabularyIds.publisher,
     label: 'Publisher',
-    valuesFrom:
-        TypedVocabularyProjector<ComicCatalogMetadata>(_publisherCatalogValues),
+    valuesFrom: TypedVocabularyProjector<ComicMedia>(_publisherCatalogValues),
     builtIns: [
       'Marvel Comics',
       'DC Comics',
@@ -36,8 +35,7 @@ abstract final class ComicVocabularies {
   static const imprint = VocabularyDefinition<String>(
     id: ComicVocabularyIds.imprint,
     label: 'Imprint',
-    valuesFrom:
-        TypedVocabularyProjector<ComicCatalogMetadata>(_imprintCatalogValues),
+    valuesFrom: TypedVocabularyProjector<ComicMedia>(_imprintCatalogValues),
     builtIns: [
       'Vertigo',
       'Black Label',
@@ -52,7 +50,7 @@ abstract final class ComicVocabularies {
   static const seriesGroup = VocabularyDefinition<String>(
     id: ComicVocabularyIds.seriesGroup,
     label: 'Series Group',
-    valuesFrom: TypedVocabularyProjector<ComicCatalogMetadata>(
+    valuesFrom: TypedVocabularyProjector<ComicMedia>(
       _seriesGroupCatalogValues,
     ),
     builtIns: [
@@ -69,7 +67,7 @@ abstract final class ComicVocabularies {
   static const physicalFormat = VocabularyDefinition<String>(
     id: ComicVocabularyIds.physicalFormat,
     label: 'Format',
-    valuesFrom: TypedVocabularyProjector<ComicCatalogMetadata>(
+    valuesFrom: TypedVocabularyProjector<ComicMedia>(
       _physicalFormatCatalogValues,
     ),
     builtIns: [
@@ -169,16 +167,14 @@ abstract final class ComicVocabularies {
     id: ComicVocabularyIds.storyArc,
     label: 'Story Arc',
     multiValue: true,
-    valuesFrom:
-        TypedVocabularyProjector<ComicCatalogMetadata>(_storyArcCatalogValues),
+    valuesFrom: TypedVocabularyProjector<ComicMedia>(_storyArcCatalogValues),
   );
 
   static const crossover = VocabularyDefinition<String>(
     id: ComicVocabularyIds.crossover,
     label: 'Crossover',
     multiValue: true,
-    valuesFrom:
-        TypedVocabularyProjector<ComicCatalogMetadata>(_crossoverCatalogValues),
+    valuesFrom: TypedVocabularyProjector<ComicMedia>(_crossoverCatalogValues),
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
@@ -195,23 +191,23 @@ abstract final class ComicVocabularies {
   ];
 }
 
-Iterable<String?> _publisherCatalogValues(ComicCatalogMetadata metadata) sync* {
+Iterable<String?> _publisherCatalogValues(ComicMedia metadata) sync* {
   yield* vocabularyValues([
     metadata.publisher,
     metadata.publishing?.originalPublisher,
   ]);
 }
 
-Iterable<String?> _imprintCatalogValues(ComicCatalogMetadata metadata) {
+Iterable<String?> _imprintCatalogValues(ComicMedia metadata) {
   return vocabularyValues([metadata.imprint, metadata.publishing?.imprint]);
 }
 
-Iterable<String?> _seriesGroupCatalogValues(ComicCatalogMetadata metadata) {
+Iterable<String?> _seriesGroupCatalogValues(ComicMedia metadata) {
   return vocabularyValues([metadata.publishing?.seriesGroup]);
 }
 
 Iterable<String?> _physicalFormatCatalogValues(
-  ComicCatalogMetadata metadata,
+  ComicMedia metadata,
 ) sync* {
   yield* vocabularyValues([
     metadata.physicalFormatLabel,
@@ -219,10 +215,10 @@ Iterable<String?> _physicalFormatCatalogValues(
   ]);
 }
 
-Iterable<String?> _storyArcCatalogValues(ComicCatalogMetadata metadata) {
+Iterable<String?> _storyArcCatalogValues(ComicMedia metadata) {
   return vocabularyValues([metadata.storyArcs]);
 }
 
-Iterable<String?> _crossoverCatalogValues(ComicCatalogMetadata metadata) {
+Iterable<String?> _crossoverCatalogValues(ComicMedia metadata) {
   return vocabularyValues([metadata.crossover]);
 }
