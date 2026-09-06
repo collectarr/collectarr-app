@@ -69,7 +69,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Import collection',
+            tooltip: 'Import…',
             onPressed: shelf.maybeWhen(
               data: (state) => () => _showImportExportWizard(
                     state.entries,
@@ -80,7 +80,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
             icon: const Icon(Icons.upload_file),
           ),
           IconButton(
-            tooltip: 'Export collection',
+            tooltip: 'Export…',
             onPressed: shelf.maybeWhen(
               data: (state) => () => _showImportExportWizard(
                     state.entries,

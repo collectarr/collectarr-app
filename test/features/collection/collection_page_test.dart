@@ -87,7 +87,7 @@ void main() {
     expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);
     expect(find.text('Signed copy'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Export collection'));
+    await tester.tap(find.byTooltip('Export…'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Import or export collection'), findsOneWidget);
