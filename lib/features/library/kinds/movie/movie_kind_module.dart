@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -207,6 +208,22 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails,
     previewPaneBuilder: buildMovieAddPreviewPane,
     searchPaneBuilder: buildMovieAddSearchPane,
     bottomBarBuilder: buildMovieAddBottomBar,
+    ownedPayloadBuilder: (item, common, draft) => MovieOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: draft.toOwnedDetailsDraft() as MovieOwnedDetailsDraft,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
         libraryAddVideoKindFilterId: {'movie'},

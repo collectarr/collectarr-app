@@ -89,28 +89,37 @@ final class OwnedItemMutations {
           collectarrOwnedDetailsCodecForKind(mediaKind).validate(details);
         }
 
-        final ownedItem = OwnedItem(
-          id: newItemId,
-          catalogRef: resolvedCatalogRef,
-          createdAt: now,
-          isDigital: resolvedIsDigital,
-          anchor: anchor,
-          details: details,
-          condition: common.condition,
-          grade: common.grade,
-          purchaseDate: common.purchaseDate,
-          pricePaidCents: common.pricePaidCents,
-          currency: common.currency,
-          personalNotes: common.personalNotes,
-          quantity: common.quantity,
-          locationId: common.locationId,
-          purchaseStore: common.purchaseStore,
-          collectionStatus: common.collectionStatus,
-          tags: common.tags,
-          ownerUserId: userId,
-          ownerLabel: userEmail,
-          updatedAt: now,
-        );
+        final ownedItem = command.typedPayload?.toLegacyOwnedItem(
+              resolvedCatalogRef: resolvedCatalogRef,
+              id: newItemId,
+              createdAt: now,
+              existingCatalog: existingCatalog,
+              anchor: anchor,
+              ownerUserId: userId,
+              ownerLabel: userEmail,
+            ) ??
+            OwnedItem(
+              id: newItemId,
+              catalogRef: resolvedCatalogRef,
+              createdAt: now,
+              isDigital: resolvedIsDigital,
+              anchor: anchor,
+              details: details,
+              condition: common.condition,
+              grade: common.grade,
+              purchaseDate: common.purchaseDate,
+              pricePaidCents: common.pricePaidCents,
+              currency: common.currency,
+              personalNotes: common.personalNotes,
+              quantity: common.quantity,
+              locationId: common.locationId,
+              purchaseStore: common.purchaseStore,
+              collectionStatus: common.collectionStatus,
+              tags: common.tags,
+              ownerUserId: userId,
+              ownerLabel: userEmail,
+              updatedAt: now,
+            );
 
         await ownedItems.upsert(ownedItem);
         await typedOwnedItems?.upsert(ownedItem);

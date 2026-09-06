@@ -2,9 +2,11 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+export 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 
 /// Represents a tri-state patch operation: unchanged, set new value, or clear value.
 @immutable
@@ -107,6 +109,7 @@ final class AddOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
     required this.catalogRef,
     required this.common,
     required this.details,
+    this.typedPayload,
     this.anchor,
     this.tracking,
   });
@@ -114,6 +117,7 @@ final class AddOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
   final CatalogEntityRef catalogRef;
   final OwnedItemCommonDraft common;
   final TDetails details;
+  final OwnedItemCreatePayload? typedPayload;
   final PersonalItemAnchor? anchor;
   final OwnedItemTrackingDraft? tracking;
 }

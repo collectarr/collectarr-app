@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -200,6 +201,22 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails,
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: MangaAddDraft.new,
     manualDraftBuilder: MangaAddManualDraft.new,
+    ownedPayloadBuilder: (item, common, draft) => MangaOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: draft.toOwnedDetailsDraft() as MangaOwnedDetailsDraft,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildMangaAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildMangaCoreSearchInput,

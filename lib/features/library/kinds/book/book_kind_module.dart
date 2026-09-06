@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
@@ -209,6 +210,22 @@ final bookKindModule =
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
     manualDraftBuilder: BookAddManualDraft.new,
+    ownedPayloadBuilder: (item, common, draft) => BookOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: draft.toOwnedDetailsDraft() as BookOwnedDetailsDraft,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildBookAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildBookCoreSearchInput,

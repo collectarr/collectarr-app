@@ -110,6 +110,10 @@ void main() {
         expect(command.common.personalNotes, 'Collection note');
         expect(command.tracking?.rating, 9);
         expect(command.tracking?.notes, isNull);
+        expect(command.typedPayload, isNotNull,
+            reason: '$kind must build a kind-owned Owned create payload');
+        expect(command.typedPayload!.catalogRef.kind, kind.apiValue,
+            reason: '$kind payload must retain its owning kind');
         expect(command.details, isNot(isA<GenericOwnedDetailsDraft>()),
             reason:
                 '$kind command details must not be GenericOwnedDetailsDraft');

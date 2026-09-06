@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
@@ -109,6 +110,22 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails,
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
     manualDraftBuilder: MusicAddManualDraft.new,
+    ownedPayloadBuilder: (item, common, draft) => MusicOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: draft.toOwnedDetailsDraft() as MusicOwnedDetailsDraft,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildMusicCoreSearchInput,

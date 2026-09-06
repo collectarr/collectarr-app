@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/detail/tv_video_detail_contribution.dart';
@@ -165,6 +166,22 @@ final tvKindModule =
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
     manualDraftBuilder: TvAddManualDraft.new,
+    ownedPayloadBuilder: (item, common, draft) => TvOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: draft.toOwnedDetailsDraft() as TvOwnedDetailsDraft,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
         libraryAddVideoKindFilterId: {'tv'},

@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_d
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
@@ -89,6 +90,22 @@ final gameKindModule =
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
     manualDraftBuilder: GameAddManualDraft.new,
+    ownedPayloadBuilder: (item, common, draft) => GameOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: draft.toOwnedDetailsDraft() as GameOwnedDetailsDraft,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildGameAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildGameCoreSearchInput,

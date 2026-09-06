@@ -61,6 +61,13 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
   LibraryAddSearchContext context,
 );
 
+typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
+    = OwnedItemCreatePayload Function(
+  CatalogItem item,
+  LibraryAddCommonDraft common,
+  TDraft draft,
+);
+
 class LibraryAddSearchCapability {
   const LibraryAddSearchCapability({
     this.initialAdvancedFilters = const {},
@@ -217,6 +224,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.dialogLauncher,
     this.chrome = const LibraryAddChromeConfig(),
     required this.search,
+    this.ownedPayloadBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
   });
 
@@ -243,6 +251,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddChromeConfig chrome;
   @override
   final LibraryAddSearchCapability search;
+  final LibraryAddOwnedPayloadBuilder<TDraft>? ownedPayloadBuilder;
   @override
   final LibraryAddResultPolicy resultPolicy;
 
@@ -286,6 +295,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       ),
       common: common.toOwnedItemCommonDraft(),
       details: effectiveDraft.toOwnedDetailsDraft(),
+      typedPayload: ownedPayloadBuilder?.call(item, common, effectiveDraft),
       anchor: anchor,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),

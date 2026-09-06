@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
@@ -163,6 +164,22 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails,
     previewPaneBuilder: buildComicAddPreviewPane,
     searchPaneBuilder: buildComicAddSearchPane,
     bottomBarBuilder: buildComicAddBottomBar,
+    ownedPayloadBuilder: (item, common, draft) => ComicOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: draft.toOwnedDetailsDraft() as ComicOwnedDetailsDraft,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildComicAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildComicCoreSearchInput,

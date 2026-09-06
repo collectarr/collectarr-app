@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/inspector_panel.
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
@@ -128,6 +129,23 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto,
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardgameAddDraft.new,
     manualDraftBuilder: BoardgameAddManualDraft.new,
+    ownedPayloadBuilder: (item, common, draft) =>
+        BoardgameOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: draft.toOwnedDetailsDraft() as BoardgameOwnedDetailsDraft,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildBoardGameAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildBoardGameCoreSearchInput,
