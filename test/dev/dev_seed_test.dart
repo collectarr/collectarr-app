@@ -36,6 +36,7 @@ void main() {
     final typedGraphCounts = await devSeedTypedGraphCounts(db);
     final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
     final typedTrackingCounts = await devSeedTypedTrackingCounts(db);
+    final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
     for (final entry in devSeedTypedGraphMinimumCounts.entries) {
       expect(
         typedGraphCounts[entry.key],
@@ -55,6 +56,13 @@ void main() {
         typedTrackingCounts[entry.key],
         greaterThanOrEqualTo(entry.value),
         reason: 'Incomplete typed tracking seed data for ${entry.key}',
+      );
+    }
+    for (final entry in devSeedAuxiliaryMinimumCounts.entries) {
+      expect(
+        auxiliaryCounts[entry.key],
+        greaterThanOrEqualTo(entry.value),
+        reason: 'Incomplete auxiliary seed data for ${entry.key}',
       );
     }
     final bookReleases = await db.select(db.bookReleaseRows).get();
@@ -288,12 +296,14 @@ void main() {
     final typedOwnedCountsAfterSecondSeed = await devSeedTypedOwnedCounts(db);
     final typedTrackingCountsAfterSecondSeed =
         await devSeedTypedTrackingCounts(db);
+    final auxiliaryCountsAfterSecondSeed = await devSeedAuxiliaryCounts(db);
 
     expect(catalogCountAfterSecondSeed, catalogCountAfterFirstSeed);
     expect(imageCountAfterSecondSeed, imageCountAfterFirstSeed);
     expect(typedGraphCountsAfterSecondSeed, typedGraphCounts);
     expect(typedOwnedCountsAfterSecondSeed, typedOwnedCounts);
     expect(typedTrackingCountsAfterSecondSeed, typedTrackingCounts);
+    expect(auxiliaryCountsAfterSecondSeed, auxiliaryCounts);
   });
 }
 

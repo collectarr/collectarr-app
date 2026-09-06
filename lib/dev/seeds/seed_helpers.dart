@@ -651,7 +651,7 @@ void _validateChildren(
       issues.add('$prefix: $childPrefix.kind must be $kind');
     }
     if (child[parentKey]?.toString() != parentId) {
-      issues.add('$prefix: $childPrefix.$parentKey must reference ${parentId}');
+      issues.add('$prefix: $childPrefix.$parentKey must reference $parentId');
     }
     _requireText(issues, prefix, '$childPrefix.$titleKey', child[titleKey]);
   }

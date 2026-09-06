@@ -129,6 +129,17 @@ const devSeedTypedTrackingMinimumCounts = <String, int>{
   'anime.tracking': 30,
 };
 
+/// Minimum coverage for the universal development fixtures that support the
+/// typed library views and settings screens.
+const devSeedAuxiliaryMinimumCounts = <String, int>{
+  'images.front_cover': 130,
+  'images.back_cover': 65,
+  'images.detail_photo': 44,
+  'custom_field.definitions': 9,
+  'custom_field.values': 9,
+  'pick_list.values': 1,
+};
+
 /// Counts the typed catalog graph written by the development seed.
 ///
 /// This is intentionally a composition-root helper: the seed verifier may
@@ -184,6 +195,26 @@ Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
     'tv.episode_progress':
         (await db.select(db.tvEpisodeProgressRows).get()).length,
     'anime.tracking': (await db.select(db.animeTrackingRows).get()).length,
+  };
+}
+
+/// Counts universal seed fixtures that are not owned by one catalog kind.
+Future<Map<String, int>> devSeedAuxiliaryCounts(LocalDatabase db) async {
+  final images = await db.select(db.itemImagesCache).get();
+  final customFieldDefinitions =
+      await db.select(db.customFieldDefinitionsCache).get();
+  final customFieldValues = await db.select(db.customFieldValuesCache).get();
+  final pickListValues = await db.select(db.pickListValuesCache).get();
+  return {
+    'images.front_cover':
+        images.where((row) => row.imageType == 'front_cover').length,
+    'images.back_cover':
+        images.where((row) => row.imageType == 'back_cover').length,
+    'images.detail_photo':
+        images.where((row) => row.imageType == 'detail_photo').length,
+    'custom_field.definitions': customFieldDefinitions.length,
+    'custom_field.values': customFieldValues.length,
+    'pick_list.values': pickListValues.length,
   };
 }
 

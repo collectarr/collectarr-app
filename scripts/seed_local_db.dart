@@ -16,6 +16,15 @@ Future<void> main() async {
     final catalogRows = await LibraryCatalogRepository(db).findAll();
     final catalogCount = catalogRows.length;
     final ownedRows = await db.select(db.ownedItemsCache).get();
+    final ownedIds = ownedRows.map((row) => row.id).toSet();
+    final customFieldValueRows =
+        await db.select(db.customFieldValuesCache).get();
+    if (customFieldValueRows.any((row) => !ownedIds.contains(row.targetId))) {
+      throw StateError(
+        'Seed verification failed: a custom-field value targets a missing '
+        'owned item',
+      );
+    }
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     final imageCount = (await db.select(db.itemImagesCache).get()).length;
     final comicOwnedCount =
@@ -48,6 +57,16 @@ Future<void> main() async {
       if (actual < entry.value) {
         throw StateError(
           'Seed verification failed for typed tracking ${entry.key}: '
+          'expected at least ${entry.value}, found $actual',
+        );
+      }
+    }
+    final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
+    for (final entry in devSeedAuxiliaryMinimumCounts.entries) {
+      final actual = auxiliaryCounts[entry.key] ?? 0;
+      if (actual < entry.value) {
+        throw StateError(
+          'Seed verification failed for auxiliary data ${entry.key}: '
           'expected at least ${entry.value}, found $actual',
         );
       }
@@ -112,6 +131,7 @@ Future<void> main() async {
       'typed_graph=${typedGraphCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'typed_owned=${typedOwnedCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'typed_tracking=${typedTrackingCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
+      'auxiliary=${auxiliaryCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')} '
       'by_kind=${devSeedCatalogCounts.entries.map((entry) => '${entry.key}:${entry.value}').join(',')}',
     );
   } finally {
