@@ -49,6 +49,8 @@ import 'package:collectarr_app/features/library/kinds/movie/data/movie_repositor
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/legacy/movie_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/legacy/music_owned_item_legacy_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/legacy/tv_owned_item_legacy_adapter.dart';
@@ -455,9 +457,8 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
   checkTypedRows('tv_owned_items', 'tv', tvRows.map((row) => row.id));
   final animeRows = await db.select(db.animeOwnedItemsRows).get();
   checkTypedRows('anime_owned_items', 'anime', animeRows.map((row) => row.id));
-  final musicRows = await db.select(db.musicOwnedDetailsRows).get();
-  checkTypedRows(
-      'music_owned_details', 'music', musicRows.map((row) => row.ownedItemId));
+  final musicRows = await db.select(db.musicOwnedItemsRows).get();
+  checkTypedRows('music_owned_items', 'music', musicRows.map((row) => row.id));
 
   return issues;
 }
@@ -474,7 +475,7 @@ Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
     'movie.owned': (await db.select(db.movieOwnedItemsRows).get()).length,
     'tv.owned': (await db.select(db.tvOwnedItemsRows).get()).length,
     'anime.owned': (await db.select(db.animeOwnedItemsRows).get()).length,
-    'music.owned': (await db.select(db.musicOwnedDetailsRows).get()).length,
+    'music.owned': (await db.select(db.musicOwnedItemsRows).get()).length,
   };
 }
 
@@ -540,6 +541,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   final animeOwnedRepo = AnimeOwnedRepository(db);
   final movieOwnedRepo = MovieOwnedRepository(db);
   final tvOwnedRepo = TvOwnedRepository(db);
+  final musicOwnedRepo = MusicOwnedRepository(db);
   final ownedRepo = OwnedItemsCacheRepository(db);
   final trackingRepo = TrackingEntriesCacheRepository(
     db,
@@ -638,6 +640,11 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.tv)
         .map(TvOwnedItemLegacyAdapter.fromLegacy),
+  );
+  await musicOwnedRepo.upsertAll(
+    ownedItems
+        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.music)
+        .map(MusicOwnedItemLegacyAdapter.fromLegacy),
   );
 
   // --- Item Images (front/back + extras) ---

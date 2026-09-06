@@ -50,3 +50,20 @@ final class MusicTrackId {
   @override
   String toString() => value;
 }
+
+@immutable
+final class MusicOwnedItemId {
+  const MusicOwnedItemId(this.value);
+
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is MusicOwnedItemId && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}

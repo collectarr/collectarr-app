@@ -305,6 +305,20 @@ void main() {
       reason: 'TV seed copies must retain complete typed ownership data',
     );
 
+    final musicOwnedRows = await db.select(db.musicOwnedItemsRows).get();
+    expect(musicOwnedRows, hasLength(15));
+    expect(
+      musicOwnedRows.every(
+        (row) =>
+            row.itemId.startsWith('seed-music-') &&
+            row.storageDevice?.trim().isNotEmpty == true &&
+            row.storageSlot?.trim().isNotEmpty == true &&
+            row.matrixRunoutsJson != '[]',
+      ),
+      isTrue,
+      reason: 'Music seed copies must retain complete typed ownership data',
+    );
+
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows

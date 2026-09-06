@@ -46610,6 +46610,1514 @@ class MusicOwnedDetailsRowsCompanion
   }
 }
 
+class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
+    with TableInfo<$MusicOwnedItemsRowsTable, MusicOwnedItemsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicOwnedItemsRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _isDigitalMeta =
+      const VerificationMeta('isDigital');
+  @override
+  late final GeneratedColumn<bool> isDigital = GeneratedColumn<bool>(
+      'is_digital', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
+  static const VerificationMeta _anchorTypeMeta =
+      const VerificationMeta('anchorType');
+  @override
+  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
+      'anchor_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editionIdMeta =
+      const VerificationMeta('editionId');
+  @override
+  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
+      'edition_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantIdMeta =
+      const VerificationMeta('variantId');
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+      'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bundleReleaseIdMeta =
+      const VerificationMeta('bundleReleaseId');
+  @override
+  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
+      'bundle_release_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _conditionMeta =
+      const VerificationMeta('condition');
+  @override
+  late final GeneratedColumn<String> condition = GeneratedColumn<String>(
+      'condition', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gradeMeta = const VerificationMeta('grade');
+  @override
+  late final GeneratedColumn<String> grade = GeneratedColumn<String>(
+      'grade', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _purchaseDateMeta =
+      const VerificationMeta('purchaseDate');
+  @override
+  late final GeneratedColumn<DateTime> purchaseDate = GeneratedColumn<DateTime>(
+      'purchase_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _pricePaidCentsMeta =
+      const VerificationMeta('pricePaidCents');
+  @override
+  late final GeneratedColumn<int> pricePaidCents = GeneratedColumn<int>(
+      'price_paid_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _currencyMeta =
+      const VerificationMeta('currency');
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+      'currency', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _personalNotesMeta =
+      const VerificationMeta('personalNotes');
+  @override
+  late final GeneratedColumn<String> personalNotes = GeneratedColumn<String>(
+      'personal_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _quantityMeta =
+      const VerificationMeta('quantity');
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+      'quantity', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _indexNumberMeta =
+      const VerificationMeta('indexNumber');
+  @override
+  late final GeneratedColumn<int> indexNumber = GeneratedColumn<int>(
+      'index_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+      'tags', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _soldAtMeta = const VerificationMeta('soldAt');
+  @override
+  late final GeneratedColumn<DateTime> soldAt = GeneratedColumn<DateTime>(
+      'sold_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _sellPriceCentsMeta =
+      const VerificationMeta('sellPriceCents');
+  @override
+  late final GeneratedColumn<int> sellPriceCents = GeneratedColumn<int>(
+      'sell_price_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _soldToMeta = const VerificationMeta('soldTo');
+  @override
+  late final GeneratedColumn<String> soldTo = GeneratedColumn<String>(
+      'sold_to', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownerUserIdMeta =
+      const VerificationMeta('ownerUserId');
+  @override
+  late final GeneratedColumn<String> ownerUserId = GeneratedColumn<String>(
+      'owner_user_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownerLabelMeta =
+      const VerificationMeta('ownerLabel');
+  @override
+  late final GeneratedColumn<String> ownerLabel = GeneratedColumn<String>(
+      'owner_label', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _locationIdMeta =
+      const VerificationMeta('locationId');
+  @override
+  late final GeneratedColumn<String> locationId = GeneratedColumn<String>(
+      'location_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _purchaseStoreMeta =
+      const VerificationMeta('purchaseStore');
+  @override
+  late final GeneratedColumn<String> purchaseStore = GeneratedColumn<String>(
+      'purchase_store', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _collectionStatusMeta =
+      const VerificationMeta('collectionStatus');
+  @override
+  late final GeneratedColumn<String> collectionStatus = GeneratedColumn<String>(
+      'collection_status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _marketValueCentsMeta =
+      const VerificationMeta('marketValueCents');
+  @override
+  late final GeneratedColumn<int> marketValueCents = GeneratedColumn<int>(
+      'market_value_cents', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _storageDeviceMeta =
+      const VerificationMeta('storageDevice');
+  @override
+  late final GeneratedColumn<String> storageDevice = GeneratedColumn<String>(
+      'storage_device', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _storageSlotMeta =
+      const VerificationMeta('storageSlot');
+  @override
+  late final GeneratedColumn<String> storageSlot = GeneratedColumn<String>(
+      'storage_slot', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _signedByMeta =
+      const VerificationMeta('signedBy');
+  @override
+  late final GeneratedColumn<String> signedBy = GeneratedColumn<String>(
+      'signed_by', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastCleanedDateMeta =
+      const VerificationMeta('lastCleanedDate');
+  @override
+  late final GeneratedColumn<DateTime> lastCleanedDate =
+      GeneratedColumn<DateTime>('last_cleaned_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _matrixRunoutsJsonMeta =
+      const VerificationMeta('matrixRunoutsJson');
+  @override
+  late final GeneratedColumn<String> matrixRunoutsJson =
+      GeneratedColumn<String>('matrix_runouts_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        createdAt,
+        isDigital,
+        anchorType,
+        editionId,
+        variantId,
+        bundleReleaseId,
+        condition,
+        grade,
+        purchaseDate,
+        pricePaidCents,
+        currency,
+        personalNotes,
+        quantity,
+        indexNumber,
+        tags,
+        updatedAt,
+        deletedAt,
+        soldAt,
+        sellPriceCents,
+        soldTo,
+        ownerUserId,
+        ownerLabel,
+        locationId,
+        purchaseStore,
+        collectionStatus,
+        marketValueCents,
+        storageDevice,
+        storageSlot,
+        signedBy,
+        lastCleanedDate,
+        matrixRunoutsJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_owned_items_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MusicOwnedItemsRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('is_digital')) {
+      context.handle(_isDigitalMeta,
+          isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
+    }
+    if (data.containsKey('anchor_type')) {
+      context.handle(
+          _anchorTypeMeta,
+          anchorType.isAcceptableOrUnknown(
+              data['anchor_type']!, _anchorTypeMeta));
+    }
+    if (data.containsKey('edition_id')) {
+      context.handle(_editionIdMeta,
+          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(_variantIdMeta,
+          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('bundle_release_id')) {
+      context.handle(
+          _bundleReleaseIdMeta,
+          bundleReleaseId.isAcceptableOrUnknown(
+              data['bundle_release_id']!, _bundleReleaseIdMeta));
+    }
+    if (data.containsKey('condition')) {
+      context.handle(_conditionMeta,
+          condition.isAcceptableOrUnknown(data['condition']!, _conditionMeta));
+    }
+    if (data.containsKey('grade')) {
+      context.handle(
+          _gradeMeta, grade.isAcceptableOrUnknown(data['grade']!, _gradeMeta));
+    }
+    if (data.containsKey('purchase_date')) {
+      context.handle(
+          _purchaseDateMeta,
+          purchaseDate.isAcceptableOrUnknown(
+              data['purchase_date']!, _purchaseDateMeta));
+    }
+    if (data.containsKey('price_paid_cents')) {
+      context.handle(
+          _pricePaidCentsMeta,
+          pricePaidCents.isAcceptableOrUnknown(
+              data['price_paid_cents']!, _pricePaidCentsMeta));
+    }
+    if (data.containsKey('currency')) {
+      context.handle(_currencyMeta,
+          currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta));
+    }
+    if (data.containsKey('personal_notes')) {
+      context.handle(
+          _personalNotesMeta,
+          personalNotes.isAcceptableOrUnknown(
+              data['personal_notes']!, _personalNotesMeta));
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(_quantityMeta,
+          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
+    }
+    if (data.containsKey('index_number')) {
+      context.handle(
+          _indexNumberMeta,
+          indexNumber.isAcceptableOrUnknown(
+              data['index_number']!, _indexNumberMeta));
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+          _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('sold_at')) {
+      context.handle(_soldAtMeta,
+          soldAt.isAcceptableOrUnknown(data['sold_at']!, _soldAtMeta));
+    }
+    if (data.containsKey('sell_price_cents')) {
+      context.handle(
+          _sellPriceCentsMeta,
+          sellPriceCents.isAcceptableOrUnknown(
+              data['sell_price_cents']!, _sellPriceCentsMeta));
+    }
+    if (data.containsKey('sold_to')) {
+      context.handle(_soldToMeta,
+          soldTo.isAcceptableOrUnknown(data['sold_to']!, _soldToMeta));
+    }
+    if (data.containsKey('owner_user_id')) {
+      context.handle(
+          _ownerUserIdMeta,
+          ownerUserId.isAcceptableOrUnknown(
+              data['owner_user_id']!, _ownerUserIdMeta));
+    }
+    if (data.containsKey('owner_label')) {
+      context.handle(
+          _ownerLabelMeta,
+          ownerLabel.isAcceptableOrUnknown(
+              data['owner_label']!, _ownerLabelMeta));
+    }
+    if (data.containsKey('location_id')) {
+      context.handle(
+          _locationIdMeta,
+          locationId.isAcceptableOrUnknown(
+              data['location_id']!, _locationIdMeta));
+    }
+    if (data.containsKey('purchase_store')) {
+      context.handle(
+          _purchaseStoreMeta,
+          purchaseStore.isAcceptableOrUnknown(
+              data['purchase_store']!, _purchaseStoreMeta));
+    }
+    if (data.containsKey('collection_status')) {
+      context.handle(
+          _collectionStatusMeta,
+          collectionStatus.isAcceptableOrUnknown(
+              data['collection_status']!, _collectionStatusMeta));
+    }
+    if (data.containsKey('market_value_cents')) {
+      context.handle(
+          _marketValueCentsMeta,
+          marketValueCents.isAcceptableOrUnknown(
+              data['market_value_cents']!, _marketValueCentsMeta));
+    }
+    if (data.containsKey('storage_device')) {
+      context.handle(
+          _storageDeviceMeta,
+          storageDevice.isAcceptableOrUnknown(
+              data['storage_device']!, _storageDeviceMeta));
+    }
+    if (data.containsKey('storage_slot')) {
+      context.handle(
+          _storageSlotMeta,
+          storageSlot.isAcceptableOrUnknown(
+              data['storage_slot']!, _storageSlotMeta));
+    }
+    if (data.containsKey('signed_by')) {
+      context.handle(_signedByMeta,
+          signedBy.isAcceptableOrUnknown(data['signed_by']!, _signedByMeta));
+    }
+    if (data.containsKey('last_cleaned_date')) {
+      context.handle(
+          _lastCleanedDateMeta,
+          lastCleanedDate.isAcceptableOrUnknown(
+              data['last_cleaned_date']!, _lastCleanedDateMeta));
+    }
+    if (data.containsKey('matrix_runouts_json')) {
+      context.handle(
+          _matrixRunoutsJsonMeta,
+          matrixRunoutsJson.isAcceptableOrUnknown(
+              data['matrix_runouts_json']!, _matrixRunoutsJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MusicOwnedItemsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicOwnedItemsRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
+      isDigital: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
+      anchorType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
+      editionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
+      variantId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      bundleReleaseId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      condition: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}condition']),
+      grade: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grade']),
+      purchaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}purchase_date']),
+      pricePaidCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}price_paid_cents']),
+      currency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency']),
+      personalNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}personal_notes']),
+      quantity: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
+      indexNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}index_number']),
+      tags: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tags']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      soldAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}sold_at']),
+      sellPriceCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sell_price_cents']),
+      soldTo: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sold_to']),
+      ownerUserId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owner_user_id']),
+      ownerLabel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owner_label']),
+      locationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location_id']),
+      purchaseStore: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}purchase_store']),
+      collectionStatus: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}collection_status']),
+      marketValueCents: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}market_value_cents']),
+      storageDevice: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_device']),
+      storageSlot: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}storage_slot']),
+      signedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}signed_by']),
+      lastCleanedDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_cleaned_date']),
+      matrixRunoutsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}matrix_runouts_json'])!,
+    );
+  }
+
+  @override
+  $MusicOwnedItemsRowsTable createAlias(String alias) {
+    return $MusicOwnedItemsRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicOwnedItemsRow extends DataClass
+    implements Insertable<MusicOwnedItemsRow> {
+  final String id;
+  final String itemId;
+  final DateTime? createdAt;
+  final bool? isDigital;
+  final String? anchorType;
+  final String? editionId;
+  final String? variantId;
+  final String? bundleReleaseId;
+  final String? condition;
+  final String? grade;
+  final DateTime? purchaseDate;
+  final int? pricePaidCents;
+  final String? currency;
+  final String? personalNotes;
+  final int quantity;
+  final int? indexNumber;
+  final String? tags;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final DateTime? soldAt;
+  final int? sellPriceCents;
+  final String? soldTo;
+  final String? ownerUserId;
+  final String? ownerLabel;
+  final String? locationId;
+  final String? purchaseStore;
+  final String? collectionStatus;
+  final int? marketValueCents;
+  final String? storageDevice;
+  final String? storageSlot;
+  final String? signedBy;
+  final DateTime? lastCleanedDate;
+  final String matrixRunoutsJson;
+  const MusicOwnedItemsRow(
+      {required this.id,
+      required this.itemId,
+      this.createdAt,
+      this.isDigital,
+      this.anchorType,
+      this.editionId,
+      this.variantId,
+      this.bundleReleaseId,
+      this.condition,
+      this.grade,
+      this.purchaseDate,
+      this.pricePaidCents,
+      this.currency,
+      this.personalNotes,
+      required this.quantity,
+      this.indexNumber,
+      this.tags,
+      required this.updatedAt,
+      this.deletedAt,
+      this.soldAt,
+      this.sellPriceCents,
+      this.soldTo,
+      this.ownerUserId,
+      this.ownerLabel,
+      this.locationId,
+      this.purchaseStore,
+      this.collectionStatus,
+      this.marketValueCents,
+      this.storageDevice,
+      this.storageSlot,
+      this.signedBy,
+      this.lastCleanedDate,
+      required this.matrixRunoutsJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || isDigital != null) {
+      map['is_digital'] = Variable<bool>(isDigital);
+    }
+    if (!nullToAbsent || anchorType != null) {
+      map['anchor_type'] = Variable<String>(anchorType);
+    }
+    if (!nullToAbsent || editionId != null) {
+      map['edition_id'] = Variable<String>(editionId);
+    }
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || bundleReleaseId != null) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    }
+    if (!nullToAbsent || condition != null) {
+      map['condition'] = Variable<String>(condition);
+    }
+    if (!nullToAbsent || grade != null) {
+      map['grade'] = Variable<String>(grade);
+    }
+    if (!nullToAbsent || purchaseDate != null) {
+      map['purchase_date'] = Variable<DateTime>(purchaseDate);
+    }
+    if (!nullToAbsent || pricePaidCents != null) {
+      map['price_paid_cents'] = Variable<int>(pricePaidCents);
+    }
+    if (!nullToAbsent || currency != null) {
+      map['currency'] = Variable<String>(currency);
+    }
+    if (!nullToAbsent || personalNotes != null) {
+      map['personal_notes'] = Variable<String>(personalNotes);
+    }
+    map['quantity'] = Variable<int>(quantity);
+    if (!nullToAbsent || indexNumber != null) {
+      map['index_number'] = Variable<int>(indexNumber);
+    }
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || soldAt != null) {
+      map['sold_at'] = Variable<DateTime>(soldAt);
+    }
+    if (!nullToAbsent || sellPriceCents != null) {
+      map['sell_price_cents'] = Variable<int>(sellPriceCents);
+    }
+    if (!nullToAbsent || soldTo != null) {
+      map['sold_to'] = Variable<String>(soldTo);
+    }
+    if (!nullToAbsent || ownerUserId != null) {
+      map['owner_user_id'] = Variable<String>(ownerUserId);
+    }
+    if (!nullToAbsent || ownerLabel != null) {
+      map['owner_label'] = Variable<String>(ownerLabel);
+    }
+    if (!nullToAbsent || locationId != null) {
+      map['location_id'] = Variable<String>(locationId);
+    }
+    if (!nullToAbsent || purchaseStore != null) {
+      map['purchase_store'] = Variable<String>(purchaseStore);
+    }
+    if (!nullToAbsent || collectionStatus != null) {
+      map['collection_status'] = Variable<String>(collectionStatus);
+    }
+    if (!nullToAbsent || marketValueCents != null) {
+      map['market_value_cents'] = Variable<int>(marketValueCents);
+    }
+    if (!nullToAbsent || storageDevice != null) {
+      map['storage_device'] = Variable<String>(storageDevice);
+    }
+    if (!nullToAbsent || storageSlot != null) {
+      map['storage_slot'] = Variable<String>(storageSlot);
+    }
+    if (!nullToAbsent || signedBy != null) {
+      map['signed_by'] = Variable<String>(signedBy);
+    }
+    if (!nullToAbsent || lastCleanedDate != null) {
+      map['last_cleaned_date'] = Variable<DateTime>(lastCleanedDate);
+    }
+    map['matrix_runouts_json'] = Variable<String>(matrixRunoutsJson);
+    return map;
+  }
+
+  MusicOwnedItemsRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicOwnedItemsRowsCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      isDigital: isDigital == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isDigital),
+      anchorType: anchorType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(anchorType),
+      editionId: editionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionId),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      bundleReleaseId: bundleReleaseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bundleReleaseId),
+      condition: condition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(condition),
+      grade:
+          grade == null && nullToAbsent ? const Value.absent() : Value(grade),
+      purchaseDate: purchaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseDate),
+      pricePaidCents: pricePaidCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pricePaidCents),
+      currency: currency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currency),
+      personalNotes: personalNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(personalNotes),
+      quantity: Value(quantity),
+      indexNumber: indexNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(indexNumber),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      soldAt:
+          soldAt == null && nullToAbsent ? const Value.absent() : Value(soldAt),
+      sellPriceCents: sellPriceCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sellPriceCents),
+      soldTo:
+          soldTo == null && nullToAbsent ? const Value.absent() : Value(soldTo),
+      ownerUserId: ownerUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerUserId),
+      ownerLabel: ownerLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerLabel),
+      locationId: locationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationId),
+      purchaseStore: purchaseStore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseStore),
+      collectionStatus: collectionStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectionStatus),
+      marketValueCents: marketValueCents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(marketValueCents),
+      storageDevice: storageDevice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageDevice),
+      storageSlot: storageSlot == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storageSlot),
+      signedBy: signedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(signedBy),
+      lastCleanedDate: lastCleanedDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastCleanedDate),
+      matrixRunoutsJson: Value(matrixRunoutsJson),
+    );
+  }
+
+  factory MusicOwnedItemsRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicOwnedItemsRow(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      isDigital: serializer.fromJson<bool?>(json['isDigital']),
+      anchorType: serializer.fromJson<String?>(json['anchorType']),
+      editionId: serializer.fromJson<String?>(json['editionId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      condition: serializer.fromJson<String?>(json['condition']),
+      grade: serializer.fromJson<String?>(json['grade']),
+      purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
+      pricePaidCents: serializer.fromJson<int?>(json['pricePaidCents']),
+      currency: serializer.fromJson<String?>(json['currency']),
+      personalNotes: serializer.fromJson<String?>(json['personalNotes']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      indexNumber: serializer.fromJson<int?>(json['indexNumber']),
+      tags: serializer.fromJson<String?>(json['tags']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      soldAt: serializer.fromJson<DateTime?>(json['soldAt']),
+      sellPriceCents: serializer.fromJson<int?>(json['sellPriceCents']),
+      soldTo: serializer.fromJson<String?>(json['soldTo']),
+      ownerUserId: serializer.fromJson<String?>(json['ownerUserId']),
+      ownerLabel: serializer.fromJson<String?>(json['ownerLabel']),
+      locationId: serializer.fromJson<String?>(json['locationId']),
+      purchaseStore: serializer.fromJson<String?>(json['purchaseStore']),
+      collectionStatus: serializer.fromJson<String?>(json['collectionStatus']),
+      marketValueCents: serializer.fromJson<int?>(json['marketValueCents']),
+      storageDevice: serializer.fromJson<String?>(json['storageDevice']),
+      storageSlot: serializer.fromJson<String?>(json['storageSlot']),
+      signedBy: serializer.fromJson<String?>(json['signedBy']),
+      lastCleanedDate: serializer.fromJson<DateTime?>(json['lastCleanedDate']),
+      matrixRunoutsJson: serializer.fromJson<String>(json['matrixRunoutsJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'isDigital': serializer.toJson<bool?>(isDigital),
+      'anchorType': serializer.toJson<String?>(anchorType),
+      'editionId': serializer.toJson<String?>(editionId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'condition': serializer.toJson<String?>(condition),
+      'grade': serializer.toJson<String?>(grade),
+      'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
+      'pricePaidCents': serializer.toJson<int?>(pricePaidCents),
+      'currency': serializer.toJson<String?>(currency),
+      'personalNotes': serializer.toJson<String?>(personalNotes),
+      'quantity': serializer.toJson<int>(quantity),
+      'indexNumber': serializer.toJson<int?>(indexNumber),
+      'tags': serializer.toJson<String?>(tags),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'soldAt': serializer.toJson<DateTime?>(soldAt),
+      'sellPriceCents': serializer.toJson<int?>(sellPriceCents),
+      'soldTo': serializer.toJson<String?>(soldTo),
+      'ownerUserId': serializer.toJson<String?>(ownerUserId),
+      'ownerLabel': serializer.toJson<String?>(ownerLabel),
+      'locationId': serializer.toJson<String?>(locationId),
+      'purchaseStore': serializer.toJson<String?>(purchaseStore),
+      'collectionStatus': serializer.toJson<String?>(collectionStatus),
+      'marketValueCents': serializer.toJson<int?>(marketValueCents),
+      'storageDevice': serializer.toJson<String?>(storageDevice),
+      'storageSlot': serializer.toJson<String?>(storageSlot),
+      'signedBy': serializer.toJson<String?>(signedBy),
+      'lastCleanedDate': serializer.toJson<DateTime?>(lastCleanedDate),
+      'matrixRunoutsJson': serializer.toJson<String>(matrixRunoutsJson),
+    };
+  }
+
+  MusicOwnedItemsRow copyWith(
+          {String? id,
+          String? itemId,
+          Value<DateTime?> createdAt = const Value.absent(),
+          Value<bool?> isDigital = const Value.absent(),
+          Value<String?> anchorType = const Value.absent(),
+          Value<String?> editionId = const Value.absent(),
+          Value<String?> variantId = const Value.absent(),
+          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> condition = const Value.absent(),
+          Value<String?> grade = const Value.absent(),
+          Value<DateTime?> purchaseDate = const Value.absent(),
+          Value<int?> pricePaidCents = const Value.absent(),
+          Value<String?> currency = const Value.absent(),
+          Value<String?> personalNotes = const Value.absent(),
+          int? quantity,
+          Value<int?> indexNumber = const Value.absent(),
+          Value<String?> tags = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
+          Value<DateTime?> soldAt = const Value.absent(),
+          Value<int?> sellPriceCents = const Value.absent(),
+          Value<String?> soldTo = const Value.absent(),
+          Value<String?> ownerUserId = const Value.absent(),
+          Value<String?> ownerLabel = const Value.absent(),
+          Value<String?> locationId = const Value.absent(),
+          Value<String?> purchaseStore = const Value.absent(),
+          Value<String?> collectionStatus = const Value.absent(),
+          Value<int?> marketValueCents = const Value.absent(),
+          Value<String?> storageDevice = const Value.absent(),
+          Value<String?> storageSlot = const Value.absent(),
+          Value<String?> signedBy = const Value.absent(),
+          Value<DateTime?> lastCleanedDate = const Value.absent(),
+          String? matrixRunoutsJson}) =>
+      MusicOwnedItemsRow(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        createdAt: createdAt.present ? createdAt.value : this.createdAt,
+        isDigital: isDigital.present ? isDigital.value : this.isDigital,
+        anchorType: anchorType.present ? anchorType.value : this.anchorType,
+        editionId: editionId.present ? editionId.value : this.editionId,
+        variantId: variantId.present ? variantId.value : this.variantId,
+        bundleReleaseId: bundleReleaseId.present
+            ? bundleReleaseId.value
+            : this.bundleReleaseId,
+        condition: condition.present ? condition.value : this.condition,
+        grade: grade.present ? grade.value : this.grade,
+        purchaseDate:
+            purchaseDate.present ? purchaseDate.value : this.purchaseDate,
+        pricePaidCents:
+            pricePaidCents.present ? pricePaidCents.value : this.pricePaidCents,
+        currency: currency.present ? currency.value : this.currency,
+        personalNotes:
+            personalNotes.present ? personalNotes.value : this.personalNotes,
+        quantity: quantity ?? this.quantity,
+        indexNumber: indexNumber.present ? indexNumber.value : this.indexNumber,
+        tags: tags.present ? tags.value : this.tags,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        soldAt: soldAt.present ? soldAt.value : this.soldAt,
+        sellPriceCents:
+            sellPriceCents.present ? sellPriceCents.value : this.sellPriceCents,
+        soldTo: soldTo.present ? soldTo.value : this.soldTo,
+        ownerUserId: ownerUserId.present ? ownerUserId.value : this.ownerUserId,
+        ownerLabel: ownerLabel.present ? ownerLabel.value : this.ownerLabel,
+        locationId: locationId.present ? locationId.value : this.locationId,
+        purchaseStore:
+            purchaseStore.present ? purchaseStore.value : this.purchaseStore,
+        collectionStatus: collectionStatus.present
+            ? collectionStatus.value
+            : this.collectionStatus,
+        marketValueCents: marketValueCents.present
+            ? marketValueCents.value
+            : this.marketValueCents,
+        storageDevice:
+            storageDevice.present ? storageDevice.value : this.storageDevice,
+        storageSlot: storageSlot.present ? storageSlot.value : this.storageSlot,
+        signedBy: signedBy.present ? signedBy.value : this.signedBy,
+        lastCleanedDate: lastCleanedDate.present
+            ? lastCleanedDate.value
+            : this.lastCleanedDate,
+        matrixRunoutsJson: matrixRunoutsJson ?? this.matrixRunoutsJson,
+      );
+  MusicOwnedItemsRow copyWithCompanion(MusicOwnedItemsRowsCompanion data) {
+    return MusicOwnedItemsRow(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
+      anchorType:
+          data.anchorType.present ? data.anchorType.value : this.anchorType,
+      editionId: data.editionId.present ? data.editionId.value : this.editionId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      bundleReleaseId: data.bundleReleaseId.present
+          ? data.bundleReleaseId.value
+          : this.bundleReleaseId,
+      condition: data.condition.present ? data.condition.value : this.condition,
+      grade: data.grade.present ? data.grade.value : this.grade,
+      purchaseDate: data.purchaseDate.present
+          ? data.purchaseDate.value
+          : this.purchaseDate,
+      pricePaidCents: data.pricePaidCents.present
+          ? data.pricePaidCents.value
+          : this.pricePaidCents,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      personalNotes: data.personalNotes.present
+          ? data.personalNotes.value
+          : this.personalNotes,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      indexNumber:
+          data.indexNumber.present ? data.indexNumber.value : this.indexNumber,
+      tags: data.tags.present ? data.tags.value : this.tags,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      soldAt: data.soldAt.present ? data.soldAt.value : this.soldAt,
+      sellPriceCents: data.sellPriceCents.present
+          ? data.sellPriceCents.value
+          : this.sellPriceCents,
+      soldTo: data.soldTo.present ? data.soldTo.value : this.soldTo,
+      ownerUserId:
+          data.ownerUserId.present ? data.ownerUserId.value : this.ownerUserId,
+      ownerLabel:
+          data.ownerLabel.present ? data.ownerLabel.value : this.ownerLabel,
+      locationId:
+          data.locationId.present ? data.locationId.value : this.locationId,
+      purchaseStore: data.purchaseStore.present
+          ? data.purchaseStore.value
+          : this.purchaseStore,
+      collectionStatus: data.collectionStatus.present
+          ? data.collectionStatus.value
+          : this.collectionStatus,
+      marketValueCents: data.marketValueCents.present
+          ? data.marketValueCents.value
+          : this.marketValueCents,
+      storageDevice: data.storageDevice.present
+          ? data.storageDevice.value
+          : this.storageDevice,
+      storageSlot:
+          data.storageSlot.present ? data.storageSlot.value : this.storageSlot,
+      signedBy: data.signedBy.present ? data.signedBy.value : this.signedBy,
+      lastCleanedDate: data.lastCleanedDate.present
+          ? data.lastCleanedDate.value
+          : this.lastCleanedDate,
+      matrixRunoutsJson: data.matrixRunoutsJson.present
+          ? data.matrixRunoutsJson.value
+          : this.matrixRunoutsJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicOwnedItemsRow(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isDigital: $isDigital, ')
+          ..write('anchorType: $anchorType, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('condition: $condition, ')
+          ..write('grade: $grade, ')
+          ..write('purchaseDate: $purchaseDate, ')
+          ..write('pricePaidCents: $pricePaidCents, ')
+          ..write('currency: $currency, ')
+          ..write('personalNotes: $personalNotes, ')
+          ..write('quantity: $quantity, ')
+          ..write('indexNumber: $indexNumber, ')
+          ..write('tags: $tags, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('soldAt: $soldAt, ')
+          ..write('sellPriceCents: $sellPriceCents, ')
+          ..write('soldTo: $soldTo, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('ownerLabel: $ownerLabel, ')
+          ..write('locationId: $locationId, ')
+          ..write('purchaseStore: $purchaseStore, ')
+          ..write('collectionStatus: $collectionStatus, ')
+          ..write('marketValueCents: $marketValueCents, ')
+          ..write('storageDevice: $storageDevice, ')
+          ..write('storageSlot: $storageSlot, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('lastCleanedDate: $lastCleanedDate, ')
+          ..write('matrixRunoutsJson: $matrixRunoutsJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        id,
+        itemId,
+        createdAt,
+        isDigital,
+        anchorType,
+        editionId,
+        variantId,
+        bundleReleaseId,
+        condition,
+        grade,
+        purchaseDate,
+        pricePaidCents,
+        currency,
+        personalNotes,
+        quantity,
+        indexNumber,
+        tags,
+        updatedAt,
+        deletedAt,
+        soldAt,
+        sellPriceCents,
+        soldTo,
+        ownerUserId,
+        ownerLabel,
+        locationId,
+        purchaseStore,
+        collectionStatus,
+        marketValueCents,
+        storageDevice,
+        storageSlot,
+        signedBy,
+        lastCleanedDate,
+        matrixRunoutsJson
+      ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicOwnedItemsRow &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.createdAt == this.createdAt &&
+          other.isDigital == this.isDigital &&
+          other.anchorType == this.anchorType &&
+          other.editionId == this.editionId &&
+          other.variantId == this.variantId &&
+          other.bundleReleaseId == this.bundleReleaseId &&
+          other.condition == this.condition &&
+          other.grade == this.grade &&
+          other.purchaseDate == this.purchaseDate &&
+          other.pricePaidCents == this.pricePaidCents &&
+          other.currency == this.currency &&
+          other.personalNotes == this.personalNotes &&
+          other.quantity == this.quantity &&
+          other.indexNumber == this.indexNumber &&
+          other.tags == this.tags &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.soldAt == this.soldAt &&
+          other.sellPriceCents == this.sellPriceCents &&
+          other.soldTo == this.soldTo &&
+          other.ownerUserId == this.ownerUserId &&
+          other.ownerLabel == this.ownerLabel &&
+          other.locationId == this.locationId &&
+          other.purchaseStore == this.purchaseStore &&
+          other.collectionStatus == this.collectionStatus &&
+          other.marketValueCents == this.marketValueCents &&
+          other.storageDevice == this.storageDevice &&
+          other.storageSlot == this.storageSlot &&
+          other.signedBy == this.signedBy &&
+          other.lastCleanedDate == this.lastCleanedDate &&
+          other.matrixRunoutsJson == this.matrixRunoutsJson);
+}
+
+class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<DateTime?> createdAt;
+  final Value<bool?> isDigital;
+  final Value<String?> anchorType;
+  final Value<String?> editionId;
+  final Value<String?> variantId;
+  final Value<String?> bundleReleaseId;
+  final Value<String?> condition;
+  final Value<String?> grade;
+  final Value<DateTime?> purchaseDate;
+  final Value<int?> pricePaidCents;
+  final Value<String?> currency;
+  final Value<String?> personalNotes;
+  final Value<int> quantity;
+  final Value<int?> indexNumber;
+  final Value<String?> tags;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<DateTime?> soldAt;
+  final Value<int?> sellPriceCents;
+  final Value<String?> soldTo;
+  final Value<String?> ownerUserId;
+  final Value<String?> ownerLabel;
+  final Value<String?> locationId;
+  final Value<String?> purchaseStore;
+  final Value<String?> collectionStatus;
+  final Value<int?> marketValueCents;
+  final Value<String?> storageDevice;
+  final Value<String?> storageSlot;
+  final Value<String?> signedBy;
+  final Value<DateTime?> lastCleanedDate;
+  final Value<String> matrixRunoutsJson;
+  final Value<int> rowid;
+  const MusicOwnedItemsRowsCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.isDigital = const Value.absent(),
+    this.anchorType = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    this.condition = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.purchaseDate = const Value.absent(),
+    this.pricePaidCents = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.personalNotes = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.indexNumber = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.soldAt = const Value.absent(),
+    this.sellPriceCents = const Value.absent(),
+    this.soldTo = const Value.absent(),
+    this.ownerUserId = const Value.absent(),
+    this.ownerLabel = const Value.absent(),
+    this.locationId = const Value.absent(),
+    this.purchaseStore = const Value.absent(),
+    this.collectionStatus = const Value.absent(),
+    this.marketValueCents = const Value.absent(),
+    this.storageDevice = const Value.absent(),
+    this.storageSlot = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.lastCleanedDate = const Value.absent(),
+    this.matrixRunoutsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicOwnedItemsRowsCompanion.insert({
+    required String id,
+    required String itemId,
+    this.createdAt = const Value.absent(),
+    this.isDigital = const Value.absent(),
+    this.anchorType = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.bundleReleaseId = const Value.absent(),
+    this.condition = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.purchaseDate = const Value.absent(),
+    this.pricePaidCents = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.personalNotes = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.indexNumber = const Value.absent(),
+    this.tags = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.soldAt = const Value.absent(),
+    this.sellPriceCents = const Value.absent(),
+    this.soldTo = const Value.absent(),
+    this.ownerUserId = const Value.absent(),
+    this.ownerLabel = const Value.absent(),
+    this.locationId = const Value.absent(),
+    this.purchaseStore = const Value.absent(),
+    this.collectionStatus = const Value.absent(),
+    this.marketValueCents = const Value.absent(),
+    this.storageDevice = const Value.absent(),
+    this.storageSlot = const Value.absent(),
+    this.signedBy = const Value.absent(),
+    this.lastCleanedDate = const Value.absent(),
+    this.matrixRunoutsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        updatedAt = Value(updatedAt);
+  static Insertable<MusicOwnedItemsRow> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<DateTime>? createdAt,
+    Expression<bool>? isDigital,
+    Expression<String>? anchorType,
+    Expression<String>? editionId,
+    Expression<String>? variantId,
+    Expression<String>? bundleReleaseId,
+    Expression<String>? condition,
+    Expression<String>? grade,
+    Expression<DateTime>? purchaseDate,
+    Expression<int>? pricePaidCents,
+    Expression<String>? currency,
+    Expression<String>? personalNotes,
+    Expression<int>? quantity,
+    Expression<int>? indexNumber,
+    Expression<String>? tags,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<DateTime>? soldAt,
+    Expression<int>? sellPriceCents,
+    Expression<String>? soldTo,
+    Expression<String>? ownerUserId,
+    Expression<String>? ownerLabel,
+    Expression<String>? locationId,
+    Expression<String>? purchaseStore,
+    Expression<String>? collectionStatus,
+    Expression<int>? marketValueCents,
+    Expression<String>? storageDevice,
+    Expression<String>? storageSlot,
+    Expression<String>? signedBy,
+    Expression<DateTime>? lastCleanedDate,
+    Expression<String>? matrixRunoutsJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (isDigital != null) 'is_digital': isDigital,
+      if (anchorType != null) 'anchor_type': anchorType,
+      if (editionId != null) 'edition_id': editionId,
+      if (variantId != null) 'variant_id': variantId,
+      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (condition != null) 'condition': condition,
+      if (grade != null) 'grade': grade,
+      if (purchaseDate != null) 'purchase_date': purchaseDate,
+      if (pricePaidCents != null) 'price_paid_cents': pricePaidCents,
+      if (currency != null) 'currency': currency,
+      if (personalNotes != null) 'personal_notes': personalNotes,
+      if (quantity != null) 'quantity': quantity,
+      if (indexNumber != null) 'index_number': indexNumber,
+      if (tags != null) 'tags': tags,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (soldAt != null) 'sold_at': soldAt,
+      if (sellPriceCents != null) 'sell_price_cents': sellPriceCents,
+      if (soldTo != null) 'sold_to': soldTo,
+      if (ownerUserId != null) 'owner_user_id': ownerUserId,
+      if (ownerLabel != null) 'owner_label': ownerLabel,
+      if (locationId != null) 'location_id': locationId,
+      if (purchaseStore != null) 'purchase_store': purchaseStore,
+      if (collectionStatus != null) 'collection_status': collectionStatus,
+      if (marketValueCents != null) 'market_value_cents': marketValueCents,
+      if (storageDevice != null) 'storage_device': storageDevice,
+      if (storageSlot != null) 'storage_slot': storageSlot,
+      if (signedBy != null) 'signed_by': signedBy,
+      if (lastCleanedDate != null) 'last_cleaned_date': lastCleanedDate,
+      if (matrixRunoutsJson != null) 'matrix_runouts_json': matrixRunoutsJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicOwnedItemsRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<DateTime?>? createdAt,
+      Value<bool?>? isDigital,
+      Value<String?>? anchorType,
+      Value<String?>? editionId,
+      Value<String?>? variantId,
+      Value<String?>? bundleReleaseId,
+      Value<String?>? condition,
+      Value<String?>? grade,
+      Value<DateTime?>? purchaseDate,
+      Value<int?>? pricePaidCents,
+      Value<String?>? currency,
+      Value<String?>? personalNotes,
+      Value<int>? quantity,
+      Value<int?>? indexNumber,
+      Value<String?>? tags,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<DateTime?>? soldAt,
+      Value<int?>? sellPriceCents,
+      Value<String?>? soldTo,
+      Value<String?>? ownerUserId,
+      Value<String?>? ownerLabel,
+      Value<String?>? locationId,
+      Value<String?>? purchaseStore,
+      Value<String?>? collectionStatus,
+      Value<int?>? marketValueCents,
+      Value<String?>? storageDevice,
+      Value<String?>? storageSlot,
+      Value<String?>? signedBy,
+      Value<DateTime?>? lastCleanedDate,
+      Value<String>? matrixRunoutsJson,
+      Value<int>? rowid}) {
+    return MusicOwnedItemsRowsCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      createdAt: createdAt ?? this.createdAt,
+      isDigital: isDigital ?? this.isDigital,
+      anchorType: anchorType ?? this.anchorType,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      condition: condition ?? this.condition,
+      grade: grade ?? this.grade,
+      purchaseDate: purchaseDate ?? this.purchaseDate,
+      pricePaidCents: pricePaidCents ?? this.pricePaidCents,
+      currency: currency ?? this.currency,
+      personalNotes: personalNotes ?? this.personalNotes,
+      quantity: quantity ?? this.quantity,
+      indexNumber: indexNumber ?? this.indexNumber,
+      tags: tags ?? this.tags,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      soldAt: soldAt ?? this.soldAt,
+      sellPriceCents: sellPriceCents ?? this.sellPriceCents,
+      soldTo: soldTo ?? this.soldTo,
+      ownerUserId: ownerUserId ?? this.ownerUserId,
+      ownerLabel: ownerLabel ?? this.ownerLabel,
+      locationId: locationId ?? this.locationId,
+      purchaseStore: purchaseStore ?? this.purchaseStore,
+      collectionStatus: collectionStatus ?? this.collectionStatus,
+      marketValueCents: marketValueCents ?? this.marketValueCents,
+      storageDevice: storageDevice ?? this.storageDevice,
+      storageSlot: storageSlot ?? this.storageSlot,
+      signedBy: signedBy ?? this.signedBy,
+      lastCleanedDate: lastCleanedDate ?? this.lastCleanedDate,
+      matrixRunoutsJson: matrixRunoutsJson ?? this.matrixRunoutsJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (isDigital.present) {
+      map['is_digital'] = Variable<bool>(isDigital.value);
+    }
+    if (anchorType.present) {
+      map['anchor_type'] = Variable<String>(anchorType.value);
+    }
+    if (editionId.present) {
+      map['edition_id'] = Variable<String>(editionId.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (bundleReleaseId.present) {
+      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    }
+    if (condition.present) {
+      map['condition'] = Variable<String>(condition.value);
+    }
+    if (grade.present) {
+      map['grade'] = Variable<String>(grade.value);
+    }
+    if (purchaseDate.present) {
+      map['purchase_date'] = Variable<DateTime>(purchaseDate.value);
+    }
+    if (pricePaidCents.present) {
+      map['price_paid_cents'] = Variable<int>(pricePaidCents.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (personalNotes.present) {
+      map['personal_notes'] = Variable<String>(personalNotes.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (indexNumber.present) {
+      map['index_number'] = Variable<int>(indexNumber.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (soldAt.present) {
+      map['sold_at'] = Variable<DateTime>(soldAt.value);
+    }
+    if (sellPriceCents.present) {
+      map['sell_price_cents'] = Variable<int>(sellPriceCents.value);
+    }
+    if (soldTo.present) {
+      map['sold_to'] = Variable<String>(soldTo.value);
+    }
+    if (ownerUserId.present) {
+      map['owner_user_id'] = Variable<String>(ownerUserId.value);
+    }
+    if (ownerLabel.present) {
+      map['owner_label'] = Variable<String>(ownerLabel.value);
+    }
+    if (locationId.present) {
+      map['location_id'] = Variable<String>(locationId.value);
+    }
+    if (purchaseStore.present) {
+      map['purchase_store'] = Variable<String>(purchaseStore.value);
+    }
+    if (collectionStatus.present) {
+      map['collection_status'] = Variable<String>(collectionStatus.value);
+    }
+    if (marketValueCents.present) {
+      map['market_value_cents'] = Variable<int>(marketValueCents.value);
+    }
+    if (storageDevice.present) {
+      map['storage_device'] = Variable<String>(storageDevice.value);
+    }
+    if (storageSlot.present) {
+      map['storage_slot'] = Variable<String>(storageSlot.value);
+    }
+    if (signedBy.present) {
+      map['signed_by'] = Variable<String>(signedBy.value);
+    }
+    if (lastCleanedDate.present) {
+      map['last_cleaned_date'] = Variable<DateTime>(lastCleanedDate.value);
+    }
+    if (matrixRunoutsJson.present) {
+      map['matrix_runouts_json'] = Variable<String>(matrixRunoutsJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicOwnedItemsRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isDigital: $isDigital, ')
+          ..write('anchorType: $anchorType, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('condition: $condition, ')
+          ..write('grade: $grade, ')
+          ..write('purchaseDate: $purchaseDate, ')
+          ..write('pricePaidCents: $pricePaidCents, ')
+          ..write('currency: $currency, ')
+          ..write('personalNotes: $personalNotes, ')
+          ..write('quantity: $quantity, ')
+          ..write('indexNumber: $indexNumber, ')
+          ..write('tags: $tags, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('soldAt: $soldAt, ')
+          ..write('sellPriceCents: $sellPriceCents, ')
+          ..write('soldTo: $soldTo, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('ownerLabel: $ownerLabel, ')
+          ..write('locationId: $locationId, ')
+          ..write('purchaseStore: $purchaseStore, ')
+          ..write('collectionStatus: $collectionStatus, ')
+          ..write('marketValueCents: $marketValueCents, ')
+          ..write('storageDevice: $storageDevice, ')
+          ..write('storageSlot: $storageSlot, ')
+          ..write('signedBy: $signedBy, ')
+          ..write('lastCleanedDate: $lastCleanedDate, ')
+          ..write('matrixRunoutsJson: $matrixRunoutsJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -46736,6 +48244,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $MusicTrackRowsTable musicTrackRows = $MusicTrackRowsTable(this);
   late final $MusicOwnedDetailsRowsTable musicOwnedDetailsRows =
       $MusicOwnedDetailsRowsTable(this);
+  late final $MusicOwnedItemsRowsTable musicOwnedItemsRows =
+      $MusicOwnedItemsRowsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -46809,7 +48319,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         musicReleaseRows,
         musicMediaRows,
         musicTrackRows,
-        musicOwnedDetailsRows
+        musicOwnedDetailsRows,
+        musicOwnedItemsRows
       ];
 }
 
@@ -68069,6 +69580,622 @@ typedef $$MusicOwnedDetailsRowsTableProcessedTableManager
         ),
         MusicOwnedDetailsRow,
         PrefetchHooks Function()>;
+typedef $$MusicOwnedItemsRowsTableCreateCompanionBuilder
+    = MusicOwnedItemsRowsCompanion Function({
+  required String id,
+  required String itemId,
+  Value<DateTime?> createdAt,
+  Value<bool?> isDigital,
+  Value<String?> anchorType,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  Value<String?> condition,
+  Value<String?> grade,
+  Value<DateTime?> purchaseDate,
+  Value<int?> pricePaidCents,
+  Value<String?> currency,
+  Value<String?> personalNotes,
+  Value<int> quantity,
+  Value<int?> indexNumber,
+  Value<String?> tags,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<DateTime?> soldAt,
+  Value<int?> sellPriceCents,
+  Value<String?> soldTo,
+  Value<String?> ownerUserId,
+  Value<String?> ownerLabel,
+  Value<String?> locationId,
+  Value<String?> purchaseStore,
+  Value<String?> collectionStatus,
+  Value<int?> marketValueCents,
+  Value<String?> storageDevice,
+  Value<String?> storageSlot,
+  Value<String?> signedBy,
+  Value<DateTime?> lastCleanedDate,
+  Value<String> matrixRunoutsJson,
+  Value<int> rowid,
+});
+typedef $$MusicOwnedItemsRowsTableUpdateCompanionBuilder
+    = MusicOwnedItemsRowsCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<DateTime?> createdAt,
+  Value<bool?> isDigital,
+  Value<String?> anchorType,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String?> bundleReleaseId,
+  Value<String?> condition,
+  Value<String?> grade,
+  Value<DateTime?> purchaseDate,
+  Value<int?> pricePaidCents,
+  Value<String?> currency,
+  Value<String?> personalNotes,
+  Value<int> quantity,
+  Value<int?> indexNumber,
+  Value<String?> tags,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<DateTime?> soldAt,
+  Value<int?> sellPriceCents,
+  Value<String?> soldTo,
+  Value<String?> ownerUserId,
+  Value<String?> ownerLabel,
+  Value<String?> locationId,
+  Value<String?> purchaseStore,
+  Value<String?> collectionStatus,
+  Value<int?> marketValueCents,
+  Value<String?> storageDevice,
+  Value<String?> storageSlot,
+  Value<String?> signedBy,
+  Value<DateTime?> lastCleanedDate,
+  Value<String> matrixRunoutsJson,
+  Value<int> rowid,
+});
+
+class $$MusicOwnedItemsRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicOwnedItemsRowsTable> {
+  $$MusicOwnedItemsRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDigital => $composableBuilder(
+      column: $table.isDigital, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get condition => $composableBuilder(
+      column: $table.condition, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get purchaseDate => $composableBuilder(
+      column: $table.purchaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pricePaidCents => $composableBuilder(
+      column: $table.pricePaidCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get personalNotes => $composableBuilder(
+      column: $table.personalNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get soldAt => $composableBuilder(
+      column: $table.soldAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sellPriceCents => $composableBuilder(
+      column: $table.sellPriceCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get soldTo => $composableBuilder(
+      column: $table.soldTo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownerLabel => $composableBuilder(
+      column: $table.ownerLabel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get purchaseStore => $composableBuilder(
+      column: $table.purchaseStore, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get collectionStatus => $composableBuilder(
+      column: $table.collectionStatus,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get marketValueCents => $composableBuilder(
+      column: $table.marketValueCents,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageDevice => $composableBuilder(
+      column: $table.storageDevice, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get storageSlot => $composableBuilder(
+      column: $table.storageSlot, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastCleanedDate => $composableBuilder(
+      column: $table.lastCleanedDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get matrixRunoutsJson => $composableBuilder(
+      column: $table.matrixRunoutsJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicOwnedItemsRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicOwnedItemsRowsTable> {
+  $$MusicOwnedItemsRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDigital => $composableBuilder(
+      column: $table.isDigital, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get condition => $composableBuilder(
+      column: $table.condition, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get purchaseDate => $composableBuilder(
+      column: $table.purchaseDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pricePaidCents => $composableBuilder(
+      column: $table.pricePaidCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get personalNotes => $composableBuilder(
+      column: $table.personalNotes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get soldAt => $composableBuilder(
+      column: $table.soldAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sellPriceCents => $composableBuilder(
+      column: $table.sellPriceCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get soldTo => $composableBuilder(
+      column: $table.soldTo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownerLabel => $composableBuilder(
+      column: $table.ownerLabel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get purchaseStore => $composableBuilder(
+      column: $table.purchaseStore,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get collectionStatus => $composableBuilder(
+      column: $table.collectionStatus,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get marketValueCents => $composableBuilder(
+      column: $table.marketValueCents,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageDevice => $composableBuilder(
+      column: $table.storageDevice,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get storageSlot => $composableBuilder(
+      column: $table.storageSlot, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get signedBy => $composableBuilder(
+      column: $table.signedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastCleanedDate => $composableBuilder(
+      column: $table.lastCleanedDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get matrixRunoutsJson => $composableBuilder(
+      column: $table.matrixRunoutsJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicOwnedItemsRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicOwnedItemsRowsTable> {
+  $$MusicOwnedItemsRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDigital =>
+      $composableBuilder(column: $table.isDigital, builder: (column) => column);
+
+  GeneratedColumn<String> get anchorType => $composableBuilder(
+      column: $table.anchorType, builder: (column) => column);
+
+  GeneratedColumn<String> get editionId =>
+      $composableBuilder(column: $table.editionId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
+      column: $table.bundleReleaseId, builder: (column) => column);
+
+  GeneratedColumn<String> get condition =>
+      $composableBuilder(column: $table.condition, builder: (column) => column);
+
+  GeneratedColumn<String> get grade =>
+      $composableBuilder(column: $table.grade, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get purchaseDate => $composableBuilder(
+      column: $table.purchaseDate, builder: (column) => column);
+
+  GeneratedColumn<int> get pricePaidCents => $composableBuilder(
+      column: $table.pricePaidCents, builder: (column) => column);
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<String> get personalNotes => $composableBuilder(
+      column: $table.personalNotes, builder: (column) => column);
+
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<int> get indexNumber => $composableBuilder(
+      column: $table.indexNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get soldAt =>
+      $composableBuilder(column: $table.soldAt, builder: (column) => column);
+
+  GeneratedColumn<int> get sellPriceCents => $composableBuilder(
+      column: $table.sellPriceCents, builder: (column) => column);
+
+  GeneratedColumn<String> get soldTo =>
+      $composableBuilder(column: $table.soldTo, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerLabel => $composableBuilder(
+      column: $table.ownerLabel, builder: (column) => column);
+
+  GeneratedColumn<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => column);
+
+  GeneratedColumn<String> get purchaseStore => $composableBuilder(
+      column: $table.purchaseStore, builder: (column) => column);
+
+  GeneratedColumn<String> get collectionStatus => $composableBuilder(
+      column: $table.collectionStatus, builder: (column) => column);
+
+  GeneratedColumn<int> get marketValueCents => $composableBuilder(
+      column: $table.marketValueCents, builder: (column) => column);
+
+  GeneratedColumn<String> get storageDevice => $composableBuilder(
+      column: $table.storageDevice, builder: (column) => column);
+
+  GeneratedColumn<String> get storageSlot => $composableBuilder(
+      column: $table.storageSlot, builder: (column) => column);
+
+  GeneratedColumn<String> get signedBy =>
+      $composableBuilder(column: $table.signedBy, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastCleanedDate => $composableBuilder(
+      column: $table.lastCleanedDate, builder: (column) => column);
+
+  GeneratedColumn<String> get matrixRunoutsJson => $composableBuilder(
+      column: $table.matrixRunoutsJson, builder: (column) => column);
+}
+
+class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicOwnedItemsRowsTable,
+    MusicOwnedItemsRow,
+    $$MusicOwnedItemsRowsTableFilterComposer,
+    $$MusicOwnedItemsRowsTableOrderingComposer,
+    $$MusicOwnedItemsRowsTableAnnotationComposer,
+    $$MusicOwnedItemsRowsTableCreateCompanionBuilder,
+    $$MusicOwnedItemsRowsTableUpdateCompanionBuilder,
+    (
+      MusicOwnedItemsRow,
+      BaseReferences<_$LocalDatabase, $MusicOwnedItemsRowsTable,
+          MusicOwnedItemsRow>
+    ),
+    MusicOwnedItemsRow,
+    PrefetchHooks Function()> {
+  $$MusicOwnedItemsRowsTableTableManager(
+      _$LocalDatabase db, $MusicOwnedItemsRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicOwnedItemsRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicOwnedItemsRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicOwnedItemsRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<bool?> isDigital = const Value.absent(),
+            Value<String?> anchorType = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> condition = const Value.absent(),
+            Value<String?> grade = const Value.absent(),
+            Value<DateTime?> purchaseDate = const Value.absent(),
+            Value<int?> pricePaidCents = const Value.absent(),
+            Value<String?> currency = const Value.absent(),
+            Value<String?> personalNotes = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<int?> indexNumber = const Value.absent(),
+            Value<String?> tags = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<DateTime?> soldAt = const Value.absent(),
+            Value<int?> sellPriceCents = const Value.absent(),
+            Value<String?> soldTo = const Value.absent(),
+            Value<String?> ownerUserId = const Value.absent(),
+            Value<String?> ownerLabel = const Value.absent(),
+            Value<String?> locationId = const Value.absent(),
+            Value<String?> purchaseStore = const Value.absent(),
+            Value<String?> collectionStatus = const Value.absent(),
+            Value<int?> marketValueCents = const Value.absent(),
+            Value<String?> storageDevice = const Value.absent(),
+            Value<String?> storageSlot = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<DateTime?> lastCleanedDate = const Value.absent(),
+            Value<String> matrixRunoutsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicOwnedItemsRowsCompanion(
+            id: id,
+            itemId: itemId,
+            createdAt: createdAt,
+            isDigital: isDigital,
+            anchorType: anchorType,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            condition: condition,
+            grade: grade,
+            purchaseDate: purchaseDate,
+            pricePaidCents: pricePaidCents,
+            currency: currency,
+            personalNotes: personalNotes,
+            quantity: quantity,
+            indexNumber: indexNumber,
+            tags: tags,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            soldAt: soldAt,
+            sellPriceCents: sellPriceCents,
+            soldTo: soldTo,
+            ownerUserId: ownerUserId,
+            ownerLabel: ownerLabel,
+            locationId: locationId,
+            purchaseStore: purchaseStore,
+            collectionStatus: collectionStatus,
+            marketValueCents: marketValueCents,
+            storageDevice: storageDevice,
+            storageSlot: storageSlot,
+            signedBy: signedBy,
+            lastCleanedDate: lastCleanedDate,
+            matrixRunoutsJson: matrixRunoutsJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<bool?> isDigital = const Value.absent(),
+            Value<String?> anchorType = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> condition = const Value.absent(),
+            Value<String?> grade = const Value.absent(),
+            Value<DateTime?> purchaseDate = const Value.absent(),
+            Value<int?> pricePaidCents = const Value.absent(),
+            Value<String?> currency = const Value.absent(),
+            Value<String?> personalNotes = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<int?> indexNumber = const Value.absent(),
+            Value<String?> tags = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<DateTime?> soldAt = const Value.absent(),
+            Value<int?> sellPriceCents = const Value.absent(),
+            Value<String?> soldTo = const Value.absent(),
+            Value<String?> ownerUserId = const Value.absent(),
+            Value<String?> ownerLabel = const Value.absent(),
+            Value<String?> locationId = const Value.absent(),
+            Value<String?> purchaseStore = const Value.absent(),
+            Value<String?> collectionStatus = const Value.absent(),
+            Value<int?> marketValueCents = const Value.absent(),
+            Value<String?> storageDevice = const Value.absent(),
+            Value<String?> storageSlot = const Value.absent(),
+            Value<String?> signedBy = const Value.absent(),
+            Value<DateTime?> lastCleanedDate = const Value.absent(),
+            Value<String> matrixRunoutsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicOwnedItemsRowsCompanion.insert(
+            id: id,
+            itemId: itemId,
+            createdAt: createdAt,
+            isDigital: isDigital,
+            anchorType: anchorType,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+            condition: condition,
+            grade: grade,
+            purchaseDate: purchaseDate,
+            pricePaidCents: pricePaidCents,
+            currency: currency,
+            personalNotes: personalNotes,
+            quantity: quantity,
+            indexNumber: indexNumber,
+            tags: tags,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            soldAt: soldAt,
+            sellPriceCents: sellPriceCents,
+            soldTo: soldTo,
+            ownerUserId: ownerUserId,
+            ownerLabel: ownerLabel,
+            locationId: locationId,
+            purchaseStore: purchaseStore,
+            collectionStatus: collectionStatus,
+            marketValueCents: marketValueCents,
+            storageDevice: storageDevice,
+            storageSlot: storageSlot,
+            signedBy: signedBy,
+            lastCleanedDate: lastCleanedDate,
+            matrixRunoutsJson: matrixRunoutsJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MusicOwnedItemsRowsTable,
+    MusicOwnedItemsRow,
+    $$MusicOwnedItemsRowsTableFilterComposer,
+    $$MusicOwnedItemsRowsTableOrderingComposer,
+    $$MusicOwnedItemsRowsTableAnnotationComposer,
+    $$MusicOwnedItemsRowsTableCreateCompanionBuilder,
+    $$MusicOwnedItemsRowsTableUpdateCompanionBuilder,
+    (
+      MusicOwnedItemsRow,
+      BaseReferences<_$LocalDatabase, $MusicOwnedItemsRowsTable,
+          MusicOwnedItemsRow>
+    ),
+    MusicOwnedItemsRow,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -68222,4 +70349,6 @@ class $LocalDatabaseManager {
       $$MusicTrackRowsTableTableManager(_db, _db.musicTrackRows);
   $$MusicOwnedDetailsRowsTableTableManager get musicOwnedDetailsRows =>
       $$MusicOwnedDetailsRowsTableTableManager(_db, _db.musicOwnedDetailsRows);
+  $$MusicOwnedItemsRowsTableTableManager get musicOwnedItemsRows =>
+      $$MusicOwnedItemsRowsTableTableManager(_db, _db.musicOwnedItemsRows);
 }

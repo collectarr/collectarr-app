@@ -59,10 +59,10 @@ void main() {
   test('reports the current schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 30);
+    expect(db.schemaVersion, 31);
   });
 
-  test('migrates a v7 cache to v30 without losing existing cache rows',
+  test('migrates a v7 cache to v31 without losing existing cache rows',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_migrate');
     addTearDown(() => dir.delete(recursive: true));
@@ -133,7 +133,7 @@ void main() {
     expect(await db.select(db.providerItemLinksCache).get(), isEmpty);
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('migrates a v8 provider account table by adding username', () async {
@@ -239,7 +239,7 @@ void main() {
     final migrated = await db.select(db.providerAccountsCache).getSingle();
     expect(migrated.username, 'new-user');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('migrates v9 owned semantic columns into typed details JSON', () async {
@@ -465,7 +465,7 @@ void main() {
     expect(gameMediaRows, isEmpty);
     expect(gameReleaseRows, isEmpty);
     expect(gameOwnedDetailsRows, isEmpty);
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('creates Book, Game, and BoardGame tables when migrating from v12',
@@ -522,7 +522,7 @@ void main() {
     expect(await db.select(db.boardGameOwnedDetailsRows).get(), isEmpty);
     expect(await db.select(db.boardGamePlaySessionsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('creates BoardGame play-session table when migrating from v15',
@@ -543,7 +543,7 @@ void main() {
 
     expect(await db.select(db.boardGamePlaySessionsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('creates BoardGame tables when migrating from v14', () async {
@@ -571,7 +571,7 @@ void main() {
     expect(await db.select(db.boardGameEditionRows).get(), isEmpty);
     expect(await db.select(db.boardGameOwnedDetailsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('owned item repository round-trips opaque kind details', () async {
@@ -657,7 +657,7 @@ void main() {
     expect(await db.select(db.movieOwnedDetailsRows).get(), isEmpty);
     expect(await db.select(db.movieOwnedItemsRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('backfills complete Movie owned rows when migrating from v27', () async {
@@ -707,7 +707,7 @@ void main() {
     expect(restored.packaging, 'SteelBook');
     expect(restored.distributor, 'Warner Home Video');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('creates Anime tables when migrating from v19', () async {
@@ -747,7 +747,7 @@ void main() {
     expect(await db.select(db.animeOwnedItemsRows).get(), isEmpty);
     expect(await db.select(db.animeTrackingRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('backfills complete TV owned rows when migrating from v29', () async {
@@ -792,7 +792,7 @@ void main() {
     expect(restored.packaging, 'Amaray');
     expect(restored.distributor, 'BBC Studios');
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('creates Music tables when migrating from v20', () async {
@@ -820,6 +820,9 @@ void main() {
     await old.customStatement(
       'DROP TABLE ${old.musicOwnedDetailsRows.actualTableName}',
     );
+    await old.customStatement(
+      'DROP TABLE ${old.musicOwnedItemsRows.actualTableName}',
+    );
     await old.customStatement('PRAGMA user_version = 20');
     await old.close();
 
@@ -831,13 +834,77 @@ void main() {
     expect(await db.select(db.musicMediaRows).get(), isEmpty);
     expect(await db.select(db.musicTrackRows).get(), isEmpty);
     expect(await db.select(db.musicOwnedDetailsRows).get(), isEmpty);
+    expect(await db.select(db.musicOwnedItemsRows).get(), isEmpty);
     expect(
         await LibraryCatalogRepository(db).findById('music-1') != null, isTrue);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v30 schema',
+  test('backfills complete Music owned rows when migrating from v30', () async {
+    final dir =
+        await Directory.systemTemp.createTemp('collectarr_db_v30_music');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/cache.sqlite');
+
+    final old = LocalDatabase(NativeDatabase(file));
+    await old.into(old.ownedItemsCache).insert(
+          OwnedItemsCacheCompanion.insert(
+            id: 'music-owned-legacy',
+            itemId: 'music-legacy',
+            kind: const Value('music'),
+            condition: const Value('Near Mint'),
+            grade: const Value('9.5'),
+            personalNotes: const Value('Signed first pressing'),
+            quantity: const Value(2),
+            detailsJson: Value(jsonEncode({
+              'storage_device': 'Vinyl',
+              'storage_slot': 'Shelf M1',
+              'signed_by': 'Artist',
+              'last_cleaned_date': '2026-07-02T00:00:00.000Z',
+              'matrix_runouts': [
+                {
+                  'medium_index': 1,
+                  'side': 'A',
+                  'runout_text': 'ABC-123 A1',
+                },
+              ],
+            })),
+            updatedAt: DateTime.utc(2026, 7, 2),
+          ),
+        );
+    await old.customStatement(
+      'DROP TABLE ${old.musicOwnedItemsRows.actualTableName}',
+    );
+    await old.customStatement('PRAGMA user_version = 30');
+    await old.close();
+
+    final db = LocalDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+
+    final restored = await db.select(db.musicOwnedItemsRows).getSingle();
+    expect(restored.id, 'music-owned-legacy');
+    expect(restored.itemId, 'music-legacy');
+    expect(restored.condition, 'Near Mint');
+    expect(restored.grade, '9.5');
+    expect(restored.personalNotes, 'Signed first pressing');
+    expect(restored.quantity, 2);
+    expect(restored.storageDevice, 'Vinyl');
+    expect(restored.storageSlot, 'Shelf M1');
+    expect(restored.signedBy, 'Artist');
+    expect(restored.lastCleanedDate?.toUtc(), DateTime.utc(2026, 7, 2));
+    expect(jsonDecode(restored.matrixRunoutsJson), [
+      {
+        'medium_index': 1,
+        'side': 'A',
+        'runout_text': 'ABC-123 A1',
+      },
+    ]);
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.first, 31);
+  });
+
+  test('destructively rebuilds a higher-versioned cache to the v31 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
@@ -867,7 +934,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 30);
+    expect(version.data.values.first, 31);
   });
 
   test('stores personal collection and wishlist data locally', () async {

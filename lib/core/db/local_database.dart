@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_mig
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_migration.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_migration.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'universal_local_tables.dart';
 
@@ -91,13 +92,14 @@ part 'local_database.g.dart';
   MusicMediaRows,
   MusicTrackRows,
   MusicOwnedDetailsRows,
+  MusicOwnedItemsRows,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 30;
+  int get schemaVersion => 31;
 
   @override
   MigrationStrategy get migration {
@@ -249,6 +251,12 @@ class LocalDatabase extends _$LocalDatabase {
             await m.createTable(tvOwnedItemsRows);
           }
           await migrateTvOwnedItems(this);
+        }
+        if (from < 31) {
+          if (!await _hasTable(musicOwnedItemsRows.actualTableName)) {
+            await m.createTable(musicOwnedItemsRows);
+          }
+          await migrateMusicOwnedItems(this);
         }
       },
       beforeOpen: (details) async {
