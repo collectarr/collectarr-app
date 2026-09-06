@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 /// Anime owns the meaning of its series, edition/format, studio and UPC
 /// values. Episode and season hierarchy stays in Anime's typed graph.
 final class AnimeCollectionCsvProjection
+    with LibraryCollectionCsvProjectionPresentation
     implements LibraryCollectionCsvProjection {
   const AnimeCollectionCsvProjection();
 

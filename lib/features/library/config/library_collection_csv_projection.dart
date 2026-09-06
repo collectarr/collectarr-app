@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
@@ -10,55 +11,96 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 abstract interface class LibraryCollectionCsvProjection {
   CatalogMediaKind get kind;
 
+  String catalogDisplayTitle(CatalogItem item);
+
+  String catalogDisplaySubtitle(CatalogItem item);
+
+  bool catalogMatchesBarcode(CatalogItem item, String normalizedBarcode);
+
   /// The complete CLZ-compatible header for a single-kind export.
+
   ///
   /// A null value means that the generic host should keep its transitional
   /// header. The header is a wire-format concern, so owning it here keeps
   /// kind-specific labels and columns out of Collection.
   List<String>? get clzFriendlyHeader;
 
-  /// Parses a kind-owned catalog segment from an external CSV row.
-  ///
-  /// The returned cells are already normalized for the generic legacy import
-  /// adapter. Null means that this projection does not own the row.
   List<String>? importCatalogCells({
     required List<String> header,
     required List<String> values,
   });
 
-  /// Parses a kind-owned owned-copy segment from an external CSV row.
-  ///
-  /// This is a serialization-boundary bridge only. The kind performs typed
-  /// interpretation before returning the normalized cells.
   List<String>? importOwnedCells({
     required List<String> header,
     required List<String> values,
   });
 
-  /// Aliases contributed by the kind's external CSV integrations.
-  ///
-  /// Keys are canonical wire-column names. Values are human-facing or
-  /// provider-facing aliases accepted by the generic CSV reader.
   Map<String, List<String>> get columnAliases;
 
-  /// Returns the 11 catalog cells in the canonical Collection CSV order.
   List<String> catalogCells(LibraryEntry entry);
 
-  /// Returns kind-specific cells that precede quantity in the CLZ layout.
-  ///
-  /// The generic host owns the placement of universal columns. This hook is
-  /// needed because the legacy CLZ layout places one kind-owned cell before
-  /// quantity while the canonical layout places it after index.
   List<String> ownedCellsBeforeQuantity(
     LibraryEntry entry, {
     required bool clzFriendly,
   });
 
-  /// Returns kind-specific cells that follow index in either layout.
   List<String> ownedCellsAfterIndex(
     LibraryEntry entry, {
     required bool clzFriendly,
   });
+}
+
+/// Structural presentation helpers for the collection CSV boundary.
+///
+/// The helpers intentionally consume the positional cells produced by the
+/// owning projection. This keeps the common import UI independent of kind
+/// payload keys while allowing every projection to share the same wire-level
+/// presentation rules.
+mixin LibraryCollectionCsvProjectionPresentation {
+  List<String> catalogCells(LibraryEntry entry);
+
+  /// Presents a catalog item using the kind-owned catalog cells.
+  ///
+  /// This is intentionally derived from [catalogCells], rather than reading
+  /// the transport payload. The collection host may render the result without
+  /// learning what an item number means for any particular kind.
+  String catalogDisplayTitle(CatalogItem item) {
+    final cells = catalogCells(
+      LibraryEntry(itemId: item.id, catalogItem: item),
+    );
+    final title = cells.elementAtOrNull(2) ?? item.title;
+    final itemNumber = cells.elementAtOrNull(3) ?? '';
+    if (itemNumber.trim().isEmpty) {
+      return title;
+    }
+    return '$title #$itemNumber';
+  }
+
+  /// Presents the non-title catalog summary using kind-owned cells.
+  String catalogDisplaySubtitle(CatalogItem item) {
+    final cells = catalogCells(
+      LibraryEntry(itemId: item.id, catalogItem: item),
+    );
+    return [
+      if ((cells.elementAtOrNull(4) ?? '').trim().isNotEmpty)
+        cells.elementAtOrNull(4),
+      if ((cells.elementAtOrNull(8) ?? '').trim().isNotEmpty)
+        cells.elementAtOrNull(8),
+      if (item.releaseYear != null) item.releaseYear!.toString(),
+      if ((cells.elementAtOrNull(10) ?? '').trim().isNotEmpty)
+        cells.elementAtOrNull(10),
+    ].join(' | ');
+  }
+
+  /// Matches the normalized barcode cell projected by the owning kind.
+  bool catalogMatchesBarcode(CatalogItem item, String normalizedBarcode) {
+    final cells = catalogCells(
+      LibraryEntry(itemId: item.id, catalogItem: item),
+    );
+    final itemBarcode = cells.elementAtOrNull(10);
+    return itemBarcode != null &&
+        MetadataSearchQuery.normalizeBarcode(itemBarcode) == normalizedBarcode;
+  }
 }
 
 const libraryCollectionCsvCatalogCellCount = 11;

@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 /// Manga's semantic contribution to the generic collection CSV host.
 final class MangaCollectionCsvProjection
+    with LibraryCollectionCsvProjectionPresentation
     implements LibraryCollectionCsvProjection {
   const MangaCollectionCsvProjection();
 

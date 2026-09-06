@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 /// physical format, and UPC values. Collection receives only positional cells
 /// at this serialization boundary.
 final class MovieCollectionCsvProjection
+    with LibraryCollectionCsvProjectionPresentation
     implements LibraryCollectionCsvProjection {
   const MovieCollectionCsvProjection();
 

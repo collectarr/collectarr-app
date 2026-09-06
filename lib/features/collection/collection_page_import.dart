@@ -35,7 +35,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Paste Collectarr CSV or CLZ-style CSV. Rows with no item ID are matched locally by barcode, then by series + issue.',
+                'Paste Collectarr CSV or CLZ-style CSV. Rows with no item ID are matched locally by barcode, then by title + item number.',
               ),
               const SizedBox(height: 10),
               TextField(
@@ -654,7 +654,7 @@ class _ResolveImportRowDialogState
                   ? const Align(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        'Search Core and choose the matching comic.',
+                        'Search Core and choose the matching item.',
                       ),
                     )
                   : ListView.separated(
@@ -731,7 +731,7 @@ class _ResolveImportRowDialogState
   String _rowSummary(CollectionCsvRow row) {
     return [
       row.title ?? 'Unknown title',
-      if (row.itemNumber != null) 'Issue ${row.itemNumber}',
+      if (row.itemNumber != null) 'Item number ${row.itemNumber}',
       if (row.publisher != null) row.publisher,
       if (row.barcode != null) 'Barcode ${row.barcode}',
     ].join(' | ');
@@ -965,28 +965,15 @@ class _CatalogThumb extends StatelessWidget {
 }
 
 String _catalogTitle(CatalogItem item) {
-  final payload = item.payload;
-  final pub = payload['publishing'] as Map?;
-  final issue = (payload['item_number'] ?? pub?['issue_number'])?.toString();
-  if (issue == null || issue.isEmpty) {
-    return item.title;
-  }
-  return '${item.title} #$issue';
+  return libraryCollectionCsvProjectionForKind(item.mediaKind)
+          ?.catalogDisplayTitle(item) ??
+      item.title;
 }
 
 String _catalogSubtitle(CatalogItem item) {
-  final payload = item.payload;
-  final pub = payload['publishing'] as Map?;
-  final variant = (payload['variant'] ?? pub?['variant'])?.toString();
-  final publisher =
-      (payload['publisher'] ?? pub?['original_publisher'])?.toString();
-  final barcode = (payload['barcode'] ?? pub?['barcode'])?.toString();
-  return [
-    if (variant != null && variant.isNotEmpty) variant,
-    if (publisher != null && publisher.isNotEmpty) publisher,
-    if (payload['release_year'] != null) payload['release_year'].toString(),
-    if (barcode != null && barcode.isNotEmpty) barcode,
-  ].join(' | ');
+  return libraryCollectionCsvProjectionForKind(item.mediaKind)
+          ?.catalogDisplaySubtitle(item) ??
+      '';
 }
 
 String _friendlyImportError(Object error) {
@@ -1045,9 +1032,9 @@ CatalogItem? _confidentImportMatch(
       : MetadataSearchQuery.normalizeBarcode(row.barcode!);
   if (barcode != null && barcode.isNotEmpty) {
     final barcodeMatches = results.where((item) {
-      final itemBarcode = item.payload['barcode'] as String?;
-      return itemBarcode != null &&
-          MetadataSearchQuery.normalizeBarcode(itemBarcode) == barcode;
+      return libraryCollectionCsvProjectionForKind(item.mediaKind)
+              ?.catalogMatchesBarcode(item, barcode) ??
+          false;
     }).toList(growable: false);
     if (barcodeMatches.length == 1) {
       return barcodeMatches.single;

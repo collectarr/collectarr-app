@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 /// BoardGame's semantic contribution to the generic collection CSV host.
 final class BoardGameCollectionCsvProjection
+    with LibraryCollectionCsvProjectionPresentation
     implements LibraryCollectionCsvProjection {
   const BoardGameCollectionCsvProjection();
 

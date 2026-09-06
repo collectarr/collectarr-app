@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 /// episodes remain typed TV hierarchy and are not flattened into generic
 /// collection-owned fields.
 final class TvCollectionCsvProjection
+    with LibraryCollectionCsvProjectionPresentation
     implements LibraryCollectionCsvProjection {
   const TvCollectionCsvProjection();
 

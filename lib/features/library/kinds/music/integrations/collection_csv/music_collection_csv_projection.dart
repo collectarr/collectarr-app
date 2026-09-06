@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 /// remain owned by Music and are intentionally not flattened into the
 /// generic collection row.
 final class MusicCollectionCsvProjection
+    with LibraryCollectionCsvProjectionPresentation
     implements LibraryCollectionCsvProjection {
   const MusicCollectionCsvProjection();
 

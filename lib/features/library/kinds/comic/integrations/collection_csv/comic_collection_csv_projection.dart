@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 /// that format. The returned lists are serialization cells, not Comic domain
 /// objects, so the type-erased boundary exists only at export.
 final class ComicCollectionCsvProjection
+    with LibraryCollectionCsvProjectionPresentation
     implements LibraryCollectionCsvProjection {
   const ComicCollectionCsvProjection();
 
