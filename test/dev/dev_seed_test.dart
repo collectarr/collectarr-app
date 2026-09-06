@@ -259,16 +259,6 @@ void main() {
         isTrue);
     expect(
         ownedRows.map((row) => row.id).toSet(), hasLength(expectedSeedTotal));
-    expect(
-      ownedRows.every((row) =>
-          row.rating == null &&
-          row.readStatus == null &&
-          row.startedAt == null &&
-          row.finishedAt == null),
-      isTrue,
-      reason: 'Seed tracking state must live in typed tracking rows',
-    );
-
     final comicOwnedRows = await db.select(db.comicOwnedItemsRows).get();
     final comicReadingRows = await db.select(db.comicReadingRows).get();
     expect(comicOwnedRows, hasLength(15));

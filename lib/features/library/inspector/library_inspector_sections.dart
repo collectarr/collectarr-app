@@ -90,14 +90,10 @@ class InspectorPersonalSection extends StatelessWidget {
       fallbackLabel: adapter?.variant,
     );
     final tracking = trackingEntry;
-    final trackingRating =
-        tracking == null ? ownedItem?.rating : tracking.rating;
-    final trackingStatus =
-        tracking == null ? ownedItem?.readStatus : tracking.statusStorageValue;
-    final trackingStartedAt =
-        tracking == null ? ownedItem?.startedAt : tracking.startedAt;
-    final trackingFinishedAt =
-        tracking == null ? ownedItem?.finishedAt : tracking.finishedAt;
+    final trackingRating = tracking?.rating;
+    final trackingStatus = tracking?.statusStorageValue;
+    final trackingStartedAt = tracking?.startedAt;
+    final trackingFinishedAt = tracking?.finishedAt;
     final ownedTags = ownedItem?.tags;
     final List<String> tagList =
         (ownedTags != null && ownedTags.trim().isNotEmpty)

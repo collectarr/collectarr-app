@@ -44,18 +44,6 @@ final class OwnedActivityContributor
           secondaryDetail: _priceLabel(item.pricePaidCents, item.currency),
         );
       }
-      if (item.startedAt != null) {
-        yield ActivityEvent(
-          kind: ActivityEventKind.started,
-          timestamp: item.startedAt!,
-        );
-      }
-      if (item.finishedAt != null) {
-        yield ActivityEvent(
-          kind: ActivityEventKind.finished,
-          timestamp: item.finishedAt!,
-        );
-      }
       if (item.soldAt != null) {
         yield ActivityEvent(
           kind: ActivityEventKind.sold,
@@ -74,13 +62,6 @@ final class OwnedActivityContributor
         yield ActivityEvent(
           kind: ActivityEventKind.addedToCollection,
           timestamp: item.updatedAt,
-        );
-      }
-      if (item.rating != null) {
-        yield ActivityEvent(
-          kind: ActivityEventKind.rated,
-          timestamp: item.updatedAt,
-          rating: item.rating,
         );
       }
     }

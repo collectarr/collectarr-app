@@ -28,10 +28,6 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
     this.personalNotes,
     this.quantity = 1,
     this.indexNumber,
-    this.rating,
-    this.readStatus,
-    this.startedAt,
-    this.finishedAt,
     this.tags,
     required this.updatedAt,
     this.deletedAt,
@@ -65,10 +61,6 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
   final String? personalNotes;
   final int quantity;
   final int? indexNumber;
-  final int? rating;
-  final String? readStatus;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
   final String? tags;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -114,10 +106,6 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
       'personal_notes': personalNotes,
       'quantity': quantity,
       'index_number': indexNumber,
-      'rating': rating,
-      'read_status': readStatus,
-      'started_at': startedAt?.toUtc().toIso8601String(),
-      'finished_at': finishedAt?.toUtc().toIso8601String(),
       'tags': tags,
       'sold_at': soldAt?.toUtc().toIso8601String(),
       'sell_price_cents': sellPriceCents,
@@ -150,10 +138,6 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
       'personal_notes': personalNotes,
       'quantity': quantity,
       'index_number': indexNumber,
-      'rating': rating,
-      'read_status': readStatus,
-      'started_at': startedAt?.toUtc().toIso8601String(),
-      'finished_at': finishedAt?.toUtc().toIso8601String(),
       'tags': tags,
       'updated_at': updatedAt.toUtc().toIso8601String(),
       'deleted_at': deletedAt?.toUtc().toIso8601String(),
@@ -202,14 +186,6 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
       personalNotes: json['personal_notes'] as String?,
       quantity: json['quantity'] as int? ?? 1,
       indexNumber: json['index_number'] as int?,
-      rating: json['rating'] as int?,
-      readStatus: json['read_status'] as String?,
-      startedAt: json['started_at'] == null
-          ? null
-          : DateTime.parse(json['started_at'] as String),
-      finishedAt: json['finished_at'] == null
-          ? null
-          : DateTime.parse(json['finished_at'] as String),
       tags: json['tags'] as String?,
       updatedAt: DateTime.parse(json['updated_at'] as String),
       deletedAt: json['deleted_at'] == null
@@ -248,10 +224,6 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
     Object? personalNotes = _ownedItemUnset,
     int? quantity,
     Object? indexNumber = _ownedItemUnset,
-    Object? rating = _ownedItemUnset,
-    Object? readStatus = _ownedItemUnset,
-    Object? startedAt = _ownedItemUnset,
-    Object? finishedAt = _ownedItemUnset,
     Object? tags = _ownedItemUnset,
     DateTime? updatedAt,
     Object? deletedAt = _ownedItemUnset,
@@ -305,16 +277,6 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
       indexNumber: identical(indexNumber, _ownedItemUnset)
           ? this.indexNumber
           : indexNumber as int?,
-      rating: identical(rating, _ownedItemUnset) ? this.rating : rating as int?,
-      readStatus: identical(readStatus, _ownedItemUnset)
-          ? this.readStatus
-          : readStatus as String?,
-      startedAt: identical(startedAt, _ownedItemUnset)
-          ? this.startedAt
-          : startedAt as DateTime?,
-      finishedAt: identical(finishedAt, _ownedItemUnset)
-          ? this.finishedAt
-          : finishedAt as DateTime?,
       tags: identical(tags, _ownedItemUnset) ? this.tags : tags as String?,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: identical(deletedAt, _ownedItemUnset)

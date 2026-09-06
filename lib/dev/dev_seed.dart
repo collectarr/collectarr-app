@@ -692,13 +692,6 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
       row.catalogRef.kind == catalog?.kind,
       'owned ${row.id} kind ${row.catalogRef.kind} does not match catalog ${row.itemId}',
     );
-    require(
-      row.rating == null &&
-          row.readStatus == null &&
-          row.startedAt == null &&
-          row.finishedAt == null,
-      'owned ${row.id} still stores denormalized tracking state',
-    );
   }
   for (final row in seededTrackingRows) {
     require(

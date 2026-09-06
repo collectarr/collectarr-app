@@ -20,8 +20,6 @@ void main() {
       ),
       details: const GenericOwnedDetails(),
       purchaseDate: DateTime.utc(2026, 1, 1),
-      startedAt: DateTime.utc(2026, 1, 2),
-      finishedAt: DateTime.utc(2026, 1, 3),
       purchaseStore: 'Seed Store',
       updatedAt: DateTime.utc(2026, 1, 3),
     );
@@ -47,13 +45,11 @@ void main() {
       ...const LoanCalendarContributor().contribute(context),
     ];
 
-    expect(events, hasLength(5));
+    expect(events, hasLength(3));
     expect(
       events.map((event) => event.kind),
       containsAll(<CalendarEventKind>[
         CalendarEventKind.purchased,
-        CalendarEventKind.started,
-        CalendarEventKind.finished,
         CalendarEventKind.loanDue,
         CalendarEventKind.loanReturn,
       ]),

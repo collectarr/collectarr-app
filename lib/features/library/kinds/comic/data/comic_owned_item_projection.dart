@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 
 /// Projects the generic collection read model into Comic's typed owned model.
@@ -42,12 +41,6 @@ final class ComicOwnedItemProjection {
       collectionStatus: item.collectionStatus,
       marketValueCents: item.marketValueCents,
       details: details,
-      reading: ComicReadingState(
-        rating: item.rating,
-        status: item.readStatus,
-        startedAt: item.startedAt,
-        finishedAt: item.finishedAt,
-      ),
     );
   }
 
@@ -80,10 +73,6 @@ final class ComicOwnedItemProjection {
       personalNotes: item.personalNotes,
       quantity: item.quantity,
       indexNumber: item.indexNumber,
-      rating: item.reading.rating,
-      readStatus: item.reading.status,
-      startedAt: item.reading.startedAt,
-      finishedAt: item.reading.finishedAt,
       tags: item.tags,
       updatedAt: item.updatedAt,
       deletedAt: item.deletedAt,

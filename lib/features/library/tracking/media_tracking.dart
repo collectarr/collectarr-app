@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
@@ -46,20 +45,6 @@ class MediaTracking {
         MediaTrackingStatus.dropped => 'Dropped',
         MediaTrackingStatus.repeating => 'Repeating',
       };
-}
-
-extension OwnedItemTracking on OwnedItem {
-  MediaTracking get mediaTracking {
-    return MediaTracking(
-      status:
-          mediaTrackingStatusFromString(readStatus) ?? MediaTrackingStatus.none,
-      rating: rating,
-      startedAt: startedAt,
-      completedAt: finishedAt ?? purchaseDate,
-      lastActivityAt: updatedAt,
-      notes: personalNotes,
-    );
-  }
 }
 
 extension TrackingEntryMediaTracking on TrackingEntry {

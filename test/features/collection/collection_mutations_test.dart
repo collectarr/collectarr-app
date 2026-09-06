@@ -235,10 +235,6 @@ void main() {
     expect(tracking.sourceType, 'physical');
     expect(tracking.status, 'Completed');
     expect(tracking.rating, 8);
-    expect(owned.rating, isNull);
-    expect(owned.readStatus, isNull);
-    expect(owned.startedAt, isNull);
-    expect(owned.finishedAt, isNull);
     expect(
       queued.where((row) => row.entityType == 'tracking_entry'),
       hasLength(1),
@@ -1128,8 +1124,6 @@ void main() {
     final owned = (await OwnedItemsRepository(db).listActive()).single;
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
     expect(imported, 1);
-    expect(owned.rating, isNull);
-    expect(owned.readStatus, isNull);
     expect(tracking.ownedItemId, owned.id);
     expect(tracking.status, 'Completed');
     expect(tracking.rating, 8);

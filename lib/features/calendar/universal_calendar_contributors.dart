@@ -50,26 +50,6 @@ final class OwnedItemCalendarContributor
           ownedItemId: item.id,
         );
       }
-      if (item.startedAt != null) {
-        yield CalendarEvent(
-          kind: CalendarEventKind.started,
-          date: item.startedAt!,
-          title: title,
-          eventId: 'owned-started:${item.id}',
-          itemId: item.itemId,
-          ownedItemId: item.id,
-        );
-      }
-      if (item.finishedAt != null) {
-        yield CalendarEvent(
-          kind: CalendarEventKind.finished,
-          date: item.finishedAt!,
-          title: title,
-          eventId: 'owned-finished:${item.id}',
-          itemId: item.itemId,
-          ownedItemId: item.id,
-        );
-      }
     }
   }
 }

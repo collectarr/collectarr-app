@@ -254,12 +254,6 @@ final class OwnedItemMutations {
         set: (v) => v,
         clear: () => null,
       ),
-      // Tracking state is owned by TrackingMutations. Preserve the read-model
-      // values while this collection update changes copy fields.
-      rating: existing.rating,
-      readStatus: existing.readStatus,
-      startedAt: existing.startedAt,
-      finishedAt: existing.finishedAt,
       soldAt: command.soldAt.when(
         unchanged: () => existing.soldAt,
         set: (v) => v,

@@ -175,10 +175,6 @@ final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
         set: (value) => value,
         clear: () => null,
       ),
-      rating: existing.rating,
-      readStatus: existing.readStatus,
-      startedAt: existing.startedAt,
-      finishedAt: existing.finishedAt,
       soldAt: soldAt.when(
         unchanged: () => existing.soldAt,
         set: (value) => value,

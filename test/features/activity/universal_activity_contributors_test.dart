@@ -25,8 +25,6 @@ void main() {
       catalogRef: catalogRef,
       details: const GenericOwnedDetails(),
       purchaseDate: now,
-      startedAt: now.add(const Duration(days: 1)),
-      finishedAt: now.add(const Duration(days: 2)),
       soldAt: now.add(const Duration(days: 3)),
       soldTo: 'Collector',
       updatedAt: now,
@@ -37,7 +35,8 @@ void main() {
       status: MediaTrackingStatus.completed,
       rating: 9,
       startedAt: now.add(const Duration(days: 4)),
-      updatedAt: now.add(const Duration(days: 4)),
+      finishedAt: now.add(const Duration(days: 5)),
+      updatedAt: now.add(const Duration(days: 5)),
     );
     final wishlist = WishlistItem(
       id: 'wishlist-book-activity',

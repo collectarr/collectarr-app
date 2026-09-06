@@ -753,14 +753,6 @@ void validateSeedOwnedQuality(Iterable<OwnedItem> items) {
   final issues = <String>[];
   for (final item in items) {
     final prefix = '${item.catalogRef.kind}/${item.id}';
-    if (item.rating != null ||
-        item.readStatus != null ||
-        item.startedAt != null ||
-        item.finishedAt != null) {
-      issues.add(
-        '$prefix: tracking fields must be stored in the typed TrackingEntry',
-      );
-    }
     _requireText(issues, prefix, 'condition', item.condition);
     _requireText(issues, prefix, 'personal_notes', item.personalNotes);
     _requireText(issues, prefix, 'collection_status', item.collectionStatus);

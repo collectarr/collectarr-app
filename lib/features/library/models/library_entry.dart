@@ -31,7 +31,6 @@ class LibraryEntry {
 
   MediaTracking get tracking =>
       trackingEntry?.mediaTracking ??
-      ownedItem?.mediaTracking ??
       const MediaTracking(status: MediaTrackingStatus.none);
 
   DateTime get updatedAt {

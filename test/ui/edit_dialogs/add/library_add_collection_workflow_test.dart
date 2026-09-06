@@ -68,7 +68,6 @@ void main() {
     expect(ownedRows.single.grade, '9.2');
     expect(ownedRows.single.purchaseDate?.toUtc(), DateTime.utc(2024, 5, 1));
     expect(ownedRows.single.locationId, 'loc-1');
-    expect(ownedRows.single.readStatus, isNull);
     expect(ownedRows.single.tags, 'favorite,dc');
     expect(trackingRows.single.itemId, 'comic-1');
     expect(trackingRows.single.status, 'Completed');
@@ -146,7 +145,6 @@ void main() {
     expect(ownedRows.single.condition, isNull);
     expect(ownedRows.single.grade, isNull);
     expect(ownedRows.single.locationId, isNull);
-    expect(ownedRows.single.readStatus, isNull);
   });
 
   test(
