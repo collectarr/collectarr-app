@@ -175,19 +175,16 @@ final class OwnedItemMutations {
 
         final mediaKind =
             catalogMediaKindFromApiValue(existing.catalogRef.kind);
-        final runtime = mediaKind != CatalogMediaKind.unknown
-            ? libraryKindRuntimeForKind(mediaKind)
-            : null;
+        final runtime = libraryKindRuntimeForKind(mediaKind);
 
         final resolvedDetails = command.details.when(
           unchanged: () => existing.details,
           set: (draft) {
             final details = draft.toDetails();
-            runtime?.validateOwnedDetails(details);
+            runtime.validateOwnedDetails(details);
             return details;
           },
-          clear: () =>
-              runtime?.defaultOwnedDetails() ?? const GenericOwnedDetails(),
+          clear: () => runtime.defaultOwnedDetails(),
         );
 
         final updatedItem = OwnedItem(

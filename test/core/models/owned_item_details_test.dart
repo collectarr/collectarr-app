@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

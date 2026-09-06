@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
@@ -159,6 +160,7 @@ void main() {
           entityType: CatalogEntityType.ownedCopy,
           id: 'book-1',
         ),
+        details: const GenericOwnedDetails(),
         updatedAt: DateTime(2026, 1, 1),
         condition: 'Fine',
         grade: '9.0',

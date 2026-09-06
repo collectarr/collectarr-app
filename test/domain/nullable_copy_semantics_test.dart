@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -36,6 +37,7 @@ void main() {
           id: 'cat-1',
           entityType: CatalogEntityType.issue,
         ),
+        details: const ComicOwnedDetails(),
         condition: 'Near Mint',
         grade: '9.8',
         purchaseDate: DateTime.utc(2025, 1, 1),

@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:drift/drift.dart';
 
 class OwnedItemsCacheRepository {
@@ -215,9 +216,9 @@ class OwnedItemsCacheRepository {
     Map<String, dynamic> json,
   ) {
     try {
-      return OwnedItemDetails.parseForKind(kind, json);
+      return libraryKindRuntimeForKind(kind).decodeOwnedDetails(json);
     } on Object {
-      return OwnedItemDetails.defaultForKind(kind);
+      return libraryKindRuntimeForKind(kind).defaultOwnedDetails();
     }
   }
 }

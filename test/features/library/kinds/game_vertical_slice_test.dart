@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/game/contracts/game_contracts.dart';
@@ -140,6 +141,7 @@ void main() {
             kind: 'game',
             entityType: CatalogEntityType.work,
           ),
+          details: const GenericOwnedDetails(),
           condition: 'CIB',
           updatedAt: DateTime.now(),
         ),

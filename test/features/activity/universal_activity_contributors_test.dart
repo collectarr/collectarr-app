@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/activity/universal_activity_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,6 +23,7 @@ void main() {
     final owned = OwnedItem(
       id: 'owned-book-activity',
       catalogRef: catalogRef,
+      details: const GenericOwnedDetails(),
       purchaseDate: now,
       startedAt: now.add(const Duration(days: 1)),
       finishedAt: now.add(const Duration(days: 2)),

@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/kinds/generic/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/generic/edit/generic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/generic/vocabulary/generic_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/generic/tracking/generic_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';

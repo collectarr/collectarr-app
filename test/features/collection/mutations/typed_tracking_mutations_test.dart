@@ -2,6 +2,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -101,6 +102,7 @@ void main() {
           entityType: CatalogEntityType.work,
           id: 'book-77',
         ),
+        details: const GenericOwnedDetails(),
         updatedAt: DateTime.now().toUtc(),
       );
       await catalogCache.upsertAll([
@@ -246,6 +248,7 @@ void main() {
       final owned = OwnedItem(
         id: 'owned-tv-1',
         catalogRef: ref,
+        details: const GenericOwnedDetails(),
         updatedAt: DateTime.utc(2026, 6, 1),
       );
       await catalogCache.upsertAll([

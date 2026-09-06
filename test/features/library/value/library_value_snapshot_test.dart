@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
@@ -19,6 +20,7 @@ void main() {
         entityType: CatalogEntityType.ownedCopy,
         id: 'comic-1',
       ),
+      details: const GenericOwnedDetails(),
       updatedAt: DateTime.utc(2026, 7, 5),
       pricePaidCents: 1200,
       sellPriceCents: 3200,

@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -22,6 +24,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_episodes_
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
@@ -256,6 +259,17 @@ class SyncApplyService {
       'created_at': payload['created_at'] ?? entity['client_changed_at'],
       'updated_at': entity['client_changed_at'],
       'deleted_at': deletedAt,
+    }, decodeDetails: (json) {
+      final rawCatalogRef = json['catalog_ref'];
+      if (rawCatalogRef is! Map) {
+        return libraryKindRuntimeForKind(CatalogMediaKind.unknown)
+            .defaultOwnedDetails();
+      }
+      final catalogRef = CatalogEntityRef.fromJson(
+        Map<String, dynamic>.from(rawCatalogRef),
+      );
+      return libraryKindRuntimeForKind(catalogRef.mediaKind)
+          .decodeOwnedDetails(json);
     });
   }
 

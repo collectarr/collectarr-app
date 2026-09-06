@@ -6,6 +6,8 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -231,7 +233,9 @@ void main() {
         'id': 'owned-1',
         'catalog_ref': ref.toJson(),
         'updated_at': '2026-07-02T00:00:00.000Z',
-      }).catalogRef.id,
+      },
+          decodeDetails: (json) => libraryKindRuntimeForKind(ref.mediaKind)
+              .decodeOwnedDetails(json)).catalogRef.id,
       'edition-1',
     );
   });

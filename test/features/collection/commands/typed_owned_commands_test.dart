@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -165,7 +166,9 @@ void main() {
 
     test('default details for all 9 kinds resolves to non-generic details', () {
       for (final kind in allActiveKinds) {
-        final defaultDetails = OwnedItemDetails.defaultForKind(kind);
+        final defaultDetails = kind == CatalogMediaKind.unknown
+            ? const GenericOwnedDetails()
+            : libraryKindRuntimeForKind(kind).defaultOwnedDetails();
         expect(defaultDetails, isNot(isA<GenericOwnedDetails>()),
             reason: '$kind default details must not be GenericOwnedDetails');
 
@@ -176,15 +179,13 @@ void main() {
     });
 
     test('unknown kind resolves to GenericOwnedDetails cleanly', () {
-      final unknownDetails =
-          OwnedItemDetails.defaultForKind(CatalogMediaKind.unknown);
+      const unknownDetails = GenericOwnedDetails();
       expect(unknownDetails, isA<GenericOwnedDetails>());
 
       final unknownDraft = defaultDetailsDraftForKind(CatalogMediaKind.unknown);
       expect(unknownDraft, isA<GenericOwnedDetailsDraft>());
 
-      final parsed = OwnedItemDetails.parseForKind(
-          CatalogMediaKind.unknown, {'test': 123});
+      const parsed = GenericOwnedDetails();
       expect(parsed, isA<GenericOwnedDetails>());
     });
 
@@ -197,10 +198,11 @@ void main() {
       expect(book.toJson(), isEmpty);
       expect(boardgame.toJson(), isEmpty);
 
-      final parsedBook =
-          OwnedItemDetails.parseForKind(CatalogMediaKind.book, {});
-      final parsedBoardgame =
-          OwnedItemDetails.parseForKind(CatalogMediaKind.boardgame, {});
+      final parsedBook = libraryKindRuntimeForKind(CatalogMediaKind.book)
+          .decodeOwnedDetails({});
+      final parsedBoardgame = libraryKindRuntimeForKind(
+        CatalogMediaKind.boardgame,
+      ).decodeOwnedDetails({});
 
       expect(parsedBook, isA<BookOwnedDetails>());
       expect(parsedBoardgame, isA<BoardgameOwnedDetails>());

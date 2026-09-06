@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.d
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
@@ -135,6 +136,7 @@ ShelfEntry _mangaEntry(String id, int volume, {bool owned = true}) {
               kind: CatalogMediaKind.manga.apiValue,
               entityType: CatalogEntityType.work,
             ),
+            details: const GenericOwnedDetails(),
             updatedAt: DateTime.utc(2026, 1, 1),
           )
         : null,

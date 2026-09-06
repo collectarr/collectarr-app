@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 
 Iterable<BookTrackingUnit> bookSeedTrackingUnits(
   Iterable<CatalogItem> items,

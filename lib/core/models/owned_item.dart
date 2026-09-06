@@ -19,7 +19,7 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
-    TDetails? details,
+    required TDetails this.details,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -44,15 +44,13 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
     this.purchaseStore,
     this.collectionStatus,
     this.marketValueCents,
-  })  : anchor = anchor ??
+  }) : anchor = anchor ??
             PersonalItemAnchor.fromRaw(
               anchorType: anchorType,
               editionId: editionId,
               variantId: variantId,
               bundleReleaseId: bundleReleaseId,
-            ),
-        details = details ??
-            OwnedItemDetails.defaultForKind(catalogRef.mediaKind) as TDetails;
+            );
 
   final String id;
   final CatalogEntityRef catalogRef;
@@ -172,10 +170,13 @@ class OwnedItem<TDetails extends OwnedItemDetails> {
     };
   }
 
-  factory OwnedItem.fromJson(Map<String, dynamic> json) {
+  factory OwnedItem.fromJson(
+    Map<String, dynamic> json, {
+    required TDetails Function(Map<String, dynamic> json) decodeDetails,
+  }) {
     final catalogRefJson = json['catalog_ref'] as Map<String, dynamic>;
     final catalogRef = CatalogEntityRef.fromJson(catalogRefJson);
-    final details = OwnedItemDetails.parseForKind(catalogRef.mediaKind, json);
+    final details = decodeDetails(json);
 
     return OwnedItem<TDetails>(
       id: json['id'] as String,

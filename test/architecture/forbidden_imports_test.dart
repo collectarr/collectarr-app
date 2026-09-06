@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -626,6 +627,7 @@ class ComicFeature {}
           kind: 'unknown',
           id: 'foo-1',
         ),
+        details: const GenericOwnedDetails(),
         updatedAt: DateTime.utc(2026, 1, 1),
       ),
     );

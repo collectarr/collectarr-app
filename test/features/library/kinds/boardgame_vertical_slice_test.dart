@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/contracts/boardgame_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
@@ -99,6 +100,7 @@ void main() {
             kind: 'boardgame',
             entityType: CatalogEntityType.work,
           ),
+          details: const GenericOwnedDetails(),
           condition: 'Mint',
           updatedAt: DateTime.now(),
         ),

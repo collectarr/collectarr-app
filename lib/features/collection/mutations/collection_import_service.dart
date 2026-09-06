@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -331,10 +332,12 @@ final class CollectionImportService {
         updatedAt: now,
       );
     }
+    final kind = catalogMediaKindFromApiValue(row.kind);
+    final details = libraryKindRuntimeForKind(kind).defaultOwnedDetails();
     return OwnedItem(
       id: idGenerator(),
       catalogRef: CatalogEntityRef(
-        kind: row.kind ?? CatalogMediaKind.unknown.apiValue,
+        kind: row.kind ?? 'unknown',
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),
@@ -347,6 +350,7 @@ final class CollectionImportService {
       currency: row.currency,
       locationId: row.locationId,
       personalNotes: row.notes,
+      details: details,
     );
   }
 }
