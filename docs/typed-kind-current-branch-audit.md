@@ -144,7 +144,7 @@ Status meanings:
 | 107 | TV semantics | **DONE** | Kind-specific domain test suites exist for the listed semantics and the full test suite currently passes. |
 | 108 | Anime semantics | **DONE** | Kind-specific domain test suites exist for the listed semantics and the full test suite currently passes. |
 | 109 | Music semantics | **DONE** | Kind-specific domain test suites exist for the listed semantics and the full test suite currently passes. |
-| 110 | Cross-kind dependency enforcement | **PARTIAL** | Game no longer imports Music and the TV episode mutation provider now lives under TV; generic Library → TV detail/edit imports and other migration allowlists remain, while the checker reports 494 violations. |
+| 110 | Cross-kind dependency enforcement | **PARTIAL** | Game no longer imports Music and the TV episode mutation provider now lives under TV; generic Library → TV detail/edit imports and other migration allowlists remain, while the checker reports 403 violations. |
 | 111 | Provider dependency enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 403 violations and still has migration allowlists. |
 | 112 | Core DTO ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 403 violations and still has migration allowlists. |
 | 113 | Type-erasure enforcement | **PARTIAL** | Catalog persistence now dispatches through typed kind codecs and catalog snapshot mutation inputs are typed; broader `CatalogItem` and metadata compatibility bridges remain, while the checker reports 403 violations. |
