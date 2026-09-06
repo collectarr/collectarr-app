@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -93,6 +93,26 @@ void main() {
         expect(runtime.identity.singularLabel.isNotEmpty, isTrue);
         expect(runtime.identity.pluralLabel.isNotEmpty, isTrue);
       }
+    });
+
+    test('serialization detail registry covers every active kind', () {
+      final decodedTypes = <Type>{};
+      for (final kind in activeKinds) {
+        final codec = collectarrOwnedDetailsCodecForKind(kind);
+        final details = codec.defaultDetails();
+        final decoded = codec.fromJson(details.toJson());
+        expect(decoded.runtimeType, details.runtimeType,
+            reason: '$kind codec must round-trip its concrete details type');
+        codec.validate(decoded);
+        decodedTypes.add(decoded.runtimeType);
+      }
+
+      expect(decodedTypes, hasLength(activeKinds.length));
+      expect(
+        collectarrOwnedDetailsCodecForKind(CatalogMediaKind.unknown)
+            .defaultDetails(),
+        isA<GenericOwnedDetails>(),
+      );
     });
 
     test(
