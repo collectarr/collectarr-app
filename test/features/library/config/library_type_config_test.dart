@@ -208,6 +208,8 @@ void main() {
     expect(tvKindModule.edit.editDialogBuilder, isNotNull);
     expect(tvKindModule.inspector.detailPageBuilder,
         same(buildLibraryVideoDetailPage));
+    expect(tvKindModule.inspector.videoDetailContributionBuilder, isNotNull);
+    expect(movieKindModule.inspector.videoDetailContributionBuilder, isNull);
   });
 
   test('tv edit presentation splits media and release tabs', () {

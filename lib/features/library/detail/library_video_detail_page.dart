@@ -9,26 +9,14 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/detail/library_video_title_metadata_section.dart';
 import 'package:collectarr_app/features/library/detail/library_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/release/video_release_source.dart';
-import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/state/api_provider.dart';
-import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
-import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,17 +43,12 @@ class _LibraryVideoDetailPageState
   String? _selectedReleaseNodeId;
   final Map<String, String?> _selectedOwnedItemIdByRelease =
       <String, String?>{};
-  Future<TvSeries?>? _tvSeriesFuture;
-  TvSeries? _tvSeriesSnapshot;
 
   @override
   void initState() {
     super.initState();
     final nodes = _releaseNodesFor(widget.request.item);
     _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
-    if (_isTvKind && widget.request.item.source.catalogItem != null) {
-      _tvSeriesFuture = _loadTvSeriesSnapshot();
-    }
   }
 
   @override
@@ -76,22 +59,7 @@ class _LibraryVideoDetailPageState
       final nodes = _releaseNodesFor(widget.request.item);
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
       _selectedOwnedItemIdByRelease.clear();
-      _tvSeriesSnapshot = null;
-      if (_isTvKind && widget.request.item.source.catalogItem != null) {
-        _tvSeriesFuture = _loadTvSeriesSnapshot();
-      }
     }
-  }
-
-  bool get _isTvKind => widget.request.type.kind.apiValue == 'tv';
-
-  Future<TvSeries?> _loadTvSeriesSnapshot() async {
-    if (widget.request.item.source.catalogItem == null) {
-      return null;
-    }
-    final api = ref.read(apiClientProvider);
-    final dto = await api.getTvSeriesDto(widget.request.item.source.itemId);
-    return TvCoreMapper.fromSeriesDto(dto);
   }
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
@@ -186,52 +154,21 @@ class _LibraryVideoDetailPageState
       ownedCopies: ownedCopies,
       wishlistItems: wishlistItems,
     );
-    final seriesRef = CatalogEntityRef(
+    final itemRef = CatalogEntityRef(
       kind: request.type.kind.apiValue,
       entityType: CatalogEntityType.work,
       id: request.item.source.itemId,
     );
-    final seasonsAsync = ref.watch(tvSeasonsByCatalogRefProvider(seriesRef));
     final watchHistoryTargets = <WatchHistoryTargetOption>[
       WatchHistoryTargetOption(
-        ref: seriesRef,
-        label: 'Series',
+        ref: itemRef,
+        label: request.item.source.catalogItem?.title ?? 'Item',
         subtitle: request.item.source.catalogItem?.title ?? '',
-      ),
-      ...seasonsAsync.maybeWhen(
-        data: (seasons) => [
-          for (final season in seasons) ...[
-            WatchHistoryTargetOption(
-              ref: CatalogEntityRef(
-                kind: seriesRef.kind,
-                entityType: CatalogEntityType.season,
-                id: '${seriesRef.id}:season:${season.seasonNumber}',
-              ),
-              label: season.title ?? 'Season ${season.seasonNumber ?? 0}',
-              subtitle: 'Season ${season.seasonNumber ?? 0}',
-              seasonNumber: season.seasonNumber ?? 0,
-            ),
-            for (final episode in season.episodes)
-              WatchHistoryTargetOption(
-                ref: CatalogEntityRef(
-                  kind: seriesRef.kind,
-                  entityType: CatalogEntityType.episode,
-                  id: '${seriesRef.id}:season:${season.seasonNumber}:episode:${episode.episodeNumber}',
-                ),
-                label: episode.title ?? 'Episode ${episode.episodeNumber ?? 0}',
-                subtitle:
-                    'Season ${season.seasonNumber} • Episode ${episode.episodeNumber}',
-                seasonNumber: season.seasonNumber,
-                episodeNumber: episode.episodeNumber?.toInt() ?? 0,
-              ),
-          ],
-        ],
-        orElse: () => const <WatchHistoryTargetOption>[],
       ),
       ...releases.map(
         (release) => WatchHistoryTargetOption(
           ref: CatalogEntityRef(
-            kind: seriesRef.kind,
+            kind: itemRef.kind,
             entityType: CatalogEntityType.release,
             id: release.node.releaseId,
           ),
@@ -252,27 +189,13 @@ class _LibraryVideoDetailPageState
     selectedRelease ??= releases.isEmpty ? null : releases.first;
     final selectedOwnedCopy =
         selectedRelease == null ? null : _selectedOwnedCopyFor(selectedRelease);
-    final tvReleaseBrowser = _isTvKind
-        ? FutureBuilder<TvSeries?>(
-            future: _tvSeriesFuture,
-            builder: (context, snapshot) {
-              final series = snapshot.data ?? _tvSeriesSnapshot;
-              if (series == null) {
-                return const SizedBox.shrink();
-              }
-              _tvSeriesSnapshot = series;
-              return _TvReleaseBrowserSection(
-                series: series,
-                accent: request.accent,
-              );
-            },
-          )
-        : null;
-
     final appBarForeground =
         ThemeData.estimateBrightnessForColor(request.accent) == Brightness.dark
             ? Colors.white
             : Colors.black87;
+    final kindVideoContribution = request
+        .type.inspector.videoDetailContributionBuilder
+        ?.call(context, request);
     return Theme(
       data: buildLibraryTheme(palette: appPalette(context)),
       child: Scaffold(
@@ -311,56 +234,8 @@ class _LibraryVideoDetailPageState
               onFilterByValue: request.onFilterByValue,
             ),
             const SizedBox(height: 16),
-            if (_isTvKind)
-              VideoProgressSection(
-                seriesRef: seriesRef,
-                accent: request.accent,
-              ),
-            if (_isTvKind) const SizedBox(height: 16),
-            if (_isTvKind)
-              VideoSeasonTrackingSection(
-                seriesRef: CatalogEntityRef(
-                  kind: request.type.kind.apiValue,
-                  entityType: CatalogEntityType.work,
-                  id: request.item.source.itemId,
-                ),
-                kind: request.type.kind.apiValue,
-                accent: request.accent,
-              ),
-            if (_isTvKind) const SizedBox(height: 16),
-            if (_isTvKind)
-              TvEpisodeRatingDisplaySection(
-                itemId: request.item.source.itemId,
-                accent: request.accent,
-              ),
-            const SizedBox(height: 16),
-            if (_isTvKind)
-              LibraryExternalLinksSection(
-                title: 'External links',
-                links: ((request.item.source.catalogItem
-                            ?.payload['trailer_urls'] as List?)
-                        ?.whereType<Map<String, dynamic>>()
-                        .map((e) =>
-                            TrailerLink.fromJson(Map<String, dynamic>.from(e)))
-                        .toList()) ??
-                    const [],
-                accent: request.accent,
-              ),
-            if (_isTvKind) const SizedBox(height: 16),
-            if (_isTvKind)
-              LibraryDetailUserLinksSection(
-                itemId: request.item.source.itemId,
-                accent: request.accent,
-              ),
-            if (_isTvKind) const SizedBox(height: 16),
-            if (_isTvKind)
-              TvUpcomingEpisodesSection(
-                seriesRef: seriesRef,
-                accent: request.accent,
-              ),
-            if (_isTvKind) const SizedBox(height: 16),
-            if (tvReleaseBrowser != null)
-              tvReleaseBrowser
+            if (kindVideoContribution != null)
+              kindVideoContribution
             else if (selectedRelease != null)
               Builder(
                 builder: (context) {
@@ -429,7 +304,7 @@ class _LibraryVideoDetailPageState
             WatchHistorySection(
               itemId: request.item.source.itemId,
               accent: request.accent,
-              defaultTargetRef: seriesRef,
+              defaultTargetRef: itemRef,
               targetOptions: watchHistoryTargets,
             ),
             LibraryMetadataCorrectionsSection(
@@ -579,408 +454,6 @@ class _ResolvedVideoRelease {
     }
     return '${ownedCopies.length} copies in collection · Qty $totalQuantity';
   }
-}
-
-class _TvReleaseBrowserSection extends StatefulWidget {
-  const _TvReleaseBrowserSection({
-    required this.series,
-    required this.accent,
-  });
-
-  final TvSeries series;
-  final Color accent;
-
-  @override
-  State<_TvReleaseBrowserSection> createState() =>
-      _TvReleaseBrowserSectionState();
-}
-
-class _TvReleaseBrowserSectionState extends State<_TvReleaseBrowserSection> {
-  String? _selectedReleaseId;
-  final Map<String, String?> _selectedMediaIdByRelease = <String, String?>{};
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedReleaseId =
-        widget.series.releases.isEmpty ? null : widget.series.releases.first.id;
-  }
-
-  @override
-  void didUpdateWidget(covariant _TvReleaseBrowserSection oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.series.id != widget.series.id) {
-      _selectedReleaseId = widget.series.releases.isEmpty
-          ? null
-          : widget.series.releases.first.id;
-      _selectedMediaIdByRelease.clear();
-    } else if (_selectedReleaseId != null &&
-        widget.series.releases
-            .every((release) => release.id != _selectedReleaseId)) {
-      _selectedReleaseId = widget.series.releases.isEmpty
-          ? null
-          : widget.series.releases.first.id;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final releases = widget.series.releases;
-    TvRelease? selectedRelease;
-    for (final release in releases) {
-      if (release.id == _selectedReleaseId) {
-        selectedRelease = release;
-        break;
-      }
-    }
-    selectedRelease ??= releases.isEmpty ? null : releases.first;
-    final palette = appPalette(context);
-    return LibraryDetailSection(
-      title: 'Releases / discs',
-      accentColor: widget.accent,
-      children: [
-        if (releases.isEmpty)
-          Text(
-            'No TV releases were returned for this series yet.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: palette.textMuted,
-                ),
-          )
-        else ...[
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 230,
-              mainAxisExtent: 172,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-            ),
-            itemCount: releases.length,
-            itemBuilder: (context, index) {
-              final release = releases[index];
-              return _TvReleaseTile(
-                release: release,
-                accent: widget.accent,
-                selected: release.id == _selectedReleaseId,
-                onTap: () => setState(() => _selectedReleaseId = release.id),
-              );
-            },
-          ),
-          if (selectedRelease != null) ...[
-            const SizedBox(height: 12),
-            Builder(
-              builder: (context) {
-                final release = selectedRelease!;
-                final releaseId = release.id;
-                return _TvReleaseDetailsPanel(
-                  series: widget.series,
-                  release: release,
-                  accent: widget.accent,
-                  selectedMediaId: _selectedMediaIdByRelease[releaseId] ??
-                      release.media.firstOrNull?.id,
-                  onSelectMedia: (mediaId) {
-                    setState(() {
-                      _selectedMediaIdByRelease[releaseId] = mediaId;
-                    });
-                  },
-                );
-              },
-            ),
-          ],
-        ],
-      ],
-    );
-  }
-}
-
-class _TvReleaseTile extends StatelessWidget {
-  const _TvReleaseTile({
-    required this.release,
-    required this.accent,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final TvRelease release;
-  final Color accent;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final density = LibraryDensityScope.maybeOf(context)?.density ??
-        LibraryDensity.comfortable;
-    final tilePadding = density.metrics.panelInsets;
-    return Material(
-      color: selected ? accent.withValues(alpha: 0.16) : palette.panel,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color:
-                  selected ? accent.withValues(alpha: 0.85) : palette.divider,
-            ),
-          ),
-          padding: tilePadding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: LibraryCoverImage(
-                    title: release.title,
-                    imageUrl: release.coverImageUrl,
-                    borderRadius: 12,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                release.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: palette.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                [
-                  if (release.format?.trim().isNotEmpty == true)
-                    release.format!,
-                  '${release.media.length} media',
-                  '${release.episodeMappings.length} maps',
-                ].join(' • '),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: palette.textMuted,
-                    ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TvReleaseDetailsPanel extends StatelessWidget {
-  const _TvReleaseDetailsPanel({
-    required this.series,
-    required this.release,
-    required this.accent,
-    required this.selectedMediaId,
-    required this.onSelectMedia,
-  });
-
-  final TvSeries series;
-  final TvRelease release;
-  final Color accent;
-  final String? selectedMediaId;
-  final ValueChanged<String> onSelectMedia;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final density = LibraryDensityScope.maybeOf(context)?.density ??
-        LibraryDensity.comfortable;
-    final tilePadding = density.metrics.panelInsets;
-    final selectedMedia = release.media.isEmpty
-        ? null
-        : release.media.firstWhere(
-            (media) => media.id == selectedMediaId,
-            orElse: () => release.media.first,
-          );
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: accent.withValues(alpha: 0.28)),
-      ),
-      child: Padding(
-        padding: tilePadding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              release.title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: palette.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              [
-                if (release.releaseDate != null)
-                  release.releaseDate!
-                      .toLocal()
-                      .toIso8601String()
-                      .split('T')
-                      .first,
-                if (release.regionCode?.trim().isNotEmpty == true)
-                  release.regionCode!,
-                if (release.languageAudio.isNotEmpty)
-                  release.languageAudio.join(', '),
-              ].join(' • '),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: palette.textMuted,
-                  ),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final media in release.media)
-                  ChoiceChip(
-                    label: Text(
-                      media.title ??
-                          media.mediaType ??
-                          'Disc ${media.mediaNumber ?? 1}',
-                    ),
-                    selected: selectedMedia?.id == media.id,
-                    selectedColor: accent.withValues(alpha: 0.24),
-                    onSelected: (_) => onSelectMedia(media.id),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (selectedMedia != null) ...[
-              Text(
-                selectedMedia.title ??
-                    selectedMedia.mediaType ??
-                    'Disc ${selectedMedia.mediaNumber ?? 1}',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: palette.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                [
-                  if (selectedMedia.mediaType?.trim().isNotEmpty == true)
-                    selectedMedia.mediaType!,
-                  if (selectedMedia.mediaNumber != null)
-                    'Disc ${selectedMedia.mediaNumber}',
-                  '${selectedMedia.episodes.length} episodes',
-                ].join(' • '),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: palette.textMuted,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              if (selectedMedia.episodes.isNotEmpty)
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final episode in selectedMedia.episodes)
-                      Chip(
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        label: Text(_episodeLabel(series, episode)),
-                      ),
-                  ],
-                ),
-              const SizedBox(height: 12),
-              if (release.episodeMappings.isNotEmpty)
-                _TvEpisodeMapList(
-                  series: series,
-                  release: release,
-                  media: selectedMedia,
-                  accent: accent,
-                ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TvEpisodeMapList extends StatelessWidget {
-  const _TvEpisodeMapList({
-    required this.series,
-    required this.release,
-    required this.media,
-    required this.accent,
-  });
-
-  final TvSeries series;
-  final TvRelease release;
-  final TvReleaseMedia media;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final maps = release.episodeMappings
-        .where((mapping) => mapping.mediaId == media.id)
-        .toList(growable: false);
-    if (maps.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Episode map',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: palette.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-        ),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final mapping in maps)
-              Chip(
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                label: Text(
-                  [
-                    if (mapping.discNumber != null)
-                      'Disc ${mapping.discNumber}',
-                    if (mapping.sequenceNumber != null)
-                      'Seq ${mapping.sequenceNumber}',
-                    _episodeTitleForId(series, mapping.episodeId),
-                  ].where((value) => value.trim().isNotEmpty).join(' • '),
-                ),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-String _episodeLabel(TvSeries series, TvEpisode episode) {
-  return _episodeTitleForId(series, episode.id).isEmpty
-      ? 'S${episode.seasonNumber}E${episode.episodeNumber}'
-      : 'S${episode.seasonNumber}E${episode.episodeNumber} • ${_episodeTitleForId(series, episode.id)}';
-}
-
-String _episodeTitleForId(TvSeries series, String episodeId) {
-  for (final season in series.seasons) {
-    for (final episode in season.episodes) {
-      if (episode.id == episodeId) {
-        return episode.title?.isEmpty ?? true
-            ? 'Episode ${episode.episodeNumber}'
-            : episode.title!;
-      }
-    }
-  }
-  return '';
 }
 
 class _VideoReleaseBrowserSection extends StatelessWidget {

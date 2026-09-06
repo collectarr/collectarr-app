@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_deta
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/detail/tv_video_detail_contribution.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit_presentation_builder.dart';
 import 'package:flutter/material.dart';
@@ -147,6 +148,7 @@ final tvKindModule =
   inspector: const LibraryInspectorCapability(
     sectionsBuilder: buildTvInspectorSections,
     detailPageBuilder: buildLibraryVideoDetailPage,
+    videoDetailContributionBuilder: buildTvVideoDetailContribution,
     showsDefaultPersonalSection: false,
     trackingEditor: LibraryTrackingEditorCapability(
       builder: buildTvTrackingEditorExtension,

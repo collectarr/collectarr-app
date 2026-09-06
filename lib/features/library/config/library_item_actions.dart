@@ -253,6 +253,15 @@ typedef LibraryDetailPageBuilder = Widget Function(
   LibraryDetailPageRequest request,
 );
 
+/// Optional kind-owned contribution rendered inside a video detail host.
+///
+/// The host owns page chrome and layout; the kind owns its semantic sections
+/// and any provider-backed state needed to render them.
+typedef LibraryVideoDetailContributionBuilder = Widget Function(
+  BuildContext context,
+  LibraryDetailPageRequest request,
+);
+
 class LibraryInspectorRequest {
   const LibraryInspectorRequest({
     required this.type,
