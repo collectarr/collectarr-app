@@ -14,7 +14,25 @@ class LibraryStatsTileDescriptor {
   final String value;
 }
 
+/// Small financial projection used by the generic toolbar host.
+///
+/// The host renders totals, while each kind decides how its Owned model
+/// contributes the values.
+class LibraryOwnedFinancialSummary {
+  const LibraryOwnedFinancialSummary({
+    this.pricePaidCents,
+    this.sellPriceCents,
+    this.currency,
+  });
+
+  final int? pricePaidCents;
+  final int? sellPriceCents;
+  final String? currency;
+}
+
 abstract interface class LibraryStatsCapability {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry);
+
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
     LibraryKindRuntime type,
@@ -29,6 +47,16 @@ abstract interface class LibraryStatsCapability {
 
 class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   const DefaultLibraryStatsCapability();
+
+  @override
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+    final owned = entry.ownedItem;
+    return LibraryOwnedFinancialSummary(
+      pricePaidCents: owned?.pricePaidCents,
+      sellPriceCents: owned?.sellPriceCents,
+      currency: owned?.currency,
+    );
+  }
 
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(

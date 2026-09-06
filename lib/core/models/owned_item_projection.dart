@@ -57,6 +57,8 @@ final class OwnedItemSummary {
     this.imageUrl,
     this.ownerLabel,
     this.locationLabel,
+    this.notes,
+    this.hasNotes = false,
   });
 
   final OwnedItemRef ref;
@@ -66,6 +68,8 @@ final class OwnedItemSummary {
   final String? imageUrl;
   final String? ownerLabel;
   final String? locationLabel;
+  final String? notes;
+  final bool hasNotes;
 
   OwnedItemSummary copyWith({
     OwnedItemRef? ref,
@@ -75,6 +79,8 @@ final class OwnedItemSummary {
     Object? imageUrl = _summaryUnset,
     Object? ownerLabel = _summaryUnset,
     Object? locationLabel = _summaryUnset,
+    Object? notes = _summaryUnset,
+    bool? hasNotes,
   }) {
     return OwnedItemSummary(
       ref: ref ?? this.ref,
@@ -89,6 +95,8 @@ final class OwnedItemSummary {
       locationLabel: locationLabel == _summaryUnset
           ? this.locationLabel
           : locationLabel as String?,
+      notes: notes == _summaryUnset ? this.notes : notes as String?,
+      hasNotes: hasNotes ?? this.hasNotes,
     );
   }
 }

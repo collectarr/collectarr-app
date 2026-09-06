@@ -11,6 +11,16 @@ class ComicStatsCapability implements LibraryStatsCapability {
   const ComicStatsCapability();
 
   @override
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+    final owned = entry.ownedItem;
+    return LibraryOwnedFinancialSummary(
+      pricePaidCents: owned?.pricePaidCents,
+      sellPriceCents: owned?.sellPriceCents,
+      currency: owned?.currency,
+    );
+  }
+
+  @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
     LibraryKindRuntime type,

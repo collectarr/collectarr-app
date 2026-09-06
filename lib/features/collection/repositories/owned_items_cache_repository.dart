@@ -160,6 +160,8 @@ class OwnedItemsCacheRepository {
       title: row.itemId,
       ownerLabel: row.ownerLabel,
       locationLabel: row.locationId,
+      notes: row.personalNotes,
+      hasNotes: row.personalNotes?.trim().isNotEmpty == true,
     );
   }
 

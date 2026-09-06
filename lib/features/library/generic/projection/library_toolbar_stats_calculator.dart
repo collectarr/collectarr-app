@@ -20,7 +20,6 @@ class LibraryToolbarStatsCalculator {
 
     for (final item in allItems) {
       final dto = item.dto;
-      final ownedItem = item.source.ownedItem;
 
       if (item.source.isOwned) {
         owned += 1;
@@ -31,11 +30,10 @@ class LibraryToolbarStatsCalculator {
       if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty) {
         missingCover += 1;
       }
-      if (ownedItem != null) {
-        totalPricePaid += ownedItem.pricePaidCents ?? 0;
-        totalSellPrice += ownedItem.sellPriceCents ?? 0;
-        currency ??= ownedItem.currency;
-      }
+      final financial = type.stats.buildOwnedFinancialSummary(item.source);
+      totalPricePaid += financial.pricePaidCents ?? 0;
+      totalSellPrice += financial.sellPriceCents ?? 0;
+      currency ??= financial.currency;
     }
 
     return LibraryToolbarCounts(
