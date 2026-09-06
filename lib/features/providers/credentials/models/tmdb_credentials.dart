@@ -10,7 +10,7 @@ class TmdbCredentials {
   /// TMDb v4 Read Access Token (recommended / preferred bearer token).
   final String? readAccessToken;
 
-  /// TMDb v3 API Key (legacy fallback).
+  /// TMDb v3 API key credential.
   final String? apiKey;
 
   bool get isValid =>

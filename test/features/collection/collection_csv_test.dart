@@ -180,7 +180,7 @@ void main() {
     );
   });
 
-  test('collection csv exports typed tracking values before legacy columns',
+  test('collection csv exports typed tracking values before collection columns',
       () {
     final source = ShelfEntry(
       itemId: 'book-1',

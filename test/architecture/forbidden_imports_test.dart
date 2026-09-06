@@ -499,7 +499,7 @@ class DatabaseCompositionRoot {}
     expect(visitor.visitor.violations, isEmpty);
   });
 
-  test('architecture boundary checker rejects legacy erased runtime types', () {
+  test('architecture boundary checker rejects erased runtime types', () {
     const testCode = '''
 CatalogItemDto item;
 LibraryMetadataItem metadata;
@@ -515,19 +515,19 @@ LibraryCatalogItemView view;
     expect(
       visitor.visitor.violations,
       contains(
-        contains('Legacy erased runtime type "CatalogItemDto"'),
+        contains('Erased runtime type "CatalogItemDto"'),
       ),
     );
     expect(
       visitor.visitor.violations,
       contains(
-        contains('Legacy erased runtime type "LibraryMetadataItem"'),
+        contains('Erased runtime type "LibraryMetadataItem"'),
       ),
     );
     expect(
       visitor.visitor.violations,
       contains(
-        contains('Legacy erased runtime type "LibraryCatalogItemView"'),
+        contains('Erased runtime type "LibraryCatalogItemView"'),
       ),
     );
   });

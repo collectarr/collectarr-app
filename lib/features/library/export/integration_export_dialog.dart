@@ -11,7 +11,7 @@ import 'package:flutter/services.dart';
 
 /// Supported export formats for collection integration.
 enum ExportFormat {
-  csv('CSV', 'Spreadsheet-compatible', Icons.table_chart_outlined),
+  csv('CSV', 'Spreadsheet', Icons.table_chart_outlined),
   json('JSON', 'Structured data for APIs', Icons.data_object),
   xml('XML', 'For CLZ import', Icons.code),
   markdown('Markdown', 'Readable checklist', Icons.text_snippet_outlined);

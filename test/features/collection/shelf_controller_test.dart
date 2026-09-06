@@ -91,7 +91,7 @@ void main() {
       ownedItems: [
         testOwnedItem(
           id: 'owned-1',
-          itemId: 'legacy-owned-1',
+          itemId: 'owned-1',
           catalogRef: const CatalogEntityRef(
             kind: 'book',
             entityType: CatalogEntityType.work,

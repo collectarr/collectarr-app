@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('production pick-list code uses the canonical pick_lists namespace', () {
-    const legacyImports = [
+    const forbiddenImports = [
       'package:collectarr_app/features/collection/pick_list/',
       'package:collectarr_app/features/collection/vocabulary/',
     ];
@@ -17,9 +17,9 @@ void main() {
         continue;
       }
       final source = entity.readAsStringSync();
-      for (final legacyImport in legacyImports) {
-        if (source.contains(legacyImport)) {
-          violations.add('${entity.path}: $legacyImport');
+      for (final forbiddenImport in forbiddenImports) {
+        if (source.contains(forbiddenImport)) {
+          violations.add('${entity.path}: $forbiddenImport');
         }
       }
     }
@@ -27,8 +27,8 @@ void main() {
     expect(
       violations,
       isEmpty,
-      reason: 'Legacy pick-list/vocabulary namespaces must remain only as '
-          'filesystem compatibility shims, never as production imports.',
+      reason: 'Retired pick-list/vocabulary namespaces must never appear in '
+          'production imports.',
     );
   });
 

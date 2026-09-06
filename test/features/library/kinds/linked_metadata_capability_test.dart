@@ -49,7 +49,7 @@ void main() {
     );
   });
 
-  test('typed capability ignores incompatible metadata runtimes', () {
+  test('typed capability ignores invalid metadata runtimes', () {
     const capability = TypedLibraryLinkedMetadataCapability<ComicMedia>(
       _comicPublisher,
     );

@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('projects a legacy TV snapshot into the TV-owned workspace graph', () {
+  test('projects a TV snapshot into the TV-owned workspace graph', () {
     final metadata = TvSeriesMetadata(
       title: 'The Expanse',
       firstAirDate: DateTime.utc(2015, 12, 14),

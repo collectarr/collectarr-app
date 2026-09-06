@@ -38,11 +38,10 @@ Future<List<ProviderCandidate>> searchComicProvider(
   final results = await provider.search(query, kind: kind, limit: limit);
   return [
     for (final result in results)
-      if (result.providerItemId.trim().isNotEmpty)
+      if (result.providerItemId.trim().isNotEmpty && result.kind == kind)
         _comicCandidateFromSearchResult(
           result,
           provider: provider.descriptor.name,
-          fallbackKind: kind,
         ),
   ];
 }
@@ -198,7 +197,6 @@ ProviderCandidate _comicCandidateFromComicVineIssue(
 ProviderCandidate _comicCandidateFromSearchResult(
   ProviderSearchResult result, {
   required String provider,
-  required String fallbackKind,
 }) {
   final series = CatalogSeriesDetailsDto(
     seriesTitle: result.seriesTitle,
@@ -208,7 +206,7 @@ ProviderCandidate _comicCandidateFromSearchResult(
     provider: provider,
     providerItemId: result.providerItemId,
     title: result.title,
-    kind: result.kind.trim().isEmpty ? fallbackKind : result.kind,
+    kind: result.kind,
     summary: result.summary,
     imageUrl: result.imageUrl,
     candidateType: result.candidateType,

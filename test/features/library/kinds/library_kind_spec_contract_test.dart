@@ -49,7 +49,7 @@ void main() {
     });
 
     test(
-        'owned details codec encodes matching details and rejects mismatched details',
+        'owned details codec encodes matching details and rejects invalid details',
         () {
       for (final spec in collectarrKindModules) {
         final defaultDetails = spec.defaultOwnedDetails();
@@ -59,7 +59,7 @@ void main() {
         final encoded = spec.encodeOwnedDetails(defaultDetails);
         expect(encoded, isA<Map<String, dynamic>>());
 
-        // Encoding an incompatible details type must throw ArgumentError
+        // Encoding an invalid details type must throw ArgumentError
         if (spec.kind == CatalogMediaKind.comic) {
           expect(
             () => spec.encodeOwnedDetails(const BookOwnedDetails()),

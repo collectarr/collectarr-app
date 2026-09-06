@@ -53,9 +53,9 @@ void main() {
     createPolicy: () => CoreFieldAdoptionPolicy(
       dtoName: 'FixtureDto',
       mapped: {'id'},
-      intentionallyIgnored: {'legacy': 'compatibility'},
+      intentionallyIgnored: {'ignoredField': 'intentionally ignored'},
     ),
-    actualFields: (_) => const ['id', 'legacy'],
+    actualFields: (_) => const ['id', 'ignoredField'],
   );
 
   test('ComicWorkDto fields are explicitly classified', () {

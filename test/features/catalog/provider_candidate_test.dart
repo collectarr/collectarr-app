@@ -66,33 +66,15 @@ void main() {
     expect(candidate.candidateType, isNull);
   });
 
-  test('rejects older provider responses without an explicit fallback kind',
-      () {
+  test('rejects provider responses without an explicit kind', () {
     expect(
       () => ProviderCandidate.fromJson(const {
         'provider': 'comicvine',
-        'provider_item_id': '4000-legacy',
-        'title': 'Legacy Candidate',
+        'provider_item_id': '4000-plain',
+        'title': 'Plain Candidate',
       }),
       throwsFormatException,
     );
-  });
-
-  test('uses caller fallback kind for older provider responses', () {
-    final candidate = ProviderCandidate.fromJson(
-      const {
-        'provider': 'openlibrary',
-        'provider_item_id': 'book-1',
-        'title': 'Legacy Book Candidate',
-      },
-      fallbackKind: 'book',
-    );
-
-    expect(candidate.kind, 'book');
-    final item = candidate.placeholderItem();
-    expect(item.id, 'provider:openlibrary:book:book-1');
-    expect(item.kind, 'book');
-    expect(item.title, 'Legacy Book Candidate');
   });
 
   test('marks stub provider candidates clearly', () {
@@ -142,7 +124,7 @@ void main() {
     expect(payload['variant'], 'Nick Dragotta Cover');
   });
 
-  test('candidate type wins over legacy variant text heuristics', () {
+  test('candidate type wins over variant text heuristics', () {
     final issueCandidate = ProviderCandidate.fromJson(const {
       'provider': 'gcd',
       'provider_item_id': 'issue-1',

@@ -41,6 +41,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'ComicGrade',
     'ComicKeyDraft',
     'ComicKeyReason',
+    'ComicMedia',
+    'ComicRelease',
+    'ComicOwnedItem',
     // Movie & Video
     'MovieCatalogMetadata',
     'MovieMetadata',
@@ -393,7 +396,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         _isForbiddenRuntimeTypeContext(relativePath)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
       violations.add(
-        '$relativePath:$line: Legacy erased runtime type "${node.name.lexeme}" must stay out of feature layers',
+        '$relativePath:$line: Erased runtime type "${node.name.lexeme}" must stay out of feature layers',
       );
     }
 

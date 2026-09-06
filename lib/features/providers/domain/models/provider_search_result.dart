@@ -71,11 +71,18 @@ class ProviderSearchResult {
       }
     }
 
+    final kind = json['kind']?.toString().trim() ?? '';
+    if (kind.isEmpty) {
+      throw const FormatException(
+        'Provider search result did not include kind',
+      );
+    }
+
     return ProviderSearchResult(
       provider: json['provider']?.toString() ?? '',
       providerItemId: json['provider_item_id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
-      kind: json['kind']?.toString() ?? '',
+      kind: kind,
       summary: json['summary']?.toString(),
       imageUrl: json['image_url']?.toString(),
       candidateType: json['candidate_type']?.toString(),

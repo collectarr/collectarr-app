@@ -1772,7 +1772,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           .map(
             (row) => ProviderCandidate.fromJson(
               row,
-              fallbackKind: selectedKind ?? _fallbackProviderKind(),
             ),
           )
           .toList(growable: false);
@@ -2296,30 +2295,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
     }
     return null;
-  }
-
-  String _fallbackProviderKind() {
-    final catalogOptions = _catalogKindOptions();
-    return _selectedProviderKind() ??
-        _catalogKindFilter ??
-        (catalogOptions.isEmpty ? 'comic' : catalogOptions.first);
-  }
-
-  List<String> _catalogKindOptions() {
-    final kinds = <String>{
-      for (final type in _mediaTypes)
-        if (type.isTopLevel && type.kind.isNotEmpty) type.kind,
-    };
-    for (final provider in _providers) {
-      for (final kind in provider.effectiveKinds) {
-        if (kind.isNotEmpty) {
-          kinds.add(kind);
-        }
-      }
-    }
-    final labels = _catalogKindLabels();
-    return kinds.toList(growable: false)
-      ..sort((left, right) => _compareMediaKinds(left, right, labels));
   }
 
   List<String> _providerKindOptions({required bool forSearch}) {

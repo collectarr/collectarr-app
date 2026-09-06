@@ -15,7 +15,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('ignores legacy kind-owned prefill keys', () async {
+  test('ignores unsupported kind-owned prefill keys', () async {
     SharedPreferences.setMockInitialValues({
       'collectarr.prefill.condition': 'Very Fine',
       'collectarr.prefill.grade': '9.6',

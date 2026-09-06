@@ -67,8 +67,8 @@ void main() {
     expect(restored.reading.isFinished, isTrue);
   });
 
-  test('legacy adapter keeps tracking outside Comic copy state', () {
-    final legacy = OwnedItem<ComicOwnedDetails>(
+  test('projection keeps tracking outside Comic copy state', () {
+    final source = OwnedItem<ComicOwnedDetails>(
       id: item.id.value,
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
@@ -96,11 +96,11 @@ void main() {
       details: item.details,
     );
 
-    final typed = ComicOwnedItemProjection.fromOwnedItem(legacy);
+    final typed = ComicOwnedItemProjection.fromOwnedItem(source);
     expect(typed, item);
 
     final roundTripped = ComicOwnedItemProjection.toOwnedItem(typed);
-    expect(roundTripped.toJson(), legacy.toJson());
+    expect(roundTripped.toJson(), source.toJson());
   });
 
   test('typed Comic owned item rejects another kind', () {

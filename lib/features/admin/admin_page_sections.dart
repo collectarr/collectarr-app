@@ -25,7 +25,7 @@ extension _AdminPageSections on _AdminPageState {
                 builder: (context, constraints) {
                   final kindField = _ProviderKindSelector(
                     value: _catalogKindFilter,
-                    kinds: _catalogKindOptions(),
+                    kinds: _providerKindOptions(forSearch: true),
                     kindLabels: _catalogKindLabels(),
                     isLoading: _isLoadingProviders,
                     onChanged: (value) {

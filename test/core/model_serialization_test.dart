@@ -128,7 +128,7 @@ void main() {
           'physical_format': 'cd',
           'physical_format_label': 'CD',
           'metadata_json': {
-            'legacy_hint': 'keep-for-read-only',
+            'unknown_hint': 'keep-for-read-only',
           },
           'variants': [
             {
@@ -138,7 +138,7 @@ void main() {
               'barcode': '123456789012',
               'is_primary': true,
               'metadata_json': {
-                'legacy_hint': 'keep-for-read-only',
+                'unknown_hint': 'keep-for-read-only',
               },
             }
           ],
@@ -334,7 +334,7 @@ void main() {
     final smartList = SmartList.fromRow(
       'smart-1',
       'Movies',
-      '{"quick_view":"legacy_view","sort_column":"legacy_sort","filter":{"ownership":"legacy"}}',
+      '{"quick_view":"unknown_view","sort_column":"unknown_sort","filter":{"ownership":"unknown"}}',
     );
 
     expect(smartList.quickView, isNull);

@@ -67,8 +67,7 @@ void main() {
     expect(queued.single.action, 'upsert');
   });
 
-  test(
-      'collection add prefers the kind-owned create payload over legacy common fields',
+  test('collection add prefers the kind-owned create payload over defaults',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -81,7 +80,7 @@ void main() {
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-typed-payload', kind: 'comic'),
             common: const OwnedItemCommonDraft(
-              condition: 'Legacy condition',
+              condition: 'Default condition',
               quantity: 1,
             ),
             details: const ComicOwnedDetailsDraft(),
@@ -296,8 +295,8 @@ void main() {
                 catalogRef: testCatalogRef('movie-2', kind: 'movie'),
                 anchor: PersonalItemAnchor.fromRaw(
                   anchorType: PersonalItemAnchorType.variant.apiValue,
-                  editionId: 'edition-legacy',
-                  variantId: 'variant-legacy',
+                  editionId: 'edition-default',
+                  variantId: 'variant-default',
                 ),
                 common: const OwnedItemCommonDraft(),
                 details: const MovieOwnedDetailsDraft(),

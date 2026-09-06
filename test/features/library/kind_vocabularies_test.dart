@@ -102,7 +102,7 @@ void main() {
       );
     });
 
-    test('typed projectors preserve legacy nested catalog fields', () {
+    test('typed projectors preserve nested catalog fields', () {
       expect(
         MovieVocabularies.distributor.valuesFrom!(
           const MovieCatalogMetadata(
