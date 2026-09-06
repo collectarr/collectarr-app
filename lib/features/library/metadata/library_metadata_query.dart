@@ -48,7 +48,7 @@ Future<List<CatalogItem>> searchLibraryMetadata(
       limit: limit,
     ),
   );
-  final decoder = type.catalogMetadataDecoder;
+  final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
   return [
     for (final row in rows)
       () {
@@ -77,6 +77,6 @@ Future<CatalogItem> lookupLibraryBarcode(
       kind: type.kind.apiValue,
     ),
   );
-  final decoder = type.catalogMetadataDecoder;
+  final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
   return decoder == null ? item : item.withKindMetadata(decoder(item.payload));
 }

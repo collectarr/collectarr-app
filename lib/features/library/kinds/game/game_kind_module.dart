@@ -59,7 +59,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   trackingProfile: gameTrackingProfile,
   projector: const GameWorkspaceProjector(),
   fields: gameLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: GameCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.game,
     singularLabel: 'Game',

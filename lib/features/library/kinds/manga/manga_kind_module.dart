@@ -157,7 +157,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
   trackingProfile: mangaTrackingProfile,
   projector: const MangaWorkspaceProjector(),
   fields: mangaLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: MangaMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.manga,
     singularLabel: 'Manga',

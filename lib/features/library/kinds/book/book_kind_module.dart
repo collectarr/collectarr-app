@@ -163,7 +163,6 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
   trackingProfile: bookTrackingProfile,
   projector: const BookWorkspaceProjector(),
   fields: bookLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: BookCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.book,
     singularLabel: 'Book',

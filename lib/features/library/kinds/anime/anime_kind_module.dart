@@ -123,7 +123,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const AnimeWorkspaceProjector(),
   fields: animeLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: AnimeMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.anime,
     singularLabel: 'Anime',

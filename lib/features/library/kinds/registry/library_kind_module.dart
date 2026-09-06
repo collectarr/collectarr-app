@@ -48,10 +48,6 @@ export 'package:collectarr_app/features/library/workspace/schema/library_field_r
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 
-typedef CatalogMetadataDecoder = Object? Function(
-  Map<String, dynamic> payload,
-);
-
 /// Typed capability surface used by generic navigation and orchestration.
 ///
 /// Do not add members here. New dispatch contracts belong in
@@ -79,7 +75,6 @@ abstract interface class LibraryKindModule {
   TitleProjectionCapability<LibraryWorkspaceDto> get titleCapability;
   ReleaseProjectionCapability<LibraryWorkspaceDto>? get releaseCapability;
   LibraryKindToolbarModule? get toolbar;
-  CatalogMetadataDecoder? get catalogMetadataDecoder;
   List<LibrarySearchTarget> get searchTargetOptions;
 
   LibraryWorkspaceViewProfile get viewProfile;
@@ -124,7 +119,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
     this.toolbar,
     this.providerMapper,
     this.facets,
-    this.catalogMetadataDecoder,
     this.searchTargetOptions = const [],
     LibraryWorkspaceViewProfile? viewProfile,
     LibraryCardPresentation Function(
@@ -134,8 +128,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
   })  : _viewProfile = viewProfile,
         _buildCardPresentation = buildCardPresentation;
 
-  @override
-  final CatalogMetadataDecoder? catalogMetadataDecoder;
   @override
   final LibraryKindIdentity identity;
 
@@ -198,7 +190,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
       toolbar: toolbar,
       providerMapper: providerMapper,
       facets: facets,
-      catalogMetadataDecoder: catalogMetadataDecoder,
       searchTargetOptions: searchTargetOptions,
       viewProfile: _viewProfile,
       buildCardPresentation: _buildCardPresentation,

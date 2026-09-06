@@ -57,6 +57,15 @@ import 'package:collectarr_app/features/library/config/library_barcode_resolver.
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -288,6 +297,25 @@ LibraryKindModule libraryKindModuleForKind(
 }) {
   final reg = registry ?? defaultLibraryKindRegistry;
   return reg.require(kind);
+}
+
+/// Decodes metadata at the API serialization boundary and immediately
+/// attaches the owning kind value. The decoder is a composition-root concern;
+/// it is not part of the erased kind module contract.
+Object? Function(Map<String, dynamic>)?
+    libraryKindCatalogMetadataDecoderForKind(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.anime => AnimeMetadata.fromJson,
+    CatalogMediaKind.boardgame => BoardGameMetadata.fromJson,
+    CatalogMediaKind.book => BookCatalogMetadata.fromJson,
+    CatalogMediaKind.comic => ComicMedia.fromJson,
+    CatalogMediaKind.game => GameCatalogMetadata.fromJson,
+    CatalogMediaKind.manga => MangaMetadata.fromJson,
+    CatalogMediaKind.movie => MovieCatalogMetadata.fromJson,
+    CatalogMediaKind.music => MusicCatalogMetadata.fromJson,
+    CatalogMediaKind.tv => TvSeriesMetadata.fromJson,
+    CatalogMediaKind.unknown => null,
+  };
 }
 
 /// Composition-root dispatch for kind-owned facet extraction and remote facet

@@ -159,7 +159,6 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const MovieWorkspaceProjector(),
   fields: movieLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.movie,
     singularLabel: 'Movie',

@@ -105,7 +105,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
   viewProfile: comicsWorkspaceViewProfile,
   projector: const ComicWorkspaceProjector(),
   fields: comicLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: ComicMedia.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.comic,
     singularLabel: 'Comic',

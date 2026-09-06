@@ -97,7 +97,6 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
   trackingProfile: boardGameTrackingProfile,
   projector: const BoardGameWorkspaceProjector(),
   fields: boardgameLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: BoardGameMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.boardgame,
     singularLabel: 'Board Game',

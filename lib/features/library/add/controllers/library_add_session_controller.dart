@@ -69,15 +69,14 @@ class LibraryAddSessionController
                 mode: LibraryAddDialogMode.search,
                 target: LibraryAddTarget.owned,
                 search: LibraryAddSearchState.initial(
-                  selectedProvider:
-                      type?.metadata.defaultSupportedOption(kind)?.id ??
-                          libraryKindModuleForKind(kind)
-                              .metadata
-                              .defaultSupportedOption(kind)
-                              ?.id ??
-                          libraryKindModuleForKind(kind)
-                              .metadata
-                              .defaultProviderId,
+                  selectedProvider: type?.metadata
+                          .defaultSupportedOption(kind)
+                          ?.id ??
+                      libraryKindModuleForKind(kind)
+                          .metadata
+                          .defaultSupportedOption(kind)
+                          ?.id ??
+                      libraryKindModuleForKind(kind).metadata.defaultProviderId,
                   advancedFilters: libraryKindModuleForKind(kind)
                       .add
                       .search
@@ -979,7 +978,7 @@ class LibraryAddSessionController
           sourceSelection: selected!,
         );
         final item = CatalogItem.fromJson(raw);
-        final decoder = type.catalogMetadataDecoder;
+        final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
         return decoder == null
             ? item
             : item.withKindMetadata(decoder(item.payload));

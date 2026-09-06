@@ -124,7 +124,6 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   projector: const TvWorkspaceProjector(),
   fields: tvLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: TvSeriesMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.tv,
     singularLabel: 'TV Show',

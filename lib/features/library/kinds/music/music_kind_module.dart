@@ -75,7 +75,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   trackingProfile: musicTrackingProfile,
   projector: const MusicWorkspaceProjector(),
   fields: musicLibraryKindSchema.toRegistry(),
-  catalogMetadataDecoder: MusicCatalogMetadata.fromJson,
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.music,
     singularLabel: 'Music',
