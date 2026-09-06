@@ -28,21 +28,10 @@ class VideoEditController {
     required this.item,
     this.draft,
     String? initialRuntime,
-    String? initialSeasonNumber,
-    String? initialEpisodeNumber,
-    Map<String, int>? initialEpisodeRatings,
     this.initialCreators = const <Map<String, dynamic>>[],
     this.initialDiscCount,
   })  : runtimeController = TextEditingController(
           text: initialRuntime ?? _resolveInitialRuntime(item.kindMetadata),
-        ),
-        seasonNumberController = TextEditingController(
-          text: initialSeasonNumber ??
-              _resolveInitialSeasonNumber(item.kindMetadata),
-        ),
-        episodeNumberController = TextEditingController(
-          text: initialEpisodeNumber ??
-              _resolveInitialEpisodeNumber(item.kindMetadata),
         ),
         ageRatingController = TextEditingController(
           text: _resolveInitialAgeRating(item.kindMetadata),
@@ -53,8 +42,6 @@ class VideoEditController {
         genresEditController = TextEditingController(
           text: _resolveInitialGenres(item.kindMetadata),
         ),
-        episodeRatings =
-            Map<String, int>.from(initialEpisodeRatings ?? const {}),
         editionTitleController = TextEditingController(
           text: _resolveInitialEditionTitle(item),
         ),
@@ -94,17 +81,6 @@ class VideoEditController {
     if (meta is AnimeMetadata) {
       return meta.episodeRuntimeMinutes?.toString() ?? '';
     }
-    return '';
-  }
-
-  static String _resolveInitialSeasonNumber(dynamic meta) {
-    if (meta is TvSeriesMetadata) return meta.seasonNumber?.toString() ?? '';
-    return '';
-  }
-
-  static String _resolveInitialEpisodeNumber(dynamic meta) {
-    if (meta is TvSeriesMetadata) return meta.episodeNumber?.toString() ?? '';
-    if (meta is AnimeMetadata) return meta.episodeCount?.toString() ?? '';
     return '';
   }
 
@@ -233,12 +209,9 @@ class VideoEditController {
   final int? initialDiscCount;
 
   final TextEditingController runtimeController;
-  final TextEditingController seasonNumberController;
-  final TextEditingController episodeNumberController;
   final TextEditingController ageRatingController;
   final TextEditingController audienceRatingController;
   final TextEditingController genresEditController;
-  final Map<String, int> episodeRatings;
 
   final TextEditingController editionTitleController;
   final TextEditingController variantController;
@@ -337,8 +310,6 @@ class VideoEditController {
 
   void dispose() {
     runtimeController.dispose();
-    seasonNumberController.dispose();
-    episodeNumberController.dispose();
     ageRatingController.dispose();
     audienceRatingController.dispose();
     genresEditController.dispose();
@@ -434,8 +405,6 @@ class VideoEditController {
             .where((c) => c.name.isNotEmpty)
             .toList(),
         contentRating: emptyToNull(ageRatingController.text),
-        seasonNumber: int.tryParse(seasonNumberController.text),
-        episodeNumber: int.tryParse(episodeNumberController.text),
         variant: emptyToNull(variantController.text),
         barcode: emptyToNull(barcodeController.text),
         physicalFormat: physicalFormatId,

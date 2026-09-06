@@ -27,6 +27,9 @@ class AnimeEditDraft extends LibraryEditKindDraft
     required this.colorController,
     required this.nrDiscsController,
     required this.hdrFormats,
+    required this.seasonNumberController,
+    required this.episodeNumberController,
+    required this.episodeRatings,
     required this.videoEdit,
   });
 
@@ -55,6 +58,9 @@ class AnimeEditDraft extends LibraryEditKindDraft
 
   @override
   List<String> hdrFormats;
+  final TextEditingController seasonNumberController;
+  final TextEditingController episodeNumberController;
+  final Map<String, int> episodeRatings;
   @override
   final VideoEditController videoEdit;
 
@@ -72,12 +78,11 @@ class AnimeEditDraft extends LibraryEditKindDraft
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = videoEdit.applyVideoSelectionEdits(selection);
     if (result.tracking != null) {
-      final seasonNumber = int.tryParse(videoEdit.seasonNumberController.text);
-      final episodeNumber =
-          int.tryParse(videoEdit.episodeNumberController.text);
-      final episodeRatings = videoEdit.episodeRatings.isEmpty
+      final seasonNumber = int.tryParse(seasonNumberController.text);
+      final episodeNumber = int.tryParse(episodeNumberController.text);
+      final episodeRatings = this.episodeRatings.isEmpty
           ? null
-          : Map<String, int>.unmodifiable(videoEdit.episodeRatings);
+          : Map<String, int>.unmodifiable(this.episodeRatings);
       result = result.copyWith(
         trackingEntryMutation: (entry) => entry.copyWith(
           seasonNumber: seasonNumber ?? entry.seasonNumber,
@@ -117,6 +122,8 @@ class AnimeEditDraft extends LibraryEditKindDraft
 
   @override
   void dispose() {
+    seasonNumberController.dispose();
+    episodeNumberController.dispose();
     videoEdit.dispose();
   }
 }
@@ -150,6 +157,11 @@ LibraryEditKindDraft createAnimeEditDraft({
     colorController: textControllers.create(text: ''),
     nrDiscsController: textControllers.create(text: ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
+    seasonNumberController: TextEditingController(),
+    episodeNumberController: TextEditingController(
+      text: anime?.episodeCount?.toString() ?? '',
+    ),
+    episodeRatings: const <String, int>{},
     videoEdit: videoEdit,
   );
 }
