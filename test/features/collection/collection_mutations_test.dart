@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -562,11 +563,14 @@ void main() {
     final originalRow = await db.select(db.wishlistItemsCache).getSingle();
     final original = WishlistItem(
       id: originalRow.id,
-      catalogRef: testCatalogRef(originalRow.itemId, kind: 'movie'),
-      anchorType: originalRow.anchorType,
-      editionId: originalRow.editionId,
-      variantId: originalRow.variantId,
-      bundleReleaseId: originalRow.bundleReleaseId,
+      catalogRef: CatalogEntityRef.fromJson(
+        jsonDecode(originalRow.catalogRefJson) as Map<String, dynamic>,
+      ),
+      anchor: originalRow.anchorJson == null
+          ? null
+          : PersonalItemAnchor.fromJson(
+              jsonDecode(originalRow.anchorJson!) as Map<String, dynamic>,
+            ),
       targetPriceCents: originalRow.targetPriceCents,
       currency: originalRow.currency,
       notes: originalRow.notes,
@@ -589,8 +593,11 @@ void main() {
     final updated = await db.select(db.wishlistItemsCache).getSingle();
     final queued = await db.select(db.syncQueue).get();
 
-    expect(updated.anchorType, 'bundle_release');
-    expect(updated.bundleReleaseId, 'bundle-1');
+    final updatedAnchor = PersonalItemAnchor.fromJson(
+      jsonDecode(updated.anchorJson!) as Map<String, dynamic>,
+    );
+    expect(updatedAnchor?.apiValue, 'bundle_release');
+    expect(updatedAnchor?.bundleReleaseId, 'bundle-1');
     expect(updated.targetPriceCents, 4599);
     expect(updated.currency, 'USD');
     expect(updated.notes, 'Wait for the steelbook bundle.');
@@ -623,7 +630,9 @@ void main() {
     expect(
       rows
           .where((row) => row.deletedAt == null)
-          .map((row) => row.editionId)
+          .map((row) => PersonalItemAnchor.fromJson(
+                jsonDecode(row.anchorJson!) as Map<String, dynamic>,
+              )?.editionId)
           .toSet(),
       {'edition-4k', 'edition-bluray'},
     );
@@ -659,9 +668,19 @@ void main() {
     final deletedRows = rows.where((row) => row.deletedAt != null).toList();
 
     expect(activeRows, hasLength(1));
-    expect(activeRows.single.editionId, 'edition-bluray');
+    expect(
+      PersonalItemAnchor.fromJson(
+        jsonDecode(activeRows.single.anchorJson!) as Map<String, dynamic>,
+      )?.editionId,
+      'edition-bluray',
+    );
     expect(deletedRows, hasLength(1));
-    expect(deletedRows.single.editionId, 'edition-4k');
+    expect(
+      PersonalItemAnchor.fromJson(
+        jsonDecode(deletedRows.single.anchorJson!) as Map<String, dynamic>,
+      )?.editionId,
+      'edition-4k',
+    );
   });
 
   test('collection import enqueues rows and refreshes pending count once',

@@ -19,29 +19,17 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
   late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
       'item_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _anchorJsonMeta =
+      const VerificationMeta('anchorJson');
   @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> anchorJson = GeneratedColumn<String>(
+      'anchor_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _targetPriceCentsMeta =
       const VerificationMeta('targetPriceCents');
@@ -82,10 +70,8 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
   List<GeneratedColumn> get $columns => [
         id,
         itemId,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        catalogRefJson,
+        anchorJson,
         targetPriceCents,
         currency,
         notes,
@@ -115,25 +101,19 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
     } else if (isInserting) {
       context.missing(_itemIdMeta);
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('catalog_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
+    if (data.containsKey('anchor_json')) {
       context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _anchorJsonMeta,
+          anchorJson.isAcceptableOrUnknown(
+              data['anchor_json']!, _anchorJsonMeta));
     }
     if (data.containsKey('target_price_cents')) {
       context.handle(
@@ -178,14 +158,10 @@ class $WishlistItemsCacheTable extends WishlistItemsCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       itemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      anchorJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}anchor_json']),
       targetPriceCents: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}target_price_cents']),
       currency: attachedDatabase.typeMapping
@@ -211,10 +187,11 @@ class WishlistItemsCacheData extends DataClass
     implements Insertable<WishlistItemsCacheData> {
   final String id;
   final String itemId;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+
+  /// Complete structural target reference. The owning kind interprets its
+  /// entity type; this universal table only stores and indexes the reference.
+  final String catalogRefJson;
+  final String? anchorJson;
   final int? targetPriceCents;
   final String? currency;
   final String? notes;
@@ -224,10 +201,8 @@ class WishlistItemsCacheData extends DataClass
   const WishlistItemsCacheData(
       {required this.id,
       required this.itemId,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      required this.catalogRefJson,
+      this.anchorJson,
       this.targetPriceCents,
       this.currency,
       this.notes,
@@ -239,17 +214,9 @@ class WishlistItemsCacheData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || anchorJson != null) {
+      map['anchor_json'] = Variable<String>(anchorJson);
     }
     if (!nullToAbsent || targetPriceCents != null) {
       map['target_price_cents'] = Variable<int>(targetPriceCents);
@@ -272,18 +239,10 @@ class WishlistItemsCacheData extends DataClass
     return WishlistItemsCacheCompanion(
       id: Value(id),
       itemId: Value(itemId),
-      anchorType: anchorType == null && nullToAbsent
+      catalogRefJson: Value(catalogRefJson),
+      anchorJson: anchorJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(anchorJson),
       targetPriceCents: targetPriceCents == null && nullToAbsent
           ? const Value.absent()
           : Value(targetPriceCents),
@@ -306,10 +265,8 @@ class WishlistItemsCacheData extends DataClass
     return WishlistItemsCacheData(
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      anchorJson: serializer.fromJson<String?>(json['anchorJson']),
       targetPriceCents: serializer.fromJson<int?>(json['targetPriceCents']),
       currency: serializer.fromJson<String?>(json['currency']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -324,10 +281,8 @@ class WishlistItemsCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'anchorJson': serializer.toJson<String?>(anchorJson),
       'targetPriceCents': serializer.toJson<int?>(targetPriceCents),
       'currency': serializer.toJson<String?>(currency),
       'notes': serializer.toJson<String?>(notes),
@@ -340,10 +295,8 @@ class WishlistItemsCacheData extends DataClass
   WishlistItemsCacheData copyWith(
           {String? id,
           String? itemId,
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          String? catalogRefJson,
+          Value<String?> anchorJson = const Value.absent(),
           Value<int?> targetPriceCents = const Value.absent(),
           Value<String?> currency = const Value.absent(),
           Value<String?> notes = const Value.absent(),
@@ -353,12 +306,8 @@ class WishlistItemsCacheData extends DataClass
       WishlistItemsCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        anchorJson: anchorJson.present ? anchorJson.value : this.anchorJson,
         targetPriceCents: targetPriceCents.present
             ? targetPriceCents.value
             : this.targetPriceCents,
@@ -372,13 +321,11 @@ class WishlistItemsCacheData extends DataClass
     return WishlistItemsCacheData(
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      anchorJson:
+          data.anchorJson.present ? data.anchorJson.value : this.anchorJson,
       targetPriceCents: data.targetPriceCents.present
           ? data.targetPriceCents.value
           : this.targetPriceCents,
@@ -395,10 +342,8 @@ class WishlistItemsCacheData extends DataClass
     return (StringBuffer('WishlistItemsCacheData(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('anchorJson: $anchorJson, ')
           ..write('targetPriceCents: $targetPriceCents, ')
           ..write('currency: $currency, ')
           ..write('notes: $notes, ')
@@ -410,29 +355,16 @@ class WishlistItemsCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      itemId,
-      anchorType,
-      editionId,
-      variantId,
-      bundleReleaseId,
-      targetPriceCents,
-      currency,
-      notes,
-      createdAt,
-      updatedAt,
-      deletedAt);
+  int get hashCode => Object.hash(id, itemId, catalogRefJson, anchorJson,
+      targetPriceCents, currency, notes, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is WishlistItemsCacheData &&
           other.id == this.id &&
           other.itemId == this.itemId &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.anchorJson == this.anchorJson &&
           other.targetPriceCents == this.targetPriceCents &&
           other.currency == this.currency &&
           other.notes == this.notes &&
@@ -445,10 +377,8 @@ class WishlistItemsCacheCompanion
     extends UpdateCompanion<WishlistItemsCacheData> {
   final Value<String> id;
   final Value<String> itemId;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String> catalogRefJson;
+  final Value<String?> anchorJson;
   final Value<int?> targetPriceCents;
   final Value<String?> currency;
   final Value<String?> notes;
@@ -459,10 +389,8 @@ class WishlistItemsCacheCompanion
   const WishlistItemsCacheCompanion({
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.anchorJson = const Value.absent(),
     this.targetPriceCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.notes = const Value.absent(),
@@ -474,10 +402,8 @@ class WishlistItemsCacheCompanion
   WishlistItemsCacheCompanion.insert({
     required String id,
     required String itemId,
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    required String catalogRefJson,
+    this.anchorJson = const Value.absent(),
     this.targetPriceCents = const Value.absent(),
     this.currency = const Value.absent(),
     this.notes = const Value.absent(),
@@ -487,15 +413,14 @@ class WishlistItemsCacheCompanion
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         itemId = Value(itemId),
+        catalogRefJson = Value(catalogRefJson),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
   static Insertable<WishlistItemsCacheData> custom({
     Expression<String>? id,
     Expression<String>? itemId,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? catalogRefJson,
+    Expression<String>? anchorJson,
     Expression<int>? targetPriceCents,
     Expression<String>? currency,
     Expression<String>? notes,
@@ -507,10 +432,8 @@ class WishlistItemsCacheCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (anchorJson != null) 'anchor_json': anchorJson,
       if (targetPriceCents != null) 'target_price_cents': targetPriceCents,
       if (currency != null) 'currency': currency,
       if (notes != null) 'notes': notes,
@@ -524,10 +447,8 @@ class WishlistItemsCacheCompanion
   WishlistItemsCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? itemId,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String>? catalogRefJson,
+      Value<String?>? anchorJson,
       Value<int?>? targetPriceCents,
       Value<String?>? currency,
       Value<String?>? notes,
@@ -538,10 +459,8 @@ class WishlistItemsCacheCompanion
     return WishlistItemsCacheCompanion(
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      anchorJson: anchorJson ?? this.anchorJson,
       targetPriceCents: targetPriceCents ?? this.targetPriceCents,
       currency: currency ?? this.currency,
       notes: notes ?? this.notes,
@@ -561,17 +480,11 @@ class WishlistItemsCacheCompanion
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (anchorJson.present) {
+      map['anchor_json'] = Variable<String>(anchorJson.value);
     }
     if (targetPriceCents.present) {
       map['target_price_cents'] = Variable<int>(targetPriceCents.value);
@@ -602,10 +515,8 @@ class WishlistItemsCacheCompanion
     return (StringBuffer('WishlistItemsCacheCompanion(')
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('anchorJson: $anchorJson, ')
           ..write('targetPriceCents: $targetPriceCents, ')
           ..write('currency: $currency, ')
           ..write('notes: $notes, ')
@@ -48764,10 +48675,8 @@ typedef $$WishlistItemsCacheTableCreateCompanionBuilder
     = WishlistItemsCacheCompanion Function({
   required String id,
   required String itemId,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  required String catalogRefJson,
+  Value<String?> anchorJson,
   Value<int?> targetPriceCents,
   Value<String?> currency,
   Value<String?> notes,
@@ -48780,10 +48689,8 @@ typedef $$WishlistItemsCacheTableUpdateCompanionBuilder
     = WishlistItemsCacheCompanion Function({
   Value<String> id,
   Value<String> itemId,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String> catalogRefJson,
+  Value<String?> anchorJson,
   Value<int?> targetPriceCents,
   Value<String?> currency,
   Value<String?> notes,
@@ -48808,18 +48715,12 @@ class $$WishlistItemsCacheTableFilterComposer
   ColumnFilters<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get anchorJson => $composableBuilder(
+      column: $table.anchorJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get targetPriceCents => $composableBuilder(
       column: $table.targetPriceCents,
@@ -48856,18 +48757,12 @@ class $$WishlistItemsCacheTableOrderingComposer
   ColumnOrderings<String> get itemId => $composableBuilder(
       column: $table.itemId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get anchorJson => $composableBuilder(
+      column: $table.anchorJson, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get targetPriceCents => $composableBuilder(
       column: $table.targetPriceCents,
@@ -48904,17 +48799,11 @@ class $$WishlistItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get itemId =>
       $composableBuilder(column: $table.itemId, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get anchorJson => $composableBuilder(
+      column: $table.anchorJson, builder: (column) => column);
 
   GeneratedColumn<int> get targetPriceCents => $composableBuilder(
       column: $table.targetPriceCents, builder: (column) => column);
@@ -48966,10 +48855,8 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> anchorJson = const Value.absent(),
             Value<int?> targetPriceCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -48981,10 +48868,8 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
               WishlistItemsCacheCompanion(
             id: id,
             itemId: itemId,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            catalogRefJson: catalogRefJson,
+            anchorJson: anchorJson,
             targetPriceCents: targetPriceCents,
             currency: currency,
             notes: notes,
@@ -48996,10 +48881,8 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String itemId,
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            required String catalogRefJson,
+            Value<String?> anchorJson = const Value.absent(),
             Value<int?> targetPriceCents = const Value.absent(),
             Value<String?> currency = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -49011,10 +48894,8 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
               WishlistItemsCacheCompanion.insert(
             id: id,
             itemId: itemId,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            catalogRefJson: catalogRefJson,
+            anchorJson: anchorJson,
             targetPriceCents: targetPriceCents,
             currency: currency,
             notes: notes,

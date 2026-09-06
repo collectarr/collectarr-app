@@ -64,6 +64,9 @@ void main() {
           WishlistItemsCacheCompanion.insert(
             id: 'wish-1',
             itemId: 'comic-2',
+            catalogRefJson: jsonEncode(
+              testCatalogRef('comic-2', kind: 'comic').toJson(),
+            ),
             createdAt: DateTime.utc(2026, 5, 10),
             updatedAt: DateTime.utc(2026, 5, 10),
           ),

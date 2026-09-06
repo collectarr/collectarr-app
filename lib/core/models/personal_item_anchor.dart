@@ -82,6 +82,17 @@ class PersonalItemAnchor {
       'bundle_release_id': bundleReleaseId,
     };
   }
+
+  Map<String, dynamic> toJson() => toSyncPayload();
+
+  static PersonalItemAnchor? fromJson(Map<String, dynamic> json) {
+    return PersonalItemAnchor.fromRaw(
+      anchorType: json['anchor_type'] as String?,
+      editionId: json['edition_id'] as String?,
+      variantId: json['variant_id'] as String?,
+      bundleReleaseId: json['bundle_release_id'] as String?,
+    );
+  }
 }
 
 String? normalizePersonalItemAnchorType(String? value) {

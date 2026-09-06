@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -126,13 +128,26 @@ class WishlistItemsCacheRepository {
   }
 
   WishlistItem _fromCache(WishlistItemsCacheData row) {
+    final rawCatalogRef = jsonDecode(row.catalogRefJson);
+    if (rawCatalogRef is! Map) {
+      throw FormatException(
+        'Wishlist row ${row.id} contains an invalid catalog reference',
+      );
+    }
+    final rawAnchor = row.anchorJson == null ? null : jsonDecode(row.anchorJson!);
+    if (rawAnchor != null && rawAnchor is! Map) {
+      throw FormatException(
+        'Wishlist row ${row.id} contains an invalid target anchor',
+      );
+    }
     return WishlistItem(
       id: row.id,
-      catalogRef: _catalogRefForRow(row),
-      anchorType: row.anchorType,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      bundleReleaseId: row.bundleReleaseId,
+      catalogRef: CatalogEntityRef.fromJson(
+        Map<String, dynamic>.from(rawCatalogRef),
+      ),
+      anchor: rawAnchor == null
+          ? null
+          : PersonalItemAnchor.fromJson(Map<String, dynamic>.from(rawAnchor)),
       targetPriceCents: row.targetPriceCents,
       currency: row.currency,
       notes: row.notes,
@@ -146,36 +161,16 @@ class WishlistItemsCacheRepository {
     return WishlistItemsCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
-      anchorType: Value(item.anchor?.apiValue),
-      editionId: Value(item.anchor?.editionId),
-      variantId: Value(item.anchor?.variantId),
-      bundleReleaseId: Value(item.anchor?.bundleReleaseId),
+      catalogRefJson: jsonEncode(item.catalogRef.toJson()),
+      anchorJson: Value(
+        item.anchor == null ? null : jsonEncode(item.anchor!.toJson()),
+      ),
       targetPriceCents: Value(item.targetPriceCents),
       currency: Value(item.currency),
       notes: Value(item.notes),
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
       deletedAt: Value(item.deletedAt),
-    );
-  }
-
-  CatalogEntityRef _catalogRefForRow(WishlistItemsCacheData row) {
-    final anchor = PersonalItemAnchor.fromRaw(
-      anchorType: row.anchorType,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      bundleReleaseId: row.bundleReleaseId,
-    );
-    final entityType = switch (anchor?.type) {
-      PersonalItemAnchorType.bundleRelease => CatalogEntityType.release,
-      PersonalItemAnchorType.variant => CatalogEntityType.release,
-      PersonalItemAnchorType.edition => CatalogEntityType.edition,
-      _ => CatalogEntityType.work,
-    };
-    return CatalogEntityRef(
-      kind: 'unknown',
-      entityType: entityType,
-      id: row.itemId,
     );
   }
 

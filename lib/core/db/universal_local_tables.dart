@@ -63,10 +63,10 @@ class UserExternalLinksCache extends Table {
 class WishlistItemsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
-  TextColumn get anchorType => text().nullable()();
-  TextColumn get editionId => text().nullable()();
-  TextColumn get variantId => text().nullable()();
-  TextColumn get bundleReleaseId => text().nullable()();
+  /// Complete structural target reference. The owning kind interprets its
+  /// entity type; this universal table only stores and indexes the reference.
+  TextColumn get catalogRefJson => text()();
+  TextColumn get anchorJson => text().nullable()();
   IntColumn get targetPriceCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
   TextColumn get notes => text().nullable()();
