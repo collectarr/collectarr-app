@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -11,17 +12,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MetadataCorrectionsSection extends ConsumerWidget {
   const MetadataCorrectionsSection({
     super.key,
-    required this.itemId,
+    required this.targetRef,
     required this.accent,
   });
 
-  final String itemId;
+  final CatalogEntityRef targetRef;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final overrides = ref.watch(metadataOverridesByItemProvider)[itemId] ??
-        const <UserMetadataOverride>[];
+    final overrides =
+        ref.watch(metadataOverridesByItemProvider)[targetRef.id] ??
+            const <UserMetadataOverride>[];
     final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -80,7 +82,7 @@ class MetadataCorrectionsSection extends ConsumerWidget {
       return;
     }
     await ref.read(metadataOverrideMutationsProvider).setMetadataOverride(
-          itemId,
+          targetRef,
           fieldPath: result.fieldPath,
           overrideValue: result.overrideValue,
           originalValue: result.originalValue,

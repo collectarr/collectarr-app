@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -24,26 +25,20 @@ final class MetadataOverrideMutations {
   final IdGenerator idGenerator;
 
   Future<UserMetadataOverride> setMetadataOverride(
-    String itemId, {
+    CatalogEntityRef targetRef, {
     required String fieldPath,
     required String overrideValue,
     String? originalValue,
-    String? editionId,
-    String? variantId,
   }) async {
     final now = DateTime.now().toUtc();
     final existing = await overrides.findByField(
-      itemId,
+      targetRef,
       fieldPath,
-      editionId: editionId,
-      variantId: variantId,
     );
 
     final override = UserMetadataOverride(
       id: existing?.id ?? idGenerator(),
-      itemId: itemId,
-      editionId: editionId,
-      variantId: variantId,
+      targetRef: targetRef,
       fieldPath: fieldPath,
       originalValue: originalValue ?? existing?.originalValue,
       overrideValue: overrideValue,
@@ -56,7 +51,7 @@ final class MetadataOverrideMutations {
         await syncQueue
             .enqueue(_syncChangeForMetadataOverride(override, 'upsert', now));
       },
-      eventsToEmit: [MetadataOverrideChanged(itemId)],
+      eventsToEmit: [MetadataOverrideChanged(targetRef.id)],
     );
 
     return override;
@@ -72,7 +67,7 @@ final class MetadataOverrideMutations {
         await syncQueue
             .enqueue(_syncChangeForMetadataOverride(deleted, 'delete', now));
       },
-      eventsToEmit: [MetadataOverrideChanged(override.itemId)],
+      eventsToEmit: [MetadataOverrideChanged(override.targetRef.id)],
     );
   }
 

@@ -330,7 +330,7 @@ class _LibraryVideoDetailPageState
               targetOptions: watchHistoryTargets,
             ),
             LibraryMetadataCorrectionsSection(
-              itemId: request.item.source.itemId,
+              targetRef: itemRef,
               accent: request.accent,
             ),
           ],

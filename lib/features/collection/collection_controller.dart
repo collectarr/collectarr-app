@@ -213,7 +213,9 @@ final metadataOverridesByItemProvider =
       final grouped = <String, List<UserMetadataOverride>>{};
       for (final o in items) {
         if (o.isDeleted) continue;
-        grouped.putIfAbsent(o.itemId, () => <UserMetadataOverride>[]).add(o);
+        grouped
+            .putIfAbsent(o.targetRef.id, () => <UserMetadataOverride>[])
+            .add(o);
       }
       return grouped;
     },

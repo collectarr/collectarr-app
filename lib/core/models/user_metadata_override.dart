@@ -1,53 +1,33 @@
-/// A user-level correction/override for a single field on a catalog item.
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+
+/// A user-level correction for one field on one catalog entity.
 ///
-/// Overrides are stored locally and synced. When displaying catalog data the
-/// app merges active overrides on top of the original provider metadata,
-/// letting users fix mistakes without losing the original values.
+/// The target and field identifier are opaque to generic persistence and
+/// synchronization. The owning kind validates and interprets them.
 class UserMetadataOverride {
   UserMetadataOverride({
     required this.id,
-    required this.itemId,
+    required this.targetRef,
     required this.fieldPath,
     required this.overrideValue,
     required this.updatedAt,
     this.originalValue,
-    this.editionId,
-    this.variantId,
     this.deletedAt,
   });
 
   /// Unique override id (UUID v4).
   final String id;
 
-  /// The catalog item this override applies to.
-  final String itemId;
+  /// Structural catalog target. Its semantic meaning belongs to the kind.
+  final CatalogEntityRef targetRef;
 
-  /// Optional edition scope — when set, the override applies to a specific
-  /// edition rather than the top-level item.
-  final String? editionId;
-
-  /// Optional variant scope — when set, the override applies to a specific
-  /// variant within an edition.
-  final String? variantId;
-
-  /// Dot-separated path of the field being overridden.
-  ///
-  /// Top-level item fields: `title`, `synopsis`, `publisher`, `release_year`,
-  /// `cover_image_url`, etc.
-  ///
-  /// Edition fields (requires [editionId]): `edition.title`,
-  /// `edition.publisher`, `edition.isbn`, etc.
-  ///
-  /// Variant fields (requires [variantId]): `variant.name`,
-  /// `variant.barcode`, `variant.cover_price_cents`, etc.
+  /// Kind-owned field identifier. The generic layer does not inspect it.
   final String fieldPath;
 
-  /// The original value from the catalog provider (snapshot at override time).
-  /// Stored for diff view. May be null if the original was empty.
+  /// Original value captured when the override was created.
   final String? originalValue;
 
-  /// The user's corrected value. Stored as a JSON-encoded string for
-  /// uniformity across field types.
+  /// JSON-encoded corrected value.
   final String overrideValue;
 
   final DateTime updatedAt;
@@ -55,19 +35,13 @@ class UserMetadataOverride {
 
   bool get isDeleted => deletedAt != null;
 
-  /// Scope key used to group overrides: item-level, edition-level, or
-  /// variant-level.
-  String get scopeKey {
-    if (variantId != null) return 'variant:$variantId';
-    if (editionId != null) return 'edition:$editionId';
-    return 'item:$itemId';
-  }
+  /// Stable structural scope key used by read-only grouping UI.
+  String get scopeKey =>
+      '${targetRef.kind}:${targetRef.entityType.apiValue}:${targetRef.id}';
 
   Map<String, dynamic> toSyncPayload() {
     return {
-      'item_id': itemId,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
+      'target_ref': targetRef.toJson(),
       'field_path': fieldPath,
       'original_value': originalValue,
       'override_value': overrideValue,
@@ -75,11 +49,13 @@ class UserMetadataOverride {
   }
 
   factory UserMetadataOverride.fromJson(Map<String, dynamic> json) {
+    final rawTarget = json['target_ref'];
+    if (rawTarget is! Map) {
+      throw const FormatException('Metadata override target_ref is required');
+    }
     return UserMetadataOverride(
       id: json['id'] as String,
-      itemId: json['item_id'] as String,
-      editionId: json['edition_id'] as String?,
-      variantId: json['variant_id'] as String?,
+      targetRef: CatalogEntityRef.fromJson(rawTarget.cast<String, dynamic>()),
       fieldPath: json['field_path'] as String,
       originalValue: json['original_value'] as String?,
       overrideValue: json['override_value'] as String,
@@ -92,9 +68,7 @@ class UserMetadataOverride {
 
   UserMetadataOverride copyWith({
     String? id,
-    String? itemId,
-    String? editionId,
-    String? variantId,
+    CatalogEntityRef? targetRef,
     String? fieldPath,
     String? originalValue,
     String? overrideValue,
@@ -103,9 +77,7 @@ class UserMetadataOverride {
   }) {
     return UserMetadataOverride(
       id: id ?? this.id,
-      itemId: itemId ?? this.itemId,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
+      targetRef: targetRef ?? this.targetRef,
       fieldPath: fieldPath ?? this.fieldPath,
       originalValue: originalValue ?? this.originalValue,
       overrideValue: overrideValue ?? this.overrideValue,

@@ -2517,23 +2517,12 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
-      'item_id', aliasedName, false,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _fieldPathMeta =
       const VerificationMeta('fieldPath');
   @override
@@ -2567,9 +2556,7 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
   @override
   List<GeneratedColumn> get $columns => [
         id,
-        itemId,
-        editionId,
-        variantId,
+        targetRefJson,
         fieldPath,
         originalValue,
         overrideValue,
@@ -2592,19 +2579,13 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('item_id')) {
-      context.handle(_itemIdMeta,
-          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     } else if (isInserting) {
-      context.missing(_itemIdMeta);
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+      context.missing(_targetRefJsonMeta);
     }
     if (data.containsKey('field_path')) {
       context.handle(_fieldPathMeta,
@@ -2648,12 +2629,8 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
     return UserMetadataOverridesCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      itemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      targetRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       fieldPath: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}field_path'])!,
       originalValue: attachedDatabase.typeMapping
@@ -2676,9 +2653,7 @@ class $UserMetadataOverridesCacheTable extends UserMetadataOverridesCache
 class UserMetadataOverridesCacheData extends DataClass
     implements Insertable<UserMetadataOverridesCacheData> {
   final String id;
-  final String itemId;
-  final String? editionId;
-  final String? variantId;
+  final String targetRefJson;
   final String fieldPath;
   final String? originalValue;
   final String overrideValue;
@@ -2686,9 +2661,7 @@ class UserMetadataOverridesCacheData extends DataClass
   final DateTime? deletedAt;
   const UserMetadataOverridesCacheData(
       {required this.id,
-      required this.itemId,
-      this.editionId,
-      this.variantId,
+      required this.targetRefJson,
       required this.fieldPath,
       this.originalValue,
       required this.overrideValue,
@@ -2698,13 +2671,7 @@ class UserMetadataOverridesCacheData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['item_id'] = Variable<String>(itemId);
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
+    map['target_ref_json'] = Variable<String>(targetRefJson);
     map['field_path'] = Variable<String>(fieldPath);
     if (!nullToAbsent || originalValue != null) {
       map['original_value'] = Variable<String>(originalValue);
@@ -2720,13 +2687,7 @@ class UserMetadataOverridesCacheData extends DataClass
   UserMetadataOverridesCacheCompanion toCompanion(bool nullToAbsent) {
     return UserMetadataOverridesCacheCompanion(
       id: Value(id),
-      itemId: Value(itemId),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
+      targetRefJson: Value(targetRefJson),
       fieldPath: Value(fieldPath),
       originalValue: originalValue == null && nullToAbsent
           ? const Value.absent()
@@ -2744,9 +2705,7 @@ class UserMetadataOverridesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return UserMetadataOverridesCacheData(
       id: serializer.fromJson<String>(json['id']),
-      itemId: serializer.fromJson<String>(json['itemId']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
+      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       fieldPath: serializer.fromJson<String>(json['fieldPath']),
       originalValue: serializer.fromJson<String?>(json['originalValue']),
       overrideValue: serializer.fromJson<String>(json['overrideValue']),
@@ -2759,9 +2718,7 @@ class UserMetadataOverridesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'itemId': serializer.toJson<String>(itemId),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
+      'targetRefJson': serializer.toJson<String>(targetRefJson),
       'fieldPath': serializer.toJson<String>(fieldPath),
       'originalValue': serializer.toJson<String?>(originalValue),
       'overrideValue': serializer.toJson<String>(overrideValue),
@@ -2772,9 +2729,7 @@ class UserMetadataOverridesCacheData extends DataClass
 
   UserMetadataOverridesCacheData copyWith(
           {String? id,
-          String? itemId,
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
+          String? targetRefJson,
           String? fieldPath,
           Value<String?> originalValue = const Value.absent(),
           String? overrideValue,
@@ -2782,9 +2737,7 @@ class UserMetadataOverridesCacheData extends DataClass
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       UserMetadataOverridesCacheData(
         id: id ?? this.id,
-        itemId: itemId ?? this.itemId,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
+        targetRefJson: targetRefJson ?? this.targetRefJson,
         fieldPath: fieldPath ?? this.fieldPath,
         originalValue:
             originalValue.present ? originalValue.value : this.originalValue,
@@ -2796,9 +2749,9 @@ class UserMetadataOverridesCacheData extends DataClass
       UserMetadataOverridesCacheCompanion data) {
     return UserMetadataOverridesCacheData(
       id: data.id.present ? data.id.value : this.id,
-      itemId: data.itemId.present ? data.itemId.value : this.itemId,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       fieldPath: data.fieldPath.present ? data.fieldPath.value : this.fieldPath,
       originalValue: data.originalValue.present
           ? data.originalValue.value
@@ -2815,9 +2768,7 @@ class UserMetadataOverridesCacheData extends DataClass
   String toString() {
     return (StringBuffer('UserMetadataOverridesCacheData(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('fieldPath: $fieldPath, ')
           ..write('originalValue: $originalValue, ')
           ..write('overrideValue: $overrideValue, ')
@@ -2828,16 +2779,14 @@ class UserMetadataOverridesCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, itemId, editionId, variantId, fieldPath,
-      originalValue, overrideValue, updatedAt, deletedAt);
+  int get hashCode => Object.hash(id, targetRefJson, fieldPath, originalValue,
+      overrideValue, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserMetadataOverridesCacheData &&
           other.id == this.id &&
-          other.itemId == this.itemId &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
+          other.targetRefJson == this.targetRefJson &&
           other.fieldPath == this.fieldPath &&
           other.originalValue == this.originalValue &&
           other.overrideValue == this.overrideValue &&
@@ -2848,9 +2797,7 @@ class UserMetadataOverridesCacheData extends DataClass
 class UserMetadataOverridesCacheCompanion
     extends UpdateCompanion<UserMetadataOverridesCacheData> {
   final Value<String> id;
-  final Value<String> itemId;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
+  final Value<String> targetRefJson;
   final Value<String> fieldPath;
   final Value<String?> originalValue;
   final Value<String> overrideValue;
@@ -2859,9 +2806,7 @@ class UserMetadataOverridesCacheCompanion
   final Value<int> rowid;
   const UserMetadataOverridesCacheCompanion({
     this.id = const Value.absent(),
-    this.itemId = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.fieldPath = const Value.absent(),
     this.originalValue = const Value.absent(),
     this.overrideValue = const Value.absent(),
@@ -2871,9 +2816,7 @@ class UserMetadataOverridesCacheCompanion
   });
   UserMetadataOverridesCacheCompanion.insert({
     required String id,
-    required String itemId,
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
+    required String targetRefJson,
     required String fieldPath,
     this.originalValue = const Value.absent(),
     required String overrideValue,
@@ -2881,15 +2824,13 @@ class UserMetadataOverridesCacheCompanion
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        itemId = Value(itemId),
+        targetRefJson = Value(targetRefJson),
         fieldPath = Value(fieldPath),
         overrideValue = Value(overrideValue),
         updatedAt = Value(updatedAt);
   static Insertable<UserMetadataOverridesCacheData> custom({
     Expression<String>? id,
-    Expression<String>? itemId,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
+    Expression<String>? targetRefJson,
     Expression<String>? fieldPath,
     Expression<String>? originalValue,
     Expression<String>? overrideValue,
@@ -2899,9 +2840,7 @@ class UserMetadataOverridesCacheCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (itemId != null) 'item_id': itemId,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (fieldPath != null) 'field_path': fieldPath,
       if (originalValue != null) 'original_value': originalValue,
       if (overrideValue != null) 'override_value': overrideValue,
@@ -2913,9 +2852,7 @@ class UserMetadataOverridesCacheCompanion
 
   UserMetadataOverridesCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? itemId,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
+      Value<String>? targetRefJson,
       Value<String>? fieldPath,
       Value<String?>? originalValue,
       Value<String>? overrideValue,
@@ -2924,9 +2861,7 @@ class UserMetadataOverridesCacheCompanion
       Value<int>? rowid}) {
     return UserMetadataOverridesCacheCompanion(
       id: id ?? this.id,
-      itemId: itemId ?? this.itemId,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       fieldPath: fieldPath ?? this.fieldPath,
       originalValue: originalValue ?? this.originalValue,
       overrideValue: overrideValue ?? this.overrideValue,
@@ -2942,14 +2877,8 @@ class UserMetadataOverridesCacheCompanion
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (itemId.present) {
-      map['item_id'] = Variable<String>(itemId.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (fieldPath.present) {
       map['field_path'] = Variable<String>(fieldPath.value);
@@ -2976,9 +2905,7 @@ class UserMetadataOverridesCacheCompanion
   String toString() {
     return (StringBuffer('UserMetadataOverridesCacheCompanion(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('fieldPath: $fieldPath, ')
           ..write('originalValue: $originalValue, ')
           ..write('overrideValue: $overrideValue, ')
@@ -49794,9 +49721,7 @@ typedef $$SyncQueueTableProcessedTableManager = ProcessedTableManager<
 typedef $$UserMetadataOverridesCacheTableCreateCompanionBuilder
     = UserMetadataOverridesCacheCompanion Function({
   required String id,
-  required String itemId,
-  Value<String?> editionId,
-  Value<String?> variantId,
+  required String targetRefJson,
   required String fieldPath,
   Value<String?> originalValue,
   required String overrideValue,
@@ -49807,9 +49732,7 @@ typedef $$UserMetadataOverridesCacheTableCreateCompanionBuilder
 typedef $$UserMetadataOverridesCacheTableUpdateCompanionBuilder
     = UserMetadataOverridesCacheCompanion Function({
   Value<String> id,
-  Value<String> itemId,
-  Value<String?> editionId,
-  Value<String?> variantId,
+  Value<String> targetRefJson,
   Value<String> fieldPath,
   Value<String?> originalValue,
   Value<String> overrideValue,
@@ -49830,14 +49753,8 @@ class $$UserMetadataOverridesCacheTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get fieldPath => $composableBuilder(
       column: $table.fieldPath, builder: (column) => ColumnFilters(column));
@@ -49867,14 +49784,9 @@ class $$UserMetadataOverridesCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get fieldPath => $composableBuilder(
       column: $table.fieldPath, builder: (column) => ColumnOrderings(column));
@@ -49906,14 +49818,8 @@ class $$UserMetadataOverridesCacheTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get itemId =>
-      $composableBuilder(column: $table.itemId, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get fieldPath =>
       $composableBuilder(column: $table.fieldPath, builder: (column) => column);
@@ -49963,9 +49869,7 @@ class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> itemId = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
+            Value<String> targetRefJson = const Value.absent(),
             Value<String> fieldPath = const Value.absent(),
             Value<String?> originalValue = const Value.absent(),
             Value<String> overrideValue = const Value.absent(),
@@ -49975,9 +49879,7 @@ class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
           }) =>
               UserMetadataOverridesCacheCompanion(
             id: id,
-            itemId: itemId,
-            editionId: editionId,
-            variantId: variantId,
+            targetRefJson: targetRefJson,
             fieldPath: fieldPath,
             originalValue: originalValue,
             overrideValue: overrideValue,
@@ -49987,9 +49889,7 @@ class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String itemId,
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
+            required String targetRefJson,
             required String fieldPath,
             Value<String?> originalValue = const Value.absent(),
             required String overrideValue,
@@ -49999,9 +49899,7 @@ class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
           }) =>
               UserMetadataOverridesCacheCompanion.insert(
             id: id,
-            itemId: itemId,
-            editionId: editionId,
-            variantId: variantId,
+            targetRefJson: targetRefJson,
             fieldPath: fieldPath,
             originalValue: originalValue,
             overrideValue: overrideValue,
