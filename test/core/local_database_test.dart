@@ -62,7 +62,7 @@ void main() {
     expect(db.schemaVersion, 29);
   });
 
-  test('migrates a v7 cache to v28 without losing existing cache rows',
+  test('migrates a v7 cache to v29 without losing existing cache rows',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_migrate');
     addTearDown(() => dir.delete(recursive: true));
@@ -792,7 +792,7 @@ void main() {
     expect(version.data.values.first, 29);
   });
 
-  test('destructively rebuilds a higher-versioned cache to the v28 schema',
+  test('destructively rebuilds a higher-versioned cache to the v29 schema',
       () async {
     final dir = await Directory.systemTemp.createTemp('collectarr_db_reset');
     addTearDown(() => dir.delete(recursive: true));
