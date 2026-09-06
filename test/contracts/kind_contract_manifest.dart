@@ -90,6 +90,7 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.music,
       CatalogMediaKind.tv,
     },
+    'calendar': activeTypedKinds,
     'tracking': activeTypedKinds,
     'hierarchy': activeTypedKinds,
     'providerIntegration': activeTypedKinds,

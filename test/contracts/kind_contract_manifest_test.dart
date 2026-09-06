@@ -50,6 +50,7 @@ void main() {
       'releaseProjection',
       'releaseEdit',
       'releasePersistence',
+      'calendar',
       'tracking',
       'hierarchy',
       'providerIntegration',
@@ -137,6 +138,10 @@ void main() {
     );
     expect(
       kindContractManifest.optionalParticipants['tracking'],
+      equals(kindContractManifest.activeKinds),
+    );
+    expect(
+      kindContractManifest.optionalParticipants['calendar'],
       equals(kindContractManifest.activeKinds),
     );
   });
