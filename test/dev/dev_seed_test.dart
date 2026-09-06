@@ -176,6 +176,13 @@ void main() {
         customValues
             .every((value) => definitionIds.contains(value.fieldDefinitionId)),
         isTrue);
+    final customFieldOwnedIds = ownedRows.map((row) => row.id).toSet();
+    expect(
+      customValues
+          .every((value) => customFieldOwnedIds.contains(value.targetId)),
+      isTrue,
+      reason: 'Seed custom-field values must target an existing owned item',
+    );
 
     final tvOwned =
         ownedRows.where((row) => row.itemId.startsWith('seed-tv-')).toList();
