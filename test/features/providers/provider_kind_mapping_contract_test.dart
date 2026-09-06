@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -247,7 +248,7 @@ void main() {
       expect(envelope.normalized['kind'], testCase.kind.apiValue);
 
       final runtime = libraryKindFor(testCase.kind);
-      final mapper = runtime.providerMapper;
+      final mapper = libraryKindProviderMapperForKind(testCase.kind);
       expect(mapper, isNotNull);
 
       final item = mapper!.metadataItemFromEnvelope(envelope);
@@ -278,7 +279,7 @@ void main() {
         images: const [],
         attribution: const ProviderAttribution(required: false),
       );
-      final mapper = runtime.providerMapper!;
+      final mapper = libraryKindProviderMapperForKind(runtime.kind)!;
 
       expect(
         () => mapper.metadataItemFromEnvelope(envelope),

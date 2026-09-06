@@ -181,7 +181,7 @@ void main() {
     );
 
     expect(
-      bookKindModule.subgroupKeyForEntry(
+      bookKindModule.workspace.subgroupKeyForEntry(
           item, _group(bookKindModule, 'series')),
       isNull,
     );
@@ -334,19 +334,19 @@ void main() {
   test('book and boardgame runtimes own their scoped browser options', () {
     final bookRuntime = bookKindModule;
     expect(
-      bookRuntime.availableGroupIdsForBrowserMode(
+      bookRuntime.workspace.availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
     );
     expect(
-      bookRuntime.availableGroupIdsForBrowserMode(
+      bookRuntime.workspace.availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.releases,
       ),
       isNotEmpty,
     );
     expect(
-      bookRuntime.availableSortIdsForBrowserMode(
+      bookRuntime.workspace.availableSortIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
@@ -365,6 +365,7 @@ void main() {
       isFalse,
     );
     final comicMediaGroups = comicRuntime
+        .workspace
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
         .map((id) => id.value)
         .toSet();
@@ -372,10 +373,12 @@ void main() {
 
     final movieRuntime = movieKindModule;
     final movieMediaGroups = movieRuntime
+        .workspace
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
         .map((id) => id.value)
         .toSet();
     final movieReleaseGroups = movieRuntime
+        .workspace
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.releases)
         .map((id) => id.value)
         .toSet();
@@ -693,20 +696,21 @@ void main() {
     expect(comicRuntime, same(comicKindModule));
     expect(comicRuntime.kind, CatalogMediaKind.comic);
     expect(
-      comicRuntime.columnDisplayName(_field(comicKindModule, 'comic.series')),
+      comicRuntime.workspace
+          .columnDisplayName(_field(comicKindModule, 'comic.series')),
       'Series',
     );
-    expect(comicRuntime.columnLabel(_field(comicKindModule, 'cover')), '');
+    expect(comicRuntime.workspace.columnLabel(_field(comicKindModule, 'cover')), '');
     expect(
-      comicRuntime.columnGroup(_field(comicKindModule, 'location')),
+      comicRuntime.workspace.columnGroup(_field(comicKindModule, 'location')),
       LibraryTableColumnGroup.personal,
     );
     expect(
-      comicRuntime.columnIsNumeric(_field(comicKindModule, 'price')),
+      comicRuntime.workspace.columnIsNumeric(_field(comicKindModule, 'price')),
       isTrue,
     );
     expect(
-      comicRuntime.columnSort(
+      comicRuntime.workspace.columnSort(
         _field(comicKindModule, 'comic.release_date'),
       ),
       _sort(comicKindModule, 'comic.release_date'),
@@ -716,7 +720,7 @@ void main() {
       ['Essential', 'Ownership', 'Value', 'Full'],
     );
     expect(
-      comicRuntime.orderedTableColumns(const {}).first,
+      comicRuntime.workspace.orderedTableColumns(const {}).first,
       _field(comicKindModule, 'comic.status'),
     );
   });
@@ -755,28 +759,28 @@ void main() {
     );
     expect(libraryKindRuntime(CatalogMediaKind.music), same(musicKindModule));
     expect(
-      libraryKindRuntime(CatalogMediaKind.game).columnSort(
+      libraryKindRuntime(CatalogMediaKind.game).workspace.columnSort(
         _field(gameKindModule, 'game.release_date'),
       ),
       _sort(gameKindModule, 'game.release_date'),
     );
     expect(
       libraryKindRuntime(CatalogMediaKind.movie)
-          .columnLabel(_field(movieKindModule, 'variant')),
+          .workspace.columnLabel(_field(movieKindModule, 'variant')),
       'Variant',
     );
     expect(
       libraryKindRuntime(CatalogMediaKind.game)
-          .columnLabel(_field(gameKindModule, 'variant')),
+          .workspace.columnLabel(_field(gameKindModule, 'variant')),
       'Variant',
     );
     expect(
       libraryKindRuntime(CatalogMediaKind.book)
-          .columnLabel(_field(bookKindModule, 'barcode')),
+          .workspace.columnLabel(_field(bookKindModule, 'barcode')),
       'Barcode',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.book).tableColumnWidth(
+      libraryKindRuntime(CatalogMediaKind.book).workspace.tableColumnWidth(
         _field(bookKindModule, 'title'),
         {_field(bookKindModule, 'title'): 999},
       ),
@@ -784,7 +788,7 @@ void main() {
     );
     expect(
       libraryKindRuntime(CatalogMediaKind.music)
-          .availableGroupIds
+          .workspace.availableGroupIds
           .map((id) => id.value),
       [
         'music.artist',
@@ -802,7 +806,7 @@ void main() {
     );
     expect(
       libraryKindRuntime(CatalogMediaKind.book)
-          .availableGroupIds
+          .workspace.availableGroupIds
           .map((id) => id.value),
       [
         'book.author',
@@ -815,7 +819,7 @@ void main() {
     );
     expect(
       libraryKindRuntime(CatalogMediaKind.game)
-          .availableGroupIds
+          .workspace.availableGroupIds
           .map((id) => id.value),
       [
         'game.platform',
@@ -855,7 +859,7 @@ void main() {
     );
     expect(
       libraryKindRuntime(CatalogMediaKind.movie)
-          .availableGroupIds
+          .workspace.availableGroupIds
           .map((id) => id.value),
       [
         'movie.director',

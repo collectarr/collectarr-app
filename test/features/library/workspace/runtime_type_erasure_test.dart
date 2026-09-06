@@ -24,7 +24,7 @@ void main() {
         ),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
-      return comicModule.project(source: source, node: node);
+      return comicModule.workspace.project(source: source, node: node);
     }
 
     LibraryProjectionRuntime createBookItem(String id, String title) {
@@ -37,25 +37,25 @@ void main() {
         ),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'book-1');
-      return bookModule.project(source: source, node: node);
+      return bookModule.workspace.project(source: source, node: node);
     }
 
     test('runtime performs sorting without caller casting DTO types', () {
       final itemA = createComicItem('1', 'Amazing Spider-Man');
       final itemB = createComicItem('2', 'Batman');
 
-      final result = comicModule.compare(itemA, itemB, ComicSortIds.title);
+      final result = comicModule.workspace.compare(itemA, itemB, ComicSortIds.title);
       expect(result, isNegative);
 
       final items = [itemB, itemA];
-      comicModule.sort(items, ComicSortIds.title, ascending: true);
+      comicModule.workspace.sort(items, ComicSortIds.title, ascending: true);
       expect(items.first.dto.title, 'Amazing Spider-Man');
       expect(items.last.dto.title, 'Batman');
     });
 
     test('runtime extracts group value without caller recovering types', () {
       final item = createComicItem('1', 'Saga');
-      final groupVal = comicModule.groupValue(item, ComicGroupIds.series);
+      final groupVal = comicModule.workspace.groupValue(item, ComicGroupIds.series);
       expect(groupVal, isA<String?>());
       expect(
         comicModule.fields.findGroupDefinition(
@@ -63,7 +63,7 @@ void main() {
         ),
         isNotNull,
       );
-      expect(() => comicModule.groupValue(item, ComicGroupIds.series),
+      expect(() => comicModule.workspace.groupValue(item, ComicGroupIds.series),
           returnsNormally);
     });
 
@@ -81,21 +81,21 @@ void main() {
 
       // Book module cannot process a comic projection item
       expect(
-        () => bookModule.validateProjection(comicItem),
+        () => bookModule.workspace.validateProjection(comicItem),
         throwsArgumentError,
       );
       expect(
-        () => bookModule.compare(bookItem, comicItem, BookSortIds.title),
+        () => bookModule.workspace.compare(bookItem, comicItem, BookSortIds.title),
         throwsArgumentError,
       );
       expect(
-        () => bookModule.groupValue(comicItem, BookGroupIds.author),
+        () => bookModule.workspace.groupValue(comicItem, BookGroupIds.author),
         throwsArgumentError,
       );
 
       // Comic module cannot process a book projection item
       expect(
-        () => comicModule.validateProjection(bookItem),
+        () => comicModule.workspace.validateProjection(bookItem),
         throwsArgumentError,
       );
     });

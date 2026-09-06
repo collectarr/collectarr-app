@@ -127,7 +127,7 @@ void main() {
     );
     final source = ShelfEntry(itemId: 'c1', catalogItem: cat);
     final node = const LibraryTitleNodeRef(titleItemId: 'c1');
-    final item = comicKindModule.project(source: source, node: node);
+    final item = comicKindModule.workspace.project(source: source, node: node);
 
     final group = GroupShelfEntry(
       groupMode: 'series',
@@ -184,7 +184,7 @@ void main() {
     );
     final source = ShelfEntry(itemId: 'c1', catalogItem: cat);
     final node = const LibraryTitleNodeRef(titleItemId: 'c1');
-    final item = comicKindModule.project(source: source, node: node);
+    final item = comicKindModule.workspace.project(source: source, node: node);
 
     final group = GroupShelfEntry(
       groupMode: 'series',

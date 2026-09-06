@@ -60,7 +60,7 @@ void main() {
       ),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final item = movieKindModule.project(source: source1, node: node1);
+    final item = movieKindModule.workspace.project(source: source1, node: node1);
 
     final request = LibraryDetailPageRequest(
       type: type,
@@ -192,7 +192,7 @@ void main() {
       ),
     );
     const node2 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final item = movieKindModule.project(source: source2, node: node2);
+    final item = movieKindModule.workspace.project(source: source2, node: node2);
 
     final request = LibraryDetailPageRequest(
       type: type,
@@ -293,7 +293,7 @@ void main() {
       ),
     );
     const node3 = LibraryTitleNodeRef(titleItemId: 'movie-2');
-    final item = movieKindModule.project(source: source3, node: node3);
+    final item = movieKindModule.workspace.project(source: source3, node: node3);
 
     final request = LibraryDetailPageRequest(
       type: type,
