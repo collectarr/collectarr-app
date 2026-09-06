@@ -71,6 +71,21 @@ class TvEditDraft extends LibraryEditKindDraft
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = videoEdit.applyVideoSelectionEdits(selection);
+    if (result.tracking != null) {
+      final seasonNumber = int.tryParse(videoEdit.seasonNumberController.text);
+      final episodeNumber =
+          int.tryParse(videoEdit.episodeNumberController.text);
+      final episodeRatings = videoEdit.episodeRatings.isEmpty
+          ? null
+          : Map<String, int>.unmodifiable(videoEdit.episodeRatings);
+      result = result.copyWith(
+        trackingEntryMutation: (entry) => entry.copyWith(
+          seasonNumber: seasonNumber ?? entry.seasonNumber,
+          episodeNumber: episodeNumber ?? entry.episodeNumber,
+          episodeRatings: episodeRatings,
+        ),
+      );
+    }
     if (result.personal != null) {
       result = result.copyWith(
         personal: result.personal!.copyWith(

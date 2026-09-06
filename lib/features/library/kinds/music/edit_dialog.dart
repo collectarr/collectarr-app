@@ -1958,10 +1958,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 progressTotal: parseInt(_progressTotalController.text),
                 timesCompleted: parseInt(_timesCompletedController.text),
                 notes: emptyToNull(_trackingNotesController.text),
-                seasonNumber: widget.request.trackingEntry?.seasonNumber ??
-                    _musicMetadata.series?.seasonNumber,
-                episodeNumber: widget.request.trackingEntry?.episodeNumber ??
-                    _musicMetadata.series?.episodeNumber,
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 
 // ---------------------------------------------------------------------------
 // Selection data classes returned by the edit dialog
@@ -11,6 +12,10 @@ enum LibraryEditSubmitAction {
   saveAndNext,
 }
 
+typedef LibraryTrackingEntryMutation = TrackingEntry Function(
+  TrackingEntry entry,
+);
+
 class LibraryEditSelection {
   const LibraryEditSelection({
     required this.item,
@@ -18,6 +23,7 @@ class LibraryEditSelection {
     this.scope = LibraryEditScope.media,
     this.wishlist,
     this.tracking,
+    this.trackingEntryMutation,
     this.customFieldEdits = const {},
     this.itemImageEdits = const [],
     this.submitAction = LibraryEditSubmitAction.save,
@@ -28,6 +34,7 @@ class LibraryEditSelection {
   final LibraryEditScope scope;
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
+  final LibraryTrackingEntryMutation? trackingEntryMutation;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;
   final LibraryEditSubmitAction submitAction;
@@ -38,6 +45,7 @@ class LibraryEditSelection {
     LibraryEditScope? scope,
     LibraryWishlistEditSelection? wishlist,
     LibraryTrackingEditSelection? tracking,
+    LibraryTrackingEntryMutation? trackingEntryMutation,
     Map<String, String?>? customFieldEdits,
     List<ItemImageEdit>? itemImageEdits,
     LibraryEditSubmitAction? submitAction,
@@ -48,6 +56,8 @@ class LibraryEditSelection {
       scope: scope ?? this.scope,
       wishlist: wishlist ?? this.wishlist,
       tracking: tracking ?? this.tracking,
+      trackingEntryMutation:
+          trackingEntryMutation ?? this.trackingEntryMutation,
       customFieldEdits: customFieldEdits ?? this.customFieldEdits,
       itemImageEdits: itemImageEdits ?? this.itemImageEdits,
       submitAction: submitAction ?? this.submitAction,
@@ -329,11 +339,8 @@ class LibraryTrackingEditSelection {
     this.progressTotal,
     this.timesCompleted,
     this.notes,
-    this.seasonNumber,
-    this.episodeNumber,
     this.startedAt,
     this.finishedAt,
-    this.episodeRatings,
   });
 
   final String? editionId;
@@ -344,11 +351,8 @@ class LibraryTrackingEditSelection {
   final int? progressTotal;
   final int? timesCompleted;
   final String? notes;
-  final int? seasonNumber;
-  final int? episodeNumber;
   final DateTime? startedAt;
   final DateTime? finishedAt;
-  final Map<String, int>? episodeRatings;
 
   LibraryTrackingEditSelection copyWith({
     String? editionId,
@@ -359,11 +363,8 @@ class LibraryTrackingEditSelection {
     int? progressTotal,
     int? timesCompleted,
     String? notes,
-    int? seasonNumber,
-    int? episodeNumber,
     DateTime? startedAt,
     DateTime? finishedAt,
-    Map<String, int>? episodeRatings,
   }) {
     return LibraryTrackingEditSelection(
       editionId: editionId ?? this.editionId,
@@ -374,11 +375,8 @@ class LibraryTrackingEditSelection {
       progressTotal: progressTotal ?? this.progressTotal,
       timesCompleted: timesCompleted ?? this.timesCompleted,
       notes: notes ?? this.notes,
-      seasonNumber: seasonNumber ?? this.seasonNumber,
-      episodeNumber: episodeNumber ?? this.episodeNumber,
       startedAt: startedAt ?? this.startedAt,
       finishedAt: finishedAt ?? this.finishedAt,
-      episodeRatings: episodeRatings ?? this.episodeRatings,
     );
   }
 }

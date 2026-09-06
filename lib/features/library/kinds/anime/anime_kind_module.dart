@@ -233,11 +233,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
     defaultGrade: 'Ungraded',
     vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
     createDraft: createAnimeEditDraft,
-    trackingEntryEditApplier: (entry, selection) => entry.copyWith(
-      seasonNumber: selection.seasonNumber ?? entry.seasonNumber,
-      episodeNumber: selection.episodeNumber ?? entry.episodeNumber,
-      episodeRatings: selection.episodeRatings,
-    ),
   ),
   providerMapper: const AnimeLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(

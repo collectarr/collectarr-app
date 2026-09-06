@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -21,11 +20,6 @@ typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 });
-
-typedef LibraryTrackingEntryEditApplier = TrackingEntry Function(
-  TrackingEntry entry,
-  LibraryTrackingEditSelection selection,
-);
 
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
 /// kind-owned draft creation, and update command building.
@@ -42,7 +36,6 @@ class LibraryEditCapability {
     required this.defaultCondition,
     required this.defaultGrade,
     required this.createDraft,
-    this.trackingEntryEditApplier,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -56,7 +49,6 @@ class LibraryEditCapability {
   final String defaultCondition;
   final String defaultGrade;
   final LibraryEditKindDraftFactory createDraft;
-  final LibraryTrackingEntryEditApplier? trackingEntryEditApplier;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;

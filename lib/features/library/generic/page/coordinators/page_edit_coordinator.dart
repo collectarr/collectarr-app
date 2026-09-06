@@ -419,12 +419,7 @@ class LibraryPageEditCoordinator {
         timesCompleted: result.tracking!.timesCompleted ??
             activeTrackingEntry.timesCompleted,
         notes: result.tracking!.notes ?? activeTrackingEntry.notes,
-        customizeEntry: _s.widget.type.edit.trackingEntryEditApplier == null
-            ? null
-            : (entry) => _s.widget.type.edit.trackingEntryEditApplier!.call(
-                  entry,
-                  result.tracking!,
-                ),
+        customizeEntry: result.trackingEntryMutation,
         notify: false,
       );
     }

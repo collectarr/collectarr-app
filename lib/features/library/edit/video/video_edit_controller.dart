@@ -371,11 +371,6 @@ class VideoEditController {
     if (!isVideoKind) {
       return selection;
     }
-    final updatedTracking = selection.tracking?.copyWith(
-      seasonNumber: int.tryParse(seasonNumberController.text),
-      episodeNumber: int.tryParse(episodeNumberController.text),
-      episodeRatings: episodeRatings.isEmpty ? null : episodeRatings,
-    );
     final parsedGenres = genresEditController.text
         .split(RegExp(r'[,\r\n]+'))
         .map((s) => s.trim())
@@ -479,7 +474,7 @@ class VideoEditController {
       item: updatedItem,
       personal: selection.personal,
       wishlist: selection.wishlist,
-      tracking: updatedTracking ?? selection.tracking,
+      tracking: selection.tracking,
       customFieldEdits: selection.customFieldEdits,
       itemImageEdits: selection.itemImageEdits,
       submitAction: selection.submitAction,
