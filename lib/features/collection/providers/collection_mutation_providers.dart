@@ -36,6 +36,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracki
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 
 final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));
@@ -164,6 +165,9 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
     trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
+    typedOwnedItems: CollectarrOwnedItemPersistence(
+      ref.watch(localDatabaseProvider),
+    ),
     userId: auth.userId,
     userEmail: auth.email,
   );

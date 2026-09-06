@@ -133,6 +133,9 @@ void main() {
     expect(comicDetails.gradingCompany, 'CGC');
     expect(comicDetails.certificationNumber, 'CGC-12345');
     expect(comicDetails.coverPriceCents, 499);
+    final typedComicRows = await db.select(db.comicOwnedItemsRows).get();
+    expect(typedComicRows, hasLength(1));
+    expect(typedComicRows.single.itemId, 'comic-cmd-1');
   });
 
   test(
