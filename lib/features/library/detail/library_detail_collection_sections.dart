@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -75,9 +74,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
         ? ''
         : formatMoney(totalMarketValueCents, totalsCurrency);
     final trackingStatus =
-        trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
-            ? ownedItem?.readStatus
-            : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
+        trackingEntry?.statusStorageValue ?? ownedItem?.readStatus;
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     final trackingProgress = _detailTrackingProgressLabel(trackingEntry);
     return LibraryDetailSection(

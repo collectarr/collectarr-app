@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -89,9 +88,7 @@ class InspectorPersonalSection extends StatelessWidget {
     );
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     final trackingStatus =
-        trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
-            ? ownedItem?.readStatus
-            : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
+        trackingEntry?.statusStorageValue ?? ownedItem?.readStatus;
     final trackingStartedAt = trackingEntry?.startedAt ?? ownedItem?.startedAt;
     final trackingFinishedAt =
         trackingEntry?.finishedAt ?? ownedItem?.finishedAt;

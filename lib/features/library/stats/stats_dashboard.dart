@@ -585,8 +585,8 @@ class _TrackingStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final counts = <String, int>{};
     for (final entry in entries) {
-      final status = entry.ownedItem?.readStatus?.trim();
-      if (status != null && status.isNotEmpty) {
+      final status = entry.tracking.statusLabel.trim();
+      if (status.isNotEmpty) {
         counts[status] = (counts[status] ?? 0) + 1;
       }
     }
