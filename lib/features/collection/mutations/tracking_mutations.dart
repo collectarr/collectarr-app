@@ -289,8 +289,6 @@ final class TrackingMutations {
     int? progressTotal,
     int? timesCompleted,
     int? seasonNumber,
-    int? episodeNumber,
-    Map<String, int>? episodeRatings,
     bool allowEmpty = false,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
@@ -331,8 +329,6 @@ final class TrackingMutations {
           progressTotal: progressTotal,
           timesCompleted: timesCompleted,
           seasonNumber: seasonNumber,
-          episodeNumber: episodeNumber,
-          episodeRatings: episodeRatings,
           updatedAt: now,
         );
         await trackingEntries.upsert(entry);
