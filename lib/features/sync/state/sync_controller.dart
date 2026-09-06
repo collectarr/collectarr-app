@@ -13,17 +13,17 @@ import 'package:collectarr_app/features/sync/data/sync_repository.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 
 final syncControllerProvider =
-    StateNotifierProvider<SyncController, SyncState>((ref) {
-  return SyncController(ref)..refreshPendingCount();
-});
+    NotifierProvider<SyncController, SyncState>(SyncController.new);
 
-class SyncController extends StateNotifier<SyncState> {
-  SyncController(this.ref) : super(SyncIdle());
+class SyncController extends Notifier<SyncState> {
+  @override
+  SyncState build() {
+    unawaited(refreshPendingCount());
+    return SyncIdle();
+  }
 
-  final Ref ref;
   bool _onlineFirstSyncQueued = false;
 
   late final SyncRepository _repo = ref.read(syncRepositoryProvider);
@@ -81,7 +81,7 @@ class SyncController extends StateNotifier<SyncState> {
         ),
       );
 
-      if (!mounted) return;
+      if (!ref.mounted) return;
       // --- Success: enter SyncIdle ---
       state = SyncIdle(
         pendingCount: count,
@@ -106,7 +106,7 @@ class SyncController extends StateNotifier<SyncState> {
             );
       } catch (_) {}
 
-      if (!mounted) return;
+      if (!ref.mounted) return;
 
       int count = 0;
       try {
@@ -121,7 +121,7 @@ class SyncController extends StateNotifier<SyncState> {
         ),
       );
 
-      if (!mounted) return;
+      if (!ref.mounted) return;
 
       // --- Failure: enter SyncFailure ---
       state = SyncFailure(
@@ -205,7 +205,7 @@ class SyncController extends StateNotifier<SyncState> {
   }
 
   List<SyncLogEntry> _appendLog(SyncLogEntry entry) {
-    if (!mounted) return const [];
+    if (!ref.mounted) return const [];
     final log = [...state.syncLog, entry];
     if (log.length > _maxLogEntries) {
       return log.sublist(log.length - _maxLogEntries);

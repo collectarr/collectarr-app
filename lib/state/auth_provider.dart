@@ -8,7 +8,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _authTokenKey = 'collectarr.auth.token';
@@ -71,18 +70,20 @@ class AuthState {
   }
 }
 
-class AuthController extends StateNotifier<AuthState> {
-  AuthController(this.ref) : super(const AuthState(isRestoring: true)) {
-    _startRestoreSession();
-  }
+class AuthController extends Notifier<AuthState> {
+  AuthController();
 
-  final Ref ref;
+  @override
+  AuthState build() {
+    unawaited(_startRestoreSession());
+    return const AuthState(isRestoring: true);
+  }
 
   Future<void> _startRestoreSession() async {
     try {
       await _restoreSession().timeout(_authRestoreTimeout);
     } on TimeoutException catch (error, stackTrace) {
-      if (!mounted) {
+      if (!ref.mounted) {
         return;
       }
       logRecoverableError(
@@ -271,7 +272,7 @@ class AuthController extends StateNotifier<AuthState> {
         state = AuthState(userId: userId, email: email);
       }
     } catch (error) {
-      if (!mounted) {
+      if (!ref.mounted) {
         return;
       }
       ref.read(apiAuthTokenProvider.notifier).set(null);
@@ -452,6 +453,4 @@ String _cleanError(String? message) {
 }
 
 final authControllerProvider =
-    StateNotifierProvider<AuthController, AuthState>((ref) {
-  return AuthController(ref);
-});
+    NotifierProvider<AuthController, AuthState>(AuthController.new);

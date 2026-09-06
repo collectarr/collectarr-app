@@ -33,11 +33,11 @@ String _jwtExpiringAt(DateTime exp) {
 }
 
 class _AuthenticatedAuthController extends AuthController {
-  _AuthenticatedAuthController(super.ref);
+  _AuthenticatedAuthController();
 }
 
 class _NoOpSyncController extends SyncController {
-  _NoOpSyncController(super.ref);
+  _NoOpSyncController();
 
   @override
   Future<void> syncOnlineFirstIfEnabled() async {}
@@ -62,10 +62,10 @@ Widget _smokeApp({List<Override> overrides = const []}) {
 List<Override> _testOverrides() {
   return [
     authControllerProvider.overrideWith(
-      (ref) => _AuthenticatedAuthController(ref),
+      () => _AuthenticatedAuthController(),
     ),
     syncControllerProvider.overrideWith(
-      (ref) => _NoOpSyncController(ref),
+      () => _NoOpSyncController(),
     ),
     shelfProvider.overrideWith(
       (ref) async => const ShelfState(

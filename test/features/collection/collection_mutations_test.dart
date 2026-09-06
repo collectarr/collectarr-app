@@ -111,7 +111,7 @@ void main() {
       overrides: [
         localDatabaseProvider.overrideWithValue(db),
         authControllerProvider.overrideWith(
-          (ref) => _OwnedItemAuthController(ref),
+          () => _OwnedItemAuthController(),
         ),
       ],
     );
@@ -145,7 +145,7 @@ void main() {
       overrides: [
         localDatabaseProvider.overrideWithValue(db),
         syncControllerProvider.overrideWith(
-          (ref) => syncController = _SpySyncController(ref),
+          () => syncController = _SpySyncController(),
         ),
       ],
     );
@@ -1321,17 +1321,18 @@ void main() {
 }
 
 class _OwnedItemAuthController extends AuthController {
-  _OwnedItemAuthController(super.ref) {
-    state = const AuthState(
-      token: 'test-token',
-      userId: 'user-1',
-      email: 'owner@example.com',
-    );
-  }
+  _OwnedItemAuthController();
+
+  @override
+  AuthState build() => const AuthState(
+        token: 'test-token',
+        userId: 'user-1',
+        email: 'owner@example.com',
+      );
 }
 
 class _SpySyncController extends SyncController {
-  _SpySyncController(super.ref);
+  _SpySyncController();
 
   int syncNowRequests = 0;
 

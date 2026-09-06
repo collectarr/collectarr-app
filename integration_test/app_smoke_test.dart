@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+import 'package:collectarr_app/features/sync/state/sync_state.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,11 +41,14 @@ String _jwtExpiringAt(DateTime exp) {
 }
 
 class _AuthenticatedAuthController extends AuthController {
-  _AuthenticatedAuthController(super.ref);
+  _AuthenticatedAuthController();
 }
 
 class _NoOpSyncController extends SyncController {
-  _NoOpSyncController(super.ref);
+  _NoOpSyncController();
+
+  @override
+  SyncState build() => SyncState();
 
   @override
   Future<void> syncOnlineFirstIfEnabled() async {}
@@ -69,10 +73,10 @@ Widget _integrationApp({List<Override> overrides = const []}) {
 List<Override> _testOverrides() {
   return [
     authControllerProvider.overrideWith(
-      (ref) => _AuthenticatedAuthController(ref),
+      () => _AuthenticatedAuthController(),
     ),
     syncControllerProvider.overrideWith(
-      (ref) => _NoOpSyncController(ref),
+      () => _NoOpSyncController(),
     ),
     shelfProvider.overrideWith(
       (ref) async => const ShelfState(
@@ -94,10 +98,11 @@ List<Override> _testOverrides() {
 }
 
 void _mockAuthPreferences() {
+  final token = _jwtExpiringAt(
+    DateTime.now().toUtc().add(const Duration(hours: 1)),
+  );
+  setSecureStorageValue('collectarr.auth.token', token);
   SharedPreferences.setMockInitialValues({
-    'collectarr.auth.token': _jwtExpiringAt(
-      DateTime.now().toUtc().add(const Duration(hours: 1)),
-    ),
     'collectarr.auth.email': 'test@example.com',
     'collectarr.auth.is_admin': true,
   });

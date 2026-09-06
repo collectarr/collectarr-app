@@ -67,10 +67,10 @@ void main() {
       _shellTestApp(
         overrides: [
           authControllerProvider.overrideWith(
-            (ref) => _AuthenticatedAuthController(ref),
+            () => _AuthenticatedAuthController(),
           ),
           syncControllerProvider.overrideWith(
-            (ref) => syncController = _SpySyncController(ref),
+            () => syncController = _SpySyncController(),
           ),
           shelfProvider.overrideWith(
             (ref) async => const ShelfState(
@@ -113,7 +113,7 @@ void main() {
       _shellTestApp(
         overrides: [
           authControllerProvider.overrideWith(
-            (ref) => _AuthenticatedAuthController(ref),
+            () => _AuthenticatedAuthController(),
           ),
           ..._baseShellOverrides(),
         ],
@@ -149,14 +149,14 @@ void main() {
       _shellTestApp(
         overrides: [
           authControllerProvider.overrideWith(
-            (ref) => _AuthenticatedAuthController(ref),
+            () => _AuthenticatedAuthController(),
           ),
           selectedLibraryKindProvider
               .overrideWith(() => _FixedLibraryKind('comic')),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           syncControllerProvider.overrideWith(
-            (ref) => _StaticSyncController(ref, SyncState()),
+            () => _StaticSyncController(SyncState()),
           ),
           shelfProvider.overrideWith(
             (ref) async => const ShelfState(
@@ -208,7 +208,7 @@ void main() {
       _shellTestApp(
         overrides: [
           authControllerProvider.overrideWith(
-            (ref) => _AuthenticatedAuthController(ref),
+            () => _AuthenticatedAuthController(),
           ),
           ..._baseShellOverrides(),
         ],
@@ -246,7 +246,7 @@ void main() {
       _shellTestApp(
         overrides: [
           authControllerProvider.overrideWith(
-            (ref) => _AuthenticatedAuthController(ref),
+            () => _AuthenticatedAuthController(),
           ),
           localDatabaseProvider.overrideWithValue(db),
           ..._baseShellOverrides(),
@@ -278,7 +278,7 @@ void main() {
       _shellTestApp(
         overrides: [
           authControllerProvider.overrideWith(
-            (ref) => _AuthenticatedAuthController(ref),
+            () => _AuthenticatedAuthController(),
           ),
           ..._baseShellOverrides(),
         ],
@@ -293,10 +293,11 @@ void main() {
 
   testWidgets('app shell shows admin destination for admin accounts',
       (tester) async {
+    final token = _jwtExpiringAt(
+      DateTime.now().toUtc().add(const Duration(hours: 1)),
+    );
+    setSecureStorageValue('collectarr.auth.token', token);
     SharedPreferences.setMockInitialValues({
-      'collectarr.auth.token': _jwtExpiringAt(
-        DateTime.now().toUtc().add(const Duration(hours: 1)),
-      ),
       'collectarr.auth.email': 'admin@example.com',
       'collectarr.auth.is_admin': true,
     });
@@ -306,7 +307,7 @@ void main() {
       _shellTestApp(
         overrides: [
           authControllerProvider.overrideWith(
-            (ref) => _AuthenticatedAuthController(ref),
+            () => _AuthenticatedAuthController(),
           ),
           ..._baseShellOverrides(),
         ],
@@ -343,7 +344,7 @@ void main() {
       _shellTestApp(
         overrides: [
           authControllerProvider.overrideWith(
-            (ref) => _AuthenticatedAuthController(ref),
+            () => _AuthenticatedAuthController(),
           ),
           ..._baseShellOverrides(),
         ],
@@ -377,7 +378,7 @@ void main() {
       _shellTestApp(
         overrides: [
           authControllerProvider.overrideWith(
-            (ref) => _AuthenticatedAuthController(ref),
+            () => _AuthenticatedAuthController(),
           ),
           ..._baseShellOverrides(),
         ],
@@ -393,7 +394,7 @@ void main() {
 List<Override> _baseShellOverrides() {
   return [
     syncControllerProvider.overrideWith(
-      (ref) => _StaticSyncController(ref, SyncState()),
+      () => _StaticSyncController(SyncState()),
     ),
     shelfProvider.overrideWith(
       (ref) async => const ShelfState(
@@ -427,9 +428,12 @@ String _base64UrlJson(Map<String, Object> value) {
 }
 
 class _StaticSyncController extends SyncController {
-  _StaticSyncController(super.ref, SyncState initial) {
-    state = initial;
-  }
+  _StaticSyncController(this.initial);
+
+  final SyncState initial;
+
+  @override
+  SyncState build() => initial;
 
   @override
   Future<void> refreshPendingCount() async {}
@@ -439,7 +443,7 @@ class _StaticSyncController extends SyncController {
 }
 
 class _SpySyncController extends _StaticSyncController {
-  _SpySyncController(Ref ref) : super(ref, SyncState());
+  _SpySyncController() : super(SyncState());
 
   int onlineFirstRequests = 0;
 
@@ -449,11 +453,9 @@ class _SpySyncController extends _StaticSyncController {
   }
 }
 
-/// Auth controller that relies on [SharedPreferences.setMockInitialValues]
-/// being called with a valid JWT before construction.  The parent's private
-/// [_restoreSession] reads the mocked prefs and transitions to authenticated.
+/// Auth controller that restores a valid JWT from the mocked secure storage.
 class _AuthenticatedAuthController extends AuthController {
-  _AuthenticatedAuthController(super.ref);
+  _AuthenticatedAuthController();
 }
 
 class _FixedLibraryKind extends SelectedLibraryKind {

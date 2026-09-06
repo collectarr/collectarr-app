@@ -23,15 +23,10 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -1213,8 +1208,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1269,8 +1263,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1374,8 +1367,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1430,8 +1422,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1484,8 +1475,7 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           providerRegistryProvider
               .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1532,7 +1522,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => TestAdminAuthController(ref),
+            () => TestAdminAuthController(),
           ),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
@@ -1587,7 +1577,7 @@ void main() {
             },
           ),
           authControllerProvider.overrideWith(
-            (ref) => TestAdminAuthController(ref),
+            () => TestAdminAuthController(),
           ),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
@@ -1647,7 +1637,7 @@ void main() {
             },
           ),
           authControllerProvider.overrideWith(
-            (ref) => TestAdminAuthController(ref),
+            () => TestAdminAuthController(),
           ),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
@@ -1696,8 +1686,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1750,8 +1739,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1815,8 +1803,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -2089,8 +2076,7 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           providerRegistryProvider
               .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),

@@ -45,7 +45,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => _AdminAuthController(ref),
+            () => _AdminAuthController(),
           ),
         ],
         child: const MaterialApp(home: AdminPage()),
@@ -278,7 +278,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => _AdminAuthController(ref),
+            () => _AdminAuthController(),
           ),
         ],
         child: const MaterialApp(home: AdminPage()),
@@ -500,7 +500,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => _AdminAuthController(ref),
+            () => _AdminAuthController(),
           ),
         ],
         child: const MaterialApp(home: AdminPage()),
@@ -546,7 +546,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => _AdminAuthController(ref),
+            () => _AdminAuthController(),
           ),
         ],
         child: const MaterialApp(home: AdminPage()),
@@ -621,13 +621,14 @@ Future<void> _tapPreviewSaveCorrection(
 }
 
 class _AdminAuthController extends AuthController {
-  _AdminAuthController(super.ref) {
-    state = const AuthState(
-      token: 'test-token',
-      email: 'admin@example.com',
-      isAdmin: true,
-    );
-  }
+  _AdminAuthController();
+
+  @override
+  AuthState build() => const AuthState(
+        token: 'test-token',
+        email: 'admin@example.com',
+        isAdmin: true,
+      );
 }
 
 class _FakeAdminApiClient extends ApiClient {

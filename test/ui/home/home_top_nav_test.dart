@@ -80,7 +80,7 @@ void main() {
       ProviderScope(
         overrides: [
           syncControllerProvider.overrideWith(
-            (ref) => _FakeSyncController(ref),
+            () => _FakeSyncController(),
           ),
         ],
         child: MaterialApp(
@@ -111,5 +111,5 @@ void main() {
 }
 
 class _FakeSyncController extends SyncController {
-  _FakeSyncController(super.ref);
+  _FakeSyncController();
 }

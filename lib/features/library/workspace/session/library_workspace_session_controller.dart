@@ -7,29 +7,29 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_key.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'library_workspace_session_state.dart';
 
 /// Single source of truth managing all library workspace session UI state.
 class LibraryWorkspaceSessionController
-    extends StateNotifier<LibraryWorkspaceSessionState> {
-  LibraryWorkspaceSessionController([this._key])
-      : super(const LibraryWorkspaceSessionState()) {
-    if (_key != null) {
-      _initDefaults();
-    }
-  }
+    extends Notifier<LibraryWorkspaceSessionState> {
+  LibraryWorkspaceSessionController(this._key);
 
-  final LibraryWorkspaceKey? _key;
+  final LibraryWorkspaceKey _key;
+
+  @override
+  LibraryWorkspaceSessionState build() {
+    return _defaultState();
+  }
 
   LibraryWorkspaceSessionState get value => state;
 
-  void _initDefaults() {
-    if (_key == null) return;
+  LibraryWorkspaceSessionState _defaultState() {
     final module = libraryKindRuntimeForKind(_key.kind);
-    state = state.copyWith(
-      filters: state.filters.copyWith(
+    final initial = const LibraryWorkspaceSessionState();
+    return initial.copyWith(
+      filters: const LibrarySessionFilterState().copyWith(
         groupId: () => module.fields.defaultGroup,
         sortId: () => module.fields.defaultSort,
         visibleColumnIds: module.fields.defaultVisibleColumns.toSet(),
@@ -145,28 +145,11 @@ class LibraryWorkspaceSessionController
   }
 
   void resetFilters() {
-    if (_key != null) {
-      final module = libraryKindRuntimeForKind(_key.kind);
-      state = state.copyWith(
-        filters: LibrarySessionFilterState(
-          groupId: module.fields.defaultGroup,
-          sortId: module.fields.defaultSort,
-          visibleColumnIds: module.fields.defaultVisibleColumns.toSet(),
-          presentationLevelId: _key.presentationLevelId,
-        ),
-      );
-    } else {
-      state = state.copyWith(
-        filters: const LibrarySessionFilterState(),
-      );
-    }
+    state = state.copyWith(filters: _defaultState().filters);
   }
 
   void reset() {
-    state = const LibraryWorkspaceSessionState();
-    if (_key != null) {
-      _initDefaults();
-    }
+    state = _defaultState();
   }
 
   // ── View Actions ───────────────────────────────────────────────────────────
@@ -526,9 +509,6 @@ class LibraryWorkspaceSessionController
   }
 
   void applyColumnPreset(LibraryTableColumnPreset preset) {
-    if (_key == null) {
-      return;
-    }
     final fields = libraryKindRuntimeForKind(_key.kind).fields;
     setVisibleColumns({
       for (final column in preset.columns) fields.decodeColumnId(column),
@@ -610,9 +590,7 @@ class LibraryWorkspaceSessionController
 }
 
 /// Provider for the unified library workspace session controller.
-final libraryWorkspaceSessionProvider = StateNotifierProvider.family<
+final libraryWorkspaceSessionProvider = NotifierProvider.family<
     LibraryWorkspaceSessionController,
     LibraryWorkspaceSessionState,
-    LibraryWorkspaceKey>((ref, LibraryWorkspaceKey key) {
-  return LibraryWorkspaceSessionController(key);
-});
+    LibraryWorkspaceKey>(LibraryWorkspaceSessionController.new);
