@@ -187,7 +187,6 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
   bool _matchesQuery(_ReadingQueueDialogEntry entry, String query) {
     final fields = [
       entry.label,
-      entry.catalogItem.payload['publisher']?.toString(),
       entry.trackingEntry?.statusStorageValue,
       entry.ownedItem.personalNotes,
     ];
@@ -245,7 +244,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.search),
                           labelText: 'Filter queue',
-                          hintText: 'Title, publisher, status, notes',
+                          hintText: 'Title, status, notes',
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -282,14 +281,6 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                 itemBuilder: (context, index) {
                                   final entry = filteredEntries[index];
                                   final details = <String>[];
-                                  final publisher = entry
-                                      .catalogItem.payload['publisher']
-                                      ?.toString()
-                                      .trim();
-                                  if (publisher != null &&
-                                      publisher.isNotEmpty) {
-                                    details.add(publisher);
-                                  }
                                   final readStatus = entry
                                       .trackingEntry?.statusStorageValue
                                       ?.trim();
