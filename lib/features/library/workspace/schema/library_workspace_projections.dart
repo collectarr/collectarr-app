@@ -116,6 +116,7 @@ class PersonalCopyProjection {
     this.isTracked = false,
     this.condition,
     this.locationPath,
+    this.trackingStatus,
     this.rating,
     this.pricePaidCents,
     this.addedAt,
@@ -137,6 +138,7 @@ class PersonalCopyProjection {
       isTracked: releaseState?.isTracked ?? source.isTracked,
       condition: owned?.condition,
       locationPath: owned?.locationId,
+      trackingStatus: tracking?.statusStorageValue ?? owned?.readStatus,
       rating: tracking?.rating ?? owned?.rating,
       pricePaidCents: owned?.pricePaidCents,
       addedAt: owned?.createdAt,
@@ -152,6 +154,7 @@ class PersonalCopyProjection {
   final bool isTracked;
   final String? condition;
   final String? locationPath;
+  final String? trackingStatus;
   final int? rating;
   final int? pricePaidCents;
   final DateTime? addedAt;

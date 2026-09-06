@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -68,6 +69,7 @@ void main() {
           entityType: CatalogEntityType.work,
           id: 'book-1',
         ),
+        status: MediaTrackingStatus.inProgress,
         rating: 8,
         updatedAt: DateTime.utc(2026, 1, 2),
         deletedAt: null,
@@ -75,5 +77,9 @@ void main() {
     );
 
     expect(PersonalCopyProjection.fromShelf(source).rating, 8);
+    expect(
+      PersonalCopyProjection.fromShelf(source).trackingStatus,
+      'In progress',
+    );
   });
 }

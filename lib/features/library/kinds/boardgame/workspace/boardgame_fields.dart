@@ -90,7 +90,7 @@ abstract final class BoardGameKindSchema {
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -443,8 +443,7 @@ final boardgameLibraryColumnDefinitions = [
     id: BoardGameFieldIds.rating,
     label: 'Rating',
     getValue: BoardGameKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(

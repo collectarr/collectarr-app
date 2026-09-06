@@ -92,7 +92,7 @@ abstract final class TvKindSchema {
   static final rating = LibraryFieldDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -123,7 +123,7 @@ abstract final class TvKindSchema {
       LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.watchStatus,
     label: 'Watch Status',
-    getValue: (context) => context.source.ownedItem?.readStatus,
+    getValue: (context) => context.dto.personal.trackingStatus,
     scope: LibraryFieldScope.copy,
   );
 
@@ -366,8 +366,7 @@ final tvLibraryColumnDefinitions = [
     id: TvFieldIds.rating,
     label: 'Rating',
     getValue: TvKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<TvKind, TvWorkspaceDto, String?>(

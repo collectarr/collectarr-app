@@ -103,7 +103,7 @@ abstract final class BookKindSchema {
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
     id: BookFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -135,7 +135,7 @@ abstract final class BookKindSchema {
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.readStatus,
     label: 'Read Status',
-    getValue: (context) => context.source.ownedItem?.readStatus,
+    getValue: (context) => context.dto.personal.trackingStatus,
     scope: LibraryFieldScope.copy,
   );
 
@@ -424,7 +424,7 @@ final bookLibraryColumnDefinitions = [
     id: BookFieldIds.readStatus,
     label: 'Read Status',
     getValue: BookKindSchema.readStatus.getValue,
-    cellValue: (context) => Text(context.source.ownedItem?.readStatus ?? ''),
+    cellValue: (context) => Text(context.dto.personal.trackingStatus ?? ''),
     group: 'Personal',
     defaultWidth: 100,
   ),
@@ -432,8 +432,7 @@ final bookLibraryColumnDefinitions = [
     id: BookFieldIds.rating,
     label: 'Rating',
     getValue: BookKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     group: 'Personal',
     defaultWidth: 80,
   ),

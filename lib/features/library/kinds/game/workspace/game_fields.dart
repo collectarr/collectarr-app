@@ -96,7 +96,7 @@ abstract final class GameKindSchema {
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
     id: GameFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -443,8 +443,7 @@ final gameLibraryColumnDefinitions = [
     id: GameFieldIds.rating,
     label: 'Rating',
     getValue: GameKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(

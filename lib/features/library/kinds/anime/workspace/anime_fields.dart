@@ -89,7 +89,7 @@ abstract final class AnimeKindSchema {
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
     id: AnimeFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -121,7 +121,7 @@ abstract final class AnimeKindSchema {
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.watchStatus,
     label: 'Watch Status',
-    getValue: (context) => context.source.ownedItem?.readStatus,
+    getValue: (context) => context.dto.personal.trackingStatus,
     scope: LibraryFieldScope.copy,
   );
 
@@ -391,8 +391,7 @@ final animeLibraryColumnDefinitions = [
     id: AnimeFieldIds.rating,
     label: 'Rating',
     getValue: AnimeKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(

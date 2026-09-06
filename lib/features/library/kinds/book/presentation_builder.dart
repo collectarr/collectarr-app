@@ -288,6 +288,7 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final source = item.source;
+    final rating = source.trackingEntry?.rating ?? source.ownedItem?.rating;
     final personalFacts = <LibraryDetailField>[
       if (source.condition?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Condition', value: source.condition!.trim()),
@@ -297,9 +298,8 @@ class BookLibraryMediaPresentationBuilder
         LibraryDetailField(
             label: 'Collection Status',
             value: source.ownedItem!.collectionStatus!.trim()),
-      if (source.ownedItem?.rating != null)
-        LibraryDetailField(
-            label: 'Rating', value: source.ownedItem!.rating!.toString()),
+      if (rating != null)
+        LibraryDetailField(label: 'Rating', value: rating.toString()),
       if (source.locationPath?.trim().isNotEmpty == true)
         LibraryDetailField(
             label: 'Location', value: source.locationPath!.trim()),

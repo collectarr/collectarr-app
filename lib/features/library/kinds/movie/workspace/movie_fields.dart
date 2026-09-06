@@ -89,7 +89,7 @@ abstract final class MovieKindSchema {
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
     id: MovieFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -127,7 +127,7 @@ abstract final class MovieKindSchema {
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.watchStatus,
     label: 'Watch Status',
-    getValue: (context) => context.source.ownedItem?.readStatus,
+    getValue: (context) => context.dto.personal.trackingStatus,
     scope: LibraryFieldScope.copy,
   );
 
@@ -439,8 +439,7 @@ final movieLibraryColumnDefinitions = [
     id: MovieFieldIds.rating,
     label: 'Rating',
     getValue: MovieKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, num?>(

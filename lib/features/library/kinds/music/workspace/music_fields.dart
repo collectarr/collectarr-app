@@ -96,7 +96,7 @@ abstract final class MusicKindSchema {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
     id: MusicFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -370,8 +370,7 @@ final musicLibraryColumnDefinitions = [
     id: MusicFieldIds.rating,
     label: 'Rating',
     getValue: MusicKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<MusicKind, MusicWorkspaceDto, String?>(
