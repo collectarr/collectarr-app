@@ -66,6 +66,53 @@ void main() {
         reason: 'Incomplete typed tracking-unit seed data for ${entry.key}',
       );
     }
+    final comicTrackingUnits = await db.select(db.comicTrackingUnitRows).get();
+    expect(
+      comicTrackingUnits
+          .every((row) => row.issueNumber?.trim().isNotEmpty == true),
+      isTrue,
+      reason: 'Comic tracking units must retain issue coordinates',
+    );
+    final mangaTrackingUnits = await db.select(db.mangaTrackingUnitRows).get();
+    expect(
+      mangaTrackingUnits.every(
+        (row) => row.chapterNumber != null && row.chapterNumber! > 0,
+      ),
+      isTrue,
+      reason: 'Manga tracking units must retain chapter coordinates',
+    );
+    final bookTrackingUnits = await db.select(db.bookTrackingUnitRows).get();
+    expect(
+      bookTrackingUnits.every(
+        (row) => row.volumeNumber != null && row.volumeNumber! > 0,
+      ),
+      isTrue,
+      reason: 'Book tracking units must retain volume coordinates',
+    );
+    final tvTrackingUnits = await db.select(db.tvTrackingUnitRows).get();
+    expect(
+      tvTrackingUnits.every(
+        (row) =>
+            row.seasonNumber != null &&
+            row.seasonNumber! > 0 &&
+            row.episodeNumber != null &&
+            row.episodeNumber! > 0,
+      ),
+      isTrue,
+      reason: 'TV tracking units must retain season/episode coordinates',
+    );
+    final animeTrackingUnits = await db.select(db.animeTrackingUnitRows).get();
+    expect(
+      animeTrackingUnits.every(
+        (row) =>
+            row.seasonNumber != null &&
+            row.seasonNumber! > 0 &&
+            row.episodeNumber != null &&
+            row.episodeNumber! > 0,
+      ),
+      isTrue,
+      reason: 'Anime tracking units must retain season/episode coordinates',
+    );
     for (final entry in devSeedAuxiliaryMinimumCounts.entries) {
       expect(
         auxiliaryCounts[entry.key],
