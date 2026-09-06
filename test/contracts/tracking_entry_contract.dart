@@ -65,6 +65,31 @@ void defineTrackingEntryContract({
           '$name tracking completion count must round-trip',
         );
 
+        final genericFallback = TrackingEntry.fromJson({
+          ...entry.toSyncPayload(),
+          'id': entry.id,
+          'season_number': 9,
+          'episode_number': 9,
+          'episode_ratings': {'9:9': 10},
+          'updated_at': entry.updatedAt.toIso8601String(),
+          'deleted_at': entry.deletedAt?.toIso8601String(),
+        });
+        expectSame(
+          genericFallback.seasonNumber,
+          null,
+          '$name generic tracking fallback must not parse season coordinates',
+        );
+        expectSame(
+          genericFallback.episodeNumber,
+          null,
+          '$name generic tracking fallback must not parse episode coordinates',
+        );
+        expectSame(
+          genericFallback.episodeRatings,
+          const <String, int>{},
+          '$name generic tracking fallback must not parse episode ratings',
+        );
+
         final completed = entry.copyWith(
           status: MediaTrackingStatus.completed,
           finishedAt: DateTime.utc(2026, 3, 4),

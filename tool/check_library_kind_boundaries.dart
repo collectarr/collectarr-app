@@ -184,6 +184,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/collection/mutations/collection_import_service.dart',
     'lib/features/collection/mutations/owned_item_mutations.dart',
     'lib/features/collection/mutations/tracking_mutations.dart',
+    // Generic tracking fallback is a lifecycle-only sync serialization
+    // boundary; episodic fields are interpreted only by owning kind codecs.
+    'lib/core/models/tracking_entry.dart',
     'lib/features/collection/mutations/wishlist_mutations.dart',
     'lib/features/collection/repositories/custom_field_repository.dart',
     'lib/features/collection/repositories/shelf_controller.dart',
