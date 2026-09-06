@@ -50,3 +50,20 @@ final class MovieReleaseMediaId {
   @override
   String toString() => value;
 }
+
+@immutable
+final class MovieOwnedItemId {
+  const MovieOwnedItemId(this.value);
+
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is MovieOwnedItemId && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}

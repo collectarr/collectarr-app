@@ -263,6 +263,20 @@ void main() {
     expect(comicOwnedRows.every((row) => row.itemId.startsWith('seed-comic-')),
         isTrue);
 
+    final movieOwnedRows = await db.select(db.movieOwnedItemsRows).get();
+    expect(movieOwnedRows, hasLength(15));
+    expect(
+      movieOwnedRows.every(
+        (row) =>
+            row.itemId.startsWith('seed-movie-') &&
+            row.region?.trim().isNotEmpty == true &&
+            row.packaging?.trim().isNotEmpty == true &&
+            row.distributor?.trim().isNotEmpty == true,
+      ),
+      isTrue,
+      reason: 'Movie seed copies must retain complete typed ownership data',
+    );
+
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows
