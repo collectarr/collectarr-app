@@ -93,9 +93,8 @@ class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
       : super(executor ?? openConnection());
 
-  /// The application is pre-release. The current complete schema is created
-  /// as version 1; upgrade paths will be introduced only with the first full
-  /// release.
+  /// Version 1 is the complete pre-release schema. New installations create
+  /// the full table set directly.
   @override
   int get schemaVersion => 1;
 

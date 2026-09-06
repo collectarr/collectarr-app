@@ -24,7 +24,7 @@ abstract interface class LibraryCollectionCsvProjection {
 
   bool catalogMatchesBarcode(CatalogItem item, String normalizedBarcode);
 
-  /// The complete CLZ-compatible header for a single-kind export.
+  /// The complete CLZ header for a single-kind export.
 
   ///
   /// A null value means that the generic host should keep its transitional

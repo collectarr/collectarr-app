@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Anime-owned aliases for the legacy collection CSV boundary.
+/// Anime-owned aliases for the collection CSV boundary.
 final class AnimeCollectionCsvImportProfile {
   const AnimeCollectionCsvImportProfile();
 

@@ -116,14 +116,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
   LibraryGroupDefinition<dynamic, TDto, Object?>? findGroupDefinition(
       LibraryGroupIdRuntime id) {
-    final raw = id.value;
-    var normalized = raw.trim();
-    if (normalized.startsWith('group.')) {
-      normalized = normalized.substring(6);
-    }
-    final direct = _findGroupDefinitionByValue(normalized);
-    if (direct != null) return direct;
-    return null;
+    return _findGroupDefinitionByValue(id.value);
   }
 
   int compareEntries(
@@ -149,16 +142,14 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   LibrarySortIdRuntime decodeSortId(String raw) {
     final direct = _findSortDefinitionByValue(raw);
     if (direct != null) return direct.id;
-    final decoded = preferenceCodec.decodeSort(raw);
-    final def =
-        decoded == null ? null : _findSortDefinitionByValue(decoded.value);
-    if (def != null) return def.id;
     return DynamicLibrarySortId(raw);
   }
 
   LibraryGroupIdRuntime decodeGroupId(String raw) {
-    final normalized =
-        raw.trim().startsWith('group.') ? raw.trim().substring(6) : raw.trim();
+    final trimmed = raw.trim();
+    final normalized = trimmed.startsWith('group.')
+        ? trimmed.substring('group.'.length)
+        : trimmed;
     final sharedGroup = switch (normalized) {
       'title' => LibraryStandardGroupIds.title,
       'location' => LibraryStandardGroupIds.location,
@@ -172,20 +163,12 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     }
     final direct = _findGroupDefinitionByValue(normalized);
     if (direct != null) return direct.id;
-    final decoded = preferenceCodec.decodeGroup(normalized);
-    final def =
-        decoded == null ? null : _findGroupDefinitionByValue(decoded.value);
-    if (def != null) return def.id;
     return DynamicLibraryGroupId(raw);
   }
 
   LibraryFieldIdRuntime decodeColumnId(String raw) {
     final direct = _findColumnDefinitionByValue(raw);
     if (direct != null) return direct.id;
-    final decoded = preferenceCodec.decodeColumn(raw);
-    final def =
-        decoded == null ? null : _findColumnDefinitionByValue(decoded.value);
-    if (def != null) return def.id;
     return DynamicLibraryFieldId(raw);
   }
 
@@ -267,10 +250,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     for (final definition in columns) {
       if (definition.id.value == value) return definition;
     }
-    final qualifiedValue = '$kindNamespace.$value';
-    for (final definition in columns) {
-      if (definition.id.value == qualifiedValue) return definition;
-    }
     return null;
   }
 
@@ -280,10 +259,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     for (final definition in sorts) {
       if (definition.id.value == value) return definition;
     }
-    final qualifiedValue = '$kindNamespace.$value';
-    for (final definition in sorts) {
-      if (definition.id.value == qualifiedValue) return definition;
-    }
     return null;
   }
 
@@ -291,10 +266,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       String value) {
     for (final definition in groups) {
       if (definition.id.value == value) return definition;
-    }
-    final qualifiedValue = '$kindNamespace.$value';
-    for (final definition in groups) {
-      if (definition.id.value == qualifiedValue) return definition;
     }
     return null;
   }

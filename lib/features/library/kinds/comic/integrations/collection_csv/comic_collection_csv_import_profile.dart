@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 /// Typed Comic interpretation of a CSV row at the file boundary.
 ///
 /// This is intentionally not the canonical Comic media/owned model. It is a
-/// wire-format DTO used by the legacy Collection import host before the row is
-/// handed to the remaining generic mutation pipeline.
+/// wire-format DTO used by the Collection import host before the row is
+/// handed to the generic mutation pipeline.
 final class ComicCollectionCsvImportRow {
   const ComicCollectionCsvImportRow({
     required this.itemId,

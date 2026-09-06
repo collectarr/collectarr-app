@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Manga-owned aliases for the legacy collection CSV boundary.
+/// Manga-owned aliases for the collection CSV boundary.
 final class MangaCollectionCsvImportProfile {
   const MangaCollectionCsvImportProfile();
 

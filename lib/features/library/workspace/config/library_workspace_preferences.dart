@@ -279,7 +279,7 @@ class LibraryWorkspacePreferences {
       }
     }
     final titleDef = module.fields.findColumnDefinition(
-      module.fields.decodeColumnId('title'),
+      module.fields.decodeColumnId('${module.fields.kindNamespace}.title'),
     );
     if (titleDef != null) {
       columns.add(titleDef.id.value);
@@ -372,7 +372,7 @@ class LibraryWorkspacePreferences {
       }
     }
     final titleDef = module.fields.findColumnDefinition(
-      module.fields.decodeColumnId('title'),
+      module.fields.decodeColumnId('${module.fields.kindNamespace}.title'),
     );
     if (titleDef != null) {
       normalized.add(titleDef.id.value);

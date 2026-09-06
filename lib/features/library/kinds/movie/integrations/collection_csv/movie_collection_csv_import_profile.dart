@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Typed Movie interpretation of the legacy collection CSV boundary.
+/// Typed Movie interpretation of the collection CSV boundary.
 ///
-/// The generic Collection host still owns the wire row shape for backwards
-/// compatibility. This profile owns Movie's labels and the translation of
-/// those labels into the host's positional compatibility cells.
+/// The generic Collection host owns the wire row shape. This profile owns
+/// Movie's labels and the translation of those labels into the host's
+/// positional cells.
 final class MovieCollectionCsvImportRow {
   const MovieCollectionCsvImportRow({
     required this.itemId,
@@ -57,7 +57,7 @@ final class MovieCollectionCsvImportRow {
   }
 }
 
-/// Movie's CLZ-compatible labels and aliases for collection CSV import.
+/// Movie's CLZ labels and aliases for collection CSV import.
 final class MovieCollectionCsvImportProfile {
   const MovieCollectionCsvImportProfile();
 
@@ -179,8 +179,8 @@ final class MovieCollectionCsvImportProfile {
     }
 
     // A kind-less CLZ export is accepted only when it carries Movie's
-    // unambiguous Studio + UPC labels. Generic rows are left to the legacy
-    // compatibility parser or another kind-owned profile.
+    // unambiguous Studio + UPC labels. Other rows are handled by another
+    // kind-owned profile.
     final normalizedHeader = header.map(_normalizeColumn).toSet();
     return normalizedHeader.contains('studio') &&
         normalizedHeader.contains('upc_barcode');

@@ -22,28 +22,17 @@ void main() {
       expect(bookAuthorDef!.label, 'Author');
     });
 
-    test(
-        'findGroupDefinition resolves legacy preference string and group. prefix',
-        () {
-      // Legacy unprefixed
-      final comicSeriesDef = comicModule.fields.findGroupDefinition(
-        comicModule.fields.decodeGroupId('series'),
-      );
-      expect(comicSeriesDef, isNotNull);
-      expect(comicSeriesDef!.id.value, 'comic.series');
-
-      // Persisted 'group.' prefix
+    test('findGroupDefinition resolves stored canonical group ID', () {
       final comicPublisherDef = comicModule.fields.findGroupDefinition(
         comicModule.fields.decodeGroupId('group.comic.publisher'),
       );
       expect(comicPublisherDef, isNotNull);
       expect(comicPublisherDef!.id.value, 'comic.publisher');
 
-      final legacyGroupPublisherDef = comicModule.fields.findGroupDefinition(
-        comicModule.fields.decodeGroupId('group.publisher'),
+      final unqualified = comicModule.fields.findGroupDefinition(
+        comicModule.fields.decodeGroupId('publisher'),
       );
-      expect(legacyGroupPublisherDef, isNotNull);
-      expect(legacyGroupPublisherDef!.id.value, 'comic.publisher');
+      expect(unqualified, isNull);
     });
 
     test('findGroupDefinition rejects wrong-kind group ID', () {
@@ -69,7 +58,7 @@ void main() {
 
     test('libraryGroupModeFromStorageValue decodes with kind scope', () {
       final mode = libraryGroupModeFromStorageValue(
-        'group.series',
+        'group.comic.series',
         comicModule,
       );
       expect(mode, 'comic.series');
@@ -80,10 +69,6 @@ void main() {
       expect(
         libraryGroupModeFromStorageValue('group.title', comicModule),
         'title',
-      );
-      expect(
-        libraryGroupModeFromStorageValue('location', comicModule),
-        'location',
       );
       expect(
         libraryGroupModeFromStorageValue('comic.location', comicModule),
@@ -97,7 +82,7 @@ void main() {
 
     test('LibraryFolderPreset parses and formats canonical group modes', () {
       final preset = LibraryFolderPreset.parse(
-        'group.publisher > group.series',
+        'group.comic.publisher > group.comic.series',
         comicModule,
       );
       expect(preset.modes, ['comic.publisher', 'comic.series']);

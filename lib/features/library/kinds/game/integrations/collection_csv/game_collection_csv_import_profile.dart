@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Game-owned aliases for the legacy collection CSV boundary.
+/// Game-owned aliases for the collection CSV boundary.
 final class GameCollectionCsvImportProfile {
   const GameCollectionCsvImportProfile();
 

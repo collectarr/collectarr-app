@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// TV-owned aliases for the legacy collection CSV boundary.
+/// TV-owned aliases for the collection CSV boundary.
 final class TvCollectionCsvImportProfile {
   const TvCollectionCsvImportProfile();
 

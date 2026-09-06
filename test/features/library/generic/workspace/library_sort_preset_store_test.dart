@@ -6,14 +6,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  test('saves and migrates sort preset column ids', () async {
+  test('saves and restores canonical sort preset column ids', () async {
     SharedPreferences.setMockInitialValues({
       comicKindModule.identity.preferenceKey('sort_presets'): jsonEncode([
         {
-          'id': 'legacy-preset',
-          'label': 'Legacy sort',
+          'id': 'canonical-preset',
+          'label': 'Canonical sort',
           'rules': [
-            {'column': 'grade', 'ascending': false},
+            {'column': 'comic.condition', 'ascending': false},
           ],
         },
       ]),
@@ -27,7 +27,7 @@ void main() {
 
     await store.savePreset(
       id: restored.single.id,
-      label: 'Legacy sort',
+      label: 'Canonical sort',
       rules: restored.single.rules,
     );
 

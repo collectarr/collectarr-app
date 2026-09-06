@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('removed typed-kind compatibility names stay out of production', () {
+  test('removed typed-kind names stay out of production', () {
     const removedNames = [
       'LibraryMetadataItem',
       'LibraryCatalogItemView',
@@ -29,59 +29,8 @@ void main() {
     expect(
       violations,
       isEmpty,
-      reason: 'Removed catalog, edit, section, and cache compatibility names '
-          'must not return to production code.',
-    );
-  });
-
-  test('remaining migration bridges are confined to named boundaries', () {
-    const allowed = <String, List<String>>{
-      'CatalogItemDto': [
-        'lib/core/api/dto/catalog/',
-        'lib/core/api/mappers/',
-        'lib/features/library/kinds/anime/data/remote/',
-        'lib/features/library/kinds/boardgame/data/remote/',
-        'lib/features/library/kinds/game/data/remote/',
-        'lib/features/library/kinds/manga/data/remote/',
-        'lib/features/library/kinds/movie/data/remote/',
-      ],
-      'GenericEditDraft': [
-        'lib/features/library/kinds/generic/',
-      ],
-      'VideoEditDraftContract': [
-        'lib/features/library/edit/video/',
-        'lib/features/library/kinds/anime/edit/',
-        'lib/features/library/kinds/movie/edit/',
-        'lib/features/library/kinds/tv/edit/',
-      ],
-      'TrackingUnit': [
-        'lib/core/models/tracking_unit.dart',
-        'lib/features/collection/',
-        'lib/features/library/kinds/',
-        'lib/features/library/tracking/tracking_unit_codec.dart',
-      ],
-    };
-
-    final violations = <String>[];
-    for (final file in _productionDartFiles()) {
-      final path = _normalized(file.path);
-      final source = file.readAsStringSync();
-      for (final entry in allowed.entries) {
-        if (!RegExp(r'\b' + RegExp.escape(entry.key) + r'\b')
-            .hasMatch(source)) {
-          continue;
-        }
-        if (!entry.value.any(path.startsWith)) {
-          violations.add('$path: ${entry.key}');
-        }
-      }
-    }
-
-    expect(
-      violations,
-      isEmpty,
-      reason: 'Known migration bridges must remain inside their explicit '
-          'transport, kind, or personal-state boundaries.',
+      reason: 'Removed catalog, edit, section, and cache names must not '
+          'return to production code.',
     );
   });
 }

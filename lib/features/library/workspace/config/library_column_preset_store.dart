@@ -53,7 +53,9 @@ class LibraryColumnPresetStore {
         for (final column in columns)
           if (_columnById(column) != null) _columnById(column)!,
         if (config.fields.findColumnDefinition(
-              config.fields.decodeColumnId('title'),
+              config.fields.decodeColumnId(
+                '${config.fields.kindNamespace}.title',
+              ),
             ) !=
             null)
           'title',
@@ -95,7 +97,9 @@ class LibraryColumnPresetStore {
           if (_columnById(value.toString()) != null)
             _columnById(value.toString())!,
         if (config.fields.findColumnDefinition(
-              config.fields.decodeColumnId('title'),
+              config.fields.decodeColumnId(
+                '${config.fields.kindNamespace}.title',
+              ),
             ) !=
             null)
           'title',
