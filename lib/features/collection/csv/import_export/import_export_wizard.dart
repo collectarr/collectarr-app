@@ -51,7 +51,7 @@ class _ImportExportWizardDialogState
       initialIndex: widget.initialIndex,
       length: 2,
       child: AccentAlertDialog(
-        title: const Text('Import or export collection'),
+        title: const Text('Import or export'),
         content: SizedBox(
           width: 860,
           height: 560,
@@ -63,11 +63,11 @@ class _ImportExportWizardDialogState
                 tabs: [
                   Tab(
                     icon: Icon(Icons.download_outlined),
-                    text: 'Export collection',
+                    text: 'Export',
                   ),
                   Tab(
                     icon: Icon(Icons.upload_file_outlined),
-                    text: 'Import collection',
+                    text: 'Import',
                   ),
                 ],
               ),

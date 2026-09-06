@@ -90,7 +90,7 @@ void main() {
     await tester.tap(find.byTooltip('Export…'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Import or export collection'), findsOneWidget);
+    expect(find.text('Import or export'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('2 rows'), findsOneWidget);

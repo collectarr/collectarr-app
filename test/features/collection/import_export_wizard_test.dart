@@ -58,14 +58,14 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(find.text('Import or export collection'), findsOneWidget);
+    expect(find.text('Import or export'), findsOneWidget);
     expect(find.text('Collectarr CSV'), findsOneWidget);
     expect(find.text('CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('ComicInfo.xml'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
 
-    await tester.tap(find.text('Import collection'));
+    await tester.tap(find.text('Import'));
     await pumpUntilSettled(tester);
 
     expect(
