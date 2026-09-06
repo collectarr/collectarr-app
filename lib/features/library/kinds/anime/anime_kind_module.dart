@@ -254,7 +254,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: AnimeOwnedItemUpdatePayload.fromCommand,
   ),
-  providerMapper: const AnimeLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

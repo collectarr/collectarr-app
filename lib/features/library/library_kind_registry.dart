@@ -66,6 +66,15 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadat
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -341,15 +350,15 @@ LibraryKindProviderMapper? libraryKindProviderMapperForKind(
   CatalogMediaKind kind,
 ) {
   return switch (kind) {
-    CatalogMediaKind.anime => animeKindModule.providerMapper,
-    CatalogMediaKind.boardgame => boardGameKindModule.providerMapper,
-    CatalogMediaKind.book => bookKindModule.providerMapper,
-    CatalogMediaKind.comic => comicKindModule.providerMapper,
-    CatalogMediaKind.game => gameKindModule.providerMapper,
-    CatalogMediaKind.manga => mangaKindModule.providerMapper,
-    CatalogMediaKind.movie => movieKindModule.providerMapper,
-    CatalogMediaKind.music => musicKindModule.providerMapper,
-    CatalogMediaKind.tv => tvKindModule.providerMapper,
+    CatalogMediaKind.anime => const AnimeLibraryKindProviderMapper(),
+    CatalogMediaKind.boardgame => const BoardGameLibraryKindProviderMapper(),
+    CatalogMediaKind.book => const BookLibraryKindProviderMapper(),
+    CatalogMediaKind.comic => const ComicLibraryKindProviderMapper(),
+    CatalogMediaKind.game => const GameLibraryKindProviderMapper(),
+    CatalogMediaKind.manga => const MangaLibraryKindProviderMapper(),
+    CatalogMediaKind.movie => const MovieLibraryKindProviderMapper(),
+    CatalogMediaKind.music => const MusicLibraryKindProviderMapper(),
+    CatalogMediaKind.tv => const TvLibraryKindProviderMapper(),
     CatalogMediaKind.unknown => null,
   };
 }

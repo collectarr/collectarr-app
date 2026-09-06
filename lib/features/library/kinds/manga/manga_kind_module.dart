@@ -301,7 +301,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     ownedDigitalFlagResolver: resolveMangaOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MangaOwnedItemUpdatePayload.fromCommand,
   ),
-  providerMapper: const MangaLibraryKindProviderMapper(),
   facets: LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
     getFacetValues: _getFacetValues,

@@ -302,7 +302,6 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: BookOwnedItemUpdatePayload.fromCommand,
   ),
-  providerMapper: const BookLibraryKindProviderMapper(),
   facets: LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
     getFacetValues: _getBookFacetValues,

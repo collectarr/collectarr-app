@@ -206,7 +206,6 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: BoardgameOwnedItemUpdatePayload.fromCommand,
   ),
-  providerMapper: const BoardGameLibraryKindProviderMapper(),
   stats: const BoardGameStatsCapability(),
   facets: LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,

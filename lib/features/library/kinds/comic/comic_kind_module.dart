@@ -308,7 +308,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
       ),
     ],
   ),
-  providerMapper: const ComicLibraryKindProviderMapper(),
   facets: LibraryFacetModule(
     loadRows: _loadComicFacetRows,
     getFacetValues: _getFacetValues,

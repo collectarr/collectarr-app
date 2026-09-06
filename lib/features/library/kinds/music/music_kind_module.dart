@@ -188,7 +188,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MusicOwnedItemUpdatePayload.fromCommand,
   ),
-  providerMapper: const MusicLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

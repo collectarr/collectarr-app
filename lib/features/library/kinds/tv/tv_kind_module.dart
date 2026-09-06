@@ -264,7 +264,6 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: TvOwnedItemUpdatePayload.fromCommand,
   ),
-  providerMapper: const TvLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

@@ -284,7 +284,6 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MovieOwnedItemUpdatePayload.fromCommand,
   ),
-  providerMapper: const MovieLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

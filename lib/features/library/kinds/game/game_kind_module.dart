@@ -154,7 +154,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: GameOwnedItemUpdatePayload.fromCommand,
   ),
-  providerMapper: const GameLibraryKindProviderMapper(),
   facets: LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
     getFacetValues: _getGameFacetValues,
