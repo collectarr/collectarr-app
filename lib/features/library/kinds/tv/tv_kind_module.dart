@@ -241,6 +241,11 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createTvEditDraft,
+    trackingEntryEditApplier: (entry, selection) => entry.copyWith(
+      seasonNumber: selection.seasonNumber ?? entry.seasonNumber,
+      episodeNumber: selection.episodeNumber ?? entry.episodeNumber,
+      episodeRatings: selection.episodeRatings,
+    ),
   ),
   providerMapper: const TvLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(

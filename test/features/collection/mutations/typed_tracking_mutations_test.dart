@@ -164,12 +164,16 @@ void main() {
         TrackingTarget.catalog(ref),
         status: MediaTrackingStatus.inProgress,
         customizeEntry: (entry) => entry.copyWith(
+          seasonNumber: 2,
+          episodeNumber: 4,
           episodeRatings: unitRatings,
         ),
       );
 
       final entry =
           (await trackingEntries.findActiveByItemIds(['tv-series-1'])).single;
+      expect(entry.seasonNumber, 2);
+      expect(entry.episodeNumber, 4);
       expect(entry.episodeRatings, equals(unitRatings));
     });
 
