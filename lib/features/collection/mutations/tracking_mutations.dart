@@ -77,10 +77,7 @@ final class TrackingMutations {
   Future<void> upsertTrackingEntry(
     TrackingTarget target, {
     String? ownedItemId,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
     TrackingSourceType? sourceType,
     MediaTrackingStatus? status,
     int? rating,
@@ -111,12 +108,7 @@ final class TrackingMutations {
           } else {
             final cat = await catalogCache.findById(ownedItemId);
             if (cat != null) {
-              catalogRef = cat.catalogRefForAnchor(
-                anchorType: anchorType,
-                editionId: editionId,
-                variantId: variantId,
-                bundleReleaseId: bundleReleaseId,
-              );
+              catalogRef = cat.catalogRefForPersonalAnchor(anchor);
             } else {
               throw ArgumentError(
                   'Owned item not found for tracking target: $ownedItemId');
@@ -125,12 +117,7 @@ final class TrackingMutations {
         } else {
           final cat = await catalogCache.findById(ownedItemId);
           if (cat != null) {
-            catalogRef = cat.catalogRefForAnchor(
-              anchorType: anchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
-            );
+            catalogRef = cat.catalogRefForPersonalAnchor(anchor);
           } else {
             throw ArgumentError(
                 'Cannot resolve valid CatalogEntityRef for tracking target: $ownedItemId');
@@ -161,9 +148,10 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: catalogRef,
               ownedItemId: targetOwnedItemId ?? existing.ownedItemId,
-              editionId: editionId ?? existing.editionId,
-              variantId: variantId ?? existing.variantId,
-              bundleReleaseId: bundleReleaseId ?? existing.bundleReleaseId,
+              editionId: anchor?.editionId ?? existing.editionId,
+              variantId: anchor?.variantId ?? existing.variantId,
+              bundleReleaseId:
+                  anchor?.bundleReleaseId ?? existing.bundleReleaseId,
               sourceType: sourceType ?? existing.sourceType,
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
@@ -179,9 +167,9 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: catalogRef,
               ownedItemId: targetOwnedItemId,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
+              editionId: anchor?.editionId,
+              variantId: anchor?.variantId,
+              bundleReleaseId: anchor?.bundleReleaseId,
               sourceType: sourceType,
               status: status ?? MediaTrackingStatus.planned,
               rating: rating,

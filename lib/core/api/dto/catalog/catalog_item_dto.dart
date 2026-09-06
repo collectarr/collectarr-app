@@ -212,12 +212,15 @@ final class CatalogItemDto {
     String? variantId,
     String? bundleReleaseId,
   }) {
-    final anchor = PersonalItemAnchor.fromRaw(
+    return catalogRefForPersonalAnchor(PersonalItemAnchor.fromRaw(
       anchorType: anchorType,
       editionId: editionId,
       variantId: variantId,
       bundleReleaseId: bundleReleaseId,
-    );
+    ));
+  }
+
+  CatalogEntityRef catalogRefForPersonalAnchor(PersonalItemAnchor? anchor) {
     if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
       return CatalogEntityRef(
         kind: kind,
@@ -322,7 +325,8 @@ final class CatalogItemDto {
       if (!identical(coverImageUrl, _unset)) 'cover_image_url': coverImageUrl,
       if (!identical(thumbnailImageUrl, _unset))
         'thumbnail_image_url': thumbnailImageUrl,
-      if (!identical(coverImageData, _unset)) 'cover_image_data': coverImageData,
+      if (!identical(coverImageData, _unset))
+        'cover_image_data': coverImageData,
       if (!identical(releaseDate, _unset))
         'release_date': (releaseDate as DateTime?)?.toIso8601String(),
       if (!identical(releaseYear, _unset)) 'release_year': releaseYear,
@@ -335,8 +339,7 @@ final class CatalogItemDto {
         'physical_format_label': physicalFormatLabel,
     };
     final updatedIdentity = identity ?? this.identity;
-    final commonChanged =
-        title != null ||
+    final commonChanged = title != null ||
         !identical(displayTitle, _unset) ||
         !identical(localizedTitle, _unset) ||
         !identical(originalTitle, _unset) ||

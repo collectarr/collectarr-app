@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -829,8 +830,10 @@ class _InspectorTrackingDetailsEditorState
     await ref.read(trackingMutationsProvider).upsertTrackingEntry(
           target,
           ownedItemId: widget.trackingEntry.ownedItemId,
-          editionId: _selectedEditionId,
-          variantId: _selectedVariantId,
+          anchor: PersonalItemAnchor.fromRaw(
+            editionId: _selectedEditionId,
+            variantId: _selectedVariantId,
+          ),
           sourceType: widget.trackingEntry.sourceType,
           status: mediaTrackingStatusFromValue(
               _emptyToNull(_statusController.text)),

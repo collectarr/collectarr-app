@@ -2,6 +2,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -121,6 +122,36 @@ void main() {
       expect(entry.ownedItemId, 'owned-item-77');
       expect(entry.catalogRef.kind, 'book');
       expect(entry.status, MediaTrackingStatus.completed);
+    });
+
+    test('resolves a structural anchor when the owned row is unavailable',
+        () async {
+      await catalogCache.upsertAll([
+        testCatalogItem(
+          id: 'book-anchor-target',
+          kind: 'book',
+          title: 'Anchored Book',
+        ),
+      ]);
+
+      await trackingMutations.upsertTrackingEntry(
+        TrackingTarget.owned('book-anchor-target'),
+        anchor: PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.variant.apiValue,
+          editionId: 'edition-anchor',
+          variantId: 'variant-anchor',
+        ),
+        status: MediaTrackingStatus.completed,
+      );
+
+      final entry =
+          (await trackingEntries.findActiveByItemIds(['variant-anchor']))
+              .single;
+      expect(entry.ownedItemId, 'book-anchor-target');
+      expect(entry.catalogRef.entityType, CatalogEntityType.release);
+      expect(entry.catalogRef.id, 'variant-anchor');
+      expect(entry.editionId, 'edition-anchor');
+      expect(entry.variantId, 'variant-anchor');
     });
 
     test('rejects invalid or unresolvable tracking target with ArgumentError',
