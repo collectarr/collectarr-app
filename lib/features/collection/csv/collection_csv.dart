@@ -45,6 +45,7 @@ class CollectionCsvRow {
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
+    this.kindCatalogCells = const [],
     this.kindOwnedCells = const [],
     this.customFieldValues = const {},
   });
@@ -87,6 +88,11 @@ class CollectionCsvRow {
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
+
+  /// Positional catalog cells contributed by the selected kind at the CSV
+  /// serialization boundary. Collection carries them without interpreting
+  /// their meaning.
+  final List<String> kindCatalogCells;
 
   /// Positional cells owned by the selected kind at the CSV serialization
   /// boundary. Collection carries them without interpreting their meaning.
@@ -135,6 +141,7 @@ class CollectionCsvRow {
     DateTime? soldAt,
     int? sellPriceCents,
     String? soldTo,
+    List<String>? kindCatalogCells,
     List<String>? kindOwnedCells,
     Map<String, String?>? customFieldValues,
   }) {
@@ -177,6 +184,7 @@ class CollectionCsvRow {
       soldAt: soldAt ?? this.soldAt,
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
+      kindCatalogCells: kindCatalogCells ?? this.kindCatalogCells,
       kindOwnedCells: kindOwnedCells ?? this.kindOwnedCells,
       customFieldValues: customFieldValues ?? this.customFieldValues,
     );
@@ -690,6 +698,7 @@ class CollectionCsv {
       soldAt: _parseDate(_value(index, values, 'sold_at')),
       sellPriceCents: _moneyCents(_value(index, values, 'sell_price_cents')),
       soldTo: _optionalValue(index, values, 'sold_to'),
+      kindCatalogCells: catalogCells,
       kindOwnedCells: ownedCells,
       customFieldValues: cfValues,
     );

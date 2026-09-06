@@ -16,6 +16,10 @@ abstract interface class LibraryCollectionCsvProjection {
 
   String catalogDisplaySubtitle(CatalogItem item);
 
+  String importDisplayTitle(List<String> catalogCells);
+
+  String importDisplaySubtitle(List<String> catalogCells);
+
   bool catalogMatchesBarcode(CatalogItem item, String normalizedBarcode);
 
   /// The complete CLZ-compatible header for a single-kind export.
@@ -100,6 +104,31 @@ mixin LibraryCollectionCsvProjectionPresentation {
       if (item.releaseYear != null) item.releaseYear!.toString(),
       if ((cells.elementAtOrNull(10) ?? '').trim().isNotEmpty)
         cells.elementAtOrNull(10),
+    ].join(' | ');
+  }
+
+  String importDisplayTitle(List<String> catalogCells) {
+    final title = catalogCells.elementAtOrNull(2) ?? '';
+    final itemNumber = catalogCells.elementAtOrNull(3) ?? '';
+    if (title.trim().isEmpty) {
+      return 'Unknown title';
+    }
+    if (itemNumber.trim().isEmpty) {
+      return title;
+    }
+    return '$title #$itemNumber';
+  }
+
+  String importDisplaySubtitle(List<String> catalogCells) {
+    return [
+      if ((catalogCells.elementAtOrNull(4) ?? '').trim().isNotEmpty)
+        catalogCells.elementAtOrNull(4),
+      if ((catalogCells.elementAtOrNull(8) ?? '').trim().isNotEmpty)
+        catalogCells.elementAtOrNull(8),
+      if ((catalogCells.elementAtOrNull(9) ?? '').trim().isNotEmpty)
+        catalogCells.elementAtOrNull(9),
+      if ((catalogCells.elementAtOrNull(10) ?? '').trim().isNotEmpty)
+        catalogCells.elementAtOrNull(10),
     ].join(' | ');
   }
 

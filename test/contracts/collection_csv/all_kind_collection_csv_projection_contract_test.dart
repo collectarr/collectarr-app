@@ -67,6 +67,40 @@ void main() {
         reason: kind.apiValue,
       );
       expect(
+        projection.importDisplayTitle([
+          'import-${kind.apiValue}',
+          kind.apiValue,
+          'Imported item',
+          '7',
+          'Primary',
+          '',
+          '',
+          '',
+          'Contract publisher',
+          '2024-01-01',
+          '0123456789',
+        ]),
+        'Imported item #7',
+        reason: kind.apiValue,
+      );
+      expect(
+        projection.importDisplaySubtitle([
+          'import-${kind.apiValue}',
+          kind.apiValue,
+          'Imported item',
+          '7',
+          'Primary',
+          '',
+          '',
+          '',
+          'Contract publisher',
+          '2024-01-01',
+          '0123456789',
+        ]),
+        contains('Contract publisher'),
+        reason: kind.apiValue,
+      );
+      expect(
         projection.catalogMatchesBarcode(item, '0123456789'),
         isTrue,
         reason: kind.apiValue,

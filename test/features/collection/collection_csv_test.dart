@@ -70,6 +70,19 @@ void main() {
     expect(rows.single.publisher, 'Marvel');
     expect(rows.single.releaseDate, DateTime.utc(1963, 3, 1));
     expect(rows.single.barcode, '071486024576');
+    expect(rows.single.kindCatalogCells, [
+      'comic-1',
+      'comic',
+      'Spider-Man, "Vol. 1"',
+      '1',
+      'Newsstand',
+      'Direct market edition',
+      'single-issue',
+      'Single Issue',
+      'Marvel',
+      '1963-03-01',
+      '071486024576',
+    ]);
     expect(rows.single.isOwned, isTrue);
     expect(rows.single.condition, 'Near Mint');
     expect(rows.single.grade, '9.8');
