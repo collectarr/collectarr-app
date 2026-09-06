@@ -46,6 +46,7 @@ import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_co
 import 'package:collectarr_app/features/library/kinds/tv/activity/tv_activity_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/admin/tv_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/barcode/tv_barcode_resolver.dart';
+import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -105,6 +106,7 @@ final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
   CatalogMediaKind.game: const GameCollectionCsvProjection(),
   CatalogMediaKind.manga: const MangaCollectionCsvProjection(),
   CatalogMediaKind.movie: const MovieCollectionCsvProjection(),
+  CatalogMediaKind.tv: const TvCollectionCsvProjection(),
 });
 
 Iterable<LibraryCollectionCsvProjection> get libraryCollectionCsvProjections =>
