@@ -39,7 +39,7 @@ class LibraryBulkActions {
         catalogMediaKindFromApiValue(ownedItem.catalogRef.kind),
       );
       final updateCmd = runtime.edit.withTypedUpdatePayload(
-        UpdateOwnedItemCommand<OwnedDetailsDraft>(
+        LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
           ownedItemId: ownedItem.id,
           condition: selection.condition != null
               ? Patch.set(selection.condition)

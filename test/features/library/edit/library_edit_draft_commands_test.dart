@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -89,12 +90,13 @@ void main() {
     final cmd = draft.toUpdateOwnedItemCommand('owned-item-99');
 
     expect(cmd.ownedItemId, 'owned-item-99');
-    expect(cmd.condition.valueOrNull(), 'Mint');
-    expect(cmd.grade.valueOrNull(), '9.9');
-    expect(cmd.pricePaidCents.valueOrNull(), 4999);
-    expect(cmd.typedPayload, isA<ComicOwnedItemUpdatePayload>());
-
-    final detailsPatch = cmd.details.valueOrNull();
-    expect(detailsPatch, isA<ComicOwnedDetailsDraft>());
+    expect(cmd, isA<UpdateOwnedItemCommand>());
+    final typedCommand = cmd as UpdateOwnedItemCommand;
+    expect(typedCommand.payload, isA<ComicOwnedItemUpdatePayload>());
+    final payload = typedCommand.payload as ComicOwnedItemUpdatePayload;
+    expect(payload.condition.valueOrNull(), 'Mint');
+    expect(payload.grade.valueOrNull(), '9.9');
+    expect(payload.pricePaidCents.valueOrNull(), 4999);
+    expect(payload.details.valueOrNull(), isA<ComicOwnedDetailsDraft>());
   });
 }

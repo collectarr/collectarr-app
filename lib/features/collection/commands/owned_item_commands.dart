@@ -124,10 +124,33 @@ final class AddOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
   final OwnedItemTrackingDraft? tracking;
 }
 
-/// Command to update an existing owned item in collection.
+/// Structural request accepted by collection mutation orchestration.
+abstract interface class OwnedItemUpdateRequest {
+  String get ownedItemId;
+}
+
+/// Typed command to update an existing owned item in collection.
 @immutable
-final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
+final class UpdateOwnedItemCommand implements OwnedItemUpdateRequest {
   const UpdateOwnedItemCommand({
+    required this.ownedItemId,
+    required this.payload,
+  });
+
+  @override
+  final String ownedItemId;
+  final OwnedItemUpdatePayload payload;
+}
+
+/// Transitional command carrying the former common Owned patch surface.
+///
+/// New kind-aware callers should produce [UpdateOwnedItemCommand]. This type
+/// remains only while legacy UI adapters and unknown-kind compatibility paths
+/// are migrated.
+@immutable
+final class LegacyUpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft>
+    implements OwnedItemUpdateRequest {
+  const LegacyUpdateOwnedItemCommand({
     required this.ownedItemId,
     this.anchor = const Patch.unchanged(),
     this.quantity = const Patch.unchanged(),
@@ -148,9 +171,9 @@ final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
     this.marketValueCents = const Patch.unchanged(),
     this.indexNumber = const Patch.unchanged(),
     this.details = const Patch.unchanged(),
-    this.typedPayload,
   });
 
+  @override
   final String ownedItemId;
   final Patch<PersonalItemAnchor?> anchor;
   final Patch<int> quantity;
@@ -171,33 +194,4 @@ final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
   final Patch<int?> marketValueCents;
   final Patch<int?> indexNumber;
   final Patch<TDetails> details;
-  final OwnedItemUpdatePayload? typedPayload;
-
-  UpdateOwnedItemCommand<TDetails> withTypedPayload(
-    OwnedItemUpdatePayload payload,
-  ) {
-    return UpdateOwnedItemCommand<TDetails>(
-      ownedItemId: ownedItemId,
-      anchor: anchor,
-      quantity: quantity,
-      condition: condition,
-      grade: grade,
-      purchaseDate: purchaseDate,
-      pricePaidCents: pricePaidCents,
-      currency: currency,
-      personalNotes: personalNotes,
-      locationId: locationId,
-      purchaseStore: purchaseStore,
-      collectionStatus: collectionStatus,
-      isDigital: isDigital,
-      tags: tags,
-      soldAt: soldAt,
-      sellPriceCents: sellPriceCents,
-      soldTo: soldTo,
-      marketValueCents: marketValueCents,
-      indexNumber: indexNumber,
-      details: details,
-      typedPayload: payload,
-    );
-  }
 }

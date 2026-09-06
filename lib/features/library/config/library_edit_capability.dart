@@ -24,7 +24,7 @@ typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
 });
 
 typedef LibraryOwnedUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-  UpdateOwnedItemCommand<OwnedDetailsDraft> command,
+  LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
 );
 
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
@@ -64,22 +64,26 @@ class LibraryEditCapability {
   OwnedDetailsDraft buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
       kindDraft.toDetailsDraft();
 
-  UpdateOwnedItemCommand<OwnedDetailsDraft> withTypedUpdatePayload(
-    UpdateOwnedItemCommand<OwnedDetailsDraft> command,
+  UpdateOwnedItemCommand withTypedUpdatePayload(
+    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
   ) {
     final builder = ownedUpdatePayloadBuilder;
-    return builder == null
-        ? command
-        : command.withTypedPayload(builder(command));
+    if (builder == null) {
+      throw StateError('No typed Owned update payload builder is registered.');
+    }
+    return UpdateOwnedItemCommand(
+      ownedItemId: command.ownedItemId,
+      payload: builder(command),
+    );
   }
 
-  UpdateOwnedItemCommand buildUpdateCommand({
+  OwnedItemUpdateRequest buildUpdateCommand({
     required LibraryEditDraft session,
     required String ownedItemId,
     required LibraryEditKindDraft kindDraft,
   }) {
     final personal = session.personal;
-    final command = UpdateOwnedItemCommand<OwnedDetailsDraft>(
+    final command = LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
       ownedItemId: ownedItemId,
       anchor: Patch.set(
         PersonalItemAnchor.fromRaw(
@@ -131,6 +135,12 @@ class LibraryEditCapability {
           : Patch.set(personal.soldToController.text.trim()),
       details: Patch.set(buildDetailsDraft(kindDraft)),
     );
-    return withTypedUpdatePayload(command);
+    final builder = ownedUpdatePayloadBuilder;
+    return builder == null
+        ? command
+        : UpdateOwnedItemCommand(
+            ownedItemId: command.ownedItemId,
+            payload: builder(command),
+          );
   }
 }

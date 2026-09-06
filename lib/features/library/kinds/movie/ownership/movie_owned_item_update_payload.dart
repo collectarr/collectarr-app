@@ -29,7 +29,7 @@ final class MovieOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory MovieOwnedItemUpdatePayload.fromCommand(
-    UpdateOwnedItemCommand<OwnedDetailsDraft> command,
+    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
   ) =>
       MovieOwnedItemUpdatePayload(
         anchor: command.anchor,

@@ -29,7 +29,7 @@ final class AnimeOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory AnimeOwnedItemUpdatePayload.fromCommand(
-    UpdateOwnedItemCommand<OwnedDetailsDraft> command,
+    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
   ) =>
       AnimeOwnedItemUpdatePayload(
         anchor: command.anchor,

@@ -29,7 +29,7 @@ final class GameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory GameOwnedItemUpdatePayload.fromCommand(
-    UpdateOwnedItemCommand<OwnedDetailsDraft> command,
+    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
   ) =>
       GameOwnedItemUpdatePayload(
         anchor: command.anchor,

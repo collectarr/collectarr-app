@@ -33,7 +33,7 @@ final class CollectionCommandCoordinator {
   }
 
   Future<OwnedItem> updateOwnedItem(
-    UpdateOwnedItemCommand command, {
+    OwnedItemUpdateRequest command, {
     bool syncTracking = true,
   }) async {
     final item = await ownedMutations.updateOwnedItem(command);

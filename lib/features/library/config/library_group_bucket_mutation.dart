@@ -10,7 +10,7 @@ typedef LibraryGroupBucketValueMutator = CatalogItem? Function(
 });
 
 typedef LibraryOwnedGroupBucketValueMutator
-    = UpdateOwnedItemCommand<OwnedDetailsDraft>? Function(
+    = LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>? Function(
   OwnedItem item,
   String currentLabel, {
   String? replacement,
@@ -155,7 +155,7 @@ LibraryOwnedGroupBucketValueMutator libraryOwnedConditionBucketValueMutator() {
       return null;
     }
     final next = replacement?.trim();
-    return UpdateOwnedItemCommand<OwnedDetailsDraft>(
+    return LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
       ownedItemId: item.id,
       condition:
           next == null || next.isEmpty ? const Patch.clear() : Patch.set(next),

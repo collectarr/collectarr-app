@@ -610,7 +610,7 @@ class LibraryEditDraft {
     );
   }
 
-  UpdateOwnedItemCommand toUpdateOwnedItemCommand(String ownedItemId) {
+  OwnedItemUpdateRequest toUpdateOwnedItemCommand(String ownedItemId) {
     return libraryKindRuntimeForKind(type.kind).edit.buildUpdateCommand(
           session: this,
           ownedItemId: ownedItemId,

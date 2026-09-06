@@ -29,7 +29,7 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory MusicOwnedItemUpdatePayload.fromCommand(
-    UpdateOwnedItemCommand<OwnedDetailsDraft> command,
+    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
   ) =>
       MusicOwnedItemUpdatePayload(
         anchor: command.anchor,

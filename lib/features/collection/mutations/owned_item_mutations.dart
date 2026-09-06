@@ -154,7 +154,7 @@ final class OwnedItemMutations {
   }
 
   Future<OwnedItem> updateOwnedItem(
-    UpdateOwnedItemCommand command,
+    OwnedItemUpdateRequest command,
   ) async {
     final now = DateTime.now().toUtc();
 
@@ -165,7 +165,8 @@ final class OwnedItemMutations {
           throw StateError('OwnedItem not found: ${command.ownedItemId}');
         }
 
-        final typedPayload = command.typedPayload;
+        final typedPayload =
+            command is UpdateOwnedItemCommand ? command.payload : null;
         final updatedItem =
             typedPayload != null && typedPayload.canApplyTo(existing)
                 ? typedPayload.applyTo(
@@ -176,7 +177,7 @@ final class OwnedItemMutations {
                   )
                 : _applyLegacyOwnedUpdate(
                     existing,
-                    command,
+                    command as LegacyUpdateOwnedItemCommand,
                     updatedAt: now,
                   );
 
@@ -194,7 +195,7 @@ final class OwnedItemMutations {
 
   OwnedItem _applyLegacyOwnedUpdate(
     OwnedItem existing,
-    UpdateOwnedItemCommand command, {
+    LegacyUpdateOwnedItemCommand command, {
     required DateTime updatedAt,
   }) {
     final mediaKind = catalogMediaKindFromApiValue(existing.catalogRef.kind);

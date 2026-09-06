@@ -167,7 +167,7 @@ void main() {
       ),
     );
 
-    final updateCmd = UpdateOwnedItemCommand(
+    final updateCmd = LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
       ownedItemId: initial.id,
       anchor: Patch.set(
         PersonalItemAnchor.fromRaw(

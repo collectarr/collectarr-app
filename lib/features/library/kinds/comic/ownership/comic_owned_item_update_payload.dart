@@ -35,7 +35,7 @@ final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory ComicOwnedItemUpdatePayload.fromCommand(
-    UpdateOwnedItemCommand<OwnedDetailsDraft> command,
+    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
   ) {
     return ComicOwnedItemUpdatePayload(
       anchor: command.anchor,

@@ -388,7 +388,7 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    final command = UpdateOwnedItemCommand<OwnedDetailsDraft>(
+    final command = LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
       ownedItemId: widget.ownedItem.id,
       purchaseDate: Patch.set(_purchaseDate),
       pricePaidCents: Patch.set(price),

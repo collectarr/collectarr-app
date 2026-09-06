@@ -566,7 +566,7 @@ class LibraryPageDialogCoordinator {
       if (ownedItem == null) continue;
       await coordinator.updateOwnedItem(
         _page.type.edit.withTypedUpdatePayload(
-          UpdateOwnedItemCommand<OwnedDetailsDraft>(
+          LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
             ownedItemId: ownedItem.id,
             indexNumber: Patch.set(i + 1),
           ),
