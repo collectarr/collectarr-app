@@ -106,7 +106,9 @@ class LibraryPageBucketCoordinator {
       await mutations.updateCatalogSnapshots(catalogUpdates.values);
     }
     for (final update in ownedUpdates.values) {
-      await mutations.updateOwnedItem(update);
+      await mutations.updateOwnedItem(
+        _page.type.edit.withTypedUpdatePayload(update),
+      );
     }
     if (!_page.mounted) {
       return catalogUpdates.length + ownedUpdates.length;

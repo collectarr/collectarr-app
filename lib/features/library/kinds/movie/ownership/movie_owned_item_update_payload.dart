@@ -78,6 +78,9 @@ final class MovieOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<MovieOwnedDetailsDraft> details;
 
   @override
+  bool canApplyTo(OwnedItem existing) => existing.details is MovieOwnedDetails;
+
+  @override
   OwnedItem applyTo(
     OwnedItem existing, {
     required DateTime updatedAt,

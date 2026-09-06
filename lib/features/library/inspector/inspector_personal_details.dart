@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
     hide formatDate;
@@ -387,19 +388,21 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
+    final command = UpdateOwnedItemCommand<OwnedDetailsDraft>(
+      ownedItemId: widget.ownedItem.id,
+      purchaseDate: Patch.set(_purchaseDate),
+      pricePaidCents: Patch.set(price),
+      currency: Patch.set(currency.isEmpty ? null : currency),
+      personalNotes: Patch.set(_emptyToNull(_notesController.text)),
+      purchaseStore: Patch.set(_emptyToNull(_purchaseStoreController.text)),
+      locationId: _locationChanged
+          ? Patch.set(_selectedLocationId)
+          : const Patch.unchanged(),
+    );
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          UpdateOwnedItemCommand(
-            ownedItemId: widget.ownedItem.id,
-            purchaseDate: Patch.set(_purchaseDate),
-            pricePaidCents: Patch.set(price),
-            currency: Patch.set(currency.isEmpty ? null : currency),
-            personalNotes: Patch.set(_emptyToNull(_notesController.text)),
-            purchaseStore:
-                Patch.set(_emptyToNull(_purchaseStoreController.text)),
-            locationId: _locationChanged
-                ? Patch.set(_selectedLocationId)
-                : const Patch.unchanged(),
-          ),
+          libraryKindRuntimeForKind(
+            catalogMediaKindFromApiValue(widget.ownedItem.catalogRef.kind),
+          ).edit.withTypedUpdatePayload(command),
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

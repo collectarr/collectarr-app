@@ -78,6 +78,9 @@ final class TvOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<TvOwnedDetailsDraft> details;
 
   @override
+  bool canApplyTo(OwnedItem existing) => existing.details is TvOwnedDetails;
+
+  @override
   OwnedItem applyTo(
     OwnedItem existing, {
     required DateTime updatedAt,

@@ -64,6 +64,15 @@ class LibraryEditCapability {
   OwnedDetailsDraft buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
       kindDraft.toDetailsDraft();
 
+  UpdateOwnedItemCommand<OwnedDetailsDraft> withTypedUpdatePayload(
+    UpdateOwnedItemCommand<OwnedDetailsDraft> command,
+  ) {
+    final builder = ownedUpdatePayloadBuilder;
+    return builder == null
+        ? command
+        : command.withTypedPayload(builder(command));
+  }
+
   UpdateOwnedItemCommand buildUpdateCommand({
     required LibraryEditDraft session,
     required String ownedItemId,
@@ -122,9 +131,6 @@ class LibraryEditCapability {
           : Patch.set(personal.soldToController.text.trim()),
       details: Patch.set(buildDetailsDraft(kindDraft)),
     );
-    final builder = ownedUpdatePayloadBuilder;
-    return builder == null
-        ? command
-        : command.withTypedPayload(builder(command));
+    return withTypedUpdatePayload(command);
   }
 }

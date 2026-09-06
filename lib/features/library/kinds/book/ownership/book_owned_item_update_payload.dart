@@ -78,6 +78,9 @@ final class BookOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<BookOwnedDetailsDraft> details;
 
   @override
+  bool canApplyTo(OwnedItem existing) => existing.details is BookOwnedDetails;
+
+  @override
   OwnedItem applyTo(
     OwnedItem existing, {
     required DateTime updatedAt,

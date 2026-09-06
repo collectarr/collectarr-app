@@ -319,7 +319,7 @@ class LibraryPageEditCoordinator {
         ),
       );
       await coordinator.updateOwnedItem(
-        updateCmd,
+        _s.widget.type.edit.withTypedUpdatePayload(updateCmd),
         syncTracking: false,
       );
       final tracking = result.tracking;

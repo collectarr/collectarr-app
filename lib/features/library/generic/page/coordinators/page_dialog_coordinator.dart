@@ -565,9 +565,11 @@ class LibraryPageDialogCoordinator {
       final ownedItem = items[i].source.ownedItem;
       if (ownedItem == null) continue;
       await coordinator.updateOwnedItem(
-        UpdateOwnedItemCommand(
-          ownedItemId: ownedItem.id,
-          indexNumber: Patch.set(i + 1),
+        _page.type.edit.withTypedUpdatePayload(
+          UpdateOwnedItemCommand<OwnedDetailsDraft>(
+            ownedItemId: ownedItem.id,
+            indexNumber: Patch.set(i + 1),
+          ),
         ),
       );
       count++;

@@ -5,6 +5,8 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 /// The payload owns the interpretation of its complete Owned patch and only
 /// translates to the transitional common cache model at the persistence edge.
 abstract interface class OwnedItemUpdatePayload {
+  bool canApplyTo(OwnedItem existing);
+
   OwnedItem applyTo(
     OwnedItem existing, {
     required DateTime updatedAt,

@@ -78,6 +78,9 @@ final class AnimeOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<AnimeOwnedDetailsDraft> details;
 
   @override
+  bool canApplyTo(OwnedItem existing) => existing.details is AnimeOwnedDetails;
+
+  @override
   OwnedItem applyTo(
     OwnedItem existing, {
     required DateTime updatedAt,

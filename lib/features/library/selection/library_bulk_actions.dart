@@ -35,20 +35,25 @@ class LibraryBulkActions {
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
       final ownedItem = ownedEntries[index].ownedItem!;
-      final updateCmd = UpdateOwnedItemCommand(
-        ownedItemId: ownedItem.id,
-        condition: selection.condition != null
-            ? Patch.set(selection.condition)
-            : const Patch.unchanged(),
-        grade: selection.grade != null
-            ? Patch.set(selection.grade)
-            : const Patch.unchanged(),
-        locationId: selection.locationId != null
-            ? Patch.set(selection.locationId)
-            : const Patch.unchanged(),
-        tags: selection.tags != null
-            ? Patch.set(selection.tags)
-            : const Patch.unchanged(),
+      final runtime = libraryKindRuntimeForKind(
+        catalogMediaKindFromApiValue(ownedItem.catalogRef.kind),
+      );
+      final updateCmd = runtime.edit.withTypedUpdatePayload(
+        UpdateOwnedItemCommand<OwnedDetailsDraft>(
+          ownedItemId: ownedItem.id,
+          condition: selection.condition != null
+              ? Patch.set(selection.condition)
+              : const Patch.unchanged(),
+          grade: selection.grade != null
+              ? Patch.set(selection.grade)
+              : const Patch.unchanged(),
+          locationId: selection.locationId != null
+              ? Patch.set(selection.locationId)
+              : const Patch.unchanged(),
+          tags: selection.tags != null
+              ? Patch.set(selection.tags)
+              : const Patch.unchanged(),
+        ),
       );
       await coordinator.updateOwnedItem(updateCmd, syncTracking: false);
       if (selection.rating != null || selection.readStatus != null) {

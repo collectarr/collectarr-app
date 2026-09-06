@@ -78,6 +78,9 @@ final class GameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<GameOwnedDetailsDraft> details;
 
   @override
+  bool canApplyTo(OwnedItem existing) => existing.details is GameOwnedDetails;
+
+  @override
   OwnedItem applyTo(
     OwnedItem existing, {
     required DateTime updatedAt,

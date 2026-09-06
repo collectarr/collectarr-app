@@ -165,17 +165,20 @@ final class OwnedItemMutations {
           throw StateError('OwnedItem not found: ${command.ownedItemId}');
         }
 
-        final updatedItem = command.typedPayload?.applyTo(
-              existing,
-              updatedAt: now,
-              fallbackOwnerUserId: userId,
-              fallbackOwnerLabel: userEmail,
-            ) ??
-            _applyLegacyOwnedUpdate(
-              existing,
-              command,
-              updatedAt: now,
-            );
+        final typedPayload = command.typedPayload;
+        final updatedItem =
+            typedPayload != null && typedPayload.canApplyTo(existing)
+                ? typedPayload.applyTo(
+                    existing,
+                    updatedAt: now,
+                    fallbackOwnerUserId: userId,
+                    fallbackOwnerLabel: userEmail,
+                  )
+                : _applyLegacyOwnedUpdate(
+                    existing,
+                    command,
+                    updatedAt: now,
+                  );
 
         await ownedItems.upsert(updatedItem);
         await typedOwnedItems?.upsert(updatedItem);

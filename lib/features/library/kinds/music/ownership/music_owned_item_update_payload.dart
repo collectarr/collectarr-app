@@ -78,6 +78,9 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<MusicOwnedDetailsDraft> details;
 
   @override
+  bool canApplyTo(OwnedItem existing) => existing.details is MusicOwnedDetails;
+
+  @override
   OwnedItem applyTo(
     OwnedItem existing, {
     required DateTime updatedAt,
