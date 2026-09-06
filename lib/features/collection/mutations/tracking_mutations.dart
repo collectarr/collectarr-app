@@ -26,6 +26,15 @@ export 'package:collectarr_app/core/models/tracking_target.dart';
 typedef IdGenerator = String Function();
 String _defaultIdGenerator() => const Uuid().v4();
 
+/// Structural hook for kind-owned tracking fields during local creation.
+///
+/// Collection owns persistence and mutation mechanics. A kind may enrich the
+/// common compatibility entry before it is stored, without making the
+/// collection API depend on that kind's semantic fields.
+typedef LocalTrackingEntryCustomizer = TrackingEntry Function(
+  TrackingEntry entry,
+);
+
 final class TrackingMutations {
   const TrackingMutations({
     required this.trackingEntries,
@@ -288,7 +297,7 @@ final class TrackingMutations {
     int? progressCurrent,
     int? progressTotal,
     int? timesCompleted,
-    int? seasonNumber,
+    LocalTrackingEntryCustomizer? customizeEntry,
     bool allowEmpty = false,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
@@ -314,7 +323,7 @@ final class TrackingMutations {
       localRef: catalogRef,
       action: () async {
         await catalogCache.upsertAll([item]);
-        final entry = TrackingEntry(
+        final baseEntry = TrackingEntry(
           id: entryId,
           catalogRef: catalogRef,
           editionId: editionId,
@@ -328,9 +337,9 @@ final class TrackingMutations {
           progressCurrent: progressCurrent,
           progressTotal: progressTotal,
           timesCompleted: timesCompleted,
-          seasonNumber: seasonNumber,
           updatedAt: now,
         );
+        final entry = customizeEntry?.call(baseEntry) ?? baseEntry;
         await trackingEntries.upsert(entry);
         if (!isLocalItem) {
           await syncQueue

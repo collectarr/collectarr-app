@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_units_c
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -203,6 +204,29 @@ void main() {
       );
 
       expect(observedOrigin, MutationOrigin.fileImport);
+    });
+
+    test('keeps TV season coordinates in the TV import contribution', () async {
+      final seasonItem = testCatalogItem(
+        id: 'tmdb-local:tv:123:season:2',
+        kind: 'tv',
+        title: 'Season 2',
+      );
+
+      await const TvTrackingImportContribution().addLocalOnlySeasonEntry(
+        trackingMutations,
+        seasonItem,
+        seasonNumber: 2,
+        status: MediaTrackingStatus.completed,
+      );
+
+      final entry = (await trackingEntries.listActive()).single;
+      expect(entry.catalogRef.kind, 'tv');
+      expect(entry.seasonNumber, 2);
+      expect(
+        trackingEntries.toSyncPayload(entry)['season_number'],
+        2,
+      );
     });
   });
 }
