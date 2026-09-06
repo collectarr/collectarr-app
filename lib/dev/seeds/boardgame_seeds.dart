@@ -370,10 +370,6 @@ List<OwnedItem> boardgameSeedOwnedItems(DateTime now) => [
               ? 'All characters unlocked.'
               : 'Complete retail copy with rulebook and components.',
           quantity: 1,
-          rating: 7 + (i % 4),
-          readStatus: i == 1 ? 'in progress' : 'completed',
-          startedAt: DateTime.utc(2024, i % 12 + 1, 5),
-          finishedAt: i == 1 ? null : DateTime.utc(2024, i % 12 + 1, 20),
           purchaseStore: i.isEven ? 'Local Game Store' : 'Miniature Market',
           collectionStatus: 'collected',
         ),
@@ -397,6 +393,9 @@ List<TrackingEntry> boardgameSeedTrackingEntries(DateTime now) => [
                   : MediaTrackingStatus.inProgress),
           progressCurrent: i == 1 ? 35 : (i <= 6 ? 1 : 0),
           progressTotal: i == 1 ? 95 : 1,
+          rating: 7 + (i % 4),
+          startedAt: DateTime.utc(2024, i % 12 + 1, 5),
+          finishedAt: i == 1 ? null : DateTime.utc(2024, i % 12 + 1, 20),
           notes: i == 1
               ? 'Scenario 35, paused for summer.'
               : 'Played with friends.',

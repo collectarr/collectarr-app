@@ -227,6 +227,15 @@ void main() {
         isTrue);
     expect(
         ownedRows.map((row) => row.id).toSet(), hasLength(expectedSeedTotal));
+    expect(
+      ownedRows.every((row) =>
+          row.rating == null &&
+          row.readStatus == null &&
+          row.startedAt == null &&
+          row.finishedAt == null),
+      isTrue,
+      reason: 'Seed tracking state must live in typed tracking rows',
+    );
 
     final comicOwnedRows = await db.select(db.comicOwnedItemsRows).get();
     final comicReadingRows = await db.select(db.comicReadingRows).get();
@@ -248,8 +257,14 @@ void main() {
         hasLength(expectedSeedTotal));
     expect(
         trackingRows.every((row) =>
-            row.ownedItemId == null || ownedIds.contains(row.ownedItemId)),
+            row.ownedItemId != null && ownedIds.contains(row.ownedItemId)),
         isTrue);
+    expect(
+      trackingRows.every((row) =>
+          row.status != null && row.rating != null && row.startedAt != null),
+      isTrue,
+      reason: 'Seed tracking rows must exercise typed status and dates',
+    );
 
     final pickLists = PickListRepository(db);
     expect(

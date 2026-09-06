@@ -705,10 +705,6 @@ List<OwnedItem> comicSeedOwnedItems(DateTime now) => [
           personalNotes:
               'Bagged & boarded in mylar with acid-free backing board.',
           quantity: 1,
-          rating: 10,
-          readStatus: 'completed',
-          startedAt: DateTime.utc(2022, 7, 5),
-          finishedAt: DateTime.utc(2022, 7, 5),
           purchaseStore: 'Midtown Comics',
           collectionStatus: 'collected',
         ),

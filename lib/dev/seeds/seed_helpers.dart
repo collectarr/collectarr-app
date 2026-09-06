@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
 const String seedCoverImageData =
@@ -733,6 +734,14 @@ void validateSeedOwnedQuality(Iterable<OwnedItem> items) {
   final issues = <String>[];
   for (final item in items) {
     final prefix = '${item.catalogRef.kind}/${item.id}';
+    if (item.rating != null ||
+        item.readStatus != null ||
+        item.startedAt != null ||
+        item.finishedAt != null) {
+      issues.add(
+        '$prefix: tracking fields must be stored in the typed TrackingEntry',
+      );
+    }
     _requireText(issues, prefix, 'condition', item.condition);
     _requireText(issues, prefix, 'personal_notes', item.personalNotes);
     _requireText(issues, prefix, 'collection_status', item.collectionStatus);
@@ -764,6 +773,10 @@ void validateSeedTrackingQuality(Iterable<TrackingEntry> entries) {
     }
     if (entry.rating != null && (entry.rating! < 0 || entry.rating! > 10)) {
       issues.add('$prefix: rating must be between 0 and 10');
+    }
+    if (entry.status == MediaTrackingStatus.completed &&
+        entry.finishedAt == null) {
+      issues.add('$prefix: completed tracking must have finished_at');
     }
     final current = entry.progressCurrent;
     final total = entry.progressTotal;

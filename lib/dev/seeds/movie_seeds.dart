@@ -875,9 +875,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Steelbook 4K UHD release. Flawless condition.',
         quantity: 1,
-        rating: 9,
-        readStatus: 'completed',
-        finishedAt: DateTime.utc(2018, 6, 5),
         purchaseStore: 'Best Buy',
         details: const MovieOwnedDetails(
           region: 'Region Free',
@@ -897,8 +894,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         pricePaidCents: 3299,
         currency: 'USD',
         personalNotes: 'Incredible IMAX aspect ratio shifting presentation.',
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Amazon',
         details: const MovieOwnedDetails(
           region: 'Region Free',
@@ -919,8 +914,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Final chapter of the trilogy in a 4K keep case.',
         quantity: 1,
-        rating: 9,
-        readStatus: 'completed',
         purchaseStore: 'Amazon',
         details: const MovieOwnedDetails(
           features: 'Theatrical and extended cuts',
@@ -942,8 +935,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         pricePaidCents: 2799,
         currency: 'USD',
         personalNotes: '10th Anniversary slipcover edition.',
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Zavvi',
         details: const MovieOwnedDetails(
           features: '10th anniversary commentary and deleted scenes',
@@ -967,8 +958,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes:
             'Hans Zimmer pipe organ score sounds breathtaking on 5.1.',
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Target',
         details: const MovieOwnedDetails(
           features: 'Original score isolated track',
@@ -990,8 +979,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         pricePaidCents: 2499,
         currency: 'USD',
         personalNotes: 'Final Cut Dolby Atmos mix is reference tier.',
-        rating: 9,
-        readStatus: 'completed',
         purchaseStore: 'Barnes & Noble',
         details: const MovieOwnedDetails(
           features: 'Final Cut with Dolby Atmos mix',
@@ -1013,8 +1000,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         pricePaidCents: 3999,
         currency: 'USD',
         personalNotes: 'Mondo steelbook with embossed typography.',
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Zavvi',
         details: const MovieOwnedDetails(
           features: 'Embossed steelbook and art cards',
@@ -1037,8 +1022,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Special edition with the original mono soundtrack.',
         quantity: 1,
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Criterion Store',
         details: const MovieOwnedDetails(
           region: 'Region A',
@@ -1059,8 +1042,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: '4K restoration with both theatrical cuts.',
         quantity: 1,
-        rating: 9,
-        readStatus: 'completed',
         purchaseStore: 'Best Buy',
         details: const MovieOwnedDetails(
           features: 'Theatrical and alternate cuts',
@@ -1083,8 +1064,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes:
             'Criterion 50% off flash sale copy. Includes Black & White cut.',
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Criterion Channel Store',
         details: const MovieOwnedDetails(
           region: 'Region A',
@@ -1104,8 +1083,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         pricePaidCents: 2199,
         currency: 'USD',
         personalNotes: 'GKIDS steelbook with original theatrical poster art.',
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Amazon',
         details: const MovieOwnedDetails(
           features: 'Original theatrical poster and booklet',
@@ -1127,8 +1104,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         pricePaidCents: 2999,
         currency: 'USD',
         personalNotes: 'Reference Dolby Vision demo disc.',
-        rating: 9,
-        readStatus: 'completed',
         purchaseStore: 'Best Buy',
         details: const MovieOwnedDetails(
           features: 'Dolby Vision reference transfer',
@@ -1150,8 +1125,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         pricePaidCents: 3799,
         currency: 'USD',
         personalNotes: 'Day 1 preorder steelbook.',
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Walmart',
         details: const MovieOwnedDetails(
           features: 'Day-one preorder bonus disc',
@@ -1173,8 +1146,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         pricePaidCents: 3499,
         currency: 'USD',
         personalNotes: '3-disc set with over 3 hours of special features.',
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Target',
         details: const MovieOwnedDetails(
           features: 'Three-disc special features set',
@@ -1197,8 +1168,6 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Animated 4K collector edition with art cards.',
         quantity: 1,
-        rating: 10,
-        readStatus: 'completed',
         purchaseStore: 'Sony Pictures Store',
         details: const MovieOwnedDetails(
           features: 'Art cards and animated shorts',
@@ -1258,6 +1227,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         status: MediaTrackingStatus.completed,
         rating: 10,
         timesCompleted: 4,
+        startedAt: DateTime.utc(2023, 10, 1),
         finishedAt: DateTime.utc(2023, 10, 10),
         updatedAt: now,
       ),
@@ -1269,6 +1239,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         status: MediaTrackingStatus.completed,
         rating: 10,
         timesCompleted: 3,
+        startedAt: DateTime.utc(2024, 1, 5),
         finishedAt: DateTime.utc(2024, 1, 15),
         notes: 'Cinematography masterclass by Roger Deakins.',
         updatedAt: now,
@@ -1329,6 +1300,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         status: MediaTrackingStatus.completed,
         rating: 10,
         timesCompleted: 2,
+        startedAt: DateTime.utc(2022, 12, 20),
         finishedAt: DateTime.utc(2023, 1, 2),
         updatedAt: now,
       ),
@@ -1340,6 +1312,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         status: MediaTrackingStatus.completed,
         rating: 10,
         timesCompleted: 2,
+        startedAt: DateTime.utc(2024, 2, 20),
         finishedAt: DateTime.utc(2024, 3, 3),
         notes: 'Watched in 70mm IMAX.',
         updatedAt: now,

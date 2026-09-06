@@ -805,6 +805,11 @@ void _validateSeedFixtures({
     if (!trackingIds.add(entry.id)) {
       throw StateError('Duplicate tracking seed id: ${entry.id}');
     }
+    if (entry.ownedItemId == null) {
+      throw StateError(
+        'Tracking seed ${entry.id} must reference its owned seed item',
+      );
+    }
     final catalog = catalogById[entry.catalogRef.id];
     if (catalog == null) {
       throw StateError(

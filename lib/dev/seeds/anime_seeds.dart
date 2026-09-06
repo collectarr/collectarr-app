@@ -738,10 +738,6 @@ List<OwnedItem> animeSeedOwnedItems(DateTime now) => [
           personalNotes:
               'Import Japanese/English collector\'s edition with artbook.',
           quantity: 1,
-          rating: 10,
-          readStatus: 'completed',
-          startedAt: DateTime.utc(2023, 3, 20),
-          finishedAt: DateTime.utc(2023, 4, 10),
           purchaseStore: 'RightStuf / Crunchyroll Store',
           collectionStatus: 'collected',
         ),

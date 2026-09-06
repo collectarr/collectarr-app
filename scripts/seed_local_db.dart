@@ -16,6 +16,16 @@ Future<void> main() async {
     final catalogRows = await LibraryCatalogRepository(db).findAll();
     final catalogCount = catalogRows.length;
     final ownedRows = await db.select(db.ownedItemsCache).get();
+    if (ownedRows.any((row) =>
+        row.rating != null ||
+        row.readStatus != null ||
+        row.startedAt != null ||
+        row.finishedAt != null)) {
+      throw StateError(
+        'Seed verification failed: tracking fields must be stored in '
+        'tracking_entries_cache, not owned_items_cache',
+      );
+    }
     final ownedIds = ownedRows.map((row) => row.id).toSet();
     final customFieldValueRows =
         await db.select(db.customFieldValuesCache).get();
