@@ -189,7 +189,9 @@ final class CollectionImportService {
             entityType: CatalogEntityType.work,
             id: row.itemId,
           ),
-          anchorType: PersonalItemAnchorType.item.apiValue,
+          anchor: PersonalItemAnchor.fromRaw(
+            anchorType: PersonalItemAnchorType.item.apiValue,
+          ),
           createdAt: now,
           updatedAt: now,
         );

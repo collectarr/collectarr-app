@@ -28,7 +28,6 @@ final class TvTrackingImportContribution {
   }) {
     return trackingMutations.addLocalOnlyTrackingEntry(
       seasonItem,
-      anchorType: 'season',
       sourceType: sourceType,
       status: status,
       rating: rating,

@@ -1312,7 +1312,10 @@ class LibraryAddSessionController
             anchor: _selectedAnchor,
           );
         case LibraryAddTarget.track:
-          await trackingMutations.addLocalOnlyTrackingEntry(item);
+          await trackingMutations.addLocalOnlyTrackingEntry(
+            item,
+            anchor: _selectedAnchor,
+          );
       }
 
       state = state.copyWith(
@@ -1434,7 +1437,10 @@ class LibraryAddSessionController
                 anchor: _selectedAnchor,
               );
             case LibraryAddTarget.track:
-              await trackingMutations.addLocalOnlyTrackingEntry(metadataItem);
+              await trackingMutations.addLocalOnlyTrackingEntry(
+                metadataItem,
+                anchor: _selectedAnchor,
+              );
           }
         }
       } else if (checkedResults.isNotEmpty) {
@@ -1494,7 +1500,10 @@ class LibraryAddSessionController
               anchor: _selectedAnchor,
             );
           case LibraryAddTarget.track:
-            await trackingMutations.addLocalOnlyTrackingEntry(selectedResult);
+            await trackingMutations.addLocalOnlyTrackingEntry(
+              selectedResult,
+              anchor: _selectedAnchor,
+            );
         }
       }
 

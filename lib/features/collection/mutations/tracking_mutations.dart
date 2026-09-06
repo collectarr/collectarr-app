@@ -304,10 +304,7 @@ final class TrackingMutations {
 
   Future<void> addLocalOnlyTrackingEntry(
     CatalogItem item, {
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    PersonalItemAnchor? anchor,
     TrackingSourceType? sourceType,
     MediaTrackingStatus? status = MediaTrackingStatus.planned,
     int? rating,
@@ -325,18 +322,7 @@ final class TrackingMutations {
     final itemId = metadataItem.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();
-    final normalizedAnchorType = resolvePersonalItemAnchorType(
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    final catalogRef = metadataItem.catalogRefForAnchor(
-      anchorType: normalizedAnchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
+    final catalogRef = metadataItem.catalogRefForPersonalAnchor(anchor);
     await mutationRunner.run(
       origin: origin,
       localRef: catalogRef,
@@ -345,9 +331,9 @@ final class TrackingMutations {
         final baseEntry = TrackingEntry(
           id: entryId,
           catalogRef: catalogRef,
-          editionId: editionId,
-          variantId: variantId,
-          bundleReleaseId: bundleReleaseId,
+          editionId: anchor?.editionId,
+          variantId: anchor?.variantId,
+          bundleReleaseId: anchor?.bundleReleaseId,
           sourceType: sourceType,
           status: status,
           rating: rating,

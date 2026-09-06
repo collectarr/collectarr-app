@@ -146,10 +146,7 @@ Future<void> addLibraryItemsToTarget({
       case LibraryAddTarget.track:
         await trackingMutations.addLocalOnlyTrackingEntry(
           item,
-          anchorType: reference.anchorType,
-          editionId: reference.editionId,
-          variantId: reference.variantId,
-          bundleReleaseId: reference.bundleReleaseId,
+          anchor: itemAnchor,
           status: baseTracking.readStatus == null
               ? null
               : mediaTrackingStatusFromValue(baseTracking.readStatus),
