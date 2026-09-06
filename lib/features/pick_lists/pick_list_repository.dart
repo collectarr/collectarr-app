@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
@@ -393,13 +392,6 @@ class PickListRepository {
     if (normalized.isEmpty) {
       return 0;
     }
-    final directColumns = <String, List<(String table, String column)>>{
-      'condition': [('owned_items_cache', 'condition')],
-      'grade': [('owned_items_cache', 'grade')],
-      'purchase_store': [('owned_items_cache', 'purchase_store')],
-      'sold_to': [('owned_items_cache', 'sold_to')],
-      'collection_status': [('owned_items_cache', 'collection_status')],
-    };
     final catalogPayloadFields = <String, List<String>>{
       'publisher': ['publisher'],
       'imprint': ['imprint'],
@@ -411,12 +403,7 @@ class PickListRepository {
       'format': ['physical_format', 'physical_format_label'],
     };
     final semanticName = pickListSemanticName(listName);
-    final ownedColumns =
-        directColumns[semanticName] ?? const <(String table, String column)>[];
-    var total = 0;
-    for (final column in ownedColumns) {
-      total += await _countTextColumn(column.$1, column.$2, normalized);
-    }
+    var total = await _countOwnedStandardField(semanticName, normalized);
     total += await _countOwnedDetails(semanticName, normalized);
     for (final field
         in catalogPayloadFields[semanticName] ?? const <String>[]) {
@@ -451,10 +438,10 @@ class PickListRepository {
     if (key == null) {
       return 0;
     }
-    final rows = await _db.select(_db.ownedItemsCache).get();
+    final rows = await OwnedItemsRepository(_db).listActive();
     var count = 0;
     for (final row in rows) {
-      final details = _decodeDetails(row.detailsJson);
+      final details = row.details.toJson();
       final value = details[key];
       if (value is String && normalizePickListValue(value) == normalized) {
         count += 1;
@@ -463,31 +450,26 @@ class PickListRepository {
     return count;
   }
 
-  Map<String, dynamic> _decodeDetails(String? detailsJson) {
-    if (detailsJson == null || detailsJson.isEmpty) {
-      return const {};
-    }
-    try {
-      final decoded = jsonDecode(detailsJson);
-      if (decoded is Map) {
-        return Map<String, dynamic>.from(decoded);
-      }
-    } on Object {
-      return const {};
-    }
-    return const {};
-  }
-
-  Future<int> _countTextColumn(
-    String tableName,
-    String columnName,
+  Future<int> _countOwnedStandardField(
+    String semanticName,
     String normalized,
   ) async {
-    final result = await _db.customSelect(
-      'SELECT COUNT(*) AS count FROM $tableName WHERE lower(trim(coalesce($columnName, \'\'))) = ?',
-      variables: [Variable.withString(normalized)],
-    ).getSingle();
-    return result.read<int>('count');
+    final rows = await OwnedItemsRepository(_db).listActive();
+    var count = 0;
+    for (final row in rows) {
+      final value = switch (semanticName) {
+        'condition' => row.condition,
+        'grade' => row.grade,
+        'purchase_store' => row.purchaseStore,
+        'sold_to' => row.soldTo,
+        'collection_status' => row.collectionStatus,
+        _ => null,
+      };
+      if (value != null && normalizePickListValue(value) == normalized) {
+        count++;
+      }
+    }
+    return count;
   }
 
   Future<int> _countCatalogPayloadField(
@@ -509,11 +491,13 @@ class PickListRepository {
   }
 
   Future<int> _countTagField(String normalized) async {
-    final result = await _db.customSelect(
-      'SELECT COUNT(*) AS count FROM owned_items_cache WHERE lower(coalesce(tags, \'\')) LIKE ?',
-      variables: [Variable.withString('%${normalized.replaceAll("'", "''")}%')],
-    ).getSingle();
-    return result.read<int>('count');
+    final rows = await OwnedItemsRepository(_db).listActive();
+    return rows.where((row) {
+      final values = (row.tags ?? '')
+          .split(',')
+          .map((value) => normalizePickListValue(value));
+      return values.contains(normalized);
+    }).length;
   }
 
   Future<int> _countCustomFieldValues(String normalized) async {

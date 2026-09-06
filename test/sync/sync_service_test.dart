@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
@@ -28,7 +28,7 @@ void main() {
       db: db,
       queue: SyncQueueRepository(db),
       catalog: LibraryCatalogRepository(db),
-      ownedItems: OwnedItemsCacheRepository(db),
+      ownedItems: OwnedItemsRepository(db),
       trackingEntries: TrackingEntriesCacheRepository(
         db,
         codecs: collectarrTrackingEntryCodecs,
@@ -37,7 +37,7 @@ void main() {
       typedOwnedItems: CollectarrOwnedItemPersistence(db),
     ).syncNow('android', since: since);
 
-    final row = await db.select(db.ownedItemsCache).getSingle();
+    final row = await OwnedItemsRepository(db).findById('owned-1');
     final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
     final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
@@ -49,7 +49,7 @@ void main() {
     expect(client.lastPullSince, since);
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
-    expect(row.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
+    expect(row?.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
     expect(typedOwnedRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
     expect(trackingRow.status, 'Completed');
     expect(trackingRow.rating, 9);
@@ -87,7 +87,7 @@ void main() {
       db: db,
       queue: queue,
       catalog: LibraryCatalogRepository(db),
-      ownedItems: OwnedItemsCacheRepository(db),
+      ownedItems: OwnedItemsRepository(db),
       trackingEntries: TrackingEntriesCacheRepository(
         db,
         codecs: collectarrTrackingEntryCodecs,
@@ -95,7 +95,7 @@ void main() {
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
 
-    final row = await db.select(db.ownedItemsCache).getSingle();
+    final row = (await OwnedItemsRepository(db).listActive()).single;
     expect(result.rejectedCount, 1);
     expect(result.rejectedChanges.single.entityId, 'owned-1');
     expect(await queue.pendingCount(), 0);
@@ -138,7 +138,7 @@ void main() {
       db: db,
       queue: queue,
       catalog: LibraryCatalogRepository(db),
-      ownedItems: OwnedItemsCacheRepository(db),
+      ownedItems: OwnedItemsRepository(db),
       trackingEntries: TrackingEntriesCacheRepository(
         db,
         codecs: collectarrTrackingEntryCodecs,

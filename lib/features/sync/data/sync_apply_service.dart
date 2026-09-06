@@ -16,7 +16,7 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
@@ -58,7 +58,7 @@ class SyncApplyService {
   final LocalDatabase db;
   final SyncQueueRepository queue;
   final LibraryCatalogRepository catalog;
-  final OwnedItemsCacheRepository ownedItems;
+  final OwnedItemsRepository ownedItems;
   final TrackingEntriesCacheRepository trackingEntries;
   final WishlistItemsCacheRepository wishlistItems;
   final CollectarrOwnedItemPersistence? typedOwnedItems;

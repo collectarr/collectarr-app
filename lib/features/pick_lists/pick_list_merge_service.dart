@@ -1,6 +1,7 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/drift.dart';
@@ -41,7 +42,7 @@ class PickListMergeService {
     };
     var affected = 0;
     final samples = <String>[];
-    final ownedRows = await _db.select(_db.ownedItemsCache).get();
+    final ownedRows = await OwnedItemsRepository(_db).listActive();
     for (final row in ownedRows) {
       final rowValues = _valuesForRow(listName, row);
       if (rowValues.any(normalizedSources.contains)) {
@@ -99,28 +100,21 @@ class PickListMergeService {
     String target,
   ) async {
     final semanticName = pickListSemanticName(listName);
-    final rows = await _db.select(_db.ownedItemsCache).get();
+    final repository = OwnedItemsRepository(_db);
+    final rows = await repository.listActive();
     for (final row in rows) {
       if (semanticName == 'condition' &&
           sourceSet.contains(normalizePickListValue(row.condition ?? ''))) {
-        await (_db.update(_db.ownedItemsCache)
-              ..where((table) => table.id.equals(row.id)))
-            .write(OwnedItemsCacheCompanion(condition: Value(target)));
+        await repository.upsert(row.copyWith(condition: target));
       } else if (semanticName == 'grade' &&
           sourceSet.contains(normalizePickListValue(row.grade ?? ''))) {
-        await (_db.update(_db.ownedItemsCache)
-              ..where((table) => table.id.equals(row.id)))
-            .write(OwnedItemsCacheCompanion(grade: Value(target)));
+        await repository.upsert(row.copyWith(grade: target));
       } else if (semanticName == 'purchase_store' &&
           sourceSet.contains(normalizePickListValue(row.purchaseStore ?? ''))) {
-        await (_db.update(_db.ownedItemsCache)
-              ..where((table) => table.id.equals(row.id)))
-            .write(OwnedItemsCacheCompanion(purchaseStore: Value(target)));
+        await repository.upsert(row.copyWith(purchaseStore: target));
       } else if (semanticName == 'sold_to' &&
           sourceSet.contains(normalizePickListValue(row.soldTo ?? ''))) {
-        await (_db.update(_db.ownedItemsCache)
-              ..where((table) => table.id.equals(row.id)))
-            .write(OwnedItemsCacheCompanion(soldTo: Value(target)));
+        await repository.upsert(row.copyWith(soldTo: target));
       } else if (semanticName == 'tags' && (row.tags?.isNotEmpty ?? false)) {
         final tags = row.tags!
             .split(',')
@@ -132,25 +126,21 @@ class PickListMergeService {
           return sourceSet.contains(normalized) ? target : value;
         }).toList(growable: false);
         if (replaced.join(', ') != row.tags) {
-          await (_db.update(_db.ownedItemsCache)
-                ..where((table) => table.id.equals(row.id)))
-              .write(
-                  OwnedItemsCacheCompanion(tags: Value(replaced.join(', '))));
+          await repository.upsert(row.copyWith(tags: replaced.join(', ')));
         }
       } else {
         final detailsKey = _ownedDetailsKey(semanticName);
         if (detailsKey != null) {
-          final details = _decodeDetails(row.detailsJson);
+          final details = row.details.toJson();
           final value = details[detailsKey];
           if (value is String &&
               sourceSet.contains(normalizePickListValue(value))) {
             details[detailsKey] = target;
-            await (_db.update(_db.ownedItemsCache)
-                  ..where((table) => table.id.equals(row.id)))
-                .write(
-              OwnedItemsCacheCompanion(
-                detailsJson: Value(jsonEncode(details)),
-              ),
+            final codec = collectarrOwnedDetailsCodecForKind(
+              row.catalogRef.mediaKind,
+            );
+            await repository.upsert(
+              row.copyWith(details: codec.fromJson(details)),
             );
           }
         }
@@ -175,11 +165,11 @@ class PickListMergeService {
     }
   }
 
-  List<String> _valuesForRow(String listName, OwnedItemsCacheData row) {
+  List<String> _valuesForRow(String listName, OwnedItem row) {
     final semanticName = pickListSemanticName(listName);
     final detailsKey = _ownedDetailsKey(semanticName);
     if (detailsKey != null) {
-      final value = _decodeDetails(row.detailsJson)[detailsKey];
+      final value = row.details.toJson()[detailsKey];
       return value is String ? [value] : const [];
     }
     return switch (semanticName) {
@@ -215,20 +205,5 @@ class PickListMergeService {
       'game_completeness' => 'game_completeness',
       _ => null,
     };
-  }
-
-  Map<String, dynamic> _decodeDetails(String? detailsJson) {
-    if (detailsJson == null || detailsJson.isEmpty) {
-      return <String, dynamic>{};
-    }
-    try {
-      final decoded = jsonDecode(detailsJson);
-      if (decoded is Map) {
-        return Map<String, dynamic>.from(decoded);
-      }
-    } on Object {
-      return <String, dynamic>{};
-    }
-    return <String, dynamic>{};
   }
 }

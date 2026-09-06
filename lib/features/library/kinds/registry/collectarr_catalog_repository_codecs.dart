@@ -332,9 +332,12 @@ final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 }
 
 Map<String, dynamic> _payloadFor(CatalogItem item) => {
+      ...item.toSyncPayload(),
+      // The envelope identity is authoritative. A persisted raw payload may
+      // contain an absent/stale id, but typed repositories must always receive
+      // the identity that the catalog repository is upserting.
       'id': item.id,
       'kind': item.kind,
-      ...item.toSyncPayload(),
 };
 
 CatalogItem _withTypedMetadata(

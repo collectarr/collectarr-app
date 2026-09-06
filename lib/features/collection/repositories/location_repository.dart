@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -96,16 +97,14 @@ class LocationRepository {
 
   Future<void> assignItemToLocation(
       String ownedItemId, String? locationId) async {
-    await (_db.update(_db.ownedItemsCache)
-          ..where((t) => t.id.equals(ownedItemId)))
-        .write(OwnedItemsCacheCompanion(locationId: Value(locationId)));
+    final repository = OwnedItemsRepository(_db);
+    final item = await repository.findById(ownedItemId);
+    if (item == null) return;
+    await repository.upsert(item.copyWith(locationId: locationId));
   }
 
   Future<String?> getItemLocationId(String ownedItemId) async {
-    final row = await (_db.select(_db.ownedItemsCache)
-          ..where((t) => t.id.equals(ownedItemId)))
-        .getSingleOrNull();
-    return row?.locationId;
+    return (await OwnedItemsRepository(_db).findById(ownedItemId))?.locationId;
   }
 
   Future<void> _writeLocation(StorageLocation location) {
@@ -123,9 +122,11 @@ class LocationRepository {
   Future<void> _deleteLocationRow(String id) async {
     await (_db.update(_db.locationsCache)..where((t) => t.parentId.equals(id)))
         .write(const LocationsCacheCompanion(parentId: Value(null)));
-    await (_db.update(_db.ownedItemsCache)
-          ..where((t) => t.locationId.equals(id)))
-        .write(const OwnedItemsCacheCompanion(locationId: Value(null)));
+    final ownedRepository = OwnedItemsRepository(_db);
+    final ownedItems = await ownedRepository.listActive();
+    for (final item in ownedItems.where((item) => item.locationId == id)) {
+      await ownedRepository.upsert(item.copyWith(locationId: null));
+    }
     await (_db.delete(_db.locationsCache)..where((t) => t.id.equals(id))).go();
   }
 

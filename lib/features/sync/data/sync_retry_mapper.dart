@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
@@ -24,7 +24,7 @@ class SyncRetryMapper {
   }) async {
     switch (change.entityType) {
       case 'owned_item':
-        final item = await OwnedItemsCacheRepository(db).findById(
+        final item = await OwnedItemsRepository(db).findById(
           change.entityId,
         );
         if (item == null) {

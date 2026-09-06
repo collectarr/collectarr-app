@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -60,7 +61,7 @@ void main() {
     final queued = (await db.select(db.syncQueue).get())
         .where((row) => row.entityType == 'owned_item')
         .toList();
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     expect(owned.editionId, 'edition-1');
     expect(owned.variantId, 'variant-1');
     expect(queued, hasLength(1));
@@ -96,7 +97,7 @@ void main() {
           ),
         );
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     expect(owned.condition, 'Typed condition');
     expect(owned.quantity, 3);
     expect(owned.purchaseStore, 'Typed store');
@@ -125,7 +126,7 @@ void main() {
           ),
         );
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     final queued = await db.select(db.syncQueue).getSingle();
 
     expect(owned.createdAt, isNotNull);
@@ -193,7 +194,7 @@ void main() {
           ),
         );
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
     final catalog = await LibraryCatalogRepository(db).findById('comic-1');
 
@@ -224,7 +225,7 @@ void main() {
           ),
         );
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
     final queued = await db.select(db.syncQueue).get();
 
@@ -274,7 +275,7 @@ void main() {
           ),
         );
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
 
     expect(owned.isDigital, isTrue);
@@ -496,7 +497,7 @@ void main() {
             details: const ComicOwnedDetailsDraft(),
           ),
         );
-    final original = await db.select(db.ownedItemsCache).getSingle();
+    final original = (await OwnedItemsRepository(db).listActive()).single;
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           OwnedItemPatchCommand<OwnedDetailsDraft>(
@@ -510,7 +511,7 @@ void main() {
           ),
         );
 
-    final updated = await db.select(db.ownedItemsCache).getSingle();
+    final updated = (await OwnedItemsRepository(db).listActive()).single;
     expect(updated.purchaseDate, isNull);
     expect(updated.pricePaidCents, isNull);
     expect(updated.currency, isNull);
@@ -534,7 +535,7 @@ void main() {
             details: const ComicOwnedDetailsDraft(),
           ),
         );
-    final original = await db.select(db.ownedItemsCache).getSingle();
+    final original = (await OwnedItemsRepository(db).listActive()).single;
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           OwnedItemPatchCommand<OwnedDetailsDraft>(
@@ -543,7 +544,7 @@ void main() {
           ),
         );
 
-    final updated = await db.select(db.ownedItemsCache).getSingle();
+    final updated = (await OwnedItemsRepository(db).listActive()).single;
     expect(updated.locationId, isNull);
   });
 
@@ -688,7 +689,7 @@ void main() {
       ],
     );
 
-    final owned = await db.select(db.ownedItemsCache).get();
+    final owned = await OwnedItemsRepository(db).listActive();
     final typedOwned = await db.select(db.comicOwnedItemsRows).get();
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
@@ -753,7 +754,7 @@ void main() {
       ),
     ]);
 
-    final owned = await db.select(db.ownedItemsCache).get();
+    final owned = await OwnedItemsRepository(db).listActive();
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = (await db.select(db.syncQueue).get())
         .where((row) =>
@@ -803,7 +804,7 @@ void main() {
       ],
     );
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     final typedOwned = await db.select(db.comicOwnedItemsRows).get();
     final queued = await db.select(db.syncQueue).get();
     expect(imported, 1);
@@ -889,7 +890,7 @@ void main() {
       ],
     );
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     expect(imported, 1);
     expect(owned.itemId, 'book-owned-fields');
     expect(owned.condition, 'Very Good');
@@ -944,10 +945,8 @@ void main() {
 
     await container.read(collectionImportServiceProvider).importRows(rows);
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
-    final details = ComicOwnedDetails.fromJson(
-      jsonDecode(owned.detailsJson!) as Map<String, dynamic>,
-    );
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
+    final details = owned.details as ComicOwnedDetails;
     expect(details.rawOrSlabbed, 'Slabbed');
     expect(details.gradingCompany, 'CGC');
     expect(details.graderNotes, 'Pressing preserved');
@@ -994,7 +993,7 @@ void main() {
       ],
     );
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     expect(imported, 1);
     expect(owned.itemId, 'movie-1');
   });
@@ -1077,7 +1076,7 @@ void main() {
     expect(preview.reviewCount, 1);
 
     final imported = await importService.importRows(preview.resolvedRows);
-    final owned = await db.select(db.ownedItemsCache).get();
+    final owned = await OwnedItemsRepository(db).listActive();
     expect(imported, 1);
     expect(owned, hasLength(1));
     expect(owned.single.grade, '9.8');
@@ -1107,7 +1106,7 @@ void main() {
       ],
     );
 
-    final owned = await db.select(db.ownedItemsCache).getSingle();
+    final owned = (await OwnedItemsRepository(db).listActive()).single;
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
     expect(imported, 1);
     expect(owned.rating, isNull);
@@ -1170,7 +1169,7 @@ void main() {
         details: const ComicOwnedDetailsDraft(),
       ),
     );
-    final original = await db.select(db.ownedItemsCache).getSingle();
+    final original = (await OwnedItemsRepository(db).listActive()).single;
 
     final imported = await importService.importRows(
       const [
@@ -1183,7 +1182,7 @@ void main() {
       ],
     );
 
-    final owned = await db.select(db.ownedItemsCache).get();
+    final owned = await OwnedItemsRepository(db).listActive();
     expect(imported, 1);
     expect(owned, hasLength(1));
     expect(owned.single.id, original.id);
@@ -1212,7 +1211,7 @@ void main() {
       ],
     );
 
-    final owned = await db.select(db.ownedItemsCache).get();
+    final owned = await OwnedItemsRepository(db).listActive();
     expect(imported, 1);
     expect(owned.single.locationId, 'loc-short-box-6');
   });

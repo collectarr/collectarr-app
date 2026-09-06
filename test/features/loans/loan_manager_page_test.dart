@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -18,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('loan manager renders on desktop and filters loans',
@@ -38,14 +40,15 @@ void main() {
         'title': 'Action Comics #1',
       }),
     ]);
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'comic-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 1),
-          ),
-        );
+    await OwnedItemsRepository(db).upsert(
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        kind: 'comic',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
 
     final loanRepo = LoanRepository(db);
     await loanRepo.create(
@@ -96,14 +99,15 @@ void main() {
         'title': 'Detective Comics #27',
       }),
     ]);
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'comic-2',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 1),
-          ),
-        );
+    await OwnedItemsRepository(db).upsert(
+      testOwnedItem(
+        id: 'owned-2',
+        itemId: 'comic-2',
+        kind: 'comic',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 1),
+      ),
+    );
 
     final loanRepo = LoanRepository(db);
     await loanRepo.create(

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -54,7 +55,7 @@ void main() {
     );
 
     final catalogRows = await fixture.catalog.findAll();
-    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
     final trackingRows =
         await fixture.db.select(fixture.db.trackingEntriesCache).get();
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
@@ -97,7 +98,7 @@ void main() {
 
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
-    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
     expect(wishlistRows.single.itemId, 'comic-2');
@@ -136,7 +137,7 @@ void main() {
       ),
     );
 
-    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
 
     expect(ownedRows.single.itemId, 'movie-digital-1');
     expect(ownedRows.single.isDigital, isTrue);
@@ -162,7 +163,7 @@ void main() {
       referenceType: LibraryAddReferenceType.edition,
     );
 
-    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
 
     expect(ownedRows.single.itemId, 'edition-1');
     expect(
@@ -247,7 +248,7 @@ void main() {
       bundleReleaseIdsByItemId: const {'comic-track-1': 'bundle-ignored'},
     );
 
-    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
     final trackingRows =
@@ -274,7 +275,7 @@ void main() {
       defaults: const LibraryAddDefaults(),
     );
 
-    final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
+    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
     final trackingRows =

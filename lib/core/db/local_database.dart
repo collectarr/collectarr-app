@@ -14,7 +14,6 @@ import 'universal_local_tables.dart';
 part 'local_database.g.dart';
 
 @DriftDatabase(tables: [
-  OwnedItemsCache,
   WishlistItemsCache,
   TrackingEntriesCache,
   TrackingUnitsCache,

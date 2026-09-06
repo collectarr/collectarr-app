@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -50,7 +50,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     });
     final db = ref.read(localDatabaseProvider);
     final loansRepo = LoanRepository(db);
-    final ownedRepo = OwnedItemsCacheRepository(db);
+    final ownedRepo = OwnedItemsRepository(db);
     final catalogRepo = LibraryCatalogRepository(db);
     final locationRepo = LocationRepository(db);
 

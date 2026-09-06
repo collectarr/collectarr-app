@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
@@ -222,24 +223,22 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-comic-1',
-            itemId: 'comic-multi-1',
-            kind: const Value('comic'),
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-comic-2',
-            itemId: 'comic-multi-1',
-            kind: const Value('comic'),
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
+    await OwnedItemsRepository(db).upsertAll([
+      testOwnedItem(
+        id: 'owned-comic-1',
+        itemId: 'comic-multi-1',
+        kind: 'comic',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      ),
+      testOwnedItem(
+        id: 'owned-comic-2',
+        itemId: 'comic-multi-1',
+        kind: 'comic',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      ),
+    ]);
     OwnedItem? editedOwnedItem;
 
     await tester.pumpWidget(
@@ -587,22 +586,22 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'book-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'book-1',
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
+    await OwnedItemsRepository(db).upsertAll([
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      ),
+      testOwnedItem(
+        id: 'owned-2',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      ),
+    ]);
 
     await tester.pumpWidget(
       ProviderScope(
@@ -646,22 +645,22 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'book-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'book-1',
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
+    await OwnedItemsRepository(db).upsertAll([
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      ),
+      testOwnedItem(
+        id: 'owned-2',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      ),
+    ]);
     OwnedItem? editedOwnedItem;
 
     await tester.pumpWidget(
@@ -724,22 +723,22 @@ void main() {
     addTearDown(db.close);
     final type = bookKindModule;
 
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'book-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'book-1',
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
+    await OwnedItemsRepository(db).upsertAll([
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      ),
+      testOwnedItem(
+        id: 'owned-2',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      ),
+    ]);
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-owned-2',

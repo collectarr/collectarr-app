@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/collection/events/collection_event_bus.d
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -138,7 +138,7 @@ void main() {
       title: 'Test album',
     );
     final ownedRepository = harness.ref.read(
-      ownedItemsCacheRepositoryProvider,
+      ownedItemsRepositoryProvider,
     );
     await ownedRepository.upsert(owned);
     harness.selectedBucket = 'Very Good';
@@ -247,7 +247,7 @@ Future<_CoordinatorHarness> _pumpHarness(
   final events = CollectionEventBus();
   addTearDown(events.dispose);
   final mutations = OwnedItemMutations(
-    ownedItems: OwnedItemsCacheRepository(db),
+    ownedItems: OwnedItemsRepository(db),
     wishlist: WishlistItemsCacheRepository(db),
     catalogCache: LibraryCatalogRepository(db),
     trackingEntries: TrackingEntriesCacheRepository(

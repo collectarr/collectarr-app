@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -65,7 +66,7 @@ void main() {
       ),
     );
 
-    final row = await db.select(db.ownedItemsCache).getSingle();
+    final row = (await OwnedItemsRepository(db).listActive()).single;
     final owned = testOwnedItem(
       id: row.id,
       itemId: row.itemId,
@@ -83,7 +84,7 @@ void main() {
       ),
     );
 
-    final updated = await db.select(db.ownedItemsCache).getSingle();
+    final updated = (await OwnedItemsRepository(db).listActive()).single;
     expect(updated.locationId, 'loc-b');
   });
 
@@ -115,10 +116,11 @@ void main() {
       ),
     );
 
-    final row = await db.select(db.ownedItemsCache).getSingle();
+    final row = (await OwnedItemsRepository(db).listActive()).single;
     final owned = testOwnedItem(
       id: row.id,
       itemId: row.itemId,
+      kind: 'movie',
       updatedAt: row.updatedAt,
     );
     final actions = buildActions();
@@ -127,10 +129,10 @@ void main() {
       ShelfEntry(itemId: 'movie-1', ownedItem: owned),
     ]);
 
-    final ownedRows = await db.select(db.ownedItemsCache).get();
+    final deletedOwned = await OwnedItemsRepository(db).findById(owned.id);
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
 
-    expect(ownedRows.single.deletedAt, isNotNull);
+    expect(deletedOwned?.deletedAt, isNotNull);
     expect(wishlistRows, hasLength(1));
     expect(wishlistRows.single.itemId, 'movie-1');
     expect(wishlistRows.single.deletedAt, isNull);
@@ -172,7 +174,7 @@ void main() {
       status: MediaTrackingStatus.completed,
     );
 
-    final ownedRow = await db.select(db.ownedItemsCache).getSingle();
+    final ownedRow = (await OwnedItemsRepository(db).listActive()).single;
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final trackingRow = (await db.select(db.trackingEntriesCache).get())
         .firstWhere((row) => row.itemId == 'movie-3');
@@ -184,6 +186,7 @@ void main() {
         ownedItem: testOwnedItem(
           id: ownedRow.id,
           itemId: ownedRow.itemId,
+          kind: 'movie',
           updatedAt: ownedRow.updatedAt,
         ),
       ),
@@ -222,11 +225,11 @@ void main() {
       ),
     ]);
 
-    final ownedRows = await db.select(db.ownedItemsCache).get();
+    final deletedOwned = await OwnedItemsRepository(db).findById(ownedRow.id);
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
     final trackingRows = await db.select(db.trackingEntriesCache).get();
 
-    expect(ownedRows.single.deletedAt, isNotNull);
+    expect(deletedOwned?.deletedAt, isNotNull);
     expect(wishlistRows.single.deletedAt, isNotNull);
     expect(
       trackingRows.firstWhere((r) => r.itemId == 'movie-3').deletedAt,
@@ -284,7 +287,7 @@ void main() {
       ),
     ]);
 
-    final ownedRows = await db.select(db.ownedItemsCache).get();
+    final ownedRows = await OwnedItemsRepository(db).listActive();
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
     final activeWishlistRows =
         wishlistRows.where((row) => row.deletedAt == null).toList();

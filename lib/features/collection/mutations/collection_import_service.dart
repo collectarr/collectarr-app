@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/catalog/library_catalog_repository.dart'
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -39,7 +39,7 @@ final class CollectionImportService {
     this.idGenerator = _defaultIdGenerator,
   });
 
-  final OwnedItemsCacheRepository ownedItems;
+  final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
   final LibraryCatalogRepository catalogCache;
   final CatalogLookupRepository catalogLookup;

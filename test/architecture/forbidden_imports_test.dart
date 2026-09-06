@@ -634,7 +634,7 @@ class ComicFeature {}
       ),
     );
 
-    final projection = fooKindModule.project(
+    final projection = fooKindModule.workspace.project(
       source: entry,
       node: const LibraryTitleNodeRef(titleItemId: 'foo-1'),
     );

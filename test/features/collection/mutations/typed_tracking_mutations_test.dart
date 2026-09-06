@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -11,7 +13,7 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
@@ -28,7 +30,7 @@ void main() {
   late LocalDatabase db;
   late TrackingMutations trackingMutations;
   late LibraryCatalogRepository catalogCache;
-  late OwnedItemsCacheRepository ownedItems;
+  late OwnedItemsRepository ownedItems;
   late TrackingEntriesCacheRepository trackingEntries;
   late MutationOrigin? observedOrigin;
 
@@ -36,7 +38,7 @@ void main() {
     observedOrigin = null;
     db = LocalDatabase(NativeDatabase.memory());
     catalogCache = LibraryCatalogRepository(db);
-    ownedItems = OwnedItemsCacheRepository(db);
+    ownedItems = OwnedItemsRepository(db);
     trackingEntries = TrackingEntriesCacheRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,
@@ -103,7 +105,7 @@ void main() {
           entityType: CatalogEntityType.work,
           id: 'book-77',
         ),
-        details: const GenericOwnedDetails(),
+        details: const BookOwnedDetails(),
         updatedAt: DateTime.now().toUtc(),
       );
       await catalogCache.upsertAll([
@@ -309,7 +311,7 @@ void main() {
       final owned = OwnedItem(
         id: 'owned-tv-1',
         catalogRef: ref,
-        details: const GenericOwnedDetails(),
+        details: const TvOwnedDetails(),
         updatedAt: DateTime.utc(2026, 6, 1),
       );
       await catalogCache.upsertAll([
@@ -355,7 +357,7 @@ void main() {
           anchorType: PersonalItemAnchorType.edition.apiValue,
           editionId: 'edition-owned-before-clear',
         ),
-        details: const GenericOwnedDetails(),
+        details: const BookOwnedDetails(),
         updatedAt: DateTime.utc(2026, 6, 1),
       );
       await catalogCache.upsertAll([

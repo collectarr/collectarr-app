@@ -4,46 +4,6 @@ import 'package:drift/drift.dart';
 ///
 /// Kind-specific table semantics live beside their owning kind. This file is
 /// intentionally limited to truly universal cache and coordination tables.
-class OwnedItemsCache extends Table {
-  TextColumn get id => text()();
-  TextColumn get itemId => text()();
-  TextColumn get kind => text().withDefault(const Constant('unknown'))();
-  TextColumn get detailsJson => text().nullable()();
-  DateTimeColumn get createdAt => dateTime().nullable()();
-  BoolColumn get isDigital => boolean().nullable()();
-  TextColumn get anchorType => text().nullable()();
-  TextColumn get editionId => text().nullable()();
-  TextColumn get variantId => text().nullable()();
-  TextColumn get bundleReleaseId => text().nullable()();
-  TextColumn get condition => text().nullable()();
-  TextColumn get grade => text().nullable()();
-  DateTimeColumn get purchaseDate => dateTime().nullable()();
-  IntColumn get pricePaidCents => integer().nullable()();
-  TextColumn get currency => text().nullable()();
-  TextColumn get personalNotes => text().nullable()();
-  IntColumn get quantity => integer().withDefault(const Constant(1))();
-  IntColumn get indexNumber => integer().nullable()();
-  IntColumn get rating => integer().nullable()();
-  TextColumn get readStatus => text().nullable()();
-  DateTimeColumn get startedAt => dateTime().nullable()();
-  DateTimeColumn get finishedAt => dateTime().nullable()();
-  TextColumn get tags => text().nullable()();
-  DateTimeColumn get updatedAt => dateTime()();
-  DateTimeColumn get deletedAt => dateTime().nullable()();
-  DateTimeColumn get soldAt => dateTime().nullable()();
-  IntColumn get sellPriceCents => integer().nullable()();
-  TextColumn get soldTo => text().nullable()();
-  TextColumn get ownerUserId => text().nullable()();
-  TextColumn get ownerLabel => text().nullable()();
-  TextColumn get locationId => text().nullable()();
-  TextColumn get purchaseStore => text().nullable()();
-  TextColumn get collectionStatus => text().nullable()();
-  IntColumn get marketValueCents => integer().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
 class CustomFieldDefinitionsCache extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();

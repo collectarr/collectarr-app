@@ -1,11 +1,14 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   late LocalDatabase db;
@@ -83,14 +86,15 @@ void main() {
             sortOrder: const Value(0),
           ),
         );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'item-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 1, 1),
-          ),
-        );
+    await OwnedItemsRepository(db).upsert(
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'item-1',
+        kind: 'comic',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 1, 1),
+      ),
+    );
 
     expect(await repo.listNames(), ['condition']);
     final counts = await repo.usageCounts(listName: 'condition');

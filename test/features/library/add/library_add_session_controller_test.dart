@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/collection/events/collection_event_bus.d
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
@@ -58,7 +58,7 @@ void main() {
     final catalogCache = LibraryCatalogRepository(db);
 
     ownedMutations = OwnedItemMutations(
-      ownedItems: OwnedItemsCacheRepository(db),
+      ownedItems: OwnedItemsRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
       catalogCache: catalogCache,
       trackingEntries: TrackingEntriesCacheRepository(
@@ -98,7 +98,7 @@ void main() {
         codecs: collectarrWatchSessionCodecs,
       ),
       catalogCache: catalogCache,
-      ownedItems: OwnedItemsCacheRepository(db),
+      ownedItems: OwnedItemsRepository(db),
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
@@ -180,7 +180,7 @@ void main() {
       final success = await controller.submitSelectedItem(item);
       expect(success, true);
 
-      final owned = await db.select(db.ownedItemsCache).getSingle();
+      final owned = (await OwnedItemsRepository(db).listActive()).single;
       expect(owned.itemId, 'comic-sub-1');
     });
 
@@ -345,8 +345,7 @@ void main() {
       );
 
       expect(command.catalogRef.id, 'c1');
-      expect(command.common.condition, 'NM');
-      final details = command.details.toDetails();
+      final details = command.typedPayload.detailsDraft.toDetails();
       expect(details, isA<ComicOwnedDetails>());
       expect((details as ComicOwnedDetails).gradingCompany, 'CBCS');
       expect(details.signedBy, 'Stan Lee');
@@ -363,7 +362,7 @@ void main() {
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'v1');
-      final details = command.details.toDetails();
+      final details = command.typedPayload.detailsDraft.toDetails();
       expect(details, isA<MovieOwnedDetails>());
       expect((details as MovieOwnedDetails).packaging, 'SteelBook');
       expect(details.region, 'Region A');
@@ -380,7 +379,7 @@ void main() {
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'g1');
-      final details = command.details.toDetails();
+      final details = command.typedPayload.detailsDraft.toDetails();
       expect(details, isA<GameOwnedDetails>());
       expect((details as GameOwnedDetails).completeness, 'CIB');
       expect(details.hasBox, true);
@@ -397,7 +396,7 @@ void main() {
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'm1');
-      final details = command.details.toDetails();
+      final details = command.typedPayload.detailsDraft.toDetails();
       expect(details, isA<MusicOwnedDetails>());
       expect((details as MusicOwnedDetails).storageDevice, 'Shelf A');
       expect(details.storageSlot, '12');
@@ -700,9 +699,12 @@ void main() {
       expect(cachedItem.payload['publisher'], 'DC Comics');
 
       // Verify owned item record exists in DB
-      final ownedItem = await db.managers.ownedItemsCache
-          .filter((f) => f.itemId.equals(expectedProvisionalId))
-          .getSingleOrNull();
+      final ownedItems = await OwnedItemsRepository(db).listActive();
+      final matchingOwnedItems = ownedItems.where(
+        (item) => item.itemId == expectedProvisionalId,
+      );
+      final ownedItem =
+          matchingOwnedItems.isEmpty ? null : matchingOwnedItems.first;
       expect(ownedItem, isNotNull);
       expect(ownedItem!.itemId, expectedProvisionalId);
 

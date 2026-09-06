@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helpers/secure_storage_mock.dart';
 import 'helpers/test_constants.dart';
+import 'helpers/test_data_factories.dart';
 
 /// Platform smoke tests verify critical platform-specific behaviour.
 ///

@@ -111,8 +111,6 @@ void main() {
         );
         expect(command.catalogRef.id, item.id);
         expect(command.anchor?.editionId, 'edition-${kind.apiValue}');
-        expect(command.common.condition, 'Near Mint');
-        expect(command.common.personalNotes, 'Collection note');
         expect(command.tracking?.rating, 9);
         expect(command.tracking?.notes, isNull);
         expect(command.typedPayload, isNotNull,
@@ -122,17 +120,14 @@ void main() {
         expect(runtime.edit.ownedUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned Owned update payload');
 
-        final existing = OwnedItem(
+        final existing = command.typedPayload!.toOwnedItem(
+          resolvedCatalogRef: command.catalogRef,
           id: 'existing-${kind.apiValue}',
-          catalogRef: command.catalogRef,
-          details: command.details.toDetails(),
-          condition: command.common.condition,
-          grade: command.common.grade,
-          personalNotes: command.common.personalNotes,
-          purchaseStore: command.common.purchaseStore,
-          collectionStatus: command.common.collectionStatus,
-          quantity: command.common.quantity,
-          updatedAt: DateTime.utc(2026, 1, 1),
+          createdAt: DateTime.utc(2026, 1, 1),
+          existingCatalog: metadataItem,
+          anchor: command.anchor,
+          ownerUserId: null,
+          ownerLabel: null,
         );
         final duplicate = addCap.buildCommandFromOwnedItem(
           metadataItem,
@@ -158,29 +153,39 @@ void main() {
         expect(duplicatedOwned.purchaseStore, 'Typed Store');
         expect(duplicatedOwned.collectionStatus, 'Complete');
         expect(duplicatedOwned.quantity, 2);
-        expect(command.details, isNot(isA<GenericOwnedDetailsDraft>()),
+        expect(command.typedPayload!.detailsDraft,
+            isNot(isA<GenericOwnedDetailsDraft>()),
             reason:
                 '$kind command details must not be GenericOwnedDetailsDraft');
 
         switch (kind) {
           case CatalogMediaKind.comic:
-            expect(command.details, isA<ComicOwnedDetailsDraft>());
+            expect(command.typedPayload!.detailsDraft,
+                isA<ComicOwnedDetailsDraft>());
           case CatalogMediaKind.manga:
-            expect(command.details, isA<MangaOwnedDetailsDraft>());
+            expect(command.typedPayload!.detailsDraft,
+                isA<MangaOwnedDetailsDraft>());
           case CatalogMediaKind.movie:
-            expect(command.details, isA<MovieOwnedDetailsDraft>());
+            expect(command.typedPayload!.detailsDraft,
+                isA<MovieOwnedDetailsDraft>());
           case CatalogMediaKind.tv:
-            expect(command.details, isA<TvOwnedDetailsDraft>());
+            expect(command.typedPayload!.detailsDraft,
+                isA<TvOwnedDetailsDraft>());
           case CatalogMediaKind.anime:
-            expect(command.details, isA<AnimeOwnedDetailsDraft>());
+            expect(command.typedPayload!.detailsDraft,
+                isA<AnimeOwnedDetailsDraft>());
           case CatalogMediaKind.book:
-            expect(command.details, isA<BookOwnedDetailsDraft>());
+            expect(command.typedPayload!.detailsDraft,
+                isA<BookOwnedDetailsDraft>());
           case CatalogMediaKind.game:
-            expect(command.details, isA<GameOwnedDetailsDraft>());
+            expect(command.typedPayload!.detailsDraft,
+                isA<GameOwnedDetailsDraft>());
           case CatalogMediaKind.boardgame:
-            expect(command.details, isA<BoardgameOwnedDetailsDraft>());
+            expect(command.typedPayload!.detailsDraft,
+                isA<BoardgameOwnedDetailsDraft>());
           case CatalogMediaKind.music:
-            expect(command.details, isA<MusicOwnedDetailsDraft>());
+            expect(command.typedPayload!.detailsDraft,
+                isA<MusicOwnedDetailsDraft>());
           case CatalogMediaKind.unknown:
             fail('Unknown kind is not an active kind');
         }

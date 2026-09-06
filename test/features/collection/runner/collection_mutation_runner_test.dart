@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/collection/events/collection_event_bus.d
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

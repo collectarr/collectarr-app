@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -29,22 +30,22 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'book-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'book-1',
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
+    await OwnedItemsRepository(db).upsertAll([
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      ),
+      testOwnedItem(
+        id: 'owned-2',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      ),
+    ]);
 
     final owned = testOwnedItem(
       id: 'owned-1',
@@ -105,22 +106,22 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'book-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'book-1',
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
+    await OwnedItemsRepository(db).upsertAll([
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      ),
+      testOwnedItem(
+        id: 'owned-2',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      ),
+    ]);
     OwnedItem? editedOwnedItem;
 
     final owned = testOwnedItem(
@@ -210,6 +211,7 @@ void main() {
           TrackingEntriesCacheCompanion.insert(
             id: 'tracking-1',
             itemId: 'movie-1',
+            kind: const Value('movie'),
             sourceType: const Value('digital'),
             status: const Value('Watching'),
             rating: const Value(8),

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/registry/owned_details_exp
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
@@ -53,7 +53,7 @@ void main() {
     );
 
     ownedMutations = OwnedItemMutations(
-      ownedItems: OwnedItemsCacheRepository(db),
+      ownedItems: OwnedItemsRepository(db),
       catalogCache: catalogCache,
       wishlist: wishlistRepo,
       trackingEntries: TrackingEntriesCacheRepository(

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
@@ -43,18 +44,20 @@ void main() {
             sortOrder: const Value(2),
           ),
         );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'movie-1',
-            locationId: const Value('loc-a'),
-            updatedAt: DateTime.utc(2026, 5, 23),
-          ),
-        );
+    await OwnedItemsRepository(db).upsert(
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'movie-1',
+        kind: 'movie',
+        locationId: 'loc-a',
+        updatedAt: DateTime.utc(2026, 5, 23),
+      ),
+    );
 
     final ownedItem = testOwnedItem(
       id: 'owned-1',
       itemId: 'movie-1',
+      kind: 'movie',
       locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
@@ -86,7 +89,7 @@ void main() {
         .tap(find.widgetWithText(FilledButton, 'Apply personal changes'));
     await pumpUntilSettled(tester);
 
-    final updated = await db.select(db.ownedItemsCache).getSingle();
+    final updated = (await OwnedItemsRepository(db).listActive()).single;
     expect(updated.locationId, 'loc-b');
   });
 
@@ -104,6 +107,7 @@ void main() {
           TrackingEntriesCacheCompanion.insert(
             id: 'tracking-1',
             itemId: 'movie-1',
+            kind: const Value('movie'),
             sourceType: const Value('digital'),
             status: const Value('Plan to watch'),
             rating: const Value(7),

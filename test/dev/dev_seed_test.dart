@@ -4,6 +4,7 @@ import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/native.dart';
@@ -244,7 +245,7 @@ void main() {
             (row.payload['tracks'] as List?)?.isNotEmpty == true),
         isTrue);
 
-    final ownedRows = await db.select(db.ownedItemsCache).get();
+    final ownedRows = await OwnedItemsRepository(db).listActive();
     for (final entry in expectedCatalogCounts.entries) {
       final kindOwned = ownedRows
           .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
@@ -434,7 +435,7 @@ void main() {
     );
     expect(
       await pickLists.getValues('music.genre', mediaKind: 'music'),
-      contains('rock'),
+      contains('Rock'),
     );
     expect(
       await pickLists.getValues('boardgame.category', mediaKind: 'boardgame'),

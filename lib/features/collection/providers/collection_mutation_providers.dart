@@ -23,7 +23,7 @@ import 'package:collectarr_app/features/collection/mutations/tracking_mutations.
 import 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
@@ -43,9 +43,9 @@ final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));
 });
 
-final ownedItemsCacheRepositoryProvider =
-    Provider<OwnedItemsCacheRepository>((ref) {
-  return OwnedItemsCacheRepository(ref.watch(localDatabaseProvider));
+final ownedItemsRepositoryProvider =
+    Provider<OwnedItemsRepository>((ref) {
+  return OwnedItemsRepository(ref.watch(localDatabaseProvider));
 });
 
 final wishlistItemsCacheRepositoryProvider =
@@ -160,7 +160,7 @@ final collectionMutationRunnerProvider =
 final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
   final auth = ref.watch(authControllerProvider);
   return OwnedItemMutations(
-    ownedItems: ref.watch(ownedItemsCacheRepositoryProvider),
+    ownedItems: ref.watch(ownedItemsRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
     trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
@@ -191,7 +191,7 @@ final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
     trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
-    ownedItems: ref.watch(ownedItemsCacheRepositoryProvider),
+    ownedItems: ref.watch(ownedItemsRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -225,7 +225,7 @@ final customEpisodeMutationsProvider = Provider<CustomEpisodeMutations>((ref) {
 final collectionImportServiceProvider =
     Provider<CollectionImportService>((ref) {
   return CollectionImportService(
-    ownedItems: ref.watch(ownedItemsCacheRepositoryProvider),
+    ownedItems: ref.watch(ownedItemsRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
     catalogLookup: CatalogLookupRepository(

@@ -1,6 +1,6 @@
 /// Development seed data for the local database.
 ///
-/// Populates the typed local catalog projections, OwnedItemsCache,
+/// Populates the typed local catalog projections and all kind-owned copies,
 /// TrackingEntriesCache, PickListValues, SerialAuthority, and
 /// CustomFieldDefinitions/Values with rich entries for every library kind.
 ///
@@ -28,26 +28,8 @@ import 'package:collectarr_app/dev/seeds/pick_list_seeds.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/tv_seeds.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
@@ -55,7 +37,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dar
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
@@ -390,13 +372,15 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
 /// the totals green while disconnecting one catalog kind from its copy data.
 Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
   final issues = <String>[];
-  final ownedRows = await db.select(db.ownedItemsCache).get();
-  final ownedById = <String, OwnedItemsCacheData>{
+  final ownedRows = await OwnedItemsRepository(db).listActive();
+  final ownedById = <String, OwnedItem>{
     for (final row in ownedRows) row.id: row,
   };
   final expectedByKind = <String, Set<String>>{};
   for (final row in ownedRows.where((row) => row.id.startsWith('seed-'))) {
-    expectedByKind.putIfAbsent(row.kind, () => <String>{}).add(row.id);
+    expectedByKind
+        .putIfAbsent(row.catalogRef.kind, () => <String>{})
+        .add(row.id);
   }
 
   void checkTypedRows(
@@ -409,12 +393,12 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
     for (final id in typedIds) {
       final owned = ownedById[id];
       if (owned == null) {
-        issues.add('$table row $id has no common owned cache row');
+        issues.add('$table row $id has no owned repository row');
         continue;
       }
-      if (owned.kind != kind) {
+      if (owned.catalogRef.kind != kind) {
         issues.add(
-          '$table row $id belongs to kind ${owned.kind}, expected $kind',
+          '$table row $id belongs to kind ${owned.catalogRef.kind}, expected $kind',
         );
       }
       if (!owned.itemId.startsWith('seed-$kind-')) {
@@ -580,7 +564,7 @@ final class DevSeedVerificationReport {
 Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     LocalDatabase db) async {
   final catalogRows = await LibraryCatalogRepository(db).findAll();
-  final ownedRows = await db.select(db.ownedItemsCache).get();
+  final ownedRows = await OwnedItemsRepository(db).listActive();
   final trackingRows = await db.select(db.trackingEntriesCache).get();
   final imageRows = await db.select(db.itemImagesCache).get();
   final typedGraphCounts = await devSeedTypedGraphCounts(db);
@@ -705,8 +689,8 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     require(
         catalog != null, 'owned ${row.id} references missing ${row.itemId}');
     require(
-      row.kind == catalog?.kind,
-      'owned ${row.id} kind ${row.kind} does not match catalog ${row.itemId}',
+      row.catalogRef.kind == catalog?.kind,
+      'owned ${row.id} kind ${row.catalogRef.kind} does not match catalog ${row.itemId}',
     );
     require(
       row.rating == null &&
@@ -922,16 +906,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   if (!force && !await _isDatabaseEmpty(db)) return;
 
   final catalogRepo = LibraryCatalogRepository(db);
-  final comicOwnedRepo = ComicOwnedRepository(db);
-  final animeOwnedRepo = AnimeOwnedRepository(db);
-  final movieOwnedRepo = MovieOwnedRepository(db);
-  final tvOwnedRepo = TvOwnedRepository(db);
-  final musicOwnedRepo = MusicOwnedRepository(db);
-  final gameOwnedRepo = GameOwnedRepository(db);
-  final boardGameOwnedRepo = BoardGameOwnedRepository(db);
-  final bookOwnedRepo = BookOwnedRepository(db);
-  final mangaOwnedRepo = MangaOwnedRepository(db);
-  final ownedRepo = OwnedItemsCacheRepository(db);
+  final ownedRepo = OwnedItemsRepository(db);
   final trackingRepo = TrackingEntriesCacheRepository(
     db,
     codecs: collectarrTrackingEntryCodecs,
@@ -1009,52 +984,6 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   await ownedRepo.upsertAll(ownedItems);
   await _seedKindTracking(db, allItems, now);
   await trackingUnitsRepo.upsertAll(trackingUnits);
-  await comicOwnedRepo.upsertAll(
-    ownedItems
-        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.comic)
-        .map(ComicOwnedItemProjection.fromOwnedItem),
-  );
-  await movieOwnedRepo.upsertAll(
-    ownedItems
-        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.movie)
-        .map(MovieOwnedItemProjection.fromOwnedItem),
-  );
-  await animeOwnedRepo.upsertAll(
-    ownedItems
-        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.anime)
-        .map(AnimeOwnedItemProjection.fromOwnedItem),
-  );
-  await tvOwnedRepo.upsertAll(
-    ownedItems
-        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.tv)
-        .map(TvOwnedItemProjection.fromOwnedItem),
-  );
-  await musicOwnedRepo.upsertAll(
-    ownedItems
-        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.music)
-        .map(MusicOwnedItemProjection.fromOwnedItem),
-  );
-  await gameOwnedRepo.upsertAll(
-    ownedItems
-        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.game)
-        .map(GameOwnedItemProjection.fromOwnedItem),
-  );
-  await boardGameOwnedRepo.upsertAll(
-    ownedItems
-        .where(
-            (item) => item.catalogRef.mediaKind == CatalogMediaKind.boardgame)
-        .map(BoardGameOwnedItemProjection.fromOwnedItem),
-  );
-  await bookOwnedRepo.upsertAll(
-    ownedItems
-        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.book)
-        .map(BookOwnedItemProjection.fromOwnedItem),
-  );
-  await mangaOwnedRepo.upsertAll(
-    ownedItems
-        .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.manga)
-        .map(MangaOwnedItemProjection.fromOwnedItem),
-  );
 
   // --- Item Images (front/back + extras) ---
   await _seedItemImages(imagesRepo, ownedItems);

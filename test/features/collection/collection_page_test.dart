@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('shelf page shows local collection stats and filters',
@@ -41,22 +43,23 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'comic-1',
-            condition: const Value('Near Mint'),
-            grade: const Value('9.8'),
-            pricePaidCents: const Value(1299),
-            currency: const Value('USD'),
-            personalNotes: const Value('Signed copy'),
-            quantity: const Value(2),
-            locationId: const Value('loc-box-6'),
-            detailsJson: Value(jsonEncode({'key_comic': true})),
-            readStatus: const Value('read'),
-            updatedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    await OwnedItemsRepository(db).upsert(
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        kind: 'comic',
+        condition: 'Near Mint',
+        grade: '9.8',
+        pricePaidCents: 1299,
+        currency: 'USD',
+        personalNotes: 'Signed copy',
+        quantity: 2,
+        locationId: 'loc-box-6',
+        keyComic: true,
+        readStatus: 'read',
+        updatedAt: DateTime.utc(2026, 5, 11),
+      ),
+    );
     await db.into(db.wishlistItemsCache).insert(
           WishlistItemsCacheCompanion.insert(
             id: 'wish-1',
@@ -128,18 +131,19 @@ void main() {
         'item_number': '8A',
       }),
     ]);
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'comic-1',
-            condition: const Value('Near Mint'),
-            grade: const Value('9.8'),
-            pricePaidCents: const Value(1299),
-            currency: const Value('USD'),
-            quantity: const Value(1),
-            updatedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    await OwnedItemsRepository(db).upsert(
+      testOwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        kind: 'comic',
+        condition: 'Near Mint',
+        grade: '9.8',
+        pricePaidCents: 1299,
+        currency: 'USD',
+        quantity: 1,
+        updatedAt: DateTime.utc(2026, 5, 11),
+      ),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
