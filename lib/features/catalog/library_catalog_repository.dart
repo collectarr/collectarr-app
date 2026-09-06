@@ -2,7 +2,9 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_catalog_repository_codecs.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -59,6 +61,7 @@ final class LibraryCatalogRepository {
 
     final pickLists = PickListRepository(_db);
     final serialAuthority = SerialAuthorityRepository(_db);
+    final serialCandidates = <SerialAuthorityCandidate>[];
     await _db.transaction(() async {
       for (final entry in byKind.entries) {
         for (final contributor in defaultPickListDefinitionContributors) {
@@ -71,8 +74,13 @@ final class LibraryCatalogRepository {
             );
           }
         }
+        for (final contributor in collectarrSerialAuthorityContributors) {
+          if (contributor.kind != entry.key) continue;
+          serialCandidates.addAll(contributor.candidates(entry.value));
+        }
       }
-      await serialAuthority.captureCatalogItemsWithoutTransaction(list);
+      await serialAuthority
+          .captureCandidatesWithoutTransaction(serialCandidates);
     });
   }
 

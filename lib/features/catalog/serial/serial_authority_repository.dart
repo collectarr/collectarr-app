@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -186,7 +187,6 @@ class SerialAuthorityRepository {
     if (list.isEmpty) {
       return;
     }
-    final now = DateTime.now().toUtc();
     final candidates = <String, _SeriesCandidate>{};
     for (final item in list) {
       final metadataItem = typedCatalogItemFromUnknown(item);
@@ -233,7 +233,47 @@ class SerialAuthorityRepository {
       return;
     }
 
-    for (final candidate in candidates.values) {
+    await _captureSeriesCandidates(candidates.values);
+  }
+
+  /// Persists candidates projected by an owning kind.
+  ///
+  /// This is the preferred path for catalog writes. [captureCatalogItems]
+  /// remains as a compatibility adapter for older callers that still provide
+  /// common CatalogItem values.
+  Future<void> captureCandidatesWithoutTransaction(
+    Iterable<SerialAuthorityCandidate> candidates,
+  ) async {
+    final byKey = <String, _SeriesCandidate>{};
+    for (final candidate in candidates) {
+      final title = _emptyToNull(candidate.title);
+      if (title == null) continue;
+      final normalizedTitle = _normalize(title);
+      if (normalizedTitle == null) continue;
+      final coreSeriesId = _emptyToNull(candidate.coreSeriesId);
+      final key = _seriesKey(
+        coreSeriesId: coreSeriesId,
+        normalizedTitle: normalizedTitle,
+      );
+      byKey[key] = _SeriesCandidate(
+        mediaKind: candidate.mediaKind.apiValue,
+        title: title,
+        normalizedTitle: normalizedTitle,
+        sortTitle: _emptyToNull(candidate.sortTitle) ?? title,
+        normalizedSortTitle: _normalize(candidate.sortTitle) ?? normalizedTitle,
+        coreSeriesId: coreSeriesId,
+      );
+    }
+    await _captureSeriesCandidates(byKey.values);
+  }
+
+  Future<void> _captureSeriesCandidates(
+    Iterable<_SeriesCandidate> candidates,
+  ) async {
+    final list = candidates.toList(growable: false);
+    if (list.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    for (final candidate in list) {
       final existing = await _findMatchingRow(
         mediaKind: candidate.mediaKind,
         coreSeriesId: candidate.coreSeriesId,
