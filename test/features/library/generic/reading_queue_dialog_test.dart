@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:drift/native.dart';
@@ -40,13 +42,21 @@ void main() {
                     testOwnedItem(
                       id: 'owned-1',
                       itemId: 'book-1',
-                      readStatus: 'Reading',
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),
                     testOwnedItem(
                       id: 'owned-2',
                       itemId: 'book-2',
                       personalNotes: 'Signed copy',
+                      updatedAt: DateTime.utc(2026, 1, 1),
+                    ),
+                  ],
+                  trackingEntries: [
+                    TrackingEntry(
+                      id: 'tracking-1',
+                      catalogRef: testCatalogRef('book-1', kind: 'book'),
+                      ownedItemId: 'owned-1',
+                      status: MediaTrackingStatus.inProgress,
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),
                   ],

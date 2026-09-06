@@ -260,6 +260,8 @@ class LibraryPageDialogCoordinator {
     final db = _page.ref.read(localDatabaseProvider);
     final queueIds = await ReadingQueueRepository(db).getQueue();
     final ownedItems = await _page.ref.read(collectionProvider.future);
+    final trackingEntries =
+        await _page.ref.read(trackingEntriesProvider.future);
     final queuedOwnedItems = ownedItems
         .where((item) => !item.isDeleted && queueIds.contains(item.id))
         .toList(growable: false);
@@ -281,6 +283,7 @@ class LibraryPageDialogCoordinator {
       db: db,
       mediaKind: _page.type.kind.apiValue,
       ownedItems: queuedOwnedItems,
+      trackingEntries: trackingEntries,
       catalogItemsById: catalogItemsById,
       onSelectItem: _page.selectItem,
     );

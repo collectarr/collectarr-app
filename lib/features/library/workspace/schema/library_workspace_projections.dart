@@ -130,13 +130,14 @@ class PersonalCopyProjection {
     LibraryReleaseState? releaseState,
   }) {
     final owned = source.ownedItem;
+    final tracking = source.trackingEntry;
     return PersonalCopyProjection(
       isOwned: releaseState?.isOwned ?? source.isOwned,
       isWishlisted: releaseState?.isWishlisted ?? source.isWishlisted,
       isTracked: releaseState?.isTracked ?? source.isTracked,
       condition: owned?.condition,
       locationPath: owned?.locationId,
-      rating: owned?.rating,
+      rating: tracking?.rating ?? owned?.rating,
       pricePaidCents: owned?.pricePaidCents,
       addedAt: owned?.createdAt,
       updatedAt: source.updatedAt,

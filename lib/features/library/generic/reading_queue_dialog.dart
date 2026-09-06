@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -14,6 +15,7 @@ Future<void> showReadingQueueDialog({
   required LocalDatabase db,
   required String mediaKind,
   required Iterable<OwnedItem> ownedItems,
+  Iterable<TrackingEntry> trackingEntries = const [],
   required Map<String, dynamic> catalogItemsById,
   ValueChanged<String>? onSelectItem,
 }) {
@@ -23,6 +25,7 @@ Future<void> showReadingQueueDialog({
       db: db,
       mediaKind: mediaKind,
       ownedItems: ownedItems.toList(growable: false),
+      trackingEntries: trackingEntries.toList(growable: false),
       catalogItemsById: catalogItemsById,
       onSelectItem: onSelectItem,
     ),
@@ -34,6 +37,7 @@ class _ReadingQueueDialog extends StatefulWidget {
     required this.db,
     required this.mediaKind,
     required this.ownedItems,
+    required this.trackingEntries,
     required this.catalogItemsById,
     this.onSelectItem,
   });
@@ -41,6 +45,7 @@ class _ReadingQueueDialog extends StatefulWidget {
   final LocalDatabase db;
   final String mediaKind;
   final List<OwnedItem> ownedItems;
+  final List<TrackingEntry> trackingEntries;
   final Map<String, dynamic> catalogItemsById;
   final ValueChanged<String>? onSelectItem;
 
@@ -72,6 +77,15 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       for (final item in widget.ownedItems)
         if (!item.isDeleted) item.id: item,
     };
+    final trackingByOwnedId = {
+      for (final entry in widget.trackingEntries)
+        if (!entry.isDeleted && entry.ownedItemId != null)
+          entry.ownedItemId!: entry,
+    };
+    final trackingByItemId = {
+      for (final entry in widget.trackingEntries)
+        if (!entry.isDeleted) entry.itemId: entry,
+    };
     final entries = <_ReadingQueueDialogEntry>[];
     for (final queuedId in queueIds) {
       final ownedItem = ownedById[queuedId];
@@ -88,6 +102,8 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         _ReadingQueueDialogEntry(
           ownedItem: ownedItem,
           catalogItem: catalogItem,
+          trackingEntry: trackingByOwnedId[ownedItem.id] ??
+              trackingByItemId[ownedItem.itemId],
         ),
       );
     }
@@ -172,7 +188,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
     final fields = [
       entry.label,
       entry.catalogItem.payload['publisher']?.toString(),
-      entry.ownedItem.readStatus,
+      entry.trackingEntry?.statusStorageValue,
       entry.ownedItem.personalNotes,
     ];
     for (final field in fields) {
@@ -274,8 +290,9 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                       publisher.isNotEmpty) {
                                     details.add(publisher);
                                   }
-                                  final readStatus =
-                                      entry.ownedItem.readStatus?.trim();
+                                  final readStatus = entry
+                                      .trackingEntry?.statusStorageValue
+                                      ?.trim();
                                   if (readStatus != null &&
                                       readStatus.isNotEmpty) {
                                     details.add(readStatus);
@@ -348,10 +365,12 @@ class _ReadingQueueDialogEntry {
   const _ReadingQueueDialogEntry({
     required this.ownedItem,
     required this.catalogItem,
+    this.trackingEntry,
   });
 
   final OwnedItem ownedItem;
   final CatalogItem catalogItem;
+  final TrackingEntry? trackingEntry;
 
   String get label {
     final payload = catalogItem.payload;
