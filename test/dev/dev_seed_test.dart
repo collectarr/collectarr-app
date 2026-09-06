@@ -34,10 +34,17 @@ void main() {
 
     final catalogRows = await LibraryCatalogRepository(db).findAll();
     final typedGraphCounts = await devSeedTypedGraphCounts(db);
+    final typedGraphIntegrityIssues =
+        await devSeedTypedGraphIntegrityIssues(db);
     final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
     final typedTrackingCounts = await devSeedTypedTrackingCounts(db);
     final typedTrackingUnitCounts = await devSeedTypedTrackingUnitCounts(db);
     final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
+    expect(
+      typedGraphIntegrityIssues,
+      isEmpty,
+      reason: 'Typed seed graph relationships must remain intact',
+    );
     for (final entry in devSeedTypedGraphMinimumCounts.entries) {
       expect(
         typedGraphCounts[entry.key],

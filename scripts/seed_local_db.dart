@@ -41,6 +41,14 @@ Future<void> main() async {
         );
       }
     }
+    final typedGraphIntegrityIssues =
+        await devSeedTypedGraphIntegrityIssues(db);
+    if (typedGraphIntegrityIssues.isNotEmpty) {
+      throw StateError(
+        'Seed verification failed for typed graph relationships:\n'
+        '${typedGraphIntegrityIssues.map((issue) => '- $issue').join('\n')}',
+      );
+    }
     final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
     for (final entry in devSeedTypedOwnedMinimumCounts.entries) {
       final actual = typedOwnedCounts[entry.key] ?? 0;

@@ -188,6 +188,190 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
   };
 }
 
+/// Returns relationship errors in the typed rows written by the development
+/// fixture. Only deterministic seed rows are inspected so a developer can
+/// run this against a database that also contains real local data.
+Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
+  final issues = <String>[];
+  bool isSeed(String id) => id.startsWith('seed-');
+
+  final comicMedia = await db.select(db.comicMediaRows).get();
+  final comicMediaIds = comicMedia.map((row) => row.id).toSet();
+  final comicReleases = await db.select(db.comicReleaseRows).get();
+  for (final row in comicReleases.where((row) => isSeed(row.mediaId))) {
+    if (!comicMediaIds.contains(row.mediaId)) {
+      issues.add('comic release ${row.id} has missing media ${row.mediaId}');
+    }
+  }
+
+  final mangaMedia = await db.select(db.mangaMediaRows).get();
+  for (final row in mangaMedia.where((row) => isSeed(row.id))) {
+    if (row.chaptersJson == '[]') {
+      issues.add('manga media ${row.id} has no persisted chapters');
+    }
+  }
+
+  final bookMedia = await db.select(db.bookMediaRows).get();
+  final bookMediaIds = bookMedia.map((row) => row.id).toSet();
+  final bookReleases = await db.select(db.bookReleaseRows).get();
+  for (final row in bookReleases.where((row) => isSeed(row.mediaId))) {
+    if (!bookMediaIds.contains(row.mediaId)) {
+      issues.add('book release ${row.id} has missing media ${row.mediaId}');
+    }
+    if (row.workId != row.mediaId) {
+      issues.add(
+        'book release ${row.id} points to work ${row.workId}, '
+        'expected ${row.mediaId}',
+      );
+    }
+  }
+
+  final gameMedia = await db.select(db.gameMediaRows).get();
+  final gameMediaIds = gameMedia.map((row) => row.id).toSet();
+  final gameReleases = await db.select(db.gameReleaseRows).get();
+  for (final row in gameReleases.where((row) => isSeed(row.mediaId))) {
+    if (!gameMediaIds.contains(row.mediaId)) {
+      issues.add('game release ${row.id} has missing media ${row.mediaId}');
+    }
+    if (row.workId != row.mediaId) {
+      issues.add(
+        'game release ${row.id} points to work ${row.workId}, '
+        'expected ${row.mediaId}',
+      );
+    }
+  }
+
+  final boardGameMedia = await db.select(db.boardGameMediaRows).get();
+  final boardGameMediaIds = boardGameMedia.map((row) => row.id).toSet();
+  final boardGameEditions = await db.select(db.boardGameEditionRows).get();
+  for (final row in boardGameEditions.where((row) => isSeed(row.mediaId))) {
+    if (!boardGameMediaIds.contains(row.mediaId)) {
+      issues.add(
+        'boardgame edition ${row.id} has missing media ${row.mediaId}',
+      );
+    }
+    if (row.workId != row.mediaId) {
+      issues.add(
+        'boardgame edition ${row.id} points to work ${row.workId}, '
+        'expected ${row.mediaId}',
+      );
+    }
+  }
+
+  final movieMedia = await db.select(db.movieMediaRows).get();
+  final movieMediaIds = movieMedia.map((row) => row.id).toSet();
+  final movieReleases = await db.select(db.movieReleaseRows).get();
+  for (final row in movieReleases.where((row) => isSeed(row.mediaId))) {
+    if (!movieMediaIds.contains(row.mediaId)) {
+      issues.add('movie release ${row.id} has missing media ${row.mediaId}');
+    }
+    if (row.workId != row.mediaId) {
+      issues.add(
+        'movie release ${row.id} points to work ${row.workId}, '
+        'expected ${row.mediaId}',
+      );
+    }
+    if (row.mediaJson == '[]') {
+      issues.add('movie release ${row.id} has no persisted media');
+    }
+  }
+
+  final tvSeries = await db.select(db.tvSeriesRows).get();
+  final tvSeriesIds = tvSeries.map((row) => row.id).toSet();
+  final tvSeasons = await db.select(db.tvSeasonRows).get();
+  final tvSeasonIds = tvSeasons.map((row) => row.id).toSet();
+  for (final row in tvSeasons.where((row) => isSeed(row.seriesId))) {
+    if (!tvSeriesIds.contains(row.seriesId)) {
+      issues.add('tv season ${row.id} has missing series ${row.seriesId}');
+    }
+  }
+  final tvEpisodes = await db.select(db.tvEpisodeRows).get();
+  final tvEpisodeIds = tvEpisodes.map((row) => row.id).toSet();
+  for (final row in tvEpisodes.where((row) => isSeed(row.seriesId))) {
+    if (!tvSeriesIds.contains(row.seriesId)) {
+      issues.add('tv episode ${row.id} has missing series ${row.seriesId}');
+    }
+    if (!tvSeasonIds.contains(row.seasonId)) {
+      issues.add('tv episode ${row.id} has missing season ${row.seasonId}');
+    }
+  }
+  final tvReleases = await db.select(db.tvReleaseRows).get();
+  final tvReleaseIds = tvReleases.map((row) => row.id).toSet();
+  for (final row in tvReleases.where((row) => isSeed(row.seriesId))) {
+    if (!tvSeriesIds.contains(row.seriesId)) {
+      issues.add('tv release ${row.id} has missing series ${row.seriesId}');
+    }
+  }
+  final tvReleaseMedia = await db.select(db.tvReleaseMediaRows).get();
+  final tvReleaseMediaIds = tvReleaseMedia.map((row) => row.id).toSet();
+  for (final row in tvReleaseMedia.where((row) => isSeed(row.releaseId))) {
+    if (!tvReleaseIds.contains(row.releaseId)) {
+      issues.add(
+        'tv release media ${row.id} has missing release ${row.releaseId}',
+      );
+    }
+  }
+  final tvReleaseEpisodeMaps =
+      await db.select(db.tvReleaseEpisodeMapRows).get();
+  for (final row
+      in tvReleaseEpisodeMaps.where((row) => isSeed(row.releaseId))) {
+    if (!tvReleaseIds.contains(row.releaseId)) {
+      issues.add(
+        'tv release episode map ${row.id} has missing release ${row.releaseId}',
+      );
+    }
+    if (!tvReleaseMediaIds.contains(row.mediaId)) {
+      issues.add(
+        'tv release episode map ${row.id} has missing media ${row.mediaId}',
+      );
+    }
+    if (!tvEpisodeIds.contains(row.episodeId)) {
+      issues.add(
+        'tv release episode map ${row.id} has missing episode ${row.episodeId}',
+      );
+    }
+  }
+
+  final animeMedia = await db.select(db.animeMediaRows).get();
+  final animeMediaIds = animeMedia.map((row) => row.id).toSet();
+  final animeEpisodes = await db.select(db.animeEpisodeRows).get();
+  for (final row in animeEpisodes.where((row) => isSeed(row.seriesId))) {
+    if (!animeMediaIds.contains(row.seriesId)) {
+      issues.add(
+        'anime episode ${row.id} has missing media ${row.seriesId}',
+      );
+    }
+  }
+  final animeReleases = await db.select(db.animeReleaseRows).get();
+  for (final row in animeReleases.where((row) => isSeed(row.seriesId))) {
+    if (!animeMediaIds.contains(row.seriesId)) {
+      issues.add(
+        'anime release ${row.id} has missing media ${row.seriesId}',
+      );
+    }
+  }
+
+  final musicReleases = await db.select(db.musicReleaseRows).get();
+  final musicReleaseIds = musicReleases.map((row) => row.id).toSet();
+  final musicMedia = await db.select(db.musicMediaRows).get();
+  final musicMediaIds = musicMedia.map((row) => row.id).toSet();
+  for (final row in musicMedia.where((row) => isSeed(row.releaseId))) {
+    if (!musicReleaseIds.contains(row.releaseId)) {
+      issues.add(
+        'music media ${row.id} has missing release ${row.releaseId}',
+      );
+    }
+  }
+  final musicTracks = await db.select(db.musicTrackRows).get();
+  for (final row in musicTracks.where((row) => isSeed(row.mediaId))) {
+    if (!musicMediaIds.contains(row.mediaId)) {
+      issues.add('music track ${row.id} has missing media ${row.mediaId}');
+    }
+  }
+
+  return issues;
+}
+
 /// Counts kind-owned ownership rows written by the development seed.
 Future<Map<String, int>> devSeedTypedOwnedCounts(LocalDatabase db) async {
   return {
