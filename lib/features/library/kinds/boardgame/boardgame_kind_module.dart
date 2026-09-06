@@ -92,6 +92,12 @@ Iterable<String?> _boardGameLinkedMetadataValues(
       ...metadata.creators.map((credit) => credit['name']?.toString()),
     ];
 
+final boardGameLibraryFacetModule = LibraryFacetModule(
+  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+  getFacetValues: _getBoardGameFacetValues,
+  definitions: boardgameLibraryFacetDefinitions,
+);
+
 final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
   presentation: boardGamesLibraryMediaPresentation,
   trackingProfile: boardGameTrackingProfile,
@@ -207,11 +213,6 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     ownedUpdatePayloadBuilder: BoardgameOwnedItemUpdatePayload.fromCommand,
   ),
   stats: const BoardGameStatsCapability(),
-  facets: LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-    getFacetValues: _getBoardGameFacetValues,
-    definitions: boardgameLibraryFacetDefinitions,
-  ),
 );
 
 Iterable<String> _getBoardGameFacetValues(

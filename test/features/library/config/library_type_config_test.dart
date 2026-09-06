@@ -414,15 +414,15 @@ void main() {
   test('library kind registry resolves runtimes and providers', () {
     final runtimes = defaultLibraryKindRegistry.allModules;
     expect(runtimes.map((runtime) => runtime.kind.apiValue).toList(), [
-      'comic',
-      'manga',
-      'book',
-      'game',
-      'boardgame',
-      'movie',
-      'tv',
       'anime',
+      'boardgame',
+      'book',
+      'comic',
+      'game',
+      'manga',
+      'movie',
       'music',
+      'tv',
     ]);
     expect(defaultLibraryKindRegistry.getByKind(CatalogMediaKind.comic),
         same(comicKindModule));
@@ -697,14 +697,17 @@ void main() {
           .columnDisplayName(_field(comicKindModule, 'comic.series')),
       'Series',
     );
-    expect(comicRuntime.workspace.columnLabel(_field(comicKindModule, 'cover')),
-        '');
     expect(
-      comicRuntime.workspace.columnGroup(_field(comicKindModule, 'location')),
-      LibraryTableColumnGroup.personal,
+      comicRuntime.workspace.columnLabel(_field(comicKindModule, 'cover')),
+      'Cover',
     );
     expect(
-      comicRuntime.workspace.columnIsNumeric(_field(comicKindModule, 'price')),
+      comicRuntime.workspace.columnGroup(_field(comicKindModule, 'location')),
+      LibraryTableColumnGroup.main,
+    );
+    expect(
+      comicRuntime.workspace
+          .columnIsNumeric(_field(comicKindModule, 'comic.price_paid')),
       isTrue,
     );
     expect(
@@ -729,15 +732,15 @@ void main() {
           .map((runtime) => runtime.kind.apiValue)
           .toList(),
       [
-        'comic',
-        'manga',
-        'book',
-        'game',
-        'boardgame',
-        'movie',
-        'tv',
         'anime',
+        'boardgame',
+        'book',
+        'comic',
+        'game',
+        'manga',
+        'movie',
         'music',
+        'tv',
       ],
     );
     expect(libraryKindModule(CatalogMediaKind.book), same(bookKindModule));
@@ -785,7 +788,7 @@ void main() {
         _field(bookKindModule, 'title'),
         {_field(bookKindModule, 'title'): 999},
       ),
-      520,
+      260,
     );
     expect(
       libraryKindModule(CatalogMediaKind.music)
@@ -833,7 +836,7 @@ void main() {
         'game.completeness',
       ],
     );
-    expect(comicKindModule.facets!.externalFacetBucketIdsByMode.keys, [
+    expect(comicLibraryFacetModule.externalFacetBucketIdsByMode.keys, [
       'comic.story_arc',
       'comic.character',
     ]);

@@ -152,6 +152,10 @@ Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
+const movieLibraryFacetModule = LibraryFacetModule(
+  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+);
+
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
   presentation: moviesLibraryMediaPresentation,
   trackingProfile: movieTrackingProfile,
@@ -283,9 +287,6 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     createDraft: createMovieEditDraft,
     ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MovieOwnedItemUpdatePayload.fromCommand,
-  ),
-  facets: const LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
   buildCardPresentation: buildMovieCardPresentation,
 );

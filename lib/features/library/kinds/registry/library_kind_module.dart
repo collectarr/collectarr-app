@@ -117,7 +117,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
     this.value,
     this.relations,
     this.toolbar,
-    this.facets,
     this.searchTargetOptions = const [],
     LibraryWorkspaceViewProfile? viewProfile,
     LibraryCardPresentation Function(
@@ -187,7 +186,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
       value: value,
       relations: relations,
       toolbar: toolbar,
-      facets: facets,
       searchTargetOptions: searchTargetOptions,
       viewProfile: _viewProfile,
       buildCardPresentation: _buildCardPresentation,
@@ -220,7 +218,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
   final LibraryAddCapability add;
   @override
   final LibraryKindToolbarModule? toolbar;
-  final LibraryFacetModule? facets;
   @override
   final List<LibrarySearchTarget> searchTargetOptions;
 

@@ -54,6 +54,16 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
+final gameLibraryFacetModule = LibraryFacetModule(
+  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+  getFacetValues: _getGameFacetValues,
+  definitions: gameLibraryFacetDefinitions,
+  externalFacetBucketIdsByMode: {
+    'game.genre': GameFacetIds.genre,
+    'game.region': GameFacetIds.region,
+  },
+);
+
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   presentation: gamesLibraryMediaPresentation,
   trackingProfile: gameTrackingProfile,
@@ -153,15 +163,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     createDraft: createGameEditDraft,
     ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: GameOwnedItemUpdatePayload.fromCommand,
-  ),
-  facets: LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-    getFacetValues: _getGameFacetValues,
-    definitions: gameLibraryFacetDefinitions,
-    externalFacetBucketIdsByMode: {
-      'game.genre': GameFacetIds.genre,
-      'game.region': GameFacetIds.region,
-    },
   ),
   buildCardPresentation: buildGameCardPresentation,
 );

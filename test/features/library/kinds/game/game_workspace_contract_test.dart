@@ -43,7 +43,8 @@ void main() {
     expect(registry.findGroupDefinition(defaultGroup!), isNotNull);
 
     expect(
-      gameKindModule.facets!.definitions.map((definition) => definition.id.value),
+      gameLibraryFacetModule.definitions
+          .map((definition) => definition.id.value),
       [
         GameFacetIds.platform.value,
         GameFacetIds.publisher.value,
@@ -98,7 +99,7 @@ void main() {
     expect(values[GameFacetIds.genre.value], ['Platformer']);
     expect(values[GameFacetIds.region.value], ['NTSC-U', 'US']);
 
-    final facets = gameKindModule.facets!;
+    final facets = gameLibraryFacetModule;
     expect(
       facets.externalFacetBucketIdsByMode.keys,
       containsAll(['game.genre', 'game.region']),

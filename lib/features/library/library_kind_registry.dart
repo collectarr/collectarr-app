@@ -332,15 +332,15 @@ Object? Function(Map<String, dynamic>)?
 /// it does not read facet semantics from [LibraryKindModule].
 LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
   return switch (kind) {
-    CatalogMediaKind.anime => animeKindModule.facets,
-    CatalogMediaKind.boardgame => boardGameKindModule.facets,
-    CatalogMediaKind.book => bookKindModule.facets,
-    CatalogMediaKind.comic => comicKindModule.facets,
-    CatalogMediaKind.game => gameKindModule.facets,
-    CatalogMediaKind.manga => mangaKindModule.facets,
-    CatalogMediaKind.movie => movieKindModule.facets,
-    CatalogMediaKind.music => musicKindModule.facets,
-    CatalogMediaKind.tv => tvKindModule.facets,
+    CatalogMediaKind.anime => animeLibraryFacetModule,
+    CatalogMediaKind.boardgame => boardGameLibraryFacetModule,
+    CatalogMediaKind.book => bookLibraryFacetModule,
+    CatalogMediaKind.comic => comicLibraryFacetModule,
+    CatalogMediaKind.game => gameLibraryFacetModule,
+    CatalogMediaKind.manga => mangaLibraryFacetModule,
+    CatalogMediaKind.movie => movieLibraryFacetModule,
+    CatalogMediaKind.music => musicLibraryFacetModule,
+    CatalogMediaKind.tv => tvLibraryFacetModule,
     CatalogMediaKind.unknown => null,
   };
 }

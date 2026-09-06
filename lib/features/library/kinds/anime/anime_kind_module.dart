@@ -116,6 +116,10 @@ Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
       ...metadata.genres,
     ];
 
+const animeLibraryFacetModule = LibraryFacetModule(
+  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+);
+
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
   presentation: animeLibraryMediaPresentation,
   trackingProfile: animeTrackingProfile,
@@ -253,9 +257,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     createDraft: createAnimeEditDraft,
     ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: AnimeOwnedItemUpdatePayload.fromCommand,
-  ),
-  facets: const LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
   buildCardPresentation: buildAnimeCardPresentation,
 );

@@ -65,6 +65,10 @@ Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
+const musicLibraryFacetModule = LibraryFacetModule(
+  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+);
+
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   presentation: musicLibraryMediaPresentation,
   searchTargetOptions: const [
@@ -187,9 +191,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     createDraft: createMusicEditDraft,
     ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MusicOwnedItemUpdatePayload.fromCommand,
-  ),
-  facets: const LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
   buildCardPresentation: buildMusicCardPresentation,
 );

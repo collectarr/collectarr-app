@@ -45,7 +45,7 @@ void main() {
     );
 
     expect(
-      bookKindModule.facets!.definitions
+      bookLibraryFacetModule.definitions
           .map((definition) => definition.id.value),
       containsAll([
         'book.author',
@@ -98,7 +98,7 @@ void main() {
     expect(facetValues['book.subject'], contains('Politics'));
     expect(facetValues['book.translator'], contains('Ion Hobana'));
 
-    final facets = bookKindModule.facets!;
+    final facets = bookLibraryFacetModule;
     expect(
       facets.externalFacetBucketIdsByMode.keys,
       containsAll(['book.genre', 'book.subject']),

@@ -117,6 +117,10 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       ...metadata.genres,
     ];
 
+const tvLibraryFacetModule = LibraryFacetModule(
+  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+);
+
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
   presentation: tvLibraryMediaPresentation,
   trackingProfile: tvTrackingProfile,
@@ -263,9 +267,6 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     createDraft: createTvEditDraft,
     ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: TvOwnedItemUpdatePayload.fromCommand,
-  ),
-  facets: const LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
   buildCardPresentation: buildTvCardPresentation,
 );

@@ -158,6 +158,16 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
+final bookLibraryFacetModule = LibraryFacetModule(
+  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+  getFacetValues: _getBookFacetValues,
+  definitions: bookLibraryFacetDefinitions,
+  externalFacetBucketIdsByMode: {
+    'book.genre': BookFacetIds.genre,
+    'book.subject': BookFacetIds.subject,
+  },
+);
+
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
   presentation: bookLibraryMediaPresentation,
   trackingProfile: bookTrackingProfile,
@@ -301,15 +311,6 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     createDraft: createBookEditDraft,
     ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: BookOwnedItemUpdatePayload.fromCommand,
-  ),
-  facets: LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-    getFacetValues: _getBookFacetValues,
-    definitions: bookLibraryFacetDefinitions,
-    externalFacetBucketIdsByMode: {
-      'book.genre': BookFacetIds.genre,
-      'book.subject': BookFacetIds.subject,
-    },
   ),
 );
 

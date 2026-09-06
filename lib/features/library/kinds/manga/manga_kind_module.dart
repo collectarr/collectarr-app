@@ -152,6 +152,16 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
       ...metadata.genres,
     ];
 
+final mangaLibraryFacetModule = LibraryFacetModule(
+  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+  getFacetValues: _getFacetValues,
+  definitions: mangaLibraryFacetDefinitions,
+  externalFacetBucketIdsByMode: {
+    'manga.genre': MangaFacetIds.genre,
+    'manga.demographic': MangaFacetIds.demographic,
+  },
+);
+
 final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
   presentation: mangaLibraryMediaPresentation,
   trackingProfile: mangaTrackingProfile,
@@ -300,15 +310,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     createDraft: createMangaEditDraft,
     ownedDigitalFlagResolver: resolveMangaOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MangaOwnedItemUpdatePayload.fromCommand,
-  ),
-  facets: LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
-    getFacetValues: _getFacetValues,
-    definitions: mangaLibraryFacetDefinitions,
-    externalFacetBucketIdsByMode: {
-      'manga.genre': MangaFacetIds.genre,
-      'manga.demographic': MangaFacetIds.demographic,
-    },
   ),
   buildCardPresentation: buildMangaCardPresentation,
 );

@@ -99,6 +99,16 @@ Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
       ...metadata.genres,
     ];
 
+final comicLibraryFacetModule = LibraryFacetModule(
+  loadRows: _loadComicFacetRows,
+  getFacetValues: _getFacetValues,
+  definitions: comicLibraryFacetDefinitions,
+  externalFacetBucketIdsByMode: {
+    'comic.story_arc': ComicFacetIds.storyArc,
+    'comic.character': ComicFacetIds.character,
+  },
+);
+
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
   presentation: comicLibraryMediaPresentation,
   trackingProfile: comicTrackingProfile,
@@ -307,15 +317,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
         },
       ),
     ],
-  ),
-  facets: LibraryFacetModule(
-    loadRows: _loadComicFacetRows,
-    getFacetValues: _getFacetValues,
-    definitions: comicLibraryFacetDefinitions,
-    externalFacetBucketIdsByMode: {
-      'comic.story_arc': ComicFacetIds.storyArc,
-      'comic.character': ComicFacetIds.character,
-    },
   ),
   buildCardPresentation: buildComicCardPresentation,
 );

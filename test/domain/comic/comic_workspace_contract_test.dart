@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('registers the complete typed Comic workspace facet surface', () {
-    final definitions = comicKindModule.facets!.definitions;
+    final definitions = comicLibraryFacetModule.definitions;
     final ids = definitions.map((definition) => definition.id.value).toList();
 
     expect(ids, [
@@ -44,7 +44,7 @@ void main() {
 
   test('runtime facet adapter delegates to typed Comic definitions', () {
     final item = _ProjectionFixture(_createWorkspace());
-    final getFacetValues = comicKindModule.facets!.getFacetValues!;
+    final getFacetValues = comicLibraryFacetModule.getFacetValues!;
 
     expect(
       getFacetValues(item, ComicFacetIds.writer),

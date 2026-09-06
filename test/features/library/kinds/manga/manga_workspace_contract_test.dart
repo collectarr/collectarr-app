@@ -29,7 +29,7 @@ void main() {
     expect(sortIds.every((id) => id.startsWith('manga.')), isTrue);
     expect(groupIds.every((id) => id.startsWith('manga.')), isTrue);
     expect(
-      mangaKindModule.facets!.definitions
+      mangaLibraryFacetModule.definitions
           .map((definition) => definition.id.value),
       containsAll([
         'manga.publisher',
@@ -78,7 +78,7 @@ void main() {
   });
 
   test('Manga workspace facets and vocabularies are kind-owned', () {
-    final facets = mangaKindModule.facets;
+    final facets = mangaLibraryFacetModule;
     expect(facets, isNotNull);
     expect(
       facets!.externalFacetBucketIdsByMode.keys,

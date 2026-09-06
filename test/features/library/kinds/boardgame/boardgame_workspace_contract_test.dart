@@ -41,7 +41,7 @@ void main() {
     expect(registry.findGroupDefinition(defaultGroup!), isNotNull);
 
     expect(
-      boardGameKindModule.facets!.definitions
+      boardGameLibraryFacetModule.definitions
           .map((definition) => definition.id.value),
       [
         BoardGameFacetIds.publisher.value,
