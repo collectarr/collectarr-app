@@ -24,8 +24,11 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
     maxCoverSize: kPlannedMediaMaxCoverSize,
     coverGridHeightFactor: coverGridHeightFactor,
     presetConfig: (preset) => plannedMediaViewPresetConfig(type, preset),
-    clampColumnWidth: (column, width) =>
-        clampPlannedMediaTableColumnWidth(type, column, width),
+    clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
+      type.fields,
+      column,
+      width,
+    ),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: (column) =>
         type.fields
@@ -75,7 +78,7 @@ String? plannedMediaSubgroupKeyForEntry(
   LibraryProjectionRuntime item,
   LibraryGroupIdRuntime groupId,
 ) {
-  return type.subgroupKeyForEntry(item, groupId);
+  return type.workspace.subgroupKeyForEntry(item, groupId);
 }
 
 int plannedMediaCompareSubgroupKeys(

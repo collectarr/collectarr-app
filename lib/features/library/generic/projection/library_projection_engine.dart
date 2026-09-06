@@ -97,7 +97,7 @@ class LibraryProjectionEngine {
       }
     }
 
-    filteredItems.sort((a, b) => runtime.compareEntriesByRules(
+    filteredItems.sort((a, b) => type.workspace.compareEntriesByRules(
           a,
           b,
           viewState.sortRules,

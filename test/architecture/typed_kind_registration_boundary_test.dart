@@ -68,6 +68,9 @@ void main() {
     final source = File(compositionRootPath).readAsStringSync();
     expect(source, isNot(contains('typedCatalogItemFrom')));
     expect(source, isNot(contains('decodeLibraryKindMetadata')));
+    expect(source, isNot(contains('compareEntriesByRules')));
+    expect(source, isNot(contains('groupModeSupportsCompletion')));
+    expect(source, isNot(contains('orderedTableColumns')));
 
     final productionFiles = Directory(productionRoot)
         .listSync(recursive: true)

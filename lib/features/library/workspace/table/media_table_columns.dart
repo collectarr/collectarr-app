@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'package:flutter/material.dart';
@@ -13,37 +13,37 @@ const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
 
 double plannedMediaTableWidthForColumns({
-  required LibraryKindRuntime type,
+  required LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   required Set<LibraryFieldIdRuntime> columns,
   required Map<LibraryFieldIdRuntime, double> customWidths,
 }) {
   return libraryTableWidthForColumns(
     columns: columns,
-    defaultColumns: type.fields.defaultVisibleColumns,
+    defaultColumns: fields.defaultVisibleColumns,
     customWidths: customWidths,
-    sizing: (column) => plannedMediaTableColumnSizing(type, column),
+    sizing: (column) => plannedMediaTableColumnSizing(fields, column),
     columnSpacing: kPlannedMediaTableColumnSpacing,
     horizontalMargin: kPlannedMediaTableHorizontalMargin,
   );
 }
 
 double plannedMediaTableColumnWidth(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return libraryTableColumnWidth(
     column: columnId,
     customWidths: customWidths,
-    sizing: (column) => plannedMediaTableColumnSizing(type, column),
+    sizing: (column) => plannedMediaTableColumnSizing(fields, column),
   );
 }
 
 double defaultPlannedMediaTableColumnWidth(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
-  final definition = _tableColumnDefinition(type, columnId);
+  final definition = _tableColumnDefinition(fields, columnId);
   if (definition != null && definition.defaultWidth != null) {
     return definition.defaultWidth!;
   }
@@ -51,48 +51,48 @@ double defaultPlannedMediaTableColumnWidth(
 }
 
 double minPlannedMediaTableColumnWidth(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
-  final definition = _tableColumnDefinition(type, columnId);
+  final definition = _tableColumnDefinition(fields, columnId);
   return definition?.minWidth ?? 64.0;
 }
 
 double maxPlannedMediaTableColumnWidth(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
-  final definition = _tableColumnDefinition(type, columnId);
+  final definition = _tableColumnDefinition(fields, columnId);
   return definition?.maxWidth ?? 260.0;
 }
 
 LibraryTableColumnSizing plannedMediaTableColumnSizing(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
   return LibraryTableColumnSizing(
-    defaultWidth: defaultPlannedMediaTableColumnWidth(type, columnId),
-    minWidth: minPlannedMediaTableColumnWidth(type, columnId),
-    maxWidth: maxPlannedMediaTableColumnWidth(type, columnId),
+    defaultWidth: defaultPlannedMediaTableColumnWidth(fields, columnId),
+    minWidth: minPlannedMediaTableColumnWidth(fields, columnId),
+    maxWidth: maxPlannedMediaTableColumnWidth(fields, columnId),
   );
 }
 
 double clampPlannedMediaTableColumnWidth(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
   double width,
 ) {
   return clampLibraryTableColumnWidth(
     width,
-    plannedMediaTableColumnSizing(type, columnId),
+    plannedMediaTableColumnSizing(fields, columnId),
   );
 }
 
 String plannedMediaTableColumnLabelForType(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
-  final definition = _tableColumnDefinition(type, columnId);
+  final definition = _tableColumnDefinition(fields, columnId);
   if (definition != null) {
     return definition.label;
   }
@@ -100,21 +100,21 @@ String plannedMediaTableColumnLabelForType(
 }
 
 String plannedMediaTableColumnDisplayNameForType(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
-  final definition = _tableColumnDefinition(type, columnId);
+  final definition = _tableColumnDefinition(fields, columnId);
   if (definition != null) {
     return definition.resolvedDisplayName;
   }
-  return plannedMediaTableColumnLabelForType(type, columnId);
+  return plannedMediaTableColumnLabelForType(fields, columnId);
 }
 
 LibraryTableColumnGroup plannedMediaTableColumnGroup(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
-  final definition = _tableColumnDefinition(type, columnId);
+  final definition = _tableColumnDefinition(fields, columnId);
   return _tableColumnGroupFor(definition?.group);
 }
 
@@ -128,18 +128,18 @@ String plannedMediaTableColumnGroupLabel(LibraryTableColumnGroup group) {
 }
 
 bool plannedMediaTableColumnIsNumeric(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
-  final definition = _tableColumnDefinition(type, columnId);
+  final definition = _tableColumnDefinition(fields, columnId);
   return definition?.isNumeric ?? false;
 }
 
 LibrarySortIdRuntime? plannedMediaTableColumnSort(
-  LibraryKindRuntime type,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
-  final definition = _tableColumnDefinition(type, columnId);
+  final definition = _tableColumnDefinition(fields, columnId);
   if (definition == null || !definition.sortable) {
     return null;
   }
@@ -147,15 +147,7 @@ LibrarySortIdRuntime? plannedMediaTableColumnSort(
   if (explicitSortId != null) {
     return explicitSortId;
   }
-  return type.fields.sortIdForColumn(definition.id);
-}
-
-Widget plannedMediaTableCell(
-  LibraryKindRuntime type,
-  LibraryProjectionRuntime item,
-  LibraryFieldIdRuntime columnId,
-) {
-  return type.buildTableCell(item, columnId);
+  return fields.sortIdForColumn(definition.id);
 }
 
 Widget plannedMediaTableCellTyped<TDto extends LibraryWorkspaceDto>(
@@ -192,9 +184,12 @@ int plannedMediaCompareSubgroupKeys(
   return left.compareTo(right);
 }
 
-LibraryColumnDefinition<dynamic, dynamic, dynamic>? _tableColumnDefinition(
-    LibraryKindRuntime type, LibraryFieldIdRuntime columnId) {
-  return type.fields.findColumnDefinition(columnId);
+LibraryColumnDefinition<dynamic, LibraryWorkspaceDto, Object?>?
+    _tableColumnDefinition(
+  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  LibraryFieldIdRuntime columnId,
+) {
+  return fields.findColumnDefinition(columnId);
 }
 
 LibraryTableColumnGroup _tableColumnGroupFor(String? group) {

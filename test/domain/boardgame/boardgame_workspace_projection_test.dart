@@ -105,7 +105,7 @@ void main() {
         },
       ),
     );
-    final item = boardGameKindModule.project(
+    final item = boardGameKindModule.workspace.project(
       source: source,
       node: const LibraryTitleNodeRef(titleItemId: 'boardgame-1'),
     );

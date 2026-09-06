@@ -47,7 +47,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       final catalogItem = source.catalogItem;
       if (catalogItem != null && catalogItem.kind == query.kind.apiValue) {
         final node = LibraryTitleNodeRef(titleItemId: catalogItem.id);
-        items.add(module.project(source: source, node: node));
+        items.add(module.workspace.project(source: source, node: node));
       }
     }
 

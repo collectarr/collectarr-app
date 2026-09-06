@@ -302,7 +302,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countBy(
       entries,
       (e) {
-        final dto = module
+        final dto = module.workspace
             .project(
               source: e,
               node: LibraryTitleNodeRef(
@@ -323,7 +323,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countBy(
       entries,
       (e) {
-        final dto = module
+        final dto = module.workspace
             .project(
               source: e,
               node: LibraryTitleNodeRef(
@@ -348,7 +348,7 @@ class _GenericStatsDashboard extends StatelessWidget {
         count++;
         continue;
       }
-      final dto = module
+      final dto = module.workspace
           .project(
             source: entry,
             node: LibraryTitleNodeRef(
@@ -383,7 +383,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _sumBy(
       entries,
       (entry) {
-        final dto = module
+        final dto = module.workspace
             .project(
               source: entry,
               node: LibraryTitleNodeRef(
@@ -413,7 +413,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _sumBy(
       entries,
       (entry) {
-        final dto = module
+        final dto = module.workspace
             .project(
               source: entry,
               node: LibraryTitleNodeRef(
@@ -463,7 +463,7 @@ class _GenericStatsDashboard extends StatelessWidget {
             (counts['No catalog snapshot'] ?? 0) + 1;
         continue;
       }
-      final dto = module
+      final dto = module.workspace
           .project(
             source: entry,
             node: LibraryTitleNodeRef(
@@ -506,7 +506,7 @@ class _GenericStatsDashboard extends StatelessWidget {
       }
     }
 
-    final dto = module
+    final dto = module.workspace
         .project(
           source: entry,
           node: LibraryTitleNodeRef(

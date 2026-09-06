@@ -156,8 +156,9 @@ class LibraryRouteState {
       return LibraryRouteState(kind: expectedKind);
     }
     final runtime = type;
-    final allowedGroupModes =
-        runtime.availableGroupIds.map((groupId) => groupId.value).toSet();
+    final allowedGroupModes = runtime.workspace.availableGroupIds
+        .map((groupId) => groupId.value)
+        .toSet();
     final filteredFolderPreset = sanitizeLibraryFolderPreset(
       folderPreset,
       allowedModes: allowedGroupModes,

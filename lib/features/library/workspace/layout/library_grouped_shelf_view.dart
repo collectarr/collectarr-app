@@ -72,7 +72,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
       return emptyBuilder(context);
     }
     final presentation = groups.first.presentation;
-    final showGroupProgress = type.groupModeSupportsCompletion(
+    final showGroupProgress = type.workspace.groupModeSupportsCompletion(
       type.fields.decodeGroupId(groups.first.groupMode),
     );
     return switch (presentation) {

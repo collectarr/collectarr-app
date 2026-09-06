@@ -272,7 +272,7 @@ List<String> libraryGroupModesForType(
   LibraryKindRuntime type,
 ) {
   return [
-    for (final mode in type.availableGroupIds) mode.value,
+    for (final mode in type.workspace.availableGroupIds) mode.value,
   ];
 }
 

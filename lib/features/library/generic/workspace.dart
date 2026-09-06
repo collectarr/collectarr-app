@@ -355,10 +355,10 @@ class LibraryWorkspace extends ConsumerWidget {
         final compact = type.presentation.usesCompactTableLayout;
         final density = viewState.densityPreset;
         final runtime = type;
-        final visibleColumns = runtime.orderedTableColumns(
+        final visibleColumns = runtime.workspace.orderedTableColumns(
           viewState.visibleColumnIds,
         );
-        final tableWidth = runtime.tableWidthForColumns(
+        final tableWidth = runtime.workspace.tableWidthForColumns(
           viewState.visibleColumnIds,
           viewState.columnWidths,
         );
@@ -382,20 +382,22 @@ class LibraryWorkspace extends ConsumerWidget {
                         ascending: rule.ascending,
                       ),
                   ],
-                  columnWidthFor: (column) => runtime.tableColumnWidth(
+                  columnWidthFor: (column) =>
+                      runtime.workspace.tableColumnWidth(
                     runtime.fields.decodeColumnId(column),
                     viewState.columnWidths,
                   ),
                   defaultColumnWidthFor: (column) =>
-                      runtime.defaultTableColumnWidth(
+                      runtime.workspace.defaultTableColumnWidth(
                     runtime.fields.decodeColumnId(column),
                   ),
-                  columnSortFor: (column) => runtime
+                  columnSortFor: (column) => runtime.workspace
                       .columnSort(runtime.fields.decodeColumnId(column))
                       ?.value,
-                  columnLabelFor: (column) => runtime
+                  columnLabelFor: (column) => runtime.workspace
                       .columnLabel(runtime.fields.decodeColumnId(column)),
-                  columnIsNumeric: (column) => runtime.columnIsNumeric(
+                  columnIsNumeric: (column) =>
+                      runtime.workspace.columnIsNumeric(
                     runtime.fields.decodeColumnId(column),
                   ),
                   cellBuilder: (entry, column) => _tableCell(entry, column),
@@ -492,7 +494,7 @@ class LibraryWorkspace extends ConsumerWidget {
 
   Widget _tableCell(LibraryProjectionItem item, String column) {
     final runtime = type;
-    return runtime.buildTableCell(
+    return runtime.workspace.buildTableCell(
       item,
       runtime.fields.decodeColumnId(column),
     );

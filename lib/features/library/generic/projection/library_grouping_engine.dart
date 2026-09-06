@@ -25,12 +25,12 @@ class LibraryGroupingEngine {
     LibraryKindRuntime type,
     LibraryGroupIdRuntime groupId,
   ) {
-    final runtime = type;
-    final groupDefinition = runtime.fields.findGroupDefinition(
+    final workspace = type.workspace;
+    final groupDefinition = workspace.fields.findGroupDefinition(
       groupId,
     );
     if (groupDefinition != null) {
-      final value = runtime.groupValue(item, groupDefinition.id);
+      final value = workspace.groupValue(item, groupDefinition.id);
       final normalizedValue = value?.toString().trim();
       if (normalizedValue != null && normalizedValue.isNotEmpty) {
         return normalizedValue;
@@ -51,10 +51,10 @@ class LibraryGroupingEngine {
     LibraryGroupIdRuntime groupId, {
     LibraryProjectionIndex? index,
   }) {
-    final runtime = type;
+    final workspace = type.workspace;
     final allBucketLabel = genericAllBucketLabel(type);
     final counts = <String, int>{allBucketLabel: items.length};
-    final hasSequence = runtime.groupModeSupportsCompletion(groupId);
+    final hasSequence = workspace.groupModeSupportsCompletion(groupId);
     final ownedCounts = hasSequence
         ? <String, int>{
             allBucketLabel: items.where((item) => item.source.isOwned).length,
@@ -77,7 +77,7 @@ class LibraryGroupingEngine {
       counts[bucket] = (counts[bucket] ?? 0) + 1;
       final number = hasSequence
           ? _parseWholeNumber(
-              runtime.groupSequenceValueForEntry(item, groupId),
+              workspace.groupSequenceValueForEntry(item, groupId),
             )
           : null;
       if (number != null) {

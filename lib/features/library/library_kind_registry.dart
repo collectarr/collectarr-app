@@ -306,7 +306,7 @@ bool libraryGroupModeSupportsCompletion(
   LibraryKindRuntime type,
   String groupMode,
 ) {
-  return type.groupModeSupportsCompletion(
+  return type.workspace.groupModeSupportsCompletion(
     type.fields.decodeGroupId(groupMode),
   );
 }

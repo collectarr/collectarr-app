@@ -22,7 +22,7 @@ final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
   maxCoverSize: kComicsMaxCoverSize,
   presetConfig: comicsViewPresetConfig,
   clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
-    libraryKindRuntimeForKind(CatalogMediaKind.comic),
+    libraryKindRuntimeForKind(CatalogMediaKind.comic).fields,
     column,
     width,
   ),
@@ -142,7 +142,7 @@ double comicTableWidthForColumns(
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableWidthForColumns(
-    type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
+    fields: libraryKindRuntimeForKind(CatalogMediaKind.comic).fields,
     columns: columns,
     customWidths: customWidths,
   );
@@ -153,5 +153,7 @@ double comicTableColumnWidth(
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableColumnWidth(
-      libraryKindRuntimeForKind(CatalogMediaKind.comic), column, customWidths);
+      libraryKindRuntimeForKind(CatalogMediaKind.comic).fields,
+      column,
+      customWidths);
 }

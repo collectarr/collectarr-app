@@ -19,7 +19,8 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       final adapter = item.dto is WorkspaceDtoAdapter
           ? item.dto as WorkspaceDtoAdapter
           : null;
-      return runtime.groupValue(item, groupDef.id) == state._selectedBucket &&
+      return runtime.workspace.groupValue(item, groupDef.id) ==
+              state._selectedBucket &&
           _selectionSortNumber(adapter?.itemNumber) != null;
     });
   }

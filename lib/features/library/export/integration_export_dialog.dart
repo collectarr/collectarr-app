@@ -106,7 +106,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     final buffer = StringBuffer();
     buffer.writeln('Title,Number,Series,Publisher,Barcode,Condition,Grade');
     for (final entry in shelfState.entries) {
-      final projection = module.project(
+      final projection = module.workspace.project(
         source: entry,
         node: LibraryTitleNodeRef(
           titleItemId: entry.catalogItem?.id ?? entry.itemId,
@@ -130,7 +130,7 @@ class _IntegrationExportDialog extends StatelessWidget {
 
   String _toJson(LibraryKindRuntime module) {
     final items = shelfState.entries.map((e) {
-      final projection = module.project(
+      final projection = module.workspace.project(
         source: e,
         node: LibraryTitleNodeRef(
           titleItemId: e.catalogItem?.id ?? e.itemId,
@@ -165,7 +165,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     buffer.writeln(
         '<collection name="${_escapeXml(type.identity.title)}" count="${shelfState.entries.length}">');
     for (final entry in shelfState.entries) {
-      final projection = module.project(
+      final projection = module.workspace.project(
         source: entry,
         node: LibraryTitleNodeRef(
           titleItemId: entry.catalogItem?.id ?? entry.itemId,
@@ -209,7 +209,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     buffer.writeln('**${shelfState.entries.length} items**');
     buffer.writeln('');
     for (final entry in shelfState.entries) {
-      final projection = module.project(
+      final projection = module.workspace.project(
         source: entry,
         node: LibraryTitleNodeRef(
           titleItemId: entry.catalogItem?.id ?? entry.itemId,

@@ -28,16 +28,17 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
         for (final column in viewState.visibleColumnIds) column.value,
       },
       defaultColumns: {
-        for (final column in runtime.defaultTableColumns()) column.value,
+        for (final column in runtime.workspace.defaultTableColumns)
+          column.value,
       },
-      columnLabel: (column) => runtime.columnDisplayName(
+      columnLabel: (column) => runtime.workspace.columnDisplayName(
         runtime.fields.decodeColumnId(column),
       ),
       accent: type.identity.accent,
-      columnGroup: (column) => runtime.columnGroup(
+      columnGroup: (column) => runtime.workspace.columnGroup(
         runtime.fields.decodeColumnId(column),
       ),
-      groupLabel: runtime.columnGroupLabel,
+      groupLabel: runtime.workspace.columnGroupLabel,
       savedPresets: savedPresets,
       pinnedFavoriteKeys: pinnedFavoriteKeys,
       onTogglePinnedFavorite: onTogglePinnedFavorite,
