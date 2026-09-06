@@ -947,8 +947,8 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                 for (final edition in editions)
                   _FlowCarouselReleaseRow(
                     edition: edition,
-                    isOwned:
-                        edition.id == widget.item.source.ownedItem?.editionId,
+                    isOwned: edition.id ==
+                        widget.item.source.ownedItem?.anchor?.editionId,
                     accent: widget.accent,
                   ),
               ],

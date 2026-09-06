@@ -48,17 +48,17 @@ final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
           ? false
           : matchesVideoReleaseAnchor(
               edition,
-              editionId: source.ownedItem!.editionId,
-              variantId: source.ownedItem!.variantId,
-              bundleReleaseId: source.ownedItem!.bundleReleaseId,
+              editionId: source.ownedItem!.anchor?.editionId,
+              variantId: source.ownedItem!.anchor?.variantId,
+              bundleReleaseId: source.ownedItem!.anchor?.bundleReleaseId,
             );
       final wishlistMatches = source.wishlistItem == null
           ? false
           : matchesVideoReleaseAnchor(
               edition,
-              editionId: source.wishlistItem!.editionId,
-              variantId: source.wishlistItem!.variantId,
-              bundleReleaseId: source.wishlistItem!.bundleReleaseId,
+              editionId: source.wishlistItem!.anchor?.editionId,
+              variantId: source.wishlistItem!.anchor?.variantId,
+              bundleReleaseId: source.wishlistItem!.anchor?.bundleReleaseId,
             );
 
       final releaseNode = LibraryReleaseNodeRef(

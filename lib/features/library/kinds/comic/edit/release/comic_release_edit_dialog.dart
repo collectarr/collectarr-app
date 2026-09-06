@@ -42,7 +42,7 @@ class _ComicReleaseSchemaEditDialogState
     }
     _release = _resolveRelease(
       metadata,
-      widget.request.ownedItem?.editionId,
+      widget.request.ownedItem?.anchor?.editionId,
     );
     _releaseDraft = ComicReleaseEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);

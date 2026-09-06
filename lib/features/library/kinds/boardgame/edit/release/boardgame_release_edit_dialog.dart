@@ -49,8 +49,8 @@ class _BoardGameReleaseSchemaEditDialogState
         BoardGameCatalogMapper.mapMetadataItemToBoardGame(widget.request.item);
     _release = _resolveRelease(
       boardGame,
-      widget.request.ownedItem?.editionId ??
-          widget.request.trackingEntry?.editionId,
+      widget.request.ownedItem?.anchor?.editionId ??
+          widget.request.trackingEntry?.anchor?.editionId,
     );
     _releaseDraft = BoardGameEditionEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);

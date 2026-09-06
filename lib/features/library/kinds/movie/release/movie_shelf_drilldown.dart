@@ -63,17 +63,17 @@ List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
       if (ownedCopies.any(
             (item) => matchesVideoReleaseAnchor(
               edition,
-              editionId: item.editionId,
-              variantId: item.variantId,
-              bundleReleaseId: item.bundleReleaseId,
+              editionId: item.anchor?.editionId,
+              variantId: item.anchor?.variantId,
+              bundleReleaseId: item.anchor?.bundleReleaseId,
             ),
           ) ||
           wishlistItems.any(
             (item) => matchesVideoReleaseAnchor(
               edition,
-              editionId: item.editionId,
-              variantId: item.variantId,
-              bundleReleaseId: item.bundleReleaseId,
+              editionId: item.anchor?.editionId,
+              variantId: item.anchor?.variantId,
+              bundleReleaseId: item.anchor?.bundleReleaseId,
             ),
           ))
         edition,
@@ -103,9 +103,9 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
       .where(
         (item) => matchesVideoReleaseAnchor(
           edition,
-          editionId: item.editionId,
-          variantId: item.variantId,
-          bundleReleaseId: item.bundleReleaseId,
+          editionId: item.anchor?.editionId,
+          variantId: item.anchor?.variantId,
+          bundleReleaseId: item.anchor?.bundleReleaseId,
         ),
       )
       .toList(growable: false);
@@ -113,9 +113,9 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
       .where(
         (item) => matchesVideoReleaseAnchor(
           edition,
-          editionId: item.editionId,
-          variantId: item.variantId,
-          bundleReleaseId: item.bundleReleaseId,
+          editionId: item.anchor?.editionId,
+          variantId: item.anchor?.variantId,
+          bundleReleaseId: item.anchor?.bundleReleaseId,
         ),
       )
       .toList(growable: false);

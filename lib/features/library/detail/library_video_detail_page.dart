@@ -409,13 +409,13 @@ bool _matchesReleaseAnchor(Object item, CatalogEdition edition) {
   final String? variantId;
   final String? bundleReleaseId;
   if (item is OwnedItem) {
-    editionId = item.editionId;
-    variantId = item.variantId;
-    bundleReleaseId = item.bundleReleaseId;
+    editionId = item.anchor?.editionId;
+    variantId = item.anchor?.variantId;
+    bundleReleaseId = item.anchor?.bundleReleaseId;
   } else if (item is WishlistItem) {
-    editionId = item.editionId;
-    variantId = item.variantId;
-    bundleReleaseId = item.bundleReleaseId;
+    editionId = item.anchor?.editionId;
+    variantId = item.anchor?.variantId;
+    bundleReleaseId = item.anchor?.bundleReleaseId;
   } else {
     return false;
   }

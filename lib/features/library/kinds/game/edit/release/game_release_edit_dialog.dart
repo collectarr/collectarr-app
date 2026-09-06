@@ -46,8 +46,8 @@ class _GameReleaseSchemaEditDialogState
     final game = GameCatalogMapper.mapMetadataItemToGame(widget.request.item);
     _release = _resolveRelease(
       game,
-      widget.request.ownedItem?.editionId ??
-          widget.request.trackingEntry?.editionId,
+      widget.request.ownedItem?.anchor?.editionId ??
+          widget.request.trackingEntry?.anchor?.editionId,
     );
     _releaseDraft = GameReleaseEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);

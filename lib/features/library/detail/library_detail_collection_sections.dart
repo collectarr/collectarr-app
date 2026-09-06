@@ -258,8 +258,8 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
             'catalog_id: ${item.node.titleItemId}',
             'kind: ${item.source.catalogItem?.kind ?? '-'}',
             'owned_id: ${ownedItem?.id ?? '-'}',
-            'edition_id: ${ownedItem?.editionId ?? '-'}',
-            'variant_id: ${ownedItem?.variantId ?? '-'}',
+            'edition_id: ${ownedItem?.anchor?.editionId ?? '-'}',
+            'variant_id: ${ownedItem?.anchor?.variantId ?? '-'}',
             'updated_at: ${(ownedItem?.updatedAt ?? DateTime.now()).toUtc().toIso8601String()}',
           ].join('\n'),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(

@@ -135,8 +135,8 @@ String? libraryReferenceFormatLabel({
     return null;
   }
   final resolved = _resolveLibraryReferenceRelease(
-    editionId: ownedItem?.editionId ?? wishlistItem?.editionId,
-    variantId: ownedItem?.variantId ?? wishlistItem?.variantId,
+    editionId: ownedItem?.anchor?.editionId ?? wishlistItem?.anchor?.editionId,
+    variantId: ownedItem?.anchor?.variantId ?? wishlistItem?.anchor?.variantId,
     editions: editions,
   );
   final variantLabel = resolved.variant?.physicalFormatLabel?.trim();
@@ -502,8 +502,8 @@ String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {
   List<CatalogEdition> editions,
 ) {
   return _resolveLibraryReferenceRelease(
-    editionId: item.editionId,
-    variantId: item.variantId,
+    editionId: item.anchor?.editionId,
+    variantId: item.anchor?.variantId,
     editions: editions,
   );
 }

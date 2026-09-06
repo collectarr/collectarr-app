@@ -248,10 +248,12 @@ final class TrackingMutations {
             orElse: () => existingEntries.first,
           );
     final entryId = existing?.id ?? idGenerator();
-    final inheritedEditionId = existing?.editionId ?? item.editionId;
-    final inheritedVariantId = existing?.variantId ?? item.variantId;
+    final inheritedEditionId =
+        existing?.anchor?.editionId ?? item.anchor?.editionId;
+    final inheritedVariantId =
+        existing?.anchor?.variantId ?? item.anchor?.variantId;
     final inheritedBundleReleaseId =
-        existing?.bundleReleaseId ?? item.bundleReleaseId;
+        existing?.anchor?.bundleReleaseId ?? item.anchor?.bundleReleaseId;
 
     await mutationRunner.run(
       origin: origin,

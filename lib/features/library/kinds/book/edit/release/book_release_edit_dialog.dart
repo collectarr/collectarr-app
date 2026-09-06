@@ -44,7 +44,10 @@ class _BookReleaseSchemaEditDialogState
     }
     _metadata = metadata;
     final book = BookCatalogMapper.mapMetadataItemToBook(widget.request.item);
-    _release = _resolveRelease(book, widget.request.ownedItem?.editionId);
+    _release = _resolveRelease(
+      book,
+      widget.request.ownedItem?.anchor?.editionId,
+    );
     _releaseDraft = BookEditionEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);
   }

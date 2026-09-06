@@ -175,9 +175,9 @@ List<CatalogEdition> _resolveVideoCatalogEditions(
     _mergeAnchorSeed(
       seeds,
       input,
-      editionId: copy.editionId,
-      variantId: copy.variantId,
-      bundleReleaseId: copy.bundleReleaseId,
+      editionId: copy.anchor?.editionId,
+      variantId: copy.anchor?.variantId,
+      bundleReleaseId: copy.anchor?.bundleReleaseId,
     );
   }
 
@@ -188,9 +188,9 @@ List<CatalogEdition> _resolveVideoCatalogEditions(
     _mergeAnchorSeed(
       seeds,
       input,
-      editionId: item.editionId,
-      variantId: item.variantId,
-      bundleReleaseId: item.bundleReleaseId,
+      editionId: item.anchor?.editionId,
+      variantId: item.anchor?.variantId,
+      bundleReleaseId: item.anchor?.bundleReleaseId,
     );
   }
 

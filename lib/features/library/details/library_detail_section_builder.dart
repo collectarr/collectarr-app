@@ -21,7 +21,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required List<OwnedItem> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
-  final activeBundleReleaseId = ownedItem?.bundleReleaseId;
+  final activeBundleReleaseId = ownedItem?.anchor?.bundleReleaseId;
 
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
