@@ -276,6 +276,13 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/core/models/owned_item_projection.dart',
   };
 
+  // These models switch over their own structural event enum to provide
+  // labels/icons/colors. They do not dispatch catalog semantics by kind.
+  static const _structuralKindSwitchAllowlist = {
+    'lib/core/models/activity_event.dart',
+    'lib/core/models/calendar_event.dart',
+  };
+
   @override
   void visitPropertyAccess(PropertyAccess node) {
     if (_isStrictGenericContext(relativePath)) {
@@ -450,7 +457,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitSwitchStatement(SwitchStatement node) {
-    if (isBoundaryFile) {
+    if (isBoundaryFile &&
+        !_structuralKindSwitchAllowlist.contains(relativePath)) {
       final expr = node.expression.toSource();
       if (expr.contains('kind') || expr.contains('CatalogMediaKind')) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
@@ -464,7 +472,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitSwitchExpression(SwitchExpression node) {
-    if (isBoundaryFile) {
+    if (isBoundaryFile &&
+        !_structuralKindSwitchAllowlist.contains(relativePath)) {
       final expr = node.expression.toSource();
       if (expr.contains('kind') || expr.contains('CatalogMediaKind')) {
         final line = lineInfo.getLocation(node.offset).lineNumber;

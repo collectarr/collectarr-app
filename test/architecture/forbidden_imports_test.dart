@@ -16,7 +16,6 @@ import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_dr
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -135,6 +134,36 @@ class OwnedItemSummary {
       isRegistryFile: false,
       kindName: null,
       repoRoot: repoRoot,
+      sourceContent: testCode,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isEmpty);
+  });
+
+  test('architecture boundary checker allows structural event kind switches',
+      () {
+    const testCode = '''
+enum ActivityEventKind { added, removed }
+
+String label(ActivityEventKind kind) => switch (kind) {
+  ActivityEventKind.added => 'Added',
+  ActivityEventKind.removed => 'Removed',
+};
+''';
+    final relativePath = 'lib/core/models/activity_event.dart';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(Directory.current.path, relativePath),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(Directory.current.path, relativePath),
+      relativePath: relativePath,
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile(relativePath),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: Directory.current.path,
       sourceContent: testCode,
     );
     parseResult.unit.accept(visitor);
