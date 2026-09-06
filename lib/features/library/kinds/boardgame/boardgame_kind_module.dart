@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardg
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
@@ -146,8 +147,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto,
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
-    existingOwnedPayloadBuilder:
-        BoardgameOwnedItemCreatePayload.fromOwnedItem,
+    existingOwnedPayloadBuilder: BoardgameOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildBoardGameAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildBoardGameCoreSearchInput,
@@ -205,6 +205,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createBoardGameEditDraft,
+    ownedUpdatePayloadBuilder: BoardgameOwnedItemUpdatePayload.fromCommand,
   ),
   providerMapper: const BoardGameLibraryKindProviderMapper(),
   stats: const BoardGameStatsCapability(),

@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
@@ -300,6 +301,7 @@ final bookKindModule =
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createBookEditDraft,
+    ownedUpdatePayloadBuilder: BookOwnedItemUpdatePayload.fromCommand,
   ),
   providerMapper: const BookLibraryKindProviderMapper(),
   facets: LibraryFacetModule(

@@ -119,6 +119,8 @@ void main() {
             reason: '$kind must build a kind-owned Owned create payload');
         expect(command.typedPayload!.catalogRef.kind, kind.apiValue,
             reason: '$kind payload must retain its owning kind');
+        expect(runtime.edit.ownedUpdatePayloadBuilder, isNotNull,
+            reason: '$kind must build a kind-owned Owned update payload');
 
         final existing = OwnedItem(
           id: 'existing-${kind.apiValue}',

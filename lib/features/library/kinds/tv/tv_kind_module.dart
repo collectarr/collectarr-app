@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/detail/tv_video_detail_contribution.dart';
@@ -262,6 +263,7 @@ final tvKindModule =
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createTvEditDraft,
+    ownedUpdatePayloadBuilder: TvOwnedItemUpdatePayload.fromCommand,
   ),
   providerMapper: const TvLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
