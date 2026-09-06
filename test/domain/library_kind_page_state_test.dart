@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/library/kinds/game/page.dart';
 import 'package:collectarr_app/features/library/kinds/manga/page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/page.dart';
 import 'package:collectarr_app/features/library/kinds/music/page.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/kinds/tv/page.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
@@ -219,9 +218,7 @@ void main() {
       () {
     expect(
       buildLibraryKindPage(
-        registration: libraryKindRegistrationForRuntime(
-          defaultLibraryKindRegistry.require(CatalogMediaKind.comic),
-        ),
+        registration: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/comic'),
@@ -230,9 +227,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        registration: libraryKindRegistrationForRuntime(
-          defaultLibraryKindRegistry.require(CatalogMediaKind.movie),
-        ),
+        registration: libraryKindRegistrationForKind(CatalogMediaKind.movie),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/movie'),
@@ -241,9 +236,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        registration: libraryKindRegistrationForRuntime(
-          defaultLibraryKindRegistry.require(CatalogMediaKind.tv),
-        ),
+        registration: libraryKindRegistrationForKind(CatalogMediaKind.tv),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/tv'),
@@ -252,7 +245,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        registration: libraryKindRegistrationForRuntime(genericKindModule),
+        registration: libraryKindRegistrationForKind(CatalogMediaKind.unknown),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/unknown'),

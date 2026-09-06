@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -13,7 +14,6 @@ import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_rail.dart';
 import 'package:collectarr_app/features/library/home/library_switch_transition.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -250,7 +250,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
   Widget _buildCachedKindBody({
     required CatalogMediaType selected,
-    required LibraryKindRuntime selectedConfig,
     required Widget resolvedTopBar,
     required Color accent,
     required Uri routeUri,
@@ -261,7 +260,9 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     _cachedKindPages[selected.kind] = KeyedSubtree(
       key: ValueKey('library-kind-${selected.kind}'),
       child: buildLibraryKindPage(
-        registration: libraryKindRegistrationForRuntime(selectedConfig),
+        registration: libraryKindRegistrationForKind(
+          catalogMediaKindFromApiValue(selected.kind),
+        ),
         topBar: resolvedTopBar,
         accent: accent,
         routeUri: routeUri,
@@ -404,7 +405,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
       onSelected: (type) => _replaceLibraryKind(type.kind),
     );
-    final selectedConfig = libraryRuntimeForCatalogType(selected, registry);
     final offlineBanner = isCatalogOffline
         ? Container(
             width: double.infinity,
@@ -461,7 +461,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         Expanded(
           child: _buildCachedKindBody(
             selected: selected,
-            selectedConfig: selectedConfig,
             resolvedTopBar: resolvedTopBar,
             accent: accent,
             routeUri: widget.routeUri,

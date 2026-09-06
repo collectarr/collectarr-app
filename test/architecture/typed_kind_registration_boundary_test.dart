@@ -9,6 +9,8 @@ void main() {
       'lib/features/library/kinds/registry/library_kind_pages.dart';
   const compositionRootPath =
       'lib/features/library/kinds/registry/collectarr_kind_modules.dart';
+  const registrationsPath =
+      'lib/features/library/kinds/registry/library_kind_registrations.dart';
   const homePath = 'lib/features/library/home/home_page.dart';
 
   test('registration interface stays smaller than the runtime aggregate', () {
@@ -35,6 +37,7 @@ void main() {
 
   test('composition root registers every active kind page', () {
     final source = File(compositionRootPath).readAsStringSync();
+    final registrations = File(registrationsPath).readAsStringSync();
     for (final pageType in [
       'ComicLibraryPage',
       'MangaLibraryPage',
@@ -46,16 +49,17 @@ void main() {
       'AnimeLibraryPage',
       'MusicLibraryPage',
     ]) {
-      expect(source, contains(pageType));
+      expect(registrations, contains(pageType));
     }
-    expect(source, contains('collectarrKindRegistrations'));
-    expect(source, contains('libraryKindRegistrationForRuntime'));
+    expect(source, contains('library_kind_registrations.dart'));
+    expect(registrations, contains('collectarrKindRegistrations'));
+    expect(registrations, contains('libraryKindRegistrationForKind'));
   });
 
   test('home dispatches through registration instead of page type', () {
     final source = File(homePath).readAsStringSync();
 
     expect(source, contains('registration:'));
-    expect(source, contains('libraryKindRegistrationForRuntime'));
+    expect(source, contains('libraryKindRegistrationForKind'));
   });
 }
