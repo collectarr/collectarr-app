@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/kinds/game/barcode/game_barcode_
 import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/admin/manga_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/barcode/manga_identifier_resolver.dart';
+import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/admin/movie_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/barcode/movie_barcode_resolver.dart';
@@ -96,6 +97,7 @@ final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
     _collectionCsvProjections = Map.unmodifiable({
   CatalogMediaKind.book: const BookCollectionCsvProjection(),
   CatalogMediaKind.comic: const ComicCollectionCsvProjection(),
+  CatalogMediaKind.manga: const MangaCollectionCsvProjection(),
   CatalogMediaKind.movie: const MovieCollectionCsvProjection(),
 });
 
