@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -16,7 +16,7 @@ final class AnimeWorkspaceDto extends WorkspaceDtoAdapter {
   final WorkspaceCommonProjection common;
   @override
   final PersonalCopyProjection personal;
-  final VideoCatalogItem video;
+  final AnimeCatalogItem video;
   final AnimeMedia media;
   final AnimeMetadata? metadata;
 

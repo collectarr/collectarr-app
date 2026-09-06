@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -16,7 +16,7 @@ final class TvWorkspaceDto extends WorkspaceDtoAdapter {
   final WorkspaceCommonProjection common;
   @override
   final PersonalCopyProjection personal;
-  final VideoCatalogItem video;
+  final TvCatalogItem video;
   final TvSeries series;
   final TvSeriesMetadata? metadata;
 

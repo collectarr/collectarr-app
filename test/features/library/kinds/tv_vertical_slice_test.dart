@@ -3,15 +3,14 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
+import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -124,6 +123,7 @@ void main() {
       expect(dto.metadata?.status, 'Ended');
       expect(dto.metadata?.seasonCount, 5);
       expect(dto.metadata?.episodeCount, 62);
+      expect(dto.video, isA<TvCatalogItem>());
 
       final ctx = LibraryProjectionContext<TvWorkspaceDto>(
         source: shelfEntry,

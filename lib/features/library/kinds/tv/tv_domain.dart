@@ -4,11 +4,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
-import 'package:collectarr_app/features/library/models/catalog/video_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/models/catalog/video_catalog_release.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 
 export 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -22,6 +18,7 @@ export 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart
 export 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+export 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
@@ -39,9 +36,6 @@ export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_ty
 export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
-export 'package:collectarr_app/features/library/models/catalog/video_catalog_item.dart';
-export 'package:collectarr_app/features/library/models/catalog/video_catalog_mapper.dart';
-export 'package:collectarr_app/features/library/models/catalog/video_catalog_release.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_mapper.dart';
@@ -49,7 +43,7 @@ export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 // ---------------------------------------------------------------------------
 // Transitional typedefs
 // ---------------------------------------------------------------------------
-typedef TvWork = VideoCatalogItem;
+typedef TvWork = TvCatalogItem;
 
 // ---------------------------------------------------------------------------
 // TvPersonalOverlay
@@ -111,57 +105,4 @@ class TvWorkspaceNode {
   final String id;
   final String title;
   final TvWorkspaceNodeType nodeType;
-}
-
-// ---------------------------------------------------------------------------
-// Extension for VideoCatalogMapper used in tv workspace builder
-// ---------------------------------------------------------------------------
-extension TvVideoCatalogMapperExt on VideoCatalogMapper {
-  static VideoCatalogItem fromTvMetadataItem(CatalogItem item) {
-    final metadata = item.kindMetadata;
-    if (metadata is! TvSeriesMetadata) {
-      throw ArgumentError.value(
-        metadata,
-        'item.kindMetadata',
-        'Expected TvSeriesMetadata',
-      );
-    }
-    return VideoCatalogItem(
-      id: item.id,
-      work: VideoWorkMetadata(
-        title: metadata.title,
-        originalTitle: metadata.originalTitle,
-        synopsis: metadata.synopsis,
-        releaseDate: metadata.firstAirDate,
-        originalLanguage: metadata.originalLanguage,
-        genres: metadata.genres,
-        series: metadata.series,
-      ),
-      technical: VideoTechnicalMetadata(
-        runtimeMinutes: metadata.episodeRuntimeMinutes,
-        ageRating: metadata.contentRating,
-        audienceRating: metadata.contentRating,
-      ),
-      releases: [
-        for (final release in metadata.releases)
-          VideoRelease(
-            id: release.id,
-            title: release.title,
-            publisher: metadata.publisher,
-            barcode: release.barcode,
-            releaseDate: release.releaseDate,
-            formatLabel: release.packaging,
-            media: [
-              for (var disc = 1; disc <= (release.discCount ?? 0); disc++)
-                VideoMediaRef(
-                  id: '${release.id}:disc:$disc',
-                  title: 'Disc $disc',
-                  discNumber: disc,
-                ),
-            ],
-          ),
-      ],
-      trailerUrls: metadata.links,
-    );
-  }
 }
