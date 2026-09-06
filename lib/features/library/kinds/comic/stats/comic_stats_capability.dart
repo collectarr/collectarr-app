@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
@@ -247,7 +247,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     if (owned == null) {
       return null;
     }
-    return ComicOwnedItemLegacyAdapter.tryFromLegacy(owned);
+    return ComicOwnedItemProjection.tryFromOwnedItem(owned);
   }
 
   static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {

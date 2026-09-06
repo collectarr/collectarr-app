@@ -1,21 +1,21 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 
-/// Compatibility boundary while Music ownership callers leave the common cache.
-final class MusicOwnedItemLegacyAdapter {
-  const MusicOwnedItemLegacyAdapter._();
+/// Projects the generic collection read model into Anime's typed owned model.
+final class AnimeOwnedItemProjection {
+  const AnimeOwnedItemProjection._();
 
-  static MusicOwnedItem fromLegacy(OwnedItem item) {
+  static AnimeOwnedItem fromOwnedItem(OwnedItem item) {
     final details = item.details;
-    if (item.catalogRef.mediaKind != CatalogMediaKind.music ||
-        details is! MusicOwnedDetails) {
-      throw ArgumentError.value(item, 'item', 'Expected a Music owned item');
+    if (item.catalogRef.mediaKind != CatalogMediaKind.anime ||
+        details is! AnimeOwnedDetails) {
+      throw ArgumentError.value(item, 'item', 'Expected an Anime owned item');
     }
-    return MusicOwnedItem(
-      id: MusicOwnedItemId(item.id),
+    return AnimeOwnedItem(
+      id: AnimeOwnedItemId(item.id),
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
@@ -44,17 +44,17 @@ final class MusicOwnedItemLegacyAdapter {
     );
   }
 
-  static MusicOwnedItem? tryFromLegacy(OwnedItem? item) {
+  static AnimeOwnedItem? tryFromOwnedItem(OwnedItem? item) {
     if (item == null ||
-        item.catalogRef.mediaKind != CatalogMediaKind.music ||
-        item.details is! MusicOwnedDetails) {
+        item.catalogRef.mediaKind != CatalogMediaKind.anime ||
+        item.details is! AnimeOwnedDetails) {
       return null;
     }
-    return fromLegacy(item);
+    return fromOwnedItem(item);
   }
 
-  static OwnedItem<MusicOwnedDetails> toLegacy(MusicOwnedItem item) {
-    return OwnedItem<MusicOwnedDetails>(
+  static OwnedItem<AnimeOwnedDetails> toOwnedItem(AnimeOwnedItem item) {
+    return OwnedItem<AnimeOwnedDetails>(
       id: item.id.value,
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,

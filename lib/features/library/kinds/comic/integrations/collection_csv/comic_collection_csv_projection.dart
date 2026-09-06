@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
@@ -94,7 +94,7 @@ final class ComicCollectionCsvProjection
     LibraryEntry entry, {
     required bool clzFriendly,
   }) {
-    final owned = ComicOwnedItemLegacyAdapter.tryFromLegacy(entry.ownedItem);
+    final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);
     final details = owned?.details;
     if (!clzFriendly) return const [];
     return [_formatMoney(details?.coverPriceCents, clzFriendly: true)];
@@ -105,7 +105,7 @@ final class ComicCollectionCsvProjection
     LibraryEntry entry, {
     required bool clzFriendly,
   }) {
-    final owned = ComicOwnedItemLegacyAdapter.tryFromLegacy(entry.ownedItem);
+    final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);
     final details = owned?.details;
     return [
       if (!clzFriendly)

@@ -29,7 +29,7 @@ final class MangaOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory MangaOwnedItemUpdatePayload.fromCommand(
-    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
+    OwnedItemPatchCommand<OwnedDetailsDraft> command,
   ) =>
       MangaOwnedItemUpdatePayload(
         anchor: command.anchor,

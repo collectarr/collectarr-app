@@ -1,21 +1,21 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 
-/// Compatibility boundary while TV ownership callers leave the common cache.
-final class TvOwnedItemLegacyAdapter {
-  const TvOwnedItemLegacyAdapter._();
+/// Projects the generic collection read model into Movie's typed owned model.
+final class MovieOwnedItemProjection {
+  const MovieOwnedItemProjection._();
 
-  static TvOwnedItem fromLegacy(OwnedItem item) {
+  static MovieOwnedItem fromOwnedItem(OwnedItem item) {
     final details = item.details;
-    if (item.catalogRef.mediaKind != CatalogMediaKind.tv ||
-        details is! TvOwnedDetails) {
-      throw ArgumentError.value(item, 'item', 'Expected a TV owned item');
+    if (item.catalogRef.mediaKind != CatalogMediaKind.movie ||
+        details is! MovieOwnedDetails) {
+      throw ArgumentError.value(item, 'item', 'Expected a Movie owned item');
     }
-    return TvOwnedItem(
-      id: TvOwnedItemId(item.id),
+    return MovieOwnedItem(
+      id: MovieOwnedItemId(item.id),
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
@@ -44,17 +44,17 @@ final class TvOwnedItemLegacyAdapter {
     );
   }
 
-  static TvOwnedItem? tryFromLegacy(OwnedItem? item) {
+  static MovieOwnedItem? tryFromOwnedItem(OwnedItem? item) {
     if (item == null ||
-        item.catalogRef.mediaKind != CatalogMediaKind.tv ||
-        item.details is! TvOwnedDetails) {
+        item.catalogRef.mediaKind != CatalogMediaKind.movie ||
+        item.details is! MovieOwnedDetails) {
       return null;
     }
-    return fromLegacy(item);
+    return fromOwnedItem(item);
   }
 
-  static OwnedItem<TvOwnedDetails> toLegacy(TvOwnedItem item) {
-    return OwnedItem<TvOwnedDetails>(
+  static OwnedItem<MovieOwnedDetails> toOwnedItem(MovieOwnedItem item) {
+    return OwnedItem<MovieOwnedDetails>(
       id: item.id.value,
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,

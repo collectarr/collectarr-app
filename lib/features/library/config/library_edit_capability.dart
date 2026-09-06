@@ -27,7 +27,7 @@ typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
 });
 
 typedef LibraryOwnedUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-  LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
+  OwnedItemPatchCommand<OwnedDetailsDraft> command,
 );
 
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
@@ -86,7 +86,7 @@ class LibraryEditCapability {
       kindDraft.toDetailsDraft();
 
   UpdateOwnedItemCommand withTypedUpdatePayload(
-    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
+    OwnedItemPatchCommand<OwnedDetailsDraft> command,
   ) {
     final builder = ownedUpdatePayloadBuilder;
     if (builder == null) {
@@ -104,7 +104,7 @@ class LibraryEditCapability {
     required LibraryEditKindDraft kindDraft,
   }) {
     final personal = session.personal;
-    final command = LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
+    final command = OwnedItemPatchCommand<OwnedDetailsDraft>(
       ownedItemId: ownedItemId,
       anchor: Patch.set(
         PersonalItemAnchor.fromRaw(

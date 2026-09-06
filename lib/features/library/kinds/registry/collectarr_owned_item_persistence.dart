@@ -1,32 +1,67 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_legacy_owned_item_writers.dart';
-import 'package:collectarr_app/features/library/kinds/registry/legacy_owned_item_writer.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
 
-/// Composition-root dispatch for the transitional common Owned write path.
+typedef _OwnedItemPersister = Future<void> Function(OwnedItem item);
+
+/// Composition-root dispatch for the typed owned repositories.
 ///
-/// This is intentionally only a dispatch boundary for the transitional common
-/// [OwnedItem] value. Each writer delegates legacy-to-typed translation to its
-/// owning kind; Collection commands retain their compatibility cache for now,
-/// but every mutation also reaches the owning kind's repository immediately.
+/// The generic collection mutation layer still receives a serialized
+/// collection projection. Dispatch immediately reconstructs the owning kind
+/// and persists it through that kind's repository.
 final class CollectarrOwnedItemPersistence {
   CollectarrOwnedItemPersistence(LocalDatabase database)
-      : _writers = {
-          for (final writer in collectarrLegacyOwnedItemWriters(database))
-            writer.kind: writer,
+      : _persisters = {
+          CatalogMediaKind.comic: (item) => ComicOwnedRepository(database)
+              .upsert(ComicOwnedItemProjection.fromOwnedItem(item)),
+          CatalogMediaKind.manga: (item) => MangaOwnedRepository(database)
+              .upsert(MangaOwnedItemProjection.fromOwnedItem(item)),
+          CatalogMediaKind.book: (item) => BookOwnedRepository(database)
+              .upsert(BookOwnedItemProjection.fromOwnedItem(item)),
+          CatalogMediaKind.game: (item) => GameOwnedRepository(database)
+              .upsert(GameOwnedItemProjection.fromOwnedItem(item)),
+          CatalogMediaKind.boardgame: (item) => BoardGameOwnedRepository(
+                database,
+              ).upsert(BoardGameOwnedItemProjection.fromOwnedItem(item)),
+          CatalogMediaKind.movie: (item) => MovieOwnedRepository(database)
+              .upsert(MovieOwnedItemProjection.fromOwnedItem(item)),
+          CatalogMediaKind.tv: (item) => TvOwnedRepository(database)
+              .upsert(TvOwnedItemProjection.fromOwnedItem(item)),
+          CatalogMediaKind.anime: (item) => AnimeOwnedRepository(database)
+              .upsert(AnimeOwnedItemProjection.fromOwnedItem(item)),
+          CatalogMediaKind.music: (item) => MusicOwnedRepository(database)
+              .upsert(MusicOwnedItemProjection.fromOwnedItem(item)),
         };
 
-  final Map<CatalogMediaKind, LegacyOwnedItemWriter> _writers;
+  final Map<CatalogMediaKind, _OwnedItemPersister> _persisters;
 
   Future<void> upsert(OwnedItem item) async {
-    final writer = _writers[item.catalogRef.mediaKind];
-    if (writer == null) {
-      // Older collection imports may not carry a kind. The common cache
-      // remains the compatibility fallback until the item is classified.
-      return;
+    final persister = _persisters[item.catalogRef.mediaKind];
+    if (persister == null) {
+      throw StateError(
+        'Cannot persist owned item without a supported kind: '
+        '${item.catalogRef.kind}',
+      );
     }
-    await writer.upsert(item);
+    await persister(item);
   }
 
   Future<void> upsertAll(Iterable<OwnedItem> items) async {

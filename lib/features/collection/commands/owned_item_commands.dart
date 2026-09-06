@@ -142,15 +142,11 @@ final class UpdateOwnedItemCommand implements OwnedItemUpdateRequest {
   final OwnedItemUpdatePayload payload;
 }
 
-/// Transitional command carrying the former common Owned patch surface.
-///
-/// New kind-aware callers should produce [UpdateOwnedItemCommand]. This type
-/// remains only while legacy UI adapters and unknown-kind compatibility paths
-/// are migrated.
+/// Structural tri-state update command used to build a kind-owned payload.
 @immutable
-final class LegacyUpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft>
+final class OwnedItemPatchCommand<TDetails extends OwnedDetailsDraft>
     implements OwnedItemUpdateRequest {
-  const LegacyUpdateOwnedItemCommand({
+  const OwnedItemPatchCommand({
     required this.ownedItemId,
     this.anchor = const Patch.unchanged(),
     this.quantity = const Patch.unchanged(),

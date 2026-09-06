@@ -1,21 +1,21 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 
-/// Compatibility boundary while Book ownership leaves the common cache.
-final class BookOwnedItemLegacyAdapter {
-  const BookOwnedItemLegacyAdapter._();
+/// Projects the generic collection read model into Game's typed owned model.
+final class GameOwnedItemProjection {
+  const GameOwnedItemProjection._();
 
-  static BookOwnedItem fromLegacy(OwnedItem item) {
+  static GameOwnedItem fromOwnedItem(OwnedItem item) {
     final details = item.details;
-    if (item.catalogRef.mediaKind != CatalogMediaKind.book ||
-        details is! BookOwnedDetails) {
-      throw ArgumentError.value(item, 'item', 'Expected a Book owned item');
+    if (item.catalogRef.mediaKind != CatalogMediaKind.game ||
+        details is! GameOwnedDetails) {
+      throw ArgumentError.value(item, 'item', 'Expected a Game owned item');
     }
-    return BookOwnedItem(
-      id: BookOwnedItemId(item.id),
+    return GameOwnedItem(
+      id: GameOwnedItemId(item.id),
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
@@ -44,17 +44,17 @@ final class BookOwnedItemLegacyAdapter {
     );
   }
 
-  static BookOwnedItem? tryFromLegacy(OwnedItem? item) {
+  static GameOwnedItem? tryFromOwnedItem(OwnedItem? item) {
     if (item == null ||
-        item.catalogRef.mediaKind != CatalogMediaKind.book ||
-        item.details is! BookOwnedDetails) {
+        item.catalogRef.mediaKind != CatalogMediaKind.game ||
+        item.details is! GameOwnedDetails) {
       return null;
     }
-    return fromLegacy(item);
+    return fromOwnedItem(item);
   }
 
-  static OwnedItem<BookOwnedDetails> toLegacy(BookOwnedItem item) {
-    return OwnedItem<BookOwnedDetails>(
+  static OwnedItem<GameOwnedDetails> toOwnedItem(GameOwnedItem item) {
+    return OwnedItem<GameOwnedDetails>(
       id: item.id.value,
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,

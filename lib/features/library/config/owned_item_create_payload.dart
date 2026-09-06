@@ -14,7 +14,7 @@ abstract interface class OwnedItemCreatePayload {
   CatalogEntityRef get catalogRef;
   OwnedDetailsDraft get detailsDraft;
 
-  OwnedItem toLegacyOwnedItem({
+  OwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,

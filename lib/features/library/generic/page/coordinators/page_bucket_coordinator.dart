@@ -64,7 +64,7 @@ class LibraryPageBucketCoordinator {
 
     final catalogUpdates = <String, CatalogItem>{};
     final ownedUpdates =
-        <String, LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>>{};
+        <String, OwnedItemPatchCommand<OwnedDetailsDraft>>{};
     for (final item in projection.allItems) {
       if (genericBucketForItemGroup(item, _page.type, groupId) !=
           currentLabel.trim()) {

@@ -1,25 +1,21 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 
-/// Compatibility boundary while global collection persistence is migrated.
-///
-/// The adapter is the only Comic-owned code that translates the old common
-/// aggregate. New Comic code should consume [ComicOwnedItem] directly.
-final class ComicOwnedItemLegacyAdapter {
-  const ComicOwnedItemLegacyAdapter._();
+/// Projects the generic collection read model into Book's typed owned model.
+final class BookOwnedItemProjection {
+  const BookOwnedItemProjection._();
 
-  static ComicOwnedItem fromLegacy(OwnedItem item) {
+  static BookOwnedItem fromOwnedItem(OwnedItem item) {
     final details = item.details;
-    if (item.catalogRef.mediaKind != CatalogMediaKind.comic ||
-        details is! ComicOwnedDetails) {
-      throw ArgumentError.value(item, 'item', 'Expected a Comic owned item');
+    if (item.catalogRef.mediaKind != CatalogMediaKind.book ||
+        details is! BookOwnedDetails) {
+      throw ArgumentError.value(item, 'item', 'Expected a Book owned item');
     }
-    return ComicOwnedItem(
-      id: ComicOwnedItemId(item.id),
+    return BookOwnedItem(
+      id: BookOwnedItemId(item.id),
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
@@ -45,31 +41,20 @@ final class ComicOwnedItemLegacyAdapter {
       collectionStatus: item.collectionStatus,
       marketValueCents: item.marketValueCents,
       details: details,
-      reading: ComicReadingState(
-        rating: item.rating,
-        status: item.readStatus,
-        startedAt: item.startedAt,
-        finishedAt: item.finishedAt,
-      ),
     );
   }
 
-  /// Returns a typed Comic copy only when the legacy value is actually Comic.
-  ///
-  /// Generic shelf/inspector capabilities can receive entries for other kinds
-  /// while the common persistence bridge is still active, so those callers
-  /// must not turn an unrelated owned item into a Comic value.
-  static ComicOwnedItem? tryFromLegacy(OwnedItem? item) {
+  static BookOwnedItem? tryFromOwnedItem(OwnedItem? item) {
     if (item == null ||
-        item.catalogRef.mediaKind != CatalogMediaKind.comic ||
-        item.details is! ComicOwnedDetails) {
+        item.catalogRef.mediaKind != CatalogMediaKind.book ||
+        item.details is! BookOwnedDetails) {
       return null;
     }
-    return fromLegacy(item);
+    return fromOwnedItem(item);
   }
 
-  static OwnedItem<ComicOwnedDetails> toLegacy(ComicOwnedItem item) {
-    return OwnedItem<ComicOwnedDetails>(
+  static OwnedItem<BookOwnedDetails> toOwnedItem(BookOwnedItem item) {
+    return OwnedItem<BookOwnedDetails>(
       id: item.id.value,
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
@@ -83,10 +68,6 @@ final class ComicOwnedItemLegacyAdapter {
       personalNotes: item.personalNotes,
       quantity: item.quantity,
       indexNumber: item.indexNumber,
-      rating: item.reading.rating,
-      readStatus: item.reading.status,
-      startedAt: item.reading.startedAt,
-      finishedAt: item.reading.finishedAt,
       tags: item.tags,
       updatedAt: item.updatedAt,
       deletedAt: item.deletedAt,

@@ -52,7 +52,6 @@ final class OwnedItemMutations {
     AddOwnedItemCommand command,
   ) async {
     final now = DateTime.now().toUtc();
-    final common = command.common;
     final catalogRef = command.catalogRef;
     final anchor = command.anchor;
 
@@ -74,8 +73,6 @@ final class OwnedItemMutations {
           ]);
         }
 
-        final resolvedIsDigital =
-            common.isDigital ?? existingCatalog?.physicalFormat == 'digital';
         final resolvedCatalogRef = _catalogRefForItem(
           catalogRef.id,
           existingCatalog,
@@ -84,12 +81,14 @@ final class OwnedItemMutations {
         );
 
         final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
-        final details = command.details.toDetails();
+        final typedPayload = command.typedPayload;
+        final details =
+            (typedPayload?.detailsDraft ?? command.details).toDetails();
         if (mediaKind != CatalogMediaKind.unknown) {
           collectarrOwnedDetailsCodecForKind(mediaKind).validate(details);
         }
 
-        final ownedItem = command.typedPayload?.toLegacyOwnedItem(
+        final ownedItem = typedPayload?.toOwnedItem(
               resolvedCatalogRef: resolvedCatalogRef,
               id: newItemId,
               createdAt: now,
@@ -98,27 +97,16 @@ final class OwnedItemMutations {
               ownerUserId: userId,
               ownerLabel: userEmail,
             ) ??
-            OwnedItem(
-              id: newItemId,
-              catalogRef: resolvedCatalogRef,
-              createdAt: now,
-              isDigital: resolvedIsDigital,
-              anchor: anchor,
+            _buildOwnedItem(
+              command,
+              resolvedCatalogRef: resolvedCatalogRef,
               details: details,
-              condition: common.condition,
-              grade: common.grade,
-              purchaseDate: common.purchaseDate,
-              pricePaidCents: common.pricePaidCents,
-              currency: common.currency,
-              personalNotes: common.personalNotes,
-              quantity: common.quantity,
-              locationId: common.locationId,
-              purchaseStore: common.purchaseStore,
-              collectionStatus: common.collectionStatus,
-              tags: common.tags,
+              id: newItemId,
+              createdAt: now,
+              anchor: anchor,
+              existingCatalog: existingCatalog,
               ownerUserId: userId,
               ownerLabel: userEmail,
-              updatedAt: now,
             );
 
         await ownedItems.upsert(ownedItem);
@@ -175,9 +163,9 @@ final class OwnedItemMutations {
                     fallbackOwnerUserId: userId,
                     fallbackOwnerLabel: userEmail,
                   )
-                : _applyLegacyOwnedUpdate(
+                    : _applyOwnedPatch(
                     existing,
-                    command as LegacyUpdateOwnedItemCommand,
+                    command as OwnedItemPatchCommand,
                     updatedAt: now,
                   );
 
@@ -193,9 +181,46 @@ final class OwnedItemMutations {
     return updated;
   }
 
-  OwnedItem _applyLegacyOwnedUpdate(
+  OwnedItem _buildOwnedItem(
+    AddOwnedItemCommand command, {
+    required CatalogEntityRef resolvedCatalogRef,
+    required OwnedItemDetails details,
+    required String id,
+    required DateTime createdAt,
+    required PersonalItemAnchor? anchor,
+    required CatalogItem? existingCatalog,
+    required String? ownerUserId,
+    required String? ownerLabel,
+  }) {
+    final common = command.common;
+    return OwnedItem(
+      id: id,
+      catalogRef: resolvedCatalogRef,
+      createdAt: createdAt,
+      isDigital:
+          common.isDigital ?? existingCatalog?.physicalFormat == 'digital',
+      anchor: anchor,
+      details: details,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      tags: common.tags,
+      ownerUserId: ownerUserId,
+      ownerLabel: ownerLabel,
+      updatedAt: createdAt,
+    );
+  }
+
+  OwnedItem _applyOwnedPatch(
     OwnedItem existing,
-    LegacyUpdateOwnedItemCommand command, {
+    OwnedItemPatchCommand command, {
     required DateTime updatedAt,
   }) {
     final mediaKind = catalogMediaKindFromApiValue(existing.catalogRef.kind);
@@ -280,9 +305,8 @@ final class OwnedItemMutations {
         set: (v) => v,
         clear: () => null,
       ),
-      // Preserve legacy denormalized tracking columns while their typed
-      // tracking rows are migrated. New writes are routed by the
-      // coordinator to TrackingMutations instead.
+      // Tracking state is owned by TrackingMutations. Preserve the read-model
+      // values while this collection update changes copy fields.
       rating: existing.rating,
       readStatus: existing.readStatus,
       startedAt: existing.startedAt,

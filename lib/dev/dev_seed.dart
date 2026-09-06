@@ -37,31 +37,31 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/tv_seeds.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/legacy/anime_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/legacy/boardgame_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/legacy/book_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/legacy/game_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/legacy/manga_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/legacy/movie_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/legacy/music_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/legacy/tv_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
@@ -1000,48 +1000,48 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   await comicOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.comic)
-        .map(ComicOwnedItemLegacyAdapter.fromLegacy),
+        .map(ComicOwnedItemProjection.fromOwnedItem),
   );
   await movieOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.movie)
-        .map(MovieOwnedItemLegacyAdapter.fromLegacy),
+        .map(MovieOwnedItemProjection.fromOwnedItem),
   );
   await animeOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.anime)
-        .map(AnimeOwnedItemLegacyAdapter.fromLegacy),
+        .map(AnimeOwnedItemProjection.fromOwnedItem),
   );
   await tvOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.tv)
-        .map(TvOwnedItemLegacyAdapter.fromLegacy),
+        .map(TvOwnedItemProjection.fromOwnedItem),
   );
   await musicOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.music)
-        .map(MusicOwnedItemLegacyAdapter.fromLegacy),
+        .map(MusicOwnedItemProjection.fromOwnedItem),
   );
   await gameOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.game)
-        .map(GameOwnedItemLegacyAdapter.fromLegacy),
+        .map(GameOwnedItemProjection.fromOwnedItem),
   );
   await boardGameOwnedRepo.upsertAll(
     ownedItems
         .where(
             (item) => item.catalogRef.mediaKind == CatalogMediaKind.boardgame)
-        .map(BoardGameOwnedItemLegacyAdapter.fromLegacy),
+        .map(BoardGameOwnedItemProjection.fromOwnedItem),
   );
   await bookOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.book)
-        .map(BookOwnedItemLegacyAdapter.fromLegacy),
+        .map(BookOwnedItemProjection.fromOwnedItem),
   );
   await mangaOwnedRepo.upsertAll(
     ownedItems
         .where((item) => item.catalogRef.mediaKind == CatalogMediaKind.manga)
-        .map(MangaOwnedItemLegacyAdapter.fromLegacy),
+        .map(MangaOwnedItemProjection.fromOwnedItem),
   );
 
   // --- Item Images (front/back + extras) ---

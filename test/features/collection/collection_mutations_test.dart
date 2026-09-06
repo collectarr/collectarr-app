@@ -498,7 +498,7 @@ void main() {
     final original = await db.select(db.ownedItemsCache).getSingle();
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
             ownedItemId: original.id,
             condition: const Patch.set('Near Mint'),
             grade: const Patch.set('9.8'),
@@ -536,7 +536,7 @@ void main() {
     final original = await db.select(db.ownedItemsCache).getSingle();
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
             ownedItemId: original.id,
             locationId: const Patch.clear(),
           ),

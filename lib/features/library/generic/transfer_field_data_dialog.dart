@@ -217,7 +217,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         }
         await widget.mutations.updateOwnedItem(
           widget.type.edit.withTypedUpdatePayload(
-            LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
+            OwnedItemPatchCommand<OwnedDetailsDraft>(
               ownedItemId: item.id,
               condition: Patch.set(updated.condition),
               grade: Patch.set(updated.grade),
@@ -263,7 +263,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           final updated = src.writeTo(item, null);
           await widget.mutations.updateOwnedItem(
             widget.type.edit.withTypedUpdatePayload(
-              LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
+              OwnedItemPatchCommand<OwnedDetailsDraft>(
                 ownedItemId: item.id,
                 condition: Patch.set(updated.condition),
                 grade: Patch.set(updated.grade),

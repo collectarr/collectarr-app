@@ -29,7 +29,7 @@ final class TvOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory TvOwnedItemUpdatePayload.fromCommand(
-    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
+    OwnedItemPatchCommand<OwnedDetailsDraft> command,
   ) =>
       TvOwnedItemUpdatePayload(
         anchor: command.anchor,

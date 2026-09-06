@@ -1,21 +1,22 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 
-/// Compatibility boundary while Movie ownership callers leave the common cache.
-final class MovieOwnedItemLegacyAdapter {
-  const MovieOwnedItemLegacyAdapter._();
+/// Projects the generic collection read model into BoardGame's typed model.
+final class BoardGameOwnedItemProjection {
+  const BoardGameOwnedItemProjection._();
 
-  static MovieOwnedItem fromLegacy(OwnedItem item) {
+  static BoardGameOwnedItem fromOwnedItem(OwnedItem item) {
     final details = item.details;
-    if (item.catalogRef.mediaKind != CatalogMediaKind.movie ||
-        details is! MovieOwnedDetails) {
-      throw ArgumentError.value(item, 'item', 'Expected a Movie owned item');
+    if (item.catalogRef.mediaKind != CatalogMediaKind.boardgame ||
+        details is! BoardgameOwnedDetails) {
+      throw ArgumentError.value(
+          item, 'item', 'Expected a BoardGame owned item');
     }
-    return MovieOwnedItem(
-      id: MovieOwnedItemId(item.id),
+    return BoardGameOwnedItem(
+      id: BoardGameOwnedItemId(item.id),
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
@@ -44,17 +45,17 @@ final class MovieOwnedItemLegacyAdapter {
     );
   }
 
-  static MovieOwnedItem? tryFromLegacy(OwnedItem? item) {
+  static BoardGameOwnedItem? tryFromOwnedItem(OwnedItem? item) {
     if (item == null ||
-        item.catalogRef.mediaKind != CatalogMediaKind.movie ||
-        item.details is! MovieOwnedDetails) {
+        item.catalogRef.mediaKind != CatalogMediaKind.boardgame ||
+        item.details is! BoardgameOwnedDetails) {
       return null;
     }
-    return fromLegacy(item);
+    return fromOwnedItem(item);
   }
 
-  static OwnedItem<MovieOwnedDetails> toLegacy(MovieOwnedItem item) {
-    return OwnedItem<MovieOwnedDetails>(
+  static OwnedItem<BoardgameOwnedDetails> toOwnedItem(BoardGameOwnedItem item) {
+    return OwnedItem<BoardgameOwnedDetails>(
       id: item.id.value,
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,

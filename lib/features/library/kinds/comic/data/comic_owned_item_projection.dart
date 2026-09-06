@@ -1,22 +1,22 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 
-/// Compatibility boundary while BoardGame ownership leaves the common cache.
-final class BoardGameOwnedItemLegacyAdapter {
-  const BoardGameOwnedItemLegacyAdapter._();
+/// Projects the generic collection read model into Comic's typed owned model.
+final class ComicOwnedItemProjection {
+  const ComicOwnedItemProjection._();
 
-  static BoardGameOwnedItem fromLegacy(OwnedItem item) {
+  static ComicOwnedItem fromOwnedItem(OwnedItem item) {
     final details = item.details;
-    if (item.catalogRef.mediaKind != CatalogMediaKind.boardgame ||
-        details is! BoardgameOwnedDetails) {
-      throw ArgumentError.value(
-          item, 'item', 'Expected a BoardGame owned item');
+    if (item.catalogRef.mediaKind != CatalogMediaKind.comic ||
+        details is! ComicOwnedDetails) {
+      throw ArgumentError.value(item, 'item', 'Expected a Comic owned item');
     }
-    return BoardGameOwnedItem(
-      id: BoardGameOwnedItemId(item.id),
+    return ComicOwnedItem(
+      id: ComicOwnedItemId(item.id),
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
@@ -42,20 +42,31 @@ final class BoardGameOwnedItemLegacyAdapter {
       collectionStatus: item.collectionStatus,
       marketValueCents: item.marketValueCents,
       details: details,
+      reading: ComicReadingState(
+        rating: item.rating,
+        status: item.readStatus,
+        startedAt: item.startedAt,
+        finishedAt: item.finishedAt,
+      ),
     );
   }
 
-  static BoardGameOwnedItem? tryFromLegacy(OwnedItem? item) {
+  /// Returns a typed Comic copy only when the legacy value is actually Comic.
+  ///
+  /// Generic shelf/inspector capabilities can receive entries for other kinds
+  /// while the common persistence bridge is still active, so those callers
+  /// must not turn an unrelated owned item into a Comic value.
+  static ComicOwnedItem? tryFromOwnedItem(OwnedItem? item) {
     if (item == null ||
-        item.catalogRef.mediaKind != CatalogMediaKind.boardgame ||
-        item.details is! BoardgameOwnedDetails) {
+        item.catalogRef.mediaKind != CatalogMediaKind.comic ||
+        item.details is! ComicOwnedDetails) {
       return null;
     }
-    return fromLegacy(item);
+    return fromOwnedItem(item);
   }
 
-  static OwnedItem<BoardgameOwnedDetails> toLegacy(BoardGameOwnedItem item) {
-    return OwnedItem<BoardgameOwnedDetails>(
+  static OwnedItem<ComicOwnedDetails> toOwnedItem(ComicOwnedItem item) {
+    return OwnedItem<ComicOwnedDetails>(
       id: item.id.value,
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
@@ -69,6 +80,10 @@ final class BoardGameOwnedItemLegacyAdapter {
       personalNotes: item.personalNotes,
       quantity: item.quantity,
       indexNumber: item.indexNumber,
+      rating: item.reading.rating,
+      readStatus: item.reading.status,
+      startedAt: item.reading.startedAt,
+      finishedAt: item.reading.finishedAt,
       tags: item.tags,
       updatedAt: item.updatedAt,
       deletedAt: item.deletedAt,

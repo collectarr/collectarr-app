@@ -273,7 +273,7 @@ class LibraryPageEditCoordinator {
     );
     final personal = result.personal;
     if (owned != null && personal != null) {
-      final updateCmd = LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
+      final updateCmd = OwnedItemPatchCommand<OwnedDetailsDraft>(
         ownedItemId: owned.id,
         anchor: Patch.set(personal.anchor),
         quantity: Patch.set(personal.quantity),

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:flutter/material.dart';
 
@@ -33,14 +33,14 @@ final class ComicTransferableField {
       type: type,
       scope: scope,
       read: (legacy) {
-        final typed = ComicOwnedItemLegacyAdapter.tryFromLegacy(legacy);
+        final typed = ComicOwnedItemProjection.tryFromOwnedItem(legacy);
         return typed == null ? null : read(typed);
       },
       write: (legacy, value) {
-        final typed = ComicOwnedItemLegacyAdapter.tryFromLegacy(legacy);
+        final typed = ComicOwnedItemProjection.tryFromOwnedItem(legacy);
         return typed == null
             ? legacy
-            : ComicOwnedItemLegacyAdapter.toLegacy(write(typed, value));
+            : ComicOwnedItemProjection.toOwnedItem(write(typed, value));
       },
     );
   }

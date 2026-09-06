@@ -598,7 +598,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }) async {
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           widget.type.edit.withTypedUpdatePayload(
-            LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
+            OwnedItemPatchCommand<OwnedDetailsDraft>(
               ownedItemId: item.id,
               condition: Patch.set(condition),
               grade: Patch.set(grade),

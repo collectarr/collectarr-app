@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
@@ -96,10 +96,10 @@ void main() {
       details: item.details,
     );
 
-    final typed = ComicOwnedItemLegacyAdapter.fromLegacy(legacy);
+    final typed = ComicOwnedItemProjection.fromOwnedItem(legacy);
     expect(typed, item);
 
-    final roundTripped = ComicOwnedItemLegacyAdapter.toLegacy(typed);
+    final roundTripped = ComicOwnedItemProjection.toOwnedItem(typed);
     expect(roundTripped.toJson(), legacy.toJson());
   });
 

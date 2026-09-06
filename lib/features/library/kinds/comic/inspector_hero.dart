@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -40,7 +40,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final dto = item.dto;
     final comic = dto is ComicWorkspaceDto ? dto.comic : null;
     final ownedItem =
-        ComicOwnedItemLegacyAdapter.tryFromLegacy(request.ownedItem);
+        ComicOwnedItemProjection.tryFromOwnedItem(request.ownedItem);
     final surface = palette.surface;
     final border =
         palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/legacy/comic_owned_item_legacy_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +23,7 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
     if (catalog == null) continue;
 
     final comic = ComicCoreMapper.fromCatalogItem(catalog);
-    final owned = ComicOwnedItemLegacyAdapter.tryFromLegacy(entry.ownedItem);
+    final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);
     if (exportedCount > 0) {
       buffer.writeln();
       buffer.writeln('<!-- --- next issue --- -->');

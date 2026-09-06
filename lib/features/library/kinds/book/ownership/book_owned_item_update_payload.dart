@@ -29,7 +29,7 @@ final class BookOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   });
 
   factory BookOwnedItemUpdatePayload.fromCommand(
-    LegacyUpdateOwnedItemCommand<OwnedDetailsDraft> command,
+    OwnedItemPatchCommand<OwnedDetailsDraft> command,
   ) =>
       BookOwnedItemUpdatePayload(
         anchor: command.anchor,

@@ -149,7 +149,7 @@ void main() {
         );
 
         final updated = await coordinator.updateOwnedItem(
-          LegacyUpdateOwnedItemCommand<OwnedDetailsDraft>(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
             ownedItemId: initial.id,
             details: const Patch.clear(),
           ),
