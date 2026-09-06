@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:drift/drift.dart';
 
@@ -23,6 +24,17 @@ class OwnedItemsCacheRepository {
     return rows
         .map((r) => _fromCache(r, catalogKind: r.kind))
         .toList(growable: false);
+  }
+
+  /// Returns the deliberately small cross-kind projection used by global
+  /// hosts such as Loans. Semantic copy fields stay in the owning kind and
+  /// are not reconstructed for this read path.
+  Future<List<OwnedItemSummary>> listActiveSummaries() async {
+    final rows = await (_db.select(_db.ownedItemsCache)
+          ..where((row) => row.deletedAt.isNull())
+          ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]))
+        .get();
+    return rows.map(_summaryFromCache).toList(growable: false);
   }
 
   Future<OwnedItem?> findById(String id) async {
@@ -136,6 +148,18 @@ class OwnedItemsCacheRepository {
       purchaseStore: row.purchaseStore,
       collectionStatus: row.collectionStatus,
       marketValueCents: row.marketValueCents,
+    );
+  }
+
+  OwnedItemSummary _summaryFromCache(OwnedItemsCacheData row) {
+    final catalogRef = _catalogRefFromRow(row, catalogKind: row.kind);
+    final kind = catalogMediaKindFromApiValue(catalogRef.kind);
+    return OwnedItemSummary(
+      ref: OwnedItemRef(kind: kind, id: OwnedItemId(row.id)),
+      catalogRef: catalogRef,
+      title: row.itemId,
+      ownerLabel: row.ownerLabel,
+      locationLabel: row.locationId,
     );
   }
 

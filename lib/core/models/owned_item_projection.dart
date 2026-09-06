@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'catalog_entity_ref.dart';
 import 'catalog_media_kind.dart';
 import 'money.dart';
 
@@ -51,6 +52,7 @@ final class OwnedItemSummary {
   const OwnedItemSummary({
     required this.ref,
     required this.title,
+    this.catalogRef,
     this.subtitle,
     this.imageUrl,
     this.ownerLabel,
@@ -59,8 +61,36 @@ final class OwnedItemSummary {
 
   final OwnedItemRef ref;
   final String title;
+  final CatalogEntityRef? catalogRef;
   final String? subtitle;
   final String? imageUrl;
   final String? ownerLabel;
   final String? locationLabel;
+
+  OwnedItemSummary copyWith({
+    OwnedItemRef? ref,
+    String? title,
+    Object? catalogRef = _summaryUnset,
+    Object? subtitle = _summaryUnset,
+    Object? imageUrl = _summaryUnset,
+    Object? ownerLabel = _summaryUnset,
+    Object? locationLabel = _summaryUnset,
+  }) {
+    return OwnedItemSummary(
+      ref: ref ?? this.ref,
+      title: title ?? this.title,
+      catalogRef: catalogRef == _summaryUnset
+          ? this.catalogRef
+          : catalogRef as CatalogEntityRef?,
+      subtitle: subtitle == _summaryUnset ? this.subtitle : subtitle as String?,
+      imageUrl: imageUrl == _summaryUnset ? this.imageUrl : imageUrl as String?,
+      ownerLabel:
+          ownerLabel == _summaryUnset ? this.ownerLabel : ownerLabel as String?,
+      locationLabel: locationLabel == _summaryUnset
+          ? this.locationLabel
+          : locationLabel as String?,
+    );
+  }
 }
+
+const Object _summaryUnset = Object();
