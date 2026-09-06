@@ -63,7 +63,7 @@ void main() {
     final projection = const AnimeCollectionCsvProjection();
     final entry = ShelfEntry(
       itemId: 'anime-1',
-      catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'anime-1',
         kind: 'anime',
         title: 'Cowboy Bebop',

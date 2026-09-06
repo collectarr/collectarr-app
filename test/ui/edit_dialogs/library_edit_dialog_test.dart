@@ -73,7 +73,7 @@ void main() {
       edit: genericKindModule.edit,
     );
 
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'movie-default-1',
         kind: 'movie',
@@ -158,7 +158,7 @@ void main() {
         );
 
     final type = movieKindModule;
-    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-1',
       kind: 'movie',
       title: 'Blade Runner',
@@ -305,7 +305,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-edition-1',
       kind: 'movie',
       title: 'Blade Runner',
@@ -407,7 +407,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'movie-publishing-1',
         kind: 'movie',
@@ -474,7 +474,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'movie-readonly-1',
         kind: 'movie',
@@ -576,7 +576,7 @@ void main() {
         );
 
     final type = comicKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -811,7 +811,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-1',
         kind: 'book',
@@ -883,7 +883,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-preserve-1',
         kind: 'book',
@@ -1030,7 +1030,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-links-1',
         kind: 'book',
@@ -1106,7 +1106,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-tracked-1',
       kind: 'movie',
       title: 'Dune',
@@ -1197,7 +1197,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-bundle-1',
       kind: 'movie',
       title: 'Alien Anthology',
@@ -1293,7 +1293,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'movie-bundle-existing-1',
         kind: 'movie',
@@ -1372,7 +1372,7 @@ void main() {
         );
 
     final type = movieKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'movie-digital-1',
         kind: 'movie',
@@ -1455,7 +1455,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final item = typedCatalogItemFromCatalogItem(testCatalogItem(
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-wishlist-1',
       kind: 'movie',
       title: 'Akira',
@@ -1569,7 +1569,7 @@ void main() {
           ),
         );
     final type = musicKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-1',
         kind: 'music',
@@ -1694,7 +1694,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = gameKindModule;
-    final item = typedCatalogItemFromMap(
+    final item = testCatalogItemFromJson(
       {
         'id': 'game-1',
         'kind': 'game',
@@ -1770,7 +1770,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = gameKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'game-1',
         kind: 'game',
@@ -1837,7 +1837,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = boardGameKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'bg-1',
         kind: 'boardgame',
@@ -1915,7 +1915,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: typedCatalogItemFromCatalogItem(
+                      item: testCatalogItemWithKindMetadata(
                         testCatalogItem(
                           id: 'comic-1',
                           kind: 'comic',

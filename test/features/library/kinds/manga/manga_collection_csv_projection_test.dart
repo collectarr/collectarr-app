@@ -63,7 +63,7 @@ void main() {
     final projection = const MangaCollectionCsvProjection();
     final entry = ShelfEntry(
       itemId: 'manga-1',
-      catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'manga-1',
         kind: 'manga',
         title: 'Berserk',

@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_reposito
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_catalog_repository_codecs.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
@@ -40,7 +39,9 @@ final class LibraryCatalogRepository {
     }
     if (captureDerivedData) {
       await _captureDerivedData([
-        for (final item in catalogItems) typedCatalogItemFromCatalogItem(item),
+        for (final item in catalogItems)
+          (_codecs[item.kind.trim().toLowerCase()]?.withTypedMetadata(item) ??
+              item),
       ]);
     }
   }

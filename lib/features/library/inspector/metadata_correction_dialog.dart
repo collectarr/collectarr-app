@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -234,8 +233,7 @@ int? _itemReleaseYear(Object item) {
 }
 
 CatalogItem _asCatalogItem(Object? item) {
-  final converted = typedCatalogItemFromUnknown(item);
-  if (converted != null) return converted;
+  if (item is CatalogItem) return item;
   throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
 }
 

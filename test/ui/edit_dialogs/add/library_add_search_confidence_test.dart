@@ -15,7 +15,7 @@ void main() {
         .ranking
         .shouldSearchProviderForCoreResults(
       [
-        typedCatalogItemFromMap({
+        testCatalogItemFromJson({
           'id': 'comic-423',
           'kind': 'comic',
           'title': 'Batman',
@@ -49,7 +49,7 @@ void main() {
         .ranking
         .shouldSearchProviderForCoreResults(
       [
-        typedCatalogItemFromMap({
+        testCatalogItemFromJson({
           'id': 'movie-1',
           'kind': 'movie',
           'title': 'Blade Runner 2049',

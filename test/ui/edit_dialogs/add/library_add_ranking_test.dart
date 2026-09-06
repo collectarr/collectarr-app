@@ -218,7 +218,7 @@ CatalogItem _item({
   String? itemNumber,
   int? releaseYear,
 }) {
-  return typedCatalogItemFromMap({
+  return testCatalogItemFromJson({
     'id': 'test-${title.hashCode}',
     'kind': 'comic',
     'title': title,

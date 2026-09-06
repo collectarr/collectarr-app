@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -95,9 +94,8 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       if (catalogId == null) {
         continue;
       }
-      final catalogItem = typedCatalogItemFromUnknown(
-        widget.catalogItemsById[catalogId],
-      );
+      final item = widget.catalogItemsById[catalogId];
+      final catalogItem = item is CatalogItem ? item : null;
       if (catalogItem == null || catalogItem.kind != widget.mediaKind) {
         continue;
       }

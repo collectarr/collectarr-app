@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -65,7 +64,7 @@ final class OwnedItemMutations {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
           await catalogCache.upsertMetadataItems([
-            typedCatalogItemFromMap({
+            CatalogItem.fromJson({
               'id': catalogRef.id,
               'kind': catalogRef.kind,
               'title': catalogRef.id,
@@ -298,7 +297,7 @@ final class OwnedItemMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final metadataItem = typedCatalogItemFromCatalogItem(item);
+    final metadataItem = item;
     final itemId = metadataItem.id;
     await mutationRunner.run(
       origin: origin,
@@ -354,7 +353,7 @@ final class OwnedItemMutations {
     String localItemId,
     CatalogItem targetCatalogItem,
   ) async {
-    final targetMetadata = typedCatalogItemFromCatalogItem(targetCatalogItem);
+    final targetMetadata = targetCatalogItem;
     final now = DateTime.now().toUtc();
     final wishlistEntries = await wishlist.findActiveByItemIds([localItemId]);
     final trackingList =
@@ -464,7 +463,7 @@ final class OwnedItemMutations {
   }
 
   SyncChange _syncChangeForCatalogItem(CatalogItem item, DateTime now) {
-    final metadataItem = typedCatalogItemFromCatalogItem(item);
+    final metadataItem = item;
     final itemId = metadataItem.id;
     final payload = metadataItem.toSyncPayload();
     return SyncChange(

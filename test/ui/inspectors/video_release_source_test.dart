@@ -6,7 +6,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('prefers catalog editions from core over local anchor synthesis', () {
-    final catalogItem = typedCatalogItemFromMap({
+    final catalogItem = testCatalogItemFromJson({
       'id': 'movie-1',
       'kind': 'movie',
       'title': 'Blade Runner',
@@ -45,7 +45,7 @@ void main() {
   });
 
   test('keeps local release synthesis when video item has no editions', () {
-    final catalogItem = typedCatalogItemFromMap({
+    final catalogItem = testCatalogItemFromJson({
       'id': 'tmdb-local:movie:2',
       'kind': 'movie',
       'title': 'Dune',
@@ -71,7 +71,7 @@ void main() {
 
   test('treats tv items as video library kinds for local release synthesis',
       () {
-    final catalogItem = typedCatalogItemFromMap({
+    final catalogItem = testCatalogItemFromJson({
       'id': 'tmdb-local:tv:2',
       'kind': 'tv',
       'title': 'Severance',
@@ -97,7 +97,7 @@ void main() {
 
   test('does not synthesize title snapshot fallback for refreshed core items',
       () {
-    final catalogItem = typedCatalogItemFromMap({
+    final catalogItem = testCatalogItemFromJson({
       'id': 'movie-3',
       'kind': 'movie',
       'title': 'Arrival',
@@ -109,7 +109,7 @@ void main() {
   });
 
   test('keeps title snapshot fallback for local synthetic video items', () {
-    final catalogItem = typedCatalogItemFromMap({
+    final catalogItem = testCatalogItemFromJson({
       'id': 'tmdb-local:movie:4',
       'kind': 'movie',
       'title': 'Heat',

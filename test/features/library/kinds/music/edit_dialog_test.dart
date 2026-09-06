@@ -25,7 +25,7 @@ void main() {
     addTearDown(db.close);
 
     final type = musicKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-1',
         kind: 'music',
@@ -91,7 +91,7 @@ void main() {
     addTearDown(db.close);
 
     final type = musicKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-vinyl',
         kind: 'music',

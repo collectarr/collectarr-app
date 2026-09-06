@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 
@@ -82,7 +81,7 @@ class ProviderCandidate {
   }
 
   CatalogItem placeholderItem() {
-    return typedCatalogItemFromMap({
+    return CatalogItem.fromJson({
       'id': localCatalogId,
       'kind': kind,
       'title': title,

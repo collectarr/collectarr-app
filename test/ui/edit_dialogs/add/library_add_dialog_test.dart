@@ -128,7 +128,7 @@ void main() {
   });
 
   test('book provider add merge preserves preview creators', () {
-    final ingested = typedCatalogItemFromCatalogItem(
+    final ingested = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-item-1',
         kind: 'book',
@@ -139,7 +139,7 @@ void main() {
         ),
       ),
     );
-    final edited = typedCatalogItemFromCatalogItem(
+    final edited = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-item-1',
         kind: 'book',

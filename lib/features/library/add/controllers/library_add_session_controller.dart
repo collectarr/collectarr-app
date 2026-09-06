@@ -36,7 +36,6 @@ import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart'
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
@@ -979,7 +978,9 @@ class LibraryAddSessionController
           },
           sourceSelection: selected!,
         );
-        return typedCatalogItemFromMap(raw);
+        final item = CatalogItem.fromJson(raw);
+        final decoder = type.catalogMetadataDecoder;
+        return decoder == null ? item : item.withKindMetadata(decoder(item.payload));
       });
 
       if (searchGen != state.search.coreSearchGeneration) return;
@@ -1005,7 +1006,7 @@ class LibraryAddSessionController
             selectedEditionsPayload.isNotEmpty)
           'editions': selectedEditionsPayload,
       };
-      final mergedItem = typedCatalogItemFromMap({
+      final mergedItem = CatalogItem.fromJson({
         'id': hydratedItem.id,
         'kind': hydratedItem.kind,
         ...mergedPayload,

@@ -141,7 +141,7 @@ void main() {
         entries: [
           ShelfEntry(
             itemId: 'movie-1',
-            catalogItem: typedCatalogItemFromCatalogItem(
+            catalogItem: testCatalogItemWithKindMetadata(
               testCatalogItem(
                 id: 'movie-1',
                 kind: 'comic',

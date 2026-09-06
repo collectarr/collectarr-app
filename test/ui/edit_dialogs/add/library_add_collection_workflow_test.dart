@@ -319,7 +319,7 @@ class _WorkflowFixture {
 }
 
 CatalogItem _comic(String id) {
-  return typedCatalogItemFromCatalogItem(
+  return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: id,
       kind: 'comic',
@@ -333,7 +333,7 @@ CatalogItem _comic(String id) {
 }
 
 CatalogItem _comicWithRelease(String id) {
-  return typedCatalogItemFromCatalogItem(
+  return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: id,
       kind: 'comic',
@@ -361,7 +361,7 @@ CatalogItem _comicWithRelease(String id) {
 }
 
 CatalogItem _digitalMovie(String id) {
-  return typedCatalogItemFromCatalogItem(
+  return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: id,
       kind: 'movie',
@@ -374,7 +374,7 @@ CatalogItem _digitalMovie(String id) {
 }
 
 CatalogItem _comicWithMultipleReleases(String id) {
-  return typedCatalogItemFromCatalogItem(
+  return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: id,
       kind: 'comic',

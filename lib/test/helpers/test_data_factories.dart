@@ -7,7 +7,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
@@ -17,6 +16,15 @@ import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 
@@ -110,6 +118,28 @@ CatalogItem testCatalogItem({
     common: common,
     payload: mergedPayload,
   );
+}
+
+CatalogItem testCatalogItemFromJson(Map<String, dynamic> json) {
+  return testCatalogItemWithKindMetadata(CatalogItem.fromJson(json));
+}
+
+CatalogItem testCatalogItemWithKindMetadata(CatalogItem item) {
+  if (item.kindMetadata is! Map) return item;
+  final payload = item.payload;
+  final metadata = switch (item.kind) {
+    'anime' => AnimeMetadata.fromJson(payload),
+    'boardgame' => BoardGameMetadata.fromJson(payload),
+    'book' => BookCatalogMetadata.fromJson(payload),
+    'comic' => ComicMedia.fromJson(payload),
+    'game' => GameCatalogMetadata.fromJson(payload),
+    'manga' => MangaMetadata.fromJson(payload),
+    'movie' => MovieCatalogMetadata.fromJson(payload),
+    'music' => MusicCatalogMetadata.fromJson(payload),
+    'tv' => TvSeriesMetadata.fromJson(payload),
+    _ => null,
+  };
+  return metadata == null ? item : item.withKindMetadata(metadata);
 }
 
 CatalogEntityRef testCatalogRef(
@@ -375,7 +405,7 @@ ShelfEntry testShelfEntry({
       );
   return ShelfEntry(
     itemId: itemId,
-    catalogItem: typedCatalogItemFromCatalogItem(resolvedCatalogItem),
+    catalogItem: testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ownedItem: ownedItem,
     wishlistItem: wishlistItem,
     trackingEntry: trackingEntry,

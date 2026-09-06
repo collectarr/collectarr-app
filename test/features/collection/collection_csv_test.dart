@@ -14,7 +14,7 @@ void main() {
     final exported = csv.exportShelf([
       ShelfEntry(
         itemId: 'comic-1',
-        catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+        catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man, "Vol. 1"',
@@ -134,7 +134,7 @@ void main() {
       [
         ShelfEntry(
           itemId: 'book-1',
-          catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+          catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'book-1',
             kind: 'book',
             title: 'Test Book',
@@ -184,7 +184,7 @@ void main() {
       () {
     final source = ShelfEntry(
       itemId: 'book-1',
-      catalogItem: typedCatalogItemFromCatalogItem(
+      catalogItem: testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
       ),
       ownedItem: testOwnedItem(
@@ -219,7 +219,7 @@ void main() {
     final exported = CollectionCsv().exportClzFriendlyShelf([
       ShelfEntry(
         itemId: 'comic-1',
-        catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+        catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'The Amazing Spider-Man, Vol. 2',
@@ -256,7 +256,7 @@ void main() {
     final exported = CollectionCsv().exportClzFriendlyShelf([
       ShelfEntry(
         itemId: 'movie-1',
-        catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+        catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'movie-1',
           kind: 'movie',
           title: 'Blade Runner',
@@ -545,7 +545,7 @@ void main() {
       [
         ShelfEntry(
           itemId: 'comic-1',
-          catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+          catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
@@ -609,7 +609,7 @@ void main() {
       [
         ShelfEntry(
           itemId: 'comic-1',
-          catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+          catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',

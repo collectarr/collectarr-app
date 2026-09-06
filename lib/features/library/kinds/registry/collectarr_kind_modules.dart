@@ -35,35 +35,6 @@ final List<LibraryKindRuntime> collectarrKindModules = [
   musicKindModule,
 ];
 
-Object? decodeLibraryKindMetadata(
-  CatalogMediaKind mediaKind,
-  Map<String, dynamic> json,
-) {
-  for (final module in collectarrKindModules) {
-    if (module.kind == mediaKind && module.catalogMetadataDecoder != null) {
-      return module.catalogMetadataDecoder!(json);
-    }
-  }
-  return Map<String, dynamic>.from(json);
-}
-
-CatalogItem typedCatalogItemFromCatalogItem(CatalogItem item) {
-  if (item.kindMetadata is! Map) return item;
-  return item.withKindMetadata(
-    decodeLibraryKindMetadata(item.mediaKind, item.payload),
-  );
-}
-
-CatalogItem typedCatalogItemFromMap(Map<String, dynamic> json) {
-  final item = CatalogItem.fromJson(json);
-  return typedCatalogItemFromCatalogItem(item);
-}
-
-CatalogItem? typedCatalogItemFromUnknown(Object? item) {
-  if (item is! CatalogItem) return null;
-  return typedCatalogItemFromCatalogItem(item);
-}
-
 LibraryKindRuntime? lookupLibraryKind(CatalogMediaKind kind) {
   for (final module in collectarrKindModules) {
     if (module.kind == kind) {

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:dio/dio.dart';
@@ -27,7 +26,7 @@ class LibraryProviderOrchestrationService {
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
     );
-    return typedCatalogItemFromMap({
+    return CatalogItem.fromJson({
         'id': id,
         'kind': mediaKind.apiValue,
         'title': candidate.title,

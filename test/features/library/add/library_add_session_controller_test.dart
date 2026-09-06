@@ -169,7 +169,7 @@ void main() {
     test(
         'submits selected item to owned items using capability command building',
         () async {
-      final item = typedCatalogItemFromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-sub-1',
           kind: 'comic',
@@ -186,7 +186,7 @@ void main() {
 
     test('submits item to wishlist target', () async {
       controller.setTarget(LibraryAddTarget.wishlist);
-      final item = typedCatalogItemFromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-wish-1',
           kind: 'comic',
@@ -203,7 +203,7 @@ void main() {
 
     test('submits item to tracking target', () async {
       controller.setTarget(LibraryAddTarget.track);
-      final item = typedCatalogItemFromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-track-1',
           kind: 'comic',
@@ -277,7 +277,7 @@ void main() {
     });
 
     test('selectSuggestion updates query and selects suggestion', () {
-      final suggestion = typedCatalogItemFromMap({
+      final suggestion = testCatalogItemFromJson({
         'id': 'sugg-1',
         'kind': 'comic',
         'title': 'Daredevil',
@@ -330,7 +330,7 @@ void main() {
 
   group('Kind-Specific Add Draft to Command Capability Tests', () {
     test('ComicAddDraft produces valid AddOwnedItemCommand', () {
-      final item = typedCatalogItemFromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'c1', kind: 'comic', title: 'Comic 1'),
       );
       const common = LibraryAddCommonDraft(condition: 'NM');
@@ -353,7 +353,7 @@ void main() {
     });
 
     test('MovieAddDraft produces valid AddOwnedItemCommand', () {
-      final item = typedCatalogItemFromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'v1', kind: 'movie', title: 'Video 1'),
       );
       const common = LibraryAddCommonDraft(condition: 'New');
@@ -370,7 +370,7 @@ void main() {
     });
 
     test('GameAddDraft produces valid AddOwnedItemCommand', () {
-      final item = typedCatalogItemFromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'g1', kind: 'game', title: 'Game 1'),
       );
       const common = LibraryAddCommonDraft(quantity: 2);
@@ -387,7 +387,7 @@ void main() {
     });
 
     test('MusicAddDraft produces valid AddOwnedItemCommand', () {
-      final item = typedCatalogItemFromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'm1', kind: 'music', title: 'Music 1'),
       );
       const common = LibraryAddCommonDraft();

@@ -51,7 +51,7 @@ void main() {
     final projection = const ComicCollectionCsvProjection();
     final entry = ShelfEntry(
       itemId: 'comic-1',
-      catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Spider-Man',

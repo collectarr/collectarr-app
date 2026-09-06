@@ -121,7 +121,7 @@ void main() {
           ),
         );
     await LibraryCatalogRepository(db).upsertAll([
-      typedCatalogItemFromMap({
+      testCatalogItemFromJson({
         'id': 'catalog-1',
         'kind': 'comic',
         'title': 'Saga',

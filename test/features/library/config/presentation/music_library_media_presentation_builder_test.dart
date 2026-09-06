@@ -9,7 +9,7 @@ void main() {
   test('music search result display formats album metadata', () {
     const builder = MusicLibraryMediaPresentationBuilder();
     final display = builder.buildSearchResultDisplay(
-      item: typedCatalogItemFromMap({
+      item: testCatalogItemFromJson({
         'id': 'music-search-1',
         'kind': 'music',
         'title': 'Kinesis - Deluxe Edition',
@@ -44,7 +44,7 @@ void main() {
       previewLabels: const LibraryMediaPreviewLabels(
         values: {'series': 'Artist', 'item_count': 'Releases'},
       ),
-      item: typedCatalogItemFromMap({
+      item: testCatalogItemFromJson({
         'id': 'music-1',
         'kind': 'music',
         'title': 'Kinesis',
@@ -121,7 +121,7 @@ void main() {
       previewLabels: const LibraryMediaPreviewLabels(
         values: {'series': 'Artist', 'item_count': 'Releases'},
       ),
-      item: typedCatalogItemFromMap({
+      item: testCatalogItemFromJson({
         'id': 'music-1',
         'kind': 'music',
         'title': 'Kinesis',

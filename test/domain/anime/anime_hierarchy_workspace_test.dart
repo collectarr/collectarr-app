@@ -34,7 +34,7 @@ void main() {
   });
 
   test('workspace mapper exposes a typed AnimeMedia graph', () {
-    final item = typedCatalogItemFromMap({
+    final item = testCatalogItemFromJson({
       'id': 'anime-2',
       'kind': 'anime',
       'title': 'Samurai Champloo',

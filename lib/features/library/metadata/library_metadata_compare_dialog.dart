@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -62,7 +61,7 @@ class _LibraryMetadataCompareDialogState
         kind: widget.localItem.kind,
         id: widget.localItem.id,
       );
-      final item = typedCatalogItemFromMap({
+      final item = CatalogItem.fromJson({
         ...dto.raw,
         'id': dto.id,
         'title': dto.title,

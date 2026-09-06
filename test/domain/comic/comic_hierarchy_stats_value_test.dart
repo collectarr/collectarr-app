@@ -114,7 +114,7 @@ void main() {
   });
 
   testWidgets('Comic media editing uses the typed edit schema', (tester) async {
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-media-editor',
         kind: 'comic',
@@ -150,7 +150,7 @@ void main() {
 
   testWidgets('Comic release editing uses the typed edit schema',
       (tester) async {
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-release-editor',
         kind: 'comic',
@@ -193,7 +193,7 @@ void main() {
 
   testWidgets('Comic owned editing uses the typed edit schema tab',
       (tester) async {
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-owned-editor',
         kind: 'comic',

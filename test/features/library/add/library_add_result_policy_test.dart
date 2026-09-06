@@ -4,17 +4,17 @@ import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('TV Add policy classifies and filters media scopes', () {
-    final series = typedCatalogItemFromMap({
+    final series = testCatalogItemFromJson({
       'id': 'tv-series',
       'kind': 'tv',
       'title': 'Example Show',
     });
-    final season = typedCatalogItemFromMap({
+    final season = testCatalogItemFromJson({
       'id': 'tv-season',
       'kind': 'tv',
       'title': 'Example Show',
@@ -23,7 +23,7 @@ void main() {
         'season_number': 1,
       },
     });
-    final release = typedCatalogItemFromMap({
+    final release = testCatalogItemFromJson({
       'id': 'tv-release',
       'kind': 'tv',
       'title': 'Example Show',
@@ -47,18 +47,18 @@ void main() {
   });
 
   test('TV Add policy keeps all scopes visible by default', () {
-    final series = typedCatalogItemFromMap({
+    final series = testCatalogItemFromJson({
       'id': 'tv-series',
       'kind': 'tv',
       'title': 'Example Show',
     });
-    final season = typedCatalogItemFromMap({
+    final season = testCatalogItemFromJson({
       'id': 'tv-season',
       'kind': 'tv',
       'title': 'Example Show',
       'series': {'season_number': 2},
     });
-    final release = typedCatalogItemFromMap({
+    final release = testCatalogItemFromJson({
       'id': 'tv-release',
       'kind': 'tv',
       'title': 'Example Show',
@@ -75,18 +75,18 @@ void main() {
   });
 
   test('Comic Add policy owns owned and variant visibility', () {
-    final owned = typedCatalogItemFromMap({
+    final owned = testCatalogItemFromJson({
       'id': 'comic-owned',
       'kind': 'comic',
       'title': 'Owned Comic',
     });
-    final variant = typedCatalogItemFromMap({
+    final variant = testCatalogItemFromJson({
       'id': 'comic-variant',
       'kind': 'comic',
       'title': 'Variant Comic',
       'variant': 'Foil',
     });
-    final regular = typedCatalogItemFromMap({
+    final regular = testCatalogItemFromJson({
       'id': 'comic-regular',
       'kind': 'comic',
       'title': 'Regular Comic',

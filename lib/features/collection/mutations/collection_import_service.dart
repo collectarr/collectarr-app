@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_cach
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -110,8 +109,7 @@ final class CollectionImportService {
 
       imported++;
       final catItem = catalogItems[row.itemId];
-      final metadataItem =
-          catItem == null ? null : typedCatalogItemFromCatalogItem(catItem);
+      final metadataItem = catItem;
       final catItemId = metadataItem?.id;
       final catItemKind = metadataItem?.kind;
       if (catItemId != null && !snapshotItemIds.contains(catItemId)) {
@@ -345,7 +343,7 @@ final class CollectionImportService {
     CatalogItem? existing,
   }) {
     if (existing != null) {
-      return typedCatalogItemFromCatalogItem(existing);
+      return existing;
     }
     final projection = libraryCollectionCsvProjectionForKind(
       catalogMediaKindFromValue(row.kind),
@@ -358,7 +356,7 @@ final class CollectionImportService {
         return imported;
       }
     }
-    return typedCatalogItemFromMap({
+    return CatalogItem.fromJson({
       'id': row.itemId,
       'kind': row.kind ?? CatalogMediaKind.unknown.apiValue,
       'title': row.title ?? row.itemId,

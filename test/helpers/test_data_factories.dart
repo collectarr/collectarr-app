@@ -14,6 +14,15 @@ import 'package:collectarr_app/features/library/kinds/registry/owned_details_exp
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 export 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 
@@ -122,6 +131,28 @@ CatalogItem testCatalogItem({
     common: common,
     payload: mergedPayload,
   );
+}
+
+CatalogItem testCatalogItemFromJson(Map<String, dynamic> json) {
+  return testCatalogItemWithKindMetadata(CatalogItem.fromJson(json));
+}
+
+CatalogItem testCatalogItemWithKindMetadata(CatalogItem item) {
+  if (item.kindMetadata is! Map) return item;
+  final payload = item.payload;
+  final metadata = switch (item.kind) {
+    'anime' => AnimeMetadata.fromJson(payload),
+    'boardgame' => BoardGameMetadata.fromJson(payload),
+    'book' => BookCatalogMetadata.fromJson(payload),
+    'comic' => ComicMedia.fromJson(payload),
+    'game' => GameCatalogMetadata.fromJson(payload),
+    'manga' => MangaMetadata.fromJson(payload),
+    'movie' => MovieCatalogMetadata.fromJson(payload),
+    'music' => MusicCatalogMetadata.fromJson(payload),
+    'tv' => TvSeriesMetadata.fromJson(payload),
+    _ => null,
+  };
+  return metadata == null ? item : item.withKindMetadata(metadata);
 }
 
 CatalogEntityRef testCatalogRef(
@@ -392,7 +423,7 @@ ShelfEntry testShelfEntry({
       );
   return ShelfEntry(
     itemId: itemId,
-    catalogItem: typedCatalogItemFromCatalogItem(resolvedCatalogItem),
+    catalogItem: testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ownedItem: ownedItem,
     locationPath: locationPath,
   );

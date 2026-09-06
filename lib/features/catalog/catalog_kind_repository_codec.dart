@@ -9,6 +9,10 @@ import 'package:collectarr_app/core/db/local_database.dart';
 abstract interface class CatalogKindRepositoryCodec {
   String get kind;
 
+  /// Rehydrates a transport catalog projection into this kind's typed
+  /// metadata at the persistence boundary.
+  CatalogItem withTypedMetadata(CatalogItem item);
+
   Future<void> upsert(LocalDatabase db, CatalogItem item);
 
   Future<List<CatalogItem>> list(LocalDatabase db);

@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -286,7 +285,7 @@ class SerialAuthorityRepository {
       }
       await LibraryCatalogRepository(_db).upsertAll(
         [
-          typedCatalogItemFromMap(
+          CatalogItem.fromJson(
             _catalogPayloadWithSeries(
               catalogItem,
               seriesId: row.coreSeriesId,
@@ -337,7 +336,7 @@ class SerialAuthorityRepository {
       }
       await LibraryCatalogRepository(_db).upsertAll(
         [
-          typedCatalogItemFromMap(
+          CatalogItem.fromJson(
             _catalogPayloadWithSeries(
               catalogItem,
               seriesId: target.coreSeriesId,

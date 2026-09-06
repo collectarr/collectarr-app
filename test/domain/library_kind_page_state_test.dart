@@ -193,7 +193,7 @@ void main() {
 
     final request = LibraryEditDialogRequest(
       type: bookKindModule,
-      item: typedCatalogItemFromCatalogItem(
+      item: testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'book-1',
           kind: 'book',

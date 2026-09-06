@@ -86,7 +86,7 @@ void main() {
       mediaKind: 'comic',
     );
     final type = comicKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -333,7 +333,7 @@ void main() {
     addTearDown(db.close);
 
     final type = comicKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-restore-order',
         kind: 'comic',
@@ -419,7 +419,7 @@ void main() {
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS1cAAAAASUVORK5CYII=';
 
     final type = comicKindModule;
-    final item = typedCatalogItemFromCatalogItem(
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-2',
         kind: 'comic',

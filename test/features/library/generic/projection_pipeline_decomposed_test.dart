@@ -87,7 +87,7 @@ void main() {
 
       final shelf = ShelfEntry(
         itemId: id,
-        catalogItem: typedCatalogItemFromCatalogItem(catalog),
+        catalogItem: testCatalogItemWithKindMetadata(catalog),
         ownedItem: owned,
         wishlistItem: wishlist,
       );

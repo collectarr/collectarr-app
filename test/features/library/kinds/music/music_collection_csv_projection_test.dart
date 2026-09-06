@@ -63,7 +63,7 @@ void main() {
     final projection = const MusicCollectionCsvProjection();
     final entry = ShelfEntry(
       itemId: 'music-1',
-      catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Kind of Blue',

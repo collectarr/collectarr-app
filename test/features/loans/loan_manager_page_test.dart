@@ -32,7 +32,7 @@ void main() {
     addTearDown(db.close);
 
     await LibraryCatalogRepository(db).upsertAll([
-      typedCatalogItemFromMap({
+      testCatalogItemFromJson({
         'id': 'comic-1',
         'kind': 'comic',
         'title': 'Action Comics #1',
@@ -90,7 +90,7 @@ void main() {
     addTearDown(db.close);
 
     await LibraryCatalogRepository(db).upsertAll([
-      typedCatalogItemFromMap({
+      testCatalogItemFromJson({
         'id': 'comic-2',
         'kind': 'comic',
         'title': 'Detective Comics #27',

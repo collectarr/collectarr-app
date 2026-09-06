@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 typedef LibraryGroupBucketValueMutator = CatalogItem? Function(
@@ -142,7 +141,7 @@ CatalogItem _libraryMetadataItemWithPayload(
   CatalogItem item,
   Map<String, dynamic> payload,
 ) {
-  return typedCatalogItemFromMap({
+  return CatalogItem.fromJson({
     'id': item.id,
     'kind': item.kind,
     ...payload,

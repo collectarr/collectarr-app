@@ -42,7 +42,7 @@ void main() {
     final result = await runner.run(
       action: () async {
         await LibraryCatalogRepository(db).upsertAll([
-          typedCatalogItemFromMap({
+          testCatalogItemFromJson({
             'id': 'cat-1',
             'kind': 'comic',
             'title': 'Test Title',
@@ -80,7 +80,7 @@ void main() {
       () => runner.run(
         action: () async {
           await LibraryCatalogRepository(db).upsertAll([
-            typedCatalogItemFromMap({
+            testCatalogItemFromJson({
               'id': 'cat-fail',
               'kind': 'comic',
               'title': 'Should Rollback',
@@ -141,7 +141,7 @@ void main() {
     await runner.run(
       action: () async {
         await LibraryCatalogRepository(db).upsertAll([
-          typedCatalogItemFromMap({
+          testCatalogItemFromJson({
             'id': localRef.id,
             'kind': localRef.kind,
             'title': 'Movie',

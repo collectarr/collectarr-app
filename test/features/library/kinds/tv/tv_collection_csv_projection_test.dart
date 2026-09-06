@@ -63,7 +63,7 @@ void main() {
     final projection = const TvCollectionCsvProjection();
     final entry = ShelfEntry(
       itemId: 'tv-1',
-      catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'tv-1',
         kind: 'tv',
         title: 'The X-Files',

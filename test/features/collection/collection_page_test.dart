@@ -27,7 +27,7 @@ void main() {
     addTearDown(db.close);
 
     await LibraryCatalogRepository(db).upsertAll([
-      typedCatalogItemFromMap({
+      testCatalogItemFromJson({
         'id': 'comic-1',
         'kind': 'comic',
         'title': 'Superman, Vol. 4',
@@ -121,7 +121,7 @@ void main() {
     addTearDown(db.close);
 
     await LibraryCatalogRepository(db).upsertAll([
-      typedCatalogItemFromMap({
+      testCatalogItemFromJson({
         'id': 'comic-1',
         'kind': 'comic',
         'title': 'Superman, Vol. 4',

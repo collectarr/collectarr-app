@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/kinds/movie/data/movie_repositor
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 
@@ -41,6 +40,10 @@ final class ComicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   String get kind => 'comic';
 
   @override
+  CatalogItem withTypedMetadata(CatalogItem item) =>
+      _withTypedMetadata(item, ComicMedia.fromJson);
+
+  @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
     return ComicRepository(db).updateMedia(
       ComicMedia.fromJson(_payloadFor(item)),
@@ -52,7 +55,13 @@ final class ComicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
     final media = await ComicRepository(db).search();
     return [
       for (final item in media)
-        _projection('comic', item.id?.value, item.title, item.rawPayload),
+        _projection(
+          'comic',
+          item.id?.value,
+          item.title,
+          item.rawPayload,
+          ComicMedia.fromJson,
+        ),
     ];
   }
 }
@@ -62,6 +71,10 @@ final class MangaCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   String get kind => 'manga';
+
+  @override
+  CatalogItem withTypedMetadata(CatalogItem item) =>
+      _withTypedMetadata(item, MangaMedia.fromJson);
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
@@ -75,7 +88,13 @@ final class MangaCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
     final media = await MangaRepository(db).search();
     return [
       for (final item in media)
-        _projection('manga', item.id, item.title, item.rawPayload),
+        _projection(
+          'manga',
+          item.id,
+          item.title,
+          item.rawPayload,
+          MangaMedia.fromJson,
+        ),
     ];
   }
 }
@@ -85,6 +104,10 @@ final class BookCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   String get kind => 'book';
+
+  @override
+  CatalogItem withTypedMetadata(CatalogItem item) =>
+      _withTypedMetadata(item, BookMedia.fromJson);
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
@@ -98,7 +121,13 @@ final class BookCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
     final media = await BookRepository(db).search();
     return [
       for (final item in media)
-        _projection('book', item.id.value, item.title, item.rawPayload),
+        _projection(
+          'book',
+          item.id.value,
+          item.title,
+          item.rawPayload,
+          BookMedia.fromJson,
+        ),
     ];
   }
 }
@@ -108,6 +137,10 @@ final class GameCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   String get kind => 'game';
+
+  @override
+  CatalogItem withTypedMetadata(CatalogItem item) =>
+      _withTypedMetadata(item, GameMedia.fromJson);
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
@@ -121,7 +154,13 @@ final class GameCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
     final media = await GameRepository(db).search();
     return [
       for (final item in media)
-        _projection('game', item.id.value, item.title, item.rawPayload),
+        _projection(
+          'game',
+          item.id.value,
+          item.title,
+          item.rawPayload,
+          GameMedia.fromJson,
+        ),
     ];
   }
 }
@@ -132,6 +171,10 @@ final class BoardGameCatalogRepositoryCodec
 
   @override
   String get kind => 'boardgame';
+
+  @override
+  CatalogItem withTypedMetadata(CatalogItem item) =>
+      _withTypedMetadata(item, BoardGameMedia.fromJson);
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
@@ -145,7 +188,13 @@ final class BoardGameCatalogRepositoryCodec
     final media = await BoardGameRepository(db).search();
     return [
       for (final item in media)
-        _projection('boardgame', item.id.value, item.title, item.rawPayload),
+        _projection(
+          'boardgame',
+          item.id.value,
+          item.title,
+          item.rawPayload,
+          BoardGameMedia.fromJson,
+        ),
     ];
   }
 }
@@ -155,6 +204,10 @@ final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   String get kind => 'movie';
+
+  @override
+  CatalogItem withTypedMetadata(CatalogItem item) =>
+      _withTypedMetadata(item, MovieMedia.fromJson);
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
@@ -168,7 +221,13 @@ final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
     final media = await MovieRepository(db).search();
     return [
       for (final item in media)
-        _projection('movie', item.id.value, item.title, item.rawPayload),
+        _projection(
+          'movie',
+          item.id.value,
+          item.title,
+          item.rawPayload,
+          MovieMedia.fromJson,
+        ),
     ];
   }
 }
@@ -178,6 +237,10 @@ final class TvCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   String get kind => 'tv';
+
+  @override
+  CatalogItem withTypedMetadata(CatalogItem item) =>
+      _withTypedMetadata(item, TvSeries.fromJson);
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
@@ -191,7 +254,13 @@ final class TvCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
     final media = await TvRepository(db).search();
     return [
       for (final item in media)
-        _projection('tv', item.id, item.title, item.rawPayload),
+        _projection(
+          'tv',
+          item.id,
+          item.title,
+          item.rawPayload,
+          TvSeries.fromJson,
+        ),
     ];
   }
 }
@@ -201,6 +270,10 @@ final class AnimeCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   String get kind => 'anime';
+
+  @override
+  CatalogItem withTypedMetadata(CatalogItem item) =>
+      _withTypedMetadata(item, AnimeMedia.fromJson);
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
@@ -214,7 +287,13 @@ final class AnimeCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
     final media = await AnimeRepository(db).search();
     return [
       for (final item in media)
-        _projection('anime', item.id.value, item.title, item.rawPayload),
+        _projection(
+          'anime',
+          item.id.value,
+          item.title,
+          item.rawPayload,
+          AnimeMedia.fromJson,
+        ),
     ];
   }
 }
@@ -224,6 +303,10 @@ final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   String get kind => 'music';
+
+  @override
+  CatalogItem withTypedMetadata(CatalogItem item) =>
+      _withTypedMetadata(item, MusicRelease.fromJson);
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItem item) {
@@ -237,7 +320,13 @@ final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
     final releases = await MusicRepository(db).search();
     return [
       for (final item in releases)
-        _projection('music', item.id.value, item.title, item.rawPayload),
+        _projection(
+          'music',
+          item.id.value,
+          item.title,
+          item.rawPayload,
+          MusicRelease.fromJson,
+        ),
     ];
   }
 }
@@ -246,13 +335,22 @@ Map<String, dynamic> _payloadFor(CatalogItem item) => {
       'id': item.id,
       'kind': item.kind,
       ...item.toSyncPayload(),
-    };
+};
+
+CatalogItem _withTypedMetadata(
+  CatalogItem item,
+  Object? Function(Map<String, dynamic>) decode,
+) {
+  if (item.kindMetadata is! Map) return item;
+  return item.withKindMetadata(decode(item.payload));
+}
 
 CatalogItem _projection(
   String kind,
   String? id,
   String title,
   Object? rawPayload,
+  Object? Function(Map<String, dynamic>) decode,
 ) {
   final payload = rawPayload is Map
       ? Map<String, dynamic>.from(rawPayload)
@@ -260,5 +358,6 @@ CatalogItem _projection(
   payload['id'] ??= id ?? '';
   payload['kind'] ??= kind;
   payload['title'] ??= title;
-  return typedCatalogItemFromMap(payload);
+  final item = CatalogItem.fromJson(payload);
+  return item.withKindMetadata(decode(item.payload));
 }

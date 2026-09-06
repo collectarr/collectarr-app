@@ -98,7 +98,7 @@ void main() {
           quantity: 2,
         );
 
-        final metadataItem = typedCatalogItemFromCatalogItem(item);
+        final metadataItem = testCatalogItemWithKindMetadata(item);
         final command = addCap.buildCommand(
           metadataItem,
           common,

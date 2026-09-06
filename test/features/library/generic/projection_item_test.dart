@@ -69,7 +69,7 @@ void main() {
 
     final source2 = ShelfEntry(
       itemId: 'comic-3',
-      catalogItem: typedCatalogItemFromCatalogItem(
+      catalogItem: testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-3',
           kind: 'comic',

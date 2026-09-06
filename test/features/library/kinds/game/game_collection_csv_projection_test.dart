@@ -56,7 +56,7 @@ void main() {
     final projection = const GameCollectionCsvProjection();
     final entry = ShelfEntry(
       itemId: 'game-1',
-      catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'game-1',
         kind: 'game',
         title: 'The Legend of Zelda',

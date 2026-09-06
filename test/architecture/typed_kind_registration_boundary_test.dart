@@ -11,6 +11,7 @@ void main() {
       'lib/features/library/kinds/registry/collectarr_kind_modules.dart';
   const registrationsPath =
       'lib/features/library/kinds/registry/library_kind_registrations.dart';
+  const productionRoot = 'lib';
   const homePath = 'lib/features/library/home/home_page.dart';
 
   test('registration interface stays smaller than the runtime aggregate', () {
@@ -61,5 +62,23 @@ void main() {
 
     expect(source, contains('registration:'));
     expect(source, contains('libraryKindRegistrationForKind'));
+  });
+
+  test('metadata rehydration does not live in the kind registry', () {
+    final source = File(compositionRootPath).readAsStringSync();
+    expect(source, isNot(contains('typedCatalogItemFrom')));
+    expect(source, isNot(contains('decodeLibraryKindMetadata')));
+
+    final productionFiles = Directory(productionRoot)
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.dart'));
+    for (final file in productionFiles) {
+      final contents = file.readAsStringSync();
+      expect(contents, isNot(contains('typedCatalogItemFrom')),
+          reason: file.path);
+      expect(contents, isNot(contains('decodeLibraryKindMetadata')),
+          reason: file.path);
+    }
   });
 }

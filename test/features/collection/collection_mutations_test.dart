@@ -920,7 +920,7 @@ void main() {
       csv.exportShelf([
         ShelfEntry(
           itemId: 'comic-owned-details',
-          catalogItem: typedCatalogItemFromCatalogItem(
+          catalogItem: testCatalogItemWithKindMetadata(
             testCatalogItem(
               id: 'comic-owned-details',
               kind: 'comic',

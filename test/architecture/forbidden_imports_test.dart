@@ -617,7 +617,7 @@ class ComicFeature {}
 
     final entry = ShelfEntry(
       itemId: 'foo-1',
-      catalogItem: typedCatalogItemFromMap({
+      catalogItem: CatalogItem.fromJson({
         'id': 'foo-1',
         'kind': 'unknown',
         'title': 'Foo Item 1',

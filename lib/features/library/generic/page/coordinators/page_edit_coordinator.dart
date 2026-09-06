@@ -71,8 +71,7 @@ class LibraryPageEditCoordinator {
     final itemImageRepo = ItemImageRepository(db);
     final cached = (await LibraryCatalogRepository(db)
         .findByIds({catalogItem.id}))[catalogItem.id];
-    final freshMetadataItem =
-        cached != null ? typedCatalogItemFromCatalogItem(cached) : catalogItem;
+    final freshMetadataItem = cached ?? catalogItem;
     final ownedItems = _s.ref.read(collectionProvider).maybeWhen(
           data: (value) => value,
           orElse: () => const <OwnedItem>[],

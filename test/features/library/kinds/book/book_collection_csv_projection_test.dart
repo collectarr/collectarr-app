@@ -63,7 +63,7 @@ void main() {
     final projection = const BookCollectionCsvProjection();
     final entry = ShelfEntry(
       itemId: 'book-1',
-      catalogItem: typedCatalogItemFromCatalogItem(testCatalogItem(
+      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Hobbit',

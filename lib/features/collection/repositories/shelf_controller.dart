@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -10,7 +11,6 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -28,10 +28,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     for (final item in trackingEntries) item.catalogRef.id,
   };
   final catalogItems = await LibraryCatalogRepository(db).findByIds(ids);
-  final libraryCatalogItems = {
-    for (final entry in catalogItems.entries)
-      entry.key: typedCatalogItemFromCatalogItem(entry.value),
-  };
+  final libraryCatalogItems = catalogItems;
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
@@ -129,7 +126,8 @@ class ShelfState {
         ShelfEntry(
           itemId: id,
           catalogItem: () {
-            return typedCatalogItemFromUnknown(catalogItems[id]);
+            final item = catalogItems[id];
+            return item is CatalogItem ? item : null;
           }(),
           ownedItem: ownedByItemId[id],
           trackingEntry: trackingByItemId[id],

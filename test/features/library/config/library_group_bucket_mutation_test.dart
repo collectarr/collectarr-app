@@ -12,7 +12,7 @@ CatalogItem _metadata(
   String kind,
   Map<String, dynamic> payload,
 ) {
-  return typedCatalogItemFromCatalogItem(
+  return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: '$kind-1',
       kind: kind,

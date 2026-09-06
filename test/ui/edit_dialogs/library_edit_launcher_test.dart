@@ -65,7 +65,7 @@ void main() {
 LibraryEditDialogRequest _bookEditRequest() {
   return LibraryEditDialogRequest(
     type: bookKindModule,
-    item: typedCatalogItemFromMap({
+    item: testCatalogItemFromJson({
       'id': 'book-1',
       'kind': 'book',
       'title': 'The Return of the King',

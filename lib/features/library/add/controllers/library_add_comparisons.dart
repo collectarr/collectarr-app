@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 bool sameStringList(List<String>? a, List<String>? b) {
@@ -152,7 +151,7 @@ CatalogItem metadataItemFromIngestResult(AdminMetadataItem item) {
   final primaryEdition = item.primaryEdition;
   final primaryVariant = item.primaryVariant;
   final releaseDate = primaryEdition?.releaseDate;
-  return typedCatalogItemFromMap({
+  return CatalogItem.fromJson({
     'id': item.id,
     'kind': item.kind,
     'title': item.title,
