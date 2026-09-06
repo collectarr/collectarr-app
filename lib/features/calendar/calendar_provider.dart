@@ -44,32 +44,15 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   final universalCalendarContext = UniversalCalendarContext(
     ownedItems: ownedItems,
     loans: loans,
+    watchSessions: watchSessions,
     titleForItem: titleFor,
+    hasKindContributor: (kind) =>
+        libraryCalendarContributorForKind(kind) != null,
   );
   for (final contributor in universalCalendarContributors) {
     events.addAll(contributor.contribute(universalCalendarContext));
   }
 
-  // --- Watch sessions without a kind contributor ---
-  // The generic host preserves the event but intentionally does not inspect
-  // episode coordinates. TV and Anime already projected their own sessions
-  // above.
-  for (final session in watchSessions) {
-    if (session.isDeleted ||
-        libraryCalendarContributorForKind(session.targetRef.mediaKind) !=
-            null) {
-      continue;
-    }
-    events.add(CalendarEvent(
-      kind: CalendarEventKind.watched,
-      date: session.watchedAt,
-      title: titleFor(session.itemId),
-      eventId: 'watch:${session.id}',
-      itemId: session.itemId,
-    ));
-  }
-
-  // --- Loans ---
   // Resolve owned item → catalog item mapping.
   events.sort((a, b) => a.date.compareTo(b.date));
   return events;
