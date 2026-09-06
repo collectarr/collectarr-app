@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
@@ -41,7 +42,7 @@ void main() {
 
   group('Typed Owned Commands & Details', () {
     test(
-        'every registered active kind accepts valid typed details and rejects missing payloads',
+        'every registered active kind accepts valid typed details and rejects mismatched details',
         () async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
@@ -78,7 +79,7 @@ void main() {
               entityType: CatalogEntityType.ownedCopy,
               id: 'test-${kind.apiValue}-1',
             ),
-            common: const OwnedItemCommonDraft(),
+            common: const LibraryAddCommonDraft(),
             details: validDraft,
           ),
         );
@@ -92,13 +93,13 @@ void main() {
         if (kind != CatalogMediaKind.comic && kind != CatalogMediaKind.manga) {
           expect(
             () => coordinator.addOwnedItem(
-              AddOwnedItemCommand(
+              typedAddOwnedItemCommand(
                 catalogRef: CatalogEntityRef(
                   kind: kind.apiValue,
                   entityType: CatalogEntityType.ownedCopy,
                   id: 'test-${kind.apiValue}-bad',
                 ),
-                common: const OwnedItemCommonDraft(),
+                common: const LibraryAddCommonDraft(),
                 details: const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
               ),
             ),
@@ -108,13 +109,13 @@ void main() {
           // Comic/manga kind with MovieOwnedDetailsDraft
           expect(
             () => coordinator.addOwnedItem(
-              AddOwnedItemCommand(
+              typedAddOwnedItemCommand(
                 catalogRef: CatalogEntityRef(
                   kind: kind.apiValue,
                   entityType: CatalogEntityType.ownedCopy,
                   id: 'test-${kind.apiValue}-bad',
                 ),
-                common: const OwnedItemCommonDraft(),
+                common: const LibraryAddCommonDraft(),
                 details: const MovieOwnedDetailsDraft(region: 'A'),
               ),
             ),
@@ -144,7 +145,7 @@ void main() {
               entityType: CatalogEntityType.ownedCopy,
               id: 'clear-test-${kind.apiValue}',
             ),
-            common: const OwnedItemCommonDraft(),
+            common: const LibraryAddCommonDraft(),
             details: libraryKindOwnedDetailsDraftForKind(kind),
           ),
         );

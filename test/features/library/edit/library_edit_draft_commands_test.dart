@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.da
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -47,15 +48,15 @@ void main() {
 
     expect(cmd.catalogRef.id, 'comic-draft-1');
     expect(cmd.catalogRef.kind, 'comic');
-    expect(cmd.common.condition, 'Near Mint');
-    expect(cmd.common.grade, '9.8');
-    expect(cmd.common.pricePaidCents, 1999);
-    expect(cmd.common.currency, 'USD');
     expect(cmd.tracking, isNotNull);
     expect(cmd.tracking?.notes, isNull);
-    expect(cmd.typedPayload, isNotNull);
+    final payload = cmd.typedPayload as ComicOwnedItemCreatePayload;
+    expect(payload.condition, 'Near Mint');
+    expect(payload.grade, '9.8');
+    expect(payload.pricePaidCents, 1999);
+    expect(payload.currency, 'USD');
 
-    final details = cmd.details;
+    final details = payload.details;
     expect(details, isA<ComicOwnedDetailsDraft>());
     final comicDetails = details as ComicOwnedDetailsDraft;
     expect(comicDetails.rawOrSlabbed, 'Slabbed');

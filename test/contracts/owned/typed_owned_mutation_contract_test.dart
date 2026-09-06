@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -41,7 +42,7 @@ void main() {
             entityType: CatalogEntityType.ownedCopy,
             id: 'contract-owned-${kind.apiValue}',
           ),
-          common: const OwnedItemCommonDraft(
+          common: const LibraryAddCommonDraft(
             condition: 'Good',
             grade: '8.0',
           ),

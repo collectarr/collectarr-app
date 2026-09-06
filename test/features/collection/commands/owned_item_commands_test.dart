@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:drift/native.dart';
@@ -106,7 +107,7 @@ void main() {
         editionId: 'edition-1',
         variantId: 'variant-1',
       ),
-      common: const OwnedItemCommonDraft(
+      common: const LibraryAddCommonDraft(
         condition: 'Near Mint',
         grade: '9.8',
         pricePaidCents: 1500,
@@ -157,7 +158,7 @@ void main() {
           entityType: CatalogEntityType.ownedCopy,
           id: 'comic-cmd-2',
         ),
-        common: const OwnedItemCommonDraft(
+        common: const LibraryAddCommonDraft(
           condition: 'Very Fine',
           grade: '8.0',
           pricePaidCents: 1000,

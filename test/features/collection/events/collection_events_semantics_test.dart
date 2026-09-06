@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
@@ -100,7 +101,7 @@ void main() {
     final item = await ownedMutations.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-100', kind: 'movie'),
-        common: const OwnedItemCommonDraft(),
+        common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
       ),
     );
@@ -121,7 +122,7 @@ void main() {
     final item = await ownedMutations.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-200', kind: 'movie'),
-        common: const OwnedItemCommonDraft(),
+        common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
       ),
     );

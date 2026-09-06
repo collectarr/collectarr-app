@@ -5,18 +5,17 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+
+export 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 
 /// Builds a [CatalogItem] with sensible defaults for testing.
 ///
@@ -139,7 +138,7 @@ CatalogEntityRef testCatalogRef(
 
 AddOwnedItemCommand typedAddOwnedItemCommand({
   required CatalogEntityRef catalogRef,
-  required OwnedItemCommonDraft common,
+  required LibraryAddCommonDraft common,
   required OwnedDetailsDraft details,
   OwnedItemCreatePayload? typedPayload,
   PersonalItemAnchor? anchor,
@@ -148,8 +147,6 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
   if (typedPayload != null) {
     return AddOwnedItemCommand(
       catalogRef: catalogRef,
-      common: common,
-      details: details,
       typedPayload: typedPayload,
       anchor: anchor,
       tracking: tracking,

@@ -126,7 +126,7 @@ CatalogEntityRef testCatalogRef(
 
 AddOwnedItemCommand typedAddOwnedItemCommand({
   required CatalogEntityRef catalogRef,
-  required OwnedItemCommonDraft common,
+  required LibraryAddCommonDraft common,
   required OwnedDetailsDraft details,
   OwnedItemCreatePayload? typedPayload,
   PersonalItemAnchor? anchor,
@@ -135,8 +135,6 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
   if (typedPayload != null) {
     return AddOwnedItemCommand(
       catalogRef: catalogRef,
-      common: common,
-      details: details,
       typedPayload: typedPayload,
       anchor: anchor,
       tracking: tracking,

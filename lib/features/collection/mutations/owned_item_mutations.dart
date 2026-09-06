@@ -82,12 +82,6 @@ final class OwnedItemMutations {
 
         final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
         final typedPayload = command.typedPayload;
-        if (typedPayload == null) {
-          throw StateError(
-            'Owned item add requires a typed payload for kind '
-            '${catalogRef.kind}.',
-          );
-        }
         final details = typedPayload.detailsDraft.toDetails();
         if (mediaKind != CatalogMediaKind.unknown) {
           collectarrOwnedDetailsCodecForKind(mediaKind).validate(details);

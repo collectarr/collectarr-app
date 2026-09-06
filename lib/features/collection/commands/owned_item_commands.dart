@@ -50,38 +50,6 @@ class ClearValue<T> extends Patch<T> {
   const ClearValue();
 }
 
-/// Draft containing common personal collection fields.
-@immutable
-class OwnedItemCommonDraft {
-  const OwnedItemCommonDraft({
-    this.quantity = 1,
-    this.condition,
-    this.grade,
-    this.purchaseDate,
-    this.pricePaidCents,
-    this.currency,
-    this.personalNotes,
-    this.locationId,
-    this.purchaseStore,
-    this.collectionStatus,
-    this.isDigital,
-    this.tags,
-  });
-
-  final int quantity;
-  final String? condition;
-  final String? grade;
-  final DateTime? purchaseDate;
-  final int? pricePaidCents;
-  final String? currency;
-  final String? personalNotes;
-  final String? locationId;
-  final String? purchaseStore;
-  final String? collectionStatus;
-  final bool? isDigital;
-  final String? tags;
-}
-
 /// Tracking state transported alongside an ownership command.
 ///
 /// Tracking is persisted by [TrackingMutations], never as part of the
@@ -106,20 +74,16 @@ class OwnedItemTrackingDraft {
 
 /// Command to add an owned item to collection.
 @immutable
-final class AddOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
+final class AddOwnedItemCommand {
   const AddOwnedItemCommand({
     required this.catalogRef,
-    required this.common,
-    required this.details,
-    this.typedPayload,
+    required this.typedPayload,
     this.anchor,
     this.tracking,
   });
 
   final CatalogEntityRef catalogRef;
-  final OwnedItemCommonDraft common;
-  final TDetails details;
-  final OwnedItemCreatePayload? typedPayload;
+  final OwnedItemCreatePayload typedPayload;
   final PersonalItemAnchor? anchor;
   final OwnedItemTrackingDraft? tracking;
 }

@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
@@ -59,7 +60,7 @@ void main() {
     await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-        common: const OwnedItemCommonDraft(locationId: 'loc-a'),
+        common: const LibraryAddCommonDraft(locationId: 'loc-a'),
         details: const MovieOwnedDetailsDraft(),
       ),
     );
@@ -109,7 +110,7 @@ void main() {
     await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-        common: const OwnedItemCommonDraft(),
+        common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
       ),
     );
@@ -158,7 +159,7 @@ void main() {
     await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-        common: const OwnedItemCommonDraft(),
+        common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
       ),
     );

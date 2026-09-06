@@ -303,6 +303,27 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     return previewPaneBuilder?.call(context, request);
   }
 
+  OwnedItemCreatePayload _buildOwnedPayload(
+    CatalogItem item,
+    LibraryAddCommonDraft common,
+    OwnedDetailsDraft details,
+  ) {
+    try {
+      final payload = ownedPayloadBuilder?.call(item, common, details);
+      if (payload == null) {
+        throw StateError(
+          'Kind ${kind.apiValue} must provide an owned create payload.',
+        );
+      }
+      return payload;
+    } on TypeError catch (error) {
+      throw StateError(
+        'Kind ${kind.apiValue} received details owned by another kind: '
+        '$error',
+      );
+    }
+  }
+
   @override
   AddOwnedItemCommand buildCommand(
       CatalogItem item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
@@ -310,15 +331,14 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
     final details = effectiveDraft.toOwnedDetailsDraft();
+    final typedPayload = _buildOwnedPayload(item, common, details);
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
         kind: kind.apiValue,
         entityType: CatalogEntityType.ownedCopy,
         id: item.id,
       ),
-      common: common.toOwnedItemCommonDraft(),
-      details: details,
-      typedPayload: ownedPayloadBuilder?.call(item, common, details),
+      typedPayload: typedPayload,
       anchor: anchor,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
@@ -338,15 +358,14 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     PersonalItemAnchor? anchor,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   }) {
+    final typedPayload = _buildOwnedPayload(item, common, details);
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
         kind: kind.apiValue,
         entityType: CatalogEntityType.ownedCopy,
         id: item.id,
       ),
-      common: common.toOwnedItemCommonDraft(),
-      details: details,
-      typedPayload: ownedPayloadBuilder?.call(item, common, details),
+      typedPayload: typedPayload,
       anchor: anchor,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
@@ -375,8 +394,6 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         entityType: CatalogEntityType.ownedCopy,
         id: item.id,
       ),
-      common: const OwnedItemCommonDraft(),
-      details: payload.detailsDraft,
       typedPayload: payload,
       anchor: anchor,
       tracking: OwnedItemTrackingDraft(

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -58,23 +57,6 @@ class LibraryAddCommonDraft {
       purchaseStore: purchaseStore ?? this.purchaseStore,
       collectionStatus: collectionStatus ?? this.collectionStatus,
       isDigital: isDigital ?? this.isDigital,
-    );
-  }
-
-  OwnedItemCommonDraft toOwnedItemCommonDraft() {
-    return OwnedItemCommonDraft(
-      condition: condition,
-      grade: grade,
-      purchaseDate: purchaseDate,
-      pricePaidCents: pricePaidCents,
-      currency: currency,
-      personalNotes: personalNotes,
-      quantity: quantity,
-      tags: tags,
-      locationId: locationId,
-      purchaseStore: purchaseStore,
-      collectionStatus: collectionStatus,
-      isDigital: isDigital,
     );
   }
 }

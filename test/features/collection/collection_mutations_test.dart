@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -48,7 +49,7 @@ void main() {
               editionId: 'edition-1',
               variantId: 'variant-1',
             ),
-            common: const OwnedItemCommonDraft(
+            common: const LibraryAddCommonDraft(
               condition: 'Near Mint',
               grade: '9.8',
             ),
@@ -79,7 +80,7 @@ void main() {
     await container.read(ownedItemMutationsProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-typed-payload', kind: 'comic'),
-            common: const OwnedItemCommonDraft(
+            common: const LibraryAddCommonDraft(
               condition: 'Default condition',
               quantity: 1,
             ),
@@ -119,7 +120,7 @@ void main() {
     await container.read(ownedItemMutationsProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-            common: const OwnedItemCommonDraft(),
+            common: const LibraryAddCommonDraft(),
             details: const MovieOwnedDetailsDraft(),
           ),
         );
@@ -153,7 +154,7 @@ void main() {
     await container.read(ownedItemMutationsProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-            common: const OwnedItemCommonDraft(),
+            common: const LibraryAddCommonDraft(),
             details: const ComicOwnedDetailsDraft(),
           ),
         );
@@ -175,7 +176,7 @@ void main() {
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-            common: const OwnedItemCommonDraft(
+            common: const LibraryAddCommonDraft(
               condition: 'Near Mint',
             ),
             tracking: const OwnedItemTrackingDraft(rating: 8),
@@ -212,7 +213,7 @@ void main() {
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-            common: OwnedItemCommonDraft(),
+            common: LibraryAddCommonDraft(),
             tracking: OwnedItemTrackingDraft(
               status: MediaTrackingStatus.completed,
               rating: 8,
@@ -264,7 +265,7 @@ void main() {
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-digital-1', kind: 'movie'),
-            common: const OwnedItemCommonDraft(),
+            common: const LibraryAddCommonDraft(),
             tracking: const OwnedItemTrackingDraft(
               status: MediaTrackingStatus.completed,
               rating: 9,
@@ -298,7 +299,7 @@ void main() {
                   editionId: 'edition-default',
                   variantId: 'variant-default',
                 ),
-                common: const OwnedItemCommonDraft(),
+                common: const LibraryAddCommonDraft(),
                 details: const MovieOwnedDetailsDraft(),
               ),
               syncTracking: false,
@@ -382,6 +383,7 @@ void main() {
           TrackingEntriesCacheCompanion.insert(
             id: 'tracking-existing',
             itemId: 'movie-1',
+            kind: const Value('movie'),
             sourceType: const Value('digital'),
             status: const Value('Plan to watch'),
             updatedAt: DateTime.utc(2026, 5, 23),
@@ -448,7 +450,7 @@ void main() {
     await container.read(ownedItemMutationsProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-            common: const OwnedItemCommonDraft(),
+            common: const LibraryAddCommonDraft(),
             details: const ComicOwnedDetailsDraft(),
           ),
         );
@@ -483,7 +485,7 @@ void main() {
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-            common: OwnedItemCommonDraft(
+            common: LibraryAddCommonDraft(
               condition: 'Near Mint',
               grade: '9.8',
               purchaseDate: DateTime.utc(2026, 5, 10),
@@ -526,7 +528,7 @@ void main() {
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-            common: const OwnedItemCommonDraft(
+            common: const LibraryAddCommonDraft(
               locationId: 'loc-box-6',
             ),
             details: const ComicOwnedDetailsDraft(),
@@ -1132,7 +1134,7 @@ void main() {
     await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-        common: const OwnedItemCommonDraft(grade: '4.0'),
+        common: const LibraryAddCommonDraft(grade: '4.0'),
         details: const ComicOwnedDetailsDraft(),
       ),
     );
@@ -1166,7 +1168,7 @@ void main() {
     await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-        common: const OwnedItemCommonDraft(condition: 'Good', grade: '4.0'),
+        common: const LibraryAddCommonDraft(condition: 'Good', grade: '4.0'),
         details: const ComicOwnedDetailsDraft(),
       ),
     );
