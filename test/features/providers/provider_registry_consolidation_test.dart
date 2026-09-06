@@ -1,6 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
-import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -103,19 +101,6 @@ void main() {
       final comicvine = collectarrMetadataProviderRegistry.byId('comicvine');
       expect(comicvine?.requiresApiKey, isTrue);
       expect(comicvine?.label, 'Comic Vine');
-    });
-
-    test(
-        'resolveWithCatalog resolves metadata providers from ProviderConnectorRegistry',
-        () {
-      final resolved = comicKindModule.resolveWithCatalog(
-        const [],
-        providerRegistry: defaultProviderConnectorRegistry,
-      );
-
-      expect(resolved.metadata.supportsProvider('gcd'), isTrue);
-      expect(resolved.metadata.supportsProvider('comicvine'), isTrue);
-      expect(resolved.metadata.providerLabel('gcd'), 'GCD');
     });
   });
 }

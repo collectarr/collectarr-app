@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,50 +28,6 @@ void main() {
     );
     expect(catalog.firstWhere((type) => type.kind == 'movie').routeSegments,
         ['movies', 'movie']);
-  });
-
-  test('resolved library type uses Core provider defaults', () async {
-    final container = ProviderContainer(
-      overrides: [
-        apiClientProvider.overrideWithValue(
-          _CatalogApiClient([
-            const CatalogMediaType(
-              kind: 'comic',
-              singularLabel: 'Comic issue',
-              pluralLabel: 'Comic issues',
-              routeSegments: ['comics'],
-              defaultProvider: 'comicvine',
-              providers: ['comicvine', 'gcd'],
-            ),
-          ]),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    await container.read(mediaCatalogProvider.future);
-    final type = container.read(
-      resolvedLibraryTypeProvider(comicKindModule),
-    );
-
-    expect(type.identity.singularLabel, 'Comic issue');
-    expect(type.identity.pluralLabel, 'Comic issues');
-    expect(type.metadata.defaultProviderId, 'comicvine');
-    expect(type.metadata.providers.map((provider) => provider.id), [
-      'comicvine',
-      'gcd',
-    ]);
-    final resolvedInspector = type.inspector;
-    final baseInspector = comicKindModule.inspector;
-    expect(
-      resolvedInspector.sectionsBuilder,
-      same(baseInspector.sectionsBuilder),
-    );
-    expect(
-      resolvedInspector.heroBuilder,
-      same(baseInspector.heroBuilder),
-    );
-    expect(resolvedInspector.showsDefaultPersonalSection, isFalse);
   });
 
   test('media catalog cache is reused for the same base url', () async {

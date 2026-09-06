@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/home/library_switch_transition.d
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
@@ -392,7 +393,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     );
     final overdueLoanCount = overdueLoanOwnedItemIds.length;
     final selectedOverdueLoanCount = overdueCounts[selected.kind] ?? 0;
-    final registry = ref.watch(resolvedLibraryTypesProvider);
+    final registry = defaultLibraryKindRegistry;
     final topBar = MediaLibraryNav(
       types: visibleTypes,
       counts: counts,

@@ -28,7 +28,6 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -313,16 +312,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final api = _FakeLibraryAddApiClient();
-    final providerSearchType = comicKindModule.resolveWithCatalog(const [
-      CatalogMediaType(
-        kind: 'comic',
-        singularLabel: 'Comic',
-        pluralLabel: 'Comics',
-        routeSegments: ['comics'],
-        defaultProvider: 'anilist',
-        providers: ['anilist', 'gcd', 'comicvine'],
-      ),
-    ]);
+    final providerSearchType = comicKindModule;
 
     await tester.pumpWidget(
       ProviderScope(

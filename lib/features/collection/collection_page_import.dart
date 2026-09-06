@@ -329,11 +329,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       _error = null;
     });
     try {
-      final type = ref.read(
-        resolvedLibraryTypeProvider(
-          _runtimeForImportRow(row),
-        ),
-      );
+      final type = _runtimeForImportRow(row);
       final response = await createLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
         type: type,
@@ -1012,10 +1008,9 @@ Future<List<CatalogItem>> _searchCoreForRow(
   String? queryOverride,
   int limit = 20,
 }) async {
-  final resolvedType = ref.read(resolvedLibraryTypeProvider(type));
   return await searchLibraryMetadata(
     ref.read(apiClientProvider),
-    resolvedType,
+    type,
     query: _searchQueryForRow(row, queryOverride: queryOverride),
     barcode: _importRowBarcode(row),
     limit: limit,

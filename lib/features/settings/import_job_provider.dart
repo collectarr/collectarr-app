@@ -906,7 +906,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
               libraryKindModuleForKind(CatalogMediaKind.movie),
             TmdbMediaType.tv => libraryKindModuleForKind(CatalogMediaKind.tv),
           };
-    return ref.read(resolvedLibraryTypeProvider(runtime));
+    return runtime;
   }
 
   Future<void> _importTvSeasons({
@@ -981,9 +981,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     if (entry.kind.isUnknown) {
       return null;
     }
-    return ref.read(
-      resolvedLibraryTypeProvider(libraryKindModuleForKind(entry.kind)),
-    );
+    return libraryKindModuleForKind(entry.kind);
   }
 
   CatalogItem? _bestImportMatch(

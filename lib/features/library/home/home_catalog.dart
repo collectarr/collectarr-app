@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/providers/library_nav_preference
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/features/library/runtime/runtime_catalog_library_type_builder.dart';
 
 List<CatalogMediaType> orderedLibraryHomeTypes(
   List<CatalogMediaType> catalog,
@@ -14,8 +13,8 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
   };
   final topLevelByKind = {
     for (final type in catalog)
-      if (type.isTopLevel ||
-          (!type.mediaKind.isUnknown &&
+      if (!type.mediaKind.isUnknown &&
+          (type.isTopLevel ||
               defaultLibraryKindRegistry.tryGet(type.mediaKind) != null))
         type.kind: type,
   };
@@ -89,18 +88,4 @@ CatalogMediaType selectedLibraryHomeType(
     }
   }
   return types.first;
-}
-
-LibraryKindModule libraryRuntimeForCatalogType(
-  CatalogMediaType type,
-  LibraryKindRegistry registry,
-) {
-  if (type.mediaKind.isUnknown) {
-    return buildRuntimeCatalogLibraryRuntime(type);
-  }
-  final known = registry.tryGet(type.mediaKind);
-  if (known != null) {
-    return known;
-  }
-  return buildRuntimeCatalogLibraryRuntime(type);
 }

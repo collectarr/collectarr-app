@@ -3,8 +3,6 @@ import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,17 +39,6 @@ final mediaCatalogProvider =
     );
   }
   return fallbackMediaCatalog;
-});
-
-final resolvedLibraryTypesProvider = Provider<LibraryKindRegistry>((ref) {
-  final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
-  return defaultLibraryKindRegistry.resolveWithCatalog(catalog);
-});
-
-final resolvedLibraryTypeProvider =
-    Provider.family<LibraryKindModule, LibraryKindModule>((ref, type) {
-  final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
-  return type.resolveWithCatalog(catalog);
 });
 
 final videoPhysicalMediaFormatsProvider = Provider<List<PhysicalMediaFormat>>(
