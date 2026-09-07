@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
@@ -74,7 +76,7 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final String? tags;
 
   @override
-  OwnedItem toOwnedItem({
+  ComicOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
@@ -83,8 +85,8 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    return OwnedItem(
-      id: id,
+    return ComicOwnedItem(
+      id: ComicOwnedItemId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingCatalog?.physicalFormat == 'digital',

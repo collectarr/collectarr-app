@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
@@ -69,7 +71,7 @@ final class MangaOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final String? tags;
 
   @override
-  OwnedItem toOwnedItem({
+  MangaOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
@@ -78,8 +80,8 @@ final class MangaOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    return OwnedItem(
-      id: id,
+    return MangaOwnedItem(
+      id: MangaOwnedItemId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingCatalog?.physicalFormat == 'digital',

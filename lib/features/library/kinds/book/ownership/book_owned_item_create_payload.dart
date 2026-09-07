@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
@@ -69,7 +71,7 @@ final class BookOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final String? tags;
 
   @override
-  OwnedItem toOwnedItem({
+  BookOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
@@ -78,8 +80,8 @@ final class BookOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    return OwnedItem(
-      id: id,
+    return BookOwnedItem(
+      id: BookOwnedItemId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingCatalog?.physicalFormat == 'digital',

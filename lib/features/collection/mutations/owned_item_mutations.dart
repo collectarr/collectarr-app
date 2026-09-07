@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -82,7 +83,7 @@ final class OwnedItemMutations {
           collectarrOwnedDetailsCodecForKind(mediaKind).validate(details);
         }
 
-        final ownedItem = typedPayload.toOwnedItem(
+        final typedOwnedItem = typedPayload.toOwnedItem(
           resolvedCatalogRef: resolvedCatalogRef,
           id: newItemId,
           createdAt: now,
@@ -91,6 +92,16 @@ final class OwnedItemMutations {
           ownerUserId: userId,
           ownerLabel: userEmail,
         );
+        final serializer = collectarrOwnedItemSerializers[mediaKind];
+        if (serializer == null) {
+          throw StateError(
+            'Cannot serialize owned item without a supported kind: '
+            '${catalogRef.kind}',
+          );
+        }
+        // This is the single current compatibility edge: the typed kind
+        // aggregate crosses into the persistence/sync serializer only here.
+        final ownedItem = serializer(typedOwnedItem);
 
         await ownedItems.upsert(ownedItem);
         await syncQueue

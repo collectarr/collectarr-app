@@ -132,23 +132,6 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
         'Could not find a *KindModule variable in ${moduleFile.path}',
       );
     }
-    final workspaceDtoType = RegExp(
-      r'final\s+\w+KindModule\s*=\s*LibraryKindSpec<(\w+)>',
-    ).firstMatch(moduleSource)?.group(1);
-    if (workspaceDtoType == null) {
-      throw StateError(
-        'Could not find LibraryKindSpec DTO type in ${moduleFile.path}',
-      );
-    }
-    final workspaceDtoImport = RegExp(
-      r"import\s+'package:collectarr_app/([^']+workspace_dto\.dart)'",
-    ).firstMatch(moduleSource)?.group(1);
-    if (workspaceDtoImport == null) {
-      throw StateError(
-        'Could not find workspace DTO import in ${moduleFile.path}',
-      );
-    }
-
     final pageSource = await pageFile.readAsString();
     final pageMatch =
         RegExp(r'class\s+(\w+LibraryPage)\s+extends').firstMatch(pageSource);
@@ -170,8 +153,6 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
       _KindDescriptor(
         folder: folder,
         moduleName: moduleName,
-        workspaceDtoType: workspaceDtoType,
-        workspaceDtoImport: workspaceDtoImport,
         pageClass: pageClass,
         calendarContributor: _discoverContributor(
           entity,
@@ -328,9 +309,13 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
   final projectionFile = File(
     '${kindDirectory.path}/data/${folder}_owned_item_projection.dart',
   );
+  final ownedModelFile = File(
+    '${kindDirectory.path}/domain/${folder}_owned_item.dart',
+  );
   final idsFile = File('${kindDirectory.path}/domain/${folder}_ids.dart');
   if (!repositoryFile.existsSync() ||
       !projectionFile.existsSync() ||
+      !ownedModelFile.existsSync() ||
       !idsFile.existsSync()) {
     return null;
   }
@@ -347,9 +332,14 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
     idsFile,
     RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemId)'),
   );
+  final ownedModelClass = _findClass(
+    ownedModelFile,
+    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItem)'),
+  );
   if (repositoryClass == null ||
       projectionClass == null ||
-      ownedIdClass == null) {
+      ownedIdClass == null ||
+      ownedModelClass == null) {
     throw StateError(
       'Could not discover complete owned persistence for $folder',
     );
@@ -366,6 +356,10 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
     ownedId: _Contributor(
       importPath: _packageImportPath(idsFile),
       className: ownedIdClass,
+    ),
+    ownedModel: _Contributor(
+      importPath: _packageImportPath(ownedModelFile),
+      className: ownedModelClass,
     ),
   );
 }
@@ -529,11 +523,6 @@ import 'package:go_router/go_router.dart';
 ''');
   for (final descriptor in descriptors) {
     buffer.writeln(
-      "import 'package:collectarr_app/${descriptor.workspaceDtoImport}';",
-    );
-  }
-  for (final descriptor in descriptors) {
-    buffer.writeln(
       "import 'package:collectarr_app/features/library/kinds/${descriptor.folder}/${descriptor.folder}_kind_module.dart';",
     );
     buffer.writeln(
@@ -562,6 +551,7 @@ import 'package:go_router/go_router.dart';
       persistence.repository,
       persistence.projection,
       persistence.ownedId,
+      persistence.ownedModel,
     ]) {
       if (importedContributorPaths.add(contributor.importPath)) {
         buffer.writeln(
@@ -1029,6 +1019,23 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
+    'final collectarrOwnedItemSerializers = '
+    '<CatalogMediaKind, OwnedItem Function(Object)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final projection = persistence.projection.className;
+    final ownedModel = persistence.ownedModel.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (item) => '
+      '$projection.toOwnedItem(item as $ownedModel),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
     'final collectarrOwnedItemReaders = '
     '<CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{',
   );
@@ -1196,8 +1203,6 @@ final class _KindDescriptor {
   const _KindDescriptor({
     required this.folder,
     required this.moduleName,
-    required this.workspaceDtoType,
-    required this.workspaceDtoImport,
     required this.pageClass,
     this.calendarContributor,
     this.activityContributor,
@@ -1226,8 +1231,6 @@ final class _KindDescriptor {
 
   final String folder;
   final String moduleName;
-  final String workspaceDtoType;
-  final String workspaceDtoImport;
   final String pageClass;
   final _Contributor? calendarContributor;
   final _Contributor? activityContributor;
@@ -1295,11 +1298,13 @@ final class _OwnedPersistence {
     required this.repository,
     required this.projection,
     required this.ownedId,
+    required this.ownedModel,
   });
 
   final _Contributor repository;
   final _Contributor projection;
   final _Contributor ownedId;
+  final _Contributor ownedModel;
 }
 
 final class _VocabularyModule {

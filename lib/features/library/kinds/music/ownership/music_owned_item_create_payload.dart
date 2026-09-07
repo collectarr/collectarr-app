@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
@@ -69,7 +71,7 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final String? tags;
 
   @override
-  OwnedItem toOwnedItem({
+  MusicOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
@@ -78,8 +80,8 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    return OwnedItem(
-      id: id,
+    return MusicOwnedItem(
+      id: MusicOwnedItemId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingCatalog?.physicalFormat == 'digital',

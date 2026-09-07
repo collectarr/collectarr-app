@@ -4,6 +4,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
@@ -130,14 +131,16 @@ void main() {
         expect(runtime.edit.ownedTransferUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned transfer payload');
 
-        final existing = command.typedPayload!.toOwnedItem(
-          resolvedCatalogRef: command.catalogRef,
-          id: 'existing-${kind.apiValue}',
-          createdAt: DateTime.utc(2026, 1, 1),
-          existingCatalog: metadataItem,
-          anchor: command.anchor,
-          ownerUserId: null,
-          ownerLabel: null,
+        final existing = collectarrOwnedItemSerializers[kind]!(
+          command.typedPayload!.toOwnedItem(
+            resolvedCatalogRef: command.catalogRef,
+            id: 'existing-${kind.apiValue}',
+            createdAt: DateTime.utc(2026, 1, 1),
+            existingCatalog: metadataItem,
+            anchor: command.anchor,
+            ownerUserId: null,
+            ownerLabel: null,
+          ),
         );
         final duplicate = addCap.buildCommandFromOwnedItem(
           metadataItem,
@@ -148,14 +151,16 @@ void main() {
         expect(duplicate, isNotNull,
             reason: '$kind must support typed Owned duplication');
         expect(duplicate!.typedPayload, isNotNull);
-        final duplicatedOwned = duplicate.typedPayload!.toOwnedItem(
-          resolvedCatalogRef: duplicate.catalogRef,
-          id: 'duplicate-${kind.apiValue}',
-          createdAt: DateTime.utc(2026, 1, 2),
-          existingCatalog: metadataItem,
-          anchor: duplicate.anchor,
-          ownerUserId: null,
-          ownerLabel: null,
+        final duplicatedOwned = collectarrOwnedItemSerializers[kind]!(
+          duplicate.typedPayload!.toOwnedItem(
+            resolvedCatalogRef: duplicate.catalogRef,
+            id: 'duplicate-${kind.apiValue}',
+            createdAt: DateTime.utc(2026, 1, 2),
+            existingCatalog: metadataItem,
+            anchor: duplicate.anchor,
+            ownerUserId: null,
+            ownerLabel: null,
+          ),
         );
         expect(duplicatedOwned.condition, 'Near Mint');
         expect(duplicatedOwned.grade, '9.8');

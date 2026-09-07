@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 
@@ -14,7 +13,12 @@ abstract interface class OwnedItemCreatePayload {
   CatalogEntityRef get catalogRef;
   OwnedDetailsDraft get detailsDraft;
 
-  OwnedItem toOwnedItem({
+  /// Builds the complete kind-owned aggregate.
+  ///
+  /// The structural command layer intentionally does not name the concrete
+  /// return type. The generated kind persistence registry consumes this value
+  /// immediately at the serialization boundary.
+  Object toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
