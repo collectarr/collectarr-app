@@ -9,14 +9,14 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailPersonalSection extends StatelessWidget {
   const LibraryDetailPersonalSection({
     super.key,
+    this.type,
     required this.item,
     required this.ownedItem,
     this.ownedCopies = const [],
@@ -25,6 +25,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
+  final LibraryKindModule? type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final List<OwnedItem> ownedCopies;
@@ -41,9 +42,6 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ? const <OwnedItem>[]
             : <OwnedItem>[ownedItem!];
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final details = ownedItem?.details;
-    final ownedComicDetails = details is ComicOwnedDetails ? details : null;
-    final ownedMusicDetails = details is MusicOwnedDetails ? details : null;
     final paid = formatMoney(
       ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
       ownedItem?.currency ?? adapter?.currency,
@@ -52,10 +50,15 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       ownedItem?.marketValueCents,
       ownedItem?.currency,
     );
-    final coverPriceCents = ownedComicDetails?.coverPriceCents;
     final currency = ownedItem?.currency ?? adapter?.currency;
-    final coverPrice = formatMoney(coverPriceCents, currency);
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, currency);
+    final kindPersonalFields = type?.inspector.buildPersonalDetailFields(
+          context: context,
+          item: item,
+          ownedItem: ownedItem,
+          currency: currency,
+        ) ??
+        const [];
     final profitLoss = _detailProfitLossLabel(ownedItem);
     final totalPaidCents = _sumOwnedValueCents(
       effectiveOwnedCopies,
@@ -114,9 +117,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
               LibraryDetailField(
                   label: 'Total current value',
                   value: totalCurrentValue.isEmpty ? '-' : totalCurrentValue),
-            LibraryDetailField(
-                label: 'Cover price',
-                value: coverPrice.isEmpty ? '-' : coverPrice),
+            ...kindPersonalFields,
             LibraryDetailField(
                 label: 'Purchased',
                 value: genericLibraryDash(
@@ -142,12 +143,6 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             LibraryDetailField(
                 label: 'Purchase Store',
                 value: genericLibraryDash(ownedItem?.purchaseStore)),
-            LibraryDetailField(
-                label: 'Storage Device',
-                value: genericLibraryDash(ownedMusicDetails?.storageDevice)),
-            LibraryDetailField(
-                label: 'Storage Slot',
-                value: genericLibraryDash(ownedMusicDetails?.storageSlot)),
           ],
         ),
         if (trackingRating != null && trackingRating > 0) ...[

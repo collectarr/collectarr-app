@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/comic/detail/comic_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -154,6 +155,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     heroBuilder: buildComicInspectorHero,
     sectionsBuilder: buildComicInspectorSections,
     showsDefaultPersonalSection: false,
+    personalDetailFieldsBuilder: buildComicPersonalDetailFields,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<ComicMedia>(
     _comicLinkedMetadataValues,

@@ -371,21 +371,21 @@ void main() {
     expect(find.text('Near Mint'), findsOneWidget);
   });
 
-  testWidgets('personal section shows cover price for non-comic items',
+  testWidgets('personal section shows cover price for Comic-owned details',
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: InspectorPersonalSection(
-            type: movieKindModule,
+            type: comicKindModule,
             item: testProjectionItem(
-              id: 'movie-1',
-              kind: 'movie',
-              title: 'Blade Runner 2049',
+              id: 'comic-1',
+              kind: 'comic',
+              title: 'Saga',
             ),
             ownedItem: testOwnedItem(
               id: 'owned-1',
-              itemId: 'movie-1',
+              itemId: 'comic-1',
               purchaseDate: DateTime.utc(2026, 5, 11),
               pricePaidCents: 1299,
               coverPriceCents: 1599,

@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:flutter/material.dart';
 
 class InspectorMetadataSection extends StatelessWidget {
@@ -64,8 +63,6 @@ class InspectorPersonalSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final details = ownedItem?.details;
-    final ownedComicDetails = details is ComicOwnedDetails ? details : null;
     final catalogEditions = item.source.catalogItem?.editions ?? const [];
     final snapshot = valueSnapshot ??
         LibraryValueSnapshot.fromItem(
@@ -95,6 +92,12 @@ class InspectorPersonalSection extends StatelessWidget {
     final trackingStartedAt = tracking?.startedAt;
     final trackingFinishedAt = tracking?.finishedAt;
     final ownedTags = ownedItem?.tags;
+    final kindPersonalFields = type.inspector.buildPersonalDetailFields(
+      context: context,
+      item: item,
+      ownedItem: ownedItem,
+      currency: ownedItem?.currency ?? adapter?.currency,
+    );
     final List<String> tagList =
         (ownedTags != null && ownedTags.trim().isNotEmpty)
             ? ownedTags
@@ -161,14 +164,7 @@ class InspectorPersonalSection extends StatelessWidget {
                     snapshot.manualEstimatedValueCents,
                     snapshot.currency,
                   )),
-            if (ownedComicDetails?.coverPriceCents != null)
-              LibraryDetailField(
-                label: 'Cover price',
-                value: formatMoney(
-                  ownedComicDetails!.coverPriceCents,
-                  ownedItem?.currency ?? adapter?.currency,
-                ),
-              ),
+            ...kindPersonalFields,
             if (ownedItem?.soldAt != null)
               LibraryDetailField(
                 label: 'Sold',

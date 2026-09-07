@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_ca
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -106,6 +107,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   ),
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
+    personalDetailFieldsBuilder: buildMusicPersonalDetailFields,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<MusicCatalogMetadata>(
     _musicLinkedMetadataValues,

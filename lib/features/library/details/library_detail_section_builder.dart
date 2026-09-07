@@ -42,6 +42,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
         title: 'Personal status',
         children: [
           LibraryDetailPersonalSection(
+            type: type,
             item: item,
             ownedItem: ownedItem,
             ownedCopies: ownedCopies,
