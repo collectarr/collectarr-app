@@ -33,9 +33,11 @@ class Loan {
     return isActive && dueDate != null && now.isAfter(dueDate!);
   }
 
-  factory Loan.fromJson(Map<String, dynamic> json) {
-    final catalogRef = json['catalog_ref'] is Map<String, dynamic>
-        ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
+  factory Loan.fromJson(Map<String, Object?> json) {
+    final catalogRef = json['catalog_ref'] is Map
+        ? CatalogEntityRef.fromJson(
+            Map<String, Object?>.from(json['catalog_ref'] as Map),
+          )
         : null;
     final ownedItemId = _requiredString(json, 'owned_item_id');
     final ownedRef = json['owned_ref'] is Map
@@ -58,7 +60,7 @@ class Loan {
     );
   }
 
-  static String _requiredString(Map<String, dynamic> json, String key) {
+  static String _requiredString(Map<String, Object?> json, String key) {
     final value = json[key];
     if (value is String && value.isNotEmpty) {
       return value;
@@ -66,7 +68,7 @@ class Loan {
     throw StateError('Loan.$key is required and must be a non-empty string');
   }
 
-  static DateTime _requiredDate(Map<String, dynamic> json, String key) {
+  static DateTime _requiredDate(Map<String, Object?> json, String key) {
     final parsed = _optionalDate(json, key);
     if (parsed != null) {
       return parsed;
@@ -74,7 +76,7 @@ class Loan {
     throw StateError('Loan.$key is required and must be an ISO-8601 date');
   }
 
-  static DateTime? _optionalDate(Map<String, dynamic> json, String key) {
+  static DateTime? _optionalDate(Map<String, Object?> json, String key) {
     final value = json[key];
     if (value is! String || value.isEmpty) {
       return null;
@@ -82,7 +84,7 @@ class Loan {
     return DateTime.tryParse(value);
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return {
       // Keep owned_item_id for the existing API contract while making the
       // structural reference the canonical in-app representation.
