@@ -557,7 +557,9 @@ class TmdbImportService {
         try {
           final envelope = await adapter.fetchItem(
             pid,
-            kind: entry.mediaType.name,
+            kind: entry.mediaType == TmdbMediaType.movie
+                ? CatalogMediaKind.movie
+                : CatalogMediaKind.tv,
           );
           final preview = providerPreviewFromEnvelope(envelope);
           enriched[pid] = enrichEntryFromPreview(entry, preview);
@@ -633,7 +635,8 @@ class TmdbImportService {
     return null;
   }
 
-  CatalogItemDto mergeMatchedCatalogItem(CatalogItemDto item, TmdbImportEntry entry) {
+  CatalogItemDto mergeMatchedCatalogItem(
+      CatalogItemDto item, TmdbImportEntry entry) {
     final aliases = <String>{
       if (item.searchAliases case final currentAliases?) ...currentAliases,
       if (item.title.trim().isNotEmpty) item.title.trim(),

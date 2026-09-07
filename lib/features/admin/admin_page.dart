@@ -909,7 +909,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<void> _showMetadataCorrectionDialog(AdminMetadataItem item) async {
     final physicalFormats = physicalMediaFormatsForKind(
       _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
-      item.kind,
+      catalogMediaKindFromApiValue(item.kind),
     );
     final correction = await showDialog<_CatalogCorrection>(
       context: context,

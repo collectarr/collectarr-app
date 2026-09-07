@@ -27,10 +27,10 @@ abstract class ProviderConnectorRegistry {
   List<ProviderConnector> getAll();
 
   /// Retrieve all registered connectors that support the given [kind].
-  List<ProviderConnector> getForKind(Object kind);
+  List<ProviderConnector> getForKind(CatalogMediaKind kind);
 
   /// Retrieve all registered connectors that support the given [kind].
-  List<ProviderConnector> forKind(Object kind);
+  List<ProviderConnector> forKind(CatalogMediaKind kind);
 
   /// Retrieve descriptors for all registered connectors.
   List<ProviderDescriptor> getDescriptors();
@@ -101,22 +101,19 @@ class InMemoryProviderConnectorRegistry implements ProviderConnectorRegistry {
   }
 
   @override
-  List<ProviderConnector> getForKind(Object kind) {
-    final kindStr = kind is CatalogMediaKind
-        ? kind.apiValue
-        : kind.toString().trim().toLowerCase();
+  List<ProviderConnector> getForKind(CatalogMediaKind kind) {
     final unique = <ProviderConnector>{..._connectors.values, ..._byId.values};
     return unique
         .where(
           (connector) => connector.descriptor.supportsKind(
-            catalogMediaKindFromApiValue(kindStr),
+            kind,
           ),
         )
         .toList(growable: false);
   }
 
   @override
-  List<ProviderConnector> forKind(Object kind) => getForKind(kind);
+  List<ProviderConnector> forKind(CatalogMediaKind kind) => getForKind(kind);
 
   @override
   List<ProviderDescriptor> getDescriptors() {

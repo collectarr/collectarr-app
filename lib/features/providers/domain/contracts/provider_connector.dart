@@ -119,7 +119,7 @@ final class ProviderConnector implements MetadataCapability {
 
   Future<List<ProviderSearchHit>> searchHits(
     String query, {
-    Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final results = await search(query, kind: kind, limit: limit);
@@ -144,27 +144,25 @@ final class ProviderConnector implements MetadataCapability {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) {
     final meta = metadata;
     if (meta == null) {
       return Future.value(const []);
     }
-    final effectiveKind = kind is CatalogMediaKind ? kind.apiValue : kind;
-    return meta.search(query, kind: effectiveKind, limit: limit);
+    return meta.search(query, kind: kind?.apiValue, limit: limit);
   }
 
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    Object? kind,
+    CatalogMediaKind? kind,
   }) {
     final meta = metadata;
     if (meta == null) {
       throw StateError('Provider $id does not support metadata capability');
     }
-    final effectiveKind = kind is CatalogMediaKind ? kind.apiValue : kind;
-    return meta.fetchItem(providerItemId, kind: effectiveKind);
+    return meta.fetchItem(providerItemId, kind: kind?.apiValue);
   }
 }

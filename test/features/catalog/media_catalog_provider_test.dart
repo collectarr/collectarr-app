@@ -169,18 +169,21 @@ void main() {
     expect(
       physicalMediaFormatsForKind(
         const [],
-        CatalogMediaKind.music.apiValue,
+        CatalogMediaKind.music,
       ).map((format) => format.id),
       containsAll(['vinyl', 'cd', 'cassette']),
     );
     expect(
       physicalMediaFormatsForKind(
         const [],
-        CatalogMediaKind.boardgame.apiValue,
+        CatalogMediaKind.boardgame,
       ).map((format) => format.id),
       contains('physical-disc'),
     );
-    expect(physicalMediaFormatsForKind(const [], 'podcast'), isEmpty);
+    expect(
+      physicalMediaFormatsForKind(const [], CatalogMediaKind.unknown),
+      isEmpty,
+    );
   });
 }
 

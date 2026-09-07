@@ -123,7 +123,7 @@ class ApiClient {
   /// Returns only the identity and display summary needed by cross-kind UI.
   Future<List<CatalogSearchHit>> searchHits(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     String? series,
     String? issueNumber,
     String? publisher,
@@ -133,7 +133,7 @@ class ApiClient {
   }) async {
     final rows = await search(
       query,
-      kind: kind,
+      kind: kind?.apiValue,
       series: series,
       issueNumber: issueNumber,
       publisher: publisher,

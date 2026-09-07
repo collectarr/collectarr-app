@@ -108,7 +108,10 @@ void main() {
         ),
       ).toConnector();
 
-      final hits = await connector.searchHits('The Hobbit');
+      final hits = await connector.searchHits(
+        'The Hobbit',
+        kind: CatalogMediaKind.book,
+      );
 
       expect(hits, hasLength(1));
       expect(hits.single.providerId, ProviderId.openLibrary);
@@ -181,10 +184,22 @@ void main() {
 
       registry.register(multiConnector);
       expect(registry.getAll(), hasLength(2));
-      expect(registry.getForKind('book'), contains(bookConnector));
-      expect(registry.getForKind('book'), isNot(contains(multiConnector)));
-      expect(registry.getForKind('manga'), contains(multiConnector));
-      expect(registry.getForKind('anime'), contains(multiConnector));
+      expect(
+        registry.getForKind(CatalogMediaKind.book),
+        contains(bookConnector),
+      );
+      expect(
+        registry.getForKind(CatalogMediaKind.book),
+        isNot(contains(multiConnector)),
+      );
+      expect(
+        registry.getForKind(CatalogMediaKind.manga),
+        contains(multiConnector),
+      );
+      expect(
+        registry.getForKind(CatalogMediaKind.anime),
+        contains(multiConnector),
+      );
 
       final descriptors = registry.getDescriptors();
       expect(descriptors.map((d) => d.name),

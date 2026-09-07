@@ -38,7 +38,7 @@ final libraryHierarchyProvider = FutureProvider.autoDispose.family<
       try {
         final envelope = await adapter.fetchItem(
           params.providerItemId!,
-          kind: params.kind.apiValue,
+          kind: params.kind,
         );
         final list = envelope.normalized['children'];
         if (list is List) {

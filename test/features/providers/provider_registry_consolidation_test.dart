@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
@@ -83,11 +84,11 @@ void main() {
       expect(registry.byId('gcd'), isNotNull);
       expect(registry.getByName('gcd'), isNotNull);
 
-      final comicConnectors = registry.forKind('comic');
+      final comicConnectors = registry.forKind(CatalogMediaKind.comic);
       expect(comicConnectors.map((c) => c.id.value), contains('gcd'));
       expect(comicConnectors.map((c) => c.id.value), contains('comicvine'));
 
-      final mangaConnectors = registry.forKind('manga');
+      final mangaConnectors = registry.forKind(CatalogMediaKind.manga);
       expect(mangaConnectors.map((c) => c.id.value), contains('mangadex'));
       expect(mangaConnectors.map((c) => c.id.value), contains('anilist'));
     });
@@ -95,7 +96,9 @@ void main() {
     test(
         'collectarrMetadataProviderRegistry delegates to defaultProviderConnectorRegistry',
         () {
-      final options = collectarrMetadataProviderRegistry.forKind('comic');
+      final options = collectarrMetadataProviderRegistry.forKind(
+        CatalogMediaKind.comic,
+      );
       expect(options.map((o) => o.id), ['gcd', 'comicvine']);
 
       final comicvine = collectarrMetadataProviderRegistry.byId('comicvine');

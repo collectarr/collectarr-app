@@ -186,7 +186,10 @@ void main() {
         ]);
         final client = _createTestClient(interceptor);
 
-        final hits = await client.searchHits('Arrival', kind: 'movie');
+        final hits = await client.searchHits(
+          'Arrival',
+          kind: CatalogMediaKind.movie,
+        );
 
         expect(hits, hasLength(1));
         expect(hits.single.title, 'Arrival');

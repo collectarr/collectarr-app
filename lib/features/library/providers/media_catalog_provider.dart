@@ -64,16 +64,15 @@ List<CatalogMediaType> _catalogOrFallback(
 
 List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
-  Object? kind,
+  CatalogMediaKind kind,
 ) {
-  final mediaKind = catalogMediaKindFromValue(kind);
-  final mediaFamily = catalogMediaFamilyForKind(mediaKind);
+  final mediaFamily = catalogMediaFamilyForKind(kind);
   final formats = physicalMediaFormatsFromCatalog(catalog,
-      kind: mediaKind.apiValue, mediaFamily: mediaFamily);
+      kind: kind.apiValue, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }
-  return lookupLibraryKind(mediaKind)?.physicalMediaFormats ?? const [];
+  return lookupLibraryKind(kind)?.physicalMediaFormats ?? const [];
 }
 
 List<CatalogMediaType> _normalizeCatalogMediaTypes(
