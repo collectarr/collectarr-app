@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-Baseline HEAD: `b1cfcf09` on 2026-09-07.
+Baseline HEAD: `689461c5` on 2026-09-07.
 
 Generated registration is compile-time discovery of the nine kind modules. No
 runtime reflection or manual per-kind import list is required. The generated
@@ -16,6 +16,11 @@ registry is a composition root only.
   generated serializer registry is the only remaining Add persistence edge;
 - Owned update payloads now consume and return concrete kind-owned models; the
   generated deserializer/serializer pair is the only update boundary left;
+- collection Add/update writes now enter each typed repository directly; the
+  common aggregate is used only for legacy reads and sync payload
+  serialization;
+- deletion now dispatches by `OwnedItemRef` to typed repositories; common
+  deletion input has been removed from collection mutation callers;
 - generic facet definition ownership;
 - test `CatalogMediaKind` switches in the migrated contract fixtures;
 - common seed graph kind switches and manual seed contributor imports;
