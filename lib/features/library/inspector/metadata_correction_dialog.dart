@@ -15,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Future<void> showMetadataCorrectionDialog({
   required BuildContext context,
   required WidgetRef ref,
-  required Object item,
+  required CatalogItem item,
   required LibraryKindModule type,
 }) async {
   final draft = await showDialog<_MetadataCorrectionDraft>(
@@ -82,7 +82,7 @@ String _describeMetadataCorrectionError(Object error) {
 class _MetadataCorrectionDialog extends StatefulWidget {
   const _MetadataCorrectionDialog({required this.item});
 
-  final dynamic item;
+  final CatalogItem item;
 
   @override
   State<_MetadataCorrectionDialog> createState() =>
@@ -171,7 +171,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   String _initialFieldText(String key) {
-    final item = _asCatalogItem(widget.item);
+    final item = widget.item;
     final payload = item.payload;
     final title = item.title;
     final releaseYear = item.releaseYear;
@@ -220,22 +220,13 @@ class _CorrectionField extends StatelessWidget {
   }
 }
 
-Map<String, dynamic> _itemPayload(Object item) {
-  return _asCatalogItem(item).toSyncPayload();
+Map<String, dynamic> _itemPayload(CatalogItem item) {
+  return item.toSyncPayload();
 }
 
-String _itemTitle(Object item) {
-  return _asCatalogItem(item).title;
-}
+String _itemTitle(CatalogItem item) => item.title;
 
-int? _itemReleaseYear(Object item) {
-  return _asCatalogItem(item).releaseYear;
-}
-
-CatalogItem _asCatalogItem(Object? item) {
-  if (item is CatalogItem) return item;
-  throw ArgumentError.value(item, 'item', 'Unsupported catalog item type');
-}
+int? _itemReleaseYear(CatalogItem item) => item.releaseYear;
 
 class _MetadataCorrectionDraft {
   const _MetadataCorrectionDraft({
@@ -258,7 +249,7 @@ class _MetadataCorrectionDraft {
   final String sourceUrl;
   final String notes;
 
-  String queryFor(Object item) {
+  String queryFor(CatalogItem item) {
     final payload = _itemPayload(item);
     final itemNumber =
         (payload['item_number'] ?? payload['itemNumber'])?.toString();
@@ -270,7 +261,7 @@ class _MetadataCorrectionDraft {
     ].whereType<String>().where((value) => value.isNotEmpty).join(' ');
   }
 
-  String summaryFor(Object item) {
+  String summaryFor(CatalogItem item) {
     final payload = _itemPayload(item);
     final itemNumber =
         (payload['item_number'] ?? payload['itemNumber'])?.toString();
