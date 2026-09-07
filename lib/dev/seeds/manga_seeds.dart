@@ -94,7 +94,9 @@ Iterable<MangaTrackingUnit> mangaSeedTrackingUnits(
   Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
-  for (final item in items.where((item) => item.kind == 'manga')) {
+  for (final item in items.where(
+    (item) => item.mediaKind == CatalogMediaKind.manga,
+  )) {
     final chapters = item.payload['chapters'];
     final chapter =
         chapters is List && chapters.isNotEmpty ? chapters.first : null;

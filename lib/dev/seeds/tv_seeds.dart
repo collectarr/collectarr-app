@@ -154,7 +154,9 @@ Future<void> seedTvDatabase(
 ) async {
   final repository = TvRepository(db);
   final trackingRepository = TvTrackingRepository(db);
-  for (final item in items.where((item) => item.kind == 'tv')) {
+  for (final item in items.where(
+    (item) => item.mediaKind == CatalogMediaKind.tv,
+  )) {
     final seriesId = TvSeriesId(item.id);
     final seasons = await repository.seasonsFor(seriesId);
     for (final season in seasons) {
@@ -186,7 +188,9 @@ Iterable<TvTrackingUnit> tvSeedTrackingUnits(
   Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
-  for (final item in items.where((item) => item.kind == 'tv')) {
+  for (final item in items.where(
+    (item) => item.mediaKind == CatalogMediaKind.tv,
+  )) {
     final seasons = item.payload['seasons'];
     if (seasons is! List) continue;
     for (final season in seasons) {

@@ -100,7 +100,9 @@ Iterable<BookTrackingUnit> bookSeedTrackingUnits(
   Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
-  for (final item in items.where((item) => item.kind == 'book')) {
+  for (final item in items.where(
+    (item) => item.mediaKind == CatalogMediaKind.book,
+  )) {
     final volumeNumber = _seedBookInt(item.itemNumber) ?? 1;
     yield BookTrackingUnit(
       id: 'seed-unit-book-${item.id}',

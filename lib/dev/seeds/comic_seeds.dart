@@ -121,7 +121,9 @@ Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
   Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
-  for (final item in items.where((item) => item.kind == 'comic')) {
+  for (final item in items.where(
+    (item) => item.mediaKind == CatalogMediaKind.comic,
+  )) {
     final issues = item.payload['issues'];
     final issue = issues is List && issues.isNotEmpty ? issues.first : null;
     final issueMap = issue is Map ? issue : const <String, dynamic>{};

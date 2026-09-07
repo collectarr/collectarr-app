@@ -47,15 +47,17 @@ CatalogItemDto seedCatalogItem({
   CatalogPublishingDetailsDto? publishing,
   Map<String, dynamic>? payload,
 }) {
-  final resolvedPublisher = publisher ?? (kind == 'comic' ? 'IDW' : null);
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  final resolvedPublisher =
+      publisher ?? (mediaKind == CatalogMediaKind.comic ? 'IDW' : null);
   final resolvedCreators = creators ??
-      (kind == 'book'
+      (mediaKind == CatalogMediaKind.book
           ? const [
               {'name': 'J.R.R. Tolkien', 'role': 'Author'}
             ]
           : null);
   final resolvedPublishing = publishing ??
-      (kind == 'comic'
+      (mediaKind == CatalogMediaKind.comic
           ? const CatalogPublishingDetailsDto(
               imprint: 'IDW', subtitle: 'Director Cut')
           : null);

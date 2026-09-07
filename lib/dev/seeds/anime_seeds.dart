@@ -121,7 +121,9 @@ Future<void> seedAnimeDatabase(
   DateTime now,
 ) async {
   final repository = AnimeRepository(db);
-  for (final item in items.where((item) => item.kind == 'anime')) {
+  for (final item in items.where(
+    (item) => item.mediaKind == CatalogMediaKind.anime,
+  )) {
     final mediaId = AnimeMediaId(item.id);
     final episodes = await repository.episodesFor(mediaId);
     for (final episode in episodes) {
@@ -154,7 +156,9 @@ Iterable<AnimeTrackingUnit> animeSeedTrackingUnits(
   Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
-  for (final item in items.where((item) => item.kind == 'anime')) {
+  for (final item in items.where(
+    (item) => item.mediaKind == CatalogMediaKind.anime,
+  )) {
     final episodes = item.payload['episodes'];
     if (episodes is! List) continue;
     for (final episode in episodes) {
