@@ -38,7 +38,8 @@ Future<List<ProviderCandidate>> searchComicProvider(
   final results = await provider.search(query, kind: kind, limit: limit);
   return [
     for (final result in results)
-      if (result.providerItemId.trim().isNotEmpty && result.kind == kind)
+      if (result.providerItemId.trim().isNotEmpty &&
+          result.kind == catalogMediaKindFromApiValue(kind))
         _comicCandidateFromSearchResult(
           result,
           provider: provider.descriptor.name,
@@ -204,7 +205,7 @@ ProviderCandidate _comicCandidateFromSearchResult(
     provider: provider,
     providerItemId: result.providerItemId,
     title: result.title,
-    kind: catalogMediaKindFromApiValue(result.kind),
+    kind: result.kind,
     summary: result.summary,
     imageUrl: result.imageUrl,
     candidateType: result.candidateType,

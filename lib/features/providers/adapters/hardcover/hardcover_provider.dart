@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
+import '../../../../core/models/catalog_media_kind.dart';
+
 import '../../credentials/models/hardcover_credentials.dart';
 import '../../domain/models/normalized_provider_envelope_v1.dart';
 import '../../domain/models/provider_attribution.dart';
@@ -186,7 +188,7 @@ class HardcoverProvider extends ProviderAdapter {
           provider: name,
           providerItemId: _formatProviderItemId(targetKind, bookId.toString()),
           title: title,
-          kind: targetKind,
+          kind: catalogMediaKindFromApiValue(targetKind),
           summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
           imageUrl: imageUrl,
           seriesTitle: seriesName,

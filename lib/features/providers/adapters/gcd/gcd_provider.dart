@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+import '../../../../core/models/catalog_media_kind.dart';
+
 import '../../domain/models/normalized_provider_envelope_v1.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
@@ -153,7 +155,7 @@ class GCDProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: issueId,
-      kind: 'comic',
+      kind: CatalogMediaKind.comic.apiValue,
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
@@ -250,7 +252,7 @@ class GCDProvider extends ProviderAdapter {
       provider: name,
       providerItemId: issueId,
       title: title,
-      kind: 'comic',
+      kind: CatalogMediaKind.comic,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
       imageUrl: issue.cover,
       seriesTitle: seriesTitle,

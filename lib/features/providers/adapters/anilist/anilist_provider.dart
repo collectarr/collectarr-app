@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+import '../../../../core/models/catalog_media_kind.dart';
+
 import '../../domain/models/normalized_provider_envelope_v1.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
@@ -426,7 +428,7 @@ class AniListProvider extends ProviderAdapter {
       provider: name,
       providerItemId: providerItemId,
       title: title,
-      kind: targetKind,
+      kind: catalogMediaKindFromApiValue(targetKind),
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
       imageUrl: _extractCoverUrl(item.coverImage),
       characterPreview: characterPreview,

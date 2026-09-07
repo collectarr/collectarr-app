@@ -65,7 +65,6 @@ abstract interface class IdentityCapability {
   });
 }
 
-
 abstract interface class ImageCapability {
   Future<List<ProviderImageRef>> fetchImages(
     String remoteItemId, {
@@ -129,7 +128,7 @@ final class ProviderConnector implements MetadataCapability {
         if (result.providerItemId.trim().isNotEmpty)
           ProviderSearchHit(
             providerId: id,
-            kind: catalogMediaKindFromApiValue(result.kind),
+            kind: result.kind,
             remoteId: result.providerItemId,
             title: result.title,
             subtitle: result.summary,

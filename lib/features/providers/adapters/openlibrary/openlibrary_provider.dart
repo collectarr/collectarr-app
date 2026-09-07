@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+import '../../../../core/models/catalog_media_kind.dart';
+
 import '../../domain/models/normalized_provider_envelope_v1.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
@@ -197,7 +199,7 @@ class OpenLibraryProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: canonicalItemId,
-      kind: 'book',
+      kind: CatalogMediaKind.book.apiValue,
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
@@ -350,7 +352,7 @@ class OpenLibraryProvider extends ProviderAdapter {
       provider: name,
       providerItemId: providerItemId,
       title: title,
-      kind: 'book',
+      kind: CatalogMediaKind.book,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
       imageUrl: _coverUrlTyped(
         searchDoc: doc,

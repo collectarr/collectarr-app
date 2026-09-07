@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+import '../../../../core/models/catalog_media_kind.dart';
+
 import '../../credentials/models/comicvine_credentials.dart';
 import '../../domain/models/normalized_provider_envelope_v1.dart';
 import '../../domain/models/provider_attribution.dart';
@@ -285,7 +287,7 @@ class ComicVineProvider extends ProviderAdapter {
       provider: name,
       providerItemId: canonicalId,
       title: title,
-      kind: kind,
+      kind: catalogMediaKindFromApiValue(kind),
       summary: summaryParts.isNotEmpty ? summaryParts.join(' ') : null,
       imageUrl: _extractImageUrl(issue.image),
       seriesTitle: volumeName,

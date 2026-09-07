@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
+import '../../../../core/models/catalog_media_kind.dart';
+
 import '../../credentials/models/igdb_credentials.dart';
 import '../../domain/models/normalized_provider_envelope_v1.dart';
 import '../../domain/models/provider_attribution.dart';
@@ -149,7 +151,7 @@ class IGDBProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: cleanId,
-      kind: 'game',
+      kind: CatalogMediaKind.game.apiValue,
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
@@ -242,7 +244,7 @@ class IGDBProvider extends ProviderAdapter {
       provider: name,
       providerItemId: igdbId,
       title: title,
-      kind: 'game',
+      kind: CatalogMediaKind.game,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
       imageUrl: _extractCoverUrl(item.cover),
     );

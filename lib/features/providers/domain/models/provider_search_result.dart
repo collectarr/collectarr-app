@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/models/catalog_media_kind.dart';
+
 @immutable
 class ProviderSearchResult {
   const ProviderSearchResult({
@@ -25,7 +27,7 @@ class ProviderSearchResult {
   final String provider;
   final String providerItemId;
   final String title;
-  final String kind;
+  final CatalogMediaKind kind;
   final String? summary;
   final String? imageUrl;
   final String? candidateType;
@@ -71,10 +73,16 @@ class ProviderSearchResult {
       }
     }
 
-    final kind = json['kind']?.toString().trim() ?? '';
-    if (kind.isEmpty) {
+    final rawKind = json['kind']?.toString().trim() ?? '';
+    if (rawKind.isEmpty) {
       throw const FormatException(
         'Provider search result did not include kind',
+      );
+    }
+    final kind = catalogMediaKindFromApiValue(rawKind);
+    if (kind.isUnknown) {
+      throw FormatException(
+        'Provider search result has unsupported kind: $rawKind',
       );
     }
 
@@ -111,7 +119,7 @@ class ProviderSearchResult {
       'provider': provider,
       'provider_item_id': providerItemId,
       'title': title,
-      'kind': kind,
+      'kind': kind.apiValue,
       'summary': summary,
       'image_url': imageUrl,
       'candidate_type': candidateType,

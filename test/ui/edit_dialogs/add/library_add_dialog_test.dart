@@ -2692,7 +2692,9 @@ class _FakeMetadataProvider implements MetadataCapability {
           provider: 'anilist',
           providerItemId: 'anilist-1',
           title: 'Naruto Vol. 1',
-          kind: kind?.toString() ?? defaultKind,
+          kind: kind == null
+              ? catalogMediaKindFromApiValue(defaultKind)
+              : catalogMediaKindFromValue(kind),
           summary: 'A ninja candidate.',
           imageUrl: 'https://example.test/naruto.jpg',
         ),
@@ -2704,7 +2706,7 @@ class _FakeMetadataProvider implements MetadataCapability {
           provider: 'tmdb',
           providerItemId: 'tmdb-1',
           title: 'Fallback candidate',
-          kind: 'movie',
+          kind: CatalogMediaKind.movie,
           summary: 'Different result.',
           imageUrl: 'https://example.test/fallback.jpg',
           publisher: 'Studio Canal',
@@ -2719,7 +2721,9 @@ class _FakeMetadataProvider implements MetadataCapability {
         provider: name,
         providerItemId: '$name-1',
         title: displayTitle,
-        kind: kind?.toString() ?? defaultKind,
+        kind: kind == null
+            ? catalogMediaKindFromApiValue(defaultKind)
+            : catalogMediaKindFromValue(kind),
         summary: 'Provider summary',
         imageUrl: 'https://example.test/$name.jpg',
       ),

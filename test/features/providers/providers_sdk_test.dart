@@ -31,7 +31,9 @@ class _FakeTestProvider implements MetadataCapability {
         provider: name,
         providerItemId: 'item-1',
         title: 'Search Result: $query',
-        kind: kind?.toString() ?? descriptor.kind,
+        kind: kind == null
+            ? catalogMediaKindFromApiValue(descriptor.kind)
+            : catalogMediaKindFromValue(kind),
       ),
     ];
   }
@@ -82,7 +84,7 @@ void main() {
         provider: 'openlibrary',
         providerItemId: 'OL123W',
         title: 'The Hobbit',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         characterPreview: ['Bilbo', 'Gandalf'],
         storyArcPreview: ['The Quest of Erebor'],
         externalIds: {'isbn': '1234567890'},
