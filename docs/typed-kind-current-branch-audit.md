@@ -3,7 +3,7 @@
 Audit date: 2026-09-07
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `4bd2c0de` (`refactor(provider): type provider descriptor kinds`)
+HEAD: `def62e14` (`fix(seed): format typed catalog counts`)
 
 ## Scope and evidence
 
@@ -52,18 +52,34 @@ The common `OwnedItemPatchCommand` and its generic reconstruction path are now d
 ## Current HEAD verification override
 
 The historical paragraphs below retain their original milestone counts. At
-HEAD `4bd2c0de`, the authoritative checker result is **601 AST violations**
-and **410 informational complexity reports**. The latest focused verification
-passes **195 provider/Add tests**; the full Flutter suite was intentionally not
-rerun after this batch. Provider search results/descriptors and typed API
-metadata dispatch now retain `CatalogMediaKind` until explicit JSON, protocol,
-or route serialization boundaries.
+HEAD `def62e14`, the authoritative checker result remains **601 AST
+violations** and **410 informational complexity reports**. Full `flutter
+analyze` has no errors; it reports **147 existing warning/info findings**. The
+full Flutter suite was intentionally not rerun during this batch, per the
+batched verification policy.
+
+The latest focused verification passes the changed verticals: the Add dialog
+suite (39 tests), Activity/Calendar/projection tests, the all-kind completeness
+contract, and the typed seed tests. Activity, Calendar, detail timeline,
+global collection activity, Add ownership checks and insurance stats now read
+`OwnedItemSummary` directly. The generated common-owned summary projector and
+registry helper were deleted. The collection summary provider is invalidated
+after sync, and `scripts/seed_local_db.dart` formats the typed catalog count
+manifest at the serialization boundary.
+
+Provider search results/descriptors and typed API metadata dispatch retain
+`CatalogMediaKind` until explicit JSON, protocol, or route serialization
+boundaries.
 
 Evidence checked:
 
 - `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, de-shared video ownership details, independent Movie/TV/Anime catalog video snapshots and mappers with the obsolete shared catalog snapshot models removed, explicit personal-list import boundaries, kind-owned Activity projections, kind-owned Admin proposal fields, concrete tracking profiles for every registered kind, kind-owned concrete tracking-unit models and persistence codecs, kind-owned TV/Anime tracking-entry coordinate and sync codecs, kind-owned TV/Anime tracking-entry sync parsing, kind-owned TV/Anime custom-episode/watch-session codecs, kind-owned TV/Anime watch-session sync codecs, TV-owned episode completion mutations, the TV typed hierarchy migration, TV-owned personal episode import mapping, workspace-scoped local reset cleanup, enriched typed seed graphs, typed tracking-unit seed coverage, typed Owned fixture detail validation for all nine kinds, persisted kind-owned Owned-row integrity checks, the narrowed generic Owned tracking sync API, kind-owned TV/Anime inspector extensions for episodic tracking edits, the explicit kind-owned Owned-details decode boundary, kind-owned concrete Owned detail drafts, typed detail-draft codec signatures for all nine registrations, TV-owned release-media/episode-map editing, kind-owned Movie/TV/Anime video metadata application, TV-owned video detail composition, the separate structural tracking payload on Owned add commands, typed tracking-first CSV export, the separate Add tracking draft, structural Add/edit-selection anchors, explicit anchor replacement semantics for tracking edits, generic Collection import/export host controls, kind-owned Comic, Movie, Book, Manga, Game, BoardGame, Anime, TV, and Music CSV/CLZ projections with typed semantic parsing, the all-kind CSV projection contract, kind-owned Collection import display/barcode projections, kind-owned owned-cell decoding for Comic CSV imports, kind-dispatched CSV resolution for rows without explicit Media Type, a dedicated all-kind owned-details serialization codec registry, deletion of the generic derived-data service, typed Comic/Manga serial-authority candidate contributors, typed local catalog lookup contributors for all nine kinds, per-kind legacy Owned writers behind a structural composition-root dispatcher, default Owned-draft dispatch removed from Collection command code, the shared all-kind seed verification report, kind-owned import row presentation and search/barcode projection dispatch, kind-owned catalog-cell reconstruction for CSV imports, kind-owned Add Owned create payload builders for all nine concrete capabilities, kind-owned Comic and all-kind Owned update payload builders, routing of generic update orchestrators through the owning edit capabilities, kind-owned financial projections for toolbar statistics, structural Owned summaries for Reading Queue including universal note search, and kind-owned digital/physical copy format resolvers for all nine kinds.
 - `tool/check_library_kind_boundaries.dart`: whole-repository baseline at HEAD reports 601 AST architecture violations and 410 informational complexity reports. The checker still exposes the broad erased runtime and common domain bridges that the remaining plan must remove. Compatibility-alias cleanup did not add allowlist entries.
-- `test/features/providers/**`, `test/ui/edit_dialogs/add/library_add_dialog_test.dart`, and `test/features/library/add/library_add_session_controller_test.dart`: latest focused batch passes 195 tests after typed provider descriptor/API dispatch. The full suite was intentionally not rerun in this batch.
+- `test/ui/edit_dialogs/add/library_add_dialog_test.dart`, the Activity/
+  Calendar contributor tests, `test/core/owned_item_projection_test.dart`,
+  `test/contracts/kind_completeness_contract_test.dart`, and
+  `test/dev/dev_seed_test.dart`: focused typed-kind batches pass. The full
+  suite was intentionally not rerun in this batch.
 - Barcode contracts execute against all 9 registered kind resolvers; the Add and metadata lookup paths dispatch normalized identifiers through the owning resolver before the API boundary.
 - Loan domain/repository consumers now use `OwnedItemRef` canonically; the manager reads only `OwnedItemSummary` projections; the legacy API `owned_item_id` remains only at the JSON/Drift boundary.
 - All checked-in physical seed fixtures now provide a resolver-compatible barcode; the seed quality guard verifies retail/ISBN checksums and the Comic UPC-A supplement format, and the dev seed test verifies persisted rows through kind dispatch.

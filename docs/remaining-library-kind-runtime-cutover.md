@@ -1,63 +1,48 @@
 # Remaining `LibraryKindRuntime` cutover
 
-HEAD `4bd2c0de` was audited on 2026-09-07. The generated registry already performs
-compile-time discovery of all nine kind modules; no runtime reflection or
-manual per-kind import list is required for registration.
+Baseline HEAD: `def62e14` on 2026-09-07.
 
-## Current classification
+Generated registration is compile-time discovery of the nine kind modules. No
+runtime reflection or manual per-kind import list is required. The generated
+registry is a composition root only.
 
-### Permanent dispatch boundary
+## Already removed from this cutover
 
-- `LibraryKindRegistration`: kind identity, navigation, Add, media/release/
-  owned edit entry points.
-- generated maps for calendar, activity, admin, barcode, facets, CSV and
-  provider contributors.
-- structural mixed-kind projections such as `CatalogEntityRef` and
-  `OwnedItemSummary`.
+- `_module` forwarding and runtime registration reflection;
+- generic workspace lookup through the generated kind map;
+- generic facet definition ownership;
+- test `CatalogMediaKind` switches in the migrated contract fixtures;
+- common seed graph kind switches and manual seed contributor imports;
+- common owned summary conversion bridge used by Activity/Calendar;
+- Activity and Calendar detail/global hosts reading common `OwnedItem`;
+- universal owned persistence table and generic derived-data service.
 
-### Still erased and scheduled for removal
+## Still erased and `PARTIAL`
 
-`LibraryKindModule`/`LibraryKindSpec` still expose the following semantic
-surfaces through `LibraryProjectionRuntime` and other erased capability APIs:
+`LibraryKindModule` / `LibraryKindSpec` still expose semantic behavior through
+`LibraryProjectionRuntime` and related capability objects:
 
-- field registries, projector, columns, sorts, groups and facet execution;
-- metadata capability and provider mapper access;
-- owned details codec/draft access;
-- transfer and inspector capabilities that read common `OwnedItem` values;
-- generic card construction and video presentation adapters.
+- field registries, columns, sorts, groups and facet execution;
+- metadata and provider mapper access;
+- generic inspector, transfer and card construction;
+- edit/presentation paths that still carry `CatalogItemDto`;
+- collection/detail mutation paths that still carry common `OwnedItem`.
 
-These APIs are used by the generic Library page and several inspector/edit
-hosts. They cannot be deleted as aliases; callers must first move to concrete
-kind workspace/edit modules.
-
-### Already removed from the cutover path
-
-- runtime registration no longer imports kind modules manually: the generated
-  registration file is the source-generated composition root;
-- generated registrations are direct typed module values; there is no erased
-  `_module` getter or runtime reflection path;
-- workspace consumers resolve typed workspaces through the generated kind map;
-- facet definition lists are owned by their kinds, and test fixtures use typed
-  maps/concrete types instead of `CatalogMediaKind` switches;
-- seed graph validation is supplied by each kind contributor; the common seed
-  runner no longer switches on a kind string;
-- common owned patch command and generic transfer detail conversion;
-- provider, DTO, domain and presentation compatibility aliases;
-- provider search results and descriptors retain typed catalog kinds; provider
-  JSON/protocol strings remain explicit boundary values;
-- typed metadata API dispatch receives `CatalogMediaKind` through the client
-  and converts to route values only at the transport boundary;
-- universal owned-details tables and universal owned-item persistence table.
+These are used by the generic Library page and inspector/edit hosts. They must
+be migrated to concrete kind workspace/edit modules before the erased members
+are deleted. Do not add a second runtime or compatibility alias.
 
 ## Next deletion order
 
-1. Move remaining Library projection/columns/sorts/groups/facet execution to
-   typed kind entry points and remove erased runtime members.
-2. Move metadata/provider resolution to kind-owned integrations.
-3. Replace common `OwnedItem` reads with `OwnedItemRef`/`OwnedItemSummary` or
-   concrete kind reads.
-4. Delete the corresponding `LibraryKindModule` members, then reduce
-   `LibraryKindSpec` to navigation composition only.
+1. Move one complete workspace/presentation consumer cluster to a concrete
+   kind-owned module and repeat for the remaining kinds.
+2. Replace generic Catalog DTO reads with typed repositories and tiny mixed-kind
+   projections.
+3. Replace collection/edit/detail common Owned reads and mutations with typed
+   kind payloads; keep only `OwnedItemRef`/`OwnedItemSummary` in mixed hosts.
+4. Delete erased `LibraryKindModule` members and reduce the registration to
+   navigation/dispatch.
 
-The database remains schema version `1`; this document does not authorize a
-migration path or compatibility storage.
+The whole-repository architecture checker remains a failing migration gate at
+601 AST violations and 410 complexity reports. Schema remains version `1` with
+no compatibility upgrade path.
