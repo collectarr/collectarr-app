@@ -11,6 +11,23 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('generated seed registry covers every catalog kind', () {
+    final kinds = collectarrDevSeedContributors
+        .map((contributor) => contributor.kind)
+        .toList();
+
+    expect(kinds.length, devSeedCatalogCounts.length);
+    expect(kinds.toSet().length, kinds.length);
+    expect(kinds, containsAll(devSeedCatalogCounts.keys));
+    for (final contributor in collectarrDevSeedContributors) {
+      expect(contributor.catalogItems, isNotNull);
+      expect(contributor.validateCatalog, isNotNull);
+      expect(contributor.ownedItems, isNotNull);
+      expect(contributor.validateOwned, isNotNull);
+      expect(contributor.trackingEntries, isNotNull);
+    }
+  });
+
   test('seed quality guard rejects incomplete catalog data', () {
     final incomplete = enrichSeedItem(
       seedCatalogItem(
