@@ -314,14 +314,22 @@ void main() {
         reason: 'Seed barcode is not accepted by ${row.kind}: ${row.id}',
       );
     }
-    final videoRows = catalogRows.where((row) =>
-        row.kind == 'movie' || row.kind == 'tv' || row.kind == 'anime');
+    const videoKinds = <CatalogMediaKind>{
+      CatalogMediaKind.movie,
+      CatalogMediaKind.tv,
+      CatalogMediaKind.anime,
+    };
+    final videoRows = catalogRows.where(
+      (row) => videoKinds.contains(catalogMediaKindFromApiValue(row.kind)),
+    );
     expect(
         videoRows.every((row) =>
             row.payload['runtime_minutes'] is int &&
             row.payload['nr_discs'] is int),
         isTrue);
-    final musicRows = catalogRows.where((row) => row.kind == 'music');
+    final musicRows = catalogRows.where(
+      (row) => catalogMediaKindFromApiValue(row.kind) == CatalogMediaKind.music,
+    );
     expect(
         musicRows.every((row) =>
             row.payload['track_count'] is int &&
