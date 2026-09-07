@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -76,9 +76,11 @@ class _ActivityTimelineSectionState
     final palette = appPalette(context);
     final theme = Theme.of(context);
     final ownedItems = ref.watch(collectionProvider).maybeWhen(
-          data: (items) =>
-              items.where((i) => i.itemId == widget.itemId).toList(),
-          orElse: () => const <OwnedItem>[],
+          data: (items) => items
+              .where((i) => i.itemId == widget.itemId)
+              .map(ownedItemSummaryFor)
+              .toList(),
+          orElse: () => const <OwnedItemSummary>[],
         );
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogItemProvider)[widget.itemId] ??

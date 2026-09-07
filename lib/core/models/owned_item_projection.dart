@@ -53,6 +53,16 @@ final class OwnedItemSummary {
     required this.ref,
     required this.title,
     this.catalogRef,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.purchaseDate,
+    this.purchaseStore,
+    this.pricePaidCents,
+    this.currency,
+    this.soldAt,
+    this.soldTo,
+    this.sellPriceCents,
     this.subtitle,
     this.imageUrl,
     this.ownerLabel,
@@ -64,12 +74,25 @@ final class OwnedItemSummary {
   final OwnedItemRef ref;
   final String title;
   final CatalogEntityRef? catalogRef;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
+  final DateTime? purchaseDate;
+  final String? purchaseStore;
+  final int? pricePaidCents;
+  final String? currency;
+  final DateTime? soldAt;
+  final String? soldTo;
+  final int? sellPriceCents;
   final String? subtitle;
   final String? imageUrl;
   final String? ownerLabel;
   final String? locationLabel;
   final String? notes;
   final bool hasNotes;
+
+  String get itemId => catalogRef?.id ?? '';
+  bool get isDeleted => deletedAt != null;
 
   OwnedItemSummary copyWith({
     OwnedItemRef? ref,
@@ -88,6 +111,16 @@ final class OwnedItemSummary {
       catalogRef: catalogRef == _summaryUnset
           ? this.catalogRef
           : catalogRef as CatalogEntityRef?,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+      purchaseDate: purchaseDate,
+      purchaseStore: purchaseStore,
+      pricePaidCents: pricePaidCents,
+      currency: currency,
+      soldAt: soldAt,
+      soldTo: soldTo,
+      sellPriceCents: sellPriceCents,
       subtitle: subtitle == _summaryUnset ? this.subtitle : subtitle as String?,
       imageUrl: imageUrl == _summaryUnset ? this.imageUrl : imageUrl as String?,
       ownerLabel:

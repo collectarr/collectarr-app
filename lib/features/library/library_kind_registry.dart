@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/activity/universal_activity_contributors.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -12,7 +14,6 @@ import 'package:collectarr_app/features/library/config/library_collection_csv_pr
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -62,6 +63,18 @@ final class LibraryKindRegistry {
 }
 
 final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
+
+OwnedItemSummary ownedItemSummaryFor(OwnedItem item) {
+  final projector =
+      collectarrOwnedItemSummaryProjectors[item.catalogRef.mediaKind];
+  if (projector == null) {
+    throw StateError(
+      'No owned-item summary projector is registered for '
+      '${item.catalogRef.kind}.',
+    );
+  }
+  return projector(item);
+}
 
 final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
     _collectionCsvProjections = Map.unmodifiable(

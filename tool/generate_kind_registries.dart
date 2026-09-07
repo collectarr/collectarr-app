@@ -1068,6 +1068,22 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
+    'final collectarrOwnedItemSummaryProjectors = '
+    '<CatalogMediaKind, OwnedItemSummary Function(OwnedItem)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final projection = persistence.projection.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (item) => '
+      '$projection.toSummary($projection.fromOwnedItem(item)),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
     'final collectarrOwnedItemFinders = '
     '<CatalogMediaKind, Future<OwnedItem?> Function(LocalDatabase, String)>{',
   );

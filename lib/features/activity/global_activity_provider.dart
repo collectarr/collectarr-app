@@ -1,12 +1,13 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/detail/activity_event_aggregator.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -35,7 +36,8 @@ class GlobalActivityEntry {
 /// event type, and date.
 final globalActivityProvider =
     FutureProvider.autoDispose<List<GlobalActivityEntry>>((ref) async {
-  final owned = await ref.watch(collectionProvider.future);
+  final db = ref.watch(localDatabaseProvider);
+  final owned = await CollectarrOwnedItemPersistence(db).listActiveSummaries();
   // Ensure the grouped providers below have resolved data to read.
   await ref.watch(trackingEntriesProvider.future);
   await ref.watch(watchSessionsProvider.future);
@@ -45,12 +47,11 @@ final globalActivityProvider =
   final watchByItem = ref.watch(watchSessionsByItemProvider);
   final wishlistByItem = ref.watch(wishlistByCatalogItemProvider);
 
-  final db = ref.watch(localDatabaseProvider);
   final loans = await LoanRepository(db).getAllLoans();
 
   // owned-item id -> catalog item id, for mapping loans back to catalog items.
   final ownedIdToItemId = <String, String>{
-    for (final o in owned) o.id: o.catalogRef.id,
+    for (final o in owned) o.ref.id.value: o.itemId,
   };
   final loansByItem = <String, List<Loan>>{};
   for (final loan in loans) {
@@ -59,9 +60,9 @@ final globalActivityProvider =
     loansByItem.putIfAbsent(itemId, () => <Loan>[]).add(loan);
   }
 
-  final ownedByItem = <String, List<OwnedItem>>{};
+  final ownedByItem = <String, List<OwnedItemSummary>>{};
   for (final o in owned) {
-    ownedByItem.putIfAbsent(o.catalogRef.id, () => <OwnedItem>[]).add(o);
+    ownedByItem.putIfAbsent(o.itemId, () => <OwnedItemSummary>[]).add(o);
   }
 
   final itemIds = <String>{
@@ -80,7 +81,7 @@ final globalActivityProvider =
   final entries = <GlobalActivityEntry>[];
   for (final itemId in itemIds) {
     final events = ActivityEventAggregator.aggregate(
-      ownedItems: ownedByItem[itemId] ?? const <OwnedItem>[],
+      ownedItems: ownedByItem[itemId] ?? const <OwnedItemSummary>[],
       trackingEntries: trackingByItem[itemId] ?? const <TrackingEntry>[],
       wishlistItems: wishlistByItem[itemId] ?? const <WishlistItem>[],
       loans: loansByItem[itemId] ?? const <Loan>[],

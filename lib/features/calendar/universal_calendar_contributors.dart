@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/calendar_event_contributor.dart';
 
@@ -22,7 +22,7 @@ final class UniversalCalendarContext {
     this.hasKindContributor = _noKindContributor,
   });
 
-  final Iterable<OwnedItem> ownedItems;
+  final Iterable<OwnedItemSummary> ownedItems;
   final Iterable<Loan> loans;
   final Iterable<WatchSession> watchSessions;
   final UniversalCalendarTitleForItem titleForItem;
@@ -44,10 +44,10 @@ final class OwnedItemCalendarContributor
           kind: CalendarEventKind.purchased,
           date: item.purchaseDate!,
           title: title,
-          eventId: 'owned-purchased:${item.id}',
+          eventId: 'owned-purchased:${item.ref.id.value}',
           subtitle: item.purchaseStore,
           itemId: item.itemId,
-          ownedItemId: item.id,
+          ownedItemId: item.ref.id.value,
         );
       }
     }
@@ -60,8 +60,8 @@ final class LoanCalendarContributor
 
   @override
   Iterable<CalendarEvent> contribute(UniversalCalendarContext context) sync* {
-    final ownedById = <String, OwnedItem>{
-      for (final item in context.ownedItems) item.id: item,
+    final ownedById = <String, OwnedItemSummary>{
+      for (final item in context.ownedItems) item.ref.id.value: item,
     };
 
     for (final loan in context.loans) {

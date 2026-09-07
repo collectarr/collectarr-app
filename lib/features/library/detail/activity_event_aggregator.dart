@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -14,7 +14,7 @@ class ActivityEventAggregator {
 
   /// Build a time-sorted (newest-first) list of activity events for one item.
   static List<ActivityEvent> aggregate({
-    required List<OwnedItem> ownedItems,
+    required List<OwnedItemSummary> ownedItems,
     required List<TrackingEntry> trackingEntries,
     required List<WishlistItem> wishlistItems,
     required List<Loan> loans,

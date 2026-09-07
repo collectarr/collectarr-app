@@ -2,23 +2,25 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('projects owned lifecycle and loan events without kind semantics', () {
-    final owned = OwnedItem<JsonEncodable>(
-      id: 'owned-1',
+    final owned = OwnedItemSummary(
+      ref: const OwnedItemRef(
+        kind: CatalogMediaKind.book,
+        id: OwnedItemId('owned-1'),
+      ),
+      title: 'book-1',
       catalogRef: const CatalogEntityRef(
         kind: 'book',
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
-      details: const TestOwnedDetails(),
       purchaseDate: DateTime.utc(2026, 1, 1),
       purchaseStore: 'Seed Store',
       updatedAt: DateTime.utc(2026, 1, 3),

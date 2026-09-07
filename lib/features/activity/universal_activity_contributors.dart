@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -21,7 +21,7 @@ final class UniversalActivityContext {
     this.hasKindContributor = _noKindContributor,
   });
 
-  final Iterable<OwnedItem> ownedItems;
+  final Iterable<OwnedItemSummary> ownedItems;
   final Iterable<TrackingEntry> trackingEntries;
   final Iterable<WishlistItem> wishlistItems;
   final Iterable<Loan> loans;
@@ -61,7 +61,9 @@ final class OwnedActivityContributor
       if (item.purchaseDate == null && !item.isDeleted) {
         yield ActivityEvent(
           kind: ActivityEventKind.addedToCollection,
-          timestamp: item.updatedAt,
+          timestamp: item.updatedAt ??
+              item.createdAt ??
+              DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
         );
       }
     }

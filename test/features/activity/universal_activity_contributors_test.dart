@@ -2,13 +2,12 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/activity/universal_activity_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -20,10 +19,13 @@ void main() {
       id: 'book-activity',
     );
     final now = DateTime.utc(2026, 9, 1);
-    final owned = OwnedItem(
-      id: 'owned-book-activity',
+    final owned = OwnedItemSummary(
+      ref: OwnedItemRef(
+        kind: catalogRef.mediaKind,
+        id: const OwnedItemId('owned-book-activity'),
+      ),
+      title: catalogRef.id,
       catalogRef: catalogRef,
-      details: const TestOwnedDetails(),
       purchaseDate: now,
       soldAt: now.add(const Duration(days: 3)),
       soldTo: 'Collector',
@@ -48,7 +50,7 @@ void main() {
       id: 'loan-book-activity',
       ownedRef: OwnedItemRef(
         kind: catalogRef.mediaKind,
-        id: owned.typedId,
+        id: owned.ref.id,
       ),
       borrowerName: 'Reader',
       lentDate: now.add(const Duration(days: 6)),
