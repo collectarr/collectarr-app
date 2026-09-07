@@ -7,53 +7,15 @@ import 'package:collectarr_app/features/library/actions/import_export_actions.da
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/anime/activity/anime_activity_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/anime/admin/anime_admin_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/anime/barcode/anime_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/admin/boardgame_admin_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/barcode/boardgame_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/barcode/book_isbn_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/book/admin/book_admin_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/game/admin/game_admin_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/game/barcode/game_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/manga/admin/manga_admin_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/manga/barcode/manga_identifier_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/movie/admin/movie_admin_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/movie/barcode/movie_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/music/admin/music_admin_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/music/barcode/music_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
-import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/comic/admin/comic_admin_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/comic/barcode/comic_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_collection_shelf_extension.dart';
-import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/tv/activity/tv_activity_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/tv/admin/tv_admin_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/tv/barcode/tv_barcode_resolver.dart';
-import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -66,15 +28,6 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadat
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -122,33 +75,17 @@ final class LibraryKindRegistry {
 final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
 
 final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
-    _collectionCsvProjections = Map.unmodifiable({
-  CatalogMediaKind.boardgame: const BoardGameCollectionCsvProjection(),
-  CatalogMediaKind.anime: const AnimeCollectionCsvProjection(),
-  CatalogMediaKind.book: const BookCollectionCsvProjection(),
-  CatalogMediaKind.comic: const ComicCollectionCsvProjection(),
-  CatalogMediaKind.game: const GameCollectionCsvProjection(),
-  CatalogMediaKind.manga: const MangaCollectionCsvProjection(),
-  CatalogMediaKind.movie: const MovieCollectionCsvProjection(),
-  CatalogMediaKind.tv: const TvCollectionCsvProjection(),
-  CatalogMediaKind.music: const MusicCollectionCsvProjection(),
-});
+    _collectionCsvProjections = Map.unmodifiable(
+  collectarrKindCollectionCsvProjections,
+);
 
 Iterable<LibraryCollectionCsvProjection> get libraryCollectionCsvProjections =>
     _collectionCsvProjections.values;
 
 final Map<CatalogMediaKind, LibraryCalendarContributor> _calendarContributors =
-    Map.unmodifiable({
-  CatalogMediaKind.anime: const AnimeCalendarContributor(),
-  CatalogMediaKind.boardgame: const BoardGameCalendarContributor(),
-  CatalogMediaKind.book: const BookCalendarContributor(),
-  CatalogMediaKind.comic: const ComicCalendarContributor(),
-  CatalogMediaKind.game: const GameCalendarContributor(),
-  CatalogMediaKind.manga: const MangaCalendarContributor(),
-  CatalogMediaKind.movie: const MovieCalendarContributor(),
-  CatalogMediaKind.music: const MusicCalendarContributor(),
-  CatalogMediaKind.tv: const TvCalendarContributor(),
-});
+    Map.unmodifiable(
+  collectarrKindCalendarContributors,
+);
 
 Iterable<LibraryCalendarContributor> get libraryCalendarContributors =>
     _calendarContributors.values;
@@ -160,10 +97,9 @@ LibraryCalendarContributor? libraryCalendarContributorForKind(
 }
 
 final Map<CatalogMediaKind, LibraryActivityContributor> _activityContributors =
-    Map.unmodifiable({
-  CatalogMediaKind.anime: const AnimeActivityContributor(),
-  CatalogMediaKind.tv: const TvActivityContributor(),
-});
+    Map.unmodifiable(
+  collectarrKindActivityContributors,
+);
 
 Iterable<LibraryActivityContributor> get libraryActivityContributors =>
     _activityContributors.values;
@@ -175,17 +111,9 @@ LibraryActivityContributor? libraryActivityContributorForKind(
 }
 
 final Map<CatalogMediaKind, LibraryAdminContributor> _adminContributors =
-    Map.unmodifiable({
-  CatalogMediaKind.anime: const AnimeAdminContributor(),
-  CatalogMediaKind.boardgame: const BoardGameAdminContributor(),
-  CatalogMediaKind.book: const BookAdminContributor(),
-  CatalogMediaKind.comic: const ComicAdminContributor(),
-  CatalogMediaKind.game: const GameAdminContributor(),
-  CatalogMediaKind.manga: const MangaAdminContributor(),
-  CatalogMediaKind.movie: const MovieAdminContributor(),
-  CatalogMediaKind.music: const MusicAdminContributor(),
-  CatalogMediaKind.tv: const TvAdminContributor(),
-});
+    Map.unmodifiable(
+  collectarrKindAdminContributors,
+);
 
 Iterable<LibraryAdminContributor> get libraryAdminContributors =>
     _adminContributors.values;
@@ -228,17 +156,9 @@ Iterable<ActivityEvent> libraryActivityEventsForWatchSessions(
 }
 
 final Map<CatalogMediaKind, LibraryBarcodeResolver> _barcodeResolvers =
-    Map.unmodifiable({
-  CatalogMediaKind.anime: const AnimeBarcodeResolver(),
-  CatalogMediaKind.boardgame: const BoardGameBarcodeResolver(),
-  CatalogMediaKind.book: const BookIsbnResolver(),
-  CatalogMediaKind.comic: const ComicBarcodeResolver(),
-  CatalogMediaKind.game: const GameBarcodeResolver(),
-  CatalogMediaKind.manga: const MangaIdentifierResolver(),
-  CatalogMediaKind.movie: const MovieBarcodeResolver(),
-  CatalogMediaKind.music: const MusicBarcodeResolver(),
-  CatalogMediaKind.tv: const TvBarcodeResolver(),
-});
+    Map.unmodifiable(
+  collectarrKindBarcodeResolvers,
+);
 
 Iterable<LibraryBarcodeResolver> get libraryBarcodeResolvers =>
     _barcodeResolvers.values;
@@ -331,36 +251,14 @@ Object? Function(Map<String, dynamic>)?
 /// loading. The generic library only receives the structural facet module;
 /// it does not read facet semantics from [LibraryKindModule].
 LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
-  return switch (kind) {
-    CatalogMediaKind.anime => animeLibraryFacetModule,
-    CatalogMediaKind.boardgame => boardGameLibraryFacetModule,
-    CatalogMediaKind.book => bookLibraryFacetModule,
-    CatalogMediaKind.comic => comicLibraryFacetModule,
-    CatalogMediaKind.game => gameLibraryFacetModule,
-    CatalogMediaKind.manga => mangaLibraryFacetModule,
-    CatalogMediaKind.movie => movieLibraryFacetModule,
-    CatalogMediaKind.music => musicLibraryFacetModule,
-    CatalogMediaKind.tv => tvLibraryFacetModule,
-    CatalogMediaKind.unknown => null,
-  };
+  return collectarrKindFacetModules[kind];
 }
 
 /// Composition-root dispatch for kind-owned provider metadata mappings.
 LibraryKindProviderMapper? libraryKindProviderMapperForKind(
   CatalogMediaKind kind,
 ) {
-  return switch (kind) {
-    CatalogMediaKind.anime => const AnimeLibraryKindProviderMapper(),
-    CatalogMediaKind.boardgame => const BoardGameLibraryKindProviderMapper(),
-    CatalogMediaKind.book => const BookLibraryKindProviderMapper(),
-    CatalogMediaKind.comic => const ComicLibraryKindProviderMapper(),
-    CatalogMediaKind.game => const GameLibraryKindProviderMapper(),
-    CatalogMediaKind.manga => const MangaLibraryKindProviderMapper(),
-    CatalogMediaKind.movie => const MovieLibraryKindProviderMapper(),
-    CatalogMediaKind.music => const MusicLibraryKindProviderMapper(),
-    CatalogMediaKind.tv => const TvLibraryKindProviderMapper(),
-    CatalogMediaKind.unknown => null,
-  };
+  return collectarrKindProviderMappers[kind];
 }
 
 /// Composition-root access to the kind-owned serialization codec.

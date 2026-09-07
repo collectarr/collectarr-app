@@ -48,16 +48,95 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
       );
     }
 
+    final facetModule = RegExp(
+      r'(?:const|final)\s+(\w+LibraryFacetModule)\s*=',
+    ).firstMatch(moduleSource)?.group(1);
+
     descriptors.add(
       _KindDescriptor(
         folder: folder,
         moduleName: moduleName,
         pageClass: pageClass,
+        calendarContributor: _discoverContributor(
+          entity,
+          'calendar',
+          '${folder}_calendar_contributor.dart',
+          'LibraryCalendarContributor',
+        ),
+        activityContributor: _discoverContributor(
+          entity,
+          'activity',
+          '${folder}_activity_contributor.dart',
+          'LibraryActivityContributor',
+        ),
+        adminContributor: _discoverContributor(
+          entity,
+          'admin',
+          '${folder}_admin_contributor.dart',
+          'LibraryAdminContributor',
+        ),
+        barcodeResolver: _discoverBarcodeResolver(entity),
+        collectionCsvProjection: _discoverContributor(
+          entity,
+          'integrations/collection_csv',
+          '${folder}_collection_csv_projection.dart',
+          'LibraryCollectionCsvProjection',
+        ),
+        providerMapper: _discoverContributor(
+          entity,
+          'provider',
+          '${folder}_provider_mapper.dart',
+          'LibraryKindProviderMapper',
+        ),
+        facetModule: facetModule,
       ),
     );
   }
   descriptors.sort((left, right) => left.folder.compareTo(right.folder));
   return descriptors;
+}
+
+_Contributor? _discoverContributor(
+  Directory kindDirectory,
+  String relativeDirectory,
+  String filename,
+  String marker,
+) {
+  final file = File('${kindDirectory.path}/$relativeDirectory/$filename');
+  if (!file.existsSync()) return null;
+  final source = file.readAsStringSync();
+  if (!source.contains(marker)) return null;
+  final className = RegExp(
+    r'(?:final\s+class|class)\s+(\w+)',
+  ).firstMatch(source)?.group(1);
+  if (className == null) {
+    throw StateError('Could not find a contributor class in ${file.path}');
+  }
+  return _Contributor(
+    importPath: _packageImportPath(file),
+    className: className,
+  );
+}
+
+_Contributor? _discoverBarcodeResolver(Directory kindDirectory) {
+  final directory = Directory('${kindDirectory.path}/barcode');
+  if (!directory.existsSync()) return null;
+  for (final entity in directory.listSync()) {
+    if (entity is! File || !entity.path.endsWith('.dart')) continue;
+    final source = entity.readAsStringSync();
+    if (!source.contains('LibraryBarcodeResolver')) continue;
+    final className = RegExp(
+      r'(?:final\s+class|class)\s+(\w+)',
+    ).firstMatch(source)?.group(1);
+    if (className == null) {
+      throw StateError('Could not find a barcode resolver in ${entity.path}');
+    }
+    return _Contributor(
+      importPath: _packageImportPath(entity),
+      className: className,
+    );
+  }
+  return null;
 }
 
 String _renderRegistry(List<_KindDescriptor> descriptors) {
@@ -82,12 +161,83 @@ import 'package:flutter/material.dart';
       "import 'package:collectarr_app/features/library/kinds/${descriptor.folder}/page.dart';",
     );
   }
+  final contributors = [
+    for (final descriptor in descriptors)
+      for (final contributor in descriptor.contributors) contributor,
+  ];
+  final importedContributorPaths = <String>{};
+  for (final contributor in contributors) {
+    if (importedContributorPaths.add(contributor.importPath)) {
+      buffer.writeln(
+        "import 'package:collectarr_app/${contributor.importPath}';",
+      );
+    }
+  }
+  buffer.writeln(
+    "import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';",
+  );
+  buffer.writeln(
+    "import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';",
+  );
+  buffer.writeln(
+    "import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';",
+  );
+  buffer.writeln(
+    "import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';",
+  );
+  buffer.writeln(
+    "import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';",
+  );
   buffer.writeln();
   buffer.writeln('final List<LibraryKindModule> collectarrKindModules = [');
   for (final descriptor in descriptors) {
     buffer.writeln('  ${descriptor.moduleName},');
   }
   buffer.writeln('];');
+  buffer.writeln();
+  _renderContributorMap(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrKindCalendarContributors',
+    type: 'LibraryCalendarContributor',
+    field: (descriptor) => descriptor.calendarContributor,
+  );
+  _renderContributorMap(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrKindActivityContributors',
+    type: 'LibraryActivityContributor',
+    field: (descriptor) => descriptor.activityContributor,
+  );
+  _renderContributorMap(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrKindAdminContributors',
+    type: 'LibraryAdminContributor',
+    field: (descriptor) => descriptor.adminContributor,
+  );
+  _renderContributorMap(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrKindBarcodeResolvers',
+    type: 'LibraryBarcodeResolver',
+    field: (descriptor) => descriptor.barcodeResolver,
+  );
+  _renderContributorMap(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrKindCollectionCsvProjections',
+    type: 'LibraryCollectionCsvProjection',
+    field: (descriptor) => descriptor.collectionCsvProjection,
+  );
+  _renderContributorMap(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrKindProviderMappers',
+    type: 'LibraryKindProviderMapper',
+    field: (descriptor) => descriptor.providerMapper,
+  );
+  _renderFacetMap(buffer, descriptors);
   buffer.writeln();
   buffer
       .writeln('LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {');
@@ -144,14 +294,97 @@ import 'package:flutter/material.dart';
   return buffer.toString();
 }
 
+void _renderContributorMap(
+  StringBuffer buffer, {
+  required List<_KindDescriptor> descriptors,
+  required String name,
+  required String type,
+  required _Contributor? Function(_KindDescriptor) field,
+}) {
+  buffer.writeln('final $name = <CatalogMediaKind, $type>{');
+  for (final descriptor in descriptors) {
+    final contributor = field(descriptor);
+    if (contributor == null) continue;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: const ${contributor.className}(),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+}
+
+void _renderFacetMap(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln(
+    'final collectarrKindFacetModules = <CatalogMediaKind, LibraryFacetModule>{',
+  );
+  for (final descriptor in descriptors) {
+    final variable = descriptor.facetModule;
+    if (variable == null) continue;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: $variable,',
+    );
+  }
+  buffer.writeln('};');
+}
+
 final class _KindDescriptor {
   const _KindDescriptor({
     required this.folder,
     required this.moduleName,
     required this.pageClass,
+    this.calendarContributor,
+    this.activityContributor,
+    this.adminContributor,
+    this.barcodeResolver,
+    this.collectionCsvProjection,
+    this.providerMapper,
+    this.facetModule,
   });
 
   final String folder;
   final String moduleName;
   final String pageClass;
+  final _Contributor? calendarContributor;
+  final _Contributor? activityContributor;
+  final _Contributor? adminContributor;
+  final _Contributor? barcodeResolver;
+  final _Contributor? collectionCsvProjection;
+  final _Contributor? providerMapper;
+  final String? facetModule;
+
+  Iterable<_Contributor> get contributors sync* {
+    for (final contributor in [
+      calendarContributor,
+      activityContributor,
+      adminContributor,
+      barcodeResolver,
+      collectionCsvProjection,
+      providerMapper,
+    ]) {
+      if (contributor != null) yield contributor;
+    }
+  }
+}
+
+final class _Contributor {
+  const _Contributor({required this.importPath, required this.className});
+
+  final String importPath;
+  final String className;
+}
+
+String _packageImportPath(File file) {
+  final normalized = file.path.replaceAll('\\', '/');
+  final marker = '/lib/';
+  final markerIndex = normalized.lastIndexOf(marker);
+  if (markerIndex >= 0) {
+    return normalized.substring(markerIndex + marker.length);
+  }
+  if (normalized.startsWith('lib/')) {
+    return normalized.substring('lib/'.length);
+  }
+  throw StateError('Expected a file under lib/: ${file.path}');
 }
