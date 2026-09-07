@@ -112,6 +112,9 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     icon: Icons.casino_outlined,
     accent: Color(0xFFE0A52B),
     preferencePrefix: 'boardgames',
+    routeSegments: ['board-games', 'boardgames', 'boardgame'],
+    mediaFamily: 'game',
+    normalizeCatalogLabels: true,
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'bgg',

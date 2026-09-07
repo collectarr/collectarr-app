@@ -84,77 +84,27 @@ List<CatalogMediaType> _normalizeCatalogMediaTypes(
   ];
 }
 
-const fallbackMediaCatalog = <CatalogMediaType>[
-  CatalogMediaType(
-    kind: 'comic',
-    singularLabel: 'Comic',
-    pluralLabel: 'Comics',
-    routeSegments: ['comics', 'comic'],
-    defaultProvider: 'gcd',
-    providers: ['gcd', 'comicvine', 'mangadex', 'anilist', 'hardcover'],
-  ),
-  CatalogMediaType(
-    kind: 'manga',
-    singularLabel: 'Manga',
-    pluralLabel: 'Manga',
-    routeSegments: ['manga'],
-    defaultProvider: 'hardcover',
-    providers: ['hardcover', 'comicvine', 'anilist', 'mangadex'],
-  ),
-  CatalogMediaType(
-    kind: 'movie',
-    singularLabel: 'Movie',
-    pluralLabel: 'Movies',
-    routeSegments: ['movies', 'movie'],
-    defaultProvider: 'tmdb',
-    providers: ['tmdb'],
-  ),
-  CatalogMediaType(
-    kind: 'tv',
-    singularLabel: 'TV Show',
-    pluralLabel: 'TV Shows',
-    routeSegments: ['tv', 'tv-shows', 'tvshows'],
-    defaultProvider: 'tmdb',
-    providers: ['tmdb'],
-  ),
-  CatalogMediaType(
-    kind: 'anime',
-    singularLabel: 'Anime',
-    pluralLabel: 'Anime',
-    routeSegments: ['anime'],
-    defaultProvider: 'anilist',
-    providers: ['anilist'],
-  ),
-  CatalogMediaType(
-    kind: 'game',
-    singularLabel: 'Game',
-    pluralLabel: 'Games',
-    routeSegments: ['games', 'game'],
-    defaultProvider: 'igdb',
-    providers: ['igdb'],
-  ),
-  CatalogMediaType(
-    kind: 'boardgame',
-    singularLabel: 'Board Game',
-    pluralLabel: 'Board Games',
-    routeSegments: ['board-games', 'boardgames', 'boardgame'],
-    defaultProvider: 'bgg',
-    providers: ['bgg'],
-  ),
-  CatalogMediaType(
-    kind: 'book',
-    singularLabel: 'Book',
-    pluralLabel: 'Books',
-    routeSegments: ['books', 'book'],
-    defaultProvider: 'openlibrary',
-    providers: ['openlibrary'],
-  ),
-  CatalogMediaType(
-    kind: 'music',
-    singularLabel: 'Music',
-    pluralLabel: 'Music',
-    routeSegments: ['music'],
-    defaultProvider: 'musicbrainz',
-    providers: ['musicbrainz'],
-  ),
+final fallbackMediaCatalog = [
+  for (final module in collectarrKindModules)
+    CatalogMediaType(
+      kind: module.kind.apiValue,
+      singularLabel: module.identity.singularLabel,
+      pluralLabel: module.identity.pluralLabel,
+      routeSegments: module.identity.routeSegments,
+      defaultProvider: module.metadata.defaultProviderId,
+      providers: [
+        for (final provider in module.metadata.providers) provider.id,
+      ],
+      isTopLevel: module.identity.isTopLevel,
+      physicalFormats: [
+        for (final format in module.physicalMediaFormats)
+          CatalogPhysicalFormat(
+            id: format.id,
+            label: format.label,
+            mediaFamily: format.mediaFamily,
+            variantType: format.variantType,
+            aliases: format.aliases.toList(growable: false),
+          ),
+      ],
+    ),
 ];

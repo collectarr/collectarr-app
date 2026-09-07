@@ -182,6 +182,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     icon: Icons.book_outlined,
     accent: Color(0xFFC78446),
     preferencePrefix: 'books',
+    routeSegments: ['books', 'book'],
+    mediaFamily: 'print',
     toolbarActions: [
       ...kDefaultLibraryToolbarActions,
       LibraryToolbarActionId.readingQueue,

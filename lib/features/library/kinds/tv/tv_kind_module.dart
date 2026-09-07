@@ -137,6 +137,9 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     icon: Icons.tv_outlined,
     accent: Color(0xFF00A7A0),
     preferencePrefix: 'tv',
+    routeSegments: ['tv', 'tv-shows', 'tvshows'],
+    mediaFamily: 'video',
+    normalizeCatalogLabels: true,
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'tmdb',

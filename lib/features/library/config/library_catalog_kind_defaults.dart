@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 
 class LibraryCatalogKindDefaults {
   const LibraryCatalogKindDefaults({
@@ -13,45 +14,21 @@ class LibraryCatalogKindDefaults {
   final String mediaFamily;
 }
 
-const _catalogKindDefaults = <String, LibraryCatalogKindDefaults>{
-  'anime': LibraryCatalogKindDefaults(
-    mediaFamily: 'video',
-  ),
-  'boardgame': LibraryCatalogKindDefaults(
-    singularLabel: 'Board Game',
-    pluralLabel: 'Board Games',
-    mediaFamily: 'game',
-  ),
-  'book': LibraryCatalogKindDefaults(
-    mediaFamily: 'print',
-  ),
-  'comic': LibraryCatalogKindDefaults(
-    mediaFamily: 'print',
-  ),
-  'game': LibraryCatalogKindDefaults(
-    mediaFamily: 'game',
-  ),
-  'manga': LibraryCatalogKindDefaults(
-    mediaFamily: 'print',
-  ),
-  'movie': LibraryCatalogKindDefaults(
-    mediaFamily: 'video',
-  ),
-  'music': LibraryCatalogKindDefaults(
-    singularLabel: 'Music',
-    pluralLabel: 'Music',
-    mediaFamily: 'audio',
-  ),
-  'tv': LibraryCatalogKindDefaults(
-    singularLabel: 'TV Show',
-    pluralLabel: 'TV Shows',
-    mediaFamily: 'video',
-  ),
-};
-
 LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(
     CatalogMediaKind kind) {
-  return _catalogKindDefaults[kind.apiValue];
+  for (final module in collectarrKindModules) {
+    if (module.kind != kind) continue;
+    return LibraryCatalogKindDefaults(
+      singularLabel: module.identity.normalizeCatalogLabels
+          ? module.identity.singularLabel
+          : null,
+      pluralLabel: module.identity.normalizeCatalogLabels
+          ? module.identity.pluralLabel
+          : null,
+      mediaFamily: module.identity.mediaFamily,
+    );
+  }
+  return null;
 }
 
 String catalogMediaFamilyForKind(CatalogMediaKind kind) {

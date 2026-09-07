@@ -172,6 +172,8 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     icon: Icons.movie_outlined,
     accent: Color(0xFF42AA55),
     preferencePrefix: 'movies',
+    routeSegments: ['movies', 'movie'],
+    mediaFamily: 'video',
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'tmdb',

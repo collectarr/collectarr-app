@@ -77,6 +77,8 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     icon: Icons.sports_esports,
     accent: Color(0xFFF64458),
     preferencePrefix: 'games',
+    routeSegments: ['games', 'game'],
+    mediaFamily: 'game',
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'igdb',

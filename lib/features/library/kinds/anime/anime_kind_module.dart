@@ -136,6 +136,8 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     icon: Icons.movie_filter_outlined,
     accent: Color(0xFFC94DFF),
     preferencePrefix: 'anime',
+    routeSegments: ['anime'],
+    mediaFamily: 'video',
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'anilist',

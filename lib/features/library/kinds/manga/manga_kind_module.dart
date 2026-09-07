@@ -176,6 +176,8 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     icon: Icons.import_contacts_outlined,
     accent: Color(0xFFFF6F91),
     preferencePrefix: 'manga',
+    routeSegments: ['manga'],
+    mediaFamily: 'print',
     toolbarActions: [
       ...kDefaultLibraryToolbarActions,
       LibraryToolbarActionId.reassignIndex,

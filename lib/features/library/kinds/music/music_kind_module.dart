@@ -87,6 +87,9 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     icon: Icons.music_note,
     accent: Color(0xFFFDAD49),
     preferencePrefix: 'music',
+    routeSegments: ['music'],
+    mediaFamily: 'audio',
+    normalizeCatalogLabels: true,
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'musicbrainz',

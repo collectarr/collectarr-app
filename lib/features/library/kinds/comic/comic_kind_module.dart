@@ -124,6 +124,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     icon: Icons.collections_bookmark_outlined,
     accent: Color(0xFF44BFE7),
     preferencePrefix: 'comics',
+    routeSegments: ['comics', 'comic'],
+    mediaFamily: 'print',
     toolbarActions: [
       ...kDefaultLibraryToolbarActions,
       LibraryToolbarActionId.readingQueue,
