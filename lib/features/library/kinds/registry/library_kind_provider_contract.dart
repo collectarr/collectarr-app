@@ -1,5 +1,24 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+
+/// Structural contract for a kind-owned provider mapper.
+///
+/// The provider layer owns transport and native DTOs. A kind owns the
+/// semantic mapping from the normalized provider boundary into its catalog
+/// representation and correction payload.
+abstract interface class LibraryKindProviderMapper {
+  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope);
+
+  Map<String, Object?> buildCorrections({
+    required CatalogItem preview,
+    required CatalogItem edited,
+  });
+}
+
+abstract interface class TypedLibraryKindProviderMapper<TCatalog>
+    implements LibraryKindProviderMapper {
+  TCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope);
+}
 
 /// Validates the erased provider boundary before a kind-owned mapper runs.
 ///

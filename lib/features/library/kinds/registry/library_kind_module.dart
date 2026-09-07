@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -15,7 +16,6 @@ import 'package:collectarr_app/features/library/config/library_transfer_capabili
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -27,7 +27,6 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_card_pre
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
@@ -317,20 +316,6 @@ class LibraryKindToolbarModule {
   });
 
   final List<LibraryToolbarActionDescriptor> actions;
-}
-
-abstract interface class LibraryKindProviderMapper {
-  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope);
-
-  Map<String, Object?> buildCorrections({
-    required CatalogItem preview,
-    required CatalogItem edited,
-  });
-}
-
-abstract interface class TypedLibraryKindProviderMapper<TCatalog>
-    implements LibraryKindProviderMapper {
-  TCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope);
 }
 
 class LibraryFacetModule {

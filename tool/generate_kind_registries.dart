@@ -244,6 +244,9 @@ import 'package:flutter/material.dart';
     "import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';",
   );
   buffer.writeln(
+    "import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';",
+  );
+  buffer.writeln(
     "import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';",
   );
   buffer.writeln(
