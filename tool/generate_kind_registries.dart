@@ -146,6 +146,13 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           '${folder}_catalog_repository_codec.dart',
           'CatalogKindRepositoryCodec',
         ),
+        serialAuthorityContributor: _discoverContributor(
+          entity,
+          'integrations/serial',
+          '${folder}_serial_authority_contributor.dart',
+          'SerialAuthorityContributor',
+        ),
+        vocabularyModule: _discoverVocabularyModule(entity),
       ),
     );
   }
@@ -235,6 +242,26 @@ _MetadataDecoder? _discoverMetadataDecoder(Directory kindDirectory) {
   return null;
 }
 
+_VocabularyModule? _discoverVocabularyModule(Directory kindDirectory) {
+  final folder = kindDirectory.path.split(Platform.pathSeparator).last;
+  final file = File(
+    '${kindDirectory.path}/vocabulary/${folder}_vocabularies.dart',
+  );
+  if (!file.existsSync()) return null;
+  final source = file.readAsStringSync();
+  final className = RegExp(
+    r'(?:abstract\s+final\s+class|final\s+class|class)\s+(\w+Vocabularies)',
+  ).firstMatch(source)?.group(1);
+  if (className == null ||
+      !RegExp(r'static\s+const\s+all\s*=').hasMatch(source)) {
+    throw StateError('Could not discover vocabulary module in ${file.path}');
+  }
+  return _VocabularyModule(
+    importPath: _packageImportPath(file),
+    className: className,
+  );
+}
+
 int _metadataClassScore(String folder, String className) {
   final normalizedFolder = folder.replaceAll('_', '').toLowerCase();
   final normalizedClass = className.toLowerCase();
@@ -299,6 +326,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -355,6 +384,26 @@ import 'package:flutter/material.dart';
     }
     buffer.writeln(
       "import 'package:collectarr_app/${codec.importPath}';",
+    );
+  }
+  for (final descriptor in descriptors) {
+    final contributor = descriptor.serialAuthorityContributor;
+    if (contributor == null ||
+        !importedContributorPaths.add(contributor.importPath)) {
+      continue;
+    }
+    buffer.writeln(
+      "import 'package:collectarr_app/${contributor.importPath}';",
+    );
+  }
+  for (final descriptor in descriptors) {
+    final vocabulary = descriptor.vocabularyModule;
+    if (vocabulary == null ||
+        !importedContributorPaths.add(vocabulary.importPath)) {
+      continue;
+    }
+    buffer.writeln(
+      "import 'package:collectarr_app/${vocabulary.importPath}';",
     );
   }
   buffer.writeln(
@@ -492,6 +541,8 @@ import 'package:flutter/material.dart';
   _renderMetadataDecoderMap(buffer, descriptors);
   _renderOwnedPersistenceMaps(buffer, descriptors);
   _renderCatalogRepositoryCodecs(buffer, descriptors);
+  _renderSerialAuthorityContributors(buffer, descriptors);
+  _renderPickListContributors(buffer, descriptors);
   buffer.writeln();
   buffer
       .writeln('LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {');
@@ -810,6 +861,43 @@ void _renderCatalogRepositoryCodecs(
   buffer.writeln('];');
 }
 
+void _renderSerialAuthorityContributors(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln(
+    'const List<SerialAuthorityContributor> '
+    'collectarrKindSerialAuthorityContributors = [',
+  );
+  for (final descriptor in descriptors) {
+    final contributor = descriptor.serialAuthorityContributor;
+    if (contributor == null) continue;
+    buffer.writeln('  ${contributor.className}(),');
+  }
+  buffer.writeln('];');
+  buffer.writeln();
+}
+
+void _renderPickListContributors(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln(
+    'const List<PickListDefinitionContributor> '
+    'collectarrKindPickListDefinitionContributors = [',
+  );
+  for (final descriptor in descriptors) {
+    final vocabulary = descriptor.vocabularyModule;
+    if (vocabulary == null) continue;
+    buffer.writeln(
+      '  VocabularyPickListDefinitionContributor('
+      'kind: CatalogMediaKind.${descriptor.folder}, '
+      'vocabularies: ${vocabulary.className}.all),',
+    );
+  }
+  buffer.writeln('];');
+}
+
 final class _KindDescriptor {
   const _KindDescriptor({
     required this.folder,
@@ -831,6 +919,8 @@ final class _KindDescriptor {
     this.facetModule,
     this.ownedPersistence,
     this.catalogRepositoryCodec,
+    this.serialAuthorityContributor,
+    this.vocabularyModule,
   });
 
   final String folder;
@@ -852,6 +942,8 @@ final class _KindDescriptor {
   final String? facetModule;
   final _OwnedPersistence? ownedPersistence;
   final _Contributor? catalogRepositoryCodec;
+  final _Contributor? serialAuthorityContributor;
+  final _VocabularyModule? vocabularyModule;
 
   Iterable<_Contributor> get contributors sync* {
     for (final contributor in [
@@ -897,6 +989,13 @@ final class _OwnedPersistence {
   final _Contributor repository;
   final _Contributor projection;
   final _Contributor ownedId;
+}
+
+final class _VocabularyModule {
+  const _VocabularyModule({required this.importPath, required this.className});
+
+  final String importPath;
+  final String className;
 }
 
 String _packageImportPath(File file) {
