@@ -108,7 +108,6 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     routeSegments: ['movies', 'movie'],
     defaultProvider: 'tmdb',
     providers: ['tmdb'],
-    physicalFormats: fallbackVideoCatalogPhysicalFormats,
   ),
   CatalogMediaType(
     kind: 'tv',
@@ -117,7 +116,6 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     routeSegments: ['tv', 'tv-shows', 'tvshows'],
     defaultProvider: 'tmdb',
     providers: ['tmdb'],
-    physicalFormats: fallbackVideoCatalogPhysicalFormats,
   ),
   CatalogMediaType(
     kind: 'anime',
@@ -126,7 +124,6 @@ const fallbackMediaCatalog = <CatalogMediaType>[
     routeSegments: ['anime'],
     defaultProvider: 'anilist',
     providers: ['anilist'],
-    physicalFormats: fallbackVideoCatalogPhysicalFormats,
   ),
   CatalogMediaType(
     kind: 'game',
