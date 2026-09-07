@@ -23,16 +23,13 @@ import 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 export 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
@@ -972,7 +969,17 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);
-  await ownedRepo.upsertAll(ownedItems);
+  for (final ownedItem in ownedItems) {
+    final kind = ownedItem.catalogRef.mediaKind;
+    final typedItem = collectarrOwnedItemDeserializers[kind]?.call(ownedItem);
+    if (typedItem == null) {
+      throw StateError(
+        'Development seed cannot resolve typed Owned model for '
+        '${kind.apiValue}',
+      );
+    }
+    await ownedRepo.upsertTyped(kind, typedItem);
+  }
   for (final contributor in collectarrDevSeedContributors) {
     final databaseSeeder = contributor.seedDatabase;
     if (databaseSeeder != null) {
