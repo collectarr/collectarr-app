@@ -771,10 +771,7 @@ String? _kindNameForPath(String relativePath) {
   }
   final rest = relativePath.substring(prefix.length);
   final parts = rest.split('/');
-  if (parts.isEmpty ||
-      parts.first.isEmpty ||
-      parts.first == 'registry' ||
-      parts.first == '_shared') {
+  if (parts.isEmpty || parts.first.isEmpty || parts.first == 'registry') {
     return null;
   }
   return parts.first;

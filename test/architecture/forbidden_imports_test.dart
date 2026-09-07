@@ -367,7 +367,7 @@ class SharedProvider {}
     final visitor = _visitorForArchitectureTest(
       code: testCode,
       relativePath:
-          'lib/features/library/kinds/_shared/video/providers/test_provider.dart',
+          'lib/features/library/kinds/comic/providers/test_provider.dart',
     );
 
     visitor.unit.accept(visitor.visitor);
