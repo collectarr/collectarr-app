@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-Baseline HEAD: `8b5f7c60` on 2026-09-07.
+Baseline HEAD: `5d5b350e` on 2026-09-07.
 
 Generated registration is compile-time discovery of the nine kind modules. No
 runtime reflection or manual per-kind import list is required. The generated
@@ -46,6 +46,8 @@ registry is a composition root only.
 - catalog derived-data capture now asks each kind codec for its concrete
   metadata projection instead of reading the erased `kindMetadata` property
   in the generic catalog repository;
+- global Activity now reads `CatalogDisplaySummary` values produced directly
+  by typed kind repositories instead of rehydrating `CatalogItemDto`;
 - generic Collection CSV export no longer reads kind presentation labels;
   single-kind headers come from the kind CSV profile and mixed/unknown exports
   use the structural generic header;
@@ -77,8 +79,9 @@ are deleted. Do not add a second runtime or compatibility alias.
 
 ## Next deletion order
 
-1. Replace generic Catalog DTO reads with typed repositories and tiny mixed-kind
-   projections.
+1. Replace the remaining generic Catalog DTO reads with typed repositories and
+   tiny mixed-kind projections; Activity is complete, Calendar/Shelf/Library
+   remain.
 2. Replace collection/edit/detail common Owned reads and mutations with typed
    kind payloads; keep only `OwnedItemRef`/`OwnedItemSummary` in mixed hosts.
 3. Move remaining workspace/presentation capability consumers to concrete
