@@ -20,10 +20,8 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_repo
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
@@ -92,6 +90,7 @@ class SyncApplyService {
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
     final owned = <OwnedItem>[];
+    final typedOwned = <(CatalogMediaKind kind, Object item)>[];
     final tracking = <TrackingEntry>[];
     final wishlist = <WishlistItem>[];
     final watchSessions = <WatchSession>[];
@@ -118,7 +117,16 @@ class SyncApplyService {
         }
       }
       if (type == 'owned_item') {
-        owned.add(_ownedItemFromEntity(entity));
+        final item = _ownedItemFromEntity(entity);
+        owned.add(item);
+        final kind = item.catalogRef.mediaKind;
+        final typedItem = collectarrOwnedItemDeserializers[kind]?.call(item);
+        if (typedItem == null) {
+          throw UnsupportedError(
+            'No kind-owned Owned model is registered for ${kind.apiValue}',
+          );
+        }
+        typedOwned.add((kind, typedItem));
       }
       if (type == 'tracking_entry') {
         tracking.add(_trackingEntryFromEntity(entity));
@@ -151,7 +159,9 @@ class SyncApplyService {
       for (final location in locationUpserts) {
         await locations.applySyncedUpsert(location);
       }
-      await ownedItems.upsertAll(owned);
+      for (final item in typedOwned) {
+        await ownedItems.upsertTyped(item.$1, item.$2);
+      }
       await trackingEntries.upsertAll(tracking);
       await wishlistItems.upsertAll(wishlist);
       if (watchSessions.isNotEmpty) {
