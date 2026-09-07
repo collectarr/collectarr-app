@@ -103,7 +103,7 @@ Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
       ...metadata.genres,
     ];
 
-final comicLibraryFacetModule = LibraryFacetModule(
+final comicLibraryFacetModule = TypedLibraryFacetModule<ComicWorkspaceDto>(
   loadRows: _loadComicFacetRows,
   getFacetValues: _getFacetValues,
   externalFacetBucketIdsByMode: {
@@ -405,11 +405,7 @@ Future<List<LibraryHierarchyNode>> _fetchComicVolumes({
 }
 
 Iterable<String> _getFacetValues(
-    LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId) {
-  final dto = item.dto;
-  if (dto is! ComicWorkspaceDto) {
-    return const [];
-  }
+    ComicWorkspaceDto dto, LibraryFacetIdRuntime facetId) {
   for (final definition in comicLibraryFacetDefinitions) {
     if (definition.id.sameIdentityAs(facetId)) {
       return definition.extractValues(dto);

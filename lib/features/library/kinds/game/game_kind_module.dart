@@ -33,7 +33,6 @@ import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_facet_definitions.dart';
@@ -56,7 +55,7 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final gameLibraryFacetModule = LibraryFacetModule(
+final gameLibraryFacetModule = TypedLibraryFacetModule<GameWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getGameFacetValues,
   externalFacetBucketIdsByMode: {
@@ -233,13 +232,9 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
 );
 
 Iterable<String> _getGameFacetValues(
-  LibraryProjectionRuntime item,
+  GameWorkspaceDto dto,
   LibraryFacetIdRuntime facetId,
 ) {
-  final dto = item.dto;
-  if (dto is! GameWorkspaceDto) {
-    return const [];
-  }
   for (final definition in gameLibraryFacetDefinitions) {
     if (definition.id.sameIdentityAs(facetId)) {
       return definition.extractValues(dto);

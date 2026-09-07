@@ -154,7 +154,7 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final mangaLibraryFacetModule = LibraryFacetModule(
+final mangaLibraryFacetModule = TypedLibraryFacetModule<MangaWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getFacetValues,
   externalFacetBucketIdsByMode: {
@@ -380,11 +380,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
 );
 
 Iterable<String> _getFacetValues(
-    LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId) {
-  final dto = item.dto;
-  if (dto is! MangaWorkspaceDto) {
-    return const [];
-  }
+    MangaWorkspaceDto dto, LibraryFacetIdRuntime facetId) {
   for (final definition in mangaLibraryFacetDefinitions) {
     if (definition.id.sameIdentityAs(facetId)) {
       return definition.extractValues(dto);

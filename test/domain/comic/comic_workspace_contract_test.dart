@@ -43,20 +43,31 @@ void main() {
   });
 
   test('runtime facet adapter delegates to typed Comic definitions', () {
+    final dto = _createWorkspace();
+    final getFacetValues = comicLibraryFacetModule.typedGetFacetValues;
+
+    expect(
+      getFacetValues(dto, ComicFacetIds.writer),
+      ['Brian K. Vaughan'],
+    );
+    expect(
+      getFacetValues(dto, ComicFacetIds.artist),
+      ['Fiona Staples'],
+    );
+    expect(
+      getFacetValues(dto, ComicFacetIds.character),
+      ['Alana', 'Marko'],
+    );
+  });
+
+  test('erased facet adapter accepts only the concrete Comic workspace DTO',
+      () {
     final item = _ProjectionFixture(_createWorkspace());
     final getFacetValues = comicLibraryFacetModule.getFacetValues!;
 
     expect(
       getFacetValues(item, ComicFacetIds.writer),
       ['Brian K. Vaughan'],
-    );
-    expect(
-      getFacetValues(item, ComicFacetIds.artist),
-      ['Fiona Staples'],
-    );
-    expect(
-      getFacetValues(item, ComicFacetIds.character),
-      ['Alana', 'Marko'],
     );
   });
 }

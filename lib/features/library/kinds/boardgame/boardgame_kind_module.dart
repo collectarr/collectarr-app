@@ -37,7 +37,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
 const _boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
@@ -94,7 +93,8 @@ Iterable<String?> _boardGameLinkedMetadataValues(
       ...metadata.creators.map((credit) => credit['name']?.toString()),
     ];
 
-final boardGameLibraryFacetModule = LibraryFacetModule(
+final boardGameLibraryFacetModule =
+    TypedLibraryFacetModule<BoardGameWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getBoardGameFacetValues,
 );
@@ -282,13 +282,9 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
 );
 
 Iterable<String> _getBoardGameFacetValues(
-  LibraryProjectionRuntime item,
+  BoardGameWorkspaceDto dto,
   LibraryFacetIdRuntime facetId,
 ) {
-  final dto = item.dto;
-  if (dto is! BoardGameWorkspaceDto) {
-    return const [];
-  }
   for (final definition in boardgameLibraryFacetDefinitions) {
     if (definition.id.sameIdentityAs(facetId)) {
       return definition.extractValues(dto);
