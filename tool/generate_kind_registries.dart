@@ -88,6 +88,12 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           '${folder}_provider_mapper.dart',
           'LibraryKindProviderMapper',
         ),
+        ownedDetailsCodec: _discoverContributor(
+          entity,
+          'ownership',
+          '${folder}_owned_details_codec.dart',
+          'OwnedDetailsCodec<',
+        ),
         facetModule: facetModule,
       ),
     );
@@ -188,6 +194,9 @@ import 'package:flutter/material.dart';
   buffer.writeln(
     "import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';",
   );
+  buffer.writeln(
+    "import 'package:collectarr_app/features/library/config/owned_details_codec.dart';",
+  );
   buffer.writeln();
   buffer.writeln('final List<LibraryKindModule> collectarrKindModules = [');
   for (final descriptor in descriptors) {
@@ -236,6 +245,13 @@ import 'package:flutter/material.dart';
     name: 'collectarrKindProviderMappers',
     type: 'LibraryKindProviderMapper',
     field: (descriptor) => descriptor.providerMapper,
+  );
+  _renderContributorMap(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrKindOwnedDetailsCodecs',
+    type: 'OwnedDetailsPersistenceCodec',
+    field: (descriptor) => descriptor.ownedDetailsCodec,
   );
   _renderFacetMap(buffer, descriptors);
   buffer.writeln();
@@ -341,6 +357,7 @@ final class _KindDescriptor {
     this.barcodeResolver,
     this.collectionCsvProjection,
     this.providerMapper,
+    this.ownedDetailsCodec,
     this.facetModule,
   });
 
@@ -353,6 +370,7 @@ final class _KindDescriptor {
   final _Contributor? barcodeResolver;
   final _Contributor? collectionCsvProjection;
   final _Contributor? providerMapper;
+  final _Contributor? ownedDetailsCodec;
   final String? facetModule;
 
   Iterable<_Contributor> get contributors sync* {
@@ -363,6 +381,7 @@ final class _KindDescriptor {
       barcodeResolver,
       collectionCsvProjection,
       providerMapper,
+      ownedDetailsCodec,
     ]) {
       if (contributor != null) yield contributor;
     }

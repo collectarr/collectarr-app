@@ -40,52 +40,62 @@ import 'package:collectarr_app/features/library/kinds/anime/admin/anime_admin_co
 import 'package:collectarr_app/features/library/kinds/anime/barcode/anime_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/admin/boardgame_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/barcode/boardgame_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/admin/book_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/barcode/book_isbn_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/admin/comic_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/barcode/comic_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/admin/game_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/barcode/game_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/admin/manga_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/barcode/manga_identifier_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/admin/movie_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/barcode/movie_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/admin/music_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/barcode/music_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/activity/tv_activity_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/admin/tv_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/barcode/tv_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 
 final List<LibraryKindModule> collectarrKindModules = [
   animeKindModule,
@@ -162,6 +172,18 @@ final collectarrKindProviderMappers = <CatalogMediaKind, LibraryKindProviderMapp
   CatalogMediaKind.movie: const MovieLibraryKindProviderMapper(),
   CatalogMediaKind.music: const MusicLibraryKindProviderMapper(),
   CatalogMediaKind.tv: const TvLibraryKindProviderMapper(),
+};
+
+final collectarrKindOwnedDetailsCodecs = <CatalogMediaKind, OwnedDetailsPersistenceCodec>{
+  CatalogMediaKind.anime: const AnimeOwnedDetailsCodec(),
+  CatalogMediaKind.boardgame: const BoardgameOwnedDetailsCodec(),
+  CatalogMediaKind.book: const BookOwnedDetailsCodec(),
+  CatalogMediaKind.comic: const ComicOwnedDetailsCodec(),
+  CatalogMediaKind.game: const GameOwnedDetailsCodec(),
+  CatalogMediaKind.manga: const MangaOwnedDetailsCodec(),
+  CatalogMediaKind.movie: const MovieOwnedDetailsCodec(),
+  CatalogMediaKind.music: const MusicOwnedDetailsCodec(),
+  CatalogMediaKind.tv: const TvOwnedDetailsCodec(),
 };
 
 final collectarrKindFacetModules = <CatalogMediaKind, LibraryFacetModule>{
