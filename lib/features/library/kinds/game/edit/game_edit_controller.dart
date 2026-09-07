@@ -47,7 +47,7 @@ class GameEditController {
   List<String> platformOptions = const [];
 
   void initialize({
-    required CatalogItem item,
+    required CatalogItemDto item,
     required LibraryEditDraft draft,
   }) {
     final meta = item.kindMetadata is GameCatalogMetadata

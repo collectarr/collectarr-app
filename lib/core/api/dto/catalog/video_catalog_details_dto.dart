@@ -59,4 +59,3 @@ class VideoCatalogDetailsDto {
       };
 }
 
-typedef VideoCatalogDetails = VideoCatalogDetailsDto;

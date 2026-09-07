@@ -15,7 +15,7 @@ class VideoEditLinksTab extends ConsumerWidget {
     required this.videoEdit,
   });
 
-  final CatalogItem item;
+  final CatalogItemDto item;
   final Color accent;
   final VideoEditController videoEdit;
 
@@ -24,9 +24,9 @@ class VideoEditLinksTab extends ConsumerWidget {
     final payload = item.payload;
     final providerLinks = (payload['trailer_urls'] as List?)
             ?.whereType<Map<String, dynamic>>()
-            .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
+            .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
-        const <TrailerLink>[];
+        const <TrailerLinkDto>[];
     return EditTabShell(
       children: [
         if (providerLinks.isNotEmpty)
@@ -47,7 +47,7 @@ class VideoEditLinksTab extends ConsumerWidget {
             items: videoEdit.userLinkEdits,
             onAdd: () => videoEdit.userLinkEdits.add(
               EditableUserExternalLink.fromTrailerLink(
-                TrailerLink(
+                TrailerLinkDto(
                   url: '',
                   source: 'manual',
                   isAutomatic: false,
@@ -67,7 +67,7 @@ class VideoEditLinksTab extends ConsumerWidget {
             items: videoEdit.userTrailerEdits,
             onAdd: () => videoEdit.userTrailerEdits.add(
               EditableUserExternalLink.fromTrailerLink(
-                TrailerLink(
+                TrailerLinkDto(
                   url: '',
                   source: 'manual',
                   isAutomatic: false,

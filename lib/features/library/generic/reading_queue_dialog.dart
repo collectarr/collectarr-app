@@ -95,7 +95,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         continue;
       }
       final item = widget.catalogItemsById[catalogId];
-      final catalogItem = item is CatalogItem ? item : null;
+      final catalogItem = item is CatalogItemDto ? item : null;
       if (catalogItem == null || catalogItem.kind != widget.mediaKind) {
         continue;
       }
@@ -361,7 +361,7 @@ class _ReadingQueueDialogEntry {
   });
 
   final OwnedItemSummary summary;
-  final CatalogItem catalogItem;
+  final CatalogItemDto catalogItem;
   final TrackingEntry? trackingEntry;
 
   String get label {

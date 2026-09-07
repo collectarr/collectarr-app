@@ -155,7 +155,7 @@ void main() {
   });
 
   test('TV release-media editor owns fallback discs and episode mapping', () {
-    final item = CatalogItem(
+    final item = CatalogItemDto(
       identity: const LibraryItemIdentity(
         id: 'series-1',
         mediaKind: CatalogMediaKind.tv,

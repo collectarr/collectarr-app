@@ -61,7 +61,7 @@ final class OwnedItemMutations {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
           await catalogCache.upsertMetadataItems([
-            CatalogItem.fromJson({
+            CatalogItemDto.fromJson({
               'id': catalogRef.id,
               'kind': catalogRef.kind,
               'title': catalogRef.id,
@@ -167,7 +167,7 @@ final class OwnedItemMutations {
   }
 
   Future<void> updateCatalogSnapshot(
-    CatalogItem item, {
+    CatalogItemDto item, {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
@@ -184,7 +184,7 @@ final class OwnedItemMutations {
   }
 
   Future<void> updateCatalogSnapshots(
-    Iterable<CatalogItem> items,
+    Iterable<CatalogItemDto> items,
   ) async {
     final pendingItems = items.toList(growable: false);
     if (pendingItems.isEmpty) return;
@@ -222,7 +222,7 @@ final class OwnedItemMutations {
 
   Future<int> promoteLocalOnlyItemToCatalog(
     String localItemId,
-    CatalogItem targetCatalogItem,
+    CatalogItemDto targetCatalogItem,
   ) async {
     final targetMetadata = targetCatalogItem;
     final now = DateTime.now().toUtc();
@@ -282,7 +282,7 @@ final class OwnedItemMutations {
 
   CatalogEntityRef _catalogRefForItem(
     CatalogEntityRef catalogRef,
-    CatalogItem? item, {
+    CatalogItemDto? item, {
     PersonalItemAnchor? anchor,
   }) {
     if (item != null) {
@@ -333,7 +333,7 @@ final class OwnedItemMutations {
     );
   }
 
-  SyncChange _syncChangeForCatalogItem(CatalogItem item, DateTime now) {
+  SyncChange _syncChangeForCatalogItem(CatalogItemDto item, DateTime now) {
     final metadataItem = item;
     final itemId = metadataItem.id;
     final payload = metadataItem.toSyncPayload();

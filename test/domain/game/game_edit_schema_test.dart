@@ -197,8 +197,8 @@ GameEditDraft _createDraft(GameCatalogMetadata metadata) {
   ) as GameEditDraft;
 }
 
-CatalogItem _item(GameCatalogMetadata metadata) {
-  return CatalogItem(
+CatalogItemDto _item(GameCatalogMetadata metadata) {
+  return CatalogItemDto(
     identity: const LibraryItemIdentity(
       id: 'game-1',
       mediaKind: CatalogMediaKind.game,

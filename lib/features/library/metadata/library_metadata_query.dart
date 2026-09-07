@@ -25,7 +25,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
   );
 }
 
-Future<List<CatalogItem>> searchLibraryMetadata(
+Future<List<CatalogItemDto>> searchLibraryMetadata(
   ApiClient api,
   LibraryKindModule type, {
   String? query,
@@ -52,7 +52,7 @@ Future<List<CatalogItem>> searchLibraryMetadata(
   return [
     for (final row in rows)
       () {
-        final item = CatalogItem.fromJson(row);
+        final item = CatalogItemDto.fromJson(row);
         return decoder == null
             ? item
             : item.withKindMetadata(decoder(item.payload));
@@ -60,7 +60,7 @@ Future<List<CatalogItem>> searchLibraryMetadata(
   ];
 }
 
-Future<CatalogItem> lookupLibraryBarcode(
+Future<CatalogItemDto> lookupLibraryBarcode(
   ApiClient api,
   LibraryKindModule type,
   String barcode,
@@ -71,7 +71,7 @@ Future<CatalogItem> lookupLibraryBarcode(
       'Barcode is not supported for ${type.kind.apiValue}: $barcode',
     );
   }
-  final item = CatalogItem.fromJson(
+  final item = CatalogItemDto.fromJson(
     await api.lookupBarcode(
       resolvedBarcode,
       kind: type.kind.apiValue,

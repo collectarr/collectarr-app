@@ -76,7 +76,7 @@ class EditableVideoLink {
     required this.isAutomatic,
   });
 
-  factory EditableVideoLink.fromTrailerLink(TrailerLink link) {
+  factory EditableVideoLink.fromTrailerLink(TrailerLinkDto link) {
     return EditableVideoLink(
       titleController: TextEditingController(text: link.title ?? ''),
       urlController: TextEditingController(text: link.url),
@@ -90,13 +90,13 @@ class EditableVideoLink {
   final String? source;
   final bool isAutomatic;
 
-  TrailerLink? toTrailerLink() {
+  TrailerLinkDto? toTrailerLink() {
     final url = urlController.text.trim();
     if (url.isEmpty) {
       return null;
     }
     final title = titleController.text.trim();
-    return TrailerLink(
+    return TrailerLinkDto(
       url: url,
       title: title.isEmpty ? null : title,
       description: title.isEmpty ? null : title,

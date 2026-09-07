@@ -148,7 +148,7 @@ class MusicEditDraft extends LibraryEditKindDraft {
 }
 
 LibraryEditKindDraft createMusicEditDraft({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
@@ -158,7 +158,7 @@ LibraryEditKindDraft createMusicEditDraft({
       ? item.kindMetadata as MusicCatalogMetadata
       : null;
   final externalLinks = [
-    for (final link in (meta?.links ?? const <TrailerLink>[])
+    for (final link in (meta?.links ?? const <TrailerLinkDto>[])
         .where((l) => l.isExternalLink))
       MusicExternalLinkEdit(
         url: link.url,

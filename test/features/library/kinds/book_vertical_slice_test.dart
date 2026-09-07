@@ -98,7 +98,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'book_1',
-        catalogItem: CatalogItem(
+        catalogItem: CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'book_1',
             mediaKind: CatalogMediaKind.book,
@@ -277,7 +277,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'book_lotr',
-        catalogItem: CatalogItem(
+        catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'book_lotr',
             mediaKind: CatalogMediaKind.book,

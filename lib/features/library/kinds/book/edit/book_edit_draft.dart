@@ -141,7 +141,7 @@ class BookEditDraft extends LibraryEditKindDraft {
     translatorsController.dispose();
   }
 
-  List<TrailerLink> _externalLinks = const [];
+  List<TrailerLinkDto> _externalLinks = const [];
 
   @override
   void setExternalLinks(List<TrailerLinkDto> links) {
@@ -220,7 +220,7 @@ class BookEditDraft extends LibraryEditKindDraft {
 }
 
 LibraryEditKindDraft createBookEditDraft({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,

@@ -23,7 +23,7 @@ List<LibraryCardBadge> _movieCompactBadges(LibraryProjectionRuntime item) {
   final firstEdition = editionsPayload != null &&
           editionsPayload.isNotEmpty &&
           editionsPayload.first is Map
-      ? CatalogEdition.fromJson(
+      ? CatalogEditionDto.fromJson(
           Map<String, dynamic>.from(editionsPayload.first as Map))
       : null;
   final edition = item.node is LibraryReleaseNodeRef

@@ -120,7 +120,7 @@ void main() {
 }
 
 MangaEditDraft _createDraft(MangaMetadata metadata) {
-  final item = CatalogItem(
+  final item = CatalogItemDto(
     identity: const LibraryItemIdentity(
       id: 'manga-1',
       mediaKind: CatalogMediaKind.manga,

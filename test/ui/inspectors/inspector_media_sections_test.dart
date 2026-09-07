@@ -14,9 +14,9 @@ void main() {
             body: InspectorTrackList(
               accent: Colors.blue,
               tracks: const [
-                CatalogTrack(
+                CatalogTrackDto(
                     title: 'Track One', position: 1, durationSeconds: 180),
-                CatalogTrack(
+                CatalogTrackDto(
                     title: 'Track Two', position: 2, durationSeconds: 245),
               ],
             ),
@@ -42,7 +42,7 @@ void main() {
             body: InspectorTrackList(
               accent: Colors.blue,
               tracks: const [
-                CatalogTrack(
+                CatalogTrackDto(
                     title: 'Long Track', position: 1, durationSeconds: 3661),
               ],
             ),
@@ -62,7 +62,7 @@ void main() {
             body: InspectorTrackList(
               accent: Colors.blue,
               tracks: const [
-                CatalogTrack(title: 'No Duration', position: 1),
+                CatalogTrackDto(title: 'No Duration', position: 1),
               ],
             ),
           ),
@@ -81,7 +81,7 @@ void main() {
               accent: Colors.blue,
               trackCount: 15,
               tracks: const [
-                CatalogTrack(
+                CatalogTrackDto(
                     title: 'Only One Cached', position: 1, durationSeconds: 60),
               ],
             ),
@@ -101,7 +101,7 @@ void main() {
             body: InspectorTrackList(
               accent: Colors.blue,
               tracks: const [
-                CatalogTrack(title: 'A Track', position: 1),
+                CatalogTrackDto(title: 'A Track', position: 1),
               ],
             ),
           ),

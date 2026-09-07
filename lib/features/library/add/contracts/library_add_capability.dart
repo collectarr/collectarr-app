@@ -63,13 +63,13 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
 );
 
 typedef LibraryAddOwnedPayloadBuilder = OwnedItemCreatePayload Function(
-  CatalogItem item,
+  CatalogItemDto item,
   LibraryAddCommonDraft common,
   OwnedDetailsDraft details,
 );
 
 typedef LibraryAddExistingOwnedPayloadBuilder = OwnedItemCreatePayload Function(
-  CatalogItem item,
+  CatalogItemDto item,
   OwnedItem ownedItem,
 );
 
@@ -103,7 +103,7 @@ class LibraryAddSearchCapability {
       kindSpecificPaneBuilder;
   final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
   final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
-  final LibraryAddMatchSummaryBuilder<CatalogItem>? coreMatchSummaryBuilder;
+  final LibraryAddMatchSummaryBuilder<CatalogItemDto>? coreMatchSummaryBuilder;
   final LibraryAddMatchSummaryBuilder<ProviderCandidate>?
       providerMatchSummaryBuilder;
 
@@ -148,7 +148,7 @@ class LibraryAddSearchCapability {
       coverScanFilterValuesBuilder?.call(result) ?? const {};
 
   String? coreMatchSummary(
-    CatalogItem item,
+    CatalogItemDto item,
     LibraryAddSearchContext context,
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
@@ -203,12 +203,12 @@ abstract interface class LibraryAddCapability<
   );
 
   AddOwnedItemCommand buildCommand(
-      CatalogItem item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
+      CatalogItemDto item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {PersonalItemAnchor? anchor,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
 
   AddOwnedItemCommand buildCommandFromDetails(
-    CatalogItem item,
+    CatalogItemDto item,
     LibraryAddCommonDraft common,
     OwnedDetailsDraft details, {
     PersonalItemAnchor? anchor,
@@ -216,7 +216,7 @@ abstract interface class LibraryAddCapability<
   });
 
   AddOwnedItemCommand? buildCommandFromOwnedItem(
-    CatalogItem item,
+    CatalogItemDto item,
     OwnedItem ownedItem, {
     PersonalItemAnchor? anchor,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
@@ -304,7 +304,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   OwnedItemCreatePayload _buildOwnedPayload(
-    CatalogItem item,
+    CatalogItemDto item,
     LibraryAddCommonDraft common,
     OwnedDetailsDraft details,
   ) {
@@ -326,7 +326,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand buildCommand(
-      CatalogItem item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
+      CatalogItemDto item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {PersonalItemAnchor? anchor,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
@@ -352,7 +352,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand buildCommandFromDetails(
-    CatalogItem item,
+    CatalogItemDto item,
     LibraryAddCommonDraft common,
     OwnedDetailsDraft details, {
     PersonalItemAnchor? anchor,
@@ -379,7 +379,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand? buildCommandFromOwnedItem(
-    CatalogItem item,
+    CatalogItemDto item,
     OwnedItem ownedItem, {
     PersonalItemAnchor? anchor,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),

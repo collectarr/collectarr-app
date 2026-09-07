@@ -45,9 +45,9 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final catalogPayload = catalogItem?.payload;
   final rawEditions = ((catalogPayload?['editions'] as List?)
           ?.whereType<Map<String, dynamic>>()
-          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+          .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
           .toList() ??
-      const <CatalogEdition>[]);
+      const <CatalogEditionDto>[]);
   final releaseOptions = [
     for (final edition in rawEditions)
       WatchHistoryTargetOption(
@@ -69,9 +69,9 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           ? (catalogItem!.kindMetadata as TvSeriesMetadata).links
           : (catalogPayload?['trailer_urls'] as List?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
+              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e)))
               .toList()) ??
-      const <TrailerLink>[];
+      const <TrailerLinkDto>[];
 
   final ownedItem = request.ownedItem;
   final trackingEntry = request.trackingEntry;

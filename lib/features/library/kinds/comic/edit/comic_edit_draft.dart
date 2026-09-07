@@ -152,7 +152,7 @@ class ComicEditDraft extends LibraryEditKindDraft {
 }
 
 LibraryEditKindDraft createComicEditDraft({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,

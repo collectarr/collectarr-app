@@ -26,7 +26,7 @@ class TvEpisodesTab extends ConsumerWidget {
   });
 
   final LibraryKindModule type;
-  final CatalogItem item;
+  final CatalogItemDto item;
   final Color accent;
   final TvReleaseMediaEditController releaseMediaEdit;
 

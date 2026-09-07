@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 
 /// Persistence adapter for one catalog kind.
 ///
-/// The catalog feature only aggregates the structural [CatalogItem]
+/// The catalog feature only aggregates the structural [CatalogItemDto]
 /// projection. Each adapter owns the mapping to and from its typed domain
 /// repository.
 abstract interface class CatalogKindRepositoryCodec {
@@ -11,9 +11,9 @@ abstract interface class CatalogKindRepositoryCodec {
 
   /// Rehydrates a transport catalog projection into this kind's typed
   /// metadata at the persistence boundary.
-  CatalogItem withTypedMetadata(CatalogItem item);
+  CatalogItemDto withTypedMetadata(CatalogItemDto item);
 
-  Future<void> upsert(LocalDatabase db, CatalogItem item);
+  Future<void> upsert(LocalDatabase db, CatalogItemDto item);
 
-  Future<List<CatalogItem>> list(LocalDatabase db);
+  Future<List<CatalogItemDto>> list(LocalDatabase db);
 }

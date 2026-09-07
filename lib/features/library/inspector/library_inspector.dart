@@ -769,7 +769,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
   });
 
   final List<OwnedItem> copies;
-  final List<CatalogEdition> editions;
+  final List<CatalogEditionDto> editions;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
   final String? selectedOwnedItemId;
   final Color accent;

@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgam
 class BoardGameCatalogMapper {
   const BoardGameCatalogMapper._();
 
-  static BoardGameCatalogItem mapDtoToBoardGame(CatalogItem dto) {
+  static BoardGameCatalogItem mapDtoToBoardGame(CatalogItemDto dto) {
     final payload = dto.toSyncPayload();
     final boardGameStats = _asMap(payload['board_game_stats']);
 
@@ -101,8 +101,8 @@ class BoardGameCatalogMapper {
     );
   }
 
-  static BoardGameCatalogItem mapMetadataItemToBoardGame(CatalogItem item) {
-    return mapDtoToBoardGame(CatalogItem.fromJson(item.toSyncPayload()));
+  static BoardGameCatalogItem mapMetadataItemToBoardGame(CatalogItemDto item) {
+    return mapDtoToBoardGame(CatalogItemDto.fromJson(item.toSyncPayload()));
   }
 
   static BoardGameRelease _mapEdition(

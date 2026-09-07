@@ -10,9 +10,9 @@ final class MusicWorkspaceMapper {
   const MusicWorkspaceMapper._();
 
   static MusicRelease fromCatalogItem(
-    CatalogItem item, {
+    CatalogItemDto item, {
     String? releaseId,
-    CatalogEdition? edition,
+    CatalogEditionDto? edition,
   }) {
     final payload = item.toSyncPayload();
     final selectedRelease = _selectRelease(
@@ -69,7 +69,7 @@ final class MusicWorkspaceMapper {
   static List<Map<String, dynamic>> _resolveMedia({
     required String releaseId,
     required Map<String, dynamic> source,
-    required CatalogEdition? edition,
+    required CatalogEditionDto? edition,
   }) {
     final rawMedia = _maps(source['media']).isNotEmpty
         ? _maps(source['media'])
@@ -122,8 +122,8 @@ final class MusicWorkspaceMapper {
 
   static Map<String, dynamic> _editionMediaPayload(
     String releaseId,
-    CatalogEdition edition,
-    CatalogDisc disc,
+    CatalogEditionDto edition,
+    CatalogDiscDto disc,
     int index,
   ) {
     final mediaNumber = disc.discNumber ?? index + 1;

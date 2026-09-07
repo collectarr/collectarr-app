@@ -154,12 +154,12 @@ class AdminMetadataItem {
   final String? titleExtension;
   final String? publisher;
   final String? barcode;
-  final CatalogSeriesDetails? series;
-  final CatalogPublishingDetails? publishing;
+  final CatalogSeriesDetailsDto? series;
+  final CatalogPublishingDetailsDto? publishing;
   final DateTime? coverDate;
   final DateTime? storeDate;
-  final VideoCatalogDetails? video;
-  final MusicCatalogDetails? music;
+  final VideoCatalogDetailsDto? video;
+  final MusicCatalogDetailsDto? music;
   final List<String> genres;
   final List<String> platforms;
   final String? country;
@@ -169,8 +169,8 @@ class AdminMetadataItem {
   final List<Map<String, dynamic>> creators;
   final List<Map<String, dynamic>> characters;
   final List<Map<String, dynamic>> storyArcs;
-  final List<TrailerLink> trailerUrls;
-  final List<TrailerLink> externalLinks;
+  final List<TrailerLinkDto> trailerUrls;
+  final List<TrailerLinkDto> externalLinks;
   final List<AdminProviderLink> providerLinks;
   final List<AdminEdition> editions;
   final String coverStatus;
@@ -205,7 +205,7 @@ class AdminMetadataItem {
       primaryVariant?.thumbnailImageUrl ?? primaryVariant?.coverImageUrl;
 
   factory AdminMetadataItem.fromJson(Map<String, dynamic> json) {
-    final series = CatalogSeriesDetails(
+    final series = CatalogSeriesDetailsDto(
       seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
@@ -219,7 +219,7 @@ class AdminMetadataItem {
               const <String>[])
           .join(', '),
     );
-    final publishing = CatalogPublishingDetails(
+    final publishing = CatalogPublishingDetailsDto(
       pageCount: json['page_count'] as int?,
       coverPriceCents: json['cover_price_cents'] as int?,
       currency: json['currency'] as String?,
@@ -227,7 +227,7 @@ class AdminMetadataItem {
       subtitle: json['subtitle'] as String?,
       seriesGroup: json['series_group'] as String?,
     );
-    final video = VideoCatalogDetails(
+    final video = VideoCatalogDetailsDto(
       runtimeMinutes: json['runtime_minutes'] as int?,
       color: json['color'] as String?,
       nrDiscs: json['nr_discs'] as int?,
@@ -236,13 +236,13 @@ class AdminMetadataItem {
       subtitles: json['subtitles'] as String?,
       layers: json['layers'] as String?,
     );
-    final music = MusicCatalogDetails(
+    final music = MusicCatalogDetailsDto(
       trackCount: json['track_count'] as int?,
       tracks: (json['tracks'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map(CatalogTrack.fromJson)
+              .map(CatalogTrackDto.fromJson)
               .toList(growable: false) ??
-          const <CatalogTrack>[],
+          const <CatalogTrackDto>[],
       catalogNumber: json['catalog_number'] as String?,
       releaseStatus: json['release_status'] as String?,
     );
@@ -293,11 +293,11 @@ class AdminMetadataItem {
           .toList(growable: false),
       trailerUrls: ((json['trailer_urls'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
-          .map(TrailerLink.fromJson)
+          .map(TrailerLinkDto.fromJson)
           .toList(growable: false)),
       externalLinks: ((json['external_links'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
-          .map(TrailerLink.fromJson)
+          .map(TrailerLinkDto.fromJson)
           .toList(growable: false)),
       providerLinks: [
         for (final link in (json['provider_links'] as List<dynamic>? ?? []))

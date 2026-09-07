@@ -52,8 +52,8 @@ class MusicCatalogItem {
   String? get originalTitle => work.originalTitle;
   String? get synopsis => work.synopsis;
   List<String> get genres => work.genres;
-  CatalogSeriesDetails? get series => null;
-  CatalogPublishingDetails? get publishing => null;
+  CatalogSeriesDetailsDto? get series => null;
+  CatalogPublishingDetailsDto? get publishing => null;
   List<Map<String, dynamic>>? get contributors => null;
   String? get coverImageUrl =>
       releases.isEmpty ? null : releases.first.coverImageUrl;
@@ -78,9 +78,9 @@ class MusicCatalogItem {
   String? get displayEditionLabel => null;
   String? get crossover => null;
   String? get displayCoverUrl => coverImageUrl;
-  List<TrailerLink> get trailerUrls => const <TrailerLink>[];
+  List<TrailerLinkDto> get trailerUrls => const <TrailerLinkDto>[];
   List<Map<String, dynamic>>? get creators => null;
   List<String>? get characters => null;
   List<String>? get storyArcs => null;
-  List<CatalogEdition> get editions => const <CatalogEdition>[];
+  List<CatalogEditionDto> get editions => const <CatalogEditionDto>[];
 }

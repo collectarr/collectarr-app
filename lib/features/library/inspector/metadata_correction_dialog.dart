@@ -15,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Future<void> showMetadataCorrectionDialog({
   required BuildContext context,
   required WidgetRef ref,
-  required CatalogItem item,
+  required CatalogItemDto item,
   required LibraryKindModule type,
 }) async {
   final draft = await showDialog<_MetadataCorrectionDraft>(
@@ -82,7 +82,7 @@ String _describeMetadataCorrectionError(Object error) {
 class _MetadataCorrectionDialog extends StatefulWidget {
   const _MetadataCorrectionDialog({required this.item});
 
-  final CatalogItem item;
+  final CatalogItemDto item;
 
   @override
   State<_MetadataCorrectionDialog> createState() =>
@@ -220,13 +220,13 @@ class _CorrectionField extends StatelessWidget {
   }
 }
 
-Map<String, dynamic> _itemPayload(CatalogItem item) {
+Map<String, dynamic> _itemPayload(CatalogItemDto item) {
   return item.toSyncPayload();
 }
 
-String _itemTitle(CatalogItem item) => item.title;
+String _itemTitle(CatalogItemDto item) => item.title;
 
-int? _itemReleaseYear(CatalogItem item) => item.releaseYear;
+int? _itemReleaseYear(CatalogItemDto item) => item.releaseYear;
 
 class _MetadataCorrectionDraft {
   const _MetadataCorrectionDraft({
@@ -249,7 +249,7 @@ class _MetadataCorrectionDraft {
   final String sourceUrl;
   final String notes;
 
-  String queryFor(CatalogItem item) {
+  String queryFor(CatalogItemDto item) {
     final payload = _itemPayload(item);
     final itemNumber =
         (payload['item_number'] ?? payload['itemNumber'])?.toString();
@@ -261,7 +261,7 @@ class _MetadataCorrectionDraft {
     ].whereType<String>().where((value) => value.isNotEmpty).join(' ');
   }
 
-  String summaryFor(CatalogItem item) {
+  String summaryFor(CatalogItemDto item) {
     final payload = _itemPayload(item);
     final itemNumber =
         (payload['item_number'] ?? payload['itemNumber'])?.toString();

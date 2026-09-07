@@ -412,7 +412,7 @@ String? _optionalTvText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _tvAddResultScope(CatalogItem item) {
+LibraryAddVideoResultScope _tvAddResultScope(CatalogItemDto item) {
   final metadata = item.kindMetadata;
   if (metadata is TvSeriesMetadata) {
     if (metadata.seasonNumber != null ||
@@ -450,7 +450,7 @@ LibraryAddVideoResultScope _tvAddProviderResultScope(
   return LibraryAddVideoResultScope.media;
 }
 
-String _tvAddGroupTitle(CatalogItem item) {
+String _tvAddGroupTitle(CatalogItemDto item) {
   final metadata = item.kindMetadata;
   if (metadata is TvSeriesMetadata) {
     return metadata.seriesTitle?.trim() ??

@@ -84,7 +84,7 @@ final class WishlistMutations {
   }
 
   Future<void> addLocalOnlyWishlistItem(
-    CatalogItem item, {
+    CatalogItemDto item, {
     PersonalItemAnchor? anchor,
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,

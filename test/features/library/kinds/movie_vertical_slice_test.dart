@@ -83,7 +83,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'movie_1',
-        catalogItem: CatalogItem(
+        catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'movie_1',
             mediaKind: CatalogMediaKind.movie,
@@ -220,7 +220,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'movie_inception',
-        catalogItem: CatalogItem(
+        catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'movie_inception',
             mediaKind: CatalogMediaKind.movie,

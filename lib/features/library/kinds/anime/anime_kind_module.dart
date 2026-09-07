@@ -399,7 +399,7 @@ String? _optionalAnimeText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _animeAddResultScope(CatalogItem item) {
+LibraryAddVideoResultScope _animeAddResultScope(CatalogItemDto item) {
   final metadata = item.kindMetadata;
   if (metadata is AnimeMetadata) {
     if (metadata.series?.seasonNumber != null) {
@@ -437,7 +437,7 @@ LibraryAddVideoResultScope _animeAddProviderResultScope(
   return LibraryAddVideoResultScope.media;
 }
 
-String _animeAddGroupTitle(CatalogItem item) {
+String _animeAddGroupTitle(CatalogItemDto item) {
   final metadata = item.kindMetadata;
   if (metadata is AnimeMetadata) {
     return metadata.seriesTitle?.trim() ??

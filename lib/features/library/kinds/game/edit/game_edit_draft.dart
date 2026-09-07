@@ -130,7 +130,7 @@ class GameEditDraft extends LibraryEditKindDraft {
 }
 
 LibraryEditKindDraft createGameEditDraft({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,

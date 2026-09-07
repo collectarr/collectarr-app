@@ -276,7 +276,7 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
                   id: 'movie-603', kind: 'movie', title: 'The Matrix'),
             ];
           }
-          return const <CatalogItem>[];
+          return const <CatalogItemDto>[];
         },
       );
 

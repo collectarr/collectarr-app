@@ -18,12 +18,12 @@ class TvLibraryKindProviderMapper
   }
 
   @override
-  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  CatalogItemDto metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
     final tvMetadata = TvSeriesMetadata.fromJson(
       TvProviderTypedMapper.payloadFromEnvelope(envelope),
     );
 
-    return CatalogItem(
+    return CatalogItemDto(
       identity: LibraryItemIdentity(
         id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.tv,
@@ -34,8 +34,8 @@ class TvLibraryKindProviderMapper
 
   @override
   Map<String, Object?> buildCorrections({
-    required CatalogItem preview,
-    required CatalogItem edited,
+    required CatalogItemDto preview,
+    required CatalogItemDto edited,
   }) {
     final corrections = <String, Object?>{};
     if (edited.title != preview.title) corrections['title'] = edited.title;

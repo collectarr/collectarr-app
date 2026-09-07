@@ -57,4 +57,3 @@ class CatalogDiscDto {
   }
 }
 
-typedef CatalogDisc = CatalogDiscDto;

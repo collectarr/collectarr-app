@@ -27,7 +27,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 
-CatalogItem testCatalogItem({
+CatalogItemDto testCatalogItem({
   String id = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
@@ -119,11 +119,11 @@ CatalogItem testCatalogItem({
   );
 }
 
-CatalogItem testCatalogItemFromJson(Map<String, dynamic> json) {
-  return testCatalogItemWithKindMetadata(CatalogItem.fromJson(json));
+CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
+  return testCatalogItemWithKindMetadata(CatalogItemDto.fromJson(json));
 }
 
-CatalogItem testCatalogItemWithKindMetadata(CatalogItem item) {
+CatalogItemDto testCatalogItemWithKindMetadata(CatalogItemDto item) {
   if (item.kindMetadata is! Map) return item;
   final payload = item.payload;
   final metadata = switch (item.kind) {
@@ -386,7 +386,7 @@ ShelfEntry testShelfEntry({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
-  CatalogItem? catalogItem,
+  CatalogItemDto? catalogItem,
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
   TrackingEntry? trackingEntry,

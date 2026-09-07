@@ -69,7 +69,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         itemImages = draft.itemImages;
 
   final LibraryKindModule type;
-  final CatalogItem item;
+  final CatalogItemDto item;
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;

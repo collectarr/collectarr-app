@@ -4,17 +4,17 @@ import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.da
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  CatalogEdition buildEdition() {
-    return const CatalogEdition(
+  CatalogEditionDto buildEdition() {
+    return const CatalogEditionDto(
       id: 'edition-hc',
       title: 'Hardcover',
       variants: [
-        CatalogVariant(
+        CatalogVariantDto(
           id: 'variant-main',
           name: 'Main Cover',
           isPrimary: true,
         ),
-        CatalogVariant(
+        CatalogVariantDto(
           id: 'variant-alt',
           name: 'Alt Cover',
         ),

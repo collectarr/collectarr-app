@@ -154,7 +154,7 @@ class LibraryAddPreviewPaneRequest {
 
   final LibraryKindModule type;
   final Color accent;
-  final CatalogItem? item;
+  final CatalogItemDto? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
@@ -228,9 +228,9 @@ class LibraryAddModeBarRequest {
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
-  final List<CatalogItem> suggestions;
+  final List<CatalogItemDto> suggestions;
   final bool showSuggestions;
-  final ValueChanged<CatalogItem> onSelectSuggestion;
+  final ValueChanged<CatalogItemDto> onSelectSuggestion;
   final VoidCallback onDismissSuggestions;
   final bool canScanCover;
   final bool isScanningCover;
@@ -287,7 +287,7 @@ class LibraryAddSearchPaneRequest {
   final bool isBusy;
   final String? error;
   final Color accent;
-  final List<CatalogItem> results;
+  final List<CatalogItemDto> results;
   final List<ProviderCandidate> providerResults;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
@@ -297,7 +297,7 @@ class LibraryAddSearchPaneRequest {
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
   final Set<String> ownedCatalogItemIds;
-  final String? Function(CatalogItem item)? coreMatchSummary;
+  final String? Function(CatalogItemDto item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
@@ -350,7 +350,7 @@ class LibraryAddBottomBarRequest {
   final List<String> grades;
   final String? defaultTags;
   final Color accent;
-  final CatalogItem? selectedItem;
+  final CatalogItemDto? selectedItem;
   final ProviderCandidate? selectedCandidate;
   final LibraryQueuedProviderIngest? selectedQueuedIngest;
   final String providerLabel;

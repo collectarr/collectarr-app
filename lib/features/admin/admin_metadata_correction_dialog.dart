@@ -42,7 +42,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
         _EditableCreator.fromMap(creator),
     ];
     _tracks = [
-      for (final track in (widget.item.music?.tracks ?? const <CatalogTrack>[]))
+      for (final track in (widget.item.music?.tracks ?? const <CatalogTrackDto>[]))
         _EditableTrack.fromTrack(track),
     ];
     _physicalFormatId = edition?.physicalFormat ??
@@ -197,7 +197,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     if (value is DateTime) {
       return _formatDate(value);
     }
-    if (value is List<TrailerLink>) {
+    if (value is List<TrailerLinkDto>) {
       return value.map((link) => link.url).join('\n');
     }
     if (value is List<String>) {
@@ -587,8 +587,8 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     return creators;
   }
 
-  List<CatalogTrack>? _buildTracksPayload() {
-    final tracks = <CatalogTrack>[];
+  List<CatalogTrackDto>? _buildTracksPayload() {
+    final tracks = <CatalogTrackDto>[];
     for (final track in _tracks) {
       final title = track.titleController.text.trim();
       final artist = track.artistController.text.trim();
@@ -630,7 +630,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
         return null;
       }
       tracks.add(
-        CatalogTrack(
+        CatalogTrackDto(
           title: title,
           artist: artist.isEmpty ? null : artist,
           position: position,
@@ -671,8 +671,8 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     if (tracks == null) {
       return;
     }
-    List<TrailerLink> trailerUrls;
-    List<TrailerLink> externalLinks;
+    List<TrailerLinkDto> trailerUrls;
+    List<TrailerLinkDto> externalLinks;
     try {
       trailerUrls = _parseLinks(_controllerForFieldKey('trailer_urls').text,
           kind: 'trailer');
@@ -982,8 +982,8 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 }
 
-List<TrailerLink> _parseLinks(String raw, {required String kind}) {
-  final links = <TrailerLink>[];
+List<TrailerLinkDto> _parseLinks(String raw, {required String kind}) {
+  final links = <TrailerLinkDto>[];
   for (final line in raw.split('\n')) {
     final url = line.trim();
     if (url.isEmpty) {
@@ -994,7 +994,7 @@ List<TrailerLink> _parseLinks(String raw, {required String kind}) {
       throw FormatException(
           'Invalid URL in ${kind == 'trailer' ? 'Trailer URLs' : 'External links'}: $url');
     }
-    links.add(TrailerLink(url: url, kind: kind));
+    links.add(TrailerLinkDto(url: url, kind: kind));
   }
   return links;
 }
@@ -1035,7 +1035,7 @@ class _EditableTrack {
         durationController = TextEditingController(text: duration ?? ''),
         discController = TextEditingController(text: disc ?? '');
 
-  factory _EditableTrack.fromTrack(CatalogTrack track) {
+  factory _EditableTrack.fromTrack(CatalogTrackDto track) {
     return _EditableTrack(
       title: track.title,
       artist: track.artist,

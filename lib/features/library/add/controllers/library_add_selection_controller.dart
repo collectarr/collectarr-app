@@ -126,7 +126,7 @@ class LibraryAddSelectionController {
   }
 
   void handleReferenceEditionSelected(
-      CatalogItem? item, String? editionId) {
+      CatalogItemDto? item, String? editionId) {
     if (item == null) return;
     state = state.copyWith(
       selectedReferenceEditionId: editionId,

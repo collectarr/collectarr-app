@@ -453,8 +453,8 @@ class AdminProviderPreview {
   final String? isbn;
   final String? variantName;
   final String? coverImageUrl;
-  final CatalogSeriesDetails? series;
-  final CatalogPublishingDetails? publishing;
+  final CatalogSeriesDetailsDto? series;
+  final CatalogPublishingDetailsDto? publishing;
   final Map<String, dynamic>? video;
   final Map<String, dynamic>? music;
   final Map<String, dynamic>? game;
@@ -468,19 +468,19 @@ class AdminProviderPreview {
   final List<String> genres;
 
   int? get trackCount => (music?['track_count'] as num?)?.toInt();
-  List<CatalogTrack> get tracks =>
+  List<CatalogTrackDto> get tracks =>
       (music?['tracks'] as List?)
           ?.whereType<Map<String, dynamic>>()
-          .map((e) => CatalogTrack.fromJson(Map<String, dynamic>.from(e)))
+          .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
           .toList() ??
-      const <CatalogTrack>[];
+      const <CatalogTrackDto>[];
 
   factory AdminProviderPreview.fromJson(Map<String, dynamic> json) {
     final tracks = (json['tracks'] as List<dynamic>?)
-            ?.map((e) => CatalogTrack.fromJson(e as Map<String, dynamic>))
+            ?.map((e) => CatalogTrackDto.fromJson(e as Map<String, dynamic>))
             .toList(growable: false) ??
-        const <CatalogTrack>[];
-    final series = CatalogSeriesDetails(
+        const <CatalogTrackDto>[];
+    final series = CatalogSeriesDetailsDto(
       seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
@@ -494,7 +494,7 @@ class AdminProviderPreview {
               const <String>[])
           .join(', '),
     );
-    final publishing = CatalogPublishingDetails(
+    final publishing = CatalogPublishingDetailsDto(
       pageCount: json['page_count'] as int?,
       coverPriceCents: json['cover_price_cents'] as int?,
       currency: json['currency'] as String?,

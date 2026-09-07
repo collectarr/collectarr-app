@@ -12,18 +12,18 @@ final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   CatalogMediaKind get kind => CatalogMediaKind.music;
 
   @override
-  CatalogItem withTypedMetadata(CatalogItem item) =>
+  CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
       catalogItemWithTypedMetadata(item, MusicRelease.fromJson);
 
   @override
-  Future<void> upsert(LocalDatabase db, CatalogItem item) {
+  Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
     return MusicRepository(db).updateRelease(
       MusicRelease.fromJson(catalogPayloadFor(item)),
     );
   }
 
   @override
-  Future<List<CatalogItem>> list(LocalDatabase db) async {
+  Future<List<CatalogItemDto>> list(LocalDatabase db) async {
     final releases = await MusicRepository(db).search();
     return [
       for (final item in releases)

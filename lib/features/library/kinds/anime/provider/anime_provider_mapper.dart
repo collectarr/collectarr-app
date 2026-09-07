@@ -30,7 +30,7 @@ class AnimeLibraryKindProviderMapper
   }
 
   @override
-  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  CatalogItemDto metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
       expectedKind: CatalogMediaKind.anime,
@@ -47,7 +47,7 @@ class AnimeLibraryKindProviderMapper
       if (coverImageUrl != null) 'thumbnail_image_url': coverImageUrl,
     });
 
-    return CatalogItem(
+    return CatalogItemDto(
       identity: LibraryItemIdentity(
         id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.anime,
@@ -58,8 +58,8 @@ class AnimeLibraryKindProviderMapper
 
   @override
   Map<String, Object?> buildCorrections({
-    required CatalogItem preview,
-    required CatalogItem edited,
+    required CatalogItemDto preview,
+    required CatalogItemDto edited,
   }) {
     final corrections = <String, Object?>{};
     if (edited.title != preview.title) corrections['title'] = edited.title;

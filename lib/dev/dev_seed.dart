@@ -914,7 +914,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   final customFieldRepo = CustomFieldRepository(db);
 
   // --- Catalog Items ---
-  final allItems = <CatalogItem>[
+  final allItems = <CatalogItemDto>[
     for (final contributor in collectarrDevSeedContributors)
       ...contributor
           .catalogItems()
@@ -1007,7 +1007,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
 void _validateSeedTrackingUnits(
   Iterable<TrackingUnit> units,
-  Iterable<CatalogItem> catalogItems,
+  Iterable<CatalogItemDto> catalogItems,
 ) {
   final catalogById = {
     for (final item in catalogItems) item.id: item,
@@ -1047,11 +1047,11 @@ void _validateSeedTrackingUnits(
 }
 
 void _validateSeedFixtures({
-  required List<CatalogItem> catalogItems,
+  required List<CatalogItemDto> catalogItems,
   required List<OwnedItem> ownedItems,
   required List<TrackingEntry> trackingEntries,
 }) {
-  final catalogById = <String, CatalogItem>{};
+  final catalogById = <String, CatalogItemDto>{};
   for (final item in catalogItems) {
     if (item.id.trim().isEmpty || item.title.trim().isEmpty) {
       throw StateError(

@@ -59,7 +59,7 @@ final class ComicHierarchyMapper {
 
   static LibraryHierarchyNode _variantNode(
     ComicRelease release,
-    CatalogVariant variant,
+    CatalogVariantDto variant,
     int number,
   ) {
     final format = variant.physicalFormatLabel ?? variant.physicalFormat;

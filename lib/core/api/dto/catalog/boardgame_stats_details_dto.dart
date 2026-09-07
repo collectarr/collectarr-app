@@ -98,4 +98,3 @@ class BoardGameStatsDetailsDto {
   }
 }
 
-typedef BoardGameStatsDetails = BoardGameStatsDetailsDto;

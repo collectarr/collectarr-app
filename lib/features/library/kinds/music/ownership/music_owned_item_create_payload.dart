@@ -26,7 +26,7 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   });
 
   factory MusicOwnedItemCreatePayload.fromOwnedItem(
-    CatalogItem item,
+    CatalogItemDto item,
     OwnedItem ownedItem,
   ) {
     return MusicOwnedItemCreatePayload(
@@ -73,7 +73,7 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
-    required CatalogItem? existingCatalog,
+    required CatalogItemDto? existingCatalog,
     required PersonalItemAnchor? anchor,
     required String? ownerUserId,
     required String? ownerLabel,

@@ -50,12 +50,12 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
   providerCandidateComparator: compareComicIssueCandidates,
 );
 
-bool _comicItemIsVariant(CatalogItem item) {
+bool _comicItemIsVariant(CatalogItemDto item) {
   final metadata = item.kindMetadata;
   return metadata is ComicMedia && metadata.variant?.trim().isNotEmpty == true;
 }
 
-String _comicGroupTitle(CatalogItem item) {
+String _comicGroupTitle(CatalogItemDto item) {
   final metadata = item.kindMetadata;
   if (metadata is ComicMedia) {
     final seriesTitle =

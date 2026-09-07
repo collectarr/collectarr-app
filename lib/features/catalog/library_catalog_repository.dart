@@ -25,10 +25,10 @@ final class LibraryCatalogRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, CatalogKindRepositoryCodec> _codecs;
 
-  Future<void> upsertMetadataItems(List<CatalogItem> items) => upsertAll(items);
+  Future<void> upsertMetadataItems(List<CatalogItemDto> items) => upsertAll(items);
 
   Future<void> upsertAll(
-    Iterable<CatalogItem> items, {
+    Iterable<CatalogItemDto> items, {
     bool captureDerivedData = true,
   }) async {
     final catalogItems = items.toList(growable: false);
@@ -48,7 +48,7 @@ final class LibraryCatalogRepository {
   /// Captures only derived infrastructure values from already typed catalog
   /// projections. The owning kind contributors interpret metadata; this
   /// repository only coordinates the persistence transaction.
-  Future<void> _captureDerivedData(Iterable<CatalogItem> items) async {
+  Future<void> _captureDerivedData(Iterable<CatalogItemDto> items) async {
     final list = items.toList(growable: false);
     if (list.isEmpty) return;
 
@@ -84,17 +84,17 @@ final class LibraryCatalogRepository {
     });
   }
 
-  Future<Map<String, CatalogItem>> findByIds(Iterable<String> ids) async {
+  Future<Map<String, CatalogItemDto>> findByIds(Iterable<String> ids) async {
     final wanted = ids.toSet();
     if (wanted.isEmpty) return const {};
-    final result = <String, CatalogItem>{};
+    final result = <String, CatalogItemDto>{};
     for (final item in await _allItems()) {
       if (wanted.contains(item.id)) result[item.id] = item;
     }
     return result;
   }
 
-  Future<List<CatalogItem>> findAll({String? kind}) async {
+  Future<List<CatalogItemDto>> findAll({String? kind}) async {
     final normalizedKind = kind?.trim().toLowerCase();
     final requestedKind = normalizedKind == null || normalizedKind.isEmpty
         ? null
@@ -108,13 +108,13 @@ final class LibraryCatalogRepository {
     ];
   }
 
-  Future<CatalogItem?> findById(String id) async {
+  Future<CatalogItemDto?> findById(String id) async {
     final normalized = id.trim();
     if (normalized.isEmpty) return null;
     return (await findByIds([normalized]))[normalized];
   }
 
-  Future<void> _upsertItem(CatalogItem item) async {
+  Future<void> _upsertItem(CatalogItemDto item) async {
     final codec = _codecs[item.mediaKind];
     if (codec == null) {
       throw StateError(
@@ -124,8 +124,8 @@ final class LibraryCatalogRepository {
     await codec.upsert(_db, item);
   }
 
-  Future<List<CatalogItem>> _allItems() async {
-    final result = <CatalogItem>[];
+  Future<List<CatalogItemDto>> _allItems() async {
+    final result = <CatalogItemDto>[];
     for (final codec in _codecs.values) {
       result.addAll(await codec.list(_db));
     }

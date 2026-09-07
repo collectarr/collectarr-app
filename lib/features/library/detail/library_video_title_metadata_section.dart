@@ -145,9 +145,9 @@ Widget _buildEditionFormatBadges(LibraryProjectionRuntime item) {
   final editions = editionsPayload != null
       ? editionsPayload
           .whereType<Map<Object?, Object?>>()
-          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+          .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
           .toList()
-      : const <CatalogEdition>[];
+      : const <CatalogEditionDto>[];
   if (editions.isEmpty) {
     return const SizedBox.shrink();
   }

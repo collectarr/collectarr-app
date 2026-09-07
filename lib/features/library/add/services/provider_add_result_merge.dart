@@ -2,9 +2,9 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-CatalogItem mergeProviderAddResult({
-  required CatalogItem ingested,
-  required CatalogItem edited,
+CatalogItemDto mergeProviderAddResult({
+  required CatalogItemDto ingested,
+  required CatalogItemDto edited,
 }) {
   return ingested.copyWith(
     title: edited.title,
@@ -21,9 +21,9 @@ CatalogItem mergeProviderAddResult({
   );
 }
 
-CatalogItem mergeResolvedProviderAddItem({
-  required CatalogItem fallback,
-  required CatalogItem fullItem,
+CatalogItemDto mergeResolvedProviderAddItem({
+  required CatalogItemDto fallback,
+  required CatalogItemDto fullItem,
 }) {
   return fullItem.displayCoverUrl != null
       ? fullItem
@@ -36,7 +36,7 @@ CatalogItem mergeResolvedProviderAddItem({
 
 Map<String, dynamic> mergeHydratedProviderAddResultRaw({
   required Map<String, dynamic> raw,
-  required CatalogItem sourceSelection,
+  required CatalogItemDto sourceSelection,
 }) {
   final payload = sourceSelection.payload;
   final merged = <String, dynamic>{
@@ -56,7 +56,7 @@ Future<void> applyProviderIngestCorrections({
   required String kind,
   required String itemId,
   required Map<String, Object?> corrections,
-  required CatalogItem edited,
+  required CatalogItemDto edited,
 }) {
   final payload = edited.payload;
   return api.adminUpdateCatalogItem(
@@ -98,7 +98,7 @@ Future<void> applyProviderIngestCorrections({
     tracks: corrections.containsKey('tracks')
         ? (payload['tracks'] as List?)
             ?.whereType<Map<String, dynamic>>()
-            .map((t) => CatalogTrack.fromJson(t))
+            .map((t) => CatalogTrackDto.fromJson(t))
             .toList()
         : null,
     creators: corrections.containsKey('creators')
@@ -123,7 +123,7 @@ Future<void> applyProviderIngestCorrections({
     externalLinks: corrections.containsKey('external_links')
         ? (payload['external_links'] as List?)
             ?.whereType<Map<String, dynamic>>()
-            .map((l) => TrailerLink.fromJson(l))
+            .map((l) => TrailerLinkDto.fromJson(l))
             .toList()
         : null,
     crossover: corrections['crossover'] as String?,

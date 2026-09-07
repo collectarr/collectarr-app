@@ -34,7 +34,7 @@ class WorkspaceCommonProjection {
   }) {
     final catalog = source.catalogItem;
     final edition = node is LibraryReleaseNodeRef ? node.edition : null;
-    CatalogVariant? primaryVariant;
+    CatalogVariantDto? primaryVariant;
     if (edition != null) {
       for (final v in edition.variants) {
         if (v.isPrimary) {

@@ -174,7 +174,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   bool get _hasWishlistContext => widget.request.wishlistItem != null;
 
-  CatalogItem get _item => widget.request.item;
+  CatalogItemDto get _item => widget.request.item;
   Color get _accent => widget.request.accent;
 
   LibraryEditPresentationContext get _editPresentationContext {
@@ -887,7 +887,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<_MusicExternalLinkEdit> _buildInitialExternalLinkEdits(
-    List<TrailerLink> links,
+    List<TrailerLinkDto> links,
   ) {
     final externalLinks =
         links.where((link) => link.isExternalLink).toList(growable: false);
@@ -984,11 +984,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  List<TrailerLink> _buildUpdatedLinks() {
+  List<TrailerLinkDto> _buildUpdatedLinks() {
     final preservedTrailers = _itemLinks
         .where((link) => !link.isExternalLink)
         .toList(growable: false);
-    final external = <TrailerLink>[];
+    final external = <TrailerLinkDto>[];
     for (final edit in _externalLinkEdits) {
       final url = edit.urlController.text.trim();
       if (url.isEmpty) {
@@ -1001,7 +1001,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       }
       final description = edit.descriptionController.text.trim();
       external.add(
-        TrailerLink(
+        TrailerLinkDto(
           url: url,
           title: description.isEmpty ? null : description,
           description: description.isEmpty ? null : description,
@@ -1099,8 +1099,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return int.tryParse(normalized);
   }
 
-  List<CatalogTrack> _buildSubmittedTracks() {
-    final output = <CatalogTrack>[];
+  List<CatalogTrackDto> _buildSubmittedTracks() {
+    final output = <CatalogTrackDto>[];
     for (final row in _editableTrackRows) {
       final title = row.titleController.text.trim();
       final artist = emptyToNull(row.artistController.text);
@@ -1110,7 +1110,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         continue;
       }
       output.add(
-        CatalogTrack(
+        CatalogTrackDto(
           title: title.isEmpty ? 'Untitled track' : title,
           artist: artist,
           durationSeconds: durationSeconds,
@@ -1130,8 +1130,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return output;
   }
 
-  List<CatalogDisc> _buildSubmittedDiscMetadata() {
-    final output = <CatalogDisc>[];
+  List<CatalogDiscDto> _buildSubmittedDiscMetadata() {
+    final output = <CatalogDiscDto>[];
     for (final discNumber in _discNumbersFromTracks) {
       final draft = _discDraftFor(discNumber);
       final discTracks = _editableTrackRows
@@ -1141,7 +1141,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         continue;
       }
       output.add(
-        CatalogDisc(
+        CatalogDiscDto(
           discNumber: discNumber,
           name: emptyToNull(draft.discTitleController.text),
         ),
@@ -1778,7 +1778,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
-  String? _trackDurationLabel(List<CatalogTrack> tracks) {
+  String? _trackDurationLabel(List<CatalogTrackDto> tracks) {
     var total = 0;
     for (final track in tracks) {
       if (track.durationSeconds != null && track.durationSeconds! > 0) {
@@ -1896,7 +1896,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       creators: _buildCreatorsForSubmit() ?? const [],
       links: _buildUpdatedLinks(),
     );
-    final updatedItem = CatalogItem(
+    final updatedItem = CatalogItemDto(
       identity: _item.identity,
       kindMetadata: fullCatalogItem,
     );
@@ -1984,11 +1984,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  List<CatalogEdition> get _itemEditions => _item.editions;
+  List<CatalogEditionDto> get _itemEditions => _item.editions;
 
-  List<TrailerLink> get _itemLinks => _musicMetadata.links;
+  List<TrailerLinkDto> get _itemLinks => _musicMetadata.links;
 
-  CatalogEdition? _selectedEdition() {
+  CatalogEditionDto? _selectedEdition() {
     final selectedId = _selectedEditionId;
     if (selectedId == null) {
       return null;
@@ -2034,7 +2034,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   Widget _variantSelectionField() {
     final edition = _selectedEdition();
-    final variants = edition?.variants ?? const <CatalogVariant>[];
+    final variants = edition?.variants ?? const <CatalogVariantDto>[];
     return DropdownButtonFormField<String>(
       initialValue: _selectedVariantId,
       isExpanded: true,

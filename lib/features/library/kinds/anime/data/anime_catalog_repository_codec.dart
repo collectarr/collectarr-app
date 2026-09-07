@@ -12,18 +12,18 @@ final class AnimeCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
-  CatalogItem withTypedMetadata(CatalogItem item) =>
+  CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
       catalogItemWithTypedMetadata(item, AnimeMedia.fromJson);
 
   @override
-  Future<void> upsert(LocalDatabase db, CatalogItem item) {
+  Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
     return AnimeRepository(db).updateMedia(
       AnimeMedia.fromJson(catalogPayloadFor(item)),
     );
   }
 
   @override
-  Future<List<CatalogItem>> list(LocalDatabase db) async {
+  Future<List<CatalogItemDto>> list(LocalDatabase db) async {
     final media = await AnimeRepository(db).search();
     return [
       for (final item in media)

@@ -96,9 +96,9 @@ class _TvVideoDetailContributionState
         final links = ((payload?['trailer_urls'] as List?)
                 ?.whereType<Map<String, dynamic>>()
                 .map((entry) =>
-                    TrailerLink.fromJson(Map<String, dynamic>.from(entry)))
+                    TrailerLinkDto.fromJson(Map<String, dynamic>.from(entry)))
                 .toList()) ??
-            const <TrailerLink>[];
+            const <TrailerLinkDto>[];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

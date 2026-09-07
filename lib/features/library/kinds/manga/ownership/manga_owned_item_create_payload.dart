@@ -26,7 +26,7 @@ final class MangaOwnedItemCreatePayload implements OwnedItemCreatePayload {
   });
 
   factory MangaOwnedItemCreatePayload.fromOwnedItem(
-    CatalogItem item,
+    CatalogItemDto item,
     OwnedItem ownedItem,
   ) {
     return MangaOwnedItemCreatePayload(
@@ -73,7 +73,7 @@ final class MangaOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
-    required CatalogItem? existingCatalog,
+    required CatalogItemDto? existingCatalog,
     required PersonalItemAnchor? anchor,
     required String? ownerUserId,
     required String? ownerLabel,

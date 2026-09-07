@@ -12,18 +12,18 @@ final class ComicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  CatalogItem withTypedMetadata(CatalogItem item) =>
+  CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
       catalogItemWithTypedMetadata(item, ComicMedia.fromJson);
 
   @override
-  Future<void> upsert(LocalDatabase db, CatalogItem item) {
+  Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
     return ComicRepository(db).updateMedia(
       ComicMedia.fromJson(catalogPayloadFor(item)),
     );
   }
 
   @override
-  Future<List<CatalogItem>> list(LocalDatabase db) async {
+  Future<List<CatalogItemDto>> list(LocalDatabase db) async {
     final media = await ComicRepository(db).search();
     return [
       for (final item in media)

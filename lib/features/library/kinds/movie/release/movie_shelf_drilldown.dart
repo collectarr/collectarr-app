@@ -93,8 +93,8 @@ List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
 
 MovieShelfReleaseDrilldownItem _buildDrilldownItem(
   LibraryProjectionRuntime titleItem,
-  CatalogEdition edition, {
-  required List<CatalogEdition> editions,
+  CatalogEditionDto edition, {
+  required List<CatalogEditionDto> editions,
   required List<OwnedItem> ownedCopies,
   required List<WishlistItem> wishlistItems,
   required LibraryWorkspaceProjector<LibraryWorkspaceDto> projector,

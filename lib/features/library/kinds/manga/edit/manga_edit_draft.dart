@@ -278,7 +278,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
 }
 
 LibraryEditKindDraft createMangaEditDraft({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,

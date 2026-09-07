@@ -136,4 +136,3 @@ class MusicCatalogDetailsDto {
       };
 }
 
-typedef MusicCatalogDetails = MusicCatalogDetailsDto;

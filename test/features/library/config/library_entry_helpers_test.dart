@@ -62,13 +62,13 @@ void main() {
     final hierarchy = libraryReferenceHierarchySegments(
       mediaType: 'music',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-1',
           title: 'Deluxe Edition',
           physicalFormat: 'Japan CD',
           physicalFormatLabel: 'Japan CD',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
               id: 'variant-1',
               name: 'Japan CD',
               physicalFormatLabel: 'Japan CD',

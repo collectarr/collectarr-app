@@ -26,7 +26,7 @@ final comicDevSeedContributor = DevSeedKindContributor(
   seedDatabase: seedComicDatabase,
 );
 
-List<String> validateComicSeedCatalog(CatalogItem item) {
+List<String> validateComicSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   seedRequirePublishingQuality(issues, prefix, item);
@@ -51,13 +51,13 @@ List<String> validateComicSeedOwned(OwnedItem item) {
 
 Future<void> seedComicDatabase(
   LocalDatabase db,
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 ) =>
     seedComicReadingStates(db, now);
 
 Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
   for (final item in items.where((item) => item.kind == 'comic')) {
@@ -83,7 +83,7 @@ Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
   }
 }
 
-CatalogItem enrichComicSeedItem(CatalogItem item) {
+CatalogItemDto enrichComicSeedItem(CatalogItemDto item) {
   final issues = [
     for (final edition in seedEditionPayloads(item))
       {
@@ -104,7 +104,7 @@ CatalogItem enrichComicSeedItem(CatalogItem item) {
   return withSeedPayload(item, {'issues': issues});
 }
 
-List<CatalogItem> comicSeedCatalogItems() => [
+List<CatalogItemDto> comicSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-comic-01',
         kind: 'comic',
@@ -158,14 +158,14 @@ List<CatalogItem> comicSeedCatalogItems() => [
         storyArcs: ['Chapter One'],
         genres: ['sci-fi', 'fantasy', 'space opera'],
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-saga-01-first',
             title: 'Saga #1 (First Printing)',
             format: 'Single Issue',
             publisher: 'Image Comics',
             releaseDate: DateTime.utc(2012, 3, 14),
             variants: [
-              CatalogVariant(
+              CatalogVariantDto(
                 id: 'seed-var-saga-01-dm',
                 name: 'Direct Market Cover A',
                 variantType: 'physical',

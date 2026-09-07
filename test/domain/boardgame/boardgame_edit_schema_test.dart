@@ -249,8 +249,8 @@ void main() {
   });
 }
 
-CatalogItem _item(BoardGameMetadata metadata) {
-  return CatalogItem(
+CatalogItemDto _item(BoardGameMetadata metadata) {
+  return CatalogItemDto(
     identity: const LibraryItemIdentity(
       id: 'boardgame-1',
       mediaKind: CatalogMediaKind.boardgame,

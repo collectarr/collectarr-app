@@ -20,7 +20,7 @@ final class MovieCatalogWorkMetadata {
   final DateTime? releaseDate;
   final String? originalLanguage;
   final List<String> genres;
-  final CatalogSeriesDetails? series;
+  final CatalogSeriesDetailsDto? series;
 }
 
 final class MovieCatalogTechnicalMetadata {
@@ -98,7 +98,7 @@ final class MovieCatalogItem {
     this.trailerUrls = const [],
   });
 
-  static MovieCatalogItem fromDto(CatalogItem dto) =>
+  static MovieCatalogItem fromDto(CatalogItemDto dto) =>
       MovieCatalogMapper.mapDtoToMovie(dto);
 
   final String id;
@@ -108,7 +108,7 @@ final class MovieCatalogItem {
   final List<dynamic> trailerUrls;
 
   String get title => work.title;
-  CatalogSeriesDetails? get series => work.series;
+  CatalogSeriesDetailsDto? get series => work.series;
   MovieCatalogTechnicalMetadata get videoDetails => technical;
   MovieCatalogRelease? get primaryRelease =>
       releases.isEmpty ? null : releases.first;
@@ -118,7 +118,7 @@ final class MovieCatalogItem {
 final class MovieCatalogMapper {
   const MovieCatalogMapper._();
 
-  static MovieCatalogItem mapDtoToMovie(CatalogItem dto) {
+  static MovieCatalogItem mapDtoToMovie(CatalogItemDto dto) {
     final payload = dto.toSyncPayload();
     final videoPayload = (payload['video'] as Map?) ?? payload;
 
@@ -220,7 +220,7 @@ final class MovieCatalogMapper {
     );
   }
 
-  static MovieCatalogItem mapMetadataItemToMovie(CatalogItem item) {
-    return mapDtoToMovie(CatalogItem.fromJson(item.toSyncPayload()));
+  static MovieCatalogItem mapMetadataItemToMovie(CatalogItemDto item) {
+    return mapDtoToMovie(CatalogItemDto.fromJson(item.toSyncPayload()));
   }
 }

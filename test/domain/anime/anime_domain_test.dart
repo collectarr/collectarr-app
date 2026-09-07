@@ -34,7 +34,7 @@ void main() {
           seriesTitle: 'Cowboy Bebop',
         ),
         editions: const [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'ed-1',
             title: 'Blu-ray Collector Edition',
             physicalFormat: 'Blu-ray',

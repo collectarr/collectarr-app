@@ -14,7 +14,7 @@ class LibraryAddCoreSearchResult {
     required this.shouldSearchProvider,
   });
 
-  final List<CatalogItem> items;
+  final List<CatalogItemDto> items;
   final bool shouldSearchProvider;
 }
 
@@ -74,7 +74,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   );
 }
 
-Future<List<CatalogItem>> fetchLibraryAddSuggestions({
+Future<List<CatalogItemDto>> fetchLibraryAddSuggestions({
   required ApiClient api,
   required LibraryKindModule type,
   required LibraryCatalogRepository catalog,

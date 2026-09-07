@@ -58,7 +58,7 @@ void main() {
 ShelfEntry _entry(String id, BoardGameMetadata metadata) {
   return ShelfEntry(
     itemId: id,
-    catalogItem: CatalogItem(
+    catalogItem: CatalogItemDto(
       identity: LibraryItemIdentity(
         id: id,
         mediaKind: CatalogMediaKind.boardgame,

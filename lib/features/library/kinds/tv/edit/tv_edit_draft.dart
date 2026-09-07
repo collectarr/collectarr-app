@@ -243,7 +243,7 @@ class TvEditDraft extends LibraryEditKindDraft
 }
 
 LibraryEditKindDraft createTvEditDraft({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
@@ -270,7 +270,7 @@ LibraryEditKindDraft createTvEditDraft({
         tv?.firstAirDate == null ? '' : formatDate(tv!.firstAirDate!),
     initialReleaseYear: tv?.firstAirDate?.year.toString() ?? '',
     initialCreators: tv?.creators ?? const <Map<String, dynamic>>[],
-    initialTrailerLinks: tv?.links ?? const <TrailerLink>[],
+    initialTrailerLinks: tv?.links ?? const <TrailerLinkDto>[],
   );
   final releaseMediaEdit = TvReleaseMediaEditController(
     item: item,

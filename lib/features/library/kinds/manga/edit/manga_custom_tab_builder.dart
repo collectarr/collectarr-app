@@ -13,7 +13,7 @@ Widget? buildMangaCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required CatalogItem item,
+  required CatalogItemDto item,
   required VoidCallback markDirty,
 }) {
   if (tabId != 'owned') return null;

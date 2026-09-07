@@ -13,7 +13,7 @@ final class TvTrackingImportContribution {
 
   Future<void> addLocalOnlySeasonEntry(
     TrackingMutations trackingMutations,
-    CatalogItem seasonItem, {
+    CatalogItemDto seasonItem, {
     required int? seasonNumber,
     TrackingSourceType? sourceType,
     MediaTrackingStatus? status = MediaTrackingStatus.planned,

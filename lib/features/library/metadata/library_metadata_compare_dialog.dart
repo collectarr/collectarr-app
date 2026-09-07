@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> showLibraryMetadataCompareDialog({
   required BuildContext context,
-  required CatalogItem localItem,
+  required CatalogItemDto localItem,
   required Color accent,
 }) async {
   await showDialog<void>(
@@ -29,7 +29,7 @@ class _LibraryMetadataCompareDialog extends ConsumerStatefulWidget {
     required this.accent,
   });
 
-  final CatalogItem localItem;
+  final CatalogItemDto localItem;
   final Color accent;
 
   @override
@@ -41,7 +41,7 @@ class _LibraryMetadataCompareDialogState
     extends ConsumerState<_LibraryMetadataCompareDialog> {
   bool _isLoading = false;
   String? _error;
-  CatalogItem? _serverItem;
+  CatalogItemDto? _serverItem;
 
   @override
   void initState() {
@@ -60,7 +60,7 @@ class _LibraryMetadataCompareDialogState
         kind: widget.localItem.kind,
         id: widget.localItem.id,
       );
-      final item = CatalogItem.fromJson({
+      final item = CatalogItemDto.fromJson({
         ...dto.raw,
         'id': dto.id,
         'title': dto.title,
@@ -160,7 +160,7 @@ class _LibraryMetadataCompareDialogState
     return '$name ($realName)';
   }
 
-  String _discText(CatalogDisc? value) {
+  String _discText(CatalogDiscDto? value) {
     if (value == null) {
       return '—';
     }
@@ -177,7 +177,7 @@ class _LibraryMetadataCompareDialogState
     return lines.isEmpty ? 'Disc #${value.discNumber}' : lines.join('\n');
   }
 
-  List<Map<String, dynamic>> _characterList(CatalogItem item) {
+  List<Map<String, dynamic>> _characterList(CatalogItemDto item) {
     final payload = item.toSyncPayload();
     final details =
         (payload['character_details'] as List?)?.cast<Map<String, dynamic>>();
@@ -194,7 +194,7 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _baseEntries(CatalogItem local, CatalogItem server) {
+  List<MetadataDiffEntry> _baseEntries(CatalogItemDto local, CatalogItemDto server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     return [
@@ -261,7 +261,7 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _comicEntries(CatalogItem local, CatalogItem server) {
+  List<MetadataDiffEntry> _comicEntries(CatalogItemDto local, CatalogItemDto server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localSeries = (localP['series'] as Map?) ?? localP;
@@ -313,7 +313,7 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _musicEntries(CatalogItem local, CatalogItem server) {
+  List<MetadataDiffEntry> _musicEntries(CatalogItemDto local, CatalogItemDto server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localSeries = (localP['series'] as Map?) ?? localP;
@@ -415,7 +415,7 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _creatorsEntries(
-      CatalogItem local, CatalogItem server) {
+      CatalogItemDto local, CatalogItemDto server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localCreators =
@@ -438,8 +438,8 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _charactersEntries(
-    CatalogItem local,
-    CatalogItem server,
+    CatalogItemDto local,
+    CatalogItemDto server,
   ) {
     final localCharacters = _characterList(local);
     final serverCharacters = _characterList(server);
@@ -458,7 +458,7 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _discEntries(CatalogItem local, CatalogItem server) {
+  List<MetadataDiffEntry> _discEntries(CatalogItemDto local, CatalogItemDto server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localMusic = (localP['music'] as Map?) ?? localP;
@@ -467,19 +467,19 @@ class _LibraryMetadataCompareDialogState
     final serverRawDiscs = (serverMusic['discs'] as List?) ?? const [];
     final localDiscs = {
       for (final raw in localRawDiscs)
-        if (raw is CatalogDisc)
+        if (raw is CatalogDiscDto)
           raw.discNumber: raw
         else if (raw is Map)
           (raw['disc_number'] as int? ?? 0):
-              CatalogDisc.fromJson(Map<String, dynamic>.from(raw))
+              CatalogDiscDto.fromJson(Map<String, dynamic>.from(raw))
     };
     final serverDiscs = {
       for (final raw in serverRawDiscs)
-        if (raw is CatalogDisc)
+        if (raw is CatalogDiscDto)
           raw.discNumber: raw
         else if (raw is Map)
           (raw['disc_number'] as int? ?? 0):
-              CatalogDisc.fromJson(Map<String, dynamic>.from(raw))
+              CatalogDiscDto.fromJson(Map<String, dynamic>.from(raw))
     };
     final all = <int>{
       ...localDiscs.keys.whereType<int>(),

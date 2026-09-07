@@ -57,10 +57,10 @@ final class CollectionImportService {
     if (resolvedRows.isEmpty) return 0;
 
     final catalogItems =
-        Map<String, CatalogItem>.from(await catalogCache.findByIds(
+        Map<String, CatalogItemDto>.from(await catalogCache.findByIds(
       resolvedRows.map((row) => row.itemId),
     ));
-    final importedCatalogItems = <CatalogItem>[];
+    final importedCatalogItems = <CatalogItemDto>[];
     for (final row in resolvedRows) {
       final snapshot = _catalogItemFromCsvRow(
         row,
@@ -334,9 +334,9 @@ final class CollectionImportService {
     );
   }
 
-  CatalogItem? _catalogItemFromCsvRow(
+  CatalogItemDto? _catalogItemFromCsvRow(
     CollectionCsvRow row, {
-    CatalogItem? existing,
+    CatalogItemDto? existing,
   }) {
     if (existing != null) {
       return existing;
@@ -352,7 +352,7 @@ final class CollectionImportService {
         return imported;
       }
     }
-    return CatalogItem.fromJson({
+    return CatalogItemDto.fromJson({
       'id': row.itemId,
       'kind': row.kind ?? CatalogMediaKind.unknown.apiValue,
       'title': row.title ?? row.itemId,

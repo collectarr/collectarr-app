@@ -25,8 +25,8 @@ class VideoReleaseAnchor {
   final String? bundleReleaseId;
 }
 
-List<CatalogEdition> resolveVideoCatalogEditionsForCatalogItem(
-  CatalogItem item, {
+List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
+  CatalogItemDto item, {
   Iterable<OwnedItem> ownedItems = const <OwnedItem>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
@@ -35,9 +35,9 @@ List<CatalogEdition> resolveVideoCatalogEditionsForCatalogItem(
   final rawEditions = editionsPayload != null
       ? editionsPayload
           .whereType<Map<String, dynamic>>()
-          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+          .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
           .toList()
-      : const <CatalogEdition>[];
+      : const <CatalogEditionDto>[];
   if (!_isVideoKind(item.kind)) {
     return rawEditions;
   }
@@ -66,7 +66,7 @@ List<CatalogEdition> resolveVideoCatalogEditionsForCatalogItem(
   );
 }
 
-List<CatalogEdition> resolveVideoCatalogEditionsForShelf(
+List<CatalogEditionDto> resolveVideoCatalogEditionsForShelf(
   ShelfEntry source, {
   Iterable<OwnedItem> ownedItems = const <OwnedItem>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
@@ -82,7 +82,7 @@ List<CatalogEdition> resolveVideoCatalogEditionsForShelf(
   );
 }
 
-VideoReleaseAnchor videoReleaseAnchorForEdition(CatalogEdition edition) {
+VideoReleaseAnchor videoReleaseAnchorForEdition(CatalogEditionDto edition) {
   final metadata = edition.metadata;
   final anchorKind = metadata?[_videoReleaseAnchorKindKey] as String?;
   final variantId = metadata?[_videoReleaseAnchorVariantIdKey] as String?;
@@ -96,7 +96,7 @@ VideoReleaseAnchor videoReleaseAnchorForEdition(CatalogEdition edition) {
 }
 
 bool matchesVideoReleaseAnchor(
-  CatalogEdition edition, {
+  CatalogEditionDto edition, {
   String? editionId,
   String? variantId,
   String? bundleReleaseId,
@@ -121,7 +121,7 @@ bool matchesVideoReleaseAnchor(
       normalizedBundleReleaseId == null;
 }
 
-String videoReleaseSourceLabel(CatalogEdition edition) {
+String videoReleaseSourceLabel(CatalogEditionDto edition) {
   final source = edition.metadata?[_videoReleaseSourceKey] as String?;
   return switch (source) {
     _videoReleaseSourceLocalAnchor => 'Collection anchors',
@@ -130,23 +130,23 @@ String videoReleaseSourceLabel(CatalogEdition edition) {
   };
 }
 
-bool isCatalogVideoRelease(CatalogEdition edition) {
+bool isCatalogVideoRelease(CatalogEditionDto edition) {
   return (edition.metadata?[_videoReleaseSourceKey] as String?) ==
           _videoReleaseSourceCatalog ||
       edition.metadata?[_videoReleaseSourceKey] == null;
 }
 
-bool isLocalAnchorVideoRelease(CatalogEdition edition) {
+bool isLocalAnchorVideoRelease(CatalogEditionDto edition) {
   return (edition.metadata?[_videoReleaseSourceKey] as String?) ==
       _videoReleaseSourceLocalAnchor;
 }
 
-bool isTitleSnapshotVideoRelease(CatalogEdition edition) {
+bool isTitleSnapshotVideoRelease(CatalogEditionDto edition) {
   return (edition.metadata?[_videoReleaseSourceKey] as String?) ==
       _videoReleaseSourceTitleSnapshot;
 }
 
-String? preferredVideoEditionVariantId(CatalogEdition edition) {
+String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
   for (final variant in edition.variants) {
     if (variant.isPrimary) {
       return variant.id;
@@ -155,9 +155,9 @@ String? preferredVideoEditionVariantId(CatalogEdition edition) {
   return edition.variants.isEmpty ? null : edition.variants.first.id;
 }
 
-List<CatalogEdition> _resolveVideoCatalogEditions(
+List<CatalogEditionDto> _resolveVideoCatalogEditions(
   _VideoReleaseSeedInput input,
-  List<CatalogEdition> existingEditions, {
+  List<CatalogEditionDto> existingEditions, {
   required Iterable<OwnedItem> ownedItems,
   required Iterable<WishlistItem> wishlistItems,
 }) {
@@ -195,7 +195,7 @@ List<CatalogEdition> _resolveVideoCatalogEditions(
 
   if (seeds.isEmpty) {
     if (!_isLocalSyntheticVideoItemId(input.itemId)) {
-      return const <CatalogEdition>[];
+      return const <CatalogEditionDto>[];
     }
     final editionId = _titleSnapshotEditionId(input.itemId);
     seeds[editionId] = _EditionSeed.titleSnapshot(input, editionId);
@@ -245,7 +245,7 @@ void _mergeAnchorSeed(
   );
 }
 
-int _compareCatalogEditions(CatalogEdition left, CatalogEdition right) {
+int _compareCatalogEditions(CatalogEditionDto left, CatalogEditionDto right) {
   final leftDate = left.releaseDate;
   final rightDate = right.releaseDate;
   if (leftDate != null && rightDate != null) {
@@ -361,12 +361,12 @@ class _EditionSeed {
     this.physicalFormat,
     this.physicalFormatLabel,
     Map<String, dynamic>? metadata,
-    Map<String, CatalogVariant>? variants,
+    Map<String, CatalogVariantDto>? variants,
   })  : metadata = <String, dynamic>{
           ...?metadata,
           _videoReleaseSourceKey: source
         },
-        _variants = <String, CatalogVariant>{...?variants};
+        _variants = <String, CatalogVariantDto>{...?variants};
 
   factory _EditionSeed.localAnchor(
     _VideoReleaseSeedInput input, {
@@ -397,7 +397,7 @@ class _EditionSeed {
       metadata: metadata,
     );
     if (variantId != null) {
-      seed._variants[variantId] = CatalogVariant(
+      seed._variants[variantId] = CatalogVariantDto(
         id: variantId,
         name: _fallbackVariantName(input),
         barcode: input.barcode,
@@ -441,7 +441,7 @@ class _EditionSeed {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final Map<String, dynamic> metadata;
-  final Map<String, CatalogVariant> _variants;
+  final Map<String, CatalogVariantDto> _variants;
 
   void absorbAnchor(
     _VideoReleaseSeedInput input, {
@@ -453,7 +453,7 @@ class _EditionSeed {
     final normalizedBundleReleaseId = _normalized(bundleReleaseId);
     if (normalizedVariantId != null &&
         !_variants.containsKey(normalizedVariantId)) {
-      _variants[normalizedVariantId] = CatalogVariant(
+      _variants[normalizedVariantId] = CatalogVariantDto(
         id: normalizedVariantId,
         name: _fallbackVariantName(input),
         barcode: input.barcode,
@@ -476,13 +476,13 @@ class _EditionSeed {
     }
   }
 
-  CatalogEdition build(_VideoReleaseSeedInput input) {
+  CatalogEditionDto build(_VideoReleaseSeedInput input) {
     final variants = [
       for (final variant in _variants.values) _enrichVariant(variant, input),
     ];
     if (variants.isEmpty) {
       variants.add(
-        CatalogVariant(
+        CatalogVariantDto(
           id: '$id:primary',
           name: _fallbackVariantName(input),
           barcode: input.barcode,
@@ -496,7 +496,7 @@ class _EditionSeed {
     }
     if (!variants.any((variant) => variant.isPrimary)) {
       final first = variants.first;
-      variants[0] = CatalogVariant(
+      variants[0] = CatalogVariantDto(
         id: first.id,
         name: first.name,
         variantType: first.variantType,
@@ -516,7 +516,7 @@ class _EditionSeed {
         isPrimary: true,
       );
     }
-    return CatalogEdition(
+    return CatalogEditionDto(
       id: id,
       title: title,
       publisher: publisher,
@@ -530,11 +530,11 @@ class _EditionSeed {
     );
   }
 
-  CatalogVariant _enrichVariant(
-    CatalogVariant variant,
+  CatalogVariantDto _enrichVariant(
+    CatalogVariantDto variant,
     _VideoReleaseSeedInput input,
   ) {
-    return CatalogVariant(
+    return CatalogVariantDto(
       id: variant.id,
       name: _normalized(variant.name) ?? _fallbackVariantName(input),
       variantType: variant.variantType,

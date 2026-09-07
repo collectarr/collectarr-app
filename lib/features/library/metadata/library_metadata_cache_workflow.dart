@@ -44,7 +44,7 @@ class LibraryMetadataSearchInput {
 class LibraryBarcodeLookupResult {
   const LibraryBarcodeLookupResult.found({
     required this.barcode,
-    required CatalogItem this.item,
+    required CatalogItemDto this.item,
   }) : error = null;
 
   const LibraryBarcodeLookupResult.missing({
@@ -53,13 +53,13 @@ class LibraryBarcodeLookupResult {
   }) : item = null;
 
   final String barcode;
-  final CatalogItem? item;
+  final CatalogItemDto? item;
   final Object? error;
 
   bool get found => item != null;
 }
 
-Future<List<CatalogItem>> searchAndCacheLibraryMetadata({
+Future<List<CatalogItemDto>> searchAndCacheLibraryMetadata({
   required ApiClient api,
   required LibraryKindModule type,
   required LibraryCatalogRepository catalog,
@@ -88,7 +88,7 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   LibraryBarcodeLookupResultCallback? onResult,
 }) async {
   final results = <LibraryBarcodeLookupResult>[];
-  final foundItems = <CatalogItem>[];
+  final foundItems = <CatalogItemDto>[];
   for (final barcode in barcodes) {
     try {
       final item = await lookupLibraryBarcode(api, type, barcode);

@@ -13,18 +13,18 @@ final class BoardGameCatalogRepositoryCodec
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
-  CatalogItem withTypedMetadata(CatalogItem item) =>
+  CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
       catalogItemWithTypedMetadata(item, BoardGameMedia.fromJson);
 
   @override
-  Future<void> upsert(LocalDatabase db, CatalogItem item) {
+  Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
     return BoardGameRepository(db).updateMedia(
       BoardGameMedia.fromJson(catalogPayloadFor(item)),
     );
   }
 
   @override
-  Future<List<CatalogItem>> list(LocalDatabase db) async {
+  Future<List<CatalogItemDto>> list(LocalDatabase db) async {
     final media = await BoardGameRepository(db).search();
     return [
       for (final item in media)

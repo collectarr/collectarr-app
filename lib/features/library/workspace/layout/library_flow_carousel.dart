@@ -834,9 +834,9 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
     final payload = widget.item.source.catalogItem?.payload;
     final editions = (payload?['editions'] as List?)
             ?.whereType<Map<Object?, Object?>>()
-            .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+            .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
-        const <CatalogEdition>[];
+        const <CatalogEditionDto>[];
     final hasReleases = editions.length > 1;
 
     final itemNumber = adapter?.itemNumber;
@@ -1002,7 +1002,7 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
     required this.accent,
   });
 
-  final CatalogEdition edition;
+  final CatalogEditionDto edition;
   final bool isOwned;
   final Color accent;
 

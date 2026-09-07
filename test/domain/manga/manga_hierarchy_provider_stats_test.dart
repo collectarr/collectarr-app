@@ -119,7 +119,7 @@ NormalizedProviderEnvelopeV1 _envelope({
 ShelfEntry _mangaEntry(String id, int volume, {bool owned = true}) {
   return ShelfEntry(
     itemId: id,
-    catalogItem: CatalogItem(
+    catalogItem: CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.manga),
       kindMetadata: MangaMetadata(
         title: 'Volume $volume',

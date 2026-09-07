@@ -31,7 +31,7 @@ final tvDevSeedContributor = DevSeedKindContributor(
   seedDatabase: seedTvDatabase,
 );
 
-List<String> validateTvSeedCatalog(CatalogItem item) {
+List<String> validateTvSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   final payload = item.payload;
@@ -59,7 +59,7 @@ List<String> validateTvSeedOwned(OwnedItem item) {
 
 Future<void> seedTvDatabase(
   LocalDatabase db,
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 ) async {
   final repository = TvRepository(db);
@@ -93,7 +93,7 @@ Future<void> seedTvDatabase(
 }
 
 Iterable<TvTrackingUnit> tvSeedTrackingUnits(
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
   for (final item in items.where((item) => item.kind == 'tv')) {
@@ -134,7 +134,7 @@ int? _seedTvInt(Object? value) {
   return int.tryParse(value?.toString() ?? '');
 }
 
-CatalogItem enrichTvSeedItem(CatalogItem item) {
+CatalogItemDto enrichTvSeedItem(CatalogItemDto item) {
   final seasonId = '${item.id}-season-01';
   final episodes = [
     for (var number = 1; number <= 2; number++)
@@ -222,7 +222,7 @@ CatalogItem enrichTvSeedItem(CatalogItem item) {
   return enriched;
 }
 
-List<CatalogItem> tvSeedCatalogItems() => [
+List<CatalogItemDto> tvSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-tv-01',
         kind: 'tv',
@@ -253,7 +253,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
           volumeStartYear: 2008,
           tags: 'drama, crime, thriller, prestige tv',
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 47,
           nrDiscs: 16,
           screenRatio: '1.78:1',
@@ -282,7 +282,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         storyArcs: ['Heisenberg Rise and Fall'],
         genres: ['crime', 'drama', 'thriller'],
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-bb-barrel',
             title: 'Complete Series Money Barrel Collector\'s Edition',
             format: 'Blu-ray',
@@ -334,7 +334,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
           volumeNumber: '2',
           volumeStartYear: 2015,
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 50,
           nrDiscs: 19,
           screenRatio: '1.78:1',
@@ -378,7 +378,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'the-wire-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 58,
           nrDiscs: 20,
           screenRatio: '1.78:1 (16:9 Full HD Remaster)',
@@ -423,7 +423,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'chernobyl-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 65,
           nrDiscs: 2,
           screenRatio: '2.00:1',
@@ -468,7 +468,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         ageRating: 'TV-MA',
         sortKey: 'true-detective-0001',
         itemNumber: '1',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 58,
           nrDiscs: 3,
           screenRatio: '1.78:1',
@@ -506,7 +506,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'mindhunter-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 54,
           nrDiscs: 4,
           screenRatio: '2.20:1',
@@ -545,7 +545,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'severance-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 52,
           nrDiscs: 2,
           screenRatio: '2.39:1',
@@ -591,7 +591,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'last-of-us-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 60,
           nrDiscs: 4,
           screenRatio: '1.78:1',
@@ -629,7 +629,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'fargo-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 55,
           nrDiscs: 3,
           screenRatio: '1.78:1',
@@ -671,7 +671,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'de',
         ageRating: 'TV-MA',
         sortKey: 'dark-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 56,
           nrDiscs: 6,
           screenRatio: '2.00:1',
@@ -713,7 +713,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'succession-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 62,
           nrDiscs: 12,
           screenRatio: '1.78:1',
@@ -759,7 +759,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-14',
         sortKey: 'arcane-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 42,
           nrDiscs: 3,
           screenRatio: '2.39:1',
@@ -804,7 +804,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-14',
         sortKey: 'stranger-things-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 51,
           nrDiscs: 4,
           screenRatio: '2.00:1',
@@ -848,7 +848,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'band-of-brothers-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 60,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -891,7 +891,7 @@ List<CatalogItem> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'game-of-thrones-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 58,
           nrDiscs: 30,
           screenRatio: '1.78:1',

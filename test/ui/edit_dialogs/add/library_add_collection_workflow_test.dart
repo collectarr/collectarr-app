@@ -329,7 +329,7 @@ class _WorkflowFixture {
   }
 }
 
-CatalogItem _comic(String id) {
+CatalogItemDto _comic(String id) {
   return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: id,
@@ -343,7 +343,7 @@ CatalogItem _comic(String id) {
   );
 }
 
-CatalogItem _comicWithRelease(String id) {
+CatalogItemDto _comicWithRelease(String id) {
   return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: id,
@@ -352,13 +352,13 @@ CatalogItem _comicWithRelease(String id) {
       itemNumber: '1',
       publisher: 'DC',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-1',
           title: 'Direct Edition',
           physicalFormat: 'single_issue',
           physicalFormatLabel: 'Single Issue',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
               id: 'variant-1',
               name: 'Cover A',
               variantType: 'cover',
@@ -371,7 +371,7 @@ CatalogItem _comicWithRelease(String id) {
   );
 }
 
-CatalogItem _digitalMovie(String id) {
+CatalogItemDto _digitalMovie(String id) {
   return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: id,
@@ -384,7 +384,7 @@ CatalogItem _digitalMovie(String id) {
   );
 }
 
-CatalogItem _comicWithMultipleReleases(String id) {
+CatalogItemDto _comicWithMultipleReleases(String id) {
   return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: id,
@@ -393,13 +393,13 @@ CatalogItem _comicWithMultipleReleases(String id) {
       itemNumber: '27',
       publisher: 'DC',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-1',
           title: 'Standard Edition',
           physicalFormat: 'single_issue',
           physicalFormatLabel: 'Single Issue',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
               id: 'variant-1',
               name: 'Cover A',
               variantType: 'cover',
@@ -407,18 +407,18 @@ CatalogItem _comicWithMultipleReleases(String id) {
             ),
           ],
         ),
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-2',
           title: 'Collector Edition',
           physicalFormat: 'single_issue',
           physicalFormatLabel: 'Collector Issue',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
               id: 'variant-2a',
               name: 'Foil Cover',
               variantType: 'foil',
             ),
-            CatalogVariant(
+            CatalogVariantDto(
               id: 'variant-2b',
               name: 'Sketch Cover',
               variantType: 'sketch',

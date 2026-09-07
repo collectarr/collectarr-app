@@ -48,7 +48,7 @@ class GameCatalogItem {
   String? get crossover => null;
   String? get displayCoverUrl => coverImageUrl;
   bool get hasMissingCoreMetadata => work.title.isEmpty;
-  List<TrailerLink> get trailerUrls => const [];
+  List<TrailerLinkDto> get trailerUrls => const [];
   String? get plotSummary => work.synopsis;
   String? get plotDescription => null;
   List<Map<String, dynamic>>? get creators => null;
@@ -60,6 +60,6 @@ class GameCatalogItem {
   String? get language => null;
   String? get ageRating => null;
   String? get audienceRating => null;
-  CatalogSeriesDetails? get series => null;
-  CatalogPublishingDetails? get publishingDetails => null;
+  CatalogSeriesDetailsDto? get series => null;
+  CatalogPublishingDetailsDto? get publishingDetails => null;
 }

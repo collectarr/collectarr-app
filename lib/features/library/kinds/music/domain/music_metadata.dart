@@ -183,7 +183,7 @@ class MusicCatalogMetadata {
   final int? trackCount;
   final List<CatalogTrackDto> tracks;
   final List<Map<String, dynamic>> creators;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final String? synopsis;
   final CatalogSeriesDetailsDto? series;
   final Map<String, dynamic>? music;
@@ -269,7 +269,7 @@ class MusicCatalogMetadata {
     int? trackCount,
     List<CatalogTrackDto>? tracks,
     List<Map<String, dynamic>>? creators,
-    List<TrailerLink>? links,
+    List<TrailerLinkDto>? links,
     String? synopsis,
     CatalogSeriesDetailsDto? series,
     Map<String, dynamic>? music,
@@ -319,15 +319,15 @@ class MusicCatalogMetadata {
 
   factory MusicCatalogMetadata.fromJson(Map<String, dynamic> json) {
     final rawPayload = Map<String, dynamic>.from(json);
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
     ];
 
     final rawCreators = (json['creators'] as List<dynamic>?)

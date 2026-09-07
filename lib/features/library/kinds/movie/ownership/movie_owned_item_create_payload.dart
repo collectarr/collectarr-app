@@ -26,7 +26,7 @@ final class MovieOwnedItemCreatePayload implements OwnedItemCreatePayload {
   });
 
   factory MovieOwnedItemCreatePayload.fromOwnedItem(
-    CatalogItem item,
+    CatalogItemDto item,
     OwnedItem ownedItem,
   ) {
     return MovieOwnedItemCreatePayload(
@@ -73,7 +73,7 @@ final class MovieOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
-    required CatalogItem? existingCatalog,
+    required CatalogItemDto? existingCatalog,
     required PersonalItemAnchor? anchor,
     required String? ownerUserId,
     required String? ownerLabel,

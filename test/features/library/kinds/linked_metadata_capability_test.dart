@@ -132,7 +132,7 @@ ShelfEntry _shelfEntry(
 ) {
   return ShelfEntry(
     itemId: 'item-1',
-    catalogItem: CatalogItem(
+    catalogItem: CatalogItemDto(
       identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
       kindMetadata: metadata,
     ),

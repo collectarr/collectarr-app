@@ -10,7 +10,7 @@ class LibraryDetailTrailersSection extends StatelessWidget {
     required this.accent,
   });
 
-  final List<TrailerLink> trailerUrls;
+  final List<TrailerLinkDto> trailerUrls;
   final Color accent;
 
   @override
@@ -50,7 +50,7 @@ class LibraryDetailTrailersSection extends StatelessWidget {
 class _TrailerTile extends StatelessWidget {
   const _TrailerTile({required this.trailer, required this.accent});
 
-  final TrailerLink trailer;
+  final TrailerLinkDto trailer;
   final Color accent;
 
   @override

@@ -393,7 +393,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       ),
     );
 
-    final matchedItems = <String, CatalogItem>{};
+    final matchedItems = <String, CatalogItemDto>{};
     var matchedCount = 0;
     var unmatchedCount = 0;
     var importedCount = 0;
@@ -403,7 +403,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final runner = ImportRunner(
       matcher: (entry) async {
         final type = _resolvedTypeForEntry(entry);
-        CatalogItem? item;
+        CatalogItemDto? item;
         if (type != null) {
           final year = entry.startedAt?.year ?? entry.completedAt?.year;
           final candidates = await searchLibraryMetadata(
@@ -983,8 +983,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     return libraryKindModuleForKind(entry.kind);
   }
 
-  CatalogItem? _bestImportMatch(
-      ProviderPersonalEntry entry, List<CatalogItem> candidates) {
+  CatalogItemDto? _bestImportMatch(
+      ProviderPersonalEntry entry, List<CatalogItemDto> candidates) {
     if (candidates.isEmpty) {
       return null;
     }
@@ -1010,7 +1010,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   Future<void> _applyEntry({
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required CatalogItem item,
+    required CatalogItemDto item,
     required ProviderPersonalEntry entry,
     required MutationOrigin origin,
   }) async {
@@ -1046,7 +1046,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   Future<void> _applyLocalOnlyEntry({
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required CatalogItem item,
+    required CatalogItemDto item,
     required ProviderPersonalEntry entry,
     required MutationOrigin origin,
   }) async {
@@ -1075,7 +1075,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     );
   }
 
-  CatalogItem _syntheticImportCatalogItem(
+  CatalogItemDto _syntheticImportCatalogItem(
     ProviderId provider,
     ProviderPersonalEntry entry,
   ) {
@@ -1083,7 +1083,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final sourceKey = entry.remoteItemId.trim().isEmpty
         ? title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
         : entry.remoteItemId.trim();
-    return CatalogItem.fromJson({
+    return CatalogItemDto.fromJson({
       'id': '${provider.storageValue}-local:$sourceKey',
       'kind': entry.kind.apiValue,
       'title': title,
@@ -1114,7 +1114,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     };
   }
 
-  bool _shouldUpdateCatalogSnapshot(CatalogItem current, CatalogItem next) {
+  bool _shouldUpdateCatalogSnapshot(CatalogItemDto current, CatalogItemDto next) {
     return current.displayTitle != next.displayTitle ||
         current.localizedTitle != next.localizedTitle ||
         current.originalTitle != next.originalTitle ||

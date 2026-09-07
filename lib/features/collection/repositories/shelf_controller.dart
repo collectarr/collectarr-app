@@ -127,7 +127,7 @@ class ShelfState {
           itemId: id,
           catalogItem: () {
             final item = catalogItems[id];
-            return item is CatalogItem ? item : null;
+            return item is CatalogItemDto ? item : null;
           }(),
           ownedItem: ownedByItemId[id],
           trackingEntry: trackingByItemId[id],

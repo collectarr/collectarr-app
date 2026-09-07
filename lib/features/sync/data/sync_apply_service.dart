@@ -88,7 +88,7 @@ class SyncApplyService {
   }
 
   Future<void> _applyEntities(List<Map<String, dynamic>> entities) async {
-    final catalogSnapshots = <CatalogItem>[];
+    final catalogSnapshots = <CatalogItemDto>[];
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
     final owned = <OwnedItem>[];
@@ -233,12 +233,12 @@ class SyncApplyService {
   // Entity deserializers
   // ---------------------------------------------------------------------------
 
-  CatalogItem _catalogItemFromEntity(Map<String, dynamic> entity) {
+  CatalogItemDto _catalogItemFromEntity(Map<String, dynamic> entity) {
     final type = entity['entity_type'] as String;
     if (type != 'library_item_snapshot') {
       throw FormatException('Expected library_item_snapshot entity, got $type');
     }
-    return CatalogItem.fromJson({
+    return CatalogItemDto.fromJson({
       ..._payload(entity),
       'id': entity['entity_id'],
     });

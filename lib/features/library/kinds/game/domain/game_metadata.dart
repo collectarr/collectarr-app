@@ -61,7 +61,7 @@ class GameCatalogMetadata {
   final String? priceChartingId;
   final GameValuationSet? valuations;
   final List<Map<String, dynamic>> creators;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final Map<String, dynamic> rawPayload;
 
   Map<String, dynamic> toJson() => {
@@ -131,7 +131,7 @@ class GameCatalogMetadata {
     String? priceChartingId,
     GameValuationSet? valuations,
     List<Map<String, dynamic>>? creators,
-    List<TrailerLink>? links,
+    List<TrailerLinkDto>? links,
   }) {
     return GameCatalogMetadata(
       title: title ?? this.title,
@@ -183,15 +183,15 @@ class GameCatalogMetadata {
             .toList() ??
         const <Map<String, dynamic>>[];
 
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<Object?, Object?>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<Object?, Object?>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
     ];
 
     return GameCatalogMetadata(

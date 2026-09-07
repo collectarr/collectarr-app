@@ -36,7 +36,7 @@ class LibraryWishlistAnchorSelectionState {
 
 LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
   required String anchorType,
-  required List<CatalogEdition> editions,
+  required List<CatalogEditionDto> editions,
   required String? selectedEditionId,
   required String? selectedVariantId,
   required String? editionTitle,
@@ -104,7 +104,7 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
 
 LibraryWishlistAnchorSelectionState resolveWishlistAnchorSelectionState({
   required String anchorType,
-  required List<CatalogEdition> editions,
+  required List<CatalogEditionDto> editions,
   required String? selectedEditionId,
   required String? selectedVariantId,
   required String? editionTitle,

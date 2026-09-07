@@ -8,7 +8,7 @@ class BookCatalogMapper {
   const BookCatalogMapper._();
 
   /// Maps the catalog transport projection to domain [BookCatalogItem].
-  static BookCatalogItem mapDtoToBook(CatalogItem dto) {
+  static BookCatalogItem mapDtoToBook(CatalogItemDto dto) {
     final payload = dto.toSyncPayload();
     final seriesDetails = (payload['series'] as Map?) ?? payload;
     final pub = (payload['publishing'] as Map?) ?? payload;
@@ -143,8 +143,8 @@ class BookCatalogMapper {
 
   /// Maps projected item directly to domain [BookCatalogItem].
 
-  /// Maps [CatalogItem] directly to domain [BookCatalogItem].
-  static BookCatalogItem mapMetadataItemToBook(CatalogItem item) {
+  /// Maps [CatalogItemDto] directly to domain [BookCatalogItem].
+  static BookCatalogItem mapMetadataItemToBook(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
     final BookCatalogMetadata metadata;
     if (rawMetadata is BookCatalogMetadata) {

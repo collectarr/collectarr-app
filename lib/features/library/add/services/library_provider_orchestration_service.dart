@@ -7,8 +7,8 @@ import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 
 typedef BuildProviderCorrections = Map<String, Object?> Function({
-  required CatalogItem preview,
-  required CatalogItem edited,
+  required CatalogItemDto preview,
+  required CatalogItemDto edited,
 });
 
 class LibraryProviderOrchestrationService {
@@ -16,7 +16,7 @@ class LibraryProviderOrchestrationService {
 
   static const _workflow = LibraryAddWorkflowService();
 
-  CatalogItem proposalDraftFromCandidate({
+  CatalogItemDto proposalDraftFromCandidate({
     required LibraryKindModule type,
     required ProviderCandidate candidate,
   }) {
@@ -26,7 +26,7 @@ class LibraryProviderOrchestrationService {
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
     );
-    return CatalogItem.fromJson({
+    return CatalogItemDto.fromJson({
       'id': id,
       'kind': mediaKind.apiValue,
       'title': candidate.title,
@@ -40,8 +40,8 @@ class LibraryProviderOrchestrationService {
     required BuildProviderCorrections providerMapper,
     required String kind,
     required String itemId,
-    required CatalogItem preview,
-    required CatalogItem edited,
+    required CatalogItemDto preview,
+    required CatalogItemDto edited,
   }) async {
     final corrections = providerMapper(
       preview: preview,

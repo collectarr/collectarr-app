@@ -202,10 +202,10 @@ BookEditDraft _createMediaDraft(BookCatalogMetadata metadata) {
   ) as BookEditDraft;
 }
 
-CatalogItem _bookItem([
+CatalogItemDto _bookItem([
   BookCatalogMetadata metadata = const BookCatalogMetadata(title: 'Book'),
 ]) {
-  return CatalogItem(
+  return CatalogItemDto(
     identity: const LibraryItemIdentity(
       id: 'book-1',
       mediaKind: CatalogMediaKind.book,

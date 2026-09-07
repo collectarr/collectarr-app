@@ -83,7 +83,7 @@ void main() {
               kind: 'movie',
               title: 'Inception',
               editions: [
-                const CatalogEdition(
+                const CatalogEditionDto(
                   id: 'ed-1',
                   title: '4K Ultra HD',
                   publisher: 'Warner Bros',

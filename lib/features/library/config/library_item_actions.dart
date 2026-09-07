@@ -144,7 +144,7 @@ class LibraryEditDialogRequest {
   });
 
   final LibraryKindModule type;
-  final CatalogItem item;
+  final CatalogItemDto item;
   final OwnedItem? ownedItem;
   final Color accent;
   final LibraryEditScope? scope;
@@ -164,7 +164,7 @@ class LibraryEditDialogRequest {
 
   LibraryEditDialogRequest copyWith({
     LibraryKindModule? type,
-    CatalogItem? item,
+    CatalogItemDto? item,
     OwnedItem? ownedItem,
     Color? accent,
     LibraryEditScope? scope,

@@ -7,11 +7,11 @@ import 'package:collectarr_app/features/providers/domain/models/normalized_provi
 /// semantic mapping from the normalized provider boundary into its catalog
 /// representation and correction payload.
 abstract interface class LibraryKindProviderMapper {
-  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope);
+  CatalogItemDto metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope);
 
   Map<String, Object?> buildCorrections({
-    required CatalogItem preview,
-    required CatalogItem edited,
+    required CatalogItemDto preview,
+    required CatalogItemDto edited,
   });
 }
 

@@ -409,7 +409,7 @@ String? _optionalMovieText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _movieAddResultScope(CatalogItem item) {
+LibraryAddVideoResultScope _movieAddResultScope(CatalogItemDto item) {
   final metadata = item.kindMetadata;
   if (metadata is MovieCatalogMetadata &&
       [
@@ -438,7 +438,7 @@ LibraryAddVideoResultScope _movieAddProviderResultScope(
   return LibraryAddVideoResultScope.media;
 }
 
-String _movieAddGroupTitle(CatalogItem item) {
+String _movieAddGroupTitle(CatalogItemDto item) {
   final metadata = item.kindMetadata;
   if (metadata is MovieCatalogMetadata) {
     return metadata.seriesTitle?.trim() ??

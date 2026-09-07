@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/manga/manga_physical_media
 
 bool? resolveMangaOwnedDigitalFlag(
   OwnedItem? ownedItem,
-  List<CatalogEdition> editions, {
+  List<CatalogEditionDto> editions, {
   String? fallbackFormat,
   String? fallbackLabel,
   Iterable<PhysicalMediaFormat> formats = const [],

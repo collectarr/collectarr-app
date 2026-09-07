@@ -54,7 +54,7 @@ final class LibraryAddSessionState {
   final String? physicalFormatId;
   final bool isAdding;
 
-  CatalogItem? get selectedItem {
+  CatalogItemDto? get selectedItem {
     if (!selection.showCoreResults) return null;
     final id = selection.selectedResultId;
     if (id == null) return null;
@@ -88,11 +88,11 @@ final class LibraryAddSessionState {
     return preview.providerPreviewFor(candidate.localCatalogId);
   }
 
-  List<CatalogItem> visibleCoreResults(
+  List<CatalogItemDto> visibleCoreResults(
     LibraryAddResultPolicy policy, {
     required bool Function(String id) isOwnedCatalogItem,
   }) {
-    if (!selection.showCoreResults) return const <CatalogItem>[];
+    if (!selection.showCoreResults) return const <CatalogItemDto>[];
     final ownedIds = <String>{
       for (final item in search.results)
         if (isOwnedCatalogItem(item.id)) item.id,

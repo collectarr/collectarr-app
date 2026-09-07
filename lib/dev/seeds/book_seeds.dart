@@ -21,7 +21,7 @@ final bookDevSeedContributor = DevSeedKindContributor(
   trackingUnits: bookSeedTrackingUnits,
 );
 
-List<String> validateBookSeedCatalog(CatalogItem item) {
+List<String> validateBookSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   seedRequirePublishingQuality(issues, prefix, item);
@@ -44,7 +44,7 @@ List<String> validateBookSeedOwned(OwnedItem item) {
 }
 
 Iterable<BookTrackingUnit> bookSeedTrackingUnits(
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
   for (final item in items.where((item) => item.kind == 'book')) {
@@ -66,7 +66,7 @@ Iterable<BookTrackingUnit> bookSeedTrackingUnits(
 
 int? _seedBookInt(String? value) => int.tryParse(value ?? '');
 
-CatalogItem enrichBookSeedItem(CatalogItem item) {
+CatalogItemDto enrichBookSeedItem(CatalogItemDto item) {
   final editions = [
     for (final edition in seedEditionPayloads(item))
       {
@@ -89,7 +89,7 @@ CatalogItem enrichBookSeedItem(CatalogItem item) {
   return withSeedPayload(item, {'editions': editions});
 }
 
-List<CatalogItem> bookSeedCatalogItems() => [
+List<CatalogItemDto> bookSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-book-01',
         kind: 'book',
@@ -141,7 +141,7 @@ List<CatalogItem> bookSeedCatalogItems() => [
         storyArcs: ['Arrakis Revolt'],
         genres: ['science fiction', 'space opera', 'philosophical fiction'],
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-dune-deluxe',
             title: 'Dune Deluxe Edition',
             format: 'Hardcover',
@@ -149,7 +149,7 @@ List<CatalogItem> bookSeedCatalogItems() => [
             isbn: '9780593099322',
             releaseDate: DateTime.utc(2019, 10, 1),
             variants: [
-              CatalogVariant(
+              CatalogVariantDto(
                 id: 'seed-var-dune-deluxe',
                 name: 'Deluxe Hardcover w/ Stained Edges',
                 variantType: 'physical',
@@ -160,7 +160,7 @@ List<CatalogItem> bookSeedCatalogItems() => [
               ),
             ],
           ),
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-dune-pb',
             title: 'Mass Market Paperback',
             format: 'Paperback',

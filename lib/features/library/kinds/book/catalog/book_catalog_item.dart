@@ -103,7 +103,7 @@ class BookCatalogItem {
     required this.releases,
   });
 
-  static BookCatalogItem fromDto(CatalogItem dto) =>
+  static BookCatalogItem fromDto(CatalogItemDto dto) =>
       BookCatalogMapper.mapDtoToBook(dto);
 
   final String id;
@@ -130,7 +130,7 @@ class BookCatalogItem {
   String? get displayEditionLabel => primaryRelease?.title;
   List<String>? get characters => work.characters;
   List<String>? get storyArcs => work.storyArcs;
-  List<TrailerLink>? get trailerUrls => const [];
+  List<TrailerLinkDto>? get trailerUrls => const [];
   String? get crossover => null;
   String? get displayCoverUrl => primaryRelease?.coverImageUrl;
   String? get physicalFormatLabel => primaryRelease?.physicalFormatLabel;

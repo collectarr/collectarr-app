@@ -48,8 +48,8 @@ class MangaLibraryKindProviderMapper
   }
 
   @override
-  CatalogItem metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
-    return CatalogItem(
+  CatalogItemDto metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+    return CatalogItemDto(
       identity: LibraryItemIdentity(
         id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.manga,
@@ -60,8 +60,8 @@ class MangaLibraryKindProviderMapper
 
   @override
   Map<String, Object?> buildCorrections({
-    required CatalogItem preview,
-    required CatalogItem edited,
+    required CatalogItemDto preview,
+    required CatalogItemDto edited,
   }) {
     final corrections = <String, Object?>{};
     if (edited.title != preview.title) corrections['title'] = edited.title;

@@ -25,7 +25,7 @@ class MusicLibraryMediaPresentationBuilder
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required CatalogItem item,
+    required CatalogItemDto item,
   }) {
     final metadata = _musicMetadataItem(item);
     final subtitle = _firstMeaningfulMusicValue([
@@ -70,7 +70,7 @@ class MusicLibraryMediaPresentationBuilder
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required CatalogItem? item,
+    required CatalogItemDto? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
@@ -284,7 +284,7 @@ MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
   return _musicMetadataItem(item.source.catalogItem);
 }
 
-MusicCatalogMetadata? _musicMetadataItem(CatalogItem? item) {
+MusicCatalogMetadata? _musicMetadataItem(CatalogItemDto? item) {
   if (item == null) return null;
   final metadata = item.kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
@@ -835,7 +835,7 @@ class _MusicPreviewTrackData {
 
 String? _musicReleaseLine({
   required String albumTitle,
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required AdminProviderPreview? preview,
 }) {
   final releaseYear = item?.releaseYear ??
@@ -849,7 +849,7 @@ String? _musicReleaseLine({
 }
 
 String? _musicLabelCatalogLine({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
@@ -877,7 +877,7 @@ String? _musicLabelCatalogLine({
 }
 
 String? _musicSupportingLine({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
@@ -900,7 +900,7 @@ String? _musicSupportingLine({
 }
 
 String? _musicAlbumSubtitle({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required AdminProviderPreview? preview,
 }) {
   final meta = _musicMetadataItem(item);
@@ -932,7 +932,7 @@ String? _musicAlbumSubtitle({
 }
 
 List<_MusicPreviewTrackData> _musicPreviewTracks({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required AdminProviderPreview? preview,
 }) {
   final itemTracks = _musicMetadataItem(item)?.tracks;

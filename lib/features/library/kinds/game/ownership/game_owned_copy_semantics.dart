@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/game/game_physical_media_f
 
 bool? resolveGameOwnedDigitalFlag(
   OwnedItem? ownedItem,
-  List<CatalogEdition> editions, {
+  List<CatalogEditionDto> editions, {
   String? fallbackFormat,
   String? fallbackLabel,
   Iterable<PhysicalMediaFormat> formats = const [],

@@ -33,7 +33,7 @@ void main() {
           'layers': 'Dual layer',
         },
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'release-1',
             title: 'Blu-ray',
             physicalFormat: 'Blu-ray',
@@ -42,7 +42,7 @@ void main() {
           ),
         ],
         trailerUrls: const [
-          TrailerLink(url: 'https://example.com/trailer'),
+          TrailerLinkDto(url: 'https://example.com/trailer'),
         ],
       ),
     );

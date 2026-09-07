@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 typedef LibraryAddMetadataSearchScore = int Function(
-  CatalogItem item,
+  CatalogItemDto item,
   LibraryAddSearchContext context,
 );
 
@@ -25,7 +25,7 @@ class LibraryAddSearchRankField {
   final LibraryAddFilterId id;
   final int exactWeight;
   final int containsWeight;
-  final Iterable<Object?> Function(CatalogItem item) metadataValues;
+  final Iterable<Object?> Function(CatalogItemDto item) metadataValues;
   final Iterable<Object?> Function(ProviderCandidate candidate) providerValues;
 }
 
@@ -40,8 +40,8 @@ class LibraryAddSearchRanking {
   final LibraryAddProviderSearchScore scoreProvider;
   final int Function(LibraryAddSearchContext context) maxScore;
 
-  List<CatalogItem> rankMetadata(
-    List<CatalogItem> items,
+  List<CatalogItemDto> rankMetadata(
+    List<CatalogItemDto> items,
     LibraryAddSearchContext context,
   ) {
     if (items.length < 2 || !context.hasAnyInput) {
@@ -61,7 +61,7 @@ class LibraryAddSearchRanking {
   }
 
   bool shouldSearchProviderForCoreResults(
-    List<CatalogItem> items,
+    List<CatalogItemDto> items,
     LibraryAddSearchContext context, {
     double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
   }) {
@@ -83,7 +83,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
   required List<LibraryAddSearchRankField> fields,
 }) {
   int scoreMetadata(
-    CatalogItem item,
+    CatalogItemDto item,
     LibraryAddSearchContext context,
   ) {
     var score = _scoreText(
@@ -210,8 +210,8 @@ String _normalize(Object? value) {
       '';
 }
 
-List<CatalogItem> filterAndRankCatalogItems(
-  List<CatalogItem> items,
+List<CatalogItemDto> filterAndRankCatalogItems(
+  List<CatalogItemDto> items,
   LibraryAddSearchRanking ranking,
   LibraryAddSearchContext context, {
   int minimumScore = 1,

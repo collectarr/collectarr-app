@@ -140,7 +140,7 @@ void main() {
     });
 
     test(
-        'metadataItemFromEnvelope maps NormalizedProviderEnvelopeV1 into CatalogItem correctly',
+        'metadataItemFromEnvelope maps NormalizedProviderEnvelopeV1 into CatalogItemDto correctly',
         () {
       final comicEnvelope = NormalizedProviderEnvelopeV1(
         provider: 'gcd',

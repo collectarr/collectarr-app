@@ -312,13 +312,13 @@ class TmdbImportMatch {
     required this.entry,
     required this.quality,
     this.catalogItem,
-    this.candidates = const <CatalogItem>[],
+    this.candidates = const <CatalogItemDto>[],
   });
 
   final TmdbImportEntry entry;
-  final CatalogItem? catalogItem;
+  final CatalogItemDto? catalogItem;
   final TmdbImportMatchQuality quality;
-  final List<CatalogItem> candidates;
+  final List<CatalogItemDto> candidates;
 
   bool get isMatched => catalogItem != null;
 }
@@ -467,7 +467,7 @@ class TmdbImportService {
   Future<TmdbImportPreview> previewImport({
     required TmdbImportCollection collection,
     required List<TmdbImportEntry> entries,
-    required Future<List<CatalogItem>> Function(TmdbImportEntry entry)
+    required Future<List<CatalogItemDto>> Function(TmdbImportEntry entry)
         searchCatalog,
   }) async {
     final matches = <TmdbImportMatch>[];
@@ -633,7 +633,7 @@ class TmdbImportService {
     return null;
   }
 
-  CatalogItem mergeMatchedCatalogItem(CatalogItem item, TmdbImportEntry entry) {
+  CatalogItemDto mergeMatchedCatalogItem(CatalogItemDto item, TmdbImportEntry entry) {
     final aliases = <String>{
       if (item.searchAliases case final currentAliases?) ...currentAliases,
       if (item.title.trim().isNotEmpty) item.title.trim(),
@@ -703,7 +703,7 @@ class TmdbImportService {
       releaseYear: item.releaseYear ?? entry.releaseYear,
       editions: item.editions,
     );
-    return CatalogItem.raw(
+    return CatalogItemDto.raw(
       id: item.id,
       mediaKind: item.mediaKind,
       common: common,
@@ -714,7 +714,7 @@ class TmdbImportService {
   Future<TmdbImportExecutionResult> importPreview({
     required TmdbImportPreview preview,
     required Future<void> Function(
-      CatalogItem item,
+      CatalogItemDto item,
       TmdbImportEntry entry,
       MutationOrigin origin,
     ) importMatch,
@@ -779,7 +779,7 @@ class TmdbImportService {
     return 'tmdb-local:${entry.mediaType.name}:${entry.tmdbId}';
   }
 
-  CatalogItem localSyntheticCatalogItem(TmdbImportEntry entry) {
+  CatalogItemDto localSyntheticCatalogItem(TmdbImportEntry entry) {
     final kind = entry.mediaType == TmdbMediaType.tv
         ? CatalogMediaKind.tv
         : CatalogMediaKind.movie;
@@ -799,7 +799,7 @@ class TmdbImportService {
       releaseDate: entry.releaseDate,
       releaseYear: entry.releaseYear,
     );
-    return CatalogItem.raw(
+    return CatalogItemDto.raw(
       id: localSyntheticItemId(entry),
       mediaKind: kind,
       common: common,
@@ -817,7 +817,7 @@ class TmdbImportService {
     return 'tmdb-local:${seriesEntry.mediaType.name}:${seriesEntry.tmdbId}:season:$seasonNumber';
   }
 
-  CatalogItem localSyntheticSeasonCatalogItem(
+  CatalogItemDto localSyntheticSeasonCatalogItem(
     TmdbImportEntry seriesEntry,
     TmdbImportEntry seasonEntry,
   ) {
@@ -841,7 +841,7 @@ class TmdbImportService {
       releaseDate: seasonEntry.releaseDate,
       releaseYear: seasonEntry.releaseYear,
     );
-    return CatalogItem.raw(
+    return CatalogItemDto.raw(
       id: localSyntheticSeasonItemId(seriesEntry, seasonEntry),
       mediaKind: CatalogMediaKind.tv,
       common: common,
@@ -1141,7 +1141,7 @@ class TmdbImportService {
 
   TmdbImportMatch _matchEntry(
     TmdbImportEntry entry,
-    List<CatalogItem> candidates,
+    List<CatalogItemDto> candidates,
   ) {
     if (candidates.isEmpty) {
       return TmdbImportMatch(

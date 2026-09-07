@@ -32,7 +32,7 @@ class LibraryEditSelection {
     this.submitAction = LibraryEditSubmitAction.save,
   });
 
-  final CatalogItem item;
+  final CatalogItemDto item;
   final LibraryPersonalEditSelection? personal;
   final LibraryEditScope scope;
   final LibraryWishlistEditSelection? wishlist;
@@ -44,7 +44,7 @@ class LibraryEditSelection {
   final LibraryEditSubmitAction submitAction;
 
   LibraryEditSelection copyWith({
-    CatalogItem? item,
+    CatalogItemDto? item,
     LibraryPersonalEditSelection? personal,
     LibraryEditScope? scope,
     LibraryWishlistEditSelection? wishlist,

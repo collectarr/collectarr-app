@@ -22,7 +22,7 @@ final boardgameDevSeedContributor = DevSeedKindContributor(
   seedDatabase: seedBoardgameDatabase,
 );
 
-List<String> validateBoardgameSeedCatalog(CatalogItem item) {
+List<String> validateBoardgameSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   final payload = item.payload;
@@ -54,7 +54,7 @@ List<String> validateBoardgameSeedOwned(OwnedItem item) {
 
 Future<void> seedBoardgameDatabase(
   LocalDatabase db,
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 ) async {
   await BoardGamePlaySessionRepository(db).upsertAll(
@@ -62,7 +62,7 @@ Future<void> seedBoardgameDatabase(
   );
 }
 
-CatalogItem enrichBoardgameSeedItem(CatalogItem item) {
+CatalogItemDto enrichBoardgameSeedItem(CatalogItemDto item) {
   final editions = [
     for (final edition in seedEditionPayloads(item))
       {
@@ -88,7 +88,7 @@ CatalogItem enrichBoardgameSeedItem(CatalogItem item) {
   return withSeedPayload(item, {'editions': editions});
 }
 
-List<CatalogItem> boardgameSeedCatalogItems() => [
+List<CatalogItemDto> boardgameSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-boardgame-01',
         kind: 'boardgame',

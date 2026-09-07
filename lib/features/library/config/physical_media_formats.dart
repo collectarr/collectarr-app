@@ -125,7 +125,7 @@ bool? resolveDigitalMediaFormatFlag({
   required bool? explicitDigital,
   required String? editionId,
   required String? variantId,
-  required List<CatalogEdition> editions,
+  required List<CatalogEditionDto> editions,
   String? fallbackFormat,
   String? fallbackLabel,
   required Iterable<PhysicalMediaFormat> formats,
@@ -134,7 +134,7 @@ bool? resolveDigitalMediaFormatFlag({
     return explicitDigital;
   }
 
-  CatalogEdition? matchedEdition;
+  CatalogEditionDto? matchedEdition;
   CatalogVariantDto? matchedVariant;
   if (editionId != null) {
     for (final edition in editions) {
@@ -146,7 +146,7 @@ bool? resolveDigitalMediaFormatFlag({
   }
   if (variantId != null) {
     final editionPool =
-        matchedEdition == null ? editions : <CatalogEdition>[matchedEdition];
+        matchedEdition == null ? editions : <CatalogEditionDto>[matchedEdition];
     for (final edition in editionPool) {
       for (final variant in edition.variants) {
         if (variant.id == variantId) {

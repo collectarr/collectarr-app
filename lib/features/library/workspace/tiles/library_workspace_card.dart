@@ -146,9 +146,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final rawEditions = editionsPayload != null
         ? editionsPayload
             .whereType<Map<String, dynamic>>()
-            .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+            .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList()
-        : const <CatalogEdition>[];
+        : const <CatalogEditionDto>[];
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: item.source.catalogItem?.kind ?? '',
       editions: rawEditions,

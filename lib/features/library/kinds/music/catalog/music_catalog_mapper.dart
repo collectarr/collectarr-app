@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_metadat
 class MusicCatalogMapper {
   const MusicCatalogMapper._();
 
-  static MusicCatalogItem mapDtoToMusic(CatalogItem dto) {
+  static MusicCatalogItem mapDtoToMusic(CatalogItemDto dto) {
     final payload = dto.toSyncPayload();
     final music = (payload['music'] as Map?) ?? payload;
     final creators =
@@ -85,7 +85,7 @@ class MusicCatalogMapper {
     );
   }
 
-  static MusicCatalogItem mapMetadataItemToMusic(CatalogItem item) {
+  static MusicCatalogItem mapMetadataItemToMusic(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
     final MusicCatalogMetadata metadata;
     if (rawMetadata is MusicCatalogMetadata) {

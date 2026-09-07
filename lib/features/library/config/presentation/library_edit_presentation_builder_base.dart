@@ -43,7 +43,7 @@ abstract class LibraryEditPresentationBuilderBase
     required LibraryEditDraft draft,
     required Color accent,
     required LibraryEditScope scope,
-    required CatalogItem item,
+    required CatalogItemDto item,
     required VoidCallback markDirty,
   })? customTabBuilder;
 
@@ -54,7 +54,7 @@ abstract class LibraryEditPresentationBuilderBase
     required LibraryEditDraft draft,
     required Color accent,
     required LibraryEditScope scope,
-    required CatalogItem item,
+    required CatalogItemDto item,
     required VoidCallback markDirty,
   }) {
     return customTabBuilder?.call(

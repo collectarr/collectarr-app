@@ -46,7 +46,7 @@ final class MovieCollectionCsvProjection
       MovieCollectionCsvImportProfile.columnAliases;
 
   @override
-  CatalogItem? catalogItemFromImportCells(List<String> cells) {
+  CatalogItemDto? catalogItemFromImportCells(List<String> cells) {
     if (cells.length != libraryCollectionCsvCatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;

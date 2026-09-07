@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 /// meaning of a digital copy for its kind.
 typedef LibraryOwnedDigitalFlagResolver = bool? Function(
   OwnedItem? ownedItem,
-  List<CatalogEdition> editions, {
+  List<CatalogEditionDto> editions, {
   String? fallbackFormat,
   String? fallbackLabel,
   Iterable<PhysicalMediaFormat> formats,

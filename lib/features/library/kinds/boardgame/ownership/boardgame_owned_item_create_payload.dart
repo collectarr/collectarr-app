@@ -26,7 +26,7 @@ final class BoardgameOwnedItemCreatePayload implements OwnedItemCreatePayload {
   });
 
   factory BoardgameOwnedItemCreatePayload.fromOwnedItem(
-    CatalogItem item,
+    CatalogItemDto item,
     OwnedItem ownedItem,
   ) {
     return BoardgameOwnedItemCreatePayload(
@@ -73,7 +73,7 @@ final class BoardgameOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
-    required CatalogItem? existingCatalog,
+    required CatalogItemDto? existingCatalog,
     required PersonalItemAnchor? anchor,
     required String? ownerUserId,
     required String? ownerLabel,

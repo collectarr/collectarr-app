@@ -29,7 +29,7 @@ import 'package:uuid/uuid.dart';
 class LibraryAddWorkflowService {
   const LibraryAddWorkflowService();
 
-  CatalogItem metadataItemFromPreview(
+  CatalogItemDto metadataItemFromPreview(
     AdminProviderPreview preview, {
     String? itemId,
   }) {
@@ -61,7 +61,7 @@ class LibraryAddWorkflowService {
     return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
   }
 
-  Future<CatalogItem> providerAddItemForCandidate({
+  Future<CatalogItemDto> providerAddItemForCandidate({
     required ApiClient? api,
     required ProviderCandidate candidate,
     required bool mounted,
@@ -93,7 +93,7 @@ class LibraryAddWorkflowService {
     required OwnedItemMutations ownedMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required Iterable<CatalogItem> items,
+    required Iterable<CatalogItemDto> items,
     required LibraryAddTarget target,
     LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
     LibraryAddDefaults defaults = const LibraryAddDefaults(),

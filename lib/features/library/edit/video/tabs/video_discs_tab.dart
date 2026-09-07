@@ -10,13 +10,13 @@ class VideoEditDiscsTab extends StatelessWidget {
     required this.accent,
   });
 
-  final CatalogItem item;
+  final CatalogItemDto item;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final editions = item.editions;
-    final allDiscs = <(String, CatalogDisc)>[];
+    final allDiscs = <(String, CatalogDiscDto)>[];
     for (final edition in editions) {
       for (final disc in edition.discs) {
         allDiscs.add((edition.title, disc));

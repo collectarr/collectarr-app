@@ -386,8 +386,8 @@ List<_ResolvedVideoRelease> _resolvedReleasesFor(
 
 _ResolvedVideoRelease _buildResolvedVideoRelease(
   LibraryProjectionRuntime item,
-  CatalogEdition edition, {
-  required List<CatalogEdition> editions,
+  CatalogEditionDto edition, {
+  required List<CatalogEditionDto> editions,
   required List<OwnedItem> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
@@ -416,7 +416,7 @@ _ResolvedVideoRelease _buildResolvedVideoRelease(
   );
 }
 
-bool _matchesReleaseAnchor(Object item, CatalogEdition edition) {
+bool _matchesReleaseAnchor(Object item, CatalogEditionDto edition) {
   final anchor = videoReleaseAnchorForEdition(edition);
   final String? editionId;
   final String? variantId;
@@ -456,7 +456,7 @@ class _ResolvedVideoRelease {
   });
 
   final LibraryReleaseNodeRef node;
-  final CatalogEdition edition;
+  final CatalogEditionDto edition;
   final List<OwnedItem> ownedCopies;
   final WishlistItem? wishlistItem;
   final String sourceLabel;

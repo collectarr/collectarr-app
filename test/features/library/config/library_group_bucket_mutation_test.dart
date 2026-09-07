@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
 
-CatalogItem _metadata(
+CatalogItemDto _metadata(
   String kind,
   Map<String, dynamic> payload,
 ) {
@@ -24,8 +24,8 @@ CatalogItem _metadata(
   );
 }
 
-CatalogItem _mutateGroup(
-  CatalogItem item,
+CatalogItemDto _mutateGroup(
+  CatalogItemDto item,
   CatalogMediaKind kind,
   String mode,
   String currentLabel, {

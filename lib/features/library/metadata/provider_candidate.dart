@@ -29,7 +29,7 @@ class ProviderCandidate {
   final String? imageUrl;
   final String? candidateType;
   final String? issueNumber;
-  final CatalogSeriesDetails? series;
+  final CatalogSeriesDetailsDto? series;
   final String? variantName;
   final bool? isVariantOverride;
   final String? publisher;
@@ -81,8 +81,8 @@ class ProviderCandidate {
     );
   }
 
-  CatalogItem placeholderItem() {
-    final item = CatalogItem.fromJson({
+  CatalogItemDto placeholderItem() {
+    final item = CatalogItemDto.fromJson({
       'id': localCatalogId,
       'kind': kind,
       'title': title,

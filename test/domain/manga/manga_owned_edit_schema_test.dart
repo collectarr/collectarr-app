@@ -159,7 +159,7 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
   ) as MangaEditDraft;
 }
 
-CatalogItem _mangaItem() => CatalogItem(
+CatalogItemDto _mangaItem() => CatalogItemDto(
       identity: const LibraryItemIdentity(
         id: 'manga-1',
         mediaKind: CatalogMediaKind.manga,

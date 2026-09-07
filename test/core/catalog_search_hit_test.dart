@@ -32,7 +32,7 @@ void main() {
   });
 
   test('builds a work ref from a typed catalog item', () {
-    final item = CatalogItem.fromJson({
+    final item = CatalogItemDto.fromJson({
       'id': 'book-1',
       'kind': 'book',
       'title': 'Dune',

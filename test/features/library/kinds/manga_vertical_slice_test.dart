@@ -110,7 +110,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'manga_1',
-        catalogItem: CatalogItem(
+        catalogItem: CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'manga_1',
             mediaKind: CatalogMediaKind.manga,
@@ -288,7 +288,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'manga_frieren',
-        catalogItem: CatalogItem(
+        catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'manga_frieren',
             mediaKind: CatalogMediaKind.manga,

@@ -43,7 +43,7 @@ void main() {
     );
     final source = ShelfEntry(
       itemId: 'tv-expanse',
-      catalogItem: CatalogItem(
+      catalogItem: CatalogItemDto(
         identity: const LibraryItemIdentity(
           id: 'tv-expanse',
           mediaKind: CatalogMediaKind.tv,

@@ -16,7 +16,7 @@ final class CatalogSearchHit {
     this.imageUrl,
   });
 
-  factory CatalogSearchHit.fromCatalogItem(CatalogItem item) {
+  factory CatalogSearchHit.fromCatalogItem(CatalogItemDto item) {
     return CatalogSearchHit(
       ref: item.catalogRef,
       kind: item.mediaKind,

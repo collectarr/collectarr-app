@@ -333,6 +333,6 @@ class _MovieSearchGridEntry {
   const _MovieSearchGridEntry.core(this.item) : candidate = null;
   const _MovieSearchGridEntry.provider(this.candidate) : item = null;
 
-  final CatalogItem? item;
+  final CatalogItemDto? item;
   final ProviderCandidate? candidate;
 }

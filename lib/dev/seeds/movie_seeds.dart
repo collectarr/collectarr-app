@@ -18,7 +18,7 @@ final movieDevSeedContributor = DevSeedKindContributor(
   trackingEntries: movieSeedTrackingEntries,
 );
 
-List<String> validateMovieSeedCatalog(CatalogItem item) {
+List<String> validateMovieSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   final payload = item.payload;
@@ -44,7 +44,7 @@ List<String> validateMovieSeedOwned(OwnedItem item) {
   return issues;
 }
 
-CatalogItem enrichMovieSeedItem(CatalogItem item) {
+CatalogItemDto enrichMovieSeedItem(CatalogItemDto item) {
   final releases = [
     for (final edition in seedEditionPayloads(item))
       {
@@ -66,7 +66,7 @@ CatalogItem enrichMovieSeedItem(CatalogItem item) {
 }
 
 List<Map<String, dynamic>> _movieSeedMedia(
-  CatalogItem item,
+  CatalogItemDto item,
   Map<String, dynamic> edition,
 ) {
   final releaseId = edition['id']?.toString() ?? '${item.id}-release-01';
@@ -108,7 +108,7 @@ List<Map<String, dynamic>> _movieSeedMedia(
   ];
 }
 
-List<CatalogItem> movieSeedCatalogItems() => [
+List<CatalogItemDto> movieSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-movie-01',
         kind: 'movie',
@@ -141,7 +141,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
           volumeStartYear: 2005,
           tags: 'superhero, action, thriller, dc comics',
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 140,
           color: 'Color',
           nrDiscs: 2,
@@ -170,7 +170,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
         storyArcs: ['Batman Origin'],
         genres: ['superhero', 'action', 'thriller', 'crime'],
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-bb-4k',
             title: '4K Ultra HD + Blu-ray',
             format: '4K UHD',
@@ -182,7 +182,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
               CatalogDiscDto(discNumber: 2, name: 'Blu-ray Feature + Extras'),
             ],
             variants: [
-              CatalogVariant(
+              CatalogVariantDto(
                 id: 'seed-var-bb-4k',
                 name: 'Steelbook 4K UHD',
                 variantType: 'physical',
@@ -193,7 +193,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
               ),
             ],
           ),
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-bb-bluray',
             title: 'Standard Blu-ray Edition',
             format: 'Blu-ray',
@@ -239,7 +239,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
           volumeStartYear: 2005,
           tags: 'superhero, action, thriller, dc comics',
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 152,
           color: 'Color',
           nrDiscs: 3,
@@ -263,7 +263,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
         storyArcs: ['Fall of Harvey Dent'],
         genres: ['superhero', 'crime', 'thriller', 'drama'],
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-tdk-4k',
             title: '4K Ultra HD 3-Disc Set',
             format: '4K UHD',
@@ -310,7 +310,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
           volumeNumber: '3',
           volumeStartYear: 2005,
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 165,
           color: 'Color',
           nrDiscs: 3,
@@ -348,7 +348,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
         language: 'en',
         ageRating: 'PG-13',
         sortKey: 'inception-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 148,
           color: 'Color',
           nrDiscs: 2,
@@ -386,7 +386,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
         language: 'en',
         ageRating: 'PG-13',
         sortKey: 'interstellar-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 169,
           color: 'Color',
           nrDiscs: 3,
@@ -434,7 +434,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
           volumeNumber: '1',
           volumeStartYear: 1982,
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 117,
           color: 'Color',
           nrDiscs: 4,
@@ -481,7 +481,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
           volumeNumber: '2',
           volumeStartYear: 1982,
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 164,
           color: 'Color',
           nrDiscs: 2,
@@ -526,7 +526,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
         language: 'en',
         ageRating: 'R',
         sortKey: 'pulp-fiction-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 154,
           color: 'Color',
           nrDiscs: 2,
@@ -578,7 +578,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
           volumeNumber: '1',
           volumeStartYear: 1999,
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 136,
           color: 'Color',
           nrDiscs: 2,
@@ -618,7 +618,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
         language: 'ko',
         ageRating: 'R',
         sortKey: 'parasite-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 132,
           color: 'Color & B/W',
           nrDiscs: 2,
@@ -640,7 +640,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
         ],
         genres: ['drama', 'thriller', 'black comedy'],
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-parasite-criterion',
             title: 'The Criterion Collection #1052',
             format: 'Blu-ray',
@@ -678,7 +678,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'PG',
         sortKey: 'spirited-away-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 125,
           color: 'Color',
           nrDiscs: 2,
@@ -723,7 +723,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
           volumeNumber: '1',
           volumeStartYear: 2021,
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 155,
           color: 'Color',
           nrDiscs: 2,
@@ -777,7 +777,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
           volumeNumber: '2',
           volumeStartYear: 2021,
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 166,
           color: 'Color',
           nrDiscs: 2,
@@ -822,7 +822,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
         language: 'en',
         ageRating: 'R',
         sortKey: 'oppenheimer-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 180,
           color: 'Color & B/W',
           nrDiscs: 3,
@@ -874,7 +874,7 @@ List<CatalogItem> movieSeedCatalogItems() => [
           volumeNumber: '1',
           volumeStartYear: 2018,
         ),
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 117,
           color: 'Color',
           nrDiscs: 2,

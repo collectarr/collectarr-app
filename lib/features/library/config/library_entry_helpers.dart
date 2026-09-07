@@ -34,11 +34,11 @@ class LibraryOwnedItemResolution {
   }
 }
 
-bool itemHasMissingCover(CatalogItem item) {
+bool itemHasMissingCover(CatalogItemDto item) {
   return item.coverImageUrl == null || item.coverImageUrl!.trim().isEmpty;
 }
 
-bool itemHasMissingDetails(CatalogItem item) {
+bool itemHasMissingDetails(CatalogItemDto item) {
   final payload = item.payload;
   final publisher = (payload['publisher'] ??
       (payload['publishing'] as Map?)?['original_publisher']) as String?;
@@ -123,7 +123,7 @@ String? libraryReferenceScopeLabel({
 String? libraryReferenceFormatLabel({
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
-  required List<CatalogEdition> editions,
+  required List<CatalogEditionDto> editions,
   String? fallbackFormatLabel,
 }) {
   final anchor = ownedItem?.personalAnchor ?? wishlistItem?.personalAnchor;
@@ -152,7 +152,7 @@ String? libraryReferenceFormatLabel({
 
 List<String> libraryReferenceHierarchySegments({
   required String mediaType,
-  required List<CatalogEdition> editions,
+  required List<CatalogEditionDto> editions,
   String? editionId,
   String? variantId,
   String? bundleReleaseId,
@@ -187,11 +187,11 @@ List<String> libraryReferenceHierarchySegments({
   return segments;
 }
 
-({CatalogEdition? edition, CatalogVariant? variant})
+({CatalogEditionDto? edition, CatalogVariantDto? variant})
     resolveLibraryReferenceRelease({
   required String? editionId,
   required String? variantId,
-  required List<CatalogEdition> editions,
+  required List<CatalogEditionDto> editions,
 }) {
   return _resolveLibraryReferenceRelease(
     editionId: editionId,
@@ -200,7 +200,7 @@ List<String> libraryReferenceHierarchySegments({
   );
 }
 
-String? preferredVideoEditionVariantId(CatalogEdition edition) {
+String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
   for (final variant in edition.variants) {
     if (variant.isPrimary) {
       return variant.id;
@@ -209,7 +209,7 @@ String? preferredVideoEditionVariantId(CatalogEdition edition) {
   return edition.variants.isEmpty ? null : edition.variants.first.id;
 }
 
-({CatalogEdition? edition, CatalogVariant? variant})
+({CatalogEditionDto? edition, CatalogVariantDto? variant})
     resolveLibraryEntryReferenceRelease(
   LibraryProjectionRuntime item,
 ) {
@@ -381,7 +381,7 @@ LibraryReferenceLabels _libraryReferenceLabelsForMediaType(String? mediaType) {
 
 String buildOwnedCopyLabel(
   OwnedItem item,
-  List<CatalogEdition> editions,
+  List<CatalogEditionDto> editions,
   int index, {
   required LibraryOwnedDigitalFlagResolver digitalFlagResolver,
 }) {
@@ -416,7 +416,7 @@ String buildOwnedCopyLabel(
 
 String? libraryOwnedCopyTypeLabel(
   OwnedItem? ownedItem,
-  List<CatalogEdition> editions, {
+  List<CatalogEditionDto> editions, {
   required LibraryOwnedDigitalFlagResolver digitalFlagResolver,
   String? fallbackFormat,
   String? fallbackLabel,
@@ -436,7 +436,7 @@ String? _normalizedEntryAnchorId(String? value) {
   return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
 
-String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {
+String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEditionDto> editions) {
   final matchedRelease = _resolveOwnedCopyRelease(item, editions);
   final matchedEdition = matchedRelease.edition;
   final matchedVariant = matchedRelease.variant;
@@ -458,9 +458,9 @@ String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {
   return parts.join(' / ');
 }
 
-({CatalogEdition? edition, CatalogVariant? variant}) _resolveOwnedCopyRelease(
+({CatalogEditionDto? edition, CatalogVariantDto? variant}) _resolveOwnedCopyRelease(
   OwnedItem item,
-  List<CatalogEdition> editions,
+  List<CatalogEditionDto> editions,
 ) {
   return _resolveLibraryReferenceRelease(
     editionId: item.anchor?.editionId,
@@ -469,14 +469,14 @@ String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {
   );
 }
 
-({CatalogEdition? edition, CatalogVariant? variant})
+({CatalogEditionDto? edition, CatalogVariantDto? variant})
     _resolveLibraryReferenceRelease({
   required String? editionId,
   required String? variantId,
-  required List<CatalogEdition> editions,
+  required List<CatalogEditionDto> editions,
 }) {
-  CatalogEdition? matchedEdition;
-  CatalogVariant? matchedVariant;
+  CatalogEditionDto? matchedEdition;
+  CatalogVariantDto? matchedVariant;
   if (editionId != null) {
     for (final edition in editions) {
       if (edition.id == editionId) {
@@ -487,7 +487,7 @@ String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEdition> editions) {
   }
   if (variantId != null) {
     final editionPool =
-        matchedEdition != null ? <CatalogEdition>[matchedEdition] : editions;
+        matchedEdition != null ? <CatalogEditionDto>[matchedEdition] : editions;
     for (final edition in editionPool) {
       for (final variant in edition.variants) {
         if (variant.id == variantId) {

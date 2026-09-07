@@ -139,11 +139,11 @@ void main() {
               ),
               profile: movieTrackingProfile,
               editions: const [
-                CatalogEdition(
+                CatalogEditionDto(
                   id: 'edition-stream',
                   title: 'Streaming',
                   variants: [
-                    CatalogVariant(
+                    CatalogVariantDto(
                       id: 'variant-hd',
                       name: 'HD',
                       isPrimary: true,
@@ -186,18 +186,18 @@ void main() {
             builder: (context, setState) {
               return buildTrackingEditionBrowserForTesting(
                 editions: const [
-                  CatalogEdition(
+                  CatalogEditionDto(
                     id: 'edition-hc',
                     title: 'Hardcover',
                     physicalFormatLabel: 'HC',
                     publisher: 'Image',
                     variants: [
-                      CatalogVariant(
+                      CatalogVariantDto(
                         id: 'variant-blue',
                         name: 'Blue foil',
                         physicalFormatLabel: 'Foil',
                       ),
-                      CatalogVariant(
+                      CatalogVariantDto(
                         id: 'variant-red',
                         name: 'Red foil',
                         physicalFormatLabel: 'Foil',

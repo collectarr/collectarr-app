@@ -9,7 +9,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 final class TvWorkspaceMapper {
   const TvWorkspaceMapper._();
 
-  static TvSeries fromCatalogItem(CatalogItem item) {
+  static TvSeries fromCatalogItem(CatalogItemDto item) {
     final basePayload = Map<String, dynamic>.from(item.toSyncPayload());
     final metadata = item.kindMetadata is TvSeriesMetadata
         ? item.kindMetadata as TvSeriesMetadata

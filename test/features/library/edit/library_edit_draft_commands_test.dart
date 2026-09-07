@@ -16,7 +16,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('LibraryEditDraft creates AddOwnedItemCommand correctly', () {
-    final item = CatalogItem(
+    final item = CatalogItemDto(
       identity: const LibraryItemIdentity(
         id: 'comic-draft-1',
         mediaKind: CatalogMediaKind.comic,
@@ -65,7 +65,7 @@ void main() {
   });
 
   test('LibraryEditDraft creates UpdateOwnedItemCommand correctly', () {
-    final item = CatalogItem(
+    final item = CatalogItemDto(
       identity: const LibraryItemIdentity(
         id: 'comic-draft-2',
         mediaKind: CatalogMediaKind.comic,

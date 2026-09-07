@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 final class MovieWorkspaceMapper {
   const MovieWorkspaceMapper._();
 
-  static MovieMedia fromCatalogItem(CatalogItem item) {
+  static MovieMedia fromCatalogItem(CatalogItemDto item) {
     final payload = item.toSyncPayload();
     final video = payload['video'];
     final videoPayload = video is Map ? video : const <String, dynamic>{};

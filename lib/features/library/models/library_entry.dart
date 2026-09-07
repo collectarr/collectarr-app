@@ -14,7 +14,7 @@ class LibraryEntry {
   });
 
   final String itemId;
-  final CatalogItem? catalogItem;
+  final CatalogItemDto? catalogItem;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final WishlistItem? wishlistItem;

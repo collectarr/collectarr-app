@@ -16,7 +16,7 @@ final class LibraryCalendarContext {
     required this.titleForItem,
   });
 
-  final Iterable<CatalogItem> catalogItems;
+  final Iterable<CatalogItemDto> catalogItems;
   final Iterable<WatchSession> watchSessions;
   final CalendarTitleForItem titleForItem;
 }

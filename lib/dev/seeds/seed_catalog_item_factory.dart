@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 /// factory from production code. The factory keeps the seed declarations
 /// readable while still creating the same typed catalog boundary used by the
 /// application.
-CatalogItem seedCatalogItem({
+CatalogItemDto seedCatalogItem({
   String id = 'seed-item-1',
   String kind = 'comic',
   String title = 'Seed Item',

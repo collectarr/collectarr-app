@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/anime/anime_physical_media
 
 bool? resolveAnimeOwnedDigitalFlag(
   OwnedItem? ownedItem,
-  List<CatalogEdition> editions, {
+  List<CatalogEditionDto> editions, {
   String? fallbackFormat,
   String? fallbackLabel,
   Iterable<PhysicalMediaFormat> formats = const [],

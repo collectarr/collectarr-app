@@ -11,7 +11,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart'
+    as music_details;
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
@@ -2044,7 +2045,7 @@ void main() {
     final rows = await LibraryCatalogRepository(db).findAll();
     expect(rows, isNotEmpty);
     final cached = await LibraryCatalogRepository(db).findById(rows.single.id);
-    final music = MusicCatalogDetailsDto.fromJson(
+    final music = music_details.MusicCatalogDetailsDto.fromJson(
       Map<String, dynamic>.from(cached!.payload['music'] as Map),
     );
     expect(music.trackCount, 2);

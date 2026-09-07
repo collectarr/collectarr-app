@@ -991,7 +991,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             id: itemId,
           )
           .then(
-            (dto) => CatalogItem.fromJson({
+            (dto) => CatalogItemDto.fromJson({
               ...dto.raw,
               'id': dto.id,
               'title': dto.title,

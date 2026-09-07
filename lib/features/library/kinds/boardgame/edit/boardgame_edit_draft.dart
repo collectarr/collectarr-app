@@ -395,7 +395,7 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
 }
 
 LibraryEditKindDraft createBoardGameEditDraft({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,

@@ -32,7 +32,7 @@ class LibraryProviderActionService {
     required ApiClient api,
     required LibraryKindModule type,
     required ProviderCandidate candidate,
-    required CatalogItem proposalItem,
+    required CatalogItemDto proposalItem,
   }) {
     return createAndRecordLibraryMetadataProposal(
       api: api,

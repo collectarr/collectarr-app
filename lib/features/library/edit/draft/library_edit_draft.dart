@@ -54,7 +54,7 @@ class LibraryEditDraft {
   final TextControllerGroup _textControllers;
 
   final LibraryKindModule type;
-  final CatalogItem item;
+  final CatalogItemDto item;
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
@@ -100,7 +100,7 @@ class LibraryEditDraft {
 
   factory LibraryEditDraft.fromItem({
     required LibraryKindModule type,
-    required CatalogItem item,
+    required CatalogItemDto item,
     OwnedItem? ownedItem,
     WishlistItem? wishlistItem,
     TrackingEntry? trackingEntry,
@@ -128,7 +128,7 @@ class LibraryEditDraft {
 
   factory LibraryEditDraft.fromFields({
     required LibraryKindModule type,
-    required CatalogItem item,
+    required CatalogItemDto item,
     required OwnedItem? ownedItem,
     required WishlistItem? wishlistItem,
     required TrackingEntry? trackingEntry,

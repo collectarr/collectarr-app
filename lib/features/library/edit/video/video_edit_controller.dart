@@ -28,7 +28,7 @@ class VideoEditController {
     this.initialReleaseDate = '',
     this.initialReleaseYear = '',
     this.initialCreators = const <Map<String, dynamic>>[],
-    this.initialTrailerLinks = const <TrailerLink>[],
+    this.initialTrailerLinks = const <TrailerLinkDto>[],
   })  : runtimeController = TextEditingController(text: initialRuntime),
         ageRatingController = TextEditingController(text: initialAgeRating),
         audienceRatingController =
@@ -65,7 +65,7 @@ class VideoEditController {
   final String initialReleaseDate;
   final String initialReleaseYear;
   final List<Map<String, dynamic>> initialCreators;
-  final List<TrailerLink> initialTrailerLinks;
+  final List<TrailerLinkDto> initialTrailerLinks;
 
   final TextEditingController runtimeController;
   final TextEditingController ageRatingController;
@@ -167,18 +167,18 @@ class VideoEditController {
     }
   }
 
-  List<TrailerLink>? buildUpdatedTrailerUrls(List<TrailerLink> existing) {
+  List<TrailerLinkDto>? buildUpdatedTrailerUrls(List<TrailerLinkDto> existing) {
     final preservedTrailers = existing
         .where((link) => link.isTrailerLink && link.isAutomatic)
         .toList(growable: false);
     final providerExternalLinks = existing
         .where((link) => link.isExternalLink && link.isAutomatic)
         .toList(growable: false);
-    final merged = <TrailerLink>[
+    final merged = <TrailerLinkDto>[
       ...preservedTrailers,
       ...providerExternalLinks,
     ];
-    return merged.isEmpty ? null : List<TrailerLink>.unmodifiable(merged);
+    return merged.isEmpty ? null : List<TrailerLinkDto>.unmodifiable(merged);
   }
 
   Future<void> persistUserExternalLinks() async {

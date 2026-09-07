@@ -70,7 +70,7 @@ List<Map<String, dynamic>> normalizeCreators(
   return normalized;
 }
 
-bool sameTrailerLinks(List<TrailerLink>? a, List<TrailerLink>? b) {
+bool sameTrailerLinks(List<TrailerLinkDto>? a, List<TrailerLinkDto>? b) {
   final left = normalizeTrailerLinks(a);
   final right = normalizeTrailerLinks(b);
   if (left.length != right.length) {
@@ -84,7 +84,7 @@ bool sameTrailerLinks(List<TrailerLink>? a, List<TrailerLink>? b) {
   return true;
 }
 
-List<Map<String, dynamic>> normalizeTrailerLinks(List<TrailerLink>? links) {
+List<Map<String, dynamic>> normalizeTrailerLinks(List<TrailerLinkDto>? links) {
   if (links == null) {
     return const <Map<String, dynamic>>[];
   }
@@ -104,7 +104,7 @@ List<Map<String, dynamic>> normalizeTrailerLinks(List<TrailerLink>? links) {
   ];
 }
 
-bool sameTracks(List<CatalogTrack>? a, List<CatalogTrack>? b) {
+bool sameTracks(List<CatalogTrackDto>? a, List<CatalogTrackDto>? b) {
   final left = normalizeTracks(a);
   final right = normalizeTracks(b);
   if (left.length != right.length) {
@@ -124,7 +124,7 @@ bool sameTracks(List<CatalogTrack>? a, List<CatalogTrack>? b) {
   return true;
 }
 
-List<Map<String, dynamic>> normalizeTracks(List<CatalogTrack>? values) {
+List<Map<String, dynamic>> normalizeTracks(List<CatalogTrackDto>? values) {
   if (values == null) {
     return const <Map<String, dynamic>>[];
   }
@@ -147,11 +147,11 @@ List<Map<String, dynamic>> normalizeTracks(List<CatalogTrack>? values) {
   return normalized;
 }
 
-CatalogItem metadataItemFromIngestResult(AdminMetadataItem item) {
+CatalogItemDto metadataItemFromIngestResult(AdminMetadataItem item) {
   final primaryEdition = item.primaryEdition;
   final primaryVariant = item.primaryVariant;
   final releaseDate = primaryEdition?.releaseDate;
-  return CatalogItem.fromJson({
+  return CatalogItemDto.fromJson({
     'id': item.id,
     'kind': item.kind,
     'title': item.title,

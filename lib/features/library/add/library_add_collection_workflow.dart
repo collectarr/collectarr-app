@@ -57,7 +57,7 @@ Future<void> addLibraryItemsToTarget({
   required OwnedItemMutations ownedMutations,
   required WishlistMutations wishlistMutations,
   required TrackingMutations trackingMutations,
-  required Iterable<CatalogItem> items,
+  required Iterable<CatalogItemDto> items,
   required LibraryAddTarget target,
   LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
@@ -150,7 +150,7 @@ Future<void> addLibraryItemsToTarget({
   }
 }
 
-bool? _digitalOwnedItemFlag(CatalogItem item) {
+bool? _digitalOwnedItemFlag(CatalogItemDto item) {
   final payload = item.payload;
   if (payload['is_digital'] is bool) {
     return payload['is_digital'] as bool;
@@ -176,7 +176,7 @@ bool? _digitalOwnedItemFlag(CatalogItem item) {
 }
 
 _ResolvedAddReference _resolveReferenceForItem(
-  CatalogItem item, {
+  CatalogItemDto item, {
   required LibraryAddReferenceType referenceType,
   LibraryAddEditionSelection? editionSelection,
   String? bundleReleaseId,

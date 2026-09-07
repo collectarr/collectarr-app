@@ -471,7 +471,7 @@ bool _allShareValue(Iterable<String?> values) {
   return normalized.length == 1 && normalized.isNotEmpty;
 }
 
-String? _releaseYearToken(CatalogItem item) {
+String? _releaseYearToken(CatalogItemDto item) {
   return (item.releaseYear ?? item.releaseDate?.year)?.toString();
 }
 

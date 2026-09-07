@@ -107,4 +107,3 @@ class CatalogEditionDto {
   }
 }
 
-typedef CatalogEdition = CatalogEditionDto;

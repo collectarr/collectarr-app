@@ -361,7 +361,7 @@ class BookCatalogMetadata {
   final String? language;
   final List<Map<String, dynamic>> creators;
   final CatalogPublishingDetailsDto? publishing;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final List<BookEditionMetadata> editions;
   final String? publisher;
   final String? barcode;
@@ -465,7 +465,7 @@ class BookCatalogMetadata {
     String? language,
     List<Map<String, dynamic>>? creators,
     CatalogPublishingDetailsDto? publishing,
-    List<TrailerLink>? links,
+    List<TrailerLinkDto>? links,
     List<BookEditionMetadata>? editions,
     String? publisher,
     String? barcode,
@@ -533,15 +533,15 @@ class BookCatalogMetadata {
     final resolvedSeriesTitle =
         (json['series_title'] ?? series?.seriesTitle) as String?;
 
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map(TrailerLink.fromJson) ??
-          const <TrailerLink>[]),
+              .map(TrailerLinkDto.fromJson) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map(TrailerLink.fromJson) ??
-          const <TrailerLink>[]),
+              .map(TrailerLinkDto.fromJson) ??
+          const <TrailerLinkDto>[]),
     ];
 
     final rawCreators = (json['creators'] as List<dynamic>?)

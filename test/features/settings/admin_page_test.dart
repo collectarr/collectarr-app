@@ -664,9 +664,9 @@ class _FakeAdminApiClient extends ApiClient {
   List<String>? lastCatalogUpdateCharacters;
   List<String>? lastCatalogUpdateStoryArcs;
   List<Map<String, dynamic>>? lastCatalogUpdateCreators;
-  List<CatalogTrack>? lastCatalogUpdateTracks;
-  List<TrailerLink>? lastCatalogUpdateTrailerUrls;
-  List<TrailerLink>? lastCatalogUpdateExternalLinks;
+  List<CatalogTrackDto>? lastCatalogUpdateTracks;
+  List<TrailerLinkDto>? lastCatalogUpdateTrailerUrls;
+  List<TrailerLinkDto>? lastCatalogUpdateExternalLinks;
   String? lastCatalogUpdateTitleExtension;
   String? lastCatalogUpdateAudienceRating;
   String? lastCatalogUpdateColor;
@@ -972,7 +972,7 @@ class _FakeAdminApiClient extends ApiClient {
     String? audienceRating,
     List<String>? genres,
     List<String>? platforms,
-    List<CatalogTrack>? tracks,
+    List<CatalogTrackDto>? tracks,
     List<Map<String, dynamic>>? creators,
     List<String>? characters,
     List<String>? storyArcs,
@@ -982,8 +982,8 @@ class _FakeAdminApiClient extends ApiClient {
     String? audioTracks,
     String? subtitles,
     String? layers,
-    List<TrailerLink>? trailerUrls,
-    List<TrailerLink>? externalLinks,
+    List<TrailerLinkDto>? trailerUrls,
+    List<TrailerLinkDto>? externalLinks,
     String? crossover,
     String? plotSummary,
     String? plotDescription,

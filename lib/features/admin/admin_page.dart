@@ -1063,8 +1063,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
     void addTrackListField(
       String key,
-      List<CatalogTrack>? before,
-      List<CatalogTrack>? after,
+      List<CatalogTrackDto>? before,
+      List<CatalogTrackDto>? after,
     ) {
       final normalizedBefore = _normalizedTracksForCompare(before);
       final normalizedAfter = _normalizedTracksForCompare(after);
@@ -1075,8 +1075,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
     void addTrailerListField(
       String key,
-      List<TrailerLink>? before,
-      List<TrailerLink>? after,
+      List<TrailerLinkDto>? before,
+      List<TrailerLinkDto>? after,
     ) {
       final normalizedBefore = _normalizedLinksForCompare(before);
       final normalizedAfter = _normalizedLinksForCompare(after);
@@ -1266,14 +1266,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         .toList(growable: false);
   }
 
-  List<String> _normalizedTracksForCompare(List<CatalogTrack>? tracks) {
-    return (tracks ?? const <CatalogTrack>[])
+  List<String> _normalizedTracksForCompare(List<CatalogTrackDto>? tracks) {
+    return (tracks ?? const <CatalogTrackDto>[])
         .map((track) => jsonEncode(track.toJson()))
         .toList(growable: false);
   }
 
-  List<String> _normalizedLinksForCompare(List<TrailerLink>? links) {
-    return (links ?? const <TrailerLink>[])
+  List<String> _normalizedLinksForCompare(List<TrailerLinkDto>? links) {
+    return (links ?? const <TrailerLinkDto>[])
         .map((link) => jsonEncode(link.toJson()))
         .toList(growable: false);
   }

@@ -50,7 +50,7 @@ void main() {
   });
 
   test('catalog item parses search json', () {
-    final item = CatalogItem.fromJson({
+    final item = CatalogItemDto.fromJson({
       'id': 'id-1',
       'kind': 'comic',
       'title': 'Spider-Man',
@@ -97,7 +97,7 @@ void main() {
   });
 
   test('catalog item preserves canonical metadata contract fields', () {
-    final item = CatalogItem.fromJson({
+    final item = CatalogItemDto.fromJson({
       'id': 'music-1',
       'kind': 'music',
       'title': 'Discovery',
@@ -177,7 +177,7 @@ void main() {
   });
 
   test('catalog item exposes typed detail views for non-music media', () {
-    final item = CatalogItem.fromJson({
+    final item = CatalogItemDto.fromJson({
       'id': 'movie-1',
       'kind': 'movie',
       'title': 'Blade Runner 2049',

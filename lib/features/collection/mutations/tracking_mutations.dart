@@ -137,7 +137,7 @@ final class TrackingMutations {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
           await catalogCache.upsertMetadataItems([
-            CatalogItem.fromJson({
+            CatalogItemDto.fromJson({
               'id': catalogRef.id,
               'kind': catalogRef.kind,
               'title': catalogRef.id,
@@ -321,7 +321,7 @@ final class TrackingMutations {
   }
 
   Future<void> addLocalOnlyTrackingEntry(
-    CatalogItem item, {
+    CatalogItemDto item, {
     PersonalItemAnchor? anchor,
     TrackingSourceType? sourceType,
     MediaTrackingStatus? status = MediaTrackingStatus.planned,

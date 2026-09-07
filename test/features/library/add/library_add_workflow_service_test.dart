@@ -41,7 +41,7 @@ void main() {
 
     final item = service.metadataItemFromPreview(preview);
 
-    expect(item, isA<CatalogItem>());
+    expect(item, isA<CatalogItemDto>());
     expect(item.id, startsWith('preview-comic-'));
     expect(item.kind, 'comic');
     expect(item.title, 'Example');

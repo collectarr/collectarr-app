@@ -44,7 +44,7 @@ final class LibraryReleaseNodeRef extends LibraryNodeRef {
   final String titleItemId;
 
   final String releaseId;
-  final CatalogEdition edition;
+  final CatalogEditionDto edition;
 
   @override
   String get id => '$titleItemId:release:$releaseId';

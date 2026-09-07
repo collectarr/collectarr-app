@@ -86,5 +86,5 @@ class MusicCatalogRelease {
   int? get rpm => null;
   List<MusicDiscRef> get media => discs;
   List<Map<String, dynamic>> get creators => const <Map<String, dynamic>>[];
-  List<CatalogDisc> get discsAsCatalog => const <CatalogDisc>[];
+  List<CatalogDiscDto> get discsAsCatalog => const <CatalogDiscDto>[];
 }

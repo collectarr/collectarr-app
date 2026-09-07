@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 final class AnimeWorkspaceMapper {
   const AnimeWorkspaceMapper._();
 
-  static AnimeMedia fromCatalogItem(CatalogItem item) {
+  static AnimeMedia fromCatalogItem(CatalogItemDto item) {
     final basePayload = Map<String, dynamic>.from(item.toSyncPayload());
     final metadata = item.kindMetadata;
     final payload = <String, dynamic>{

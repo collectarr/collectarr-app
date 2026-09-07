@@ -614,7 +614,7 @@ void main() {
   });
 }
 
-int _countKind(List<CatalogItem> rows, String kind) {
+int _countKind(List<CatalogItemDto> rows, String kind) {
   return rows.where((row) => row.kind == kind).length;
 }
 

@@ -431,7 +431,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
     required this.profile,
     required this.accent,
     this.trackingEditor,
-    this.editions = const <CatalogEdition>[],
+    this.editions = const <CatalogEditionDto>[],
   });
 
   final String itemId;
@@ -440,7 +440,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
   final MediaTrackingProfile profile;
   final Color accent;
   final LibraryTrackingEditorCapability? trackingEditor;
-  final List<CatalogEdition> editions;
+  final List<CatalogEditionDto> editions;
 
   @override
   ConsumerState<InspectorTrackingDetailsEditor> createState() =>
@@ -909,14 +909,14 @@ class _TrackingEditionBrowser extends StatelessWidget {
     required this.onVariantSelected,
   });
 
-  final List<CatalogEdition> editions;
+  final List<CatalogEditionDto> editions;
   final String? selectedEditionId;
   final String? selectedVariantId;
   final Color accent;
   final ValueChanged<String?> onEditionSelected;
   final ValueChanged<String?> onVariantSelected;
 
-  CatalogEdition? get _activeEdition {
+  CatalogEditionDto? get _activeEdition {
     if (selectedEditionId == null) return null;
     for (final e in editions) {
       if (e.id == selectedEditionId) return e;
@@ -1054,7 +1054,7 @@ class _InspectorEditorRow extends StatelessWidget {
 
 @visibleForTesting
 Widget buildTrackingEditionBrowserForTesting({
-  required List<CatalogEdition> editions,
+  required List<CatalogEditionDto> editions,
   required String? selectedEditionId,
   required String? selectedVariantId,
   required Color accent,
@@ -1159,7 +1159,7 @@ class _VariantCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final CatalogVariant variant;
+  final CatalogVariantDto variant;
   final bool isSelected;
   final Color accent;
   final VoidCallback onTap;

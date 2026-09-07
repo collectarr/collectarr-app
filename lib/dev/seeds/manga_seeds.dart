@@ -23,7 +23,7 @@ final mangaDevSeedContributor = DevSeedKindContributor(
   trackingUnits: mangaSeedTrackingUnits,
 );
 
-List<String> validateMangaSeedCatalog(CatalogItem item) {
+List<String> validateMangaSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   seedRequirePublishingQuality(issues, prefix, item);
@@ -48,7 +48,7 @@ List<String> validateMangaSeedOwned(OwnedItem item) {
 }
 
 Iterable<MangaTrackingUnit> mangaSeedTrackingUnits(
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
   for (final item in items.where((item) => item.kind == 'manga')) {
@@ -82,7 +82,7 @@ int? _seedMangaInt(Object? value) {
   return int.tryParse(value?.toString() ?? '');
 }
 
-CatalogItem enrichMangaSeedItem(CatalogItem item) {
+CatalogItemDto enrichMangaSeedItem(CatalogItemDto item) {
   return withSeedPayload(item, {
     'chapters': [
       {
@@ -98,7 +98,7 @@ CatalogItem enrichMangaSeedItem(CatalogItem item) {
   });
 }
 
-List<CatalogItem> mangaSeedCatalogItems() => [
+List<CatalogItemDto> mangaSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-manga-01',
         kind: 'manga',
@@ -144,7 +144,7 @@ List<CatalogItem> mangaSeedCatalogItems() => [
         storyArcs: ['The Black Swordsman Arc', 'Golden Age Arc'],
         genres: ['dark fantasy', 'sword and sorcery', 'action', 'tragedy'],
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-berserk-deluxe-01',
             title: 'Berserk Deluxe Volume 1',
             format: 'Hardcover',
@@ -152,7 +152,7 @@ List<CatalogItem> mangaSeedCatalogItems() => [
             isbn: '9781506711980',
             releaseDate: DateTime.utc(2019, 3, 26),
             variants: [
-              CatalogVariant(
+              CatalogVariantDto(
                 id: 'seed-var-berserk-deluxe-01',
                 name: 'Leatherette Foil Stamped',
                 variantType: 'physical',

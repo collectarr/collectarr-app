@@ -68,7 +68,7 @@ final class BookCatalog {
   final String? language;
   final List<Map<String, dynamic>> creators;
   final CatalogPublishingDetailsDto? publishing;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? coverImageData;
@@ -96,15 +96,15 @@ final class BookCatalog {
     final publishing =
         pubMap != null ? CatalogPublishingDetailsDto.fromJson(pubMap) : null;
 
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map(TrailerLink.fromJson) ??
-          const <TrailerLink>[]),
+              .map(TrailerLinkDto.fromJson) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map(TrailerLink.fromJson) ??
-          const <TrailerLink>[]),
+              .map(TrailerLinkDto.fromJson) ??
+          const <TrailerLinkDto>[]),
     ];
 
     final rawCreators = (json['creators'] as List<dynamic>?)

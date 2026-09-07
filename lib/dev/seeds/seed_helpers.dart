@@ -35,8 +35,8 @@ CatalogEntityRef seedCatalogRef(String itemId) {
 
 /// Rebuilds a transport fixture while preserving its common catalog fields.
 /// Kind seeders use this only to add their own Core graph fields.
-CatalogItem withSeedPayload(
-  CatalogItem item,
+CatalogItemDto withSeedPayload(
+  CatalogItemDto item,
   Map<String, dynamic> additions,
 ) {
   // Keep the additions in the raw kind payload. Reconstructing through the
@@ -55,7 +55,7 @@ CatalogItem withSeedPayload(
 
 /// Returns the declared common editions, or one deterministic fallback edition
 /// so every kind fixture exercises its edition/release mapping path.
-List<Map<String, dynamic>> seedEditionPayloads(CatalogItem item) {
+List<Map<String, dynamic>> seedEditionPayloads(CatalogItemDto item) {
   if (item.editions.isNotEmpty) {
     return [for (final edition in item.editions) edition.toJson()];
   }
@@ -75,7 +75,7 @@ List<Map<String, dynamic>> seedEditionPayloads(CatalogItem item) {
   ];
 }
 
-CatalogItem enrichSeedItem(CatalogItem item) {
+CatalogItemDto enrichSeedItem(CatalogItemDto item) {
   final payload = Map<String, dynamic>.from(item.toSyncPayload());
   payload.putIfAbsent('id', () => item.id);
 
@@ -130,8 +130,8 @@ CatalogItem enrichSeedItem(CatalogItem item) {
   );
   payload.putIfAbsent(
     'trailer_urls',
-    () => <TrailerLink>[
-      TrailerLink(
+    () => <TrailerLinkDto>[
+      TrailerLinkDto(
         url: 'https://example.com/${item.kind}/${item.id}/trailer',
         title: '${item.title} trailer',
         source: 'seed',
@@ -249,7 +249,7 @@ CatalogItem enrichSeedItem(CatalogItem item) {
     );
   }
 
-  return CatalogItem.fromJson(payload);
+  return CatalogItemDto.fromJson(payload);
 }
 
 /// Verifies that the checked-in seed data is useful to the UI and to the
@@ -259,7 +259,7 @@ CatalogItem enrichSeedItem(CatalogItem item) {
 /// boundary are tested as well. Keep the rules here intentionally limited to
 /// fields that every fixture of a given kind should exercise.
 void validateSeedCatalogQuality(
-  Iterable<CatalogItem> items, {
+  Iterable<CatalogItemDto> items, {
   Map<String, DevSeedCatalogQualityValidator> validators = const {},
 }) {
   final issues = <String>[];
@@ -317,7 +317,7 @@ void validateSeedCatalogQuality(
 void _validateTypedGraph(
   List<String> issues,
   String prefix,
-  CatalogItem item,
+  CatalogItemDto item,
 ) {
   final payload = item.payload;
   switch (item.kind) {
@@ -640,7 +640,7 @@ void _validateChildren(
 void _validateVideoReleases(
   List<String> issues,
   String prefix,
-  CatalogItem item,
+  CatalogItemDto item,
   Object? rawReleases,
 ) {
   final releases = _requireObjectList(issues, prefix, 'releases', rawReleases);
@@ -789,7 +789,7 @@ void validateSeedTrackingQuality(Iterable<TrackingEntry> entries) {
 void _requirePublishingQuality(
   List<String> issues,
   String prefix,
-  CatalogItem item,
+  CatalogItemDto item,
 ) {
   _requireText(issues, prefix, 'publisher', item.publisher);
   _requirePositiveInt(issues, prefix, 'page_count', item.payload['page_count']);
@@ -898,7 +898,7 @@ void _requirePlayerStats(List<String> issues, String prefix, Object? value) {
 void seedRequirePublishingQuality(
   List<String> issues,
   String prefix,
-  CatalogItem item,
+  CatalogItemDto item,
 ) {
   _requirePublishingQuality(issues, prefix, item);
 }

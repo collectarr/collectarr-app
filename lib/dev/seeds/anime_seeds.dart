@@ -30,7 +30,7 @@ final animeDevSeedContributor = DevSeedKindContributor(
   seedDatabase: seedAnimeDatabase,
 );
 
-List<String> validateAnimeSeedCatalog(CatalogItem item) {
+List<String> validateAnimeSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   final payload = item.payload;
@@ -58,7 +58,7 @@ List<String> validateAnimeSeedOwned(OwnedItem item) {
 
 Future<void> seedAnimeDatabase(
   LocalDatabase db,
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 ) async {
   final repository = AnimeRepository(db);
@@ -92,7 +92,7 @@ Future<void> seedAnimeDatabase(
 }
 
 Iterable<AnimeTrackingUnit> animeSeedTrackingUnits(
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 ) sync* {
   for (final item in items.where((item) => item.kind == 'anime')) {
@@ -126,7 +126,7 @@ int? _seedAnimeInt(Object? value) {
   return int.tryParse(value?.toString() ?? '');
 }
 
-CatalogItem enrichAnimeSeedItem(CatalogItem item) {
+CatalogItemDto enrichAnimeSeedItem(CatalogItemDto item) {
   final episodes = [
     for (var number = 1; number <= 2; number++)
       {
@@ -170,7 +170,7 @@ CatalogItem enrichAnimeSeedItem(CatalogItem item) {
   });
 }
 
-List<CatalogItem> animeSeedCatalogItems() => [
+List<CatalogItemDto> animeSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-anime-01',
         kind: 'anime',
@@ -193,7 +193,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'cowboy-bebop-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 5,
           screenRatio: '1.33:1 (4:3 Original)',
@@ -221,7 +221,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         storyArcs: ['Vicious & Julia Saga'],
         genres: ['space western', 'sci-fi', 'neo-noir', 'action'],
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-bebop-bd',
             title: 'Complete Series 25th Anniversary Blu-ray',
             format: 'Blu-ray',
@@ -259,7 +259,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'fma-brotherhood-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 10,
           screenRatio: '1.78:1',
@@ -301,7 +301,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'steins-gate-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 4,
           screenRatio: '1.78:1',
@@ -343,7 +343,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '18+',
         sortKey: 'attack-on-titan-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 8,
           screenRatio: '1.78:1',
@@ -385,7 +385,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'mob-psycho-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -427,7 +427,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-MA',
         sortKey: 'vinland-saga-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 4,
           screenRatio: '1.78:1',
@@ -462,7 +462,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'jujutsu-kaisen-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -504,7 +504,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'frieren-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 7,
           screenRatio: '1.78:1',
@@ -541,7 +541,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'evangelion-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 8,
           screenRatio: '1.33:1',
@@ -582,7 +582,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'death-note-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 23,
           nrDiscs: 5,
           screenRatio: '1.78:1',
@@ -622,7 +622,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-MA',
         sortKey: 'cyberpunk-edgerunners-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 2,
           screenRatio: '1.78:1',
@@ -656,7 +656,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'demon-slayer-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -699,7 +699,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'hunter-x-hunter-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 23,
           nrDiscs: 14,
           screenRatio: '1.78:1',
@@ -741,7 +741,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '18+',
         sortKey: 'monster-anime-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 8,
           screenRatio: '1.33:1',
@@ -780,7 +780,7 @@ List<CatalogItem> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '18+',
         sortKey: 'chainsaw-man-0001',
-        video: const VideoCatalogDetails(
+        video: const VideoCatalogDetailsDto(
           runtimeMinutes: 24,
           nrDiscs: 2,
           screenRatio: '1.78:1',

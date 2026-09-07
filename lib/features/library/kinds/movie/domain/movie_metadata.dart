@@ -129,7 +129,7 @@ class MovieCatalogMetadata {
   final String? screenRatio;
   final String? layers;
   final List<Map<String, dynamic>> creators;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final List<MovieReleaseMetadata> releases;
   final List<CatalogEditionDto> editions;
   final Map<String, dynamic> rawPayload;
@@ -257,7 +257,7 @@ class MovieCatalogMetadata {
     String? layers,
     Map<String, dynamic>? video,
     List<Map<String, dynamic>>? creators,
-    List<TrailerLink>? links,
+    List<TrailerLinkDto>? links,
     List<MovieReleaseMetadata>? releases,
     List<CatalogEditionDto>? editions,
   }) {
@@ -318,15 +318,15 @@ class MovieCatalogMetadata {
             .toList() ??
         const <Map<String, dynamic>>[];
 
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
     ];
 
     final rawReleases = (json['releases'] as List<dynamic>?)

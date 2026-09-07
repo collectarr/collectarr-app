@@ -89,7 +89,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'tv_1',
-        catalogItem: CatalogItem(
+        catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'tv_1',
             mediaKind: CatalogMediaKind.tv,
@@ -237,7 +237,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'tv_breaking_bad',
-        catalogItem: CatalogItem(
+        catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'tv_breaking_bad',
             mediaKind: CatalogMediaKind.tv,

@@ -12,7 +12,7 @@ class LibraryExternalLinksSection extends StatelessWidget {
   });
 
   final String title;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final Color accent;
 
   @override
@@ -56,7 +56,7 @@ class LibraryExternalLinksSection extends StatelessWidget {
 class _LinkRow extends StatelessWidget {
   const _LinkRow({required this.link, required this.accent});
 
-  final TrailerLink link;
+  final TrailerLinkDto link;
   final Color accent;
 
   @override

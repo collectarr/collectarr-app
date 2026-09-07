@@ -1351,9 +1351,9 @@ class _CatalogCorrection {
   final List<String>? characters;
   final List<String>? storyArcs;
   final List<Map<String, dynamic>>? creators;
-  final List<CatalogTrack>? tracks;
-  final List<TrailerLink>? trailerUrls;
-  final List<TrailerLink>? externalLinks;
+  final List<CatalogTrackDto>? tracks;
+  final List<TrailerLinkDto>? trailerUrls;
+  final List<TrailerLinkDto>? externalLinks;
   final String? editionTitle;
   final int? pageCount;
   final int? runtimeMinutes;

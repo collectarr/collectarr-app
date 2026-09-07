@@ -26,10 +26,10 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 
 export 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 
-/// Builds a [CatalogItem] with sensible defaults for testing.
+/// Builds a [CatalogItemDto] with sensible defaults for testing.
 ///
 /// Only [id] and [title] are required. Override any field via named parameters.
-CatalogItem testCatalogItem({
+CatalogItemDto testCatalogItem({
   String id = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
@@ -133,11 +133,11 @@ CatalogItem testCatalogItem({
   );
 }
 
-CatalogItem testCatalogItemFromJson(Map<String, dynamic> json) {
-  return testCatalogItemWithKindMetadata(CatalogItem.fromJson(json));
+CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
+  return testCatalogItemWithKindMetadata(CatalogItemDto.fromJson(json));
 }
 
-CatalogItem testCatalogItemWithKindMetadata(CatalogItem item) {
+CatalogItemDto testCatalogItemWithKindMetadata(CatalogItemDto item) {
   if (item.kindMetadata is! Map) return item;
   final payload = item.payload;
   final metadata = switch (item.kind) {
@@ -407,7 +407,7 @@ ShelfEntry testShelfEntry({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
-  CatalogItem? catalogItem,
+  CatalogItemDto? catalogItem,
   OwnedItem? ownedItem,
   String? locationPath,
 }) {
@@ -431,7 +431,7 @@ LibraryProjectionRuntime testProjectionItem({
   String kind = 'comic',
   String title = 'Test Item',
   String? barcode,
-  CatalogItem? catalogItem,
+  CatalogItemDto? catalogItem,
   OwnedItem? ownedItem,
   String? locationPath,
 }) {

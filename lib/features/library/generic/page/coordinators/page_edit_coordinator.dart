@@ -57,7 +57,7 @@ class LibraryPageEditCoordinator {
     if (_s._isEditDialogInFlight) {
       return;
     }
-    final CatalogItem? catalogItem = item.source.catalogItem;
+    final CatalogItemDto? catalogItem = item.source.catalogItem;
     if (catalogItem == null) {
       return;
     }
@@ -258,7 +258,7 @@ class LibraryPageEditCoordinator {
     required OwnedItem? owned,
     required WishlistItem? wishlist,
     required TrackingEntry? activeTrackingEntry,
-    required CatalogItem catalogItem,
+    required CatalogItemDto catalogItem,
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,
   }) async {

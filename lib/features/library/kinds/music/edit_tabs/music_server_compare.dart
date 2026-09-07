@@ -59,8 +59,8 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
   List<Map<String, dynamic>> get _serverCreators =>
       _serverSnapshotItem?.creators ?? const <Map<String, dynamic>>[];
 
-  List<CatalogDisc> get _serverDiscs =>
-      _serverSnapshotItem?.discsAsCatalog ?? const <CatalogDisc>[];
+  List<CatalogDiscDto> get _serverDiscs =>
+      _serverSnapshotItem?.discsAsCatalog ?? const <CatalogDiscDto>[];
 
   List<String> _creatorsForRoleFromSource(
     List<Map<String, dynamic>> source,
@@ -136,7 +136,7 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
     return normalized.isEmpty ? '—' : normalized.join('\n');
   }
 
-  String _formatDisc(CatalogDisc? disc) {
+  String _formatDisc(CatalogDiscDto? disc) {
     if (disc == null) {
       return '—';
     }
@@ -490,7 +490,7 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
     _renumberDiscTracks(discNumber);
   }
 
-  void _applyServerDiscValue(CatalogDisc disc) {
+  void _applyServerDiscValue(CatalogDiscDto disc) {
     _ensureDiscExists(disc.discNumber ?? 0);
     final draft = _discDraftFor(disc.discNumber ?? 0);
     draft.discTitleController.text =
@@ -502,7 +502,7 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
   }
 
   void _applyServerDisc(int discNumber) {
-    CatalogDisc? serverDisc;
+    CatalogDiscDto? serverDisc;
     for (final disc in _serverDiscs) {
       if (disc.discNumber == discNumber) {
         serverDisc = disc;

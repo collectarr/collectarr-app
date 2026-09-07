@@ -495,7 +495,7 @@ class _ComicSearchRow extends StatelessWidget {
 }
 
 class _ComicSearchEntry {
-  _ComicSearchEntry.core(CatalogItem item)
+  _ComicSearchEntry.core(CatalogItemDto item)
       : catalog = _comicMediaFromResult(item),
         candidate = null;
   const _ComicSearchEntry.provider(this.candidate) : catalog = null;
@@ -515,7 +515,7 @@ class _ComicSearchEntry {
       catalog == null ? candidate!.localCatalogId : catalogId;
 }
 
-ComicMedia _comicMediaFromResult(CatalogItem item) {
+ComicMedia _comicMediaFromResult(CatalogItemDto item) {
   final metadata = item.kindMetadata;
   if (metadata is! ComicMedia) {
     throw StateError('Expected ComicMedia for comic add result');

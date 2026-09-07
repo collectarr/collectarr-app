@@ -285,7 +285,7 @@ class SerialAuthorityRepository {
       }
       await LibraryCatalogRepository(_db).upsertAll(
         [
-          CatalogItem.fromJson(
+          CatalogItemDto.fromJson(
             _catalogPayloadWithSeries(
               catalogItem,
               seriesId: row.coreSeriesId,
@@ -336,7 +336,7 @@ class SerialAuthorityRepository {
       }
       await LibraryCatalogRepository(_db).upsertAll(
         [
-          CatalogItem.fromJson(
+          CatalogItemDto.fromJson(
             _catalogPayloadWithSeries(
               catalogItem,
               seriesId: target.coreSeriesId,
@@ -414,7 +414,7 @@ class SerialAuthorityRepository {
   }
 
   bool _catalogMatchesSeries(
-    CatalogItem catalogItem,
+    CatalogItemDto catalogItem,
     SerialAuthorityCacheData registryRow,
   ) {
     final registryCoreSeriesId = _emptyToNull(registryRow.coreSeriesId);
@@ -432,13 +432,13 @@ class SerialAuthorityRepository {
         registryRow.normalizedTitle;
   }
 
-  static Map<String, dynamic> _seriesPayload(CatalogItem item) {
+  static Map<String, dynamic> _seriesPayload(CatalogItemDto item) {
     final rawSeries = item.payload['series'];
     return rawSeries is Map ? Map<String, dynamic>.from(rawSeries) : const {};
   }
 
   static Map<String, dynamic> _catalogPayloadWithSeries(
-    CatalogItem item, {
+    CatalogItemDto item, {
     required String? seriesId,
     required String seriesTitle,
   }) {

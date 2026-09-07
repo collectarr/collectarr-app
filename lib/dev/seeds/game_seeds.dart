@@ -18,7 +18,7 @@ final gameDevSeedContributor = DevSeedKindContributor(
   trackingEntries: gameSeedTrackingEntries,
 );
 
-List<String> validateGameSeedCatalog(CatalogItem item) {
+List<String> validateGameSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   seedRequireTextList(issues, prefix, 'platforms', item.payload['platforms']);
@@ -42,7 +42,7 @@ List<String> validateGameSeedOwned(OwnedItem item) {
   return issues;
 }
 
-CatalogItem enrichGameSeedItem(CatalogItem item) {
+CatalogItemDto enrichGameSeedItem(CatalogItemDto item) {
   final platforms = item.payload['platforms'];
   final primaryPlatform = platforms is List && platforms.isNotEmpty
       ? platforms.first.toString()
@@ -73,7 +73,7 @@ CatalogItem enrichGameSeedItem(CatalogItem item) {
   return withSeedPayload(item, {'releases': releases});
 }
 
-List<CatalogItem> gameSeedCatalogItems() => [
+List<CatalogItemDto> gameSeedCatalogItems() => [
       seedCatalogItem(
         id: 'seed-game-01',
         kind: 'game',
@@ -130,14 +130,14 @@ List<CatalogItem> gameSeedCatalogItems() => [
         ],
         genres: ['action RPG', 'open world', 'dark fantasy'],
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'seed-ed-witcher-ps5',
             title: 'Complete Edition PS5',
             format: 'PlayStation 5',
             publisher: 'CD Projekt Red',
             releaseDate: DateTime.utc(2022, 12, 14),
             variants: [
-              CatalogVariant(
+              CatalogVariantDto(
                 id: 'seed-var-witcher-ps5',
                 name: 'Physical Disc Edition',
                 variantType: 'physical',

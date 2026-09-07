@@ -149,7 +149,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
   }
 
   Future<void> _resolveRow(CollectionCsvRow row) async {
-    final item = await showDialog<CatalogItem>(
+    final item = await showDialog<CatalogItemDto>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
         type: _runtimeForImportRow(row),
@@ -189,7 +189,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     try {
       final resolvedRows = [...preview.resolvedRows];
       final unresolvedRows = <CollectionCsvRow>[];
-      final resolvedItems = <CatalogItem>[];
+      final resolvedItems = <CatalogItemDto>[];
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
@@ -571,7 +571,7 @@ class _ResolveImportRowDialog extends ConsumerStatefulWidget {
 class _ResolveImportRowDialogState
     extends ConsumerState<_ResolveImportRowDialog> {
   late final TextEditingController _queryController;
-  var _results = const <CatalogItem>[];
+  var _results = const <CatalogItemDto>[];
   String? _error;
   bool _isSearching = false;
 
@@ -882,7 +882,7 @@ class _ImportProposalDraft {
 class _CatalogThumb extends StatelessWidget {
   const _CatalogThumb({required this.item});
 
-  final CatalogItem item;
+  final CatalogItemDto item;
 
   @override
   Widget build(BuildContext context) {
@@ -918,13 +918,13 @@ class _CatalogThumb extends StatelessWidget {
   }
 }
 
-String _catalogTitle(CatalogItem item) {
+String _catalogTitle(CatalogItemDto item) {
   return libraryCollectionCsvProjectionForKind(item.mediaKind)
           ?.catalogDisplayTitle(item) ??
       item.title;
 }
 
-String _catalogSubtitle(CatalogItem item) {
+String _catalogSubtitle(CatalogItemDto item) {
   return libraryCollectionCsvProjectionForKind(item.mediaKind)
           ?.catalogDisplaySubtitle(item) ??
       '';
@@ -1001,7 +1001,7 @@ String _friendlyImportError(Object error) {
   return 'Search failed: $error';
 }
 
-Future<List<CatalogItem>> _searchCoreForRow(
+Future<List<CatalogItemDto>> _searchCoreForRow(
   WidgetRef ref,
   LibraryKindModule type,
   CollectionCsvRow row, {
@@ -1029,9 +1029,9 @@ String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {
   return null;
 }
 
-CatalogItem? _confidentImportMatch(
+CatalogItemDto? _confidentImportMatch(
   CollectionCsvRow row,
-  List<CatalogItem> results,
+  List<CatalogItemDto> results,
 ) {
   if (results.isEmpty) {
     return null;

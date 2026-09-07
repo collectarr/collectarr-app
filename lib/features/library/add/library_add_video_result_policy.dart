@@ -9,7 +9,7 @@ const libraryAddVideoReleaseOptionId = 'video.release';
 enum LibraryAddVideoResultScope { media, season, release }
 
 typedef LibraryAddVideoCoreScopeResolver = LibraryAddVideoResultScope Function(
-    CatalogItem item);
+    CatalogItemDto item);
 
 typedef LibraryAddVideoProviderScopeResolver = LibraryAddVideoResultScope
     Function(ProviderCandidate candidate);
@@ -19,7 +19,7 @@ LibraryAddResultPolicy buildLibraryAddVideoResultPolicy({
   required bool supportsSeasonScope,
   required LibraryAddVideoCoreScopeResolver coreScopeForItem,
   required LibraryAddVideoProviderScopeResolver providerScopeForCandidate,
-  required String Function(CatalogItem item) coreGroupTitleBuilder,
+  required String Function(CatalogItemDto item) coreGroupTitleBuilder,
   required bool Function(ProviderCandidate candidate) providerCandidateIsGroup,
   int Function(ProviderCandidate left, ProviderCandidate right)?
       providerCandidateComparator,

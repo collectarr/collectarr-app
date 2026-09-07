@@ -18,7 +18,7 @@ final class TvReleaseMediaEditController {
     this.initialDiscCount,
   });
 
-  final CatalogItem item;
+  final CatalogItemDto item;
   final WidgetRef? ref;
   final int? initialDiscCount;
 

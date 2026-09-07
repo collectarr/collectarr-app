@@ -107,12 +107,12 @@ abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
 
   List<CatalogEditionDto> buildReleaseEditions({
-    required CatalogItem item,
+    required CatalogItemDto item,
   }) =>
       const [];
 
   List<TrailerLinkDto> buildLinks({
-    required CatalogItem item,
+    required CatalogItemDto item,
   }) =>
       const [];
 
@@ -122,7 +122,7 @@ abstract class LibraryMediaPresentationBuilder {
       null;
 
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required CatalogItem item,
+    required CatalogItemDto item,
   }) {
     return null;
   }
@@ -132,7 +132,7 @@ abstract class LibraryMediaPresentationBuilder {
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required CatalogItem? item,
+    required CatalogItemDto? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,

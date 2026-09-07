@@ -23,7 +23,7 @@ final class TvCatalogWorkMetadata {
   final DateTime? releaseDate;
   final String? originalLanguage;
   final List<String> genres;
-  final CatalogSeriesDetails? series;
+  final CatalogSeriesDetailsDto? series;
 }
 
 final class TvCatalogTechnicalMetadata {
@@ -103,7 +103,7 @@ final class TvCatalogItem {
     this.trailerUrls = const [],
   });
 
-  static TvCatalogItem fromDto(CatalogItem dto) =>
+  static TvCatalogItem fromDto(CatalogItemDto dto) =>
       TvCatalogMapper.mapDtoToTv(dto);
 
   final String id;
@@ -113,7 +113,7 @@ final class TvCatalogItem {
   final List<dynamic> trailerUrls;
 
   String get title => work.title;
-  CatalogSeriesDetails? get series => work.series;
+  CatalogSeriesDetailsDto? get series => work.series;
   TvCatalogTechnicalMetadata get videoDetails => technical;
   List<TvCatalogRelease> get episodes => releases;
   TvCatalogRelease? get primaryRelease =>
@@ -124,7 +124,7 @@ final class TvCatalogItem {
 final class TvCatalogMapper {
   const TvCatalogMapper._();
 
-  static TvCatalogItem mapDtoToTv(CatalogItem dto) {
+  static TvCatalogItem mapDtoToTv(CatalogItemDto dto) {
     final payload = dto.toSyncPayload();
     final videoPayload = (payload['video'] as Map?) ?? payload;
 
@@ -226,11 +226,11 @@ final class TvCatalogMapper {
     );
   }
 
-  static TvCatalogItem mapMetadataItemToTv(CatalogItem item) {
-    return mapDtoToTv(CatalogItem.fromJson(item.toSyncPayload()));
+  static TvCatalogItem mapMetadataItemToTv(CatalogItemDto item) {
+    return mapDtoToTv(CatalogItemDto.fromJson(item.toSyncPayload()));
   }
 
-  static TvCatalogItem fromTvMetadataItem(CatalogItem item) {
+  static TvCatalogItem fromTvMetadataItem(CatalogItemDto item) {
     final metadata = item.kindMetadata;
     if (metadata is! TvSeriesMetadata) {
       throw ArgumentError.value(

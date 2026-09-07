@@ -13,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('maps a Music catalog payload into a typed workspace release graph', () {
-    final item = CatalogItem(
+    final item = CatalogItemDto(
       identity: const LibraryItemIdentity(
         id: 'music-item-1',
         mediaKind: CatalogMediaKind.music,
@@ -46,7 +46,7 @@ void main() {
   });
 
   test('maps a selected catalog edition without imposing video semantics', () {
-    final item = CatalogItem(
+    final item = CatalogItemDto(
       identity: const LibraryItemIdentity(
         id: 'music-item-2',
         mediaKind: CatalogMediaKind.music,

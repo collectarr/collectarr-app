@@ -221,7 +221,7 @@ class MovieEditDraft extends LibraryEditKindDraft
 }
 
 LibraryEditKindDraft createMovieEditDraft({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
@@ -251,7 +251,7 @@ LibraryEditKindDraft createMovieEditDraft({
         movie?.releaseDate == null ? '' : formatDate(movie!.releaseDate!),
     initialReleaseYear: movie?.releaseDate?.year.toString() ?? '',
     initialCreators: movie?.creators ?? const <Map<String, dynamic>>[],
-    initialTrailerLinks: movie?.links ?? const <TrailerLink>[],
+    initialTrailerLinks: movie?.links ?? const <TrailerLinkDto>[],
   );
   videoEdit.initializeVideoEditors();
 

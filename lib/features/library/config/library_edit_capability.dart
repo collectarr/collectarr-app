@@ -18,7 +18,7 @@ export 'package:collectarr_app/features/library/config/owned_item_update_payload
 export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 
 typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
@@ -110,7 +110,7 @@ class LibraryEditCapability {
 
   bool? resolveOwnedDigitalFlag(
     OwnedItem? ownedItem,
-    List<CatalogEdition> editions, {
+    List<CatalogEditionDto> editions, {
     String? fallbackFormat,
     String? fallbackLabel,
     Iterable<PhysicalMediaFormat> formats = const [],

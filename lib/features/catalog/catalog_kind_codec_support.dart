@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 ///
 /// These helpers only preserve the structural catalog envelope while a kind
 /// performs its own typed decode. They do not know any catalog semantics.
-Map<String, dynamic> catalogPayloadFor(CatalogItem item) => {
+Map<String, dynamic> catalogPayloadFor(CatalogItemDto item) => {
       ...item.toSyncPayload(),
       // The envelope identity is authoritative. A persisted raw payload may
       // contain an absent or stale id, but typed repositories must always
@@ -13,15 +13,15 @@ Map<String, dynamic> catalogPayloadFor(CatalogItem item) => {
       'kind': item.kind,
     };
 
-CatalogItem catalogItemWithTypedMetadata(
-  CatalogItem item,
+CatalogItemDto catalogItemWithTypedMetadata(
+  CatalogItemDto item,
   Object? Function(Map<String, dynamic>) decode,
 ) {
   if (item.kindMetadata is! Map) return item;
   return item.withKindMetadata(decode(item.payload));
 }
 
-CatalogItem catalogProjection(
+CatalogItemDto catalogProjection(
   String kind,
   String? id,
   String title,
@@ -34,6 +34,6 @@ CatalogItem catalogProjection(
   payload['id'] ??= id ?? '';
   payload['kind'] ??= kind;
   payload['title'] ??= title;
-  final item = CatalogItem.fromJson(payload);
+  final item = CatalogItemDto.fromJson(payload);
   return catalogItemWithTypedMetadata(item, decode);
 }

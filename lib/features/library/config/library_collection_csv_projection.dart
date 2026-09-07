@@ -12,17 +12,17 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 abstract interface class LibraryCollectionCsvProjection {
   CatalogMediaKind get kind;
 
-  String catalogDisplayTitle(CatalogItem item);
+  String catalogDisplayTitle(CatalogItemDto item);
 
-  String catalogDisplaySubtitle(CatalogItem item);
+  String catalogDisplaySubtitle(CatalogItemDto item);
 
   String importDisplayTitle(List<String> catalogCells);
 
   String importDisplaySubtitle(List<String> catalogCells);
 
-  CatalogItem? catalogItemFromImportCells(List<String> catalogCells);
+  CatalogItemDto? catalogItemFromImportCells(List<String> catalogCells);
 
-  bool catalogMatchesBarcode(CatalogItem item, String normalizedBarcode);
+  bool catalogMatchesBarcode(CatalogItemDto item, String normalizedBarcode);
 
   /// The complete CLZ header for a single-kind export.
 
@@ -81,7 +81,7 @@ mixin LibraryCollectionCsvProjectionPresentation {
   /// This is intentionally derived from [catalogCells], rather than reading
   /// the transport payload. The collection host may render the result without
   /// learning what an item number means for any particular kind.
-  String catalogDisplayTitle(CatalogItem item) {
+  String catalogDisplayTitle(CatalogItemDto item) {
     final cells = catalogCells(
       LibraryEntry(itemId: item.id, catalogItem: item),
     );
@@ -94,7 +94,7 @@ mixin LibraryCollectionCsvProjectionPresentation {
   }
 
   /// Presents the non-title catalog summary using kind-owned cells.
-  String catalogDisplaySubtitle(CatalogItem item) {
+  String catalogDisplaySubtitle(CatalogItemDto item) {
     final cells = catalogCells(
       LibraryEntry(itemId: item.id, catalogItem: item),
     );
@@ -135,7 +135,7 @@ mixin LibraryCollectionCsvProjectionPresentation {
   }
 
   /// Matches the normalized barcode cell projected by the owning kind.
-  bool catalogMatchesBarcode(CatalogItem item, String normalizedBarcode) {
+  bool catalogMatchesBarcode(CatalogItemDto item, String normalizedBarcode) {
     final cells = catalogCells(
       LibraryEntry(itemId: item.id, catalogItem: item),
     );

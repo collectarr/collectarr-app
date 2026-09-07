@@ -224,7 +224,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
 }
 
 LibraryEditKindDraft createAnimeEditDraft({
-  required CatalogItem item,
+  required CatalogItemDto item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
@@ -254,7 +254,7 @@ LibraryEditKindDraft createAnimeEditDraft({
         anime?.startDate?.year.toString() ??
         '',
     initialCreators: anime?.creators ?? const <Map<String, dynamic>>[],
-    initialTrailerLinks: anime?.links ?? const <TrailerLink>[],
+    initialTrailerLinks: anime?.links ?? const <TrailerLinkDto>[],
   );
   videoEdit.initializeVideoEditors();
 

@@ -213,7 +213,7 @@ void main() {
   });
 }
 
-CatalogItem _item({
+CatalogItemDto _item({
   required String title,
   String? publisher,
   String? itemNumber,

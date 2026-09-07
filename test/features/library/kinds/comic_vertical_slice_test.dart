@@ -98,7 +98,7 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'comic_1',
-        catalogItem: CatalogItem(
+        catalogItem: CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'comic_1',
             mediaKind: CatalogMediaKind.comic,
@@ -340,7 +340,7 @@ void main() {
       );
 
       final metadata = ComicMedia.fromJson(comic.toJson());
-      final item = CatalogItem(
+      final item = CatalogItemDto(
         identity: comic.identity,
         kindMetadata: metadata,
       );

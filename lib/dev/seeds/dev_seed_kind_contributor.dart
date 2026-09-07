@@ -6,16 +6,16 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 
-typedef DevSeedCatalogFactory = List<CatalogItem> Function();
-typedef DevSeedItemEnricher = CatalogItem Function(CatalogItem item);
+typedef DevSeedCatalogFactory = List<CatalogItemDto> Function();
+typedef DevSeedItemEnricher = CatalogItemDto Function(CatalogItemDto item);
 typedef DevSeedCatalogQualityValidator = List<String> Function(
-  CatalogItem item,
+  CatalogItemDto item,
 );
 typedef DevSeedOwnedFactory = List<OwnedItem> Function(DateTime now);
 typedef DevSeedOwnedQualityValidator = List<String> Function(OwnedItem item);
 typedef DevSeedTrackingFactory = List<TrackingEntry> Function(DateTime now);
 typedef DevSeedTrackingUnitFactory = Iterable<TrackingUnit> Function(
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 );
 typedef DevSeedWatchSessionFactory = List<WatchSession> Function(DateTime now);
@@ -24,7 +24,7 @@ typedef DevSeedCustomEpisodeFactory = List<CustomEpisode> Function(
 );
 typedef DevSeedDatabaseSeeder = Future<void> Function(
   LocalDatabase db,
-  Iterable<CatalogItem> items,
+  Iterable<CatalogItemDto> items,
   DateTime now,
 );
 

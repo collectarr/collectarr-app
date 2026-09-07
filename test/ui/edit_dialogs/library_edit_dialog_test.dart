@@ -67,18 +67,18 @@ void main() {
       variant: 'DVD',
       barcode: '883929087129',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-standard',
           title: 'Standard',
           variants: [
-            CatalogVariant(id: 'variant-dvd', name: 'DVD', isPrimary: true),
+            CatalogVariantDto(id: 'variant-dvd', name: 'DVD', isPrimary: true),
           ],
         ),
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-steelbook',
           title: 'Steelbook',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
                 id: 'variant-4k', name: '4K Variant', isPrimary: true),
           ],
         ),
@@ -210,18 +210,18 @@ void main() {
       title: 'Blade Runner',
       variant: 'DVD',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-standard',
           title: 'Standard',
           variants: [
-            CatalogVariant(id: 'variant-dvd', name: 'DVD', isPrimary: true),
+            CatalogVariantDto(id: 'variant-dvd', name: 'DVD', isPrimary: true),
           ],
         ),
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-steelbook',
           title: 'Steelbook',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
                 id: 'variant-4k', name: '4K Variant', isPrimary: true),
           ],
         ),
@@ -809,7 +809,7 @@ void main() {
           {'name': 'Random Contributor', 'role': 'Consultant'},
         ],
         trailerUrls: const [
-          TrailerLink(
+          TrailerLinkDto(
             url: 'https://www.goodreads.com/book/show/29579.Foundation',
             title: 'Goodreads',
             description: 'Goodreads',
@@ -1011,11 +1011,11 @@ void main() {
       title: 'Dune',
       variant: 'Blu-ray',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-digital',
           title: 'Digital',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
               id: 'variant-stream',
               name: 'Streaming',
               isPrimary: true,
@@ -1101,11 +1101,11 @@ void main() {
       kind: 'movie',
       title: 'Alien Anthology',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-standard',
           title: 'Standard',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
                 id: 'variant-bluray', name: 'Blu-ray', isPrimary: true)
           ],
         ),
@@ -1359,11 +1359,11 @@ void main() {
       kind: 'movie',
       title: 'Akira',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-standard',
           title: 'Standard',
           variants: [
-            CatalogVariant(id: 'variant-4k', name: '4K', isPrimary: true)
+            CatalogVariantDto(id: 'variant-4k', name: '4K', isPrimary: true)
           ],
         ),
       ],

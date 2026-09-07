@@ -15,7 +15,7 @@ class LibraryAddSearchController {
   final queryController = TextEditingController();
   final barcodeController = TextEditingController();
 
-  List<CatalogItem> results = const [];
+  List<CatalogItemDto> results = const [];
   List<ProviderCandidate> providerResults = const [];
   String? error;
   String selectedProvider;
@@ -29,7 +29,7 @@ class LibraryAddSearchController {
   int coreSearchGeneration = 0;
   int providerSearchGeneration = 0;
   Timer? autocompleteTimer;
-  List<CatalogItem> suggestions = const [];
+  List<CatalogItemDto> suggestions = const [];
   bool showSuggestions = false;
   final Map<LibraryAddFilterId, Object?> _advancedFilters;
 
@@ -110,11 +110,11 @@ class LibraryAddSearchState {
   final bool searchedProvider;
   final bool isScanningCover;
   final bool showAdvancedSearch;
-  final List<CatalogItem> results;
+  final List<CatalogItemDto> results;
   final List<ProviderCandidate> providerResults;
   final String selectedProvider;
   final Map<LibraryAddFilterId, Object?> advancedFilters;
-  final List<CatalogItem> suggestions;
+  final List<CatalogItemDto> suggestions;
   final bool showSuggestions;
   final String? error;
   final int coreSearchGeneration;
@@ -133,11 +133,11 @@ class LibraryAddSearchState {
     bool? searchedProvider,
     bool? isScanningCover,
     bool? showAdvancedSearch,
-    List<CatalogItem>? results,
+    List<CatalogItemDto>? results,
     List<ProviderCandidate>? providerResults,
     String? selectedProvider,
     Map<LibraryAddFilterId, Object?>? advancedFilters,
-    List<CatalogItem>? suggestions,
+    List<CatalogItemDto>? suggestions,
     bool? showSuggestions,
     String? error,
     bool clearError = false,

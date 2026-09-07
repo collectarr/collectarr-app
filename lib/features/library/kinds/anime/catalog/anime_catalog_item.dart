@@ -20,7 +20,7 @@ final class AnimeCatalogWorkMetadata {
   final DateTime? releaseDate;
   final String? originalLanguage;
   final List<String> genres;
-  final CatalogSeriesDetails? series;
+  final CatalogSeriesDetailsDto? series;
 }
 
 final class AnimeCatalogTechnicalMetadata {
@@ -100,7 +100,7 @@ final class AnimeCatalogItem {
     this.trailerUrls = const [],
   });
 
-  static AnimeCatalogItem fromDto(CatalogItem dto) =>
+  static AnimeCatalogItem fromDto(CatalogItemDto dto) =>
       AnimeCatalogMapper.mapDtoToAnime(dto);
 
   final String id;
@@ -110,7 +110,7 @@ final class AnimeCatalogItem {
   final List<dynamic> trailerUrls;
 
   String get title => work.title;
-  CatalogSeriesDetails? get series => work.series;
+  CatalogSeriesDetailsDto? get series => work.series;
   AnimeCatalogTechnicalMetadata get videoDetails => technical;
   List<AnimeCatalogRelease> get episodes => releases;
   AnimeCatalogRelease? get primaryRelease =>
@@ -121,7 +121,7 @@ final class AnimeCatalogItem {
 final class AnimeCatalogMapper {
   const AnimeCatalogMapper._();
 
-  static AnimeCatalogItem mapDtoToAnime(CatalogItem dto) {
+  static AnimeCatalogItem mapDtoToAnime(CatalogItemDto dto) {
     final payload = dto.toSyncPayload();
     final videoPayload = (payload['video'] as Map?) ?? payload;
 
@@ -223,7 +223,7 @@ final class AnimeCatalogMapper {
     );
   }
 
-  static AnimeCatalogItem mapMetadataItemToAnime(CatalogItem item) {
-    return mapDtoToAnime(CatalogItem.fromJson(item.toSyncPayload()));
+  static AnimeCatalogItem mapMetadataItemToAnime(CatalogItemDto item) {
+    return mapDtoToAnime(CatalogItemDto.fromJson(item.toSyncPayload()));
   }
 }

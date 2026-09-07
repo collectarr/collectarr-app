@@ -127,7 +127,7 @@ void main() {
   test(
       'matchesVideoReleaseAnchor matches edition and synthetic variant anchors',
       () {
-    const edition = CatalogEdition(
+    const edition = CatalogEditionDto(
       id: 'edition-core',
       title: 'Collector Edition',
       metadata: {

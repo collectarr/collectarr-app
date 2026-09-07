@@ -34,7 +34,7 @@ final class ComicCoreMapper {
   ///
   /// The result is immediately converted to the canonical Comic model so
   /// callers never need to reintroduce a generic catalog representation.
-  static ComicMedia fromCatalogItem(CatalogItem item) {
+  static ComicMedia fromCatalogItem(CatalogItemDto item) {
     final payload = item.toSyncPayload();
     payload['id'] = item.identity.id;
     return ComicMedia.fromJson(payload);

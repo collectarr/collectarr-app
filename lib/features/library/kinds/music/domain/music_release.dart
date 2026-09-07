@@ -71,7 +71,7 @@ final class MusicRelease {
   String? get mediaCondition => media.firstOrNull?.mediaCondition;
   List<Map<String, dynamic>> get creators => contributions;
 
-  List<CatalogDisc> get discsAsCatalog => [
+  List<CatalogDiscDto> get discsAsCatalog => [
         for (final disc in media)
           CatalogDiscDto(
             discNumber: disc.mediaNumber,

@@ -19,15 +19,15 @@ export 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 export 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-class GameCatalogDetails {
-  const GameCatalogDetails({this.platforms = const []});
+class GameCatalogDetailsDto {
+  const GameCatalogDetailsDto({this.platforms = const []});
   final List<String> platforms;
   bool get hasData => platforms.isNotEmpty;
   Map<String, dynamic> toJson() => {'platforms': platforms};
 }
 
-class VideoCatalogDetails {
-  const VideoCatalogDetails({
+class VideoCatalogDetailsDto {
+  const VideoCatalogDetailsDto({
     this.runtimeMinutes,
     this.color,
     this.nrDiscs,
@@ -64,8 +64,8 @@ class VideoCatalogDetails {
       };
 }
 
-class MusicCatalogDetails {
-  const MusicCatalogDetails({
+class MusicCatalogDetailsDto {
+  const MusicCatalogDetailsDto({
     this.trackCount,
     this.tracks = const [],
     this.discs = const [],
@@ -377,7 +377,5 @@ final class CatalogItemDto {
   }
 }
 
-typedef CatalogItem = CatalogItemDto;
-typedef TrailerLink = TrailerLinkDto;
 
 const _unset = Object();

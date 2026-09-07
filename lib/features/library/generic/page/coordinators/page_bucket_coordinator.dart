@@ -62,7 +62,7 @@ class LibraryPageBucketCoordinator {
       return 0;
     }
 
-    final catalogUpdates = <String, CatalogItem>{};
+    final catalogUpdates = <String, CatalogItemDto>{};
     final ownedUpdates = <String, UpdateOwnedItemCommand>{};
     for (final item in projection.allItems) {
       if (genericBucketForItemGroup(item, _page.type, groupId) !=

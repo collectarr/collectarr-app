@@ -340,7 +340,7 @@ class BookLibraryMediaPresentationBuilder
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required CatalogItem? item,
+    required CatalogItemDto? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
@@ -687,7 +687,7 @@ class _BookAddPreviewTopFacts extends StatelessWidget {
 
 String? _bookSubtitleForSelection({
   required String title,
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -722,7 +722,7 @@ String? _bookSubtitleForSelection({
 }
 
 String? _bookCreatorLineForSelection({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required AdminProviderPreview? preview,
 }) {
   final preferred = <String>[];
@@ -771,7 +771,7 @@ bool _isPrimaryBookCreatorRole(String? role) {
 }
 
 String? _bookPublisherYearLineForSelection({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -791,7 +791,7 @@ String? _bookPublisherYearLineForSelection({
 }
 
 String? _bookFormatLanguageLineForSelection({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required AdminProviderPreview? preview,
 }) {
   final meta = _bookMetadataItem(item);
@@ -811,7 +811,7 @@ String? _bookFormatLanguageLineForSelection({
 }
 
 String? _bookIsbnForSelection({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required AdminProviderPreview? preview,
 }) {
   final meta = _bookMetadataItem(item);
@@ -820,7 +820,7 @@ String? _bookIsbnForSelection({
 }
 
 int? _bookPageCountForSelection({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required AdminProviderPreview? preview,
 }) {
   return _bookMetadataItem(item)?.publishing?.pageCount ??
@@ -828,7 +828,7 @@ int? _bookPageCountForSelection({
 }
 
 List<String> _bookDiscoveryTagsForSelection({
-  required CatalogItem? item,
+  required CatalogItemDto? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -864,7 +864,7 @@ BookCatalogMetadata? _bookMetadata(LibraryProjectionRuntime item) {
   return payload == null ? null : BookCatalogMetadata.fromJson(payload);
 }
 
-BookCatalogMetadata? _bookMetadataItem(CatalogItem? item) {
+BookCatalogMetadata? _bookMetadataItem(CatalogItemDto? item) {
   final metadata = item?.kindMetadata;
   if (metadata is BookCatalogMetadata) return metadata;
   final payload = item?.payload;

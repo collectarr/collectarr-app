@@ -278,7 +278,7 @@ class LibraryAddSessionController
     }
   }
 
-  void selectSuggestion(CatalogItem item) {
+  void selectSuggestion(CatalogItemDto item) {
     state = state.copyWith(
       search: state.search.copyWith(
         query: item.title,
@@ -945,7 +945,7 @@ class LibraryAddSessionController
       return;
     }
 
-    CatalogItem? selected;
+    CatalogItemDto? selected;
     for (final item in state.search.results) {
       if (item.id == itemId) {
         selected = item;
@@ -962,12 +962,12 @@ class LibraryAddSessionController
     );
 
     try {
-      final CatalogItem hydrated = await api!
+      final CatalogItemDto hydrated = await api!
           .getTypedMetadataItem(
         kind: selected.kind,
         id: itemId,
       )
-          .then<CatalogItem>((dto) {
+          .then<CatalogItemDto>((dto) {
         final raw = mergeHydratedProviderAddResultRaw(
           raw: <String, dynamic>{
             ...dto.raw,
@@ -977,7 +977,7 @@ class LibraryAddSessionController
           },
           sourceSelection: selected!,
         );
-        final item = CatalogItem.fromJson(raw);
+        final item = CatalogItemDto.fromJson(raw);
         final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
         return decoder == null
             ? item
@@ -1007,14 +1007,14 @@ class LibraryAddSessionController
             selectedEditionsPayload.isNotEmpty)
           'editions': selectedEditionsPayload,
       };
-      final mergedItem = CatalogItem.fromJson({
+      final mergedItem = CatalogItemDto.fromJson({
         'id': hydratedItem.id,
         'kind': hydratedItem.kind,
         ...mergedPayload,
       });
 
       final hydratedMap =
-          Map<String, CatalogItem>.from(state.preview.hydratedResults);
+          Map<String, CatalogItemDto>.from(state.preview.hydratedResults);
       hydratedMap[itemId] = mergedItem;
       final pendingUpdated =
           Set<String>.from(state.preview.pendingHydratedResultIds)
@@ -1288,7 +1288,7 @@ class LibraryAddSessionController
     );
   }
 
-  Future<bool> submitSelectedItem(CatalogItem item) async {
+  Future<bool> submitSelectedItem(CatalogItemDto item) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     state = state.copyWith(
       isAdding: true,
@@ -1386,8 +1386,8 @@ class LibraryAddSessionController
             providerMapper:
                 libraryKindProviderMapperForKind(type.kind)?.buildCorrections ??
                     ((
-                            {required CatalogItem edited,
-                            required CatalogItem preview}) =>
+                            {required CatalogItemDto edited,
+                            required CatalogItemDto preview}) =>
                         const <String, Object?>{}),
             visibleProviderResults: () => state.visibleProviderResults(
               type.add.resultPolicy,
