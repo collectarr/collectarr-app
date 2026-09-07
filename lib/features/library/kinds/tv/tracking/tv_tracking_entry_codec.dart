@@ -7,6 +7,8 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
 
+import 'tv_tracking_entry.dart';
+
 /// TV-owned tracking-entry coordinates.
 ///
 /// The universal tracking index stores only lifecycle and structural reference
@@ -31,7 +33,7 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
     final rows = await query.get();
     return {
       for (final row in rows)
-        row.id: _TvTrackingEntryCoordinates(
+        row.id: TvTrackingCoordinates(
           seasonNumber: row.seasonNumber,
           episodeNumber: row.episodeNumber,
           episodeRatings: _decodeEpisodeRatings(row.episodeRatingsJson),
@@ -60,13 +62,15 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
         'Expected TV tracking entry',
       );
     }
+    final typed = tvTrackingEntryFor(entry);
     await db.into(db.tvTrackingRows).insertOnConflictUpdate(
           TvTrackingRowsCompanion.insert(
             id: entry.id,
-            seasonNumber: Value(entry.seasonNumber),
-            episodeNumber: Value(entry.episodeNumber),
-            episodeRatingsJson:
-                Value(_encodeEpisodeRatings(entry.episodeRatings) ?? '{}'),
+            seasonNumber: Value(typed.coordinates.seasonNumber),
+            episodeNumber: Value(typed.coordinates.episodeNumber),
+            episodeRatingsJson: Value(
+                _encodeEpisodeRatings(typed.coordinates.episodeRatings) ??
+                    '{}'),
           ),
         );
   }
@@ -80,12 +84,13 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
         'Expected TV tracking entry',
       );
     }
+    final typed = tvTrackingEntryFor(entry);
     return entry.toSyncPayload()
       ..addAll({
-        'season_number': entry.seasonNumber,
-        'episode_number': entry.episodeNumber,
-        if (entry.episodeRatings.isNotEmpty)
-          'episode_ratings': entry.episodeRatings,
+        'season_number': typed.coordinates.seasonNumber,
+        'episode_number': typed.coordinates.episodeNumber,
+        if (typed.coordinates.episodeRatings.isNotEmpty)
+          'episode_ratings': typed.coordinates.episodeRatings,
       });
   }
 
@@ -106,11 +111,16 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
     }
     final seasonNumber = _int(payload['season_number']);
     final episodeNumber = _int(payload['episode_number']);
-    return TrackingEntry(
+    return TvTrackingEntry(
       id: id,
       catalogRef: seasonNumber != null || episodeNumber != null
           ? catalogRef.copyWith(entityType: CatalogEntityType.episode)
           : catalogRef,
+      coordinates: TvTrackingCoordinates(
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+        episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
+      ),
       ownedItemId: payload['owned_item_id'] as String?,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
@@ -121,9 +131,6 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
       progressTotal: _int(payload['progress_total']),
       timesCompleted: _int(payload['times_completed']),
       notes: payload['notes'] as String?,
-      seasonNumber: seasonNumber,
-      episodeNumber: episodeNumber,
-      episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
@@ -134,10 +141,10 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
     TrackingEntryStorageRow row,
     Object? coordinates,
   ) {
-    final typed = coordinates is _TvTrackingEntryCoordinates
+    final typed = coordinates is TvTrackingCoordinates
         ? coordinates
-        : const _TvTrackingEntryCoordinates();
-    return TrackingEntry(
+        : TvTrackingCoordinates();
+    return TvTrackingEntry(
       id: row.id,
       catalogRef: typed.hasEpisodeCoordinates
           ? row.catalogRef.copyWith(entityType: CatalogEntityType.episode)
@@ -152,9 +159,7 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
       progressTotal: row.progressTotal,
       timesCompleted: row.timesCompleted,
       notes: row.notes,
-      seasonNumber: typed.seasonNumber,
-      episodeNumber: typed.episodeNumber,
-      episodeRatings: typed.episodeRatings,
+      coordinates: typed,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
@@ -167,21 +172,6 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
     }
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
-}
-
-final class _TvTrackingEntryCoordinates {
-  const _TvTrackingEntryCoordinates({
-    this.seasonNumber,
-    this.episodeNumber,
-    this.episodeRatings = const {},
-  });
-
-  final int? seasonNumber;
-  final int? episodeNumber;
-  final Map<String, int> episodeRatings;
-
-  bool get hasEpisodeCoordinates =>
-      seasonNumber != null || episodeNumber != null;
 }
 
 Map<String, int> _decodeEpisodeRatings(String? raw) {

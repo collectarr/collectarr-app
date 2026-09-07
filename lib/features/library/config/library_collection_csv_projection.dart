@@ -53,15 +53,15 @@ abstract interface class LibraryCollectionCsvProjection {
 
   Map<String, List<String>> get columnAliases;
 
-  List<String> catalogCells(LibraryEntry entry);
+  List<String> catalogCells(LibraryWorkspaceEntry entry);
 
   List<String> ownedCellsBeforeQuantity(
-    LibraryEntry entry, {
+    LibraryWorkspaceEntry entry, {
     required bool clzFriendly,
   });
 
   List<String> ownedCellsAfterIndex(
-    LibraryEntry entry, {
+    LibraryWorkspaceEntry entry, {
     required bool clzFriendly,
   });
 }
@@ -83,7 +83,7 @@ abstract interface class LibraryCollectionCsvOwnedDetailsDecoder {
 /// payload keys while allowing every projection to share the same wire-level
 /// presentation rules.
 mixin LibraryCollectionCsvProjectionPresentation {
-  List<String> catalogCells(LibraryEntry entry);
+  List<String> catalogCells(LibraryWorkspaceEntry entry);
 
   /// Presents a catalog item using the kind-owned catalog cells.
   ///
@@ -92,7 +92,7 @@ mixin LibraryCollectionCsvProjectionPresentation {
   /// learning what an item number means for any particular kind.
   String catalogDisplayTitle(CatalogItemDto item) {
     final cells = catalogCells(
-      LibraryEntry(itemId: item.id, catalogItem: item),
+      LibraryWorkspaceEntry(itemId: item.id, catalogItem: item),
     );
     final title = cells.elementAtOrNull(2) ?? item.title;
     final itemNumber = cells.elementAtOrNull(3) ?? '';
@@ -105,7 +105,7 @@ mixin LibraryCollectionCsvProjectionPresentation {
   /// Presents the non-title catalog summary using kind-owned cells.
   String catalogDisplaySubtitle(CatalogItemDto item) {
     final cells = catalogCells(
-      LibraryEntry(itemId: item.id, catalogItem: item),
+      LibraryWorkspaceEntry(itemId: item.id, catalogItem: item),
     );
     return [
       if ((cells.elementAtOrNull(4) ?? '').trim().isNotEmpty)
@@ -143,13 +143,11 @@ mixin LibraryCollectionCsvProjectionPresentation {
     ].join(' | ');
   }
 
-  @override
   String? importPrimaryLookupValue(List<String> catalogCells) {
     final value = catalogCells.elementAtOrNull(3)?.trim();
     return value == null || value.isEmpty ? null : value;
   }
 
-  @override
   String? importBarcode(List<String> catalogCells) {
     final value = catalogCells.elementAtOrNull(10)?.trim();
     return value == null || value.isEmpty ? null : value;
@@ -158,7 +156,7 @@ mixin LibraryCollectionCsvProjectionPresentation {
   /// Matches the normalized barcode cell projected by the owning kind.
   bool catalogMatchesBarcode(CatalogItemDto item, String normalizedBarcode) {
     final cells = catalogCells(
-      LibraryEntry(itemId: item.id, catalogItem: item),
+      LibraryWorkspaceEntry(itemId: item.id, catalogItem: item),
     );
     final itemBarcode = cells.elementAtOrNull(10);
     return itemBarcode != null &&

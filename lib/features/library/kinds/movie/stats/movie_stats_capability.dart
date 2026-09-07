@@ -22,8 +22,8 @@ class MovieStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindModule type,
   ) {
-    final runtime = totalRuntimeMinutes(state.entries);
-    final averageRating = averageAudienceRating(state.entries);
+    final runtime = totalRuntimeMinutes(state.resolvedWorkspaceEntries);
+    final averageRating = averageAudienceRating(state.resolvedWorkspaceEntries);
     return [
       if (runtime > 0)
         LibraryStatsTileDescriptor(
@@ -47,7 +47,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
     LibraryKindModule type,
   ) {
     final seasonGap = _numberedGapSummary(
-      state.entries,
+      state.resolvedWorkspaceEntries,
       (entry) {
         final payload = entry.catalogItem?.payload;
         final rawSeason = payload?['season_number'] ??
@@ -61,15 +61,15 @@ class MovieStatsCapability implements LibraryStatsCapability {
     return [
       LibraryStatsRankedCard(
         title: 'Top Genres',
-        values: countGenres(state.entries),
+        values: countGenres(state.resolvedWorkspaceEntries),
       ),
       LibraryStatsRankedCard(
         title: 'Top Directors',
-        values: countDirectors(state.entries),
+        values: countDirectors(state.resolvedWorkspaceEntries),
       ),
       LibraryStatsDistributionCard(
         title: 'Formats',
-        values: countFormats(state.entries),
+        values: countFormats(state.resolvedWorkspaceEntries),
       ),
       if (seasonGap != null)
         LibraryMissingSequenceCard(

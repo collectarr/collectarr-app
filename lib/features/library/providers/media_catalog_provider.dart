@@ -48,7 +48,8 @@ final videoPhysicalMediaFormatsProvider = Provider<List<PhysicalMediaFormat>>(
     final formats = physicalMediaFormatsFromCatalog(catalog);
     return formats.isNotEmpty
         ? formats
-        : libraryKindFor(CatalogMediaKind.movie).physicalMediaFormats;
+        : collectarrKindModulesByKind[CatalogMediaKind.movie]!
+            .physicalMediaFormats;
   },
 );
 
@@ -72,7 +73,7 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   if (formats.isNotEmpty) {
     return formats;
   }
-  return lookupLibraryKind(kind)?.physicalMediaFormats ?? const [];
+  return collectarrKindModulesByKind[kind]?.physicalMediaFormats ?? const [];
 }
 
 List<CatalogMediaType> _normalizeCatalogMediaTypes(

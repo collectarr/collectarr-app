@@ -70,7 +70,7 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryEntry entry) {
+  List<String> catalogCells(LibraryWorkspaceEntry entry) {
     final catalog = entry.catalogItem;
     final comic =
         catalog == null ? null : ComicCoreMapper.fromCatalogItem(catalog);
@@ -91,7 +91,7 @@ final class ComicCollectionCsvProjection
 
   @override
   List<String> ownedCellsBeforeQuantity(
-    LibraryEntry entry, {
+    LibraryWorkspaceEntry entry, {
     required bool clzFriendly,
   }) {
     final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);
@@ -102,7 +102,7 @@ final class ComicCollectionCsvProjection
 
   @override
   List<String> ownedCellsAfterIndex(
-    LibraryEntry entry, {
+    LibraryWorkspaceEntry entry, {
     required bool clzFriendly,
   }) {
     final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);

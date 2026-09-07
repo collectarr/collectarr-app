@@ -226,15 +226,6 @@ class LibraryEditDraft {
           libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
               ?.variantId,
     );
-    final wishlistEditionSelection = resolveLibraryEditionSelection(
-      editions,
-      editionId: libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)
-          ?.editionId,
-      editionTitle: editionTitle,
-      variantId: libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)
-          ?.variantId,
-    );
-
     final metadata = CommonMetadataDraft(
       titleController: titleController,
       displayTitleController: displayTitleController,
@@ -276,16 +267,7 @@ class LibraryEditDraft {
       selectedVariantId: editionSelection.variant?.id,
       selectedBundleReleaseId:
           normalizeLibrarySelectionId(ownedItem?.anchor?.bundleReleaseId),
-      selectedWishlistAnchorType: PersonalItemAnchorType.fromApiValue(
-            libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)
-                ?.apiValue,
-          ) ??
-          PersonalItemAnchorType.item,
-      selectedWishlistEditionId: wishlistEditionSelection.edition?.id,
-      selectedWishlistVariantId: wishlistEditionSelection.variant?.id,
-      selectedWishlistBundleReleaseId: normalizeLibrarySelectionId(
-          libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)
-              ?.bundleReleaseId),
+      selectedWishlistCatalogRef: wishlistItem?.catalogRef,
       locationChanged: false,
       soldAt: ownedItem?.soldAt,
       collectionStatus: ownedItem?.collectionStatus,
@@ -526,12 +508,8 @@ class LibraryEditDraft {
       wishlist: wishlistItem == null
           ? null
           : LibraryWishlistEditSelection(
-              anchor: PersonalItemAnchor.fromRaw(
-                anchorType: personal.selectedWishlistAnchorType.apiValue,
-                editionId: personal.selectedWishlistEditionId,
-                variantId: personal.selectedWishlistVariantId,
-                bundleReleaseId: personal.selectedWishlistBundleReleaseId,
-              ),
+              catalogRef:
+                  personal.selectedWishlistCatalogRef ?? item.catalogRef,
               targetPriceCents:
                   parseMoneyCents(personal.wishlistPriceController.text),
               currency: emptyToNull(personal.wishlistCurrencyController.text),

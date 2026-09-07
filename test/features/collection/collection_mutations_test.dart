@@ -571,7 +571,8 @@ void main() {
     expect(updated.locationId, isNull);
   });
 
-  test('wishlist updates persist bundle anchors and notes', () async {
+  test('wishlist updates persist bundle catalog references and notes',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final container = ProviderContainer(
@@ -625,7 +626,8 @@ void main() {
         queued.where((row) => row.entityType == 'wishlist_item'), hasLength(1));
   });
 
-  test('wishlist allows multiple release anchors for the same item', () async {
+  test('wishlist allows multiple release references for the same item',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final container = ProviderContainer(
@@ -668,7 +670,7 @@ void main() {
         queued.where((row) => row.entityType == 'wishlist_item'), hasLength(2));
   });
 
-  test('wishlist removal can target a single release anchor', () async {
+  test('wishlist removal can target a single release reference', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final container = ProviderContainer(

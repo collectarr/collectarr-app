@@ -307,11 +307,13 @@ class _ShelfStatCard extends StatelessWidget {
 class _ShelfEntryRow extends ConsumerStatefulWidget {
   const _ShelfEntryRow({
     required this.entry,
+    this.workspaceEntry,
     required this.onRemoveOwned,
     required this.onRemoveWishlist,
   });
 
-  final ShelfEntry entry;
+  final LibraryEntry entry;
+  final ShelfEntry? workspaceEntry;
   final VoidCallback onRemoveOwned;
   final VoidCallback onRemoveWishlist;
 
@@ -328,11 +330,15 @@ class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
     final colorScheme = Theme.of(context).colorScheme;
     final owned = entry.ownedSummary;
     final wishlist = entry.wishlistItem;
-    final kindShelfExtension = libraryShelfExtensionForEntry(
-      entry,
-      expanded: _volumesExpanded,
-      onToggle: () => setState(() => _volumesExpanded = !_volumesExpanded),
-    );
+    final workspaceEntry = widget.workspaceEntry;
+    final kindShelfExtension = workspaceEntry == null
+        ? null
+        : libraryShelfExtensionForEntry(
+            workspaceEntry,
+            expanded: _volumesExpanded,
+            onToggle: () =>
+                setState(() => _volumesExpanded = !_volumesExpanded),
+          );
     return Material(
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(8),
@@ -460,7 +466,7 @@ enum _ShelfAction { removeOwned, removeWishlist }
 class _ShelfCover extends StatelessWidget {
   const _ShelfCover({required this.entry});
 
-  final ShelfEntry entry;
+  final LibraryEntry entry;
 
   @override
   Widget build(BuildContext context) {

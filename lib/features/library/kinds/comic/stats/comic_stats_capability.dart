@@ -26,7 +26,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindModule type,
   ) {
-    final keyComicCount = countKeyComics(state.entries);
+    final keyComicCount = countKeyComics(state.resolvedWorkspaceEntries);
     return [
       if (keyComicCount > 0)
         LibraryStatsTileDescriptor(
@@ -49,9 +49,9 @@ class ComicStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindModule type,
   ) {
-    final seriesGap = _seriesGapSummary(state.entries);
+    final seriesGap = _seriesGapSummary(state.resolvedWorkspaceEntries);
     final volumeGap = _numberedGapSummary(
-      state.entries,
+      state.resolvedWorkspaceEntries,
       (entry) {
         final metadata = _comicMetadata(entry);
         final rawVolume = metadata?.series?.volumeNumber;
@@ -67,15 +67,15 @@ class ComicStatsCapability implements LibraryStatsCapability {
     return [
       LibraryStatsRankedCard(
         title: 'Top Creators',
-        values: _topCreatorCounts(state.entries),
+        values: _topCreatorCounts(state.resolvedWorkspaceEntries),
       ),
       LibraryStatsRankedCard(
         title: 'Top Characters',
-        values: _topCharacterCounts(state.entries),
+        values: _topCharacterCounts(state.resolvedWorkspaceEntries),
       ),
       LibraryStatsRankedCard(
         title: 'Top Story Arcs',
-        values: _topStoryArcCounts(state.entries),
+        values: _topStoryArcCounts(state.resolvedWorkspaceEntries),
       ),
       if (seriesGap != null)
         LibraryMissingIssuesCard(

@@ -91,7 +91,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
       );
     }
     return [
-      for (final source in shelf.entries)
+      for (final source in shelf.resolvedWorkspaceEntries)
         if (source.catalogItem != null &&
             source.catalogItem!.kind == kind.apiValue)
           ...releaseCap.projectReleases(
@@ -107,7 +107,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
     ];
   }
   return [
-    for (final source in shelf.entries)
+    for (final source in shelf.resolvedWorkspaceEntries)
       if (source.catalogItem != null &&
           source.catalogItem!.kind == kind.apiValue)
         type.titleCapability.projectTitle(

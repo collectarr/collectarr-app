@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 LibraryHierarchyCapability requireLibraryHierarchyForKind(
   CatalogMediaKind kind,
 ) {
-  final module = lookupLibraryKind(kind);
+  final module = collectarrKindModulesByKind[kind];
   if (module == null) {
     throw UnsupportedError(
       'Hierarchy is not supported for unregistered kind: $kind',

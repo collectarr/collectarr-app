@@ -227,7 +227,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   }) {
     final urls = <String>[];
     final seen = <String>{};
-    for (final entry in shelfState.entries) {
+    for (final entry in shelfState.resolvedWorkspaceEntries) {
       final catalogItem = entry.catalogItem;
       if (catalogItem == null || catalogItem.kind != kind) {
         continue;

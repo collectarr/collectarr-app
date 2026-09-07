@@ -64,22 +64,4 @@ void main() {
     expect(state.selectedTrackingEditionId, isNull);
     expect(state.selectedTrackingVariantId, isNull);
   });
-
-  test('wishlist edition anchor clears variant but preserves resolved edition',
-      () {
-    final state = resolveWishlistAnchorSelectionState(
-      anchorType: PersonalItemAnchorType.edition.apiValue,
-      editions: [buildEdition()],
-      selectedEditionId: null,
-      selectedVariantId: 'variant-main',
-      editionTitle: 'Hardcover',
-      variantName: 'Main Cover',
-      availableBundleReleaseIds: const ['bundle-1'],
-    );
-
-    expect(state.anchorType, PersonalItemAnchorType.edition.apiValue);
-    expect(state.selectedEditionId, 'edition-hc');
-    expect(state.selectedVariantId, isNull);
-    expect(state.selectedBundleReleaseId, isNull);
-  });
 }

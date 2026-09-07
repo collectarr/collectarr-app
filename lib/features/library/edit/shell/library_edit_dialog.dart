@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -468,6 +468,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _personalTab() {
     if (_draft.hasWishlistContext) {
+      final wishlistRef = _draft.personal.selectedWishlistCatalogRef;
+      final wishlistTargetType =
+          wishlistRef?.entityType == CatalogEntityType.bundleRelease &&
+                  widget.availableBundleReleases.isNotEmpty
+              ? CatalogEntityType.bundleRelease
+              : CatalogEntityType.work;
       return EditTabShell(
         children: [
           EditSection(
@@ -476,30 +482,38 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DropdownButtonFormField<PersonalItemAnchorType>(
-                  key: const Key('library-edit-wishlist-anchor-field'),
-                  initialValue: _draft.personal.selectedWishlistAnchorType,
+                DropdownButtonFormField<CatalogEntityType>(
+                  key: const Key('library-edit-wishlist-target-field'),
+                  initialValue: wishlistTargetType,
                   decoration:
                       const InputDecoration(labelText: 'Wishlist target'),
                   items: [
                     const DropdownMenuItem(
-                      value: PersonalItemAnchorType.item,
+                      value: CatalogEntityType.work,
                       child: Text('Item / Work'),
                     ),
                     if (widget.availableBundleReleases.isNotEmpty)
                       const DropdownMenuItem(
-                        value: PersonalItemAnchorType.bundleRelease,
+                        value: CatalogEntityType.bundleRelease,
                         child: Text('Bundle release'),
                       ),
                   ],
                   onChanged: (val) {
                     setState(() {
-                      _draft.personal.selectedWishlistAnchorType =
-                          val ?? PersonalItemAnchorType.item;
-                      if (val == PersonalItemAnchorType.bundleRelease &&
+                      final targetType = val ?? CatalogEntityType.work;
+                      if (targetType == CatalogEntityType.bundleRelease &&
                           widget.availableBundleReleases.isNotEmpty) {
-                        _draft.personal.selectedWishlistBundleReleaseId =
-                            widget.availableBundleReleases.first.id;
+                        final bundle = widget.availableBundleReleases.first;
+                        _draft.personal.selectedWishlistCatalogRef =
+                            CatalogEntityRef(
+                          kind: _draft.item.kind,
+                          entityType: CatalogEntityType.bundleRelease,
+                          id: bundle.id,
+                          rootId: _draft.item.id,
+                        );
+                      } else {
+                        _draft.personal.selectedWishlistCatalogRef =
+                            _draft.item.catalogRef;
                       }
                     });
                   },

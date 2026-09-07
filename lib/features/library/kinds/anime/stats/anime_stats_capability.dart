@@ -27,7 +27,7 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindModule type,
   ) {
-    final episodes = totalEpisodes(state.entries);
+    final episodes = totalEpisodes(state.resolvedWorkspaceEntries);
     return [
       if (episodes > 0)
         LibraryStatsTileDescriptor(
@@ -47,19 +47,19 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
     return [
       LibraryStatsRankedCard(
         title: 'Top Genres',
-        values: countGenres(state.entries),
+        values: countGenres(state.resolvedWorkspaceEntries),
       ),
       LibraryStatsRankedCard(
         title: 'Top Studios',
-        values: countStudios(state.entries),
+        values: countStudios(state.resolvedWorkspaceEntries),
       ),
       LibraryStatsDistributionCard(
         title: 'Formats',
-        values: countFormats(state.entries),
+        values: countFormats(state.resolvedWorkspaceEntries),
       ),
       LibraryStatsDistributionCard(
         title: 'Source Material',
-        values: countSourceMaterial(state.entries),
+        values: countSourceMaterial(state.resolvedWorkspaceEntries),
       ),
     ];
   }

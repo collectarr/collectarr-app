@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:flutter/material.dart';
 
@@ -28,10 +29,7 @@ class PersonalStateDraft {
     required this.selectedEditionId,
     required this.selectedVariantId,
     required this.selectedBundleReleaseId,
-    required this.selectedWishlistAnchorType,
-    required this.selectedWishlistEditionId,
-    required this.selectedWishlistVariantId,
-    required this.selectedWishlistBundleReleaseId,
+    required this.selectedWishlistCatalogRef,
     required this.locationChanged,
     required this.soldAt,
     required this.collectionStatus,
@@ -63,10 +61,7 @@ class PersonalStateDraft {
   String? selectedVariantId;
   String? selectedBundleReleaseId;
 
-  PersonalItemAnchorType selectedWishlistAnchorType;
-  String? selectedWishlistEditionId;
-  String? selectedWishlistVariantId;
-  String? selectedWishlistBundleReleaseId;
+  CatalogEntityRef? selectedWishlistCatalogRef;
 
   bool locationChanged;
   DateTime? soldAt;

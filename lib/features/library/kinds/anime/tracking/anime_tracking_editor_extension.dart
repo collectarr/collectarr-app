@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:flutter/material.dart';
 
+import 'anime_tracking_entry.dart';
+
 Widget buildAnimeTrackingEditorExtension(
   BuildContext context, {
   required TrackingEntry entry,
@@ -39,11 +41,12 @@ class _AnimeTrackingEditorExtensionState
   @override
   void initState() {
     super.initState();
+    final coordinates = animeTrackingCoordinatesFor(widget.entry);
     _seasonController = TextEditingController(
-      text: widget.entry.seasonNumber?.toString() ?? '',
+      text: coordinates.seasonNumber?.toString() ?? '',
     );
     _episodeController = TextEditingController(
-      text: widget.entry.episodeNumber?.toString() ?? '',
+      text: coordinates.episodeNumber?.toString() ?? '',
     );
   }
 
@@ -52,8 +55,9 @@ class _AnimeTrackingEditorExtensionState
     super.didUpdateWidget(oldWidget);
     if (oldWidget.entry.id != widget.entry.id ||
         oldWidget.entry.updatedAt != widget.entry.updatedAt) {
-      _seasonController.text = widget.entry.seasonNumber?.toString() ?? '';
-      _episodeController.text = widget.entry.episodeNumber?.toString() ?? '';
+      final coordinates = animeTrackingCoordinatesFor(widget.entry);
+      _seasonController.text = coordinates.seasonNumber?.toString() ?? '';
+      _episodeController.text = coordinates.episodeNumber?.toString() ?? '';
     }
   }
 
@@ -105,7 +109,7 @@ class _AnimeTrackingEditorExtensionState
     final season = int.tryParse(_seasonController.text.trim());
     final episode = int.tryParse(_episodeController.text.trim());
     widget.onChanged(
-      (entry) => entry.copyWith(
+      (entry) => animeTrackingEntryFor(entry).copyWith(
         seasonNumber: season,
         episodeNumber: episode,
       ),

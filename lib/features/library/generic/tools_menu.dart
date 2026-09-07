@@ -105,7 +105,9 @@ class LibraryToolsButton extends StatelessWidget {
             label: 'Find duplicates',
             section: 'Browse',
             onSelected: () {
-              final groups = findDuplicateShelfGroups(shelfState!.entries);
+              final groups = findDuplicateShelfGroups(
+                shelfState!.resolvedWorkspaceEntries,
+              );
               showDuplicateItemsDialog(context, duplicateGroups: groups);
             },
           ),

@@ -35,7 +35,7 @@ final overdueLoanOwnedItemIdsProvider =
 
 Map<String, LibraryKindCount> libraryCountsByKind(ShelfState state) {
   final counts = <String, LibraryKindCount>{};
-  for (final entry in state.entries) {
+  for (final entry in state.resolvedWorkspaceEntries) {
     final kind = entry.catalogItem?.kind;
     if (kind == null || kind.isEmpty) {
       continue;
@@ -57,7 +57,7 @@ Map<String, int> overdueLoanCountsByKind(
   }
 
   final counts = <String, int>{};
-  for (final entry in state.entries) {
+  for (final entry in state.resolvedWorkspaceEntries) {
     final kind = entry.catalogItem?.kind;
     final ownedItemId = entry.ownedItem?.id;
     if (kind == null || kind.isEmpty || ownedItemId == null) {

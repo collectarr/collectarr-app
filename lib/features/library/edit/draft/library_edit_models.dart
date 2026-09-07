@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
@@ -305,13 +306,13 @@ class LibraryPersonalEditSelection {
 
 class LibraryWishlistEditSelection {
   const LibraryWishlistEditSelection({
-    required this.anchor,
+    required this.catalogRef,
     required this.targetPriceCents,
     required this.currency,
     required this.notes,
   });
 
-  final PersonalItemAnchor? anchor;
+  final CatalogEntityRef catalogRef;
   final int? targetPriceCents;
   final String? currency;
   final String? notes;

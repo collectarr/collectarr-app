@@ -170,7 +170,9 @@ void main() {
 
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
 
-    expect(ownedRows.single.itemId, 'edition-1');
+    // The owned row is keyed by its root catalog item; the selected edition
+    // remains the structural target reference on the aggregate.
+    expect(ownedRows.single.itemId, 'comic-release-1');
     expect(
       ownedRows.single.anchorType,
       PersonalItemAnchorType.edition.apiValue,
@@ -212,7 +214,8 @@ void main() {
     expect(variantRef.rootId, 'comic-release-2');
   });
 
-  test('adds wishlist item against a bundle release anchor', () async {
+  test('adds wishlist item against a bundle release catalog reference',
+      () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
 

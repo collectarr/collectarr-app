@@ -30,7 +30,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindModule type,
   ) {
-    final volumeGap = _bestMissingVolumeSummary(state.entries);
+    final volumeGap = _bestMissingVolumeSummary(state.resolvedWorkspaceEntries);
 
     return [
       if (volumeGap != null)

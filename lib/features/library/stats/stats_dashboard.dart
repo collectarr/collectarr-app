@@ -43,8 +43,9 @@ class _GenericStatsDashboard extends StatelessWidget {
                 state.totalSellCents! - state.totalPaidCents!,
                 state.primaryCurrency,
               );
-    final collectionValueSummary =
-        type.value?.resolveCollectionValueSummary(state.entries);
+    final collectionValueSummary = type.value?.resolveCollectionValueSummary(
+      state.resolvedWorkspaceEntries,
+    );
     final collectionValue = collectionValueSummary == null
         ? null
         : collectionValueSummary.hasMixedCurrencies
@@ -59,15 +60,18 @@ class _GenericStatsDashboard extends StatelessWidget {
     final sellValue = state.totalSellCents == null || state.totalSellCents == 0
         ? null
         : formatMoney(state.totalSellCents, state.primaryCurrency);
-    final missingCovers =
-        state.entries.where((e) => e.catalogItem?.coverImageUrl == null).length;
+    final missingCovers = state.resolvedWorkspaceEntries
+        .where((e) => e.catalogItem?.coverImageUrl == null)
+        .length;
     final module = type;
-    final missingMetadata = _missingMetadataCount(state.entries, module);
+    final missingMetadata =
+        _missingMetadataCount(state.resolvedWorkspaceEntries, module);
     final valueCoverage =
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
-    final metadataQualityBands = _metadataQualityBands(state.entries, module);
+    final metadataQualityBands =
+        _metadataQualityBands(state.resolvedWorkspaceEntries, module);
     final metadataAlertCounts =
-        _metadataAlertCounts(state.entries, type, module);
+        _metadataAlertCounts(state.resolvedWorkspaceEntries, type, module);
 
     final kindSummaryTiles = module.stats.buildSummaryTiles(state, type);
     final kindCustomCards = module.stats.buildCustomCards(context, state, type);
@@ -99,7 +103,8 @@ class _GenericStatsDashboard extends StatelessWidget {
                           LibraryStatsTile(
                             icon: type.identity.icon,
                             label: 'Total',
-                            value: state.entries.length.toString(),
+                            value: state.resolvedWorkspaceEntries.length
+                                .toString(),
                           ),
                           LibraryStatsTile(
                             icon: Icons.check_box,
@@ -169,12 +174,17 @@ class _GenericStatsDashboard extends StatelessWidget {
                           final children = <Widget>[
                             LibraryStatsRankedCard(
                               title: _seriesLabel,
-                              values: _topSeriesCounts(state.entries, module),
+                              values: _topSeriesCounts(
+                                state.resolvedWorkspaceEntries,
+                                module,
+                              ),
                             ),
                             LibraryStatsRankedCard(
                               title: _publisherLabel,
-                              values:
-                                  _topPublisherCounts(state.entries, module),
+                              values: _topPublisherCounts(
+                                state.resolvedWorkspaceEntries,
+                                module,
+                              ),
                             ),
                             if (state.gradeCounts.isNotEmpty)
                               LibraryStatsDistributionCard(
@@ -190,32 +200,43 @@ class _GenericStatsDashboard extends StatelessWidget {
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Most Invested Locations',
-                                values: _topInvestedLocations(state.entries),
+                                values: _topInvestedLocations(
+                                  state.resolvedWorkspaceEntries,
+                                ),
                                 currency: state.primaryCurrency,
                               ),
                             if (!state.hasMixedCurrencies &&
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Most Invested Series',
-                                values:
-                                    _topInvestedSeries(state.entries, module),
+                                values: _topInvestedSeries(
+                                  state.resolvedWorkspaceEntries,
+                                  module,
+                                ),
                                 currency: state.primaryCurrency,
                               ),
                             if (!state.hasMixedCurrencies &&
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Top Buyers',
-                                values: _topBuyerSales(state.entries),
+                                values: _topBuyerSales(
+                                  state.resolvedWorkspaceEntries,
+                                ),
                                 currency: state.primaryCurrency,
                               ),
                             if (!state.hasMixedCurrencies &&
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Top Sales Series',
-                                values: _topSalesSeries(state.entries, module),
+                                values: _topSalesSeries(
+                                  state.resolvedWorkspaceEntries,
+                                  module,
+                                ),
                                 currency: state.primaryCurrency,
                               ),
-                            _TrackingStatusCard(entries: state.entries),
+                            _TrackingStatusCard(
+                              entries: state.resolvedWorkspaceEntries,
+                            ),
                             LibraryStatsHealthCard(
                               title: 'Data Health',
                               rows: [
@@ -233,18 +254,21 @@ class _GenericStatsDashboard extends StatelessWidget {
                                 ),
                                 LibraryStatsHealthRow(
                                   label: 'Metadata coverage',
-                                  fraction: state.entries.isEmpty
+                                  fraction: state
+                                          .resolvedWorkspaceEntries.isEmpty
                                       ? 0.0
-                                      : (state.entries.length -
+                                      : (state.resolvedWorkspaceEntries.length -
                                               missingMetadata) /
-                                          state.entries.length,
+                                          state.resolvedWorkspaceEntries.length,
                                 ),
                                 LibraryStatsHealthRow(
                                   label: 'Cover coverage',
-                                  fraction: state.entries.isEmpty
+                                  fraction: state
+                                          .resolvedWorkspaceEntries.isEmpty
                                       ? 0.0
-                                      : (state.entries.length - missingCovers) /
-                                          state.entries.length,
+                                      : (state.resolvedWorkspaceEntries.length -
+                                              missingCovers) /
+                                          state.resolvedWorkspaceEntries.length,
                                 ),
                               ],
                             ),

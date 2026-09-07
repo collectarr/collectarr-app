@@ -7,6 +7,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'tv_tracking_entry.dart';
+
 /// Inspector section showing a heatmap grid of per-episode ratings.
 class TvEpisodeRatingSection extends ConsumerWidget {
   const TvEpisodeRatingSection({
@@ -25,7 +27,9 @@ class TvEpisodeRatingSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
-    final ratings = trackingEntry?.episodeRatings ?? const {};
+    final ratings = trackingEntry == null
+        ? const <String, int>{}
+        : tvTrackingCoordinatesFor(trackingEntry!).episodeRatings;
 
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),
@@ -122,7 +126,7 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
             const <TrackingEntry>[];
     final ratings = trackingEntries.isEmpty
         ? const <String, int>{}
-        : trackingEntries.first.episodeRatings;
+        : tvTrackingCoordinatesFor(trackingEntries.first).episodeRatings;
 
     if (ratings.isEmpty) return const SizedBox.shrink();
 

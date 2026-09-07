@@ -224,6 +224,19 @@ final List<LibraryKindModule> collectarrKindModules = [
   tvKindModule,
 ];
 
+final Map<CatalogMediaKind, LibraryKindModule> collectarrKindModulesByKind =
+    Map.unmodifiable({
+  CatalogMediaKind.anime: animeKindModule,
+  CatalogMediaKind.boardgame: boardGameKindModule,
+  CatalogMediaKind.book: bookKindModule,
+  CatalogMediaKind.comic: comicKindModule,
+  CatalogMediaKind.game: gameKindModule,
+  CatalogMediaKind.manga: mangaKindModule,
+  CatalogMediaKind.movie: movieKindModule,
+  CatalogMediaKind.music: musicKindModule,
+  CatalogMediaKind.tv: tvKindModule,
+});
+
 final Map<CatalogMediaKind, LibraryKindWorkspace> collectarrKindWorkspaces = {
   CatalogMediaKind.anime: animeKindWorkspace,
   CatalogMediaKind.boardgame: boardGameKindWorkspace,
@@ -845,19 +858,6 @@ const List<PickListDefinitionContributor>
       ownedMergePreviewer: TvVocabularies.previewOwnedMerge,
       ownedMerger: TvVocabularies.applyOwnedMerge),
 ];
-
-LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {
-  for (final module in collectarrKindModules) {
-    if (module.kind == kind) return module;
-  }
-  return null;
-}
-
-LibraryKindModule libraryKindFor(CatalogMediaKind kind) {
-  final module = lookupLibraryKind(kind);
-  if (module != null) return module;
-  throw ArgumentError('No LibraryKindModule registered for kind "$kind"');
-}
 
 final Map<CatalogMediaKind, LibraryKindRegistration>
     collectarrKindRegistrations = Map.unmodifiable({

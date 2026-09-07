@@ -3,7 +3,15 @@ import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
-const Object _trackingUnset = Object();
+/// Sentinel used by typed tracking-entry subclasses when they need to
+/// distinguish an omitted nullable patch from an explicit `null`.
+///
+/// The common tracking model still exposes its legacy coordinate parameters
+/// while callers are migrated to kind-owned tracking entries. Keeping the
+/// sentinel public lets those subclasses preserve their typed coordinates
+/// through common lifecycle updates without adding semantic fields to the
+/// shared model.
+const Object trackingEntryUnset = Object();
 
 class TrackingEntry extends PersonalTrackingBase {
   TrackingEntry({
@@ -74,60 +82,62 @@ class TrackingEntry extends PersonalTrackingBase {
   TrackingEntry copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedItemId = _trackingUnset,
-    Object? sourceType = _trackingUnset,
-    Object? status = _trackingUnset,
-    Object? rating = _trackingUnset,
-    Object? startedAt = _trackingUnset,
-    Object? finishedAt = _trackingUnset,
-    Object? progressCurrent = _trackingUnset,
-    Object? progressTotal = _trackingUnset,
-    Object? timesCompleted = _trackingUnset,
-    Object? notes = _trackingUnset,
-    Object? seasonNumber = _trackingUnset,
-    Object? episodeNumber = _trackingUnset,
+    Object? ownedItemId = trackingEntryUnset,
+    Object? sourceType = trackingEntryUnset,
+    Object? status = trackingEntryUnset,
+    Object? rating = trackingEntryUnset,
+    Object? startedAt = trackingEntryUnset,
+    Object? finishedAt = trackingEntryUnset,
+    Object? progressCurrent = trackingEntryUnset,
+    Object? progressTotal = trackingEntryUnset,
+    Object? timesCompleted = trackingEntryUnset,
+    Object? notes = trackingEntryUnset,
+    Object? seasonNumber = trackingEntryUnset,
+    Object? episodeNumber = trackingEntryUnset,
     Map<String, int>? episodeRatings,
     DateTime? updatedAt,
-    Object? deletedAt = _trackingUnset,
+    Object? deletedAt = trackingEntryUnset,
   }) {
     return TrackingEntry(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
-      ownedItemId: identical(ownedItemId, _trackingUnset)
+      ownedItemId: identical(ownedItemId, trackingEntryUnset)
           ? this.ownedItemId
           : ownedItemId as String?,
-      sourceType: identical(sourceType, _trackingUnset)
+      sourceType: identical(sourceType, trackingEntryUnset)
           ? this.sourceType
           : trackingSourceTypeFromValue(sourceType),
-      status: identical(status, _trackingUnset)
+      status: identical(status, trackingEntryUnset)
           ? this.status
           : mediaTrackingStatusFromValue(status),
-      rating: identical(rating, _trackingUnset) ? this.rating : rating as int?,
-      startedAt: identical(startedAt, _trackingUnset)
+      rating:
+          identical(rating, trackingEntryUnset) ? this.rating : rating as int?,
+      startedAt: identical(startedAt, trackingEntryUnset)
           ? this.startedAt
           : startedAt as DateTime?,
-      finishedAt: identical(finishedAt, _trackingUnset)
+      finishedAt: identical(finishedAt, trackingEntryUnset)
           ? this.finishedAt
           : finishedAt as DateTime?,
-      progressCurrent: identical(progressCurrent, _trackingUnset)
+      progressCurrent: identical(progressCurrent, trackingEntryUnset)
           ? this.progressCurrent
           : progressCurrent as int?,
-      progressTotal: identical(progressTotal, _trackingUnset)
+      progressTotal: identical(progressTotal, trackingEntryUnset)
           ? this.progressTotal
           : progressTotal as int?,
-      timesCompleted: identical(timesCompleted, _trackingUnset)
+      timesCompleted: identical(timesCompleted, trackingEntryUnset)
           ? this.timesCompleted
           : timesCompleted as int?,
-      notes: identical(notes, _trackingUnset) ? this.notes : notes as String?,
-      seasonNumber: identical(seasonNumber, _trackingUnset)
+      notes:
+          identical(notes, trackingEntryUnset) ? this.notes : notes as String?,
+      seasonNumber: identical(seasonNumber, trackingEntryUnset)
           ? this.seasonNumber
           : seasonNumber as int?,
-      episodeNumber: identical(episodeNumber, _trackingUnset)
+      episodeNumber: identical(episodeNumber, trackingEntryUnset)
           ? this.episodeNumber
           : episodeNumber as int?,
       episodeRatings: episodeRatings ?? this.episodeRatings,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: identical(deletedAt, _trackingUnset)
+      deletedAt: identical(deletedAt, trackingEntryUnset)
           ? this.deletedAt
           : deletedAt as DateTime?,
     );

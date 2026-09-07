@@ -20,20 +20,6 @@ class LibraryOwnedAnchorSelectionState {
   final String? selectedTrackingVariantId;
 }
 
-class LibraryWishlistAnchorSelectionState {
-  const LibraryWishlistAnchorSelectionState({
-    required this.anchorType,
-    required this.selectedEditionId,
-    required this.selectedVariantId,
-    required this.selectedBundleReleaseId,
-  });
-
-  final String anchorType;
-  final String? selectedEditionId;
-  final String? selectedVariantId;
-  final String? selectedBundleReleaseId;
-}
-
 LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
   required String anchorType,
   required List<CatalogEditionDto> editions,
@@ -99,66 +85,6 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
     selectedBundleReleaseId: null,
     selectedTrackingEditionId: null,
     selectedTrackingVariantId: null,
-  );
-}
-
-LibraryWishlistAnchorSelectionState resolveWishlistAnchorSelectionState({
-  required String anchorType,
-  required List<CatalogEditionDto> editions,
-  required String? selectedEditionId,
-  required String? selectedVariantId,
-  required String? editionTitle,
-  required String? variantName,
-  required List<String> availableBundleReleaseIds,
-}) {
-  if (anchorType == PersonalItemAnchorType.variant.apiValue) {
-    final editionSelection = resolveLibraryEditionSelection(
-      editions,
-      editionId: selectedEditionId,
-      variantId: selectedVariantId,
-      editionTitle: editionTitle,
-      variantName: variantName,
-    );
-    return LibraryWishlistAnchorSelectionState(
-      anchorType: anchorType,
-      selectedEditionId: editionSelection.edition?.id,
-      selectedVariantId: editionSelection.variant?.id,
-      selectedBundleReleaseId: null,
-    );
-  }
-
-  if (anchorType == PersonalItemAnchorType.edition.apiValue) {
-    final editionSelection = resolveLibraryEditionSelection(
-      editions,
-      editionId: selectedEditionId,
-      variantId: selectedVariantId,
-      editionTitle: editionTitle,
-      variantName: variantName,
-    );
-    return LibraryWishlistAnchorSelectionState(
-      anchorType: anchorType,
-      selectedEditionId: editionSelection.edition?.id,
-      selectedVariantId: null,
-      selectedBundleReleaseId: null,
-    );
-  }
-
-  if (anchorType == PersonalItemAnchorType.bundleRelease.apiValue) {
-    return LibraryWishlistAnchorSelectionState(
-      anchorType: anchorType,
-      selectedEditionId: null,
-      selectedVariantId: null,
-      selectedBundleReleaseId: availableBundleReleaseIds.isEmpty
-          ? null
-          : availableBundleReleaseIds.first,
-    );
-  }
-
-  return LibraryWishlistAnchorSelectionState(
-    anchorType: anchorType,
-    selectedEditionId: null,
-    selectedVariantId: null,
-    selectedBundleReleaseId: null,
   );
 }
 

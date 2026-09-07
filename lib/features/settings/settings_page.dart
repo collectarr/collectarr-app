@@ -1382,12 +1382,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final csv = CollectionCsv();
     final data = clzFriendly
         ? csv.exportClzFriendlyShelf(
-            state.entries,
+            state.resolvedWorkspaceEntries,
             customFieldDefinitions: cfDefs,
             customFieldValuesByItem: cfValues,
           )
         : csv.exportShelf(
-            state.entries,
+            state.resolvedWorkspaceEntries,
             customFieldDefinitions: cfDefs,
             customFieldValuesByItem: cfValues,
           );
@@ -1415,7 +1415,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final imported = await showDialog<int>(
       context: context,
       builder: (context) => ImportExportWizardDialog(
-        entries: state.entries,
+        entries: state.resolvedWorkspaceEntries,
         initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,

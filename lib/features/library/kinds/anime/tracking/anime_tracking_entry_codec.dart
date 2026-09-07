@@ -7,6 +7,8 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
 
+import 'anime_tracking_entry.dart';
+
 /// Anime-owned tracking-entry coordinates.
 ///
 /// The universal tracking index stores only lifecycle and structural reference
@@ -31,9 +33,9 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     final rows = await query.get();
     return {
       for (final row in rows)
-        row.id: _AnimeTrackingEntryCoordinates(
+        row.id: AnimeTrackingCoordinates(
           seasonNumber: row.seasonNumber,
-          episodeNumber: row.episodeNumber?.toInt(),
+          episodeNumber: row.episodeNumber?.toDouble(),
           episodeRatings: _decodeEpisodeRatings(row.episodeRatingsJson),
         ),
     };
@@ -61,6 +63,7 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
         'Expected Anime tracking entry',
       );
     }
+    final typed = animeTrackingEntryFor(entry);
     await db.into(db.animeTrackingRows).insertOnConflictUpdate(
           AnimeTrackingRowsCompanion.insert(
             id: entry.id,
@@ -79,10 +82,11 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
             progressCurrent: Value(entry.progressCurrent),
             progressTotal: Value(entry.progressTotal),
             timesCompleted: Value(entry.timesCompleted ?? 0),
-            seasonNumber: Value(entry.seasonNumber),
-            episodeNumber: Value(entry.episodeNumber?.toDouble()),
-            episodeRatingsJson:
-                Value(_encodeEpisodeRatings(entry.episodeRatings) ?? '{}'),
+            seasonNumber: Value(typed.coordinates.seasonNumber),
+            episodeNumber: Value(typed.coordinates.episodeNumber),
+            episodeRatingsJson: Value(
+                _encodeEpisodeRatings(typed.coordinates.episodeRatings) ??
+                    '{}'),
             updatedAt: Value(entry.updatedAt),
             deletedAt: Value(entry.deletedAt),
           ),
@@ -98,12 +102,13 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
         'Expected Anime tracking entry',
       );
     }
+    final typed = animeTrackingEntryFor(entry);
     return entry.toSyncPayload()
       ..addAll({
-        'season_number': entry.seasonNumber,
-        'episode_number': entry.episodeNumber,
-        if (entry.episodeRatings.isNotEmpty)
-          'episode_ratings': entry.episodeRatings,
+        'season_number': typed.coordinates.seasonNumber,
+        'episode_number': typed.coordinates.episodeNumber,
+        if (typed.coordinates.episodeRatings.isNotEmpty)
+          'episode_ratings': typed.coordinates.episodeRatings,
       });
   }
 
@@ -124,11 +129,16 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     }
     final seasonNumber = _int(payload['season_number']);
     final episodeNumber = _int(payload['episode_number']);
-    return TrackingEntry(
+    return AnimeTrackingEntry(
       id: id,
       catalogRef: seasonNumber != null || episodeNumber != null
           ? catalogRef.copyWith(entityType: CatalogEntityType.episode)
           : catalogRef,
+      coordinates: AnimeTrackingCoordinates(
+        seasonNumber: seasonNumber,
+        episodeNumber: _number(payload['episode_number']),
+        episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
+      ),
       ownedItemId: payload['owned_item_id'] as String?,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
@@ -139,9 +149,6 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
       progressTotal: _int(payload['progress_total']),
       timesCompleted: _int(payload['times_completed']),
       notes: payload['notes'] as String?,
-      seasonNumber: seasonNumber,
-      episodeNumber: _int(payload['episode_number']),
-      episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
@@ -152,10 +159,10 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     TrackingEntryStorageRow row,
     Object? coordinates,
   ) {
-    final typed = coordinates is _AnimeTrackingEntryCoordinates
+    final typed = coordinates is AnimeTrackingCoordinates
         ? coordinates
-        : const _AnimeTrackingEntryCoordinates();
-    return TrackingEntry(
+        : AnimeTrackingCoordinates();
+    return AnimeTrackingEntry(
       id: row.id,
       catalogRef: typed.hasEpisodeCoordinates
           ? row.catalogRef.copyWith(entityType: CatalogEntityType.episode)
@@ -170,9 +177,7 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
       progressTotal: row.progressTotal,
       timesCompleted: row.timesCompleted,
       notes: row.notes,
-      seasonNumber: typed.seasonNumber,
-      episodeNumber: typed.episodeNumber,
-      episodeRatings: typed.episodeRatings,
+      coordinates: typed,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
@@ -187,21 +192,6 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     }
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
-}
-
-final class _AnimeTrackingEntryCoordinates {
-  const _AnimeTrackingEntryCoordinates({
-    this.seasonNumber,
-    this.episodeNumber,
-    this.episodeRatings = const {},
-  });
-
-  final int? seasonNumber;
-  final int? episodeNumber;
-  final Map<String, int> episodeRatings;
-
-  bool get hasEpisodeCoordinates =>
-      seasonNumber != null || episodeNumber != null;
 }
 
 Map<String, int> _decodeEpisodeRatings(String? raw) {
@@ -236,6 +226,11 @@ int? _int(Object? value) {
   if (value is int) return value;
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString().trim() ?? '');
+}
+
+double? _number(Object? value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString().trim() ?? '');
 }
 
 DateTime? _date(Object? value) =>

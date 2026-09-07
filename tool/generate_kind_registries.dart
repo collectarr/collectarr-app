@@ -655,6 +655,17 @@ import 'package:go_router/go_router.dart';
   buffer.writeln('];');
   buffer.writeln();
   buffer.writeln(
+    'final Map<CatalogMediaKind, LibraryKindModule> '
+    'collectarrKindModulesByKind = Map.unmodifiable({',
+  );
+  for (final descriptor in descriptors) {
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: ${descriptor.moduleName},',
+    );
+  }
+  buffer.writeln('});');
+  buffer.writeln();
+  buffer.writeln(
     'final Map<CatalogMediaKind, LibraryKindWorkspace> '
     'collectarrKindWorkspaces = {',
   );
@@ -765,22 +776,6 @@ import 'package:go_router/go_router.dart';
   _renderCatalogRepositoryCodecs(buffer, descriptors);
   _renderSerialAuthorityContributors(buffer, descriptors);
   _renderPickListContributors(buffer, descriptors);
-  buffer.writeln();
-  buffer
-      .writeln('LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {');
-  buffer.writeln('  for (final module in collectarrKindModules) {');
-  buffer.writeln('    if (module.kind == kind) return module;');
-  buffer.writeln('  }');
-  buffer.writeln('  return null;');
-  buffer.writeln('}');
-  buffer.writeln();
-  buffer.writeln('LibraryKindModule libraryKindFor(CatalogMediaKind kind) {');
-  buffer.writeln('  final module = lookupLibraryKind(kind);');
-  buffer.writeln('  if (module != null) return module;');
-  buffer.writeln(
-    "  throw ArgumentError('No LibraryKindModule registered for kind \"\$kind\"');",
-  );
-  buffer.writeln('}');
   buffer.writeln();
   buffer.writeln(
     'final Map<CatalogMediaKind, LibraryKindRegistration> '

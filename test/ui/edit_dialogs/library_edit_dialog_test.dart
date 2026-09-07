@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -7,7 +8,6 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 
 import '../../helpers/test_constants.dart';
@@ -1422,7 +1422,7 @@ void main() {
     await tester.tap(personalTab);
     await pumpUntilSettled(tester);
     await tester
-        .tap(find.byKey(const Key('library-edit-wishlist-anchor-field')));
+        .tap(find.byKey(const Key('library-edit-wishlist-target-field')));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Bundle release').last);
     await pumpUntilSettled(tester);
@@ -1440,8 +1440,12 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.wishlist?.anchor?.apiValue, 'bundle_release');
-    expect(selection?.wishlist?.anchor?.bundleReleaseId, 'bundle-akira');
+    expect(
+      selection?.wishlist?.catalogRef.entityType,
+      CatalogEntityType.bundleRelease,
+    );
+    expect(selection?.wishlist?.catalogRef.id, 'bundle-akira');
+    expect(selection?.wishlist?.catalogRef.rootId, 'movie-wishlist-1');
     expect(selection?.wishlist?.targetPriceCents, 5499);
     expect(selection?.wishlist?.currency, 'USD');
     expect(selection?.wishlist?.notes, 'Need the collector box.');

@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
@@ -32,6 +33,7 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -164,6 +166,16 @@ class LibraryAddSessionController
           bundleReleaseId: selection.selectedBundleReleaseId,
         ),
     };
+  }
+
+  CatalogEntityRef _selectedWishlistRef(CatalogItemDto item) {
+    final selection = state.selection;
+    return catalogRefForLibrarySelection(
+      item,
+      editionId: selection.selectedReferenceEditionId,
+      variantId: selection.selectedReferenceVariantId,
+      bundleReleaseId: selection.selectedBundleReleaseId,
+    );
   }
 
   LibraryAddSearchCapability get _searchCapability =>
@@ -1309,7 +1321,7 @@ class LibraryAddSessionController
           await _addOwnedItemWithTracking(command);
         case LibraryAddTarget.wishlist:
           await wishlistMutations.addToWishlist(
-            item.catalogRefForPersonalAnchor(_selectedAnchor),
+            _selectedWishlistRef(item),
           );
         case LibraryAddTarget.track:
           await trackingMutations.addLocalOnlyTrackingEntry(
@@ -1433,7 +1445,7 @@ class LibraryAddSessionController
               await _addOwnedItemWithTracking(command);
             case LibraryAddTarget.wishlist:
               await wishlistMutations.addToWishlist(
-                metadataItem.catalogRefForPersonalAnchor(_selectedAnchor),
+                _selectedWishlistRef(metadataItem),
               );
             case LibraryAddTarget.track:
               await trackingMutations.addLocalOnlyTrackingEntry(
@@ -1494,7 +1506,7 @@ class LibraryAddSessionController
             await _addOwnedItemWithTracking(command);
           case LibraryAddTarget.wishlist:
             await wishlistMutations.addToWishlist(
-              selectedResult.catalogRefForPersonalAnchor(_selectedAnchor),
+              _selectedWishlistRef(selectedResult),
             );
           case LibraryAddTarget.track:
             await trackingMutations.addLocalOnlyTrackingEntry(

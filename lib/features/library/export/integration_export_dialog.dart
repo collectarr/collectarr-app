@@ -64,7 +64,7 @@ class _IntegrationExportDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '${shelfState.entries.length} items in ${type.identity.title}',
+              '${shelfState.resolvedWorkspaceEntries.length} items in ${type.identity.title}',
               style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
             const SizedBox(height: 16),
@@ -105,7 +105,7 @@ class _IntegrationExportDialog extends StatelessWidget {
   String _toCsv(LibraryKindModule module) {
     final buffer = StringBuffer();
     buffer.writeln('Title,Number,Series,Publisher,Barcode,Condition,Grade');
-    for (final entry in shelfState.entries) {
+    for (final entry in shelfState.resolvedWorkspaceEntries) {
       final projection = libraryKindWorkspaceForKind(module.kind).project(
         source: entry,
         node: LibraryTitleNodeRef(
@@ -129,7 +129,7 @@ class _IntegrationExportDialog extends StatelessWidget {
   }
 
   String _toJson(LibraryKindModule module) {
-    final items = shelfState.entries.map((e) {
+    final items = shelfState.resolvedWorkspaceEntries.map((e) {
       final projection = libraryKindWorkspaceForKind(module.kind).project(
         source: e,
         node: LibraryTitleNodeRef(
@@ -163,8 +163,8 @@ class _IntegrationExportDialog extends StatelessWidget {
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln(
-        '<collection name="${_escapeXml(type.identity.title)}" count="${shelfState.entries.length}">');
-    for (final entry in shelfState.entries) {
+        '<collection name="${_escapeXml(type.identity.title)}" count="${shelfState.resolvedWorkspaceEntries.length}">');
+    for (final entry in shelfState.resolvedWorkspaceEntries) {
       final projection = libraryKindWorkspaceForKind(module.kind).project(
         source: entry,
         node: LibraryTitleNodeRef(
@@ -206,9 +206,9 @@ class _IntegrationExportDialog extends StatelessWidget {
     final buffer = StringBuffer();
     buffer.writeln('# ${type.identity.title}');
     buffer.writeln('');
-    buffer.writeln('**${shelfState.entries.length} items**');
+    buffer.writeln('**${shelfState.resolvedWorkspaceEntries.length} items**');
     buffer.writeln('');
-    for (final entry in shelfState.entries) {
+    for (final entry in shelfState.resolvedWorkspaceEntries) {
       final projection = libraryKindWorkspaceForKind(module.kind).project(
         source: entry,
         node: LibraryTitleNodeRef(

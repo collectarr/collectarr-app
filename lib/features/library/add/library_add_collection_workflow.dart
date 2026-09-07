@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
@@ -8,6 +9,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_kind_draf
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 class LibraryAddDefaults {
@@ -132,7 +134,7 @@ Future<void> addLibraryItemsToTarget({
         break;
       case LibraryAddTarget.wishlist:
         await wishlistMutations.addToWishlist(
-          item.catalogRefForPersonalAnchor(itemAnchor),
+          reference.catalogRef,
         );
         break;
       case LibraryAddTarget.track:
@@ -182,9 +184,15 @@ _ResolvedAddReference _resolveReferenceForItem(
 }) {
   switch (referenceType) {
     case LibraryAddReferenceType.media:
-      return const _ResolvedAddReference();
+      return _ResolvedAddReference(
+        catalogRef: item.catalogRef,
+      );
     case LibraryAddReferenceType.bundleRelease:
       return _ResolvedAddReference(
+        catalogRef: catalogRefForLibrarySelection(
+          item,
+          bundleReleaseId: bundleReleaseId,
+        ),
         anchor: PersonalItemAnchor.fromRaw(
           anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
           bundleReleaseId: bundleReleaseId,
@@ -193,23 +201,33 @@ _ResolvedAddReference _resolveReferenceForItem(
     case LibraryAddReferenceType.edition:
       final explicitEditionId = editionSelection?.editionId.trim();
       if (explicitEditionId != null && explicitEditionId.isNotEmpty) {
+        final variantId = editionSelection?.variantId?.trim();
         return _ResolvedAddReference(
+          catalogRef: catalogRefForLibrarySelection(
+            item,
+            editionId: explicitEditionId,
+            variantId: variantId?.isEmpty == true ? null : variantId,
+          ),
           anchor: PersonalItemAnchor.fromRaw(
             anchorType: PersonalItemAnchorType.edition.apiValue,
             editionId: explicitEditionId,
-            variantId: editionSelection?.variantId?.trim().isEmpty == true
-                ? null
-                : editionSelection?.variantId?.trim(),
+            variantId: variantId?.isEmpty == true ? null : variantId,
           ),
         );
       }
       final editions = item.editions;
       if (editions.isEmpty) {
-        return const _ResolvedAddReference();
+        return _ResolvedAddReference(catalogRef: item.catalogRef);
       }
       final firstEdition = editions.first;
       final explicitVariantId = editionSelection?.variantId?.trim();
       return _ResolvedAddReference(
+        catalogRef: catalogRefForLibrarySelection(
+          item,
+          editionId: firstEdition.id,
+          variantId:
+              explicitVariantId?.isEmpty == true ? null : explicitVariantId,
+        ),
         anchor: PersonalItemAnchor.fromRaw(
           anchorType: PersonalItemAnchorType.edition.apiValue,
           editionId: firstEdition.id,
@@ -221,7 +239,8 @@ _ResolvedAddReference _resolveReferenceForItem(
 }
 
 class _ResolvedAddReference {
-  const _ResolvedAddReference({this.anchor});
+  const _ResolvedAddReference({required this.catalogRef, this.anchor});
 
   final PersonalItemAnchor? anchor;
+  final CatalogEntityRef catalogRef;
 }
