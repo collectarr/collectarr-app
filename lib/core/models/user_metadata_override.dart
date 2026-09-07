@@ -39,7 +39,7 @@ class UserMetadataOverride {
   String get scopeKey =>
       '${targetRef.kind}:${targetRef.entityType.apiValue}:${targetRef.id}';
 
-  Map<String, dynamic> toSyncPayload() {
+  Map<String, Object?> toSyncPayload() {
     return {
       'target_ref': targetRef.toJson(),
       'field_path': fieldPath,
@@ -48,14 +48,15 @@ class UserMetadataOverride {
     };
   }
 
-  factory UserMetadataOverride.fromJson(Map<String, dynamic> json) {
+  factory UserMetadataOverride.fromJson(Map<String, Object?> json) {
     final rawTarget = json['target_ref'];
     if (rawTarget is! Map) {
       throw const FormatException('Metadata override target_ref is required');
     }
     return UserMetadataOverride(
       id: json['id'] as String,
-      targetRef: CatalogEntityRef.fromJson(rawTarget.cast<String, dynamic>()),
+      targetRef:
+          CatalogEntityRef.fromJson(Map<String, Object?>.from(rawTarget)),
       fieldPath: json['field_path'] as String,
       originalValue: json['original_value'] as String?,
       overrideValue: json['override_value'] as String,
