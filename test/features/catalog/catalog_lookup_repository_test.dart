@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
@@ -40,23 +41,23 @@ void main() {
   tearDown(() => db.close());
 
   test('dispatches barcode lookup to every typed kind', () async {
-    const kinds = [
-      'comic',
-      'manga',
-      'book',
-      'game',
-      'boardgame',
-      'movie',
-      'tv',
-      'anime',
-      'music',
+    const kinds = <CatalogMediaKind>[
+      CatalogMediaKind.comic,
+      CatalogMediaKind.manga,
+      CatalogMediaKind.book,
+      CatalogMediaKind.game,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.tv,
+      CatalogMediaKind.anime,
+      CatalogMediaKind.music,
     ];
 
     for (final kind in kinds) {
       await _seedTypedItem(
         db,
         kind: kind,
-        id: '$kind-barcode',
+        id: '${kind.apiValue}-barcode',
         barcode: '978-0-306-40615-${kinds.indexOf(kind)}',
         itemNumber: '42',
       );
@@ -65,51 +66,54 @@ void main() {
     for (final kind in kinds) {
       final hit = await lookup.findByBarcode(
         '978 0 306 40615 ${kinds.indexOf(kind)}',
-        kind: kind,
+        kind: kind.apiValue,
       );
-      expect(hit, isNotNull, reason: kind);
-      expect(hit!.ref.id, '$kind-barcode');
-      expect(hit.kind.apiValue, kind);
+      expect(hit, isNotNull, reason: kind.apiValue);
+      expect(hit!.ref.id, '${kind.apiValue}-barcode');
+      expect(hit.kind, kind);
     }
   });
 
   test('dispatches title and item number lookup to every typed kind', () async {
-    const kinds = [
-      'comic',
-      'manga',
-      'book',
-      'game',
-      'boardgame',
-      'movie',
-      'tv',
-      'anime',
-      'music',
+    const kinds = <CatalogMediaKind>[
+      CatalogMediaKind.comic,
+      CatalogMediaKind.manga,
+      CatalogMediaKind.book,
+      CatalogMediaKind.game,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.tv,
+      CatalogMediaKind.anime,
+      CatalogMediaKind.music,
     ];
 
     for (final kind in kinds) {
       await _seedTypedItem(
         db,
         kind: kind,
-        id: '$kind-title',
+        id: '${kind.apiValue}-title',
         itemNumber: '42',
       );
     }
 
     for (final kind in kinds) {
       final hit = await lookup.findByTitleAndItemNumber(
-        title: '  $kind   title ',
+        title: '  ${kind.apiValue}   title ',
         itemNumber: '42',
-        kind: kind,
+        kind: kind.apiValue,
       );
-      expect(hit, isNotNull, reason: kind);
-      expect(hit!.ref.id, '$kind-title');
+      expect(hit, isNotNull, reason: kind.apiValue);
+      expect(hit!.ref.id, '${kind.apiValue}-title');
       expect(hit.subtitle, '42');
     }
   });
 
   test('unknown kind and empty identifiers return no match', () async {
     expect(await lookup.findByBarcode('---'), isNull);
-    expect(await lookup.findByBarcode('123', kind: 'unknown'), isNull);
+    expect(
+      await lookup.findByBarcode('123', kind: CatalogMediaKind.unknown.apiValue),
+      isNull,
+    );
     expect(
       await lookup.findByTitleAndItemNumber(
         title: '   ',
@@ -122,7 +126,7 @@ void main() {
 
 Future<void> _seedTypedItem(
   LocalDatabase db, {
-  required String kind,
+  required CatalogMediaKind kind,
   required String id,
   String? barcode,
   required String itemNumber,
@@ -133,68 +137,72 @@ Future<void> _seedTypedItem(
     'edition': itemNumber,
   };
   switch (kind) {
-    case 'comic':
+    case CatalogMediaKind.comic:
       await ComicRepository(db).updateMedia(
         ComicMedia(
           id: ComicMediaId(id),
-          title: '$kind title',
+          title: '${kind.apiValue} title',
           issueNumber: itemNumber,
           barcode: barcode,
         ),
       );
-    case 'manga':
+    case CatalogMediaKind.manga:
       await MangaRepository(db).updateMedia(
-        MangaMedia(id: id, title: '$kind title', rawPayload: rawPayload),
+        MangaMedia(id: id, title: '${kind.apiValue} title', rawPayload: rawPayload),
       );
-    case 'book':
+    case CatalogMediaKind.book:
       await BookRepository(db).updateMedia(
         BookMedia(
           id: BookMediaId(id),
-          title: '$kind title',
+          title: '${kind.apiValue} title',
           rawPayload: rawPayload,
         ),
       );
-    case 'game':
+    case CatalogMediaKind.game:
       await GameRepository(db).updateMedia(
         GameMedia(
-            id: GameMediaId(id), title: '$kind title', rawPayload: rawPayload),
+            id: GameMediaId(id),
+            title: '${kind.apiValue} title',
+            rawPayload: rawPayload),
       );
-    case 'boardgame':
+    case CatalogMediaKind.boardgame:
       await BoardGameRepository(db).updateMedia(
         BoardGameMedia(
           id: BoardGameMediaId(id),
-          title: '$kind title',
+          title: '${kind.apiValue} title',
           rawPayload: rawPayload,
         ),
       );
-    case 'movie':
+    case CatalogMediaKind.movie:
       await MovieRepository(db).updateMedia(
         MovieMedia(
           id: MovieMediaId(id),
-          title: '$kind title',
+          title: '${kind.apiValue} title',
           rawPayload: rawPayload,
         ),
       );
-    case 'tv':
+    case CatalogMediaKind.tv:
       await TvRepository(db).updateSeries(
-        TvSeries(id: id, title: '$kind title', rawPayload: rawPayload),
+        TvSeries(id: id, title: '${kind.apiValue} title', rawPayload: rawPayload),
       );
-    case 'anime':
+    case CatalogMediaKind.anime:
       await AnimeRepository(db).updateMedia(
         AnimeMedia(
           id: AnimeMediaId(id),
-          title: '$kind title',
+          title: '${kind.apiValue} title',
           rawPayload: rawPayload,
         ),
       );
-    case 'music':
+    case CatalogMediaKind.music:
       await MusicRepository(db).updateRelease(
         MusicRelease(
           id: MusicReleaseId(id),
-          title: '$kind title',
+          title: '${kind.apiValue} title',
           catalogNumber: itemNumber,
           barcode: barcode,
         ),
       );
+    case CatalogMediaKind.unknown:
+      throw ArgumentError('Unknown test kind: ${kind.apiValue}');
   }
 }

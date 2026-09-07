@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -15,11 +16,13 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -140,17 +143,17 @@ CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
 CatalogItemDto testCatalogItemWithKindMetadata(CatalogItemDto item) {
   if (item.kindMetadata is! Map) return item;
   final payload = item.payload;
-  final metadata = switch (item.kind) {
-    'anime' => AnimeMetadata.fromJson(payload),
-    'boardgame' => BoardGameMetadata.fromJson(payload),
-    'book' => BookCatalogMetadata.fromJson(payload),
-    'comic' => ComicMedia.fromJson(payload),
-    'game' => GameCatalogMetadata.fromJson(payload),
-    'manga' => MangaMetadata.fromJson(payload),
-    'movie' => MovieCatalogMetadata.fromJson(payload),
-    'music' => MusicCatalogMetadata.fromJson(payload),
-    'tv' => TvSeriesMetadata.fromJson(payload),
-    _ => null,
+  final metadata = switch (item.mediaKind) {
+    CatalogMediaKind.anime => AnimeMetadata.fromJson(payload),
+    CatalogMediaKind.boardgame => BoardGameMetadata.fromJson(payload),
+    CatalogMediaKind.book => BookCatalogMetadata.fromJson(payload),
+    CatalogMediaKind.comic => ComicMedia.fromJson(payload),
+    CatalogMediaKind.game => GameCatalogMetadata.fromJson(payload),
+    CatalogMediaKind.manga => MangaMetadata.fromJson(payload),
+    CatalogMediaKind.movie => MovieCatalogMetadata.fromJson(payload),
+    CatalogMediaKind.music => MusicCatalogMetadata.fromJson(payload),
+    CatalogMediaKind.tv => TvSeriesMetadata.fromJson(payload),
+    CatalogMediaKind.unknown => null,
   };
   return metadata == null ? item : item.withKindMetadata(metadata);
 }
@@ -290,9 +293,8 @@ OwnedItem testOwnedItem({
       );
 
   JsonEncodable details;
-  switch (resolvedCatalogRef.kind) {
-    case 'comic':
-    case 'manga':
+  switch (resolvedCatalogRef.mediaKind) {
+    case CatalogMediaKind.comic:
       details = ComicOwnedDetails(
         rawOrSlabbed: rawOrSlabbed,
         gradingCompany: gradingCompany,
@@ -309,43 +311,45 @@ OwnedItem testOwnedItem({
         coverPriceCents: coverPriceCents,
         lastBagBoardDate: lastBagBoardDate,
       );
-    case 'movie':
-      details = coverPriceCents != null
-          ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
-          : MovieOwnedDetails(
-              features: features,
-              hdrFormats: hdrFormats ?? const <String>[],
-              boxSetId: boxSetId,
-              boxSetName: boxSetName,
-              region: region,
-              packaging: packaging,
-              distributor: distributor,
-            );
-    case 'tv':
-      details = coverPriceCents != null
-          ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
-          : TvOwnedDetails(
-              features: features,
-              hdrFormats: hdrFormats ?? const <String>[],
-              boxSetId: boxSetId,
-              boxSetName: boxSetName,
-              region: region,
-              packaging: packaging,
-              distributor: distributor,
-            );
-    case 'anime':
-      details = coverPriceCents != null
-          ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
-          : AnimeOwnedDetails(
-              features: features,
-              hdrFormats: hdrFormats ?? const <String>[],
-              boxSetId: boxSetId,
-              boxSetName: boxSetName,
-              region: region,
-              packaging: packaging,
-              distributor: distributor,
-            );
-    case 'game':
+    case CatalogMediaKind.manga:
+      details = MangaOwnedDetails(
+        signedBy: signedBy,
+        gradingCompany: gradingCompany,
+        graderNotes: graderNotes,
+        printing: '1st print',
+        localizedEdition: 'English edition',
+      );
+    case CatalogMediaKind.movie:
+      details = MovieOwnedDetails(
+        features: features,
+        hdrFormats: hdrFormats ?? const <String>[],
+        boxSetId: boxSetId,
+        boxSetName: boxSetName,
+        region: region,
+        packaging: packaging,
+        distributor: distributor,
+      );
+    case CatalogMediaKind.tv:
+      details = TvOwnedDetails(
+        features: features,
+        hdrFormats: hdrFormats ?? const <String>[],
+        boxSetId: boxSetId,
+        boxSetName: boxSetName,
+        region: region,
+        packaging: packaging,
+        distributor: distributor,
+      );
+    case CatalogMediaKind.anime:
+      details = AnimeOwnedDetails(
+        features: features,
+        hdrFormats: hdrFormats ?? const <String>[],
+        boxSetId: boxSetId,
+        boxSetName: boxSetName,
+        region: region,
+        packaging: packaging,
+        distributor: distributor,
+      );
+    case CatalogMediaKind.game:
       details = GameOwnedDetails(
         completeness: gameCompleteness,
         hasBox: gameHasBox,
@@ -354,12 +358,19 @@ OwnedItem testOwnedItem({
         coreRegion: gameCoreRegion,
         valueIsLocked: gameValueIsLocked,
       );
-    case 'music':
+    case CatalogMediaKind.boardgame:
+      details = const BoardgameOwnedDetails(
+        editionLanguage: 'English',
+        editionRegion: 'US',
+        componentCondition: 'Very Good',
+        componentCompleteness: 'Complete',
+      );
+    case CatalogMediaKind.music:
       details = MusicOwnedDetails(
         storageDevice: storageDevice,
         storageSlot: storageSlot,
       );
-    case 'book':
+    case CatalogMediaKind.book:
       details = BookOwnedDetails(
         signedBy: signedBy,
       );
