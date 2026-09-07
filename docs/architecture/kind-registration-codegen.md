@@ -11,7 +11,8 @@ The generator discovers a kind by finding both:
 
 It then emits one generated registry containing the imports, module list, page
 registrations, kind lookup functions, and typed owned-persistence dispatch
-maps. The two public registry entry points
+maps, catalog repository codecs, vocabulary contributors, and serial
+authority contributors. The two public registry entry points
 (`collectarr_kind_modules.dart` and `library_kind_registrations.dart`) only
 export that generated registry; they do not duplicate kind imports.
 The generated source is ordinary Dart and is compiled normally. The owned
