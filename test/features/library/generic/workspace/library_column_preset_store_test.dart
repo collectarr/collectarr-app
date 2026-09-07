@@ -11,8 +11,8 @@ void main() {
     final saved = await store.savePreset(
       label: 'My Value View',
       columns: const {
-        'status',
-        'price',
+        'comic.status',
+        'comic.price_paid',
       },
     );
 
@@ -24,8 +24,8 @@ void main() {
     final updated = await store.savePreset(
       label: 'my value view',
       columns: const {
-        'status',
-        'grade',
+        'comic.status',
+        'comic.grade',
       },
     );
 

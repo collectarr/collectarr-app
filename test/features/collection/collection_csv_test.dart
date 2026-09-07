@@ -51,6 +51,15 @@ void main() {
           tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
         ),
+        trackingEntry: TrackingEntry(
+          id: 'tracking-1',
+          catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+          ownedItemId: 'owned-1',
+          status: MediaTrackingStatus.completed,
+          rating: 5,
+          updatedAt: DateTime.utc(2026, 5, 12),
+          deletedAt: null,
+        ),
         locationPath: 'Office › Shelf A › Short Box 6',
       ),
     ]);
@@ -110,7 +119,7 @@ void main() {
     expect(rows.single.keyComic, isTrue);
     expect(rows.single.keyReason, 'First appearance');
     expect(rows.single.rating, 5);
-    expect(rows.single.readStatus, 'Read');
+    expect(rows.single.readStatus, 'Completed');
     expect(rows.single.tags, 'spider,key');
   });
 

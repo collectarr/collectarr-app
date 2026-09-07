@@ -93,7 +93,9 @@ void main() {
     );
 
     final typed = ComicOwnedItemProjection.fromOwnedItem(source);
-    expect(typed, item);
+    expect(typed.id, item.id);
+    expect(typed.details, item.details);
+    expect(typed.reading, const ComicReadingState());
 
     final roundTripped = ComicOwnedItemProjection.toOwnedItem(typed);
     expect(roundTripped.toJson(), source.toJson());

@@ -703,7 +703,11 @@ void main() {
           pricePaidCents: 1299,
           currency: 'USD',
         ),
-        const CollectionCsvRow(itemId: 'comic-2', status: 'wishlist'),
+        const CollectionCsvRow(
+          itemId: 'comic-2',
+          kind: 'comic',
+          status: 'wishlist',
+        ),
       ],
     );
 

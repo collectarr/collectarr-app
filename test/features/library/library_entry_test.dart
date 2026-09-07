@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -18,6 +20,18 @@ void main() {
         itemId: 'comic-1',
         readStatus: 'Reading',
         updatedAt: DateTime.utc(2026, 5, 12),
+      ),
+      trackingEntry: TrackingEntry(
+        id: 'tracking-1',
+        catalogRef: const CatalogEntityRef(
+          kind: 'comic',
+          entityType: CatalogEntityType.work,
+          id: 'comic-1',
+        ),
+        ownedItemId: 'owned-1',
+        status: MediaTrackingStatus.inProgress,
+        updatedAt: DateTime.utc(2026, 5, 12),
+        deletedAt: null,
       ),
     );
 

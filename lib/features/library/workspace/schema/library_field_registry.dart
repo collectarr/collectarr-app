@@ -142,6 +142,12 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   LibrarySortIdRuntime decodeSortId(String raw) {
     final direct = _findSortDefinitionByValue(raw);
     if (direct != null) return direct.id;
+    final trimmed = raw.trim();
+    final normalized = trimmed.startsWith('sort.')
+        ? trimmed.substring('sort.'.length)
+        : trimmed;
+    final namespaced = _findSortDefinitionByValue('$kindNamespace.$normalized');
+    if (namespaced != null) return namespaced.id;
     return DynamicLibrarySortId(raw);
   }
 
@@ -150,6 +156,17 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     final normalized = trimmed.startsWith('group.')
         ? trimmed.substring('group.'.length)
         : trimmed;
+    // Prefer the kind-owned definition before collapsing a namespaced
+    // semantic alias to the structural shared ID. A book.location group must
+    // resolve to the Book registry entry, not the generic `location` ID.
+    final direct = _findGroupDefinitionByValue(normalized);
+    if (direct != null) return direct.id;
+    // Older route/query payloads may omit the kind namespace. Resolve that
+    // spelling against the owning registry before treating it as a shared
+    // structural identifier (for example `publisher` -> `book.publisher`).
+    final namespaced =
+        _findGroupDefinitionByValue('$kindNamespace.$normalized');
+    if (namespaced != null) return namespaced.id;
     final sharedGroup = switch (normalized) {
       'title' => LibraryStandardGroupIds.title,
       'location' => LibraryStandardGroupIds.location,
@@ -161,14 +178,19 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     if (sharedGroup != null) {
       return sharedGroup;
     }
-    final direct = _findGroupDefinitionByValue(normalized);
-    if (direct != null) return direct.id;
     return DynamicLibraryGroupId(raw);
   }
 
   LibraryFieldIdRuntime decodeColumnId(String raw) {
     final direct = _findColumnDefinitionByValue(raw);
     if (direct != null) return direct.id;
+    final trimmed = raw.trim();
+    final normalized = trimmed.startsWith('field.')
+        ? trimmed.substring('field.'.length)
+        : trimmed;
+    final namespaced =
+        _findColumnDefinitionByValue('$kindNamespace.$normalized');
+    if (namespaced != null) return namespaced.id;
     return DynamicLibraryFieldId(raw);
   }
 

@@ -32,7 +32,8 @@ void main() {
       final unqualified = comicModule.fields.findGroupDefinition(
         comicModule.fields.decodeGroupId('publisher'),
       );
-      expect(unqualified, isNull);
+      expect(unqualified, isNotNull);
+      expect(unqualified!.id.value, 'comic.publisher');
     });
 
     test('findGroupDefinition rejects wrong-kind group ID', () {
@@ -72,7 +73,7 @@ void main() {
       );
       expect(
         libraryGroupModeFromStorageValue('comic.location', comicModule),
-        'location',
+        'comic.location',
       );
       expect(
         libraryGroupModeFromStorageValue('ownership', comicModule),

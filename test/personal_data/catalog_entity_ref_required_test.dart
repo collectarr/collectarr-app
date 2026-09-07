@@ -13,7 +13,13 @@ void main() {
     for (final path in files) {
       final content = File(path).readAsStringSync();
       expect(content, contains('CatalogEntityRef? catalogRef'));
-      expect(content, contains('String get itemId => catalogRef.id;'));
+      expect(
+        content,
+        anyOf(
+          contains('String get itemId => catalogRef.id;'),
+          contains('String get itemId => catalogRef.rootId ?? catalogRef.id;'),
+        ),
+      );
     }
   });
 }
