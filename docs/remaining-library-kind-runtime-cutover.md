@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-HEAD `51817449` was audited on 2026-09-07. The generated registry already performs
+HEAD `4bd2c0de` was audited on 2026-09-07. The generated registry already performs
 compile-time discovery of all nine kind modules; no runtime reflection or
 manual per-kind import list is required for registration.
 
@@ -43,6 +43,10 @@ kind workspace/edit modules.
   runner no longer switches on a kind string;
 - common owned patch command and generic transfer detail conversion;
 - provider, DTO, domain and presentation compatibility aliases;
+- provider search results and descriptors retain typed catalog kinds; provider
+  JSON/protocol strings remain explicit boundary values;
+- typed metadata API dispatch receives `CatalogMediaKind` through the client
+  and converts to route values only at the transport boundary;
 - universal owned-details tables and universal owned-item persistence table.
 
 ## Next deletion order

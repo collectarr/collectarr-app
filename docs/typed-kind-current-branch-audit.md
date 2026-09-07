@@ -3,7 +3,7 @@
 Audit date: 2026-09-07
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `51817449` (`refactor(admin): avoid semantic kind branches in generic host`)
+HEAD: `4bd2c0de` (`refactor(provider): type provider descriptor kinds`)
 
 ## Scope and evidence
 
@@ -23,10 +23,11 @@ initial draft through the owning Add capability.
 All `CatalogMediaKind` switches in tests were replaced with explicit typed maps
 or concrete fixtures. The central seed graph validator was also deleted: each
 of the nine seed contributors now supplies its own graph validator, while the
-shared seed helper contains only structural validation primitives. The full
-suite passes at 1,908 tests with 5 skipped. The current architecture checker
-reports 601 AST violations plus informational complexity warnings; this is
-still a failing migration gate and is recorded below rather than allowlisted.
+shared seed helper contains only structural validation primitives. The latest
+focused provider/Add verification passes 195 tests. The current architecture
+checker reports 601 AST violations and 410 informational complexity reports;
+this is still a failing migration gate and is recorded below rather than
+allowlisted.
 
 ## Addendum — 2026-09-07
 
@@ -39,17 +40,30 @@ The branch moved forward after the original audit:
 - The architecture checker currently reports 601 AST violations. This remains a failing migration gate; the remaining results are semantic bridges in Catalog/Owned/Collection/Admin/provider boundaries, not compatibility aliases removed in the latest cleanup.
 - Tracking codec registrations now expose `CatalogMediaKind` directly; only Drift and sync serialization use the API string representation. Seed enrichment/barcode validation and test projections follow the same typed contributor boundary.
 - Provider candidates now retain `CatalogMediaKind` after provider JSON/search conversion; API/admin and provider protocol calls convert to the API string only at their serialization boundary.
+- `ProviderSearchResult`, `ProviderDescriptor`, and provider registry kind filters now retain `CatalogMediaKind`; provider JSON descriptors and normalized envelopes remain string-only wire boundaries.
+- Typed metadata API dispatch now accepts `CatalogMediaKind` from `ApiClient` through the generated route client; DTO kind strings are parsed only when entering from API payloads.
+- The sync apply path now parses wire reference kinds before selecting typed tracking/watch/custom-episode codecs, fixing the post-migration comic tracking lookup failure.
 - Seed fixture filtering/default enrichment, Comic/Manga Core kind guards, Comic export/stats checks, metadata comparison panels, and personal-list XML parsing now use typed media-kind values internally. XML/API key comparisons remain explicit serialization boundaries.
 - Compatibility aliases for provider registries, Core catalog DTO names, domain models/IDs, and Library presentation labels were deleted. The source-generated kind registry was regenerated and remains the only central import composition root.
 - Schema version remains exactly `1`; `LocalDatabase` has only direct `onCreate` creation and no compatibility upgrade path.
 
 The common `OwnedItemPatchCommand` and its generic reconstruction path are now deleted. All nine kind-owned update payloads expose typed partial factories, and index, condition/grade, bulk, personal-details, transfer, and details-reset edits are registered through typed kind capabilities. The common `OwnedItem` aggregate, normalized provider envelope, catalog DTO bridge, and erased `LibraryKindModule` consumers remain. These are the next implementation targets, not completed architecture.
 
+## Current HEAD verification override
+
+The historical paragraphs below retain their original milestone counts. At
+HEAD `4bd2c0de`, the authoritative checker result is **601 AST violations**
+and **410 informational complexity reports**. The latest focused verification
+passes **195 provider/Add tests**; the full Flutter suite was intentionally not
+rerun after this batch. Provider search results/descriptors and typed API
+metadata dispatch now retain `CatalogMediaKind` until explicit JSON, protocol,
+or route serialization boundaries.
+
 Evidence checked:
 
 - `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, de-shared video ownership details, independent Movie/TV/Anime catalog video snapshots and mappers with the obsolete shared catalog snapshot models removed, explicit personal-list import boundaries, kind-owned Activity projections, kind-owned Admin proposal fields, concrete tracking profiles for every registered kind, kind-owned concrete tracking-unit models and persistence codecs, kind-owned TV/Anime tracking-entry coordinate and sync codecs, kind-owned TV/Anime tracking-entry sync parsing, kind-owned TV/Anime custom-episode/watch-session codecs, kind-owned TV/Anime watch-session sync codecs, TV-owned episode completion mutations, the TV typed hierarchy migration, TV-owned personal episode import mapping, workspace-scoped local reset cleanup, enriched typed seed graphs, typed tracking-unit seed coverage, typed Owned fixture detail validation for all nine kinds, persisted kind-owned Owned-row integrity checks, the narrowed generic Owned tracking sync API, kind-owned TV/Anime inspector extensions for episodic tracking edits, the explicit kind-owned Owned-details decode boundary, kind-owned concrete Owned detail drafts, typed detail-draft codec signatures for all nine registrations, TV-owned release-media/episode-map editing, kind-owned Movie/TV/Anime video metadata application, TV-owned video detail composition, the separate structural tracking payload on Owned add commands, typed tracking-first CSV export, the separate Add tracking draft, structural Add/edit-selection anchors, explicit anchor replacement semantics for tracking edits, generic Collection import/export host controls, kind-owned Comic, Movie, Book, Manga, Game, BoardGame, Anime, TV, and Music CSV/CLZ projections with typed semantic parsing, the all-kind CSV projection contract, kind-owned Collection import display/barcode projections, kind-owned owned-cell decoding for Comic CSV imports, kind-dispatched CSV resolution for rows without explicit Media Type, a dedicated all-kind owned-details serialization codec registry, deletion of the generic derived-data service, typed Comic/Manga serial-authority candidate contributors, typed local catalog lookup contributors for all nine kinds, per-kind legacy Owned writers behind a structural composition-root dispatcher, default Owned-draft dispatch removed from Collection command code, the shared all-kind seed verification report, kind-owned import row presentation and search/barcode projection dispatch, kind-owned catalog-cell reconstruction for CSV imports, kind-owned Add Owned create payload builders for all nine concrete capabilities, kind-owned Comic and all-kind Owned update payload builders, routing of generic update orchestrators through the owning edit capabilities, kind-owned financial projections for toolbar statistics, structural Owned summaries for Reading Queue including universal note search, and kind-owned digital/physical copy format resolvers for all nine kinds.
-- `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 601 AST architecture violations; its complexity warnings are informational. The checker still exposes the broad erased runtime and common domain bridges that the remaining plan must remove. Compatibility-alias cleanup did not add allowlist entries.
-- `test/contracts/**`, `test/architecture/**`, `test/dev/dev_seed_test.dart`, the Comic domain suite, the Collection/Shelf/Stats suites, and the nine kind vertical suites: focused suites pass; the full suite passes at 1,908 tests with 5 skipped, including the latest seed graph validator, workspace/facet/provider/admin/tracking changes.
+- `tool/check_library_kind_boundaries.dart`: whole-repository baseline at HEAD reports 601 AST architecture violations and 410 informational complexity reports. The checker still exposes the broad erased runtime and common domain bridges that the remaining plan must remove. Compatibility-alias cleanup did not add allowlist entries.
+- `test/features/providers/**`, `test/ui/edit_dialogs/add/library_add_dialog_test.dart`, and `test/features/library/add/library_add_session_controller_test.dart`: latest focused batch passes 195 tests after typed provider descriptor/API dispatch. The full suite was intentionally not rerun in this batch.
 - Barcode contracts execute against all 9 registered kind resolvers; the Add and metadata lookup paths dispatch normalized identifiers through the owning resolver before the API boundary.
 - Loan domain/repository consumers now use `OwnedItemRef` canonically; the manager reads only `OwnedItemSummary` projections; the legacy API `owned_item_id` remains only at the JSON/Drift boundary.
 - All checked-in physical seed fixtures now provide a resolver-compatible barcode; the seed quality guard verifies retail/ISBN checksums and the Comic UPC-A supplement format, and the dev seed test verifies persisted rows through kind dispatch.
