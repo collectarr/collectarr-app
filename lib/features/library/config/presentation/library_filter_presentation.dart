@@ -56,12 +56,6 @@ class LibraryPresentationLabels {
   }
 }
 
-typedef LibraryMediaFilterLabels = LibraryPresentationLabels;
-typedef LibraryMediaGroupLabels = LibraryPresentationLabels;
-typedef LibraryBucketLabelOverrides = LibraryPresentationLabels;
-typedef LibraryReferenceLabels = LibraryPresentationLabels;
-typedef LibraryStatusLabels = LibraryPresentationLabels;
-
 class LibraryBucketingContext {
   const LibraryBucketingContext({
     required this.source,

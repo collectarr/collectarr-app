@@ -31,7 +31,7 @@ const moviesStatsLabels = LibraryMediaStatsLabels(
   values: {'top_series': 'Top Franchises', 'top_publisher': 'Top Studios'},
 );
 
-const moviesLibraryGroupLabels = LibraryMediaGroupLabels(
+const moviesLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Series',
     'series_plural': 'Series',
@@ -44,7 +44,7 @@ const moviesLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const moviesLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+const moviesLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
   LibraryFilterDefinition<dynamic>(
@@ -118,7 +118,7 @@ final moviesLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Series',
       'series_any': 'Any series',

@@ -23,14 +23,14 @@ class LibraryMediaPresentation {
     this.columnFavorites = defaultLibraryColumnFavorites,
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
     this.filterDefinitions = const [],
-    this.referenceLabels = const LibraryReferenceLabels(),
-    this.statusLabels = const LibraryStatusLabels(),
-    this.bucketLabelOverrides = const LibraryBucketLabelOverrides(),
+    this.referenceLabels = const LibraryPresentationLabels(),
+    this.statusLabels = const LibraryPresentationLabels(),
+    this.bucketLabelOverrides = const LibraryPresentationLabels(),
   });
 
   final LibraryMediaSearchFieldLabels searchFieldLabels;
-  final LibraryMediaFilterLabels filterLabels;
-  final LibraryMediaGroupLabels groupLabels;
+  final LibraryPresentationLabels filterLabels;
+  final LibraryPresentationLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;
   final LibraryBucketLabelBuilder bucketLabelBuilder;
   final bool usesCompactTableLayout;
@@ -42,7 +42,7 @@ class LibraryMediaPresentation {
   final List<LibraryTableColumnPreset> columnFavorites;
   final LibraryFilterOptionLabels filterOptionLabels;
   final List<LibraryFilterDefinition<dynamic>> filterDefinitions;
-  final LibraryReferenceLabels referenceLabels;
-  final LibraryStatusLabels statusLabels;
-  final LibraryBucketLabelOverrides bucketLabelOverrides;
+  final LibraryPresentationLabels referenceLabels;
+  final LibraryPresentationLabels statusLabels;
+  final LibraryPresentationLabels bucketLabelOverrides;
 }

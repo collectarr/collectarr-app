@@ -40,7 +40,7 @@ const mangaStatsLabels = LibraryMediaStatsLabels(
   values: {'top_series': 'Top Series', 'top_publisher': 'Top Publishers'},
 );
 
-const mangaLibraryGroupLabels = LibraryMediaGroupLabels(
+const mangaLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Series',
     'series_plural': 'Series',
@@ -56,7 +56,7 @@ const mangaLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const mangaLibraryBucketLabelOverrides = LibraryBucketLabelOverrides(
+const mangaLibraryBucketLabelOverrides = LibraryPresentationLabels(
   values: {'story_arc': 'Story arc', 'character': 'Character'},
 );
 
@@ -132,7 +132,7 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Series',
       'series_any': 'Any series',

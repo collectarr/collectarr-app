@@ -26,12 +26,12 @@ const genericLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
   ),
 ];
 
-const genericLibraryGroupLabels = LibraryMediaGroupLabels(
+const genericLibraryGroupLabels = LibraryPresentationLabels(
   values: {},
 );
 
 const genericLibraryBucketLabelOverrides =
-    LibraryBucketLabelOverrides(values: {});
+    LibraryPresentationLabels(values: {});
 
 String genericLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   return _simpleLibraryBucketLabel(
@@ -43,8 +43,8 @@ String genericLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 
 String _simpleLibraryBucketLabel(
   LibraryBucketingContext context,
-  LibraryMediaGroupLabels labels,
-  LibraryBucketLabelOverrides overrides,
+  LibraryPresentationLabels labels,
+  LibraryPresentationLabels overrides,
 ) {
   return switch (context.groupId.semantic) {
     LibraryGroupSemantic.location =>
@@ -77,7 +77,7 @@ const genericLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Search catalog...',
     emptySearchMessage: 'Enter a search query.',
   ),
-  filterLabels: LibraryMediaFilterLabels(
+  filterLabels: LibraryPresentationLabels(
     values: {},
   ),
   groupLabels: genericLibraryGroupLabels,

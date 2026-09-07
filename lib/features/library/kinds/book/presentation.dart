@@ -18,7 +18,7 @@ const booksMetadataLabels = LibraryMetadataLabels(
   values: {'creators': 'Creators', 'genres': 'Genres'},
 );
 
-const bookLibraryGroupLabels = LibraryMediaGroupLabels(
+const bookLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Series',
     'series_plural': 'Series',
@@ -29,7 +29,7 @@ const bookLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const bookLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+const bookLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
   LibraryFilterDefinition<dynamic>(
@@ -103,7 +103,7 @@ final bookLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Series',
       'series_any': 'Any series',

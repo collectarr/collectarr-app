@@ -88,7 +88,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
   ),
 ];
 
-const boardGamesLibraryGroupLabels = LibraryMediaGroupLabels(
+const boardGamesLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Series',
     'series_plural': 'Series',
@@ -99,7 +99,7 @@ const boardGamesLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const boardGamesLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+const boardGamesLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 String boardGamesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   return defaultLibraryBucketLabel(
@@ -114,7 +114,7 @@ final boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Series',
       'series_any': 'Any series',

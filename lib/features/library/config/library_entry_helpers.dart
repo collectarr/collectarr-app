@@ -256,9 +256,7 @@ String? resolveLibraryOwnedItemId(
   return ownedItem?.id ?? item.source.ownedItem?.id;
 }
 
-typedef LibraryMutationAnchor = PersonalItemAnchor?;
-
-LibraryMutationAnchor resolveLibraryMutationAnchor({
+PersonalItemAnchor? resolveLibraryMutationAnchor({
   LibraryProjectionRuntime? item,
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
@@ -373,7 +371,8 @@ String? _referenceScopeLabelForAnchor(
   };
 }
 
-LibraryReferenceLabels _libraryReferenceLabelsForMediaType(String? mediaType) {
+LibraryPresentationLabels _libraryReferenceLabelsForMediaType(
+    String? mediaType) {
   return libraryKindModuleForKind(catalogMediaKindFromValue(mediaType))
       .presentation
       .referenceLabels;
@@ -436,7 +435,8 @@ String? _normalizedEntryAnchorId(String? value) {
   return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
 
-String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEditionDto> editions) {
+String? _ownedCopyEditionLabel(
+    OwnedItem item, List<CatalogEditionDto> editions) {
   final matchedRelease = _resolveOwnedCopyRelease(item, editions);
   final matchedEdition = matchedRelease.edition;
   final matchedVariant = matchedRelease.variant;
@@ -458,7 +458,8 @@ String? _ownedCopyEditionLabel(OwnedItem item, List<CatalogEditionDto> editions)
   return parts.join(' / ');
 }
 
-({CatalogEditionDto? edition, CatalogVariantDto? variant}) _resolveOwnedCopyRelease(
+({CatalogEditionDto? edition, CatalogVariantDto? variant})
+    _resolveOwnedCopyRelease(
   OwnedItem item,
   List<CatalogEditionDto> editions,
 ) {

@@ -29,7 +29,7 @@ const gamesStatsLabels = LibraryMediaStatsLabels(
   },
 );
 
-const gamesLibraryGroupLabels = LibraryMediaGroupLabels(
+const gamesLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Series',
     'series_plural': 'Series',
@@ -40,7 +40,7 @@ const gamesLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const gamesLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+const gamesLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
   LibraryFilterDefinition<dynamic>(
@@ -114,7 +114,7 @@ final gamesLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Series',
       'series_any': 'Any series',

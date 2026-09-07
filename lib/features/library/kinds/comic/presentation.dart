@@ -48,7 +48,7 @@ const comicsIssueVisibleColumns = {
   'updated',
 };
 
-const comicLibraryGroupLabels = LibraryMediaGroupLabels(
+const comicLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Series',
     'series_plural': 'Series',
@@ -61,7 +61,7 @@ const comicLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const comicLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+const comicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
   LibraryFilterDefinition<dynamic>(
@@ -187,7 +187,7 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Series',
       'series_any': 'Any series',

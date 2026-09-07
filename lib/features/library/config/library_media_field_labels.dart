@@ -3,8 +3,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 export 'package:collectarr_app/features/library/config/library_media_presentation_models.dart'
     show
-        LibraryMediaFilterLabels,
-        LibraryMediaGroupLabels,
+        LibraryPresentationLabels,
         LibraryMediaPresentation,
         LibraryMediaPreviewLabels,
         LibraryMediaSearchFieldLabels;
@@ -15,11 +14,11 @@ LibraryMediaSearchFieldLabels libraryMediaSearchFieldLabels(
   return type.presentation.searchFieldLabels;
 }
 
-LibraryMediaFilterLabels libraryMediaFilterLabels(LibraryKindModule type) {
+LibraryPresentationLabels libraryMediaFilterLabels(LibraryKindModule type) {
   return type.presentation.filterLabels;
 }
 
-LibraryMediaGroupLabels libraryMediaGroupLabels(LibraryKindModule type) {
+LibraryPresentationLabels libraryMediaGroupLabels(LibraryKindModule type) {
   return type.presentation.groupLabels;
 }
 

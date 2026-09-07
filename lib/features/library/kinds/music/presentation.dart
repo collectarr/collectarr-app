@@ -35,7 +35,7 @@ const musicStatsLabels = LibraryMediaStatsLabels(
   values: {'top_series': 'Top Artists', 'top_publisher': 'Top Labels'},
 );
 
-const musicLibraryGroupLabels = LibraryMediaGroupLabels(
+const musicLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Artist',
     'series_plural': 'Artists',
@@ -47,7 +47,7 @@ const musicLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const musicLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+const musicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
   LibraryFilterDefinition<dynamic>(
@@ -121,7 +121,7 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter album, artist, release, or label...',
     emptySearchMessage: 'Enter an album, artist, release, or label.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Artist',
       'series_any': 'Any artist',
@@ -138,5 +138,5 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,
   filterDefinitions: musicLibraryFilterDefinitions,
-  referenceLabels: const LibraryReferenceLabels(values: {'item': 'Album'}),
+  referenceLabels: const LibraryPresentationLabels(values: {'item': 'Album'}),
 );

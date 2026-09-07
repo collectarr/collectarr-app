@@ -17,7 +17,7 @@ const tvStatsLabels = LibraryMediaStatsLabels(
   values: {'top_series': 'Top Series', 'top_publisher': 'Top Networks'},
 );
 
-const tvLibraryGroupLabels = LibraryMediaGroupLabels(
+const tvLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Series',
     'series_plural': 'Series',
@@ -30,7 +30,7 @@ const tvLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const tvLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+const tvLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final tvLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
   LibraryFilterDefinition<dynamic>(
@@ -104,7 +104,7 @@ final tvLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter series, episode, or keyword...',
     emptySearchMessage: 'Enter a series, episode, or keyword.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Series',
       'series_any': 'Any series',
