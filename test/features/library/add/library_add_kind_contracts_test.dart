@@ -42,6 +42,28 @@ void main() {
   group('Library Kind Add Capability Contract Tests', () {
     test('all 9 active kinds have explicit add capability and correct drafts',
         () {
+      const expectedAddDraftTypes = <CatalogMediaKind, Type>{
+        CatalogMediaKind.comic: ComicAddDraft,
+        CatalogMediaKind.manga: MangaAddDraft,
+        CatalogMediaKind.movie: MovieAddDraft,
+        CatalogMediaKind.tv: TvAddDraft,
+        CatalogMediaKind.anime: AnimeAddDraft,
+        CatalogMediaKind.book: BookAddDraft,
+        CatalogMediaKind.game: GameAddDraft,
+        CatalogMediaKind.boardgame: BoardgameAddDraft,
+        CatalogMediaKind.music: MusicAddDraft,
+      };
+      const expectedOwnedDetailsDraftTypes = <CatalogMediaKind, Type>{
+        CatalogMediaKind.comic: ComicOwnedDetailsDraft,
+        CatalogMediaKind.manga: MangaOwnedDetailsDraft,
+        CatalogMediaKind.movie: MovieOwnedDetailsDraft,
+        CatalogMediaKind.tv: TvOwnedDetailsDraft,
+        CatalogMediaKind.anime: AnimeOwnedDetailsDraft,
+        CatalogMediaKind.book: BookOwnedDetailsDraft,
+        CatalogMediaKind.game: GameOwnedDetailsDraft,
+        CatalogMediaKind.boardgame: BoardgameOwnedDetailsDraft,
+        CatalogMediaKind.music: MusicOwnedDetailsDraft,
+      };
       for (final kind in activeKinds) {
         final runtime = libraryKindModuleForKind(kind);
         expect(runtime, isNotNull,
@@ -58,28 +80,11 @@ void main() {
         expect(initialDraft.kind, kind,
             reason: '$kind initialDraft.kind must strictly match $kind');
 
-        switch (kind) {
-          case CatalogMediaKind.comic:
-            expect(initialDraft, isA<ComicAddDraft>());
-          case CatalogMediaKind.manga:
-            expect(initialDraft, isA<MangaAddDraft>());
-          case CatalogMediaKind.movie:
-            expect(initialDraft, isA<MovieAddDraft>());
-          case CatalogMediaKind.tv:
-            expect(initialDraft, isA<TvAddDraft>());
-          case CatalogMediaKind.anime:
-            expect(initialDraft, isA<AnimeAddDraft>());
-          case CatalogMediaKind.book:
-            expect(initialDraft, isA<BookAddDraft>());
-          case CatalogMediaKind.game:
-            expect(initialDraft, isA<GameAddDraft>());
-          case CatalogMediaKind.boardgame:
-            expect(initialDraft, isA<BoardgameAddDraft>());
-          case CatalogMediaKind.music:
-            expect(initialDraft, isA<MusicAddDraft>());
-          case CatalogMediaKind.unknown:
-            fail('Unknown kind is not an active kind');
-        }
+        expect(
+          initialDraft.runtimeType,
+          expectedAddDraftTypes[kind],
+          reason: '$kind must expose its concrete add draft type',
+        );
 
         final item = testCatalogItem(
           id: '${kind.apiValue}-test-1',
@@ -162,37 +167,11 @@ void main() {
             isNot(isA<TestOwnedDetailsDraft>()),
             reason: '$kind command details must not be TestOwnedDetailsDraft');
 
-        switch (kind) {
-          case CatalogMediaKind.comic:
-            expect(command.typedPayload!.detailsDraft,
-                isA<ComicOwnedDetailsDraft>());
-          case CatalogMediaKind.manga:
-            expect(command.typedPayload!.detailsDraft,
-                isA<MangaOwnedDetailsDraft>());
-          case CatalogMediaKind.movie:
-            expect(command.typedPayload!.detailsDraft,
-                isA<MovieOwnedDetailsDraft>());
-          case CatalogMediaKind.tv:
-            expect(
-                command.typedPayload!.detailsDraft, isA<TvOwnedDetailsDraft>());
-          case CatalogMediaKind.anime:
-            expect(command.typedPayload!.detailsDraft,
-                isA<AnimeOwnedDetailsDraft>());
-          case CatalogMediaKind.book:
-            expect(command.typedPayload!.detailsDraft,
-                isA<BookOwnedDetailsDraft>());
-          case CatalogMediaKind.game:
-            expect(command.typedPayload!.detailsDraft,
-                isA<GameOwnedDetailsDraft>());
-          case CatalogMediaKind.boardgame:
-            expect(command.typedPayload!.detailsDraft,
-                isA<BoardgameOwnedDetailsDraft>());
-          case CatalogMediaKind.music:
-            expect(command.typedPayload!.detailsDraft,
-                isA<MusicOwnedDetailsDraft>());
-          case CatalogMediaKind.unknown:
-            fail('Unknown kind is not an active kind');
-        }
+        expect(
+          command.typedPayload!.detailsDraft.runtimeType,
+          expectedOwnedDetailsDraftTypes[kind],
+          reason: '$kind must expose its concrete owned details draft type',
+        );
       }
     });
 
