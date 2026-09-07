@@ -562,6 +562,128 @@ final collectarrTypedOwnedItemDeleters =
       TvOwnedRepository(database).markDeleted(item as TvOwnedItem, deletedAt),
 };
 
+Future<(CatalogMediaKind kind, Object item)?> collectarrFindTypedOwnedItem(
+    LocalDatabase database, String id) async {
+  final animeItem =
+      await AnimeOwnedRepository(database).findById(AnimeOwnedItemId(id));
+  if (animeItem != null) return (CatalogMediaKind.anime, animeItem);
+  final boardgameItem = await BoardGameOwnedRepository(database)
+      .findById(BoardGameOwnedItemId(id));
+  if (boardgameItem != null) return (CatalogMediaKind.boardgame, boardgameItem);
+  final bookItem =
+      await BookOwnedRepository(database).findById(BookOwnedItemId(id));
+  if (bookItem != null) return (CatalogMediaKind.book, bookItem);
+  final comicItem =
+      await ComicOwnedRepository(database).findById(ComicOwnedItemId(id));
+  if (comicItem != null) return (CatalogMediaKind.comic, comicItem);
+  final gameItem =
+      await GameOwnedRepository(database).findById(GameOwnedItemId(id));
+  if (gameItem != null) return (CatalogMediaKind.game, gameItem);
+  final mangaItem =
+      await MangaOwnedRepository(database).findById(MangaOwnedItemId(id));
+  if (mangaItem != null) return (CatalogMediaKind.manga, mangaItem);
+  final movieItem =
+      await MovieOwnedRepository(database).findById(MovieOwnedItemId(id));
+  if (movieItem != null) return (CatalogMediaKind.movie, movieItem);
+  final musicItem =
+      await MusicOwnedRepository(database).findById(MusicOwnedItemId(id));
+  if (musicItem != null) return (CatalogMediaKind.music, musicItem);
+  final tvItem = await TvOwnedRepository(database).findById(TvOwnedItemId(id));
+  if (tvItem != null) return (CatalogMediaKind.tv, tvItem);
+  return null;
+}
+
+final collectarrTypedOwnedItemSyncSerializers = <CatalogMediaKind,
+    ({Map<String, dynamic> payload, bool isDeleted}) Function(Object)>{
+  CatalogMediaKind.anime: (item) {
+    final payload =
+        Map<String, dynamic>.from((item as AnimeOwnedItem).toJson());
+    final isDeleted = payload['deleted_at'] != null;
+    payload.remove('id');
+    payload.remove('updated_at');
+    payload.remove('deleted_at');
+    payload.remove('reading');
+    return (payload: payload, isDeleted: isDeleted);
+  },
+  CatalogMediaKind.boardgame: (item) {
+    final payload =
+        Map<String, dynamic>.from((item as BoardGameOwnedItem).toJson());
+    final isDeleted = payload['deleted_at'] != null;
+    payload.remove('id');
+    payload.remove('updated_at');
+    payload.remove('deleted_at');
+    payload.remove('reading');
+    return (payload: payload, isDeleted: isDeleted);
+  },
+  CatalogMediaKind.book: (item) {
+    final payload = Map<String, dynamic>.from((item as BookOwnedItem).toJson());
+    final isDeleted = payload['deleted_at'] != null;
+    payload.remove('id');
+    payload.remove('updated_at');
+    payload.remove('deleted_at');
+    payload.remove('reading');
+    return (payload: payload, isDeleted: isDeleted);
+  },
+  CatalogMediaKind.comic: (item) {
+    final payload =
+        Map<String, dynamic>.from((item as ComicOwnedItem).toJson());
+    final isDeleted = payload['deleted_at'] != null;
+    payload.remove('id');
+    payload.remove('updated_at');
+    payload.remove('deleted_at');
+    payload.remove('reading');
+    return (payload: payload, isDeleted: isDeleted);
+  },
+  CatalogMediaKind.game: (item) {
+    final payload = Map<String, dynamic>.from((item as GameOwnedItem).toJson());
+    final isDeleted = payload['deleted_at'] != null;
+    payload.remove('id');
+    payload.remove('updated_at');
+    payload.remove('deleted_at');
+    payload.remove('reading');
+    return (payload: payload, isDeleted: isDeleted);
+  },
+  CatalogMediaKind.manga: (item) {
+    final payload =
+        Map<String, dynamic>.from((item as MangaOwnedItem).toJson());
+    final isDeleted = payload['deleted_at'] != null;
+    payload.remove('id');
+    payload.remove('updated_at');
+    payload.remove('deleted_at');
+    payload.remove('reading');
+    return (payload: payload, isDeleted: isDeleted);
+  },
+  CatalogMediaKind.movie: (item) {
+    final payload =
+        Map<String, dynamic>.from((item as MovieOwnedItem).toJson());
+    final isDeleted = payload['deleted_at'] != null;
+    payload.remove('id');
+    payload.remove('updated_at');
+    payload.remove('deleted_at');
+    payload.remove('reading');
+    return (payload: payload, isDeleted: isDeleted);
+  },
+  CatalogMediaKind.music: (item) {
+    final payload =
+        Map<String, dynamic>.from((item as MusicOwnedItem).toJson());
+    final isDeleted = payload['deleted_at'] != null;
+    payload.remove('id');
+    payload.remove('updated_at');
+    payload.remove('deleted_at');
+    payload.remove('reading');
+    return (payload: payload, isDeleted: isDeleted);
+  },
+  CatalogMediaKind.tv: (item) {
+    final payload = Map<String, dynamic>.from((item as TvOwnedItem).toJson());
+    final isDeleted = payload['deleted_at'] != null;
+    payload.remove('id');
+    payload.remove('updated_at');
+    payload.remove('deleted_at');
+    payload.remove('reading');
+    return (payload: payload, isDeleted: isDeleted);
+  },
+};
+
 final collectarrOwnedItemSerializers =
     <CatalogMediaKind, OwnedItem Function(Object)>{
   CatalogMediaKind.anime: (item) =>

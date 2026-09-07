@@ -1,13 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
@@ -24,18 +21,24 @@ class SyncRetryMapper {
   }) async {
     switch (change.entityType) {
       case 'owned_item':
-        final item = await OwnedItemsRepository(db).findById(
+        final typedItem = await collectarrFindTypedOwnedItem(
+          db,
           change.entityId,
         );
-        if (item == null) {
+        if (typedItem == null) {
+          return null;
+        }
+        final serialized = collectarrTypedOwnedItemSyncSerializers[typedItem.$1]
+            ?.call(typedItem.$2);
+        if (serialized == null) {
           return null;
         }
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: item.id,
-          action: item.isDeleted ? 'delete' : 'upsert',
-          payload: item.toSyncPayload(),
+          entityId: change.entityId,
+          action: serialized.isDeleted ? 'delete' : 'upsert',
+          payload: serialized.payload,
           clientChangedAt: changedAt,
         );
       case 'wishlist_item':

@@ -1096,6 +1096,55 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
+    'Future<(CatalogMediaKind kind, Object item)?> '
+    'collectarrFindTypedOwnedItem(LocalDatabase database, String id) async {',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedId = persistence.ownedId.className;
+    buffer.writeln(
+      '  final ${descriptor.folder}Item = await $repository(database)'
+      '.findById($ownedId(id));',
+    );
+    buffer.writeln(
+      '  if (${descriptor.folder}Item != null) return '
+      '(CatalogMediaKind.${descriptor.folder}, ${descriptor.folder}Item);',
+    );
+  }
+  buffer.writeln('  return null;');
+  buffer.writeln('}');
+  buffer.writeln();
+
+  buffer.writeln(
+    'final collectarrTypedOwnedItemSyncSerializers = '
+    '<CatalogMediaKind, '
+    '({Map<String, dynamic> payload, bool isDeleted}) Function(Object)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final ownedModel = persistence.ownedModel.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (item) {',
+    );
+    buffer.writeln(
+      '    final payload = Map<String, dynamic>.from('
+      '(item as $ownedModel).toJson());',
+    );
+    buffer.writeln("    final isDeleted = payload['deleted_at'] != null;");
+    buffer.writeln("    payload.remove('id');");
+    buffer.writeln("    payload.remove('updated_at');");
+    buffer.writeln("    payload.remove('deleted_at');");
+    buffer.writeln("    payload.remove('reading');");
+    buffer.writeln('    return (payload: payload, isDeleted: isDeleted);');
+    buffer.writeln('  },');
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
     'final collectarrOwnedItemSerializers = '
     '<CatalogMediaKind, OwnedItem Function(Object)>{',
   );
