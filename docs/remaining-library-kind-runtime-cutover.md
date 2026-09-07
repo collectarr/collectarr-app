@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-Baseline HEAD: `c3d1527b` on 2026-09-07.
+Baseline HEAD: `4fe39d4e` on 2026-09-07.
 
 Generated registration is compile-time discovery of the nine kind modules. No
 runtime reflection or manual per-kind import list is required. The generated
@@ -34,6 +34,9 @@ registry is a composition root only.
   longer used by Pick List merging;
 - Pick List catalog/custom-field usage and merge operations are scoped to the
   requested kind instead of counting or mutating unrelated kind values;
+- Collection CSV import now persists each imported owned aggregate through the
+  generated typed repository dispatch; common Owned remains only at the CSV
+  and sync serialization boundaries for this path;
 - generic facet definition ownership;
 - test `CatalogMediaKind` switches in the migrated contract fixtures;
 - common seed graph kind switches and manual seed contributor imports;
