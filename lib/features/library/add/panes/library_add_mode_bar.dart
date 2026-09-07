@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'library_add_pane_dependencies.dart';
 
 class LibraryAddBarcodePrefillBanner extends StatelessWidget {
@@ -932,7 +931,7 @@ class _SuggestionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final year = libraryKindReleaseYear(item);
+    final year = item.releaseYear ?? item.releaseDate?.year;
     final subtitle = [
       if (year != null) year.toString(),
       item.mediaKind.apiValue,

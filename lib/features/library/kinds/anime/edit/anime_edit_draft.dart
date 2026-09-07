@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/edit/video/video_edit_controller
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -175,8 +174,9 @@ LibraryEditKindDraft createAnimeEditDraft({
     catalogRef: item.catalogRef,
     initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
     initialGenres: anime?.genres.join(', ') ?? '',
-    initialEditionTitle:
-        anime?.editionTitle ?? libraryKindTitleExtension(item) ?? '',
+    initialEditionTitle: anime?.editionTitle ??
+        (item.titleExtension ?? item.editionTitle)?.trim() ??
+        '',
     initialVariant: anime?.variant ?? '',
     initialBarcode: anime?.barcode ?? '',
     initialPhysicalFormatLabel:

@@ -1,5 +1,4 @@
 import 'library_add_pane_dependencies.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 
 class LibraryAddPaneResizeDivider extends StatelessWidget {
   const LibraryAddPaneResizeDivider({super.key, this.onDragDelta});
@@ -752,7 +751,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final editions = libraryKindEditions(item);
+    final editions = item.editions;
     final editionAvailable = editions.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
@@ -1081,7 +1080,7 @@ CatalogEdition? previewEditionForItem(
   CatalogItem item,
   String? editionId,
 ) {
-  final editions = libraryKindEditions(item);
+  final editions = item.editions;
   final normalizedEditionId = editionId?.trim();
   if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
     for (final edition in editions) {
@@ -1111,7 +1110,7 @@ CatalogVariant? selectedVariantForEdition(
 }
 
 CatalogEdition? _previewPrimaryEditionForItem(CatalogItem item) {
-  final editions = libraryKindEditions(item);
+  final editions = item.editions;
   if (editions.isEmpty) {
     return null;
   }
@@ -1136,8 +1135,7 @@ CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
 }
 
 Widget _buildPreviewFormatBadges(CatalogItem? item) {
-  final editions =
-      item == null ? const <CatalogEdition>[] : libraryKindEditions(item);
+  final editions = item == null ? const <CatalogEdition>[] : item.editions;
   if (editions.isEmpty) return const SizedBox.shrink();
   final seen = <String>{};
   final badges = <Widget>[];
@@ -1230,9 +1228,9 @@ List<(String, String?)> _metadataRowsForItem(
     (previewLabels.labelFor('publisher', fallback: 'Publisher'), publisher),
     (
       'Released',
-      libraryKindReleaseDate(item) != null
-          ? '${libraryKindReleaseDate(item)!.year}-${libraryKindReleaseDate(item)!.month.toString().padLeft(2, '0')}-${libraryKindReleaseDate(item)!.day.toString().padLeft(2, '0')}'
-          : libraryKindReleaseYear(item)?.toString()
+      item.releaseDate != null
+          ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
+          : (item.releaseYear ?? item.releaseDate?.year)?.toString()
     ),
     if (runtimeMinutes != null) ('Runtime', '$runtimeMinutes min'),
     if (itemNumber != null)

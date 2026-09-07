@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/owned/game_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
@@ -51,7 +50,8 @@ Widget? buildGameCustomTabView({
             children: [
               LibraryReleaseIdentityFields(
                 editionTitleController: TextEditingController(
-                  text: libraryKindTitleExtension(item) ?? '',
+                  text:
+                      (item.titleExtension ?? item.editionTitle)?.trim() ?? '',
                 ),
                 variantController: TextEditingController(),
                 barcodeController: TextEditingController(),

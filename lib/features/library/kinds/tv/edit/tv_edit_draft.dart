@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_e
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -195,7 +194,8 @@ LibraryEditKindDraft createTvEditDraft({
     initialRuntime: tv?.episodeRuntimeMinutes?.toString() ?? '',
     initialAgeRating: tv?.contentRating ?? '',
     initialGenres: tv?.genres.join(', ') ?? '',
-    initialEditionTitle: libraryKindTitleExtension(item) ?? '',
+    initialEditionTitle:
+        (item.titleExtension ?? item.editionTitle)?.trim() ?? '',
     initialVariant: tv?.variant ?? '',
     initialBarcode: tv?.barcode ?? '',
     initialPhysicalFormatLabel: tv?.physicalFormatLabel ?? tv?.variant ?? '',

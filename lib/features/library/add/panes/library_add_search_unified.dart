@@ -1,5 +1,4 @@
 import 'library_add_pane_dependencies.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
@@ -122,7 +121,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       final publisher = (payload['publisher'] ??
           (payload['publishing'] as Map?)?['original_publisher']) as String?;
       publishers[key] ??= publisher;
-      years[key] ??= libraryKindReleaseYear(item);
+      years[key] ??= item.releaseYear ?? item.releaseDate?.year;
       coverUrls[key] ??= item.displayCoverUrl;
     }
   }
@@ -594,8 +593,8 @@ class _UnifiedCoreChildTile extends StatelessWidget {
     final physicalFormatLabel = payload['physical_format_label'] as String?;
     final subtitleParts = <String>[
       if (publisher != null) publisher,
-      if (libraryKindReleaseYear(item) != null)
-        libraryKindReleaseYear(item).toString(),
+      if ((item.releaseYear ?? item.releaseDate?.year) != null)
+        (item.releaseYear ?? item.releaseDate?.year).toString(),
       if (physicalFormatLabel != null) physicalFormatLabel,
     ];
     return Material(

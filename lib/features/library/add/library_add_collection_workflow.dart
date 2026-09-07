@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_reference
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 
 class LibraryAddDefaults {
   const LibraryAddDefaults({
@@ -205,7 +204,7 @@ _ResolvedAddReference _resolveReferenceForItem(
           ),
         );
       }
-      final editions = libraryKindEditions(item);
+      final editions = item.editions;
       if (editions.isEmpty) {
         return const _ResolvedAddReference();
       }

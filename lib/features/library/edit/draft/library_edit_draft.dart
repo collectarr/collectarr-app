@@ -21,7 +21,6 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -144,7 +143,7 @@ class LibraryEditDraft {
     TextEditingController create([String text = '']) =>
         textControllers.create(text: text);
 
-    final editionTitle = libraryKindTitleExtension(item);
+    final editionTitle = (item.titleExtension ?? item.editionTitle)?.trim();
 
     final titleController = create(item.title);
     final coverController = create(item.coverImageUrl ?? '');
@@ -212,7 +211,7 @@ class LibraryEditDraft {
           : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
     );
 
-    final editions = libraryKindEditions(item);
+    final editions = item.editions;
 
     final editionSelection = resolveLibraryEditionSelection(
       editions,
@@ -367,11 +366,11 @@ class LibraryEditDraft {
     final physicalFormat = item.physicalFormat;
     final format = physicalFormatLabel ??
         physicalFormat ??
-        libraryKindTitleExtension(item) ??
+        (item.titleExtension ?? item.editionTitle)?.trim() ??
         '';
     return type.edit.resolveOwnedDigitalFlag(
           ownedItem,
-          libraryKindEditions(item),
+          item.editions,
           fallbackFormat: physicalFormat,
           fallbackLabel: format,
           formats: physicalFormats,
@@ -391,12 +390,12 @@ class LibraryEditDraft {
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
-    final editions = libraryKindEditions(item);
+    final editions = item.editions;
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId:
           ownedItem?.anchor?.editionId ?? trackingEntry?.anchor?.editionId,
-      editionTitle: libraryKindTitleExtension(item),
+      editionTitle: (item.titleExtension ?? item.editionTitle)?.trim(),
       variantId:
           ownedItem?.anchor?.variantId ?? trackingEntry?.anchor?.variantId,
     );

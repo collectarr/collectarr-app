@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +43,7 @@ bool itemHasMissingDetails(CatalogItem item) {
   final publisher = (payload['publisher'] ??
       (payload['publishing'] as Map?)?['original_publisher']) as String?;
   return (publisher == null || publisher.trim().isEmpty) ||
-      libraryKindReleaseDate(item) == null ||
+      item.releaseDate == null ||
       (item.synopsis == null || item.synopsis!.trim().isEmpty);
 }
 
@@ -53,9 +52,7 @@ String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
   if (kind == null) {
     return null;
   }
-  return libraryKindModuleForKind(kind)
-      .hierarchy
-      .contractDiagnosticLabel(item);
+  return libraryKindModuleForKind(kind).hierarchy.contractDiagnosticLabel(item);
 }
 
 String libraryVolumeDisplayValue(double? volumeNumber) {
@@ -225,7 +222,7 @@ String? preferredVideoEditionVariantId(CatalogEdition edition) {
     variantId: releaseNode != null
         ? preferredVideoEditionVariantId(releaseNode.edition)
         : null,
-    editions: catalogItem == null ? const [] : libraryKindEditions(catalogItem),
+    editions: catalogItem == null ? const [] : catalogItem.editions,
   );
 }
 

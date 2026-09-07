@@ -23,7 +23,6 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_section_tab.dart';
@@ -1985,7 +1984,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  List<CatalogEdition> get _itemEditions => libraryKindEditions(_item);
+  List<CatalogEdition> get _itemEditions => _item.editions;
 
   List<TrailerLink> get _itemLinks => _musicMetadata.links;
 

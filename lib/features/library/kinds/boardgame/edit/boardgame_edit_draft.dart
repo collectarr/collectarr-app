@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -353,7 +352,7 @@ LibraryEditKindDraft createBoardGameEditDraft({
     hasPaintedMiniatures: bg?.hasPaintedMiniatures ?? false,
     storageNotes: bg?.storageNotes,
     editionTitleController: textControllers.create(
-      text: libraryKindTitleExtension(item) ?? '',
+      text: (item.titleExtension ?? item.editionTitle)?.trim() ?? '',
     ),
     originalTitleController: textControllers.create(
       text: meta?.originalTitle ?? item.originalTitle ?? '',

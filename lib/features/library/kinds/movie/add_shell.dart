@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dar
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
@@ -157,8 +156,11 @@ Widget buildMovieAddSearchPane(
                                     as Map?)?['original_publisher'] as String?);
                         final subtitle = isCore
                             ? [
-                                if (libraryKindReleaseYear(item) != null)
-                                  libraryKindReleaseYear(item).toString(),
+                                if ((item.releaseYear ??
+                                        item.releaseDate?.year) !=
+                                    null)
+                                  (item.releaseYear ?? item.releaseDate?.year)
+                                      .toString(),
                                 if (publisher != null &&
                                     publisher.trim().isNotEmpty)
                                   publisher.trim(),

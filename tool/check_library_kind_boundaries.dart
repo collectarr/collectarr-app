@@ -248,7 +248,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/metadata/metadata_proposal_store.dart',
     'lib/features/library/models/library_catalog_item_view.dart',
     'lib/features/library/models/library_entry.dart',
-    'lib/features/library/models/library_kind_metadata_values.dart',
     'lib/features/library/models/library_metadata_item.dart',
     'lib/features/library/workspace/data/library_workspace_repository.dart',
     'lib/features/library/workspace/layout/library_flow_carousel.dart',

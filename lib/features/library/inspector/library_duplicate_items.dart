@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -66,7 +65,7 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
       continue;
     }
     final publisher = _normalizedText(payload['publisher']?.toString()) ?? '';
-    final year = libraryKindReleaseYear(item)?.toString() ?? '';
+    final year = (item.releaseYear ?? item.releaseDate?.year)?.toString() ?? '';
     final variant = _normalizedText(payload['variant']?.toString()) ?? '';
     _addToBucket(
       issueBuckets,
@@ -473,7 +472,7 @@ bool _allShareValue(Iterable<String?> values) {
 }
 
 String? _releaseYearToken(CatalogItem item) {
-  return libraryKindReleaseYear(item)?.toString();
+  return (item.releaseYear ?? item.releaseDate?.year)?.toString();
 }
 
 List<ShelfEntry> _sortedEntries(List<ShelfEntry> entries) {
@@ -501,8 +500,8 @@ String _issueDuplicateLabel(ShelfEntry entry) {
   final pieces = [
     _itemTitle(catalogItem.title, itemNumber),
     if (_hasText(publisher)) publisher!.trim(),
-    if (libraryKindReleaseYear(catalogItem) != null)
-      libraryKindReleaseYear(catalogItem).toString(),
+    if ((catalogItem.releaseYear ?? catalogItem.releaseDate?.year) != null)
+      (catalogItem.releaseYear ?? catalogItem.releaseDate?.year).toString(),
     if (_hasText(variant)) variant!.trim(),
   ];
   return pieces.join(' - ');
@@ -518,8 +517,9 @@ String _entrySubtitle(ShelfEntry entry) {
     if (entry.isOwned) 'Owned',
     if (entry.isWishlisted) 'Wishlist',
     if (_hasText(publisher)) publisher!.trim(),
-    if (catalogItem != null && libraryKindReleaseYear(catalogItem) != null)
-      libraryKindReleaseYear(catalogItem).toString(),
+    if (catalogItem != null &&
+        (catalogItem.releaseYear ?? catalogItem.releaseDate?.year) != null)
+      (catalogItem.releaseYear ?? catalogItem.releaseDate?.year).toString(),
     if (_hasText(barcode)) 'Barcode ${barcode!.trim()}',
     'ID ${entry.itemId}',
   ];

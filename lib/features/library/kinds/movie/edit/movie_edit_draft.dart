@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/edit/video/video_edit_controller
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -174,8 +173,9 @@ LibraryEditKindDraft createMovieEditDraft({
     initialAgeRating: movie?.ageRating ?? '',
     initialAudienceRating: movie?.audienceRating ?? '',
     initialGenres: movie?.genres.join(', ') ?? '',
-    initialEditionTitle:
-        movie?.editionTitle ?? libraryKindTitleExtension(item) ?? '',
+    initialEditionTitle: movie?.editionTitle ??
+        (item.titleExtension ?? item.editionTitle)?.trim() ??
+        '',
     initialVariant: movie?.variant ?? '',
     initialBarcode: movie?.barcode ?? '',
     initialPhysicalFormatLabel:
