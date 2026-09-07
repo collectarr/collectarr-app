@@ -23,9 +23,9 @@ void seedNoopCatalogPayloadEnricher(
 
 String seedOrdinal2(int value) => value.toString().padLeft(2, '0');
 
-Iterable<String> seedIds(String kind, int count) sync* {
+Iterable<String> seedIds(CatalogMediaKind kind, int count) sync* {
   for (var i = 1; i <= count; i++) {
-    yield 'seed-$kind-${seedOrdinal2(i)}';
+    yield 'seed-${kind.apiValue}-${seedOrdinal2(i)}';
   }
 }
 
@@ -207,13 +207,16 @@ CatalogItemDto enrichSeedItem(
 /// fields that every fixture of a given kind should exercise.
 void validateSeedCatalogQuality(
   Iterable<CatalogItemDto> items, {
-  Map<String, DevSeedCatalogQualityValidator> validators = const {},
-  Map<String, DevSeedCatalogGraphValidator> graphValidators = const {},
-  Map<String, DevSeedCatalogBarcodeValidator> barcodeValidators = const {},
+  Map<CatalogMediaKind, DevSeedCatalogQualityValidator> validators = const {},
+  Map<CatalogMediaKind, DevSeedCatalogGraphValidator> graphValidators =
+      const {},
+  Map<CatalogMediaKind, DevSeedCatalogBarcodeValidator> barcodeValidators =
+      const {},
 }) {
   final issues = <String>[];
   for (final item in items) {
     final prefix = '${item.kind}/${item.id}';
+    final mediaKind = catalogMediaKindFromApiValue(item.kind);
     final payload = item.payload;
 
     _requireText(issues, prefix, 'localized_title', item.localizedTitle);
@@ -228,7 +231,7 @@ void validateSeedCatalogQuality(
     if (item.releaseDate == null) {
       issues.add('$prefix: release_date is required');
     }
-    final barcodeValidator = barcodeValidators[item.kind];
+    final barcodeValidator = barcodeValidators[mediaKind];
     if (barcodeValidator == null) {
       seedValidateStandardBarcode(issues, prefix, item.barcode);
     } else {
@@ -248,13 +251,13 @@ void validateSeedCatalogQuality(
       }
     }
 
-    final validator = validators[item.kind];
+    final validator = validators[mediaKind];
     if (validator == null) {
       issues.add('$prefix: no typed catalog quality validator exists');
     } else {
       issues.addAll(validator(item));
     }
-    final graphValidator = graphValidators[item.kind];
+    final graphValidator = graphValidators[mediaKind];
     if (graphValidator == null) {
       issues.add('$prefix: no typed catalog graph validator exists');
     } else {
@@ -408,7 +411,7 @@ void seedValidateStandardBarcode(
 
 void validateSeedOwnedQuality(
   Iterable<OwnedItem> items, {
-  Map<String, DevSeedOwnedQualityValidator> validators = const {},
+  Map<CatalogMediaKind, DevSeedOwnedQualityValidator> validators = const {},
 }) {
   final issues = <String>[];
   for (final item in items) {
@@ -428,7 +431,8 @@ void validateSeedOwnedQuality(
     if (item.currency?.trim().isEmpty != false) {
       issues.add('$prefix: currency is required when a purchase price exists');
     }
-    final validator = validators[item.catalogRef.kind];
+    final validator =
+        validators[catalogMediaKindFromApiValue(item.catalogRef.kind)];
     if (validator == null) {
       issues.add('$prefix: no typed owned details validator exists');
     } else {

@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
 final comicDevSeedContributor = DevSeedKindContributor(
-  kind: 'comic',
+  kind: CatalogMediaKind.comic,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
     paperType: 'paperback',
@@ -793,7 +793,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
     ];
 
 List<OwnedItem> comicSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds('comic', 15))
+      for (final itemId in seedIds(CatalogMediaKind.comic, 15))
         OwnedItem(
           id: 'seed-owned-$itemId',
           catalogRef: seedCatalogRef(itemId),

@@ -9,7 +9,7 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 
 final musicDevSeedContributor = DevSeedKindContributor(
-  kind: 'music',
+  kind: CatalogMediaKind.music,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
     paperType: null,
@@ -1374,7 +1374,7 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
     ];
 
 List<OwnedItem> musicSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds('music', 15))
+      for (final itemId in seedIds(CatalogMediaKind.music, 15))
         OwnedItem(
           id: 'seed-owned-$itemId',
           catalogRef: seedCatalogRef(itemId),

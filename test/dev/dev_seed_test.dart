@@ -14,6 +14,7 @@ void main() {
   test('generated seed registry covers every catalog kind', () {
     final kinds = collectarrDevSeedContributors
         .map((contributor) => contributor.kind)
+        .map((kind) => kind.apiValue)
         .toList();
 
     expect(kinds.length, devSeedCatalogCounts.length);

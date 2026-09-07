@@ -9,7 +9,7 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 
 final gameDevSeedContributor = DevSeedKindContributor(
-  kind: 'game',
+  kind: CatalogMediaKind.game,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
     paperType: null,
@@ -737,7 +737,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
     ];
 
 List<OwnedItem> gameSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds('game', 15))
+      for (final itemId in seedIds(CatalogMediaKind.game, 15))
         OwnedItem(
           id: 'seed-owned-$itemId',
           catalogRef: seedCatalogRef(itemId),

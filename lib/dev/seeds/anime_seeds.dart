@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dar
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 
 final animeDevSeedContributor = DevSeedKindContributor(
-  kind: 'anime',
+  kind: CatalogMediaKind.anime,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
     paperType: null,
@@ -861,7 +861,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
     ];
 
 List<OwnedItem> animeSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds('anime', 15))
+      for (final itemId in seedIds(CatalogMediaKind.anime, 15))
         OwnedItem(
           id: 'seed-owned-$itemId',
           catalogRef: seedCatalogRef(itemId),

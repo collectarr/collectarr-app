@@ -91,7 +91,7 @@ final class DevSeedKindContributor {
     this.seedDatabase,
   });
 
-  final String kind;
+  final CatalogMediaKind kind;
   final DevSeedCatalogDefaults catalogDefaults;
   final DevSeedCatalogFactory catalogItems;
   final DevSeedItemEnricher enrichItem;

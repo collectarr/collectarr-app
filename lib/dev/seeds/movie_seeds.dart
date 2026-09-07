@@ -9,7 +9,7 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 
 final movieDevSeedContributor = DevSeedKindContributor(
-  kind: 'movie',
+  kind: CatalogMediaKind.movie,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
     paperType: null,

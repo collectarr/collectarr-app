@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_sign
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 
 final mangaDevSeedContributor = DevSeedKindContributor(
-  kind: 'manga',
+  kind: CatalogMediaKind.manga,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
     paperType: 'paperback',
@@ -690,7 +690,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
     ];
 
 List<OwnedItem> mangaSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds('manga', 15))
+      for (final itemId in seedIds(CatalogMediaKind.manga, 15))
         OwnedItem(
           id: 'seed-owned-$itemId',
           catalogRef: seedCatalogRef(itemId),

@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 
 final tvDevSeedContributor = DevSeedKindContributor(
-  kind: 'tv',
+  kind: CatalogMediaKind.tv,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
     paperType: null,
@@ -1013,7 +1013,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
     ];
 
 List<OwnedItem> tvSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds('tv', 15))
+      for (final itemId in seedIds(CatalogMediaKind.tv, 15))
         OwnedItem(
           id: 'seed-owned-$itemId',
           catalogRef: seedCatalogRef(itemId),

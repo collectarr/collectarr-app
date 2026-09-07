@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
 
 final boardgameDevSeedContributor = DevSeedKindContributor(
-  kind: 'boardgame',
+  kind: CatalogMediaKind.boardgame,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
     paperType: null,

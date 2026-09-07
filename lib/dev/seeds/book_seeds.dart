@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/book/tracking/book_trackin
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 
 final bookDevSeedContributor = DevSeedKindContributor(
-  kind: 'book',
+  kind: CatalogMediaKind.book,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
     paperType: 'paperback',
@@ -760,7 +760,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
     ];
 
 List<OwnedItem> bookSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds('book', 15))
+      for (final itemId in seedIds(CatalogMediaKind.book, 15))
         OwnedItem(
           id: 'seed-owned-$itemId',
           catalogRef: seedCatalogRef(itemId),
