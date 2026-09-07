@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
+import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
@@ -51,14 +51,14 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     final db = ref.read(localDatabaseProvider);
     final loansRepo = LoanRepository(db);
     final ownedRepo = OwnedItemsRepository(db);
-    final catalogRepo = LibraryCatalogRepository(db);
     final locationRepo = LocationRepository(db);
 
     final loans = await loansRepo.getAllLoans();
     final ownedItems = await ownedRepo.listActiveSummaries();
     final catalogIds =
         ownedItems.map((item) => item.catalogRef?.id).whereType<String>();
-    final catalogById = await catalogRepo.findByIds(catalogIds);
+    final catalogById =
+        await LibraryCatalogRepository(db).findSummariesByIds(catalogIds);
     final locations = await locationRepo.getAll();
     final locationLabelsById = {
       for (final location in locations)
@@ -72,7 +72,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
               : catalogById[item.catalogRef!.id]?.title ?? item.title,
           imageUrl: item.catalogRef == null
               ? null
-              : catalogById[item.catalogRef!.id]?.displayCoverUrl,
+              : catalogById[item.catalogRef!.id]?.imageUrl,
           locationLabel: item.locationLabel == null
               ? null
               : locationLabelsById[item.locationLabel!],
