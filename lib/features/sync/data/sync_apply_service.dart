@@ -299,8 +299,10 @@ class SyncApplyService {
       throw FormatException('Expected tracking_entry entity, got $type');
     }
     final rawRef = payload['target_ref'] ?? payload['catalog_ref'];
-    final kind = rawRef is Map ? rawRef['kind']?.toString() : null;
-    final codec = kind == null
+    final kind = rawRef is Map
+        ? catalogMediaKindFromValue(rawRef['kind'])
+        : CatalogMediaKind.unknown;
+    final codec = kind.isUnknown
         ? null
         : collectarrTrackingEntryCodecs.cast<TrackingEntryCodec?>().firstWhere(
               (candidate) => candidate?.kind == kind,
@@ -317,7 +319,7 @@ class SyncApplyService {
     }
     throw UnsupportedError(
       'No kind-owned tracking-entry codec is registered for '
-      '${kind ?? 'unknown'}',
+      '${kind.apiValue}',
     );
   }
 
@@ -330,8 +332,10 @@ class SyncApplyService {
       throw FormatException('Expected watch_session entity, got $type');
     }
     final rawRef = payload['target_ref'] ?? payload['catalog_ref'];
-    final kind = rawRef is Map ? rawRef['kind']?.toString() : null;
-    final codec = kind == null
+    final kind = rawRef is Map
+        ? catalogMediaKindFromValue(rawRef['kind'])
+        : CatalogMediaKind.unknown;
+    final codec = kind.isUnknown
         ? null
         : collectarrWatchSessionCodecs.cast<WatchSessionCodec?>().firstWhere(
               (candidate) => candidate?.kind == kind,
@@ -347,7 +351,7 @@ class SyncApplyService {
       );
     }
     throw UnsupportedError(
-      'No kind-owned watch-session codec is registered for ${kind ?? 'unknown'}',
+      'No kind-owned watch-session codec is registered for ${kind.apiValue}',
     );
   }
 
@@ -378,8 +382,10 @@ class SyncApplyService {
       throw FormatException('Expected custom_episode entity, got $type');
     }
     final rawRef = payload['catalog_ref'];
-    final kind = rawRef is Map ? rawRef['kind']?.toString() : null;
-    final codec = kind == null
+    final kind = rawRef is Map
+        ? catalogMediaKindFromValue(rawRef['kind'])
+        : CatalogMediaKind.unknown;
+    final codec = kind.isUnknown
         ? null
         : collectarrCustomEpisodeCodecs.cast<CustomEpisodeCodec?>().firstWhere(
               (candidate) => candidate?.kind == kind,
@@ -395,7 +401,7 @@ class SyncApplyService {
       );
     }
     throw UnsupportedError(
-      'No kind-owned custom-episode codec is registered for ${kind ?? 'unknown'}',
+      'No kind-owned custom-episode codec is registered for ${kind.apiValue}',
     );
   }
 
