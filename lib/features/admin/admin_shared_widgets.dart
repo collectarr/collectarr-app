@@ -1553,7 +1553,8 @@ class _MiniChip extends StatelessWidget {
 
 String _proposalKindLabel(String kind) {
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  return _adminSingularKindLabelByType[mediaKind] ?? _fallbackKindLabel(kind);
+  return _adminKindLabelForType(mediaKind, plural: false) ??
+      _fallbackKindLabel(kind);
 }
 
 String _inferProposalKind(String provider, Map<String, dynamic>? payload) {
@@ -1656,25 +1657,19 @@ String _providerKindLabel(String kind, Map<String, String> labels) {
     return label;
   }
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  return _adminSingularKindLabelByType[mediaKind] ?? _fallbackKindLabel(kind);
+  return _adminKindLabelForType(mediaKind, plural: false) ??
+      _fallbackKindLabel(kind);
 }
 
-const _adminSingularKindLabelByType = <CatalogMediaKind, String>{
-  CatalogMediaKind.boardgame: 'Board game',
-  CatalogMediaKind.tv: 'TV',
-};
-
-const _adminPluralKindLabelByType = <CatalogMediaKind, String>{
-  CatalogMediaKind.boardgame: 'Board games',
-  CatalogMediaKind.tv: 'TV',
-  CatalogMediaKind.anime: 'Anime',
-  CatalogMediaKind.manga: 'Manga',
-  CatalogMediaKind.comic: 'Comics',
-  CatalogMediaKind.book: 'Books',
-  CatalogMediaKind.game: 'Games',
-  CatalogMediaKind.movie: 'Movies',
-  CatalogMediaKind.music: 'Music',
-};
+String? _adminKindLabelForType(
+  CatalogMediaKind kind, {
+  required bool plural,
+}) {
+  if (kind.isUnknown) return null;
+  final identity = defaultLibraryKindRegistry.tryGet(kind)?.identity;
+  if (identity == null) return null;
+  return plural ? identity.pluralLabel : identity.singularLabel;
+}
 
 String _fallbackKindLabel(String kind) =>
     kind.isEmpty ? 'Unknown' : '${kind[0].toUpperCase()}${kind.substring(1)}';

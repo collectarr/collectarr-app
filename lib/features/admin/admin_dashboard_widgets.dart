@@ -500,7 +500,7 @@ class _DashboardProposalActivity extends StatelessWidget {
 
 String _statsKindLabel(String kind) {
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  return _adminPluralKindLabelByType[mediaKind] ??
+  return _adminKindLabelForType(mediaKind, plural: true) ??
       (kind.isEmpty ? 'Unknown' : kind);
 }
 
