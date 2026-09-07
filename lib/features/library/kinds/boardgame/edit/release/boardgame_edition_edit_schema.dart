@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boa
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<BoardGameRelease, BoardGameEditionEditDraft>
+final EditSchema<BoardGameEdition, BoardGameEditionEditDraft>
     boardGameEditionEditSchema = EditSchema(
   title: (release) => 'Edit ${release.title}',
   validate: (_, draft) {

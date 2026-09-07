@@ -46,13 +46,12 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'ComicOwnedItem',
     // Movie & Video
     'MovieCatalogMetadata',
-    'MovieMetadata',
     'MovieWorkspaceDto',
     'MovieCatalogItem',
     'MovieOwnedDetails',
     // Tv
     'TvCatalogMetadata',
-    'TvMetadata',
+    'TvSeriesMetadata',
     'TvWorkspaceDto',
     'TvCatalogItem',
     'TvOwnedDetails',
@@ -64,7 +63,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'AnimeOwnedDetails',
     // Book
     'BookCatalogMetadata',
-    'BookMetadata',
     'BookWorkspaceDto',
     'BookCatalogItem',
     'BookOwnedDetails',
@@ -76,19 +74,16 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'MangaOwnedDetails',
     // Game
     'GameCatalogMetadata',
-    'GameMetadata',
     'GameWorkspaceDto',
     'GameCatalogItem',
     'GameOwnedDetails',
     // BoardGame
-    'BoardGameCatalogMetadata',
     'BoardGameMetadata',
     'BoardGameWorkspaceDto',
     'BoardGameCatalogItem',
-    'BoardGameOwnedDetails',
+    'BoardgameOwnedDetails',
     // Music
     'MusicCatalogMetadata',
-    'MusicMetadata',
     'MusicWorkspaceDto',
     'MusicCatalogItem',
     'MusicOwnedDetails',

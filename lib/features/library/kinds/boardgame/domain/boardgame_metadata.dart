@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/foundation.dart';
 
-typedef BoardGameCatalogMetadata = BoardGameMetadata;
 
 @immutable
 class BoardGameMetadata {
@@ -142,7 +141,7 @@ class BoardGameMetadata {
         },
       };
 
-  BoardGameCatalogMetadata copyWith({
+  BoardGameMetadata copyWith({
     String? title,
     String? originalTitle,
     String? synopsis,
@@ -179,7 +178,7 @@ class BoardGameMetadata {
     List<Map<String, dynamic>>? creators,
     List<TrailerLinkDto>? links,
   }) {
-    return BoardGameCatalogMetadata(
+    return BoardGameMetadata(
       title: title ?? this.title,
       rawPayload: rawPayload,
       originalTitle: originalTitle ?? this.originalTitle,

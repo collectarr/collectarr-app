@@ -45,4 +45,3 @@ final class BoardgameAddDraft extends LibraryAddKindDraft {
       );
 }
 
-typedef BoardGameAddDraft = BoardgameAddDraft;

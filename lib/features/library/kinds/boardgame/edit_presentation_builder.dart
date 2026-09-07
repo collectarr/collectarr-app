@@ -113,12 +113,12 @@ Widget? buildBoardGameCustomTabView({
           'Expected BoardGameEditDraft for BoardGame owned editing');
     }
     final details = kindDraft.toDetailsDraft().toDetails();
-    if (details is! BoardGameOwnedDetails) {
+    if (details is! BoardgameOwnedDetails) {
       throw StateError(
-        'Expected BoardGameOwnedDetails for BoardGame owned editing',
+        'Expected BoardgameOwnedDetails for BoardGame owned editing',
       );
     }
-    return EditSchemaRenderer<BoardGameOwnedDetails, BoardGameEditDraft>(
+    return EditSchemaRenderer<BoardgameOwnedDetails, BoardGameEditDraft>(
       schema: boardGameOwnedEditSchema,
       model: details,
       draft: kindDraft,

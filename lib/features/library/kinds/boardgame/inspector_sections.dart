@@ -139,7 +139,7 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
   }
 }
 
-BoardGameEdition? _primaryEdition(BoardGameWork work) {
+BoardGameEdition? _primaryEdition(BoardGameCatalogItem work) {
   return work.editions.isEmpty ? null : work.editions.first;
 }
 

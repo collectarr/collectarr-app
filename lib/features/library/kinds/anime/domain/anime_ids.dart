@@ -17,7 +17,6 @@ final class AnimeMediaId {
   String toString() => value;
 }
 
-typedef AnimeSeriesId = AnimeMediaId;
 
 @immutable
 final class AnimeEpisodeId {

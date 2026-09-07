@@ -65,7 +65,6 @@ abstract interface class IdentityCapability {
   });
 }
 
-typedef ExternalIdResolverCapability = IdentityCapability;
 
 abstract interface class ImageCapability {
   Future<List<ProviderImageRef>> fetchImages(

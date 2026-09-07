@@ -32,7 +32,7 @@ class _BoardGameReleaseSchemaEditDialogState
     extends State<_BoardGameReleaseSchemaEditDialog> {
   late final LibraryEditDraft _editDraft;
   late final BoardGameMetadata _metadata;
-  late final BoardGameRelease _release;
+  late final BoardGameEdition _release;
   late final BoardGameEditionEditDraft _releaseDraft;
 
   @override
@@ -65,7 +65,7 @@ class _BoardGameReleaseSchemaEditDialogState
 
   @override
   Widget build(BuildContext context) {
-    return EditSchemaRenderer<BoardGameRelease, BoardGameEditionEditDraft>(
+    return EditSchemaRenderer<BoardGameEdition, BoardGameEditionEditDraft>(
       schema: boardGameEditionEditSchema,
       model: _release,
       draft: _releaseDraft,
@@ -88,7 +88,7 @@ class _BoardGameReleaseSchemaEditDialogState
   }
 }
 
-BoardGameRelease _resolveRelease(
+BoardGameEdition _resolveRelease(
   BoardGameCatalogItem boardGame,
   String? releaseId,
 ) {
@@ -98,7 +98,7 @@ BoardGameRelease _resolveRelease(
     }
   }
   if (boardGame.releases.isNotEmpty) return boardGame.releases.first;
-  return BoardGameRelease(
+  return BoardGameEdition(
     id: '${boardGame.id}-edition',
     title: boardGame.title,
     workId: boardGame.id,
@@ -115,7 +115,7 @@ BoardGameRelease _resolveRelease(
 
 BoardGameMetadata _replaceRelease(
   BoardGameMetadata metadata,
-  BoardGameRelease release,
+  BoardGameEdition release,
 ) {
   final rawEditions = metadata.rawPayload['editions'];
   final editions = rawEditions is List
@@ -142,7 +142,7 @@ BoardGameMetadata _replaceRelease(
   });
 }
 
-Map<String, dynamic> _releaseToEditionPayload(BoardGameRelease release) {
+Map<String, dynamic> _releaseToEditionPayload(BoardGameEdition release) {
   final payload = Map<String, dynamic>.from(release.rawPayload)
     ..removeWhere(
       (key, _) => {

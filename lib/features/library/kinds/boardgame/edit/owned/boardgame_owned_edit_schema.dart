@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_e
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:flutter/material.dart';
 
-final EditSchema<BoardGameOwnedDetails, BoardGameEditDraft>
+final EditSchema<BoardgameOwnedDetails, BoardGameEditDraft>
     boardGameOwnedEditSchema = EditSchema(
   title: (_) => 'Edit board game ownership',
   tabs: [

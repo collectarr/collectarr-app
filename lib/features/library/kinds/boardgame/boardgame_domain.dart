@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 
 export 'package:collectarr_app/features/library/kinds/boardgame/contracts/boardgame_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
@@ -20,4 +19,3 @@ export 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgam
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 
-typedef BoardGameWork = BoardGameCatalogItem;

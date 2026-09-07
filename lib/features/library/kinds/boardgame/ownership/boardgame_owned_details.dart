@@ -108,4 +108,3 @@ class BoardgameOwnedDetails implements JsonEncodable {
       );
 }
 
-typedef BoardGameOwnedDetails = BoardgameOwnedDetails;

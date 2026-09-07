@@ -213,7 +213,7 @@ final class BoardGameEntry {
   });
 
   final BoardGameCatalog catalog;
-  final BoardGameOwnedDetails? ownedDetails;
+  final BoardgameOwnedDetails? ownedDetails;
   final TrackingEntry? trackingEntry;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;

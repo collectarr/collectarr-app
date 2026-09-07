@@ -74,7 +74,7 @@ void main() {
           case CatalogMediaKind.game:
             expect(initialDraft, isA<GameAddDraft>());
           case CatalogMediaKind.boardgame:
-            expect(initialDraft, isA<BoardGameAddDraft>());
+            expect(initialDraft, isA<BoardgameAddDraft>());
           case CatalogMediaKind.music:
             expect(initialDraft, isA<MusicAddDraft>());
           case CatalogMediaKind.unknown:

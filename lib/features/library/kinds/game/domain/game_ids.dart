@@ -34,7 +34,6 @@ final class GameReleaseId {
   String toString() => value;
 }
 
-typedef GameEditionId = GameReleaseId;
 
 @immutable
 final class GameOwnedItemId {

@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:flutter/foundation.dart';
 
-typedef GameMetadata = GameCatalogMetadata;
 
 @immutable
 class GameCatalogMetadata {

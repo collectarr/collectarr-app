@@ -31,7 +31,7 @@ void main() {
   );
 
   defineMediaEditContract<
-      EditSchema<BoardGameRelease, BoardGameEditionEditDraft>>(
+      EditSchema<BoardGameEdition, BoardGameEditionEditDraft>>(
     name: 'BoardGame release',
     create: () => boardGameEditionEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -44,7 +44,7 @@ void main() {
   );
 
   defineMediaEditContract<
-      EditSchema<BoardGameOwnedDetails, BoardGameEditDraft>>(
+      EditSchema<BoardgameOwnedDetails, BoardGameEditDraft>>(
     name: 'BoardGame ownership',
     create: () => boardGameOwnedEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -174,7 +174,7 @@ void main() {
   });
 
   test('BoardGame release schema round trips every typed edition field', () {
-    final original = BoardGameRelease(
+    final original = BoardGameEdition(
       id: 'edition-1',
       title: 'Catan',
       titleValue: 'Catan',

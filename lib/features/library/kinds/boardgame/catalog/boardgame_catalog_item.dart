@@ -103,7 +103,7 @@ class BoardGameCatalogItem {
   final String id;
   final BoardGameWorkMetadata work;
   final BoardGameStatsMetadata stats;
-  final List<BoardGameRelease> releases;
+  final List<BoardGameEdition> releases;
 
   List<String> get categories => work.categories;
   List<String> get mechanics => work.mechanics;
@@ -114,8 +114,8 @@ class BoardGameCatalogItem {
   List<String> get artists => work.artists;
   List<String> get publishers => work.publishers;
   List<String> get languages => work.languages;
-  List<BoardGameRelease> get editions => releases;
-  BoardGameRelease? get primaryRelease =>
+  List<BoardGameEdition> get editions => releases;
+  BoardGameEdition? get primaryRelease =>
       releases.isEmpty ? null : releases.first;
   String get title => work.title;
   String? get displayTitle => work.title;

@@ -105,13 +105,13 @@ class BoardGameCatalogMapper {
     return mapDtoToBoardGame(CatalogItemDto.fromJson(item.toSyncPayload()));
   }
 
-  static BoardGameRelease _mapEdition(
+  static BoardGameEdition _mapEdition(
       CatalogEditionDto edition, Map<String, dynamic> raw,
       {required String workId}) {
     final metadata = edition.metadata ?? const <String, dynamic>{};
     Object? value(List<String> keys) => _editionValue(raw, metadata, keys);
 
-    return BoardGameRelease(
+    return BoardGameEdition(
       id: edition.id,
       title: _textValue(value(['edition_title', 'title', 'name'])) ??
           edition.title,

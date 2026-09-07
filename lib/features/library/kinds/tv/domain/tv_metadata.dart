@@ -186,7 +186,6 @@ class TvPhysicalReleaseMetadata {
   }
 }
 
-typedef TvMetadata = TvSeriesMetadata;
 
 @immutable
 class TvSeriesMetadata {

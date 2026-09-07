@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 
 export 'package:collectarr_app/features/library/kinds/game/contracts/game_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
@@ -22,4 +21,3 @@ export 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 
-typedef GameWork = GameCatalogItem;
