@@ -1,12 +1,5 @@
-import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
@@ -15,19 +8,14 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 /// Kind values are captured rather than replaced so checked-in built-ins and
 /// values discovered from the seeded catalog are both available.
 Future<void> seedPickLists(PickListRepository repo) async {
-  await _seedKindVocabularies(repo, 'anime', AnimeVocabularies.all);
-  await _seedKindVocabularies(
-    repo,
-    'boardgame',
-    BoardGameVocabularies.all,
-  );
-  await _seedKindVocabularies(repo, 'book', BookVocabularies.all);
-  await _seedKindVocabularies(repo, 'comic', ComicVocabularies.all);
-  await _seedKindVocabularies(repo, 'game', GameVocabularies.all);
-  await _seedKindVocabularies(repo, 'manga', MangaVocabularies.all);
-  await _seedKindVocabularies(repo, 'movie', MovieVocabularies.all);
-  await _seedKindVocabularies(repo, 'music', MusicVocabularies.all);
-  await _seedKindVocabularies(repo, 'tv', TvVocabularies.all);
+  for (final contributor in collectarrKindPickListDefinitionContributors) {
+    if (contributor is! VocabularyPickListDefinitionContributor) continue;
+    await _seedKindVocabularies(
+      repo,
+      contributor.kind.apiValue,
+      contributor.vocabularies,
+    );
+  }
 }
 
 /// Returns the number of built-in values that every kind-owned vocabulary
@@ -45,15 +33,10 @@ Map<String, int> devSeedVocabularyMinimumCounts() {
     }
   }
 
-  add(AnimeVocabularies.all);
-  add(BoardGameVocabularies.all);
-  add(BookVocabularies.all);
-  add(ComicVocabularies.all);
-  add(GameVocabularies.all);
-  add(MangaVocabularies.all);
-  add(MovieVocabularies.all);
-  add(MusicVocabularies.all);
-  add(TvVocabularies.all);
+  for (final contributor in collectarrKindPickListDefinitionContributors) {
+    if (contributor is! VocabularyPickListDefinitionContributor) continue;
+    add(contributor.vocabularies);
+  }
   return result;
 }
 
