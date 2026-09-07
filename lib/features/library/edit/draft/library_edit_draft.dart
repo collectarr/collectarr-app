@@ -218,11 +218,13 @@ class LibraryEditDraft {
 
     final editionSelection = resolveLibraryEditionSelection(
       editions,
-      editionId:
-          ownedItem?.anchor?.editionId ?? trackingEntry?.anchor?.editionId,
+      editionId: ownedItem?.anchor?.editionId ??
+          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
+              ?.editionId,
       editionTitle: editionTitle,
-      variantId:
-          ownedItem?.anchor?.variantId ?? trackingEntry?.anchor?.variantId,
+      variantId: ownedItem?.anchor?.variantId ??
+          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
+              ?.variantId,
     );
     final wishlistEditionSelection = resolveLibraryEditionSelection(
       editions,
@@ -297,9 +299,13 @@ class LibraryEditDraft {
       timesCompletedController: timesCompletedController,
       trackingNotesController: trackingNotesController,
       selectedTrackingEditionId:
-          trackingEntry?.anchor?.editionId ?? editionSelection.edition?.id,
+          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
+                  ?.editionId ??
+              editionSelection.edition?.id,
       selectedTrackingVariantId:
-          trackingEntry?.anchor?.variantId ?? editionSelection.variant?.id,
+          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
+                  ?.variantId ??
+              editionSelection.variant?.id,
       startedAt: trackingEntry?.startedAt,
       finishedAt: trackingEntry?.finishedAt,
     );
@@ -400,11 +406,13 @@ class LibraryEditDraft {
     final editions = item.editions;
     final editionSelection = resolveLibraryEditionSelection(
       editions,
-      editionId:
-          ownedItem?.anchor?.editionId ?? trackingEntry?.anchor?.editionId,
+      editionId: ownedItem?.anchor?.editionId ??
+          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
+              ?.editionId,
       editionTitle: (item.titleExtension ?? item.editionTitle)?.trim(),
-      variantId:
-          ownedItem?.anchor?.variantId ?? trackingEntry?.anchor?.variantId,
+      variantId: ownedItem?.anchor?.variantId ??
+          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
+              ?.variantId,
     );
     return (
       selectedLocationId: personal.selectedLocationId,

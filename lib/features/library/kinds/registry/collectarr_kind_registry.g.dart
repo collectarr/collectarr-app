@@ -859,17 +859,18 @@ LibraryKindModule libraryKindFor(CatalogMediaKind kind) {
   throw ArgumentError('No LibraryKindModule registered for kind "$kind"');
 }
 
-final List<LibraryKindRegistration> collectarrKindRegistrations = [
-  AnimeRegistration(),
-  BoardgameRegistration(),
-  BookRegistration(),
-  ComicRegistration(),
-  GameRegistration(),
-  MangaRegistration(),
-  MovieRegistration(),
-  MusicRegistration(),
-  TvRegistration(),
-];
+final Map<CatalogMediaKind, LibraryKindRegistration>
+    collectarrKindRegistrations = Map.unmodifiable({
+  CatalogMediaKind.anime: AnimeRegistration(),
+  CatalogMediaKind.boardgame: BoardgameRegistration(),
+  CatalogMediaKind.book: BookRegistration(),
+  CatalogMediaKind.comic: ComicRegistration(),
+  CatalogMediaKind.game: GameRegistration(),
+  CatalogMediaKind.manga: MangaRegistration(),
+  CatalogMediaKind.movie: MovieRegistration(),
+  CatalogMediaKind.music: MusicRegistration(),
+  CatalogMediaKind.tv: TvRegistration(),
+});
 
 final class AnimeRegistration implements LibraryKindRegistration {
   const AnimeRegistration();
@@ -1646,9 +1647,8 @@ final class TvRegistration implements LibraryKindRegistration {
 }
 
 LibraryKindRegistration libraryKindRegistrationForKind(CatalogMediaKind kind) {
-  for (final registration in collectarrKindRegistrations) {
-    if (registration.kind == kind) return registration;
-  }
+  final registration = collectarrKindRegistrations[kind];
+  if (registration != null) return registration;
   throw ArgumentError(
     'No LibraryKindRegistration registered for kind "$kind"',
   );

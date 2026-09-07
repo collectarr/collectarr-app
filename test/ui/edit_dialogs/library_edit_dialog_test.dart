@@ -101,8 +101,6 @@ void main() {
       id: 'tracking-1',
       catalogRef: testCatalogRef('movie-1', kind: 'movie'),
       ownedItemId: 'owned-1',
-      editionId: 'edition-steelbook',
-      variantId: 'variant-4k',
       sourceType: 'physical',
       status: 'In progress',
       rating: 9,
@@ -1027,8 +1025,6 @@ void main() {
     final trackingEntry = TrackingEntry(
       id: 'tracking-digital-1',
       catalogRef: testCatalogRef('movie-tracked-1', kind: 'movie'),
-      editionId: 'edition-digital',
-      variantId: 'variant-stream',
       sourceType: 'digital',
       status: 'Planned',
       rating: 8,

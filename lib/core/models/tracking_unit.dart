@@ -14,9 +14,6 @@ class TrackingUnit {
     required this.updatedAt,
     this.trackingEntryId,
     this.ownedItemId,
-    this.editionId,
-    this.variantId,
-    this.bundleReleaseId,
     this.deletedAt,
   });
 
@@ -24,15 +21,13 @@ class TrackingUnit {
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
   final String? ownedItemId;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
   final String unitType;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  String get itemId => targetRef.id;
+  /// Stable work identifier used for mixed/global queries.
+  String get itemId => targetRef.rootId ?? targetRef.id;
 
   bool get isDeleted => deletedAt != null;
   bool get isCompleted => !isDeleted;
@@ -43,9 +38,6 @@ class TrackingUnit {
       'unit_type': unitType,
       'tracking_entry_id': trackingEntryId,
       'owned_item_id': ownedItemId,
-      'edition_id': editionId,
-      'variant_id': variantId,
-      'bundle_release_id': bundleReleaseId,
       'completed_at': completedAt.toUtc().toIso8601String(),
     };
   }
@@ -55,9 +47,6 @@ class TrackingUnit {
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
     String? ownedItemId,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
     String? unitType,
     DateTime? completedAt,
     DateTime? updatedAt,
@@ -68,9 +57,6 @@ class TrackingUnit {
       targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
       ownedItemId: ownedItemId ?? this.ownedItemId,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
       unitType: unitType ?? this.unitType,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,

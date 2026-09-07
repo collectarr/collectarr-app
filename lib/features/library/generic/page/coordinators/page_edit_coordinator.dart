@@ -284,9 +284,7 @@ class LibraryPageEditCoordinator {
         );
       } else {
         final baseTracking = activeTrackingEntry.copyWith(
-          editionId: tracking.anchor?.editionId,
-          variantId: tracking.anchor?.variantId,
-          bundleReleaseId: tracking.anchor?.bundleReleaseId,
+          catalogRef: catalogItem.catalogRefForPersonalAnchor(tracking.anchor),
           status: mediaTrackingStatusFromValue(tracking.readStatus),
           rating: tracking.rating,
           startedAt: tracking.startedAt,

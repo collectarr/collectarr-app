@@ -162,13 +162,12 @@ void main() {
       );
 
       final entry =
-          (await trackingEntries.findActiveByItemIds(['variant-anchor']))
+          (await trackingEntries.findActiveByItemIds(['book-anchor-target']))
               .single;
       expect(entry.ownedItemId, 'book-anchor-target');
       expect(entry.catalogRef.entityType, CatalogEntityType.release);
       expect(entry.catalogRef.id, 'variant-anchor');
-      expect(entry.editionId, 'edition-anchor');
-      expect(entry.variantId, 'variant-anchor');
+      expect(entry.catalogRef.rootId, 'book-anchor-target');
     });
 
     test('replaces an existing catalog anchor when explicitly cleared',
@@ -195,10 +194,8 @@ void main() {
 
       final entry =
           (await trackingEntries.findActiveByItemIds([ref.id])).single;
-      expect(entry.anchor, isNull);
-      expect(entry.editionId, isNull);
-      expect(entry.variantId, isNull);
-      expect(entry.bundleReleaseId, isNull);
+      expect(entry.catalogRef.entityType, CatalogEntityType.work);
+      expect(entry.catalogRef.id, ref.id);
     });
 
     test('rejects invalid or unresolvable tracking target with ArgumentError',
@@ -410,10 +407,8 @@ void main() {
 
       final entry =
           (await trackingEntries.findActiveByItemIds([ref.id])).single;
-      expect(entry.anchor, isNull);
-      expect(entry.editionId, isNull);
-      expect(entry.variantId, isNull);
-      expect(entry.bundleReleaseId, isNull);
+      expect(entry.catalogRef.entityType, CatalogEntityType.work);
+      expect(entry.catalogRef.id, ref.id);
     });
 
     test('updateTrackingEntry applies explicit clears', () async {

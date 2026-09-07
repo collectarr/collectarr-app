@@ -145,8 +145,6 @@ void main() {
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       ownedItemId: 'owned-1',
-      editionId: 'edition-1',
-      variantId: 'variant-1',
       sourceType: 'physical',
       status: 'Reading',
       rating: 7,

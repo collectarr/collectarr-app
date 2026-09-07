@@ -112,9 +112,6 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
           ? catalogRef.copyWith(entityType: CatalogEntityType.episode)
           : catalogRef,
       ownedItemId: payload['owned_item_id'] as String?,
-      editionId: payload['edition_id'] as String?,
-      variantId: payload['variant_id'] as String?,
-      bundleReleaseId: payload['bundle_release_id'] as String?,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -146,9 +143,6 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
           ? row.catalogRef.copyWith(entityType: CatalogEntityType.episode)
           : row.catalogRef,
       ownedItemId: row.ownedItemId,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      bundleReleaseId: row.bundleReleaseId,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,

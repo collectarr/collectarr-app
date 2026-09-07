@@ -13,9 +13,6 @@ final class TrackingEntryStorageRow {
     required this.id,
     required this.catalogRef,
     required this.ownedItemId,
-    required this.editionId,
-    required this.variantId,
-    required this.bundleReleaseId,
     required this.sourceType,
     required this.status,
     required this.rating,
@@ -32,9 +29,6 @@ final class TrackingEntryStorageRow {
   final String id;
   final CatalogEntityRef catalogRef;
   final String? ownedItemId;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
   final String? sourceType;
   final String? status;
   final int? rating;

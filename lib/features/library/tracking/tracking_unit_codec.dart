@@ -14,9 +14,6 @@ final class TrackingUnitStorageRow {
     required this.targetRef,
     required this.trackingEntryId,
     required this.ownedItemId,
-    required this.editionId,
-    required this.variantId,
-    required this.bundleReleaseId,
     required this.unitType,
     required this.completedAt,
     required this.updatedAt,
@@ -27,9 +24,6 @@ final class TrackingUnitStorageRow {
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
   final String? ownedItemId;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
   final String unitType;
   final DateTime completedAt;
   final DateTime updatedAt;

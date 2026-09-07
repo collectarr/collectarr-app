@@ -1,9 +1,27 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// Resolves hierarchy behavior only for registered kinds.
+///
+/// Unknown/provider-only kinds must not silently acquire the generic hierarchy
+/// behavior. They have no owning hierarchy semantics and therefore fail at
+/// the dispatch boundary.
+LibraryHierarchyCapability requireLibraryHierarchyForKind(
+  CatalogMediaKind kind,
+) {
+  final module = lookupLibraryKind(kind);
+  if (module == null) {
+    throw UnsupportedError(
+      'Hierarchy is not supported for unregistered kind: $kind',
+    );
+  }
+  return module.hierarchy;
+}
 
 final libraryHierarchyProvider = FutureProvider.autoDispose.family<
     List<LibraryHierarchyNode>,
@@ -14,9 +32,8 @@ final libraryHierarchyProvider = FutureProvider.autoDispose.family<
       String? providerItemId,
       bool canHydrateFromCore,
     })>((ref, params) async {
-  final kindRuntime = lookupLibraryKind(params.kind);
-  final hierarchy = kindRuntime?.hierarchy;
-  if (hierarchy != null && params.itemId != null) {
+  final hierarchy = requireLibraryHierarchyForKind(params.kind);
+  if (params.itemId != null) {
     try {
       final api = ref.watch(apiClientProvider);
       final nodes = await hierarchy.fetchChildren(

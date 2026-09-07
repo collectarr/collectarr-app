@@ -329,10 +329,14 @@ void main() {
 
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
     final queued = await db.select(db.syncQueue).get();
+    final trackingRef = CatalogEntityRef.fromJson(
+      jsonDecode(tracking.catalogRefJson!) as Map<String, dynamic>,
+    );
 
     expect(tracking.ownedItemId, owned.id.value);
-    expect(tracking.editionId, 'edition-steelbook');
-    expect(tracking.variantId, 'variant-4k');
+    expect(trackingRef.entityType, CatalogEntityType.release);
+    expect(trackingRef.id, 'variant-4k');
+    expect(trackingRef.rootId, 'movie-2');
     expect(tracking.status, 'Completed');
     expect(tracking.rating, 10);
     expect(
@@ -758,7 +762,9 @@ void main() {
     expect(typedOwned, hasLength(1));
     expect(typedOwned.single.grade, '9.8');
     expect(wishlist, hasLength(1));
-    expect(queued, hasLength(4));
+    // Rows without a complete kind-owned catalog projection must not create a
+    // generic catalog snapshot as a side effect of importing Owned/Wishlist.
+    expect(queued, hasLength(2));
     final ownedChanges =
         queued.where((row) => row.entityType == 'owned_item').toList();
     expect(ownedChanges, hasLength(1));
@@ -767,7 +773,7 @@ void main() {
     expect(ownedPayload, contains('catalog_ref'));
     expect(ownedPayload, isNot(contains('id')));
     expect(ownedPayload, isNot(contains('updated_at')));
-    expect(container.read(syncControllerProvider).pendingCount, 4);
+    expect(container.read(syncControllerProvider).pendingCount, 2);
   });
 
   test('collection import propagates file import origin', () async {
@@ -1101,6 +1107,39 @@ void main() {
     final owned = await _typedOwnedForCatalog<MovieOwnedItem>(db, 'movie-1');
     expect(imported, 1);
     expect(owned.itemId, 'movie-1');
+  });
+
+  test(
+      'collection import does not synthesize catalog metadata without kind cells',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(collectionImportServiceProvider).importRows(
+      const [
+        CollectionCsvRow(
+          itemId: 'comic-without-projection',
+          kind: 'comic',
+          title: 'Only a structural import row',
+          status: 'owned',
+        ),
+      ],
+    );
+
+    expect(
+        await LibraryCatalogRepository(db).findById(
+          'comic-without-projection',
+        ),
+        isNull);
+    expect(
+      (await db.select(db.syncQueue).get())
+          .where((row) => row.entityType == 'catalog_item'),
+      isEmpty,
+    );
   });
 
   test('collection import preview reports matched unresolved and skipped rows',

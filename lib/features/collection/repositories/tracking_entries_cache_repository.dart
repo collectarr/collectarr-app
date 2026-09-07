@@ -113,9 +113,6 @@ class TrackingEntriesCacheRepository {
       id: row.id,
       catalogRef: _catalogRefForRow(row, catalogKind: catalogKind),
       ownedItemId: row.ownedItemId,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      bundleReleaseId: row.bundleReleaseId,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,
@@ -139,9 +136,6 @@ class TrackingEntriesCacheRepository {
       kind: Value(item.catalogRef.kind),
       catalogRefJson: Value(jsonEncode(item.catalogRef.toJson())),
       ownedItemId: Value(item.ownedItemId),
-      editionId: Value(item.editionId),
-      variantId: Value(item.variantId),
-      bundleReleaseId: Value(item.bundleReleaseId),
       sourceType: Value(item.sourceTypeApiValue),
       status: Value(item.statusStorageValue),
       rating: Value(item.rating),
@@ -179,20 +173,10 @@ class TrackingEntriesCacheRepository {
     if (storedRef != null) {
       return storedRef;
     }
-    final entityType = row.bundleReleaseId != null
-        ? CatalogEntityType.bundleRelease
-        : row.variantId != null
-            ? CatalogEntityType.release
-            : row.editionId != null
-                ? CatalogEntityType.edition
-                : CatalogEntityType.work;
-    final id =
-        row.bundleReleaseId ?? row.variantId ?? row.editionId ?? row.itemId;
     return CatalogEntityRef(
       kind: catalogKind ?? 'unknown',
-      entityType: entityType,
-      id: id,
-      rootId: entityType == CatalogEntityType.work ? null : row.itemId,
+      entityType: CatalogEntityType.work,
+      id: row.itemId,
     );
   }
 

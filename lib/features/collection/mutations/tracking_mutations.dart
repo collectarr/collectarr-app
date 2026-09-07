@@ -94,7 +94,7 @@ final class TrackingMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    late final CatalogEntityRef catalogRef;
+    late CatalogEntityRef catalogRef;
     String? targetOwnedItemId;
 
     switch (target) {
@@ -134,8 +134,13 @@ final class TrackingMutations {
         }
     }
 
-    final existingEntries =
-        await trackingEntries.findActiveByItemIds([catalogRef.id]);
+    if (anchor != null || replaceAnchor) {
+      catalogRef = _catalogRefForAnchor(catalogRef, anchor);
+    }
+
+    final existingEntries = await trackingEntries.findActiveByItemIds(
+      [catalogRef.rootId ?? catalogRef.id],
+    );
     final existing = existingEntries.isEmpty ? null : existingEntries.first;
     final entryId = existing?.id ?? idGenerator();
 
@@ -157,21 +162,6 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: catalogRef,
               ownedItemId: targetOwnedItemId ?? existing.ownedItemId,
-              editionId: _coordinateValue(
-                replace: replaceAnchor,
-                value: _editionIdFor(targetRef, anchor),
-                fallback: existing.editionId,
-              ),
-              variantId: _coordinateValue(
-                replace: replaceAnchor,
-                value: _variantIdFor(targetRef, anchor),
-                fallback: existing.variantId,
-              ),
-              bundleReleaseId: _coordinateValue(
-                replace: replaceAnchor,
-                value: _bundleReleaseIdFor(targetRef, anchor),
-                fallback: existing.bundleReleaseId,
-              ),
               sourceType: sourceType ?? existing.sourceType,
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
@@ -187,9 +177,6 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: catalogRef,
               ownedItemId: targetOwnedItemId,
-              editionId: _editionIdFor(targetRef, anchor),
-              variantId: _variantIdFor(targetRef, anchor),
-              bundleReleaseId: _bundleReleaseIdFor(targetRef, anchor),
               sourceType: sourceType,
               status: status ?? MediaTrackingStatus.planned,
               rating: rating,
@@ -259,20 +246,24 @@ final class TrackingMutations {
     final ownedSummary = catalogRef == null
         ? await ownedItems?.findSummaryById(ownedRef.id.value)
         : null;
-    final resolvedCatalogRef =
-        targetRef ?? catalogRef ?? ownedSummary?.catalogRef;
-    if (resolvedCatalogRef == null) {
+    final baseCatalogRef = targetRef ?? catalogRef ?? ownedSummary?.catalogRef;
+    if (baseCatalogRef == null) {
       throw StateError(
         'Cannot resolve catalog reference for owned tracking target '
         '${ownedRef.id.value}',
       );
     }
+    var resolvedCatalogRef = baseCatalogRef;
+    if (anchor != null || replaceAnchor) {
+      resolvedCatalogRef = _catalogRefForAnchor(resolvedCatalogRef, anchor);
+    }
     final typedOwned = await ownedItems?.findTypedById(ownedRef.id.value);
     final resolvedIsDigital = typedOwned == null
         ? isDigital
         : collectarrTypedOwnedItemIsDigital(typedOwned.$2);
-    final existingEntries =
-        await trackingEntries.findActiveByItemIds([resolvedCatalogRef.id]);
+    final existingEntries = await trackingEntries.findActiveByItemIds(
+      [resolvedCatalogRef.rootId ?? resolvedCatalogRef.id],
+    );
     final existing = existingEntries.isEmpty
         ? null
         : existingEntries.firstWhere(
@@ -280,14 +271,6 @@ final class TrackingMutations {
             orElse: () => existingEntries.first,
           );
     final entryId = existing?.id ?? idGenerator();
-    final coordinateTargetRef = targetRef ??
-        (catalogRef != null && catalogRef.entityType != CatalogEntityType.work
-            ? catalogRef
-            : null);
-    final inheritedEditionId = existing?.editionId;
-    final inheritedVariantId = existing?.variantId;
-    final inheritedBundleReleaseId = existing?.bundleReleaseId;
-
     await mutationRunner.run(
       origin: origin,
       localRef: resolvedCatalogRef,
@@ -296,21 +279,6 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: resolvedCatalogRef,
               ownedItemId: ownedRef.id.value,
-              editionId: _coordinateValue(
-                replace: replaceAnchor,
-                value: _editionIdFor(coordinateTargetRef, anchor),
-                fallback: inheritedEditionId,
-              ),
-              variantId: _coordinateValue(
-                replace: replaceAnchor,
-                value: _variantIdFor(coordinateTargetRef, anchor),
-                fallback: inheritedVariantId,
-              ),
-              bundleReleaseId: _coordinateValue(
-                replace: replaceAnchor,
-                value: _bundleReleaseIdFor(coordinateTargetRef, anchor),
-                fallback: inheritedBundleReleaseId,
-              ),
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
               notes: notes ?? existing.notes,
@@ -329,21 +297,6 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: resolvedCatalogRef,
               ownedItemId: ownedRef.id.value,
-              editionId: _coordinateValue(
-                replace: replaceAnchor,
-                value: _editionIdFor(coordinateTargetRef, anchor),
-                fallback: inheritedEditionId,
-              ),
-              variantId: _coordinateValue(
-                replace: replaceAnchor,
-                value: _variantIdFor(coordinateTargetRef, anchor),
-                fallback: inheritedVariantId,
-              ),
-              bundleReleaseId: _coordinateValue(
-                replace: replaceAnchor,
-                value: _bundleReleaseIdFor(coordinateTargetRef, anchor),
-                fallback: inheritedBundleReleaseId,
-              ),
               status: status ?? MediaTrackingStatus.planned,
               rating: rating,
               notes: notes,
@@ -397,9 +350,6 @@ final class TrackingMutations {
         final baseEntry = TrackingEntry(
           id: entryId,
           catalogRef: catalogRef,
-          editionId: _editionIdFor(targetRef, anchor),
-          variantId: _variantIdFor(targetRef, anchor),
-          bundleReleaseId: _bundleReleaseIdFor(targetRef, anchor),
           sourceType: sourceType,
           status: status,
           rating: rating,
@@ -458,48 +408,45 @@ final class TrackingMutations {
     );
   }
 
-  String? _coordinateValue({
-    required bool replace,
-    required String? value,
-    required String? fallback,
-  }) =>
-      replace ? value : value ?? fallback;
-
-  String? _editionIdFor(
-    CatalogEntityRef? targetRef,
+  CatalogEntityRef _catalogRefForAnchor(
+    CatalogEntityRef baseRef,
     PersonalItemAnchor? anchor,
   ) {
-    if (targetRef != null) {
-      return targetRef.entityType == CatalogEntityType.edition
-          ? targetRef.id
-          : targetRef.entityType == CatalogEntityType.release
-              ? targetRef.rootId
-              : null;
+    if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
+      return baseRef.copyWith(
+        entityType: CatalogEntityType.work,
+        id: baseRef.rootId ?? baseRef.id,
+        rootId: null,
+      );
     }
-    return anchor?.editionId;
-  }
-
-  String? _variantIdFor(
-    CatalogEntityRef? targetRef,
-    PersonalItemAnchor? anchor,
-  ) {
-    if (targetRef != null) {
-      return targetRef.entityType == CatalogEntityType.release
-          ? targetRef.id
-          : null;
+    if (anchor.type == PersonalItemAnchorType.bundleRelease &&
+        anchor.bundleReleaseId != null) {
+      return baseRef.copyWith(
+        entityType: CatalogEntityType.bundleRelease,
+        id: anchor.bundleReleaseId,
+        rootId: baseRef.rootId ?? baseRef.id,
+      );
     }
-    return anchor?.variantId;
-  }
-
-  String? _bundleReleaseIdFor(
-    CatalogEntityRef? targetRef,
-    PersonalItemAnchor? anchor,
-  ) {
-    if (targetRef != null) {
-      return targetRef.entityType == CatalogEntityType.bundleRelease
-          ? targetRef.id
-          : null;
+    if (anchor.type == PersonalItemAnchorType.variant &&
+        anchor.variantId != null) {
+      return baseRef.copyWith(
+        entityType: CatalogEntityType.release,
+        id: anchor.variantId,
+        rootId: baseRef.rootId ?? baseRef.id,
+      );
     }
-    return anchor?.bundleReleaseId;
+    if (anchor.type == PersonalItemAnchorType.edition &&
+        anchor.editionId != null) {
+      return baseRef.copyWith(
+        entityType: CatalogEntityType.edition,
+        id: anchor.editionId,
+        rootId: baseRef.rootId ?? baseRef.id,
+      );
+    }
+    return baseRef.copyWith(
+      entityType: CatalogEntityType.work,
+      id: baseRef.rootId ?? baseRef.id,
+      rootId: null,
+    );
   }
 }

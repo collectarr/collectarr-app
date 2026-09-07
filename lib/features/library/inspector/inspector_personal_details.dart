@@ -707,8 +707,10 @@ class _InspectorTrackingDetailsEditorState
     _finishedAt = entry.finishedAt;
     final selection = resolveLibraryEditionSelection(
       widget.editions,
-      editionId: entry.editionId,
-      variantId: entry.variantId,
+      editionId:
+          libraryPersonalAnchorForCatalogRef(entry.catalogRef)?.editionId,
+      variantId:
+          libraryPersonalAnchorForCatalogRef(entry.catalogRef)?.variantId,
     );
     _selectedEditionId = selection.edition?.id;
     _selectedVariantId = selection.variant?.id;

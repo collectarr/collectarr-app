@@ -783,12 +783,16 @@ import 'package:go_router/go_router.dart';
   buffer.writeln('}');
   buffer.writeln();
   buffer.writeln(
-    'final List<LibraryKindRegistration> collectarrKindRegistrations = [',
+    'final Map<CatalogMediaKind, LibraryKindRegistration> '
+    'collectarrKindRegistrations = Map.unmodifiable({',
   );
   for (final descriptor in descriptors) {
-    buffer.writeln('  ${_registrationClassName(descriptor)}(),');
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: '
+      '${_registrationClassName(descriptor)}(),',
+    );
   }
-  buffer.writeln('];');
+  buffer.writeln('});');
   buffer.writeln();
   for (final descriptor in descriptors) {
     _renderRegistrationClass(buffer, descriptor);
@@ -796,9 +800,8 @@ import 'package:go_router/go_router.dart';
   buffer.writeln(
     'LibraryKindRegistration libraryKindRegistrationForKind(CatalogMediaKind kind) {',
   );
-  buffer.writeln('  for (final registration in collectarrKindRegistrations) {');
-  buffer.writeln('    if (registration.kind == kind) return registration;');
-  buffer.writeln('  }');
+  buffer.writeln('  final registration = collectarrKindRegistrations[kind];');
+  buffer.writeln('  if (registration != null) return registration;');
   buffer.writeln('  throw ArgumentError(');
   buffer.writeln(
     "    'No LibraryKindRegistration registered for kind \"\$kind\"',",

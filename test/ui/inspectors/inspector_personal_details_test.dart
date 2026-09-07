@@ -112,8 +112,6 @@ void main() {
             status: const Value('Plan to watch'),
             rating: const Value(7),
             startedAt: Value(DateTime.utc(2026, 5, 20)),
-            editionId: const Value('edition-stream'),
-            variantId: const Value('variant-hd'),
             updatedAt: DateTime.utc(2026, 5, 23),
           ),
         );
@@ -129,8 +127,6 @@ void main() {
               trackingEntry: TrackingEntry(
                 id: 'tracking-1',
                 catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-                editionId: 'edition-stream',
-                variantId: 'variant-hd',
                 sourceType: 'digital',
                 status: 'Plan to watch',
                 rating: 7,
@@ -169,8 +165,7 @@ void main() {
     final updated = await db.select(db.trackingEntriesCache).getSingle();
     expect(updated.sourceType, 'digital');
     expect(updated.rating, 7);
-    expect(updated.editionId, 'edition-stream');
-    expect(updated.variantId, 'variant-hd');
+    expect(updated.catalogRefJson, isNotNull);
     expect(updated.updatedAt.isAfter(DateTime.utc(2026, 5, 23)), isTrue);
   });
 

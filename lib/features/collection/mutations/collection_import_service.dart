@@ -61,14 +61,15 @@ final class CollectionImportService {
     ));
     final importedCatalogItems = <CatalogItemDto>[];
     for (final row in resolvedRows) {
-      final snapshot = _catalogSnapshotFromCsvRow(
-        row,
-        existing: catalogItems[row.itemId],
-      );
-      if (snapshot != null) {
-        catalogItems[row.itemId] = snapshot;
-        importedCatalogItems.add(snapshot);
-      }
+      // An existing catalog item is already authoritative local state. Only
+      // a kind-owned CSV projection may create a new catalog snapshot for an
+      // import row; Collection must not re-persist existing metadata or
+      // synthesize a generic semantic fallback.
+      if (catalogItems.containsKey(row.itemId)) continue;
+      final snapshot = _catalogSnapshotFromCsvRow(row);
+      if (snapshot == null) continue;
+      catalogItems[row.itemId] = snapshot;
+      importedCatalogItems.add(snapshot);
     }
 
     final now = DateTime.now().toUtc();
@@ -278,8 +279,9 @@ final class CollectionImportService {
 
     for (final r in rows) {
       var row = r;
+      final lookup = _importLookupValues(row);
       if (row.itemId.trim().isEmpty) {
-        final barcode = _importRowBarcode(row);
+        final barcode = lookup.barcode;
         if (barcode != null && barcode.isNotEmpty) {
           final matched = await catalogLookup.findByBarcode(
             barcode,
@@ -292,10 +294,9 @@ final class CollectionImportService {
         if (row.itemId.trim().isEmpty &&
             row.title != null &&
             row.title!.trim().isNotEmpty) {
-          final primaryLookupValue = _importRowPrimaryLookupValue(row);
           final matched = await catalogLookup.findByTitleAndItemNumber(
             title: row.title!,
-            itemNumber: primaryLookupValue,
+            itemNumber: lookup.primary,
             kind: row.kind,
           );
           if (matched != null) {
@@ -306,7 +307,7 @@ final class CollectionImportService {
       if (row.itemId.trim().isNotEmpty) {
         candidateRows.add(row);
       } else if ((row.title != null && row.title!.trim().isNotEmpty) ||
-          _importRowBarcode(row) != null ||
+          lookup.barcode != null ||
           row.status.trim().isNotEmpty) {
         unresolvedRows.add(row);
       } else {
@@ -360,65 +361,46 @@ final class CollectionImportService {
 
   /// Lets the owning CSV projection create the catalog snapshot.
   ///
-  /// Collection only normalizes the structural identity/title cells needed by
-  /// the serialization boundary. It must not reconstruct a rich
-  /// [CatalogItemDto] from semantic CSV columns; those meanings belong to the
-  /// selected kind's import profile.
-  CatalogItemDto? _catalogSnapshotFromCsvRow(
-    CollectionCsvRow row, {
-    CatalogItemDto? existing,
-  }) {
-    if (existing != null) {
-      return existing;
-    }
+  /// Collection only normalizes the structural identity cell needed by the
+  /// serialization boundary. It must not reconstruct a rich
+  /// [CatalogItemDto] when the row did not come from a complete kind-owned
+  /// catalog projection.
+  CatalogItemDto? _catalogSnapshotFromCsvRow(CollectionCsvRow row) {
     final projection = libraryCollectionCsvProjectionForKind(
       catalogMediaKindFromValue(row.kind),
     );
-    if (projection == null || row.itemId.trim().isEmpty) {
+    final cells = _catalogImportCells(row);
+    if (projection == null || cells == null) {
       return null;
     }
-    return projection.catalogItemFromImportCells(
-      _catalogImportCells(row),
-    );
+    return projection.catalogItemFromImportCells(cells);
   }
 
-  List<String> _catalogImportCells(CollectionCsvRow row) {
-    if (row.kindCatalogCells.length == libraryCollectionCsvCatalogCellCount) {
-      final cells = [...row.kindCatalogCells];
-      if (cells[0].trim().isEmpty) {
-        cells[0] = row.itemId;
-      }
-      return cells;
+  List<String>? _catalogImportCells(CollectionCsvRow row) {
+    if (row.itemId.trim().isEmpty ||
+        row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
+      return null;
     }
 
-    return [
-      row.itemId,
-      row.kind ?? '',
-      row.title ?? row.itemId,
-      ...List<String>.filled(libraryCollectionCsvCatalogCellCount - 3, ''),
-    ];
+    final cells = [...row.kindCatalogCells];
+    if (cells[0].trim().isEmpty) cells[0] = row.itemId;
+    return cells;
   }
 
-  String? _importRowPrimaryLookupValue(CollectionCsvRow row) {
+  ({String? barcode, String? primary}) _importLookupValues(
+    CollectionCsvRow row,
+  ) {
     final projection = libraryCollectionCsvProjectionForKind(
       catalogMediaKindFromValue(row.kind),
     );
     if (projection == null ||
         row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
-      return null;
+      return (barcode: null, primary: null);
     }
-    return projection.importPrimaryLookupValue(row.kindCatalogCells);
-  }
-
-  String? _importRowBarcode(CollectionCsvRow row) {
-    final projection = libraryCollectionCsvProjectionForKind(
-      catalogMediaKindFromValue(row.kind),
+    return (
+      barcode: projection.importBarcode(row.kindCatalogCells),
+      primary: projection.importPrimaryLookupValue(row.kindCatalogCells),
     );
-    if (projection == null ||
-        row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
-      return null;
-    }
-    return projection.importBarcode(row.kindCatalogCells);
   }
 
   _TypedOwnedImport _typedOwnedItemFromCsvRow(

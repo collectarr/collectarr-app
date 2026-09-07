@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../tool/check_library_kind_boundaries.dart';
 
@@ -626,6 +627,10 @@ class ComicFeature {}
   test('unknown kinds have no production registration', () {
     expect(
       () => libraryKindModuleForKind(CatalogMediaKind.unknown),
+      throwsArgumentError,
+    );
+    expect(
+      () => libraryKindRegistrationForKind(CatalogMediaKind.unknown),
       throwsArgumentError,
     );
   });

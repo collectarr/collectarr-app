@@ -85,9 +85,6 @@ class TrackingEntriesCache extends Table {
   TextColumn get kind => text().withDefault(const Constant('unknown'))();
   TextColumn get catalogRefJson => text().nullable()();
   TextColumn get ownedItemId => text().nullable()();
-  TextColumn get editionId => text().nullable()();
-  TextColumn get variantId => text().nullable()();
-  TextColumn get bundleReleaseId => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();
@@ -111,9 +108,6 @@ class TrackingUnitsCache extends Table {
   TextColumn get targetRefJson => text().nullable()();
   TextColumn get trackingEntryId => text().nullable()();
   TextColumn get ownedItemId => text().nullable()();
-  TextColumn get editionId => text().nullable()();
-  TextColumn get variantId => text().nullable()();
-  TextColumn get bundleReleaseId => text().nullable()();
   TextColumn get unitType => text()();
   DateTimeColumn get completedAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();

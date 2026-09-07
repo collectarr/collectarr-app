@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -57,6 +59,11 @@ void main() {
     expect(registrations, contains('collectarrKindRegistrations'));
     expect(registrations, contains('libraryKindRegistrationForKind'));
     expect(registrations, contains('collectarrKindRoutes'));
+    expect(
+      registrations,
+      contains('Map<CatalogMediaKind, LibraryKindRegistration>'),
+    );
+    expect(registrations, isNot(contains('for (final registration')));
     expect(
       registrations,
       isNot(contains('LibraryKindModule get _module')),
@@ -204,6 +211,27 @@ void main() {
       }
     }
     expect(violations, isEmpty);
+  });
+
+  test('generated registrations are keyed by their concrete kind', () {
+    expect(collectarrKindRegistrations, hasLength(9));
+    expect(
+      collectarrKindRegistrations.keys,
+      containsAll(<CatalogMediaKind>[
+        CatalogMediaKind.anime,
+        CatalogMediaKind.boardgame,
+        CatalogMediaKind.book,
+        CatalogMediaKind.comic,
+        CatalogMediaKind.game,
+        CatalogMediaKind.manga,
+        CatalogMediaKind.movie,
+        CatalogMediaKind.music,
+        CatalogMediaKind.tv,
+      ]),
+    );
+    for (final entry in collectarrKindRegistrations.entries) {
+      expect(entry.value.kind, entry.key);
+    }
   });
 }
 

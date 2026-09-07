@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -11,9 +10,6 @@ class TrackingEntry extends PersonalTrackingBase {
     required this.id,
     required this.catalogRef,
     this.ownedItemId,
-    this.editionId,
-    this.variantId,
-    this.bundleReleaseId,
     Object? sourceType,
     super.status,
     super.rating,
@@ -37,9 +33,6 @@ class TrackingEntry extends PersonalTrackingBase {
   final String id;
   final CatalogEntityRef catalogRef;
   final String? ownedItemId;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
   final TrackingSourceType? sourceType;
   final int? progressCurrent;
   final int? progressTotal;
@@ -52,13 +45,9 @@ class TrackingEntry extends PersonalTrackingBase {
 
   DateTime? get finishedAt => completedAt;
 
-  String get itemId => catalogRef.id;
-
-  PersonalItemAnchor? get anchor => PersonalItemAnchor.fromRaw(
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      );
+  /// Stable work identifier used for mixed/global queries. Child targets keep
+  /// their concrete identity in [catalogRef] while sharing the work key.
+  String get itemId => catalogRef.rootId ?? catalogRef.id;
 
   TrackingSourceType? get trackingSource => sourceType;
 
@@ -70,9 +59,6 @@ class TrackingEntry extends PersonalTrackingBase {
     return {
       'catalog_ref': catalogRef.toJson(),
       'owned_item_id': ownedItemId,
-      'edition_id': editionId,
-      'variant_id': variantId,
-      'bundle_release_id': bundleReleaseId,
       'source_type': sourceTypeApiValue,
       'status': statusStorageValue,
       'rating': rating,
@@ -89,9 +75,6 @@ class TrackingEntry extends PersonalTrackingBase {
     String? id,
     CatalogEntityRef? catalogRef,
     Object? ownedItemId = _trackingUnset,
-    Object? editionId = _trackingUnset,
-    Object? variantId = _trackingUnset,
-    Object? bundleReleaseId = _trackingUnset,
     Object? sourceType = _trackingUnset,
     Object? status = _trackingUnset,
     Object? rating = _trackingUnset,
@@ -113,15 +96,6 @@ class TrackingEntry extends PersonalTrackingBase {
       ownedItemId: identical(ownedItemId, _trackingUnset)
           ? this.ownedItemId
           : ownedItemId as String?,
-      editionId: identical(editionId, _trackingUnset)
-          ? this.editionId
-          : editionId as String?,
-      variantId: identical(variantId, _trackingUnset)
-          ? this.variantId
-          : variantId as String?,
-      bundleReleaseId: identical(bundleReleaseId, _trackingUnset)
-          ? this.bundleReleaseId
-          : bundleReleaseId as String?,
       sourceType: identical(sourceType, _trackingUnset)
           ? this.sourceType
           : trackingSourceTypeFromValue(sourceType),
