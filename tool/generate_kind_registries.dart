@@ -105,6 +105,10 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           entity,
           'LibraryExportPreviewContributor',
         ),
+        catalogLookup: _discoverIntegrationContributor(
+          entity,
+          'CatalogKindLookup',
+        ),
         trackingEntryCodec: _discoverContributor(
           entity,
           'tracking',
@@ -355,6 +359,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
@@ -535,6 +540,7 @@ import 'package:flutter/material.dart';
     type: 'LibraryExportPreviewContributor',
     field: (descriptor) => descriptor.exportPreviewContributor,
   );
+  _renderCatalogKindLookups(buffer, descriptors);
   _renderCodecList(
     buffer,
     descriptors: descriptors,
@@ -901,6 +907,22 @@ void _renderCatalogRepositoryCodecs(
   buffer.writeln('];');
 }
 
+void _renderCatalogKindLookups(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln(
+    'List<CatalogKindLookup> collectarrCatalogKindLookups(LocalDatabase db) => [',
+  );
+  for (final descriptor in descriptors) {
+    final lookup = descriptor.catalogLookup;
+    if (lookup == null) continue;
+    buffer.writeln('  ${lookup.className}(db),');
+  }
+  buffer.writeln('];');
+  buffer.writeln();
+}
+
 void _renderSerialAuthorityContributors(
   StringBuffer buffer,
   List<_KindDescriptor> descriptors,
@@ -950,6 +972,7 @@ final class _KindDescriptor {
     this.collectionCsvProjection,
     this.shelfExtension,
     this.exportPreviewContributor,
+    this.catalogLookup,
     this.trackingEntryCodec,
     this.trackingUnitCodec,
     this.watchSessionCodec,
@@ -974,6 +997,7 @@ final class _KindDescriptor {
   final _Contributor? collectionCsvProjection;
   final _Contributor? shelfExtension;
   final _Contributor? exportPreviewContributor;
+  final _Contributor? catalogLookup;
   final _Contributor? trackingEntryCodec;
   final _Contributor? trackingUnitCodec;
   final _Contributor? watchSessionCodec;
@@ -996,6 +1020,7 @@ final class _KindDescriptor {
       collectionCsvProjection,
       shelfExtension,
       exportPreviewContributor,
+      catalogLookup,
       trackingEntryCodec,
       trackingUnitCodec,
       watchSessionCodec,
