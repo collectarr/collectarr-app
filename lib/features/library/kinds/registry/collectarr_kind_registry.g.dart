@@ -69,6 +69,7 @@ import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calen
 import 'package:collectarr_app/features/library/kinds/manga/admin/manga_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/barcode/manga_identifier_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
@@ -95,6 +96,7 @@ import 'package:collectarr_app/features/library/config/library_admin_contributor
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
@@ -169,6 +171,10 @@ final collectarrKindCollectionCsvProjections = <CatalogMediaKind, LibraryCollect
   CatalogMediaKind.movie: const MovieCollectionCsvProjection(),
   CatalogMediaKind.music: const MusicCollectionCsvProjection(),
   CatalogMediaKind.tv: const TvCollectionCsvProjection(),
+};
+
+final collectarrKindShelfExtensions = <CatalogMediaKind, LibraryShelfExtensionContributor>{
+  CatalogMediaKind.manga: const MangaShelfExtensionContributor(),
 };
 
 final collectarrKindProviderMappers = <CatalogMediaKind, LibraryKindProviderMapper>{

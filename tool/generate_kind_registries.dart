@@ -83,6 +83,12 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           '${folder}_collection_csv_projection.dart',
           'LibraryCollectionCsvProjection',
         ),
+        shelfExtension: _discoverContributor(
+          entity,
+          'integrations/collection_shelf',
+          '${folder}_shelf_extension_contributor.dart',
+          'LibraryShelfExtensionContributor',
+        ),
         providerMapper: _discoverContributor(
           entity,
           'provider',
@@ -238,6 +244,9 @@ import 'package:flutter/material.dart';
     "import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';",
   );
   buffer.writeln(
+    "import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';",
+  );
+  buffer.writeln(
     "import 'package:collectarr_app/features/library/config/owned_details_codec.dart';",
   );
   for (final descriptor in descriptors) {
@@ -288,6 +297,13 @@ import 'package:flutter/material.dart';
     name: 'collectarrKindCollectionCsvProjections',
     type: 'LibraryCollectionCsvProjection',
     field: (descriptor) => descriptor.collectionCsvProjection,
+  );
+  _renderContributorMap(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrKindShelfExtensions',
+    type: 'LibraryShelfExtensionContributor',
+    field: (descriptor) => descriptor.shelfExtension,
   );
   _renderContributorMap(
     buffer,
@@ -424,6 +440,7 @@ final class _KindDescriptor {
     this.adminContributor,
     this.barcodeResolver,
     this.collectionCsvProjection,
+    this.shelfExtension,
     this.providerMapper,
     this.ownedDetailsCodec,
     this.metadataDecoder,
@@ -438,6 +455,7 @@ final class _KindDescriptor {
   final _Contributor? adminContributor;
   final _Contributor? barcodeResolver;
   final _Contributor? collectionCsvProjection;
+  final _Contributor? shelfExtension;
   final _Contributor? providerMapper;
   final _Contributor? ownedDetailsCodec;
   final _MetadataDecoder? metadataDecoder;
@@ -450,6 +468,7 @@ final class _KindDescriptor {
       adminContributor,
       barcodeResolver,
       collectionCsvProjection,
+      shelfExtension,
       providerMapper,
       ownedDetailsCodec,
     ]) {

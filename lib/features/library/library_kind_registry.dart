@@ -9,13 +9,13 @@ import 'package:collectarr_app/features/library/config/library_activity_contribu
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
-import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_shelf/manga_collection_shelf_extension.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -72,6 +72,11 @@ final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
 
 Iterable<LibraryCollectionCsvProjection> get libraryCollectionCsvProjections =>
     _collectionCsvProjections.values;
+
+final Map<CatalogMediaKind, LibraryShelfExtensionContributor>
+    _shelfExtensionContributors = Map.unmodifiable(
+  collectarrKindShelfExtensions,
+);
 
 final Map<CatalogMediaKind, LibraryCalendarContributor> _calendarContributors =
     Map.unmodifiable(
@@ -183,22 +188,19 @@ LibraryCollectionCsvProjection? libraryCollectionCsvProjectionForKind(
 
 /// Composition-root dispatch for kind-owned extensions on the mixed Shelf.
 ///
-/// The Collection feature owns the slot and row lifecycle. It receives only a
-/// widget contribution and does not import Manga hierarchy types or provider
-/// code.
+/// The Collection feature owns the slot and row lifecycle. The kind registry
+/// only looks up a structural contributor; it does not encode kind branches.
 Widget? libraryShelfExtensionForEntry(
   ShelfEntry entry, {
   required bool expanded,
   required VoidCallback onToggle,
 }) {
-  return switch (catalogMediaKindFromValue(entry.catalogItem?.kind)) {
-    CatalogMediaKind.manga => MangaCollectionShelfExtension(
-        itemId: entry.itemId,
-        expanded: expanded,
-        onToggle: onToggle,
-      ),
-    _ => null,
-  };
+  final kind = catalogMediaKindFromValue(entry.catalogItem?.kind);
+  return _shelfExtensionContributors[kind]?.build(
+    entry,
+    expanded: expanded,
+    onToggle: onToggle,
+  );
 }
 
 final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {
