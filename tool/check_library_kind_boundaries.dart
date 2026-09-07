@@ -262,6 +262,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   };
 
   static const _structuralProjectionAllowlist = {
+    // Small cross-kind read projections may expose presentation labels such
+    // as subtitle; they do not carry canonical kind metadata.
+    'lib/core/models/catalog_search_hit.dart',
+    'lib/core/models/calendar_event.dart',
     'lib/core/models/owned_item_projection.dart',
   };
 
