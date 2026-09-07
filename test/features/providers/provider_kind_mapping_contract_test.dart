@@ -5,6 +5,16 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
+import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -200,6 +210,30 @@ final _providerKindCases = <_ProviderKindCase>[
   ),
 ];
 
+/// The registry intentionally erases only at the dispatch boundary. Contract
+/// tests keep the concrete catalog return types explicit instead of casting
+/// every mapper through a runtime-generic type.
+final _typedCatalogMappers =
+    <CatalogMediaKind, Object Function(NormalizedProviderEnvelopeV1)>{
+  CatalogMediaKind.anime:
+      const AnimeLibraryKindProviderMapper().catalogFromEnvelope,
+  CatalogMediaKind.boardgame:
+      const BoardGameLibraryKindProviderMapper().catalogFromEnvelope,
+  CatalogMediaKind.book:
+      const BookLibraryKindProviderMapper().catalogFromEnvelope,
+  CatalogMediaKind.comic:
+      const ComicLibraryKindProviderMapper().catalogFromEnvelope,
+  CatalogMediaKind.game:
+      const GameLibraryKindProviderMapper().catalogFromEnvelope,
+  CatalogMediaKind.manga:
+      const MangaLibraryKindProviderMapper().catalogFromEnvelope,
+  CatalogMediaKind.movie:
+      const MovieLibraryKindProviderMapper().catalogFromEnvelope,
+  CatalogMediaKind.music:
+      const MusicLibraryKindProviderMapper().catalogFromEnvelope,
+  CatalogMediaKind.tv: const TvLibraryKindProviderMapper().catalogFromEnvelope,
+};
+
 NormalizedProviderEnvelopeV1 _envelopeFor(_ProviderKindCase testCase) {
   final normalized = testCase.normalizeNative();
   return NormalizedProviderEnvelopeV1(
@@ -258,8 +292,7 @@ void main() {
       expect(item.kindMetadata, isNot(isA<Map>()));
       expect(item.kindMetadata, isNot(isA<NormalizedProviderEnvelopeV1>()));
 
-      final typedMapper = mapper as TypedLibraryKindProviderMapper<dynamic>;
-      final catalog = typedMapper.catalogFromEnvelope(envelope);
+      final catalog = _typedCatalogMappers[testCase.kind]!(envelope);
       expect(catalog, isNotNull);
       expect(catalog, isNot(isA<Map>()));
     });
@@ -286,9 +319,8 @@ void main() {
         throwsA(isA<StateError>()),
         reason: '${runtime.kind.apiValue} must validate its input kind',
       );
-      final typedMapper = mapper as TypedLibraryKindProviderMapper<dynamic>;
       expect(
-        () => typedMapper.catalogFromEnvelope(envelope),
+        () => _typedCatalogMappers[runtime.kind]!(envelope),
         throwsA(isA<StateError>()),
       );
     }
