@@ -444,6 +444,19 @@ final collectarrOwnedItemSerializers =
       TvOwnedItemProjection.toOwnedItem(item as TvOwnedItem),
 };
 
+final collectarrOwnedItemDeserializers =
+    <CatalogMediaKind, Object Function(OwnedItem)>{
+  CatalogMediaKind.anime: AnimeOwnedItemProjection.fromOwnedItem,
+  CatalogMediaKind.boardgame: BoardGameOwnedItemProjection.fromOwnedItem,
+  CatalogMediaKind.book: BookOwnedItemProjection.fromOwnedItem,
+  CatalogMediaKind.comic: ComicOwnedItemProjection.fromOwnedItem,
+  CatalogMediaKind.game: GameOwnedItemProjection.fromOwnedItem,
+  CatalogMediaKind.manga: MangaOwnedItemProjection.fromOwnedItem,
+  CatalogMediaKind.movie: MovieOwnedItemProjection.fromOwnedItem,
+  CatalogMediaKind.music: MusicOwnedItemProjection.fromOwnedItem,
+  CatalogMediaKind.tv: TvOwnedItemProjection.fromOwnedItem,
+};
+
 final collectarrOwnedItemReaders =
     <CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{
   CatalogMediaKind.anime: (database) async =>

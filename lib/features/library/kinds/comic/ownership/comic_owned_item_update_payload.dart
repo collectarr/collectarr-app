@@ -1,6 +1,6 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
@@ -10,7 +10,8 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 /// The common-looking personal fields intentionally live in this Comic
 /// payload. This keeps Comic detail validation and persistence reconstruction
 /// in the Comic vertical.
-final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
+final class ComicOwnedItemUpdatePayload
+    implements OwnedItemUpdatePayload<ComicOwnedItem> {
   const ComicOwnedItemUpdatePayload({
     required this.anchor,
     required this.quantity,
@@ -97,11 +98,11 @@ final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<ComicOwnedDetailsDraft> details;
 
   @override
-  bool canApplyTo(OwnedItem existing) => existing.details is ComicOwnedDetails;
+  bool canApplyTo(ComicOwnedItem existing) => true;
 
   @override
-  OwnedItem applyTo(
-    OwnedItem existing, {
+  ComicOwnedItem applyTo(
+    ComicOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
@@ -118,7 +119,7 @@ final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
       clear: () => detailsCodec.defaultDetails(),
     );
 
-    return OwnedItem(
+    return ComicOwnedItem(
       id: existing.id,
       catalogRef: existing.catalogRef,
       createdAt: existing.createdAt ?? updatedAt,
@@ -217,6 +218,7 @@ final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
       ),
       updatedAt: updatedAt,
       deletedAt: existing.deletedAt,
+      reading: existing.reading,
     );
   }
 }

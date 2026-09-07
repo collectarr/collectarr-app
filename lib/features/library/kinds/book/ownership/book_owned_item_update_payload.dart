@@ -1,11 +1,12 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 
-final class BookOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
+final class BookOwnedItemUpdatePayload
+    implements OwnedItemUpdatePayload<BookOwnedItem> {
   const BookOwnedItemUpdatePayload({
     required this.anchor,
     required this.quantity,
@@ -92,11 +93,11 @@ final class BookOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<BookOwnedDetailsDraft> details;
 
   @override
-  bool canApplyTo(OwnedItem existing) => existing.details is BookOwnedDetails;
+  bool canApplyTo(BookOwnedItem existing) => true;
 
   @override
-  OwnedItem applyTo(
-    OwnedItem existing, {
+  BookOwnedItem applyTo(
+    BookOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,

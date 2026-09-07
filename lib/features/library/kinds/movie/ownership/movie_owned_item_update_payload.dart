@@ -1,11 +1,12 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
-final class MovieOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
+final class MovieOwnedItemUpdatePayload
+    implements OwnedItemUpdatePayload<MovieOwnedItem> {
   const MovieOwnedItemUpdatePayload({
     required this.anchor,
     required this.quantity,
@@ -92,11 +93,11 @@ final class MovieOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<MovieOwnedDetailsDraft> details;
 
   @override
-  bool canApplyTo(OwnedItem existing) => existing.details is MovieOwnedDetails;
+  bool canApplyTo(MovieOwnedItem existing) => true;
 
   @override
-  OwnedItem applyTo(
-    OwnedItem existing, {
+  MovieOwnedItem applyTo(
+    MovieOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,

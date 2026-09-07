@@ -1,11 +1,12 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 
-final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
+final class MusicOwnedItemUpdatePayload
+    implements OwnedItemUpdatePayload<MusicOwnedItem> {
   const MusicOwnedItemUpdatePayload({
     required this.anchor,
     required this.quantity,
@@ -92,11 +93,11 @@ final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<MusicOwnedDetailsDraft> details;
 
   @override
-  bool canApplyTo(OwnedItem existing) => existing.details is MusicOwnedDetails;
+  bool canApplyTo(MusicOwnedItem existing) => true;
 
   @override
-  OwnedItem applyTo(
-    OwnedItem existing, {
+  MusicOwnedItem applyTo(
+    MusicOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,

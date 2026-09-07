@@ -1,11 +1,12 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 
-final class AnimeOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
+final class AnimeOwnedItemUpdatePayload
+    implements OwnedItemUpdatePayload<AnimeOwnedItem> {
   const AnimeOwnedItemUpdatePayload({
     required this.anchor,
     required this.quantity,
@@ -92,11 +93,11 @@ final class AnimeOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<AnimeOwnedDetailsDraft> details;
 
   @override
-  bool canApplyTo(OwnedItem existing) => existing.details is AnimeOwnedDetails;
+  bool canApplyTo(AnimeOwnedItem existing) => true;
 
   @override
-  OwnedItem applyTo(
-    OwnedItem existing, {
+  AnimeOwnedItem applyTo(
+    AnimeOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,

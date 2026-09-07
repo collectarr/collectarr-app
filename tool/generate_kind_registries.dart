@@ -1036,6 +1036,22 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
+    'final collectarrOwnedItemDeserializers = '
+    '<CatalogMediaKind, Object Function(OwnedItem)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final projection = persistence.projection.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: '
+      '$projection.fromOwnedItem,',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
     'final collectarrOwnedItemReaders = '
     '<CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{',
   );

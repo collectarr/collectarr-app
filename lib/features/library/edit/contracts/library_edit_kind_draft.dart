@@ -14,7 +14,7 @@ abstract class LibraryEditKindDraft {
   ///
   /// The generic edit host supplies only structural form state. Each concrete
   /// kind translates its personal fields and details into its own payload.
-  OwnedItemUpdatePayload buildOwnedUpdatePayload({
+  OwnedItemUpdatePayload<Object?> buildOwnedUpdatePayload({
     required String ownedItemId,
     required PersonalStateDraft personal,
   });

@@ -153,18 +153,31 @@ final class OwnedItemMutations {
         }
 
         final typedPayload = typedCommand.payload;
-        if (!typedPayload.canApplyTo(existing)) {
+        final mediaKind = existing.catalogRef.mediaKind;
+        final deserializer = collectarrOwnedItemDeserializers[mediaKind];
+        final serializer = collectarrOwnedItemSerializers[mediaKind];
+        if (deserializer == null || serializer == null) {
+          throw StateError(
+            'Cannot resolve typed owned boundary for '
+            '${existing.catalogRef.kind}: ${existing.id}',
+          );
+        }
+        final typedExisting = deserializer(existing);
+        if (!typedPayload.canApplyTo(typedExisting)) {
           throw StateError(
             'Owned update payload does not belong to '
             '${existing.catalogRef.kind}: ${existing.id}',
           );
         }
-        final updatedItem = typedPayload.applyTo(
-          existing,
+        final typedUpdatedItem = typedPayload.applyTo(
+          typedExisting,
           updatedAt: now,
           fallbackOwnerUserId: userId,
           fallbackOwnerLabel: userEmail,
         );
+        // The common model remains only at this explicit persistence/sync
+        // boundary while collection reads are migrated to typed aggregates.
+        final updatedItem = serializer(typedUpdatedItem as Object);
 
         await ownedItems.upsert(updatedItem);
         await syncQueue

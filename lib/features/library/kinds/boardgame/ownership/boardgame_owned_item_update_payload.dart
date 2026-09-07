@@ -1,11 +1,12 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 
-final class BoardgameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
+final class BoardgameOwnedItemUpdatePayload
+    implements OwnedItemUpdatePayload<BoardGameOwnedItem> {
   const BoardgameOwnedItemUpdatePayload({
     required this.anchor,
     required this.quantity,
@@ -92,12 +93,11 @@ final class BoardgameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<BoardgameOwnedDetailsDraft> details;
 
   @override
-  bool canApplyTo(OwnedItem existing) =>
-      existing.details is BoardgameOwnedDetails;
+  bool canApplyTo(BoardGameOwnedItem existing) => true;
 
   @override
-  OwnedItem applyTo(
-    OwnedItem existing, {
+  BoardGameOwnedItem applyTo(
+    BoardGameOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,

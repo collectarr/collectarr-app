@@ -24,13 +24,15 @@ typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required TextControllerGroup textControllers,
 });
 
-typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-    String ownedItemId, int indexNumber);
+typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
+    Function(String ownedItemId, int indexNumber);
 
-typedef LibraryOwnedConditionGradeUpdatePayloadBuilder = OwnedItemUpdatePayload
-    Function(String ownedItemId, String? condition, String? grade);
+typedef LibraryOwnedConditionGradeUpdatePayloadBuilder
+    = OwnedItemUpdatePayload<Object?> Function(
+        String ownedItemId, String? condition, String? grade);
 
-typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
+typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
+    Function(
   String ownedItemId,
   String? condition,
   String? grade,
@@ -38,8 +40,8 @@ typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
   String? tags,
 );
 
-typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
-    Function(
+typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder
+    = OwnedItemUpdatePayload<Object?> Function(
   String ownedItemId,
   DateTime? purchaseDate,
   int? pricePaidCents,
@@ -50,13 +52,13 @@ typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
   String? locationId,
 );
 
-typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
-    Function(
+typedef LibraryOwnedTransferUpdatePayloadBuilder
+    = OwnedItemUpdatePayload<Object?> Function(
   String ownedItemId,
   OwnedItem updated,
 );
 
-typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload
+typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload<Object?>
     Function();
 
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
