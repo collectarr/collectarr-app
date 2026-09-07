@@ -98,13 +98,19 @@ class LocationRepository {
   Future<void> assignItemToLocation(
       String ownedItemId, String? locationId) async {
     final repository = OwnedItemsRepository(_db);
-    final item = await repository.findById(ownedItemId);
-    if (item == null) return;
-    await repository.upsert(item.copyWith(locationId: locationId));
+    for (final item in await repository.listActiveSummaries()) {
+      if (item.ref.id.value == ownedItemId) {
+        await repository.updateLocation(item.ref, locationId);
+        return;
+      }
+    }
   }
 
   Future<String?> getItemLocationId(String ownedItemId) async {
-    return (await OwnedItemsRepository(_db).findById(ownedItemId))?.locationId;
+    for (final item in await OwnedItemsRepository(_db).listActiveSummaries()) {
+      if (item.ref.id.value == ownedItemId) return item.locationLabel;
+    }
+    return null;
   }
 
   Future<void> _writeLocation(StorageLocation location) {
@@ -123,9 +129,9 @@ class LocationRepository {
     await (_db.update(_db.locationsCache)..where((t) => t.parentId.equals(id)))
         .write(const LocationsCacheCompanion(parentId: Value(null)));
     final ownedRepository = OwnedItemsRepository(_db);
-    final ownedItems = await ownedRepository.listActive();
-    for (final item in ownedItems.where((item) => item.locationId == id)) {
-      await ownedRepository.upsert(item.copyWith(locationId: null));
+    final ownedItems = await ownedRepository.listActiveSummaries();
+    for (final item in ownedItems.where((item) => item.locationLabel == id)) {
+      await ownedRepository.updateLocation(item.ref, null);
     }
     await (_db.delete(_db.locationsCache)..where((t) => t.id.equals(id))).go();
   }

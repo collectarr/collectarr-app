@@ -1036,6 +1036,32 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
+    'final collectarrTypedOwnedLocationUpdaters = '
+    '<CatalogMediaKind, Future<void> Function(LocalDatabase, String, String?)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedId = persistence.ownedId.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: '
+      '(database, id, locationId) async {',
+    );
+    buffer.writeln(
+      '    final item = await $repository(database).findById($ownedId(id));',
+    );
+    buffer.writeln('    if (item == null) return;');
+    buffer.writeln(
+      '    await $repository(database).upsert('
+      'item.copyWith(locationId: locationId));',
+    );
+    buffer.writeln('  },');
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
     'final collectarrTypedOwnedItemFinders = '
     '<CatalogMediaKind, Future<Object?> Function(LocalDatabase, String)>{',
   );

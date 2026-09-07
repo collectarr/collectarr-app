@@ -16,6 +16,11 @@ typedef _TypedOwnedItemFinder = Future<Object?> Function(
   LocalDatabase database,
   String id,
 );
+typedef _TypedOwnedLocationUpdater = Future<void> Function(
+  LocalDatabase database,
+  String id,
+  String? locationId,
+);
 typedef _TypedOwnedItemDeleter = Future<void> Function(
   LocalDatabase database,
   Object item,
@@ -45,6 +50,7 @@ typedef _OwnedItemDeleter = Future<void> Function(
 final class CollectarrOwnedItemPersistence {
   CollectarrOwnedItemPersistence(this._database)
       : _typedPersisters = collectarrTypedOwnedItemPersisters,
+        _typedLocationUpdaters = collectarrTypedOwnedLocationUpdaters,
         _typedFinders = collectarrTypedOwnedItemFinders,
         _typedDeleters = collectarrTypedOwnedItemDeleters,
         _persisters = collectarrOwnedItemPersisters,
@@ -55,6 +61,8 @@ final class CollectarrOwnedItemPersistence {
 
   final LocalDatabase _database;
   final Map<CatalogMediaKind, _TypedOwnedItemPersister> _typedPersisters;
+  final Map<CatalogMediaKind, _TypedOwnedLocationUpdater>
+      _typedLocationUpdaters;
   final Map<CatalogMediaKind, _TypedOwnedItemFinder> _typedFinders;
   final Map<CatalogMediaKind, _TypedOwnedItemDeleter> _typedDeleters;
   final Map<CatalogMediaKind, _OwnedItemPersister> _persisters;
@@ -101,6 +109,17 @@ final class CollectarrOwnedItemPersistence {
     if (item != null) {
       await deleter(_database, item, deletedAt);
     }
+  }
+
+  Future<void> updateLocation(OwnedItemRef ref, String? locationId) async {
+    final updater = _typedLocationUpdaters[ref.kind];
+    if (updater == null) {
+      throw StateError(
+        'Cannot update typed owned location without a supported kind: '
+        '${ref.kind.apiValue}',
+      );
+    }
+    await updater(_database, ref.id.value, locationId);
   }
 
   Future<void> upsertAll(Iterable<OwnedItem> items) async {

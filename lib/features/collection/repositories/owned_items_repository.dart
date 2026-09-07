@@ -42,4 +42,8 @@ final class OwnedItemsRepository {
   Future<void> markDeletedByRef(OwnedItemRef ref, DateTime deletedAt) {
     return _persistence.markDeletedByRef(ref, deletedAt);
   }
+
+  Future<void> updateLocation(OwnedItemRef ref, String? locationId) {
+    return _persistence.updateLocation(ref, locationId);
+  }
 }

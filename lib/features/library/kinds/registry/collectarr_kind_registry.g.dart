@@ -444,6 +444,72 @@ final collectarrOwnedItemPersisters =
       .upsert(TvOwnedItemProjection.fromOwnedItem(item)),
 };
 
+final collectarrTypedOwnedLocationUpdaters =
+    <CatalogMediaKind, Future<void> Function(LocalDatabase, String, String?)>{
+  CatalogMediaKind.anime: (database, id, locationId) async {
+    final item =
+        await AnimeOwnedRepository(database).findById(AnimeOwnedItemId(id));
+    if (item == null) return;
+    await AnimeOwnedRepository(database)
+        .upsert(item.copyWith(locationId: locationId));
+  },
+  CatalogMediaKind.boardgame: (database, id, locationId) async {
+    final item = await BoardGameOwnedRepository(database)
+        .findById(BoardGameOwnedItemId(id));
+    if (item == null) return;
+    await BoardGameOwnedRepository(database)
+        .upsert(item.copyWith(locationId: locationId));
+  },
+  CatalogMediaKind.book: (database, id, locationId) async {
+    final item =
+        await BookOwnedRepository(database).findById(BookOwnedItemId(id));
+    if (item == null) return;
+    await BookOwnedRepository(database)
+        .upsert(item.copyWith(locationId: locationId));
+  },
+  CatalogMediaKind.comic: (database, id, locationId) async {
+    final item =
+        await ComicOwnedRepository(database).findById(ComicOwnedItemId(id));
+    if (item == null) return;
+    await ComicOwnedRepository(database)
+        .upsert(item.copyWith(locationId: locationId));
+  },
+  CatalogMediaKind.game: (database, id, locationId) async {
+    final item =
+        await GameOwnedRepository(database).findById(GameOwnedItemId(id));
+    if (item == null) return;
+    await GameOwnedRepository(database)
+        .upsert(item.copyWith(locationId: locationId));
+  },
+  CatalogMediaKind.manga: (database, id, locationId) async {
+    final item =
+        await MangaOwnedRepository(database).findById(MangaOwnedItemId(id));
+    if (item == null) return;
+    await MangaOwnedRepository(database)
+        .upsert(item.copyWith(locationId: locationId));
+  },
+  CatalogMediaKind.movie: (database, id, locationId) async {
+    final item =
+        await MovieOwnedRepository(database).findById(MovieOwnedItemId(id));
+    if (item == null) return;
+    await MovieOwnedRepository(database)
+        .upsert(item.copyWith(locationId: locationId));
+  },
+  CatalogMediaKind.music: (database, id, locationId) async {
+    final item =
+        await MusicOwnedRepository(database).findById(MusicOwnedItemId(id));
+    if (item == null) return;
+    await MusicOwnedRepository(database)
+        .upsert(item.copyWith(locationId: locationId));
+  },
+  CatalogMediaKind.tv: (database, id, locationId) async {
+    final item = await TvOwnedRepository(database).findById(TvOwnedItemId(id));
+    if (item == null) return;
+    await TvOwnedRepository(database)
+        .upsert(item.copyWith(locationId: locationId));
+  },
+};
+
 final collectarrTypedOwnedItemFinders =
     <CatalogMediaKind, Future<Object?> Function(LocalDatabase, String)>{
   CatalogMediaKind.anime: (database, id) =>
