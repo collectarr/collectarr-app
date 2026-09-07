@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/config/library_facet_module.dart
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_update_payload.dart';
@@ -271,6 +272,13 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     createDraft: createTvEditDraft,
     ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: TvOwnedItemUpdatePayload.fromCommand,
+    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+        TvOwnedItemUpdatePayload.fromCommand(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
+            ownedItemId: ownedItemId,
+            indexNumber: Patch.set(indexNumber),
+          ),
+        ),
   ),
   buildCardPresentation: buildTvCardPresentation,
 );

@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
@@ -196,6 +197,13 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     createDraft: createMusicEditDraft,
     ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MusicOwnedItemUpdatePayload.fromCommand,
+    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+        MusicOwnedItemUpdatePayload.fromCommand(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
+            ownedItemId: ownedItemId,
+            indexNumber: Patch.set(indexNumber),
+          ),
+        ),
   ),
   buildCardPresentation: buildMusicCardPresentation,
 );

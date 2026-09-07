@@ -28,6 +28,9 @@ typedef LibraryOwnedUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
   OwnedItemPatchCommand<OwnedDetailsDraft> command,
 );
 
+typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
+    String ownedItemId, int indexNumber);
+
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
 /// kind-owned draft creation, and update command building.
 class LibraryEditCapability {
@@ -45,6 +48,7 @@ class LibraryEditCapability {
     required this.createDraft,
     required this.ownedDigitalFlagResolver,
     this.ownedUpdatePayloadBuilder,
+    this.ownedIndexUpdatePayloadBuilder,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -60,6 +64,7 @@ class LibraryEditCapability {
   final LibraryEditKindDraftFactory createDraft;
   final LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver;
   final LibraryOwnedUpdatePayloadBuilder? ownedUpdatePayloadBuilder;
+  final LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
@@ -93,6 +98,20 @@ class LibraryEditCapability {
     return UpdateOwnedItemCommand(
       ownedItemId: command.ownedItemId,
       payload: builder(command),
+    );
+  }
+
+  UpdateOwnedItemCommand buildIndexUpdateCommand({
+    required String ownedItemId,
+    required int indexNumber,
+  }) {
+    final builder = ownedIndexUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError('No typed Owned index update builder is registered.');
+    }
+    return UpdateOwnedItemCommand(
+      ownedItemId: ownedItemId,
+      payload: builder(ownedItemId, indexNumber),
     );
   }
 

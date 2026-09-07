@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentatio
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
@@ -215,6 +216,13 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     createDraft: createBoardGameEditDraft,
     ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: BoardgameOwnedItemUpdatePayload.fromCommand,
+    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+        BoardgameOwnedItemUpdatePayload.fromCommand(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
+            ownedItemId: ownedItemId,
+            indexNumber: Patch.set(indexNumber),
+          ),
+        ),
   ),
   stats: const BoardGameStatsCapability(),
 );

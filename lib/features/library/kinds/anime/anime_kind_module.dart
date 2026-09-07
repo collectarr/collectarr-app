@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
@@ -260,6 +261,13 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     createDraft: createAnimeEditDraft,
     ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: AnimeOwnedItemUpdatePayload.fromCommand,
+    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+        AnimeOwnedItemUpdatePayload.fromCommand(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
+            ownedItemId: ownedItemId,
+            indexNumber: Patch.set(indexNumber),
+          ),
+        ),
   ),
   buildCardPresentation: buildAnimeCardPresentation,
 );

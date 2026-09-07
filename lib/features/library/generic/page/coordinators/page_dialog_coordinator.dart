@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
@@ -259,8 +258,7 @@ class LibraryPageDialogCoordinator {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final queueIds = await ReadingQueueRepository(db).getQueue();
-    final ownedItems =
-        await OwnedItemsRepository(db).listActiveSummaries();
+    final ownedItems = await OwnedItemsRepository(db).listActiveSummaries();
     final trackingEntries =
         await _page.ref.read(trackingEntriesProvider.future);
     final queuedOwnedItems = ownedItems
@@ -563,11 +561,9 @@ class LibraryPageDialogCoordinator {
       final ownedItem = items[i].source.ownedItem;
       if (ownedItem == null) continue;
       await coordinator.updateOwnedItem(
-        _page.type.edit.withTypedUpdatePayload(
-          OwnedItemPatchCommand<OwnedDetailsDraft>(
-            ownedItemId: ownedItem.id,
-            indexNumber: Patch.set(i + 1),
-          ),
+        _page.type.edit.buildIndexUpdateCommand(
+          ownedItemId: ownedItem.id,
+          indexNumber: i + 1,
         ),
       );
       count++;

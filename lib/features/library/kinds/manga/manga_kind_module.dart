@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
@@ -313,6 +314,13 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     createDraft: createMangaEditDraft,
     ownedDigitalFlagResolver: resolveMangaOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MangaOwnedItemUpdatePayload.fromCommand,
+    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+        MangaOwnedItemUpdatePayload.fromCommand(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
+            ownedItemId: ownedItemId,
+            indexNumber: Patch.set(indexNumber),
+          ),
+        ),
   ),
   buildCardPresentation: buildMangaCardPresentation,
 );

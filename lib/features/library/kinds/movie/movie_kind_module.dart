@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_update_payload.dart';
@@ -290,6 +291,13 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     createDraft: createMovieEditDraft,
     ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: MovieOwnedItemUpdatePayload.fromCommand,
+    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+        MovieOwnedItemUpdatePayload.fromCommand(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
+            ownedItemId: ownedItemId,
+            indexNumber: Patch.set(indexNumber),
+          ),
+        ),
   ),
   buildCardPresentation: buildMovieCardPresentation,
 );

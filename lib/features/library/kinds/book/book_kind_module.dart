@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_d
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
@@ -314,6 +315,13 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     createDraft: createBookEditDraft,
     ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
     ownedUpdatePayloadBuilder: BookOwnedItemUpdatePayload.fromCommand,
+    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+        BookOwnedItemUpdatePayload.fromCommand(
+          OwnedItemPatchCommand<OwnedDetailsDraft>(
+            ownedItemId: ownedItemId,
+            indexNumber: Patch.set(indexNumber),
+          ),
+        ),
   ),
 );
 
