@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
@@ -31,6 +32,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 
 typedef _OwnedItemPersister = Future<void> Function(OwnedItem item);
 typedef _OwnedItemReader = Future<List<OwnedItem>> Function();
+typedef _OwnedItemSummaryReader = Future<List<OwnedItemSummary>> Function();
 typedef _OwnedItemFinder = Future<OwnedItem?> Function(String id);
 typedef _OwnedItemDeleter = Future<void> Function(
   OwnedItem item,
@@ -111,6 +113,52 @@ final class CollectarrOwnedItemPersistence {
                 database,
               ).listActive())
                   .map(MusicOwnedItemProjection.toOwnedItem)
+                  .toList(growable: false),
+        },
+        _summaryReaders = {
+          CatalogMediaKind.comic: () async => (await ComicOwnedRepository(
+                database,
+              ).listActive())
+                  .map(ComicOwnedItemProjection.toSummary)
+                  .toList(growable: false),
+          CatalogMediaKind.manga: () async => (await MangaOwnedRepository(
+                database,
+              ).listActive())
+                  .map(MangaOwnedItemProjection.toSummary)
+                  .toList(growable: false),
+          CatalogMediaKind.book: () async => (await BookOwnedRepository(
+                database,
+              ).listActive())
+                  .map(BookOwnedItemProjection.toSummary)
+                  .toList(growable: false),
+          CatalogMediaKind.game: () async => (await GameOwnedRepository(
+                database,
+              ).listActive())
+                  .map(GameOwnedItemProjection.toSummary)
+                  .toList(growable: false),
+          CatalogMediaKind.boardgame: () async =>
+              (await BoardGameOwnedRepository(database).listActive())
+                  .map(BoardGameOwnedItemProjection.toSummary)
+                  .toList(growable: false),
+          CatalogMediaKind.movie: () async => (await MovieOwnedRepository(
+                database,
+              ).listActive())
+                  .map(MovieOwnedItemProjection.toSummary)
+                  .toList(growable: false),
+          CatalogMediaKind.tv: () async => (await TvOwnedRepository(
+                database,
+              ).listActive())
+                  .map(TvOwnedItemProjection.toSummary)
+                  .toList(growable: false),
+          CatalogMediaKind.anime: () async => (await AnimeOwnedRepository(
+                database,
+              ).listActive())
+                  .map(AnimeOwnedItemProjection.toSummary)
+                  .toList(growable: false),
+          CatalogMediaKind.music: () async => (await MusicOwnedRepository(
+                database,
+              ).listActive())
+                  .map(MusicOwnedItemProjection.toSummary)
                   .toList(growable: false),
         },
         _finders = {
@@ -217,6 +265,7 @@ final class CollectarrOwnedItemPersistence {
 
   final Map<CatalogMediaKind, _OwnedItemPersister> _persisters;
   final Map<CatalogMediaKind, _OwnedItemReader> _readers;
+  final Map<CatalogMediaKind, _OwnedItemSummaryReader> _summaryReaders;
   final Map<CatalogMediaKind, _OwnedItemFinder> _finders;
   final Map<CatalogMediaKind, _OwnedItemDeleter> _deleters;
 
@@ -242,6 +291,13 @@ final class CollectarrOwnedItemPersistence {
     final items = groups.expand((group) => group).toList(growable: false);
     items.sort((left, right) => right.updatedAt.compareTo(left.updatedAt));
     return items;
+  }
+
+  Future<List<OwnedItemSummary>> listActiveSummaries() async {
+    final groups = await Future.wait(
+      _summaryReaders.values.map((reader) => reader()),
+    );
+    return groups.expand((group) => group).toList(growable: false);
   }
 
   Future<OwnedItem?> findById(String id) async {

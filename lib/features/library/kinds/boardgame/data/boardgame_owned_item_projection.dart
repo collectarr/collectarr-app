@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
@@ -52,6 +53,21 @@ final class BoardGameOwnedItemProjection {
       return null;
     }
     return fromOwnedItem(item);
+  }
+
+  static OwnedItemSummary toSummary(BoardGameOwnedItem item) {
+    return OwnedItemSummary(
+      ref: OwnedItemRef(
+        kind: item.catalogRef.mediaKind,
+        id: OwnedItemId(item.id.value),
+      ),
+      catalogRef: item.catalogRef,
+      title: item.itemId,
+      ownerLabel: item.ownerLabel,
+      locationLabel: item.locationId,
+      notes: item.personalNotes,
+      hasNotes: item.personalNotes?.trim().isNotEmpty == true,
+    );
   }
 
   static OwnedItem<BoardgameOwnedDetails> toOwnedItem(BoardGameOwnedItem item) {

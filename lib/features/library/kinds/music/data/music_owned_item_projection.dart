@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
@@ -51,6 +52,21 @@ final class MusicOwnedItemProjection {
       return null;
     }
     return fromOwnedItem(item);
+  }
+
+  static OwnedItemSummary toSummary(MusicOwnedItem item) {
+    return OwnedItemSummary(
+      ref: OwnedItemRef(
+        kind: item.catalogRef.mediaKind,
+        id: OwnedItemId(item.id.value),
+      ),
+      catalogRef: item.catalogRef,
+      title: item.itemId,
+      ownerLabel: item.ownerLabel,
+      locationLabel: item.locationId,
+      notes: item.personalNotes,
+      hasNotes: item.personalNotes?.trim().isNotEmpty == true,
+    );
   }
 
   static OwnedItem<MusicOwnedDetails> toOwnedItem(MusicOwnedItem item) {

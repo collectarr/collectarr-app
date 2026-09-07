@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
@@ -51,6 +52,21 @@ final class TvOwnedItemProjection {
       return null;
     }
     return fromOwnedItem(item);
+  }
+
+  static OwnedItemSummary toSummary(TvOwnedItem item) {
+    return OwnedItemSummary(
+      ref: OwnedItemRef(
+        kind: item.catalogRef.mediaKind,
+        id: OwnedItemId(item.id.value),
+      ),
+      catalogRef: item.catalogRef,
+      title: item.itemId,
+      ownerLabel: item.ownerLabel,
+      locationLabel: item.locationId,
+      notes: item.personalNotes,
+      hasNotes: item.personalNotes?.trim().isNotEmpty == true,
+    );
   }
 
   static OwnedItem<TvOwnedDetails> toOwnedItem(TvOwnedItem item) {
