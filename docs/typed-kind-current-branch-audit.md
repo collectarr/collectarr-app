@@ -3,7 +3,7 @@
 Audit date: 2026-09-07
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `ba8dee61` (`refactor(provider): keep candidate kinds typed`)
+HEAD: `51817449` (`refactor(admin): avoid semantic kind branches in generic host`)
 
 ## Scope and evidence
 
@@ -39,6 +39,7 @@ The branch moved forward after the original audit:
 - The architecture checker currently reports 601 AST violations. This remains a failing migration gate; the remaining results are semantic bridges in Catalog/Owned/Collection/Admin/provider boundaries, not compatibility aliases removed in the latest cleanup.
 - Tracking codec registrations now expose `CatalogMediaKind` directly; only Drift and sync serialization use the API string representation. Seed enrichment/barcode validation and test projections follow the same typed contributor boundary.
 - Provider candidates now retain `CatalogMediaKind` after provider JSON/search conversion; API/admin and provider protocol calls convert to the API string only at their serialization boundary.
+- Seed fixture filtering/default enrichment, Comic/Manga Core kind guards, Comic export/stats checks, metadata comparison panels, and personal-list XML parsing now use typed media-kind values internally. XML/API key comparisons remain explicit serialization boundaries.
 - Compatibility aliases for provider registries, Core catalog DTO names, domain models/IDs, and Library presentation labels were deleted. The source-generated kind registry was regenerated and remains the only central import composition root.
 - Schema version remains exactly `1`; `LocalDatabase` has only direct `onCreate` creation and no compatibility upgrade path.
 
