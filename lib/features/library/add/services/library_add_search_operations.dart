@@ -127,7 +127,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   required String query,
   required LibraryAddSearchRanking ranking,
   required LibraryAddSearchContext searchContext,
-  ProviderRegistry? providerRegistry,
+  ProviderConnectorRegistry? providerRegistry,
   String? kindOverride,
 }) async {
   final targetKind = kindOverride ?? type.kind.apiValue;

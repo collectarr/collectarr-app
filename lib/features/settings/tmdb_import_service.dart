@@ -543,7 +543,7 @@ class TmdbImportService {
   /// Batch-enrich entries using the provider system.
   Future<Map<String, TmdbImportEntry>> batchEnrichEntries({
     ApiClient? api,
-    ProviderRegistry? providerRegistry,
+    ProviderConnectorRegistry? providerRegistry,
     required List<TmdbImportEntry> entries,
   }) async {
     if (entries.isEmpty) {

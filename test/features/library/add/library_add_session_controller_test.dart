@@ -411,9 +411,9 @@ void main() {
     });
 
     test(
-        'runLibraryAddProviderSearch uses ProviderRegistry and isolates broken provider',
+        'runLibraryAddProviderSearch uses ProviderConnectorRegistry and isolates broken provider',
         () async {
-      final registry = InMemoryProviderRegistry();
+      final registry = InMemoryProviderConnectorRegistry();
 
       final goodProvider = _MockProvider(
         name: 'good_prov',
@@ -465,7 +465,7 @@ void main() {
 
     test('Comic provider search preserves structured candidate semantics',
         () async {
-      final registry = InMemoryProviderRegistry();
+      final registry = InMemoryProviderConnectorRegistry();
       final provider = _MockProvider(
         name: 'gcd',
         kind: 'comic',
@@ -526,9 +526,9 @@ void main() {
     });
 
     test(
-        'selectProviderCandidate fetches preview from ProviderRegistry and converts via mapper',
+        'selectProviderCandidate fetches preview from ProviderConnectorRegistry and converts via mapper',
         () async {
-      final registry = InMemoryProviderRegistry();
+      final registry = InMemoryProviderConnectorRegistry();
 
       final testProvider = _MockProvider(
         name: 'test_prov',
@@ -612,7 +612,7 @@ void main() {
     test(
         'submitCurrentSelection performs local add without Core ingest using deterministic provisional identity',
         () async {
-      final registry = InMemoryProviderRegistry();
+      final registry = InMemoryProviderConnectorRegistry();
 
       final comicProvider = _MockProvider(
         name: 'comic_prov',

@@ -2641,8 +2641,8 @@ Future<Uint8List> _generateSolidPngBytes({
   return byteData!.buffer.asUint8List();
 }
 
-ProviderRegistry _buildTestProviderRegistry() {
-  return InMemoryProviderRegistry([
+ProviderConnectorRegistry _buildTestProviderRegistry() {
+  return InMemoryProviderConnectorRegistry([
     _FakeMetadataProvider(name: 'anilist', defaultKind: 'comic').toConnector(),
     _FakeMetadataProvider(name: 'tmdb', defaultKind: 'movie').toConnector(),
     _FakeMetadataProvider(name: 'musicbrainz', defaultKind: 'music')

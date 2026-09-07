@@ -127,7 +127,7 @@ class LibraryAddSessionController
 
   final ApiClient? api;
   final LibraryCatalogRepository? catalog;
-  final ProviderRegistry? providerRegistry;
+  final ProviderConnectorRegistry? providerRegistry;
   final LibraryCoverScanService coverScanService;
   final LibraryAddWorkflowService workflowService;
   final LibraryProviderActionService providerActionService;

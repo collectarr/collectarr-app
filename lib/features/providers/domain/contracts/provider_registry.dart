@@ -130,6 +130,3 @@ class InMemoryProviderConnectorRegistry implements ProviderConnectorRegistry {
     return kinds.toList(growable: false);
   }
 }
-
-typedef ProviderRegistry = ProviderConnectorRegistry;
-typedef InMemoryProviderRegistry = InMemoryProviderConnectorRegistry;

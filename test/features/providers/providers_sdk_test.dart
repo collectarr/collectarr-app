@@ -152,7 +152,7 @@ void main() {
     });
 
     test(
-        'InMemoryProviderRegistry registers, filters, and unregisters providers',
+        'InMemoryProviderConnectorRegistry registers, filters, and unregisters providers',
         () {
       final bookConnector = _FakeTestProvider(
         descriptor: const ProviderDescriptor(

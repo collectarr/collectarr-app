@@ -120,9 +120,11 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
 /// Global default instance of [ProviderConnectorRegistry] initialized with standard connectors.
 final defaultProviderConnectorRegistry = buildDefaultProviderRegistry();
 
-/// Asynchronous Riverpod provider supplying an initialized [ProviderRegistry]
+/// Asynchronous Riverpod provider supplying an initialized
+/// [ProviderConnectorRegistry]
 /// populated with credentials from [SecureProviderCredentialStore].
-final providerRegistryProvider = FutureProvider<ProviderRegistry>((ref) async {
+final providerRegistryProvider =
+    FutureProvider<ProviderConnectorRegistry>((ref) async {
   final store = ref.watch(secureProviderCredentialStoreProvider);
 
   final comicVine = await store.getComicVineCredentials();
