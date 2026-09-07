@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:flutter/material.dart';
@@ -9,20 +10,30 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('sessionHistoryLabelsForKind', () {
     test('reading kinds map to read labels', () {
-      for (final kind in ['comic', 'manga', 'book']) {
+      for (final kind in [
+        CatalogMediaKind.comic,
+        CatalogMediaKind.manga,
+        CatalogMediaKind.book,
+      ]) {
         expect(sessionHistoryLabelsForKind(kind), SessionHistoryLabels.read);
       }
     });
 
     test('music maps to listen, games map to play', () {
-      expect(sessionHistoryLabelsForKind('music'), SessionHistoryLabels.listen);
-      expect(sessionHistoryLabelsForKind('game'), SessionHistoryLabels.play);
-      expect(
-          sessionHistoryLabelsForKind('boardgame'), SessionHistoryLabels.play);
+      expect(sessionHistoryLabelsForKind(CatalogMediaKind.music),
+          SessionHistoryLabels.listen);
+      expect(sessionHistoryLabelsForKind(CatalogMediaKind.game),
+          SessionHistoryLabels.play);
+      expect(sessionHistoryLabelsForKind(CatalogMediaKind.boardgame),
+          SessionHistoryLabels.play);
     });
 
     test('video kinds fall back to watch labels', () {
-      for (final kind in ['movie', 'tv', 'anime']) {
+      for (final kind in [
+        CatalogMediaKind.movie,
+        CatalogMediaKind.tv,
+        CatalogMediaKind.anime,
+      ]) {
         expect(sessionHistoryLabelsForKind(kind), SessionHistoryLabels.watch);
       }
     });

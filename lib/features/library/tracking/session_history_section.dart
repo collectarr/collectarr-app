@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -80,21 +81,17 @@ class WatchHistoryTargetOption {
   final int? episodeNumber;
 }
 
-SessionHistoryLabels sessionHistoryLabelsForKind(String apiValue) {
-  switch (apiValue) {
-    case 'comic':
-    case 'manga':
-    case 'book':
-      return SessionHistoryLabels.read;
-    case 'music':
-      return SessionHistoryLabels.listen;
-    case 'game':
-    case 'boardgame':
-      return SessionHistoryLabels.play;
-    default:
-      return SessionHistoryLabels.watch;
-  }
-}
+const _sessionHistoryLabelsByKind = <CatalogMediaKind, SessionHistoryLabels>{
+  CatalogMediaKind.comic: SessionHistoryLabels.read,
+  CatalogMediaKind.manga: SessionHistoryLabels.read,
+  CatalogMediaKind.book: SessionHistoryLabels.read,
+  CatalogMediaKind.music: SessionHistoryLabels.listen,
+  CatalogMediaKind.game: SessionHistoryLabels.play,
+  CatalogMediaKind.boardgame: SessionHistoryLabels.play,
+};
+
+SessionHistoryLabels sessionHistoryLabelsForKind(CatalogMediaKind kind) =>
+    _sessionHistoryLabelsByKind[kind] ?? SessionHistoryLabels.watch;
 
 class WatchHistorySection extends ConsumerWidget {
   const WatchHistorySection({
