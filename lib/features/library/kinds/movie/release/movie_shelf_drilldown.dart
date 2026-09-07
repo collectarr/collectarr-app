@@ -36,10 +36,9 @@ bool canOpenMovieShelfDrilldown(
   if (item.node.scope != LibraryBrowserScope.title) {
     return false;
   }
-  final kind = item.source.catalogItem?.kind.trim().toLowerCase();
+  final kind = item.source.catalogItem?.mediaKind;
   if (kind == null) return false;
-  final runtime =
-      type ?? libraryKindModuleForKind(catalogMediaKindFromApiValue(kind));
+  final runtime = type ?? libraryKindModuleForKind(kind);
   return runtime.presentation.builder.canOpenKindDrilldown(item);
 }
 

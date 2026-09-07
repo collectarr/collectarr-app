@@ -113,7 +113,7 @@ final class AnimeAniListMapper {
         'Anime AniList integration received ${envelope.provider} data',
       );
     }
-    if (envelope.kind.trim().toLowerCase() != CatalogMediaKind.anime.apiValue) {
+    if (catalogMediaKindFromApiValue(envelope.kind) != CatalogMediaKind.anime) {
       throw StateError(
         'Anime AniList integration received ${envelope.kind} data',
       );

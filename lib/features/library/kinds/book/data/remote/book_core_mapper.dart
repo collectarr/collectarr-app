@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
@@ -69,7 +70,8 @@ final class BookCoreMapper {
   }
 
   static void _validateKind(String? kind, String dtoType) {
-    if (kind != null && kind.trim().toLowerCase() != 'book') {
+    if (kind != null &&
+        catalogMediaKindFromApiValue(kind) != CatalogMediaKind.book) {
       throw StateError('Expected a book Core DTO for $dtoType, got $kind');
     }
   }

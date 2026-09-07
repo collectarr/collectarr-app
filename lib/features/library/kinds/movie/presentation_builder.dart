@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -188,10 +189,14 @@ class MovieLibraryMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionRuntime item) {
-    final kind = item.source.catalogItem?.kind.trim().toLowerCase();
+    final kind = item.source.catalogItem?.mediaKind;
     return item.node.scope == LibraryBrowserScope.title &&
         kind != null &&
-        const {'movie', 'tv', 'anime'}.contains(kind);
+        const {
+          CatalogMediaKind.movie,
+          CatalogMediaKind.tv,
+          CatalogMediaKind.anime,
+        }.contains(kind);
   }
 
   @override
