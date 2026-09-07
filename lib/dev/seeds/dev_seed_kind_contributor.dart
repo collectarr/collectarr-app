@@ -28,6 +28,32 @@ typedef DevSeedDatabaseSeeder = Future<void> Function(
   DateTime now,
 );
 
+/// Kind-owned defaults used only while enriching development catalog fixtures.
+///
+/// Keeping these values with each contributor prevents the generic seed
+/// runner from becoming a semantic switchboard for all kinds.
+final class DevSeedCatalogDefaults {
+  const DevSeedCatalogDefaults({
+    required this.includePublishingDetails,
+    required this.paperType,
+    required this.originalLanguage,
+    required this.pageCount,
+    required this.coverPriceCents,
+    required this.runtimeMinutes,
+    required this.ageRating,
+    required this.audienceRating,
+  });
+
+  final bool includePublishingDetails;
+  final String? paperType;
+  final String originalLanguage;
+  final int pageCount;
+  final int coverPriceCents;
+  final int runtimeMinutes;
+  final String ageRating;
+  final String audienceRating;
+}
+
 /// The complete development-fixture contribution owned by one library kind.
 ///
 /// This is a dev-only composition contract. It keeps fixture construction
@@ -36,6 +62,7 @@ typedef DevSeedDatabaseSeeder = Future<void> Function(
 final class DevSeedKindContributor {
   const DevSeedKindContributor({
     required this.kind,
+    required this.catalogDefaults,
     required this.catalogItems,
     required this.enrichItem,
     required this.validateCatalog,
@@ -49,6 +76,7 @@ final class DevSeedKindContributor {
   });
 
   final String kind;
+  final DevSeedCatalogDefaults catalogDefaults;
   final DevSeedCatalogFactory catalogItems;
   final DevSeedItemEnricher enrichItem;
   final DevSeedCatalogQualityValidator validateCatalog;

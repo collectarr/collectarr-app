@@ -10,6 +10,16 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 
 final gameDevSeedContributor = DevSeedKindContributor(
   kind: 'game',
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: false,
+    paperType: null,
+    originalLanguage: 'en',
+    pageCount: 1,
+    coverPriceCents: 5999,
+    runtimeMinutes: 0,
+    ageRating: 'PG',
+    audienceRating: 'All',
+  ),
   catalogItems: gameSeedCatalogItems,
   enrichItem: enrichGameSeedItem,
   validateCatalog: validateGameSeedCatalog,

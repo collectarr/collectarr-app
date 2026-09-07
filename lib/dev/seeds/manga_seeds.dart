@@ -14,6 +14,16 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 
 final mangaDevSeedContributor = DevSeedKindContributor(
   kind: 'manga',
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: true,
+    paperType: 'paperback',
+    originalLanguage: 'en',
+    pageCount: 192,
+    coverPriceCents: 799,
+    runtimeMinutes: 0,
+    ageRating: 'PG',
+    audienceRating: 'All',
+  ),
   catalogItems: mangaSeedCatalogItems,
   enrichItem: enrichMangaSeedItem,
   validateCatalog: validateMangaSeedCatalog,

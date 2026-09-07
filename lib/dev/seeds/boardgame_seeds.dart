@@ -13,6 +13,16 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_p
 
 final boardgameDevSeedContributor = DevSeedKindContributor(
   kind: 'boardgame',
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: false,
+    paperType: null,
+    originalLanguage: 'en',
+    pageCount: 1,
+    coverPriceCents: 4499,
+    runtimeMinutes: 0,
+    ageRating: 'PG',
+    audienceRating: '10+',
+  ),
   catalogItems: boardgameSeedCatalogItems,
   enrichItem: enrichBoardgameSeedItem,
   validateCatalog: validateBoardgameSeedCatalog,

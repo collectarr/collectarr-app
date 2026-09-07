@@ -10,6 +10,16 @@ import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owne
 
 final movieDevSeedContributor = DevSeedKindContributor(
   kind: 'movie',
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: true,
+    paperType: null,
+    originalLanguage: 'en',
+    pageCount: 1,
+    coverPriceCents: 1999,
+    runtimeMinutes: 120,
+    ageRating: 'PG-13',
+    audienceRating: 'PG-13',
+  ),
   catalogItems: movieSeedCatalogItems,
   enrichItem: enrichMovieSeedItem,
   validateCatalog: validateMovieSeedCatalog,

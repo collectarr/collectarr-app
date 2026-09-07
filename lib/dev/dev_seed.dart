@@ -918,7 +918,12 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     for (final contributor in collectarrDevSeedContributors)
       ...contributor
           .catalogItems()
-          .map(enrichSeedItem)
+          .map(
+            (item) => enrichSeedItem(
+              item,
+              defaults: contributor.catalogDefaults,
+            ),
+          )
           .map(contributor.enrichItem),
   ];
 

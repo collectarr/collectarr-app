@@ -16,6 +16,16 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading
 
 final comicDevSeedContributor = DevSeedKindContributor(
   kind: 'comic',
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: true,
+    paperType: 'paperback',
+    originalLanguage: 'en',
+    pageCount: 32,
+    coverPriceCents: 499,
+    runtimeMinutes: 0,
+    ageRating: 'PG',
+    audienceRating: 'All',
+  ),
   catalogItems: comicSeedCatalogItems,
   enrichItem: enrichComicSeedItem,
   validateCatalog: validateComicSeedCatalog,

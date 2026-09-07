@@ -10,6 +10,16 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 
 final musicDevSeedContributor = DevSeedKindContributor(
   kind: 'music',
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: false,
+    paperType: null,
+    originalLanguage: 'en',
+    pageCount: 1,
+    coverPriceCents: 1999,
+    runtimeMinutes: 0,
+    ageRating: 'PG',
+    audienceRating: 'All',
+  ),
   catalogItems: musicSeedCatalogItems,
   enrichItem: enrichMusicSeedItem,
   validateCatalog: validateMusicSeedCatalog,

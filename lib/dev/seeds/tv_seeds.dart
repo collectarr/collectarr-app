@@ -19,6 +19,16 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart
 
 final tvDevSeedContributor = DevSeedKindContributor(
   kind: 'tv',
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: true,
+    paperType: null,
+    originalLanguage: 'en',
+    pageCount: 1,
+    coverPriceCents: 1999,
+    runtimeMinutes: 42,
+    ageRating: 'TV-MA',
+    audienceRating: 'TV-MA',
+  ),
   catalogItems: tvSeedCatalogItems,
   enrichItem: enrichTvSeedItem,
   validateCatalog: validateTvSeedCatalog,

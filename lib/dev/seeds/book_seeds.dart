@@ -12,6 +12,16 @@ import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_
 
 final bookDevSeedContributor = DevSeedKindContributor(
   kind: 'book',
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: true,
+    paperType: 'paperback',
+    originalLanguage: 'en',
+    pageCount: 560,
+    coverPriceCents: 2499,
+    runtimeMinutes: 0,
+    ageRating: 'PG',
+    audienceRating: 'All',
+  ),
   catalogItems: bookSeedCatalogItems,
   enrichItem: enrichBookSeedItem,
   validateCatalog: validateBookSeedCatalog,

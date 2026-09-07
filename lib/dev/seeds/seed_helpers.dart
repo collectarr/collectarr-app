@@ -75,7 +75,10 @@ List<Map<String, dynamic>> seedEditionPayloads(CatalogItemDto item) {
   ];
 }
 
-CatalogItemDto enrichSeedItem(CatalogItemDto item) {
+CatalogItemDto enrichSeedItem(
+  CatalogItemDto item, {
+  required DevSeedCatalogDefaults defaults,
+}) {
   final payload = Map<String, dynamic>.from(item.toSyncPayload());
   payload.putIfAbsent('id', () => item.id);
 
@@ -139,14 +142,14 @@ CatalogItemDto enrichSeedItem(CatalogItemDto item) {
     ].map((link) => link.toJson()).toList(growable: false),
   );
 
-  if (pubMap != null || _shouldSeedPublishingDetails(item.kind)) {
+  if (pubMap != null || defaults.includePublishingDetails) {
     payload.putIfAbsent(
       'page_count',
-      () => _seedPageCountForKind(item.kind),
+      () => defaults.pageCount,
     );
     payload.putIfAbsent(
       'cover_price_cents',
-      () => _seedCoverPriceForKind(item.kind),
+      () => defaults.coverPriceCents,
     );
     payload.putIfAbsent('currency', () => 'USD');
     payload.putIfAbsent('imprint', () => item.publisher);
@@ -154,15 +157,14 @@ CatalogItemDto enrichSeedItem(CatalogItemDto item) {
     payload.putIfAbsent('series_group', () => seriesTitle);
     payload.putIfAbsent('publication_place', () => 'US');
     payload.putIfAbsent('original_country', () => 'US');
-    payload.putIfAbsent(
-        'original_language', () => _seedOriginalLanguage(item.kind));
+    payload.putIfAbsent('original_language', () => defaults.originalLanguage);
     payload.putIfAbsent(
       'original_publication_date',
       () => item.releaseDate?.toUtc().toIso8601String(),
     );
     payload.putIfAbsent('original_publication_place', () => 'US');
     payload.putIfAbsent('original_publisher', () => item.publisher);
-    payload.putIfAbsent('paper_type', () => _seedPaperType(item.kind));
+    payload.putIfAbsent('paper_type', () => defaults.paperType);
     payload.putIfAbsent('printed_by', () => 'Collectarr Seeds');
     payload.putIfAbsent(
       'subjects',
@@ -180,18 +182,16 @@ CatalogItemDto enrichSeedItem(CatalogItemDto item) {
     payload.putIfAbsent('first_edition', () => true);
   }
 
-  if (_isVideoKind(item.kind)) {
-    payload.putIfAbsent(
-        'runtime_minutes', () => _seedRuntimeMinutes(item.kind));
+  if (defaults.runtimeMinutes > 0) {
+    payload.putIfAbsent('runtime_minutes', () => defaults.runtimeMinutes);
     payload.putIfAbsent('color', () => 'Color');
     payload.putIfAbsent('nr_discs', () => 1);
     payload.putIfAbsent('screen_ratio', () => '16:9');
     payload.putIfAbsent('audio_tracks', () => 'English 5.1');
     payload.putIfAbsent('subtitles', () => 'English');
     payload.putIfAbsent('layers', () => 'single');
-    payload.putIfAbsent('age_rating', () => _seedAgeRating(item.kind));
-    payload.putIfAbsent(
-        'audience_rating', () => _seedAudienceRating(item.kind));
+    payload.putIfAbsent('age_rating', () => defaults.ageRating);
+    payload.putIfAbsent('audience_rating', () => defaults.audienceRating);
   }
 
   if (item.kind == 'music') {
@@ -985,75 +985,4 @@ Map<String, dynamic>? _asPayloadMap(Object? value) {
     // A provider-shaped value that cannot be encoded is left untouched.
   }
   return null;
-}
-
-bool _isVideoKind(String kind) =>
-    kind == 'movie' || kind == 'tv' || kind == 'anime';
-
-bool _shouldSeedPublishingDetails(String kind) =>
-    kind == 'book' || kind == 'comic' || kind == 'manga' || _isVideoKind(kind);
-
-String? _seedPaperType(String kind) {
-  if (kind == 'book' || kind == 'comic' || kind == 'manga') {
-    return 'paperback';
-  }
-  return null;
-}
-
-String? _seedOriginalLanguage(String kind) {
-  return switch (kind) {
-    'music' => 'en',
-    'game' => 'en',
-    'boardgame' => 'en',
-    _ => 'en',
-  };
-}
-
-int _seedPageCountForKind(String kind) {
-  return switch (kind) {
-    'book' => 560,
-    'comic' => 32,
-    'manga' => 192,
-    _ => 1,
-  };
-}
-
-int _seedCoverPriceForKind(String kind) {
-  return switch (kind) {
-    'book' => 2499,
-    'comic' => 499,
-    'manga' => 799,
-    'music' => 1999,
-    'game' => 5999,
-    'boardgame' => 4499,
-    _ => 1999,
-  };
-}
-
-int _seedRuntimeMinutes(String kind) {
-  return switch (kind) {
-    'movie' => 120,
-    'tv' => 42,
-    'anime' => 24,
-    _ => 0,
-  };
-}
-
-String _seedAgeRating(String kind) {
-  return switch (kind) {
-    'tv' => 'TV-MA',
-    'anime' => 'TV-14',
-    'movie' => 'PG-13',
-    _ => 'PG',
-  };
-}
-
-String _seedAudienceRating(String kind) {
-  return switch (kind) {
-    'movie' => 'PG-13',
-    'tv' => 'TV-MA',
-    'anime' => 'TV-14',
-    'boardgame' => '10+',
-    _ => 'All',
-  };
 }

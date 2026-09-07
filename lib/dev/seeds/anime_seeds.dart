@@ -18,6 +18,16 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_trackin
 
 final animeDevSeedContributor = DevSeedKindContributor(
   kind: 'anime',
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: true,
+    paperType: null,
+    originalLanguage: 'en',
+    pageCount: 1,
+    coverPriceCents: 1999,
+    runtimeMinutes: 24,
+    ageRating: 'TV-14',
+    audienceRating: 'TV-14',
+  ),
   catalogItems: animeSeedCatalogItems,
   enrichItem: enrichAnimeSeedItem,
   validateCatalog: validateAnimeSeedCatalog,
