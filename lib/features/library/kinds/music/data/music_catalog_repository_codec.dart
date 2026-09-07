@@ -13,7 +13,9 @@ final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
-      catalogItemWithTypedMetadata(item, MusicRelease.fromJson);
+      item.kindMetadata is Map
+          ? item.withKindMetadata(MusicRelease.fromJson(item.payload))
+          : item;
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
@@ -26,14 +28,18 @@ final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   Future<List<CatalogItemDto>> list(LocalDatabase db) async {
     final releases = await MusicRepository(db).search();
     return [
-      for (final item in releases)
-        catalogProjection(
-          'music',
-          item.id.value,
-          item.title,
-          item.rawPayload,
-          MusicRelease.fromJson,
-        ),
+      for (final item in releases) _projection(item),
     ];
   }
+}
+
+CatalogItemDto _projection(MusicRelease item) {
+  final payload = item.rawPayload is Map
+      ? Map<String, dynamic>.from(item.rawPayload)
+      : <String, dynamic>{};
+  payload['id'] ??= item.id.value;
+  payload['kind'] ??= 'music';
+  payload['title'] ??= item.title;
+  final projection = CatalogItemDto.fromJson(payload);
+  return projection.withKindMetadata(MusicRelease.fromJson(projection.payload));
 }

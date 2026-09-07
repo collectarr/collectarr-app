@@ -12,28 +12,3 @@ Map<String, dynamic> catalogPayloadFor(CatalogItemDto item) => {
       'id': item.id,
       'kind': item.kind,
     };
-
-CatalogItemDto catalogItemWithTypedMetadata(
-  CatalogItemDto item,
-  Object? Function(Map<String, dynamic>) decode,
-) {
-  if (item.kindMetadata is! Map) return item;
-  return item.withKindMetadata(decode(item.payload));
-}
-
-CatalogItemDto catalogProjection(
-  String kind,
-  String? id,
-  String title,
-  Object? rawPayload,
-  Object? Function(Map<String, dynamic>) decode,
-) {
-  final payload = rawPayload is Map
-      ? Map<String, dynamic>.from(rawPayload)
-      : <String, dynamic>{};
-  payload['id'] ??= id ?? '';
-  payload['kind'] ??= kind;
-  payload['title'] ??= title;
-  final item = CatalogItemDto.fromJson(payload);
-  return catalogItemWithTypedMetadata(item, decode);
-}

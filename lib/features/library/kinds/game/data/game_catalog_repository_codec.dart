@@ -13,7 +13,9 @@ final class GameCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
-      catalogItemWithTypedMetadata(item, GameMedia.fromJson);
+      item.kindMetadata is Map
+          ? item.withKindMetadata(GameMedia.fromJson(item.payload))
+          : item;
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
@@ -26,14 +28,18 @@ final class GameCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   Future<List<CatalogItemDto>> list(LocalDatabase db) async {
     final media = await GameRepository(db).search();
     return [
-      for (final item in media)
-        catalogProjection(
-          'game',
-          item.id.value,
-          item.title,
-          item.rawPayload,
-          GameMedia.fromJson,
-        ),
+      for (final item in media) _projection(item),
     ];
   }
+}
+
+CatalogItemDto _projection(GameMedia item) {
+  final payload = item.rawPayload is Map
+      ? Map<String, dynamic>.from(item.rawPayload)
+      : <String, dynamic>{};
+  payload['id'] ??= item.id.value;
+  payload['kind'] ??= 'game';
+  payload['title'] ??= item.title;
+  final projection = CatalogItemDto.fromJson(payload);
+  return projection.withKindMetadata(GameMedia.fromJson(projection.payload));
 }
