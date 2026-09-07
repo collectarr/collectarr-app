@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_activity_contribu
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
@@ -16,7 +17,6 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -76,6 +76,11 @@ Iterable<LibraryCollectionCsvProjection> get libraryCollectionCsvProjections =>
 final Map<CatalogMediaKind, LibraryShelfExtensionContributor>
     _shelfExtensionContributors = Map.unmodifiable(
   collectarrKindShelfExtensions,
+);
+
+final Map<CatalogMediaKind, LibraryExportPreviewContributor>
+    _exportPreviewContributors = Map.unmodifiable(
+  collectarrKindExportPreviewContributors,
 );
 
 final Map<CatalogMediaKind, LibraryCalendarContributor> _calendarContributors =
@@ -292,5 +297,8 @@ bool libraryGroupModeSupportsCompletion(
 List<ExportPreviewArtifact> libraryExportPreviewArtifacts(
   Iterable<ShelfEntry> entries,
 ) {
-  return comicInfoExportPreviews(entries);
+  return [
+    for (final contributor in _exportPreviewContributors.values)
+      ...contributor.build(entries),
+  ];
 }

@@ -101,6 +101,10 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           '${folder}_shelf_extension_contributor.dart',
           'LibraryShelfExtensionContributor',
         ),
+        exportPreviewContributor: _discoverIntegrationContributor(
+          entity,
+          'LibraryExportPreviewContributor',
+        ),
         trackingEntryCodec: _discoverContributor(
           entity,
           'tracking',
@@ -317,6 +321,32 @@ _Contributor? _discoverBarcodeResolver(Directory kindDirectory) {
   return null;
 }
 
+_Contributor? _discoverIntegrationContributor(
+  Directory kindDirectory,
+  String marker,
+) {
+  final integrations = Directory('${kindDirectory.path}/integrations');
+  if (!integrations.existsSync()) return null;
+  for (final entity in integrations.listSync(recursive: true)) {
+    if (entity is! File || !entity.path.endsWith('.dart')) continue;
+    final source = entity.readAsStringSync();
+    if (!source.contains(marker)) continue;
+    final className = RegExp(
+      r'(?:final\s+class|class)\s+(\w+)',
+    ).firstMatch(source)?.group(1);
+    if (className == null) {
+      throw StateError(
+        'Could not find an integration contributor in ${entity.path}',
+      );
+    }
+    return _Contributor(
+      importPath: _packageImportPath(entity),
+      className: className,
+    );
+  }
+  return null;
+}
+
 String _renderRegistry(List<_KindDescriptor> descriptors) {
   final buffer = StringBuffer('''// GENERATED CODE - DO NOT MODIFY BY HAND
 // Run: dart run tool/generate_kind_registries.dart
@@ -425,6 +455,9 @@ import 'package:flutter/material.dart';
     "import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';",
   );
   buffer.writeln(
+    "import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';",
+  );
+  buffer.writeln(
     "import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';",
   );
   buffer.writeln(
@@ -494,6 +527,13 @@ import 'package:flutter/material.dart';
     name: 'collectarrKindShelfExtensions',
     type: 'LibraryShelfExtensionContributor',
     field: (descriptor) => descriptor.shelfExtension,
+  );
+  _renderContributorMap(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrKindExportPreviewContributors',
+    type: 'LibraryExportPreviewContributor',
+    field: (descriptor) => descriptor.exportPreviewContributor,
   );
   _renderCodecList(
     buffer,
@@ -909,6 +949,7 @@ final class _KindDescriptor {
     this.barcodeResolver,
     this.collectionCsvProjection,
     this.shelfExtension,
+    this.exportPreviewContributor,
     this.trackingEntryCodec,
     this.trackingUnitCodec,
     this.watchSessionCodec,
@@ -932,6 +973,7 @@ final class _KindDescriptor {
   final _Contributor? barcodeResolver;
   final _Contributor? collectionCsvProjection;
   final _Contributor? shelfExtension;
+  final _Contributor? exportPreviewContributor;
   final _Contributor? trackingEntryCodec;
   final _Contributor? trackingUnitCodec;
   final _Contributor? watchSessionCodec;
@@ -953,6 +995,7 @@ final class _KindDescriptor {
       barcodeResolver,
       collectionCsvProjection,
       shelfExtension,
+      exportPreviewContributor,
       trackingEntryCodec,
       trackingUnitCodec,
       watchSessionCodec,

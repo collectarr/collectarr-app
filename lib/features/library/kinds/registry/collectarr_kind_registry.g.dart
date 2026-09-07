@@ -75,6 +75,7 @@ import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calen
 import 'package:collectarr_app/features/library/kinds/comic/admin/comic_admin_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/barcode/comic_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
@@ -173,6 +174,7 @@ import 'package:collectarr_app/features/library/config/library_barcode_resolver.
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
@@ -261,6 +263,11 @@ final collectarrKindCollectionCsvProjections =
 final collectarrKindShelfExtensions =
     <CatalogMediaKind, LibraryShelfExtensionContributor>{
   CatalogMediaKind.manga: const MangaShelfExtensionContributor(),
+};
+
+final collectarrKindExportPreviewContributors =
+    <CatalogMediaKind, LibraryExportPreviewContributor>{
+  CatalogMediaKind.comic: const ComicExportPreviewContributor(),
 };
 
 const List<TrackingEntryCodec> collectarrTrackingEntryCodecs = [

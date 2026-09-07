@@ -133,6 +133,11 @@ void main() {
       expect(serialKinds,
           equals({CatalogMediaKind.comic, CatalogMediaKind.manga}));
 
+      expect(
+        collectarrKindExportPreviewContributors.keys,
+        equals({CatalogMediaKind.comic}),
+      );
+
       for (final kind in activeKinds) {
         expect(collectarrOwnedItemPersisters, contains(kind));
         expect(collectarrOwnedItemReaders, contains(kind));
