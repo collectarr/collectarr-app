@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
@@ -28,7 +27,6 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
@@ -223,25 +221,3 @@ class LibraryKindToolbarModule {
 
   final List<LibraryToolbarActionDescriptor> actions;
 }
-
-class LibraryFacetModule {
-  const LibraryFacetModule({
-    this.loadRows,
-    this.getFacetValues,
-    this.definitions = const [],
-    this.externalFacetBucketIdsByMode = const {},
-  });
-
-  final LibraryFacetRowsLoader? loadRows;
-  final Iterable<String> Function(
-          LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId)?
-      getFacetValues;
-  final List<LibraryFacetDefinition<dynamic, dynamic, dynamic>> definitions;
-  final Map<String, LibraryFacetIdRuntime> externalFacetBucketIdsByMode;
-}
-
-typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
-  required LibraryFacetIdRuntime facetId,
-  required Set<String> itemIds,
-  required ApiClient api,
-});

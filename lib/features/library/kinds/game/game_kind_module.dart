@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_worksp
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';

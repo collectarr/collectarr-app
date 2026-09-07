@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';

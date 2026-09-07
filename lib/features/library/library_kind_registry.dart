@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_activity_contribu
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
