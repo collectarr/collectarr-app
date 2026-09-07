@@ -11,9 +11,12 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart'
     as music_details;
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -1560,10 +1563,17 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           collectionByCatalogItemProvider.overrideWith(
             (ref) => {
-              'comic-423': testOwnedItem(
-                id: 'owned-comic-423',
-                itemId: 'comic-423',
-                updatedAt: DateTime.utc(2026, 6, 1, 12),
+              'comic-423': const OwnedItemSummary(
+                ref: OwnedItemRef(
+                  kind: CatalogMediaKind.comic,
+                  id: OwnedItemId('owned-comic-423'),
+                ),
+                title: 'comic-423',
+                catalogRef: CatalogEntityRef(
+                  kind: 'comic',
+                  entityType: CatalogEntityType.work,
+                  id: 'comic-423',
+                ),
               ),
             },
           ),
@@ -1620,10 +1630,17 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           collectionByCatalogItemProvider.overrideWith(
             (ref) => {
-              'comic-423': testOwnedItem(
-                id: 'owned-comic-423',
-                itemId: 'comic-423',
-                updatedAt: DateTime.utc(2026, 6, 1, 12),
+              'comic-423': const OwnedItemSummary(
+                ref: OwnedItemRef(
+                  kind: CatalogMediaKind.comic,
+                  id: OwnedItemId('owned-comic-423'),
+                ),
+                title: 'comic-423',
+                catalogRef: CatalogEntityRef(
+                  kind: 'comic',
+                  entityType: CatalogEntityType.work,
+                  id: 'comic-423',
+                ),
               ),
             },
           ),

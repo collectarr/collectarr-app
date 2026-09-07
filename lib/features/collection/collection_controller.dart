@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
@@ -27,15 +28,22 @@ final collectionProvider = FutureProvider<List<OwnedItem>>((ref) async {
   return cache.listActive();
 });
 
-final collectionByCatalogItemProvider = Provider<Map<String, OwnedItem>>((ref) {
-  final collection = ref.watch(collectionProvider);
+final collectionByCatalogItemProvider =
+    Provider<Map<String, OwnedItemSummary>>((ref) {
+  final collection = ref.watch(collectionSummariesProvider);
   return collection.maybeWhen(
     data: (items) => {
       for (final item in items)
-        if (!item.isDeleted) item.catalogRef.id: item,
+        if (!item.isDeleted && item.catalogRef != null) item.itemId: item,
     },
     orElse: () => const {},
   );
+});
+
+final collectionSummariesProvider =
+    FutureProvider<List<OwnedItemSummary>>((ref) async {
+  final cache = OwnedItemsRepository(ref.watch(localDatabaseProvider));
+  return cache.listActiveSummaries();
 });
 
 final trackingEntriesProvider =

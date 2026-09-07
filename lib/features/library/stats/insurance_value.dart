@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -39,11 +40,12 @@ class InsuranceValueRepository {
 
   final LocalDatabase _db;
 
-  Future<InsuranceValueSummary> getSummary({String? mediaKind}) async {
-    final ownedRows = await OwnedItemsRepository(_db).listActive();
+  Future<InsuranceValueSummary> getSummary(
+      {CatalogMediaKind? mediaKind}) async {
+    final ownedRows = await OwnedItemsRepository(_db).listActiveSummaries();
     final filteredRows = mediaKind == null
         ? ownedRows
-        : ownedRows.where((row) => row.catalogRef.kind == mediaKind).toList();
+        : ownedRows.where((row) => row.ref.kind == mediaKind).toList();
     final totalItems = filteredRows.length;
     final pricedRows = filteredRows
         .where((row) => row.pricePaidCents != null)
