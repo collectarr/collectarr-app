@@ -24,10 +24,6 @@ typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required TextControllerGroup textControllers,
 });
 
-typedef LibraryOwnedUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-  OwnedItemPatchCommand<OwnedDetailsDraft> command,
-);
-
 typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
     String ownedItemId, int indexNumber);
 
@@ -61,6 +57,9 @@ typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
   OwnedDetailsDraft details,
 );
 
+typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload
+    Function();
+
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
 /// kind-owned draft creation, and update command building.
 class LibraryEditCapability {
@@ -77,12 +76,12 @@ class LibraryEditCapability {
     required this.defaultGrade,
     required this.createDraft,
     required this.ownedDigitalFlagResolver,
-    this.ownedUpdatePayloadBuilder,
     this.ownedIndexUpdatePayloadBuilder,
     this.ownedConditionGradeUpdatePayloadBuilder,
     this.ownedBulkUpdatePayloadBuilder,
     this.ownedPersonalDetailsUpdatePayloadBuilder,
     this.ownedTransferUpdatePayloadBuilder,
+    this.ownedDetailsResetPayloadBuilder,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -97,7 +96,6 @@ class LibraryEditCapability {
   final String defaultGrade;
   final LibraryEditKindDraftFactory createDraft;
   final LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver;
-  final LibraryOwnedUpdatePayloadBuilder? ownedUpdatePayloadBuilder;
   final LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder;
   final LibraryOwnedConditionGradeUpdatePayloadBuilder?
       ownedConditionGradeUpdatePayloadBuilder;
@@ -106,6 +104,7 @@ class LibraryEditCapability {
       ownedPersonalDetailsUpdatePayloadBuilder;
   final LibraryOwnedTransferUpdatePayloadBuilder?
       ownedTransferUpdatePayloadBuilder;
+  final LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
@@ -128,19 +127,6 @@ class LibraryEditCapability {
 
   OwnedDetailsDraft buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
       kindDraft.toDetailsDraft();
-
-  UpdateOwnedItemCommand withTypedUpdatePayload(
-    OwnedItemPatchCommand<OwnedDetailsDraft> command,
-  ) {
-    final builder = ownedUpdatePayloadBuilder;
-    if (builder == null) {
-      throw StateError('No typed Owned update payload builder is registered.');
-    }
-    return UpdateOwnedItemCommand(
-      ownedItemId: command.ownedItemId,
-      payload: builder(command),
-    );
-  }
 
   UpdateOwnedItemCommand buildIndexUpdateCommand({
     required String ownedItemId,
@@ -239,6 +225,19 @@ class LibraryEditCapability {
     return UpdateOwnedItemCommand(
       ownedItemId: ownedItemId,
       payload: builder(ownedItemId, updated, details),
+    );
+  }
+
+  UpdateOwnedItemCommand buildDetailsResetCommand({
+    required String ownedItemId,
+  }) {
+    final builder = ownedDetailsResetPayloadBuilder;
+    if (builder == null) {
+      throw StateError('No typed Owned details reset builder is registered.');
+    }
+    return UpdateOwnedItemCommand(
+      ownedItemId: ownedItemId,
+      payload: builder(),
     );
   }
 

@@ -114,8 +114,16 @@ void main() {
             reason: '$kind must build a kind-owned Owned create payload');
         expect(command.typedPayload!.catalogRef.kind, kind.apiValue,
             reason: '$kind payload must retain its owning kind');
-        expect(runtime.edit.ownedUpdatePayloadBuilder, isNotNull,
-            reason: '$kind must build a kind-owned Owned update payload');
+        expect(runtime.edit.ownedIndexUpdatePayloadBuilder, isNotNull,
+            reason: '$kind must build a kind-owned Owned index payload');
+        expect(runtime.edit.ownedConditionGradeUpdatePayloadBuilder, isNotNull,
+            reason: '$kind must build a kind-owned condition/grade payload');
+        expect(runtime.edit.ownedBulkUpdatePayloadBuilder, isNotNull,
+            reason: '$kind must build a kind-owned bulk payload');
+        expect(runtime.edit.ownedPersonalDetailsUpdatePayloadBuilder, isNotNull,
+            reason: '$kind must build a kind-owned personal payload');
+        expect(runtime.edit.ownedTransferUpdatePayloadBuilder, isNotNull,
+            reason: '$kind must build a kind-owned transfer payload');
 
         final existing = command.typedPayload!.toOwnedItem(
           resolvedCatalogRef: command.catalogRef,
@@ -152,8 +160,7 @@ void main() {
         expect(duplicatedOwned.quantity, 2);
         expect(command.typedPayload!.detailsDraft,
             isNot(isA<TestOwnedDetailsDraft>()),
-            reason:
-                '$kind command details must not be TestOwnedDetailsDraft');
+            reason: '$kind command details must not be TestOwnedDetailsDraft');
 
         switch (kind) {
           case CatalogMediaKind.comic:

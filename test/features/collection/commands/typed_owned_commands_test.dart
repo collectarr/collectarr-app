@@ -153,11 +153,8 @@ void main() {
         );
 
         final updated = await coordinator.updateOwnedItem(
-          libraryKindModuleForKind(kind).edit.withTypedUpdatePayload(
-                OwnedItemPatchCommand<OwnedDetailsDraft>(
-                  ownedItemId: initial.id,
-                  details: const Patch.clear(),
-                ),
+          libraryKindModuleForKind(kind).edit.buildDetailsResetCommand(
+                ownedItemId: initial.id,
               ),
         );
 

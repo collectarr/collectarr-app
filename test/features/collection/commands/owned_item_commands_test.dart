@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:drift/native.dart';
@@ -171,8 +172,7 @@ void main() {
       ),
     );
 
-    final updateCmd = OwnedItemPatchCommand<OwnedDetailsDraft>(
-      ownedItemId: initial.id,
+    final updatePayload = ComicOwnedItemUpdatePayload.partial(
       anchor: Patch.set(
         PersonalItemAnchor.fromRaw(
           anchorType: PersonalItemAnchorType.variant.apiValue,
@@ -191,9 +191,10 @@ void main() {
     );
 
     final updated = await coordinator.updateOwnedItem(
-      libraryKindModuleForKind(CatalogMediaKind.comic)
-          .edit
-          .withTypedUpdatePayload(updateCmd),
+      UpdateOwnedItemCommand(
+        ownedItemId: initial.id,
+        payload: updatePayload,
+      ),
     );
 
     expect(updated.id, initial.id);

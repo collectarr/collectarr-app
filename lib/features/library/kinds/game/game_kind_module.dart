@@ -165,35 +165,24 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     presentation: gameLibraryEditPresentation,
     createDraft: createGameEditDraft,
     ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
-    ownedUpdatePayloadBuilder: GameOwnedItemUpdatePayload.fromCommand,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
-        GameOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        indexNumber: Patch.set(indexNumber),
-      ),
+        GameOwnedItemUpdatePayload.partial(
+      indexNumber: Patch.set(indexNumber),
     ),
     ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        GameOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        condition: Patch.set(condition),
-        grade: Patch.set(grade),
-      ),
+        GameOwnedItemUpdatePayload.partial(
+      condition: Patch.set(condition),
+      grade: Patch.set(grade),
     ),
     ownedBulkUpdatePayloadBuilder:
         (ownedItemId, condition, grade, locationId, tags) =>
-            GameOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        condition:
-            condition == null ? const Patch.unchanged() : Patch.set(condition),
-        grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
-        locationId: locationId == null
-            ? const Patch.unchanged()
-            : Patch.set(locationId),
-        tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
-      ),
+            GameOwnedItemUpdatePayload.partial(
+      condition:
+          condition == null ? const Patch.unchanged() : Patch.set(condition),
+      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      locationId:
+          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
       ownedItemId,
@@ -205,39 +194,35 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
       locationChanged,
       locationId,
     ) =>
-        GameOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        purchaseDate: Patch.set(purchaseDate),
-        pricePaidCents: Patch.set(pricePaidCents),
-        currency: Patch.set(currency),
-        personalNotes: Patch.set(personalNotes),
-        purchaseStore: Patch.set(purchaseStore),
-        locationId:
-            locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-      ),
+        GameOwnedItemUpdatePayload.partial(
+      purchaseDate: Patch.set(purchaseDate),
+      pricePaidCents: Patch.set(pricePaidCents),
+      currency: Patch.set(currency),
+      personalNotes: Patch.set(personalNotes),
+      purchaseStore: Patch.set(purchaseStore),
+      locationId:
+          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
     ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
-        GameOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        condition: Patch.set(updated.condition),
-        grade: Patch.set(updated.grade),
-        personalNotes: Patch.set(updated.personalNotes),
-        locationId: Patch.set(updated.locationId),
-        tags: Patch.set(updated.tags),
-        currency: Patch.set(updated.currency),
-        soldTo: Patch.set(updated.soldTo),
-        purchaseStore: Patch.set(updated.purchaseStore),
-        pricePaidCents: Patch.set(updated.pricePaidCents),
-        sellPriceCents: Patch.set(updated.sellPriceCents),
-        quantity: Patch.set(updated.quantity),
-        indexNumber: Patch.set(updated.indexNumber),
-        purchaseDate: Patch.set(updated.purchaseDate),
-        soldAt: Patch.set(updated.soldAt),
-        details: Patch.set(details as GameOwnedDetailsDraft),
-      ),
+        GameOwnedItemUpdatePayload.partial(
+      condition: Patch.set(updated.condition),
+      grade: Patch.set(updated.grade),
+      personalNotes: Patch.set(updated.personalNotes),
+      locationId: Patch.set(updated.locationId),
+      tags: Patch.set(updated.tags),
+      currency: Patch.set(updated.currency),
+      soldTo: Patch.set(updated.soldTo),
+      purchaseStore: Patch.set(updated.purchaseStore),
+      pricePaidCents: Patch.set(updated.pricePaidCents),
+      sellPriceCents: Patch.set(updated.sellPriceCents),
+      quantity: Patch.set(updated.quantity),
+      indexNumber: Patch.set(updated.indexNumber),
+      purchaseDate: Patch.set(updated.purchaseDate),
+      soldAt: Patch.set(updated.soldAt),
+      details: Patch.set(details as GameOwnedDetailsDraft),
     ),
+    ownedDetailsResetPayloadBuilder: () =>
+        GameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),
   buildCardPresentation: buildGameCardPresentation,
 );

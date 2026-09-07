@@ -314,35 +314,24 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     defaultGrade: 'Ungraded',
     createDraft: createBookEditDraft,
     ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
-    ownedUpdatePayloadBuilder: BookOwnedItemUpdatePayload.fromCommand,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
-        BookOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        indexNumber: Patch.set(indexNumber),
-      ),
+        BookOwnedItemUpdatePayload.partial(
+      indexNumber: Patch.set(indexNumber),
     ),
     ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        BookOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        condition: Patch.set(condition),
-        grade: Patch.set(grade),
-      ),
+        BookOwnedItemUpdatePayload.partial(
+      condition: Patch.set(condition),
+      grade: Patch.set(grade),
     ),
     ownedBulkUpdatePayloadBuilder:
         (ownedItemId, condition, grade, locationId, tags) =>
-            BookOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        condition:
-            condition == null ? const Patch.unchanged() : Patch.set(condition),
-        grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
-        locationId: locationId == null
-            ? const Patch.unchanged()
-            : Patch.set(locationId),
-        tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
-      ),
+            BookOwnedItemUpdatePayload.partial(
+      condition:
+          condition == null ? const Patch.unchanged() : Patch.set(condition),
+      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      locationId:
+          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
       ownedItemId,
@@ -354,39 +343,35 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
       locationChanged,
       locationId,
     ) =>
-        BookOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        purchaseDate: Patch.set(purchaseDate),
-        pricePaidCents: Patch.set(pricePaidCents),
-        currency: Patch.set(currency),
-        personalNotes: Patch.set(personalNotes),
-        purchaseStore: Patch.set(purchaseStore),
-        locationId:
-            locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
-      ),
+        BookOwnedItemUpdatePayload.partial(
+      purchaseDate: Patch.set(purchaseDate),
+      pricePaidCents: Patch.set(pricePaidCents),
+      currency: Patch.set(currency),
+      personalNotes: Patch.set(personalNotes),
+      purchaseStore: Patch.set(purchaseStore),
+      locationId:
+          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
     ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
-        BookOwnedItemUpdatePayload.fromCommand(
-      OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: ownedItemId,
-        condition: Patch.set(updated.condition),
-        grade: Patch.set(updated.grade),
-        personalNotes: Patch.set(updated.personalNotes),
-        locationId: Patch.set(updated.locationId),
-        tags: Patch.set(updated.tags),
-        currency: Patch.set(updated.currency),
-        soldTo: Patch.set(updated.soldTo),
-        purchaseStore: Patch.set(updated.purchaseStore),
-        pricePaidCents: Patch.set(updated.pricePaidCents),
-        sellPriceCents: Patch.set(updated.sellPriceCents),
-        quantity: Patch.set(updated.quantity),
-        indexNumber: Patch.set(updated.indexNumber),
-        purchaseDate: Patch.set(updated.purchaseDate),
-        soldAt: Patch.set(updated.soldAt),
-        details: Patch.set(details as BookOwnedDetailsDraft),
-      ),
+        BookOwnedItemUpdatePayload.partial(
+      condition: Patch.set(updated.condition),
+      grade: Patch.set(updated.grade),
+      personalNotes: Patch.set(updated.personalNotes),
+      locationId: Patch.set(updated.locationId),
+      tags: Patch.set(updated.tags),
+      currency: Patch.set(updated.currency),
+      soldTo: Patch.set(updated.soldTo),
+      purchaseStore: Patch.set(updated.purchaseStore),
+      pricePaidCents: Patch.set(updated.pricePaidCents),
+      sellPriceCents: Patch.set(updated.sellPriceCents),
+      quantity: Patch.set(updated.quantity),
+      indexNumber: Patch.set(updated.indexNumber),
+      purchaseDate: Patch.set(updated.purchaseDate),
+      soldAt: Patch.set(updated.soldAt),
+      details: Patch.set(details as BookOwnedDetailsDraft),
     ),
+    ownedDetailsResetPayloadBuilder: () =>
+        BookOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),
 );
 

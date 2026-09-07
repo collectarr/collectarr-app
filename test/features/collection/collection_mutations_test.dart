@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
@@ -499,19 +500,17 @@ void main() {
     final original = (await OwnedItemsRepository(db).listActive()).single;
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          libraryKindModuleForKind(CatalogMediaKind.comic)
-              .edit
-              .withTypedUpdatePayload(
-                OwnedItemPatchCommand<OwnedDetailsDraft>(
-                  ownedItemId: original.id,
-                  condition: const Patch.set('Near Mint'),
-                  grade: const Patch.set('9.8'),
-                  purchaseDate: const Patch.clear(),
-                  pricePaidCents: const Patch.clear(),
-                  currency: const Patch.clear(),
-                  personalNotes: const Patch.clear(),
-                ),
-              ),
+          UpdateOwnedItemCommand(
+            ownedItemId: original.id,
+            payload: ComicOwnedItemUpdatePayload.partial(
+              condition: const Patch.set('Near Mint'),
+              grade: const Patch.set('9.8'),
+              purchaseDate: const Patch.clear(),
+              pricePaidCents: const Patch.clear(),
+              currency: const Patch.clear(),
+              personalNotes: const Patch.clear(),
+            ),
+          ),
         );
 
     final updated = (await OwnedItemsRepository(db).listActive()).single;
@@ -541,14 +540,12 @@ void main() {
     final original = (await OwnedItemsRepository(db).listActive()).single;
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          libraryKindModuleForKind(CatalogMediaKind.comic)
-              .edit
-              .withTypedUpdatePayload(
-                OwnedItemPatchCommand<OwnedDetailsDraft>(
-                  ownedItemId: original.id,
-                  locationId: const Patch.clear(),
-                ),
-              ),
+          UpdateOwnedItemCommand(
+            ownedItemId: original.id,
+            payload: ComicOwnedItemUpdatePayload.partial(
+              locationId: const Patch.clear(),
+            ),
+          ),
         );
 
     final updated = (await OwnedItemsRepository(db).listActive()).single;

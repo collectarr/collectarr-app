@@ -33,35 +33,48 @@ final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
     required this.details,
   });
 
-  factory ComicOwnedItemUpdatePayload.fromCommand(
-    OwnedItemPatchCommand<OwnedDetailsDraft> command,
-  ) {
-    return ComicOwnedItemUpdatePayload(
-      anchor: command.anchor,
-      quantity: command.quantity,
-      condition: command.condition,
-      grade: command.grade,
-      purchaseDate: command.purchaseDate,
-      pricePaidCents: command.pricePaidCents,
-      currency: command.currency,
-      personalNotes: command.personalNotes,
-      locationId: command.locationId,
-      purchaseStore: command.purchaseStore,
-      collectionStatus: command.collectionStatus,
-      isDigital: command.isDigital,
-      tags: command.tags,
-      soldAt: command.soldAt,
-      sellPriceCents: command.sellPriceCents,
-      soldTo: command.soldTo,
-      marketValueCents: command.marketValueCents,
-      indexNumber: command.indexNumber,
-      details: command.details.when(
-        unchanged: () => const Patch.unchanged(),
-        set: (value) => Patch.set(value as ComicOwnedDetailsDraft),
-        clear: () => const Patch.clear(),
-      ),
-    );
-  }
+  factory ComicOwnedItemUpdatePayload.partial({
+    Patch<PersonalItemAnchor?> anchor = const Patch.unchanged(),
+    Patch<int> quantity = const Patch.unchanged(),
+    Patch<String?> condition = const Patch.unchanged(),
+    Patch<String?> grade = const Patch.unchanged(),
+    Patch<DateTime?> purchaseDate = const Patch.unchanged(),
+    Patch<int?> pricePaidCents = const Patch.unchanged(),
+    Patch<String?> currency = const Patch.unchanged(),
+    Patch<String?> personalNotes = const Patch.unchanged(),
+    Patch<String?> locationId = const Patch.unchanged(),
+    Patch<String?> purchaseStore = const Patch.unchanged(),
+    Patch<String?> collectionStatus = const Patch.unchanged(),
+    Patch<bool?> isDigital = const Patch.unchanged(),
+    Patch<String?> tags = const Patch.unchanged(),
+    Patch<DateTime?> soldAt = const Patch.unchanged(),
+    Patch<int?> sellPriceCents = const Patch.unchanged(),
+    Patch<String?> soldTo = const Patch.unchanged(),
+    Patch<int?> marketValueCents = const Patch.unchanged(),
+    Patch<int?> indexNumber = const Patch.unchanged(),
+    Patch<ComicOwnedDetailsDraft> details = const Patch.unchanged(),
+  }) =>
+      ComicOwnedItemUpdatePayload(
+        anchor: anchor,
+        quantity: quantity,
+        condition: condition,
+        grade: grade,
+        purchaseDate: purchaseDate,
+        pricePaidCents: pricePaidCents,
+        currency: currency,
+        personalNotes: personalNotes,
+        locationId: locationId,
+        purchaseStore: purchaseStore,
+        collectionStatus: collectionStatus,
+        isDigital: isDigital,
+        tags: tags,
+        soldAt: soldAt,
+        sellPriceCents: sellPriceCents,
+        soldTo: soldTo,
+        marketValueCents: marketValueCents,
+        indexNumber: indexNumber,
+        details: details,
+      );
 
   final Patch<PersonalItemAnchor?> anchor;
   final Patch<int> quantity;
