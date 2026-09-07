@@ -26,13 +26,13 @@ class LibraryWorkspaceSessionController
   LibraryWorkspaceSessionState get value => state;
 
   LibraryWorkspaceSessionState _defaultState() {
-    final module = libraryKindModuleForKind(_key.kind);
+    final workspace = libraryKindWorkspaceForKind(_key.kind);
     final initial = const LibraryWorkspaceSessionState();
     return initial.copyWith(
       filters: const LibrarySessionFilterState().copyWith(
-        groupId: () => module.fields.defaultGroup,
-        sortId: () => module.fields.defaultSort,
-        visibleColumnIds: module.fields.defaultVisibleColumns.toSet(),
+        groupId: () => workspace.fields.defaultGroup,
+        sortId: () => workspace.fields.defaultSort,
+        visibleColumnIds: workspace.fields.defaultVisibleColumns.toSet(),
         presentationLevelId: () => _key.presentationLevelId,
       ),
     );
@@ -509,7 +509,7 @@ class LibraryWorkspaceSessionController
   }
 
   void applyColumnPreset(LibraryTableColumnPreset preset) {
-    final fields = libraryKindModuleForKind(_key.kind).fields;
+    final fields = libraryKindWorkspaceForKind(_key.kind).fields;
     setVisibleColumns({
       for (final column in preset.columns) fields.decodeColumnId(column),
     });

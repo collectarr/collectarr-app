@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -12,14 +13,16 @@ void main() {
     test('all 9 active kind specs expose validated field registries', () {
       expect(collectarrKindModules.length, 9);
       for (final spec in collectarrKindModules) {
-        expect(spec.fields.kindNamespace, spec.kind.apiValue);
-        expect(spec.fields.columns, isNotEmpty);
-        expect(spec.fields.sorts, isNotEmpty);
+        final workspace = libraryKindWorkspaceForKind(spec.kind);
+        expect(workspace.fields.kindNamespace, spec.kind.apiValue);
+        expect(workspace.fields.columns, isNotEmpty);
+        expect(workspace.fields.sorts, isNotEmpty);
       }
     });
 
     test('all active kind specs have non-null required core properties', () {
       for (final spec in collectarrKindModules) {
+        final workspace = libraryKindWorkspaceForKind(spec.kind);
         expect(spec.kind, isNotNull);
         expect(spec.identity, isNotNull);
         expect(spec.physicalMediaFormats, isNotEmpty);
@@ -28,8 +31,8 @@ void main() {
         expect(spec.inspector, isNotNull);
         expect(spec.presentation, isNotNull);
         expect(spec.viewProfile, isNotNull);
-        expect(spec.fields, isNotNull);
-        expect(spec.projector, isNotNull);
+        expect(workspace.fields, isNotNull);
+        expect(workspace.projector, isNotNull);
         expect(spec.add, isNotNull);
       }
     });
@@ -101,13 +104,13 @@ void main() {
       expect(
         () => LibraryFieldRegistry<BookWorkspaceDto>(
           kindNamespace: 'comic', // Mismatched namespace for book columns
-          columns: bookKindModule.fields.columns,
-          sorts: bookKindModule.fields.sorts,
-          groups: bookKindModule.fields.groups,
-          defaultVisibleColumns: bookKindModule.fields.defaultVisibleColumns,
-          defaultSort: bookKindModule.fields.defaultSort,
-          defaultGroup: bookKindModule.fields.defaultGroup,
-          preferenceCodec: bookKindModule.fields.preferenceCodec,
+          columns: bookKindWorkspace.fields.columns,
+          sorts: bookKindWorkspace.fields.sorts,
+          groups: bookKindWorkspace.fields.groups,
+          defaultVisibleColumns: bookKindWorkspace.fields.defaultVisibleColumns,
+          defaultSort: bookKindWorkspace.fields.defaultSort,
+          defaultGroup: bookKindWorkspace.fields.defaultGroup,
+          preferenceCodec: bookKindWorkspace.fields.preferenceCodec,
         ),
         throwsStateError,
       );

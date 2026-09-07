@@ -24,30 +24,30 @@ Future<LibraryFilterState> loadPersistedFilterState(
   LibraryWorkspaceKey key,
 ) async {
   final prefs = await SharedPreferences.getInstance();
-  final module = libraryKindModuleForKind(key.kind);
+  final workspace = libraryKindWorkspaceForKind(key.kind);
 
   final storedSortId = prefs.getString(_k(key, 'sort_id'));
   final sortDefinition = storedSortId == null
       ? null
-      : module.fields.findSortDefinition(
-          module.fields.decodeSortId(storedSortId),
+      : workspace.fields.findSortDefinition(
+          workspace.fields.decodeSortId(storedSortId),
         );
-  final sortId = sortDefinition?.id ?? module.fields.defaultSort;
+  final sortId = sortDefinition?.id ?? workspace.fields.defaultSort;
   final sortAscending = prefs.getBool(_k(key, 'sort_ascending')) ?? true;
   final storedGroupId = prefs.getString(_k(key, 'group_id'));
   final groupDefinition = storedGroupId == null
       ? null
-      : module.fields.findGroupDefinition(
-          module.fields.decodeGroupId(storedGroupId),
+      : workspace.fields.findGroupDefinition(
+          workspace.fields.decodeGroupId(storedGroupId),
         );
-  final groupId = groupDefinition?.id ?? module.fields.defaultGroup;
+  final groupId = groupDefinition?.id ?? workspace.fields.defaultGroup;
 
   final storedColumns = prefs.getStringList(_k(key, 'visible_columns'));
   final decodedColumnIds = <LibraryFieldIdRuntime>{};
   if (storedColumns != null) {
     for (final storedColumn in storedColumns) {
-      final definition = module.fields.findColumnDefinition(
-        module.fields.decodeColumnId(storedColumn),
+      final definition = workspace.fields.findColumnDefinition(
+        workspace.fields.decodeColumnId(storedColumn),
       );
       if (definition != null) {
         decodedColumnIds.add(definition.id);
@@ -55,7 +55,7 @@ Future<LibraryFilterState> loadPersistedFilterState(
     }
   }
   final visibleColumnIds = decodedColumnIds.isEmpty
-      ? module.fields.defaultVisibleColumns
+      ? workspace.fields.defaultVisibleColumns
       : decodedColumnIds;
 
   return LibraryFilterState(
@@ -92,10 +92,10 @@ Future<void> persistFilterState(
   LibraryFilterState state,
 ) async {
   final prefs = await SharedPreferences.getInstance();
-  final module = libraryKindModuleForKind(key.kind);
+  final workspace = libraryKindWorkspaceForKind(key.kind);
   final sortDefinition = state.sortId == null
       ? null
-      : module.fields.findSortDefinition(
+      : workspace.fields.findSortDefinition(
           state.sortId!,
         );
   if (state.sortId != null) {
@@ -106,7 +106,7 @@ Future<void> persistFilterState(
   await prefs.setBool(_k(key, 'sort_ascending'), state.sortAscending);
   final groupDefinition = state.groupId == null
       ? null
-      : module.fields.findGroupDefinition(
+      : workspace.fields.findGroupDefinition(
           state.groupId!,
         );
   if (state.groupId != null) {
@@ -117,7 +117,8 @@ Future<void> persistFilterState(
   if (state.visibleColumnIds.isNotEmpty) {
     final visibleColumnIds = state.visibleColumnIds
         .map(
-          (columnId) => module.fields.findColumnDefinition(columnId)?.id.value,
+          (columnId) =>
+              workspace.fields.findColumnDefinition(columnId)?.id.value,
         )
         .whereType<String>()
         .toList(growable: false);

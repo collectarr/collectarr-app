@@ -3,17 +3,18 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('all library presentations declare complete group mode definitions', () {
     final registries = <String, LibraryFieldRegistry<LibraryWorkspaceDto>>{
-      'books': bookKindModule.fields,
-      'board games': boardGameKindModule.fields,
-      'comics': comicKindModule.fields,
-      'games': gameKindModule.fields,
-      'movies': movieKindModule.fields,
-      'music': musicKindModule.fields,
+      'books': bookKindWorkspace.fields,
+      'board games': boardGameKindWorkspace.fields,
+      'comics': comicKindWorkspace.fields,
+      'games': gameKindWorkspace.fields,
+      'movies': movieKindWorkspace.fields,
+      'music': musicKindWorkspace.fields,
     };
 
     for (final entry in registries.entries) {
@@ -43,12 +44,12 @@ void main() {
   test('all library presentations declare complete sort column definitions',
       () {
     final registries = <String, LibraryFieldRegistry<LibraryWorkspaceDto>>{
-      'books': bookKindModule.fields,
-      'board games': boardGameKindModule.fields,
-      'comics': comicKindModule.fields,
-      'games': gameKindModule.fields,
-      'movies': movieKindModule.fields,
-      'music': musicKindModule.fields,
+      'books': bookKindWorkspace.fields,
+      'board games': boardGameKindWorkspace.fields,
+      'comics': comicKindWorkspace.fields,
+      'games': gameKindWorkspace.fields,
+      'movies': movieKindWorkspace.fields,
+      'music': musicKindWorkspace.fields,
     };
     final configuredSortColumns = <String, Set<String>>{
       'books': registries['books']!
@@ -115,8 +116,9 @@ void main() {
       final kind = module.kind;
 
       // Test default visible columns
-      for (final columnId in module.fields.defaultVisibleColumns) {
-        final definition = module.fields.columnDefinitionForId(columnId);
+      final workspace = libraryKindWorkspaceForKind(module.kind);
+      for (final columnId in workspace.fields.defaultVisibleColumns) {
+        final definition = workspace.fields.columnDefinitionForId(columnId);
         expect(
           definition,
           isNotNull,
@@ -130,12 +132,12 @@ void main() {
         final presetConfig = module.viewProfile.presetConfig(preset);
         for (final columnId in presetConfig.visibleColumns) {
           final idStr = columnId.toString();
-          final isSupported = module.fields.columns.any(
+          final isSupported = workspace.fields.columns.any(
             (c) => c.id.value == idStr || c.id.value.split('.').last == idStr,
           );
           if (isSupported) {
-            final definition = module.fields.columnDefinitionForId(
-              module.fields.decodeColumnId(idStr),
+            final definition = workspace.fields.columnDefinitionForId(
+              workspace.fields.decodeColumnId(idStr),
             );
             expect(
               definition,

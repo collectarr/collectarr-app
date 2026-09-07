@@ -22,7 +22,7 @@ final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
   maxCoverSize: kComicsMaxCoverSize,
   presetConfig: comicsViewPresetConfig,
   clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
-    libraryKindModuleForKind(CatalogMediaKind.comic).fields,
+    libraryKindWorkspaceForKind(CatalogMediaKind.comic).fields,
     column,
     width,
   ),
@@ -86,8 +86,8 @@ const comicsTableColumnPresets = [
 ];
 
 bool comicInitialSortAscending(LibrarySortIdRuntime sortId) {
-  final module = libraryKindModuleForKind(CatalogMediaKind.comic);
-  final definition = module.fields.findSortDefinition(
+  final workspace = libraryKindWorkspaceForKind(CatalogMediaKind.comic);
+  final definition = workspace.fields.findSortDefinition(
     sortId,
   );
   return definition?.defaultAscending ?? true;
@@ -133,7 +133,7 @@ List<LibraryFieldIdRuntime> orderedComicTableColumns(
     );
 
 Set<LibraryFieldIdRuntime> defaultComicTableColumns() =>
-    Set.of(libraryKindModuleForKind(CatalogMediaKind.comic)
+    Set.of(libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .fields
         .defaultVisibleColumns);
 
@@ -142,7 +142,7 @@ double comicTableWidthForColumns(
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableWidthForColumns(
-    fields: libraryKindModuleForKind(CatalogMediaKind.comic).fields,
+    fields: libraryKindWorkspaceForKind(CatalogMediaKind.comic).fields,
     columns: columns,
     customWidths: customWidths,
   );
@@ -153,7 +153,7 @@ double comicTableColumnWidth(
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
   return plannedMediaTableColumnWidth(
-      libraryKindModuleForKind(CatalogMediaKind.comic).fields,
+      libraryKindWorkspaceForKind(CatalogMediaKind.comic).fields,
       column,
       customWidths);
 }

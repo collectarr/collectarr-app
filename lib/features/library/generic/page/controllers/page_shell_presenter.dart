@@ -216,23 +216,29 @@ abstract final class LibraryPageShellPresenter {
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) => stateValue.withSortColumn(
-          runtime.fields.decodeSortId(column),
+          libraryKindWorkspaceForKind(runtime.kind).fields.decodeSortId(column),
           state._viewProfile,
         ),
       ),
       onColumnWidthChanged: (column, width) => state._updateViewState(
         (stateValue) => stateValue.withColumnWidth(
-          runtime.fields.decodeColumnId(column),
+          libraryKindWorkspaceForKind(runtime.kind)
+              .fields
+              .decodeColumnId(column),
           width,
           state._viewProfile,
         ),
       ),
       onColumnReordered: (column, beforeColumn) => state._updateViewState(
         (stateValue) => stateValue.withReorderedColumn(
-          column: runtime.fields.decodeColumnId(column),
+          column: libraryKindWorkspaceForKind(runtime.kind)
+              .fields
+              .decodeColumnId(column),
           beforeColumn: beforeColumn == null
               ? null
-              : runtime.fields.decodeColumnId(beforeColumn),
+              : libraryKindWorkspaceForKind(runtime.kind)
+                  .fields
+                  .decodeColumnId(beforeColumn),
         ),
       ),
       onCoverSizeChanged: (size) => state._updateViewState(

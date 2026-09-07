@@ -450,7 +450,9 @@ LibraryProjectionRuntime testProjectionItem({
   final node = LibraryTitleNodeRef(titleItemId: resolvedId);
   final mediaKind = catalogMediaKindFromApiValue(kind);
   final dto = mediaKind == CatalogMediaKind.comic
-      ? lookupLibraryKind(CatalogMediaKind.comic)!.projector.projectTitle(
+      ? libraryKindWorkspaceForKind(CatalogMediaKind.comic)
+          .projector
+          .projectTitle(
             source: shelf,
             node: node,
           )

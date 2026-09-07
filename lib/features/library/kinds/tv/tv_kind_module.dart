@@ -37,6 +37,7 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_prese
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
 import 'package:collectarr_app/features/library/kinds/tv/stats/tv_stats_capability.dart';
@@ -129,8 +130,6 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
   trackingProfile: tvTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
-  projector: const TvWorkspaceProjector(),
-  fields: tvLibraryKindSchema.toRegistry(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.tv,
     singularLabel: 'TV Show',
@@ -459,3 +458,9 @@ String _tvAddGroupTitle(CatalogItemDto item) {
   }
   return item.title;
 }
+
+final tvKindWorkspace = TypedLibraryKindWorkspace<TvWorkspaceDto>(
+  fields: tvLibraryKindSchema.toRegistry(),
+  projector: const TvWorkspaceProjector(),
+  hierarchy: tvKindModule.hierarchy,
+);

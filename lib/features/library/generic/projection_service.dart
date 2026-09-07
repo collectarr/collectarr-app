@@ -28,10 +28,10 @@ class LibraryProjectionService {
     Set<String> activeLoanOwnedItemIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
-    final runtime = type;
+    final fields = libraryKindWorkspaceForKind(type.kind).fields;
     final projectionQuery = LibraryProjectionQuery(
       searchQuery: query,
-      groupId: runtime.fields.decodeGroupId(groupMode),
+      groupId: fields.decodeGroupId(groupMode),
       selectedBucket: selectedBucket,
       selectedItemId: selectedItemId,
       quickView: quickView,

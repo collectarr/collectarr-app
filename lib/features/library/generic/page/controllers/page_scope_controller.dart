@@ -14,11 +14,12 @@ abstract final class _LibraryScopeControllerOps {
     GenericLibraryPageState state,
   ) {
     final runtime = state.widget.type;
+    final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
     return [
       for (final snapshot in state._scopeHistory)
         if (snapshot.selectedBucket != null)
           LibraryBucketScopeFilter(
-            groupId: runtime.fields.decodeGroupId(snapshot.groupMode),
+            groupId: fields.decodeGroupId(snapshot.groupMode),
             bucket: snapshot.selectedBucket!,
           ),
     ];
@@ -264,7 +265,9 @@ abstract final class _LibraryScopeControllerOps {
         } else if (smartList.sortColumn != null) {
           final runtime = state.widget.type;
           state._viewState = state._viewState!.copyWith(
-            sortId: runtime.fields.decodeSortId(smartList.sortColumn!),
+            sortId: libraryKindWorkspaceForKind(runtime.kind)
+                .fields
+                .decodeSortId(smartList.sortColumn!),
             sortAscending: smartList.sortAscending ?? true,
           );
         }

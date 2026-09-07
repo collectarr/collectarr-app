@@ -34,6 +34,7 @@ import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
@@ -128,8 +129,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
   trackingProfile: animeTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
-  projector: const AnimeWorkspaceProjector(),
-  fields: animeLibraryKindSchema.toRegistry(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.anime,
     singularLabel: 'Anime',
@@ -446,3 +445,9 @@ String _animeAddGroupTitle(CatalogItemDto item) {
   }
   return item.title;
 }
+
+final animeKindWorkspace = TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
+  fields: animeLibraryKindSchema.toRegistry(),
+  projector: const AnimeWorkspaceProjector(),
+  hierarchy: animeKindModule.hierarchy,
+);

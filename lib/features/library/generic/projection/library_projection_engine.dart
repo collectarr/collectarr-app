@@ -44,7 +44,6 @@ class LibraryProjectionEngine {
     Set<String> activeLoanOwnedItemIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
-    final runtime = type;
     final workspace = libraryKindWorkspaceForKind(type.kind);
     final allItems = libraryItemsForShelf(
       shelf,

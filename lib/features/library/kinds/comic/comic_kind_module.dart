@@ -54,6 +54,7 @@ import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_ca
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
@@ -117,8 +118,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
   physicalMediaFormats: comicPhysicalMediaFormats,
   trackingProfile: comicTrackingProfile,
   viewProfile: comicsWorkspaceViewProfile,
-  projector: const ComicWorkspaceProjector(),
-  fields: comicLibraryKindSchema.toRegistry(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.comic,
     singularLabel: 'Comic',
@@ -561,3 +560,9 @@ String? _optionalFilterText(
 ) {
   return _optionalText(context.textValueFor(id));
 }
+
+final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
+  fields: comicLibraryKindSchema.toRegistry(),
+  projector: const ComicWorkspaceProjector(),
+  hierarchy: comicKindModule.hierarchy,
+);

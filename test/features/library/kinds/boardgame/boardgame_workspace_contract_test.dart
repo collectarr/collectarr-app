@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('BoardGame workspace exposes a complete typed schema registry', () {
-    final registry = boardGameKindModule.fields;
+    final registry = boardGameKindWorkspace.fields;
     final fieldIds = registry.fields.map((field) => field.id.value).toList();
     final columnIds =
         registry.columns.map((column) => column.id.value).toList();

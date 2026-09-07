@@ -30,7 +30,7 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -65,7 +65,7 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -93,7 +93,7 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -132,7 +132,7 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -168,7 +168,7 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -212,7 +212,7 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -248,7 +248,7 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -285,7 +285,7 @@ void main() {
       final items = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -334,7 +334,7 @@ void main() {
       final match = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},
@@ -345,7 +345,7 @@ void main() {
       final mismatch = capability.projectReleases(
         source: source,
         type: typeConfig,
-        projector: typeConfig.projector,
+        projector: libraryKindWorkspaceForKind(typeConfig.kind).projector,
         customFieldDefinitions: const [],
         customFieldValuesByDefinitionByItem: const {},
         customFieldValuesByItem: const {},

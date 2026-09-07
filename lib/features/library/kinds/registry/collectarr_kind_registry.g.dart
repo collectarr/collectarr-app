@@ -225,42 +225,15 @@ final List<LibraryKindModule> collectarrKindModules = [
 ];
 
 final Map<CatalogMediaKind, LibraryKindWorkspace> collectarrKindWorkspaces = {
-  CatalogMediaKind.anime: TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
-      fields: animeKindModule.fields,
-      projector: animeKindModule.projector,
-      hierarchy: animeKindModule.hierarchy),
-  CatalogMediaKind.boardgame: TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
-      fields: boardGameKindModule.fields,
-      projector: boardGameKindModule.projector,
-      hierarchy: boardGameKindModule.hierarchy),
-  CatalogMediaKind.book: TypedLibraryKindWorkspace<BookWorkspaceDto>(
-      fields: bookKindModule.fields,
-      projector: bookKindModule.projector,
-      hierarchy: bookKindModule.hierarchy),
-  CatalogMediaKind.comic: TypedLibraryKindWorkspace<ComicWorkspaceDto>(
-      fields: comicKindModule.fields,
-      projector: comicKindModule.projector,
-      hierarchy: comicKindModule.hierarchy),
-  CatalogMediaKind.game: TypedLibraryKindWorkspace<GameWorkspaceDto>(
-      fields: gameKindModule.fields,
-      projector: gameKindModule.projector,
-      hierarchy: gameKindModule.hierarchy),
-  CatalogMediaKind.manga: TypedLibraryKindWorkspace<MangaWorkspaceDto>(
-      fields: mangaKindModule.fields,
-      projector: mangaKindModule.projector,
-      hierarchy: mangaKindModule.hierarchy),
-  CatalogMediaKind.movie: TypedLibraryKindWorkspace<MovieWorkspaceDto>(
-      fields: movieKindModule.fields,
-      projector: movieKindModule.projector,
-      hierarchy: movieKindModule.hierarchy),
-  CatalogMediaKind.music: TypedLibraryKindWorkspace<MusicWorkspaceDto>(
-      fields: musicKindModule.fields,
-      projector: musicKindModule.projector,
-      hierarchy: musicKindModule.hierarchy),
-  CatalogMediaKind.tv: TypedLibraryKindWorkspace<TvWorkspaceDto>(
-      fields: tvKindModule.fields,
-      projector: tvKindModule.projector,
-      hierarchy: tvKindModule.hierarchy),
+  CatalogMediaKind.anime: animeKindWorkspace,
+  CatalogMediaKind.boardgame: boardGameKindWorkspace,
+  CatalogMediaKind.book: bookKindWorkspace,
+  CatalogMediaKind.comic: comicKindWorkspace,
+  CatalogMediaKind.game: gameKindWorkspace,
+  CatalogMediaKind.manga: mangaKindWorkspace,
+  CatalogMediaKind.movie: movieKindWorkspace,
+  CatalogMediaKind.music: musicKindWorkspace,
+  CatalogMediaKind.tv: tvKindWorkspace,
 };
 
 final collectarrKindCalendarContributors =

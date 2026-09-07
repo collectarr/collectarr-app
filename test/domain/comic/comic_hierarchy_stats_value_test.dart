@@ -281,7 +281,7 @@ LibraryProjectionItem<ComicWorkspaceDto> _comicProjection({
     ),
   );
   final titleNode = LibraryTitleNodeRef(titleItemId: id);
-  final dto = comicKindModule.projector.projectTitle(
+  final dto = comicKindWorkspace.projector.projectTitle(
     source: source,
     node: titleNode,
   );

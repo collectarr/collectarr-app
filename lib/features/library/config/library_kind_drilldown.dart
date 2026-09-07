@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 bool canOpenKindDrilldown(
@@ -37,6 +37,6 @@ Widget? buildLibraryKindDrilldown({
     wishlistItems: wishlistItems,
     selectedReleaseId: selectedReleaseId,
     onSelectRelease: onSelectRelease,
-    projector: type.projector,
+    projector: libraryKindWorkspaceForKind(type.kind).projector,
   );
 }

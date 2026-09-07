@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
@@ -75,7 +74,9 @@ class LibraryGroupedShelfView extends StatelessWidget {
     final presentation = groups.first.presentation;
     final showGroupProgress =
         libraryKindWorkspaceForKind(type.kind).groupModeSupportsCompletion(
-      type.fields.decodeGroupId(groups.first.groupMode),
+      libraryKindWorkspaceForKind(type.kind)
+          .fields
+          .decodeGroupId(groups.first.groupMode),
     );
     return switch (presentation) {
       LibraryGroupPresentation.folderGrid =>

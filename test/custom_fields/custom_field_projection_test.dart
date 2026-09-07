@@ -9,13 +9,13 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
-final _comicRuntime = comicKindModule;
+final _comicWorkspace = comicKindWorkspace;
 
 final _defaultViewState = LibraryWorkspaceViewState(
   viewMode: LibraryViewMode.grid,
   detailsLayout: LibraryDetailsLayout.hidden,
   isSidebarVisible: true,
-  sortId: _comicRuntime.fields.decodeSortId('title'),
+  sortId: _comicWorkspace.fields.decodeSortId('title'),
   sortAscending: true,
   coverSize: 128,
   sidebarWidth: 200,

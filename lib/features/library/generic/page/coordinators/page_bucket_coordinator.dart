@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
@@ -56,8 +57,9 @@ class LibraryPageBucketCoordinator {
     String? replacement,
   }) async {
     final runtime = _page.type;
-    final groupId = runtime.fields.decodeGroupId(mode);
-    final groupDefinition = runtime.fields.findGroupDefinition(groupId);
+    final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
+    final groupId = fields.decodeGroupId(mode);
+    final groupDefinition = fields.findGroupDefinition(groupId);
     if (groupDefinition == null || !groupDefinition.supportsBucketManagement) {
       return 0;
     }

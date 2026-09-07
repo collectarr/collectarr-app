@@ -39,6 +39,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 
@@ -81,8 +82,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     LibrarySearchTarget.tracksOnly,
   ],
   trackingProfile: musicTrackingProfile,
-  projector: const MusicWorkspaceProjector(),
-  fields: musicLibraryKindSchema.toRegistry(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.music,
     singularLabel: 'Music',
@@ -334,3 +333,9 @@ String? _optionalMusicText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
+
+final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceDto>(
+  fields: musicLibraryKindSchema.toRegistry(),
+  projector: const MusicWorkspaceProjector(),
+  hierarchy: musicKindModule.hierarchy,
+);

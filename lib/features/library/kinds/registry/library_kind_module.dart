@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
@@ -26,7 +25,6 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 export 'package:collectarr_app/features/library/config/library_kind_identity.dart';
@@ -41,7 +39,6 @@ export 'package:collectarr_app/features/library/config/library_value_capability.
 export 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 export 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
-export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 
 /// Typed capability surface used by generic navigation and orchestration.
@@ -63,9 +60,7 @@ abstract interface class LibraryKindModule {
   LibraryValueCapability? get value;
   LibraryRelationCapability? get relations;
   LibraryUiPolicy get uiPolicy;
-  LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
   LibraryLinkedMetadataCapability get linkedMetadata;
-  LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
   LibraryAddCapability get add;
   LibraryAddChromeConfig get addChrome => add.chrome;
   TitleProjectionCapability<LibraryWorkspaceDto> get titleCapability;
@@ -89,8 +84,6 @@ abstract interface class LibraryKindModule {
 class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
     implements LibraryKindModule {
   const LibraryKindSpec({
-    required this.fields,
-    required this.projector,
     required this.add,
     required this.edit,
     required this.identity,
@@ -164,12 +157,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
   @override
   LibraryWorkspaceViewProfile get viewProfile =>
       _viewProfile ?? plannedMediaWorkspaceViewProfile(this);
-
-  @override
-  final LibraryFieldRegistry<TDto> fields;
-
-  @override
-  final LibraryWorkspaceProjector<TDto> projector;
 
   @override
   final LibraryAddCapability add;

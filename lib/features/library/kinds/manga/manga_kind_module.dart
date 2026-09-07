@@ -34,6 +34,7 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
@@ -167,8 +168,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
   presentation: mangaLibraryMediaPresentation,
   physicalMediaFormats: mangaPhysicalMediaFormats,
   trackingProfile: mangaTrackingProfile,
-  projector: const MangaWorkspaceProjector(),
-  fields: mangaLibraryKindSchema.toRegistry(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.manga,
     singularLabel: 'Manga',
@@ -475,3 +474,9 @@ String? _optionalMangaText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
+
+final mangaKindWorkspace = TypedLibraryKindWorkspace<MangaWorkspaceDto>(
+  fields: mangaLibraryKindSchema.toRegistry(),
+  projector: const MangaWorkspaceProjector(),
+  hierarchy: mangaKindModule.hierarchy,
+);

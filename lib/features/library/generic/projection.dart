@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_folder_tree_builder.dart';
@@ -192,7 +191,8 @@ LibraryGroupDefinition<dynamic, dynamic, Object?>?
   LibraryKindModule? type,
 ]) {
   if (type != null) {
-    return type.fields.findGroupDefinition(type.fields.decodeGroupId(mode));
+    final fields = libraryKindWorkspaceForKind(type.kind).fields;
+    return fields.findGroupDefinition(fields.decodeGroupId(mode));
   }
   return null;
 }
@@ -297,11 +297,12 @@ String? libraryGroupModeFromStorageValue(String value,
       normalized.startsWith('group.') ? normalized.substring(6) : normalized;
 
   if (type != null) {
-    final groupId = type.fields.decodeGroupId(candidate);
+    final fields = libraryKindWorkspaceForKind(type.kind).fields;
+    final groupId = fields.decodeGroupId(candidate);
     if (groupId.semantic != LibraryGroupSemantic.unknown) {
       return groupId.value;
     }
-    return type.fields.findGroupDefinition(groupId)?.id.value;
+    return fields.findGroupDefinition(groupId)?.id.value;
   }
 
   return candidate;
@@ -382,7 +383,7 @@ List<LibraryBucket> libraryBucketsForItems(
   return const LibraryGroupingEngine().buildBuckets(
     items,
     type,
-    runtime.fields.decodeGroupId(groupMode),
+    libraryKindWorkspaceForKind(runtime.kind).fields.decodeGroupId(groupMode),
   );
 }
 
@@ -396,7 +397,7 @@ List<GroupShelfEntry> libraryGroupEntriesForItems(
   return const LibraryGroupingEngine().buildGroupEntries(
     items,
     type,
-    runtime.fields.decodeGroupId(groupMode),
+    libraryKindWorkspaceForKind(runtime.kind).fields.decodeGroupId(groupMode),
     presentationOverride: presentationOverride,
   );
 }
@@ -424,7 +425,9 @@ String genericBucketForItem(
   return const LibraryGroupingEngine().getGroupBucketForItem(
     item,
     type,
-    runtime.fields.decodeGroupId(libraryDefaultGroupMode(type)),
+    libraryKindWorkspaceForKind(runtime.kind)
+        .fields
+        .decodeGroupId(libraryDefaultGroupMode(type)),
   );
 }
 
@@ -436,7 +439,7 @@ String genericBucketForItemMode(
   return genericBucketForItemGroup(
     item,
     type,
-    type.fields.decodeGroupId(groupMode),
+    libraryKindWorkspaceForKind(type.kind).fields.decodeGroupId(groupMode),
   );
 }
 

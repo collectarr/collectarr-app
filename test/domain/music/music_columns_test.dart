@@ -4,46 +4,46 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final musicRuntime = musicKindModule;
+  final musicWorkspace = musicKindWorkspace;
   LibraryFieldIdRuntime field(String value) =>
-      musicRuntime.fields.decodeColumnId(value);
+      musicWorkspace.fields.decodeColumnId(value);
 
   test('music workspace exposes album-specific columns', () {
     expect(
-      plannedMediaTableColumnLabelForType(musicRuntime.fields, field('artist')),
+      plannedMediaTableColumnLabelForType(musicWorkspace.fields, field('artist')),
       'Artist',
     );
     expect(
       plannedMediaTableColumnLabelForType(
-        musicRuntime.fields,
+        musicWorkspace.fields,
         field('front_cover'),
       ),
       'Front Cover',
     );
     expect(
       plannedMediaTableColumnLabelForType(
-        musicRuntime.fields,
+        musicWorkspace.fields,
         field('back_cover'),
       ),
       'Back Cover',
     );
     expect(
         plannedMediaTableColumnLabelForType(
-            musicRuntime.fields, field('album')),
+            musicWorkspace.fields, field('album')),
         'Album');
     expect(
       plannedMediaTableColumnLabelForType(
-        musicRuntime.fields,
+        musicWorkspace.fields,
         field('catalog_number'),
       ),
       'Catalog Number',
     );
     expect(
         plannedMediaTableColumnLabelForType(
-            musicRuntime.fields, field('disc_count')),
+            musicWorkspace.fields, field('disc_count')),
         'Disc Count');
     expect(
-      musicRuntime.fields.defaultVisibleColumns.map((column) => column.value),
+      musicWorkspace.fields.defaultVisibleColumns.map((column) => column.value),
       containsAll([
         'music.artist',
         'music.title',

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -259,9 +259,13 @@ class _LibraryGroupModeMenuButtonState
       for (final preset in widget.pinnedFolderPresets)
         if (preset.modes.every((m) =>
             modes.contains(m) ||
-            widget.type.fields.findGroupDefinition(
-                  widget.type.fields.decodeGroupId(m),
-                ) !=
+            libraryKindWorkspaceForKind(widget.type.kind)
+                    .fields
+                    .findGroupDefinition(
+                      libraryKindWorkspaceForKind(widget.type.kind)
+                          .fields
+                          .decodeGroupId(m),
+                    ) !=
                 null))
           genericFolderPresetLabel(preset, widget.type),
     ];
@@ -328,7 +332,7 @@ class _LibraryGroupModeDropdownMenuState
   }
 
   bool _isModeMatching(String m1, String m2) {
-    final fields = widget.type.fields;
+    final fields = libraryKindWorkspaceForKind(widget.type.kind).fields;
     return fields.decodeGroupId(m1).sameIdentityAs(fields.decodeGroupId(m2));
   }
 
@@ -370,9 +374,13 @@ class _LibraryGroupModeDropdownMenuState
       for (final preset in _pinnedPresets)
         if (preset.modes.every((m) =>
             widget.availableModes.contains(m) ||
-            widget.type.fields.findGroupDefinition(
-                  widget.type.fields.decodeGroupId(m),
-                ) !=
+            libraryKindWorkspaceForKind(widget.type.kind)
+                    .fields
+                    .findGroupDefinition(
+                      libraryKindWorkspaceForKind(widget.type.kind)
+                          .fields
+                          .decodeGroupId(m),
+                    ) !=
                 null))
           preset,
     ];

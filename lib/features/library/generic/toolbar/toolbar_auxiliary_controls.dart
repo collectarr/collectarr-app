@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -892,10 +892,8 @@ String _sortFavoriteSummary(
 }
 
 String _sortColumnLabel(LibraryKindModule type, String column) {
-  final module = type;
-  return module.fields
-          .findSortDefinition(module.fields.decodeSortId(column))
-          ?.label ??
+  final fields = libraryKindWorkspaceForKind(type.kind).fields;
+  return fields.findSortDefinition(fields.decodeSortId(column))?.label ??
       column;
 }
 

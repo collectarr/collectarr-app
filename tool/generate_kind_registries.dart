@@ -656,10 +656,7 @@ import 'package:go_router/go_router.dart';
   for (final descriptor in descriptors) {
     buffer.writeln(
       '  CatalogMediaKind.${descriptor.folder}: '
-      'TypedLibraryKindWorkspace<${descriptor.workspaceDtoType}>('
-      'fields: ${descriptor.moduleName}.fields, '
-      'projector: ${descriptor.moduleName}.projector, '
-      'hierarchy: ${descriptor.moduleName}.hierarchy),',
+      '${descriptor.moduleName.replaceFirst('KindModule', 'KindWorkspace')},',
     );
   }
   buffer.writeln('};');

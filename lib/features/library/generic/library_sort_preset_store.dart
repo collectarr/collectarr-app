@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -94,15 +94,15 @@ class LibrarySortPresetStore {
   }
 
   Map<String, dynamic> _presetToJson(LibrarySortPreset preset) {
-    final module = config;
+    final fields = libraryKindWorkspaceForKind(config.kind).fields;
     return {
       'id': preset.id,
       'label': preset.label,
       'rules': [
         for (final rule in _dedupeRules(preset.rules))
           {
-            'column': module.fields
-                    .findSortDefinition(module.fields.decodeSortId(rule.column))
+            'column': fields
+                    .findSortDefinition(fields.decodeSortId(rule.column))
                     ?.id
                     .value ??
                 rule.column.toString(),
@@ -116,7 +116,7 @@ class LibrarySortPresetStore {
     if (rawRules is! List) {
       return const [];
     }
-    final module = config;
+    final fields = libraryKindWorkspaceForKind(config.kind).fields;
     final rules = <LibrarySortRule>[];
     for (final value in rawRules) {
       final json = switch (value) {
@@ -129,8 +129,8 @@ class LibrarySortPresetStore {
       }
       final columnName = json['column']?.toString();
       if (columnName == null) continue;
-      final sortDef = module.fields.findSortDefinition(
-        module.fields.decodeSortId(columnName),
+      final sortDef = fields.findSortDefinition(
+        fields.decodeSortId(columnName),
       );
       if (sortDef == null) {
         continue;
@@ -146,12 +146,12 @@ class LibrarySortPresetStore {
   }
 
   List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
-    final module = config;
+    final fields = libraryKindWorkspaceForKind(config.kind).fields;
     final seen = <String>{};
     final deduped = <LibrarySortRule>[];
     for (final rule in rules) {
-      final sortDef = module.fields.findSortDefinition(
-        module.fields.decodeSortId(rule.column),
+      final sortDef = fields.findSortDefinition(
+        fields.decodeSortId(rule.column),
       );
       if (sortDef == null) {
         continue;

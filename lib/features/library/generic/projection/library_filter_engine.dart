@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -104,7 +105,7 @@ class LibraryFilterEngine {
     LibraryKindModule type,
     LibraryProjectionQuery query,
   ) {
-    final fields = type.fields;
+    final fields = libraryKindWorkspaceForKind(type.kind).fields;
     return query.groupId ?? fields.defaultGroup ?? fields.groups.first.id;
   }
 

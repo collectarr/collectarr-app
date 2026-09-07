@@ -38,13 +38,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 LibraryFieldIdRuntime _field(LibraryKindModule runtime, String value) =>
-    runtime.fields.decodeColumnId(value);
+    libraryKindWorkspaceForKind(runtime.kind).fields.decodeColumnId(value);
 
 LibrarySortIdRuntime _sort(LibraryKindModule runtime, String value) =>
-    runtime.fields.decodeSortId(value);
+    libraryKindWorkspaceForKind(runtime.kind).fields.decodeSortId(value);
 
 LibraryGroupIdRuntime _group(LibraryKindModule runtime, String value) =>
-    runtime.fields.decodeGroupId(value);
+    libraryKindWorkspaceForKind(runtime.kind).fields.decodeGroupId(value);
 
 void main() {
   test('comic runtime groups reusable media behavior', () {
@@ -354,7 +354,7 @@ void main() {
       isNotEmpty,
     );
     expect(
-      boardGameKindModule.fields.sorts.map((d) => d.id.value),
+      boardGameKindWorkspace.fields.sorts.map((d) => d.id.value),
       contains('boardgame.title'),
     );
   });

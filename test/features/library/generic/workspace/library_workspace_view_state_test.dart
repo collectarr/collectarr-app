@@ -8,9 +8,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   final runtime = comicKindModule;
+  final workspace = comicKindWorkspace;
   LibraryFieldIdRuntime field(String value) =>
-      runtime.fields.decodeColumnId(value);
-  LibrarySortIdRuntime sort(String value) => runtime.fields.decodeSortId(value);
+      workspace.fields.decodeColumnId(value);
+  LibrarySortIdRuntime sort(String value) => workspace.fields.decodeSortId(value);
 
   final profile = LibraryWorkspaceViewProfile(
     runtimeResolver: () => runtime,
@@ -57,7 +58,7 @@ void main() {
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
     expect(defaults.detailsHeight, 300);
-    expect(defaults.visibleColumnIds, runtime.fields.defaultVisibleColumns);
+    expect(defaults.visibleColumnIds, workspace.fields.defaultVisibleColumns);
 
     final list = defaults.withPreset(LibraryWorkspacePreset.list, profile);
     expect(list.viewMode, LibraryViewMode.list);

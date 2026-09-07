@@ -36,6 +36,7 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.da
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -172,8 +173,6 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
   presentation: bookLibraryMediaPresentation,
   physicalMediaFormats: bookPhysicalMediaFormats,
   trackingProfile: bookTrackingProfile,
-  projector: const BookWorkspaceProjector(),
-  fields: bookLibraryKindSchema.toRegistry(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.book,
     singularLabel: 'Book',
@@ -472,3 +471,9 @@ String? _optionalBookText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
+
+final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
+  fields: bookLibraryKindSchema.toRegistry(),
+  projector: const BookWorkspaceProjector(),
+  hierarchy: bookKindModule.hierarchy,
+);

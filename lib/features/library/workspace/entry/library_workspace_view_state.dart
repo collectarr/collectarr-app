@@ -2,7 +2,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 class LibraryWorkspaceViewPresetConfig {
@@ -76,6 +77,7 @@ class LibraryWorkspaceViewProfile {
     // first frame renders with the user's last-known cover size, avoiding a
     // visible pop-in when the async load completes.
     final runtime = runtimeResolver();
+    final workspace = libraryKindWorkspaceForKind(runtime.kind);
     final cached = LibraryWorkspacePreferences.cachedSnapshot(runtime);
     if (cached != null) {
       return fromPreferences(cached)
@@ -86,14 +88,14 @@ class LibraryWorkspaceViewProfile {
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
-      sortId: runtime.fields.defaultSort,
+      sortId: workspace.fields.defaultSort,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
       densityPreset: runtime.identity.defaultDensityPreset,
-      visibleColumnIds: runtime.fields.defaultVisibleColumns,
+      visibleColumnIds: workspace.fields.defaultVisibleColumns,
       columnWidths: const {},
     );
     return defaults
@@ -104,27 +106,29 @@ class LibraryWorkspaceViewProfile {
     LibraryWorkspacePreferenceSnapshot preferences,
   ) {
     final runtime = runtimeResolver();
+    final workspace = libraryKindWorkspaceForKind(runtime.kind);
     return LibraryWorkspaceViewState(
       browserMode: preferences.browserMode,
       viewMode: preferences.viewMode,
       detailsLayout: preferences.detailsLayout,
       isSidebarVisible: preferences.isSidebarVisible,
-      sortId: runtime.fields
+      sortId: workspace.fields
               .findSortDefinition(
-                runtime.fields.decodeSortId(preferences.sortColumn),
+                workspace.fields.decodeSortId(preferences.sortColumn),
               )
               ?.id ??
-          runtime.fields.defaultSort,
+          workspace.fields.defaultSort,
       sortAscending: preferences.sortAscending,
-      sortRules: _decodeSortRules(runtime, preferences.sortRules),
+      sortRules: _decodeSortRules(workspace, preferences.sortRules),
       coverSize: preferences.coverSize,
       sidebarWidth: preferences.sidebarWidth,
       detailsWidth: preferences.detailsWidth,
       detailsHeight: preferences.detailsHeight,
       densityPreset: preferences.densityPreset,
       visibleColumnIds:
-          _decodeVisibleColumns(runtime, preferences.visibleColumns),
-      columnWidths: _decodeColumnWidths(runtime, preferences.columnWidths).map(
+          _decodeVisibleColumns(workspace, preferences.visibleColumns),
+      columnWidths:
+          _decodeColumnWidths(workspace, preferences.columnWidths).map(
         (column, width) => MapEntry(column, clampColumnWidth(column, width)),
       ),
     );
@@ -160,11 +164,17 @@ class LibraryWorkspaceViewProfile {
   List<LibrarySortRuleRuntime> decodeSortRules(
     Iterable<LibrarySortRule> rules,
   ) {
-    return _decodeSortRules(runtimeResolver(), rules);
+    return _decodeSortRules(
+      libraryKindWorkspaceForKind(runtimeResolver().kind),
+      rules,
+    );
   }
 
   Set<LibraryFieldIdRuntime> decodeColumnIds(Iterable<String> columns) {
-    return _decodeVisibleColumns(runtimeResolver(), columns);
+    return _decodeVisibleColumns(
+      libraryKindWorkspaceForKind(runtimeResolver().kind),
+      columns,
+    );
   }
 }
 
@@ -419,7 +429,7 @@ List<LibrarySortRuleRuntime> _normalizedSortRules(
 }
 
 List<LibrarySortRuleRuntime> _decodeSortRules(
-  LibraryKindModule module,
+  LibraryKindWorkspace workspace,
   Iterable<LibrarySortRule>? rules,
 ) {
   if (rules == null) {
@@ -427,8 +437,8 @@ List<LibrarySortRuleRuntime> _decodeSortRules(
   }
   return [
     for (final rule in rules)
-      if (module.fields.findSortDefinition(
-        module.fields.decodeSortId(rule.column),
+      if (workspace.fields.findSortDefinition(
+        workspace.fields.decodeSortId(rule.column),
       )
           case final definition?)
         LibrarySortRuleRuntime(
@@ -439,29 +449,29 @@ List<LibrarySortRuleRuntime> _decodeSortRules(
 }
 
 Set<LibraryFieldIdRuntime> _decodeVisibleColumns(
-  LibraryKindModule module,
+  LibraryKindWorkspace workspace,
   Iterable<String> columns,
 ) {
   final decoded = <LibraryFieldIdRuntime>{};
   for (final column in columns) {
-    final definition = module.fields.findColumnDefinition(
-      module.fields.decodeColumnId(column),
+    final definition = workspace.fields.findColumnDefinition(
+      workspace.fields.decodeColumnId(column),
     );
     if (definition != null) {
       decoded.add(definition.id);
     }
   }
-  return decoded.isEmpty ? module.fields.defaultVisibleColumns : decoded;
+  return decoded.isEmpty ? workspace.fields.defaultVisibleColumns : decoded;
 }
 
 Map<LibraryFieldIdRuntime, double> _decodeColumnWidths(
-  LibraryKindModule module,
+  LibraryKindWorkspace workspace,
   Map<String, double> widths,
 ) {
   final decoded = <LibraryFieldIdRuntime, double>{};
   for (final entry in widths.entries) {
-    final definition = module.fields.findColumnDefinition(
-      module.fields.decodeColumnId(entry.key),
+    final definition = workspace.fields.findColumnDefinition(
+      workspace.fields.decodeColumnId(entry.key),
     );
     if (definition != null) {
       decoded[definition.id] = entry.value;

@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -29,6 +30,7 @@ void main() {
       name: 'Comic',
       kind: CatalogMediaKind.comic,
       spec: comicKindModule,
+      workspace: comicKindWorkspace,
       contractFiles: const [
         'test/domain/comic/comic_core_mapper_test.dart',
         'test/domain/comic/comic_repository_test.dart',
@@ -42,6 +44,7 @@ void main() {
       name: 'Manga',
       kind: CatalogMediaKind.manga,
       spec: mangaKindModule,
+      workspace: mangaKindWorkspace,
       contractFiles: const [
         'test/domain/manga/manga_core_mapper_test.dart',
         'test/domain/manga/manga_repository_test.dart',
@@ -54,6 +57,7 @@ void main() {
       name: 'Book',
       kind: CatalogMediaKind.book,
       spec: bookKindModule,
+      workspace: bookKindWorkspace,
       contractFiles: const [
         'test/domain/book/book_core_mapper_test.dart',
         'test/domain/book/book_repository_test.dart',
@@ -67,6 +71,7 @@ void main() {
       name: 'Game',
       kind: CatalogMediaKind.game,
       spec: gameKindModule,
+      workspace: gameKindWorkspace,
       contractFiles: const [
         'test/domain/game/game_core_mapper_test.dart',
         'test/domain/game/game_repository_test.dart',
@@ -80,6 +85,7 @@ void main() {
       name: 'BoardGame',
       kind: CatalogMediaKind.boardgame,
       spec: boardGameKindModule,
+      workspace: boardGameKindWorkspace,
       contractFiles: const [
         'test/domain/boardgame/boardgame_core_mapper_test.dart',
         'test/domain/boardgame/boardgame_repository_test.dart',
@@ -92,6 +98,7 @@ void main() {
       name: 'Movie',
       kind: CatalogMediaKind.movie,
       spec: movieKindModule,
+      workspace: movieKindWorkspace,
       contractFiles: const [
         'test/domain/movie/movie_core_mapper_test.dart',
         'test/domain/movie/movie_repository_test.dart',
@@ -105,6 +112,7 @@ void main() {
       name: 'TV',
       kind: CatalogMediaKind.tv,
       spec: tvKindModule,
+      workspace: tvKindWorkspace,
       contractFiles: const [
         'test/domain/tv/tv_domain_mapper_test.dart',
         'test/domain/tv/tv_local_mapper_repository_test.dart',
@@ -117,6 +125,7 @@ void main() {
       name: 'Anime',
       kind: CatalogMediaKind.anime,
       spec: animeKindModule,
+      workspace: animeKindWorkspace,
       contractFiles: const [
         'test/domain/anime/anime_core_mapper_test.dart',
         'test/domain/anime/anime_local_mapper_repository_test.dart',
@@ -129,6 +138,7 @@ void main() {
       name: 'Music',
       kind: CatalogMediaKind.music,
       spec: musicKindModule,
+      workspace: musicKindWorkspace,
       contractFiles: const [
         'test/domain/music/music_core_mapper_test.dart',
         'test/domain/music/music_local_mapper_repository_test.dart',
@@ -143,10 +153,11 @@ void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   required String name,
   required CatalogMediaKind kind,
   required LibraryKindSpec<TDto> spec,
+  required LibraryKindWorkspace workspace,
   required List<String> contractFiles,
 }) {
-  final fields = spec.fields;
-  final projector = spec.projector;
+  final fields = workspace.fields;
+  final projector = workspace.projector;
 
   expect(spec.identity.kind, kind, reason: '$name identity must be typed');
   expect(fields.kindNamespace, kind.apiValue);

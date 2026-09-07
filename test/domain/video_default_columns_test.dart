@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('video list defaults stay media-focused', () {
-    for (final runtime in [movieKindModule]) {
-      final defaultVisibleColumnIds = runtime.fields.defaultVisibleColumns
+    for (final workspace in [movieKindWorkspace]) {
+      final defaultVisibleColumnIds = workspace.fields.defaultVisibleColumns
           .map((column) => column.value)
           .toSet();
       expect(

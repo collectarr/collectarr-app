@@ -34,13 +34,13 @@ void main() {
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
       isSidebarVisible: true,
-      sortId: bookModule.fields.defaultSort,
+      sortId: bookKindWorkspace.fields.defaultSort,
       sortAscending: true,
       coverSize: 180,
       sidebarWidth: 320,
       detailsWidth: 420,
       detailsHeight: 260,
-      visibleColumnIds: bookModule.fields.defaultVisibleColumns,
+      visibleColumnIds: bookKindWorkspace.fields.defaultVisibleColumns,
       columnWidths: const {},
     );
 

@@ -59,8 +59,8 @@ void main() {
       final groupVal = comicWorkspace.groupValue(item, ComicGroupIds.series);
       expect(groupVal, isA<String?>());
       expect(
-        comicModule.fields.findGroupDefinition(
-          comicModule.fields.decodeGroupId('comic.series'),
+        comicWorkspace.fields.findGroupDefinition(
+          comicWorkspace.fields.decodeGroupId('comic.series'),
         ),
         isNotNull,
       );
@@ -107,8 +107,9 @@ void main() {
           .where((k) => k != CatalogMediaKind.unknown)) {
         final runtime = libraryKindModuleForKind(kind);
         expect(runtime.kind, kind);
-        expect(runtime.fields, isNotNull);
-        expect(runtime.projector, isNotNull);
+        final workspace = libraryKindWorkspaceForKind(kind);
+        expect(workspace.fields, isNotNull);
+        expect(workspace.projector, isNotNull);
       }
     });
   });

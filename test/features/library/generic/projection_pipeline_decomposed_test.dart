@@ -93,7 +93,7 @@ void main() {
       );
 
       final node = LibraryTitleNodeRef(titleItemId: id);
-      final dto = comicModule.projector.projectTitle(
+      final dto = comicKindWorkspace.projector.projectTitle(
         source: shelf,
         node: node,
       );
@@ -147,8 +147,8 @@ void main() {
       );
 
       expect(index.extractorCallCount, 0);
-      final publisherGroup = comicModule.fields.decodeGroupId('publisher');
-      final seriesGroup = comicModule.fields.decodeGroupId('series');
+      final publisherGroup = comicKindWorkspace.fields.decodeGroupId('publisher');
+      final seriesGroup = comicKindWorkspace.fields.decodeGroupId('series');
 
       final bucket1 = index.getGroupBucket(
         item,
@@ -216,7 +216,7 @@ void main() {
       final buckets = groupingEngine.buildBuckets(
         items,
         comicType,
-        comicModule.fields.decodeGroupId('series'),
+        comicKindWorkspace.fields.decodeGroupId('series'),
       );
       expect(buckets.isNotEmpty, isTrue);
 
@@ -354,7 +354,7 @@ void main() {
           viewMode: LibraryViewMode.grid,
           detailsLayout: LibraryDetailsLayout.hidden,
           isSidebarVisible: true,
-          sortId: comicModule.fields.decodeSortId('title'),
+          sortId: comicKindWorkspace.fields.decodeSortId('title'),
           sortAscending: true,
           coverSize: 128,
           sidebarWidth: 200,
@@ -365,7 +365,7 @@ void main() {
         ),
         query: LibraryProjectionQuery(
           searchQuery: 'Spider',
-          groupId: comicModule.fields.decodeGroupId('publisher'),
+        groupId: comicKindWorkspace.fields.decodeGroupId('publisher'),
         ),
       );
 

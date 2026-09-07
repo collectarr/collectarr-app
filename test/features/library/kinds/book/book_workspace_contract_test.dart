@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Book workspace exposes a complete typed schema registry', () {
-    final registry = bookKindModule.fields;
+    final registry = bookKindWorkspace.fields;
     final fieldIds = registry.fields.map((field) => field.id.value).toList();
     final columnIds =
         registry.columns.map((column) => column.id.value).toList();

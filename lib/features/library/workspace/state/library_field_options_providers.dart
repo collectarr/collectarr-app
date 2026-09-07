@@ -54,9 +54,9 @@ class LibraryColumnOption {
 final libraryAvailableSortsProvider =
     Provider.family<List<LibrarySortOption>, LibraryWorkspaceKey>(
   (ref, LibraryWorkspaceKey key) {
-    final module = libraryKindModuleForKind(key.kind);
+    final workspace = libraryKindWorkspaceForKind(key.kind);
     return [
-      for (final def in module.fields.sorts)
+      for (final def in workspace.fields.sorts)
         LibrarySortOption(
           id: def.id.value,
           label: def.label,
@@ -72,9 +72,9 @@ final libraryAvailableSortsProvider =
 final libraryAvailableGroupsProvider =
     Provider.family<List<LibraryGroupOption>, LibraryWorkspaceKey>(
   (ref, LibraryWorkspaceKey key) {
-    final module = libraryKindModuleForKind(key.kind);
+    final workspace = libraryKindWorkspaceForKind(key.kind);
     return [
-      for (final def in module.fields.groups)
+      for (final def in workspace.fields.groups)
         LibraryGroupOption(
           id: def.id.value,
           label: def.label,
@@ -88,9 +88,9 @@ final libraryAvailableGroupsProvider =
 final libraryAvailableColumnsProvider =
     Provider.family<List<LibraryColumnOption>, LibraryWorkspaceKey>(
   (ref, LibraryWorkspaceKey key) {
-    final module = libraryKindModuleForKind(key.kind);
+    final workspace = libraryKindWorkspaceForKind(key.kind);
     return [
-      for (final def in module.fields.columns)
+      for (final def in workspace.fields.columns)
         LibraryColumnOption(
           id: def.id.value,
           label: def.label,

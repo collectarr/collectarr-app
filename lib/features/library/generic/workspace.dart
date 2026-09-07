@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/empty_state.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
@@ -106,7 +105,10 @@ class LibraryWorkspace extends ConsumerWidget {
       viewState.viewMode != LibraryViewMode.shelves &&
       selectedBucket == null &&
       (() {
-        final semantic = type.fields.decodeGroupId(groupMode).semantic;
+        final semantic = libraryKindWorkspaceForKind(type.kind)
+            .fields
+            .decodeGroupId(groupMode)
+            .semantic;
         return semantic != LibraryGroupSemantic.title &&
             semantic != LibraryGroupSemantic.ownership;
       })();
@@ -385,20 +387,20 @@ class LibraryWorkspace extends ConsumerWidget {
                       ),
                   ],
                   columnWidthFor: (column) => workspace.tableColumnWidth(
-                    runtime.fields.decodeColumnId(column),
+                    workspace.fields.decodeColumnId(column),
                     viewState.columnWidths,
                   ),
                   defaultColumnWidthFor: (column) =>
                       workspace.defaultTableColumnWidth(
-                    runtime.fields.decodeColumnId(column),
+                    workspace.fields.decodeColumnId(column),
                   ),
                   columnSortFor: (column) => workspace
-                      .columnSort(runtime.fields.decodeColumnId(column))
+                      .columnSort(workspace.fields.decodeColumnId(column))
                       ?.value,
                   columnLabelFor: (column) => workspace
-                      .columnLabel(runtime.fields.decodeColumnId(column)),
+                      .columnLabel(workspace.fields.decodeColumnId(column)),
                   columnIsNumeric: (column) => workspace.columnIsNumeric(
-                    runtime.fields.decodeColumnId(column),
+                    workspace.fields.decodeColumnId(column),
                   ),
                   cellBuilder: (entry, column) => _tableCell(entry, column),
                   isSelected: _isHighlighted,
@@ -496,7 +498,7 @@ class LibraryWorkspace extends ConsumerWidget {
     final runtime = type;
     return libraryKindWorkspaceForKind(runtime.kind).buildTableCell(
       item,
-      runtime.fields.decodeColumnId(column),
+      libraryKindWorkspaceForKind(runtime.kind).fields.decodeColumnId(column),
     );
   }
 }

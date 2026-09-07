@@ -5,11 +5,11 @@ void main() {
   test(
       'every book defaultVisibleColumnId resolves exactly to a column definition',
       () {
-    final registry = bookKindModule.fields;
+    final registry = bookKindWorkspace.fields;
     final columnIds =
-        bookKindModule.fields.columns.map((c) => c.id.value).toSet();
+        bookKindWorkspace.fields.columns.map((c) => c.id.value).toSet();
 
-    for (final defaultId in bookKindModule.fields.defaultVisibleColumns) {
+    for (final defaultId in bookKindWorkspace.fields.defaultVisibleColumns) {
       final definition = registry.columnDefinitionForId(defaultId);
       expect(
         definition,

@@ -35,6 +35,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit_presentation_bui
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_facet_definitions.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 
@@ -68,8 +69,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   presentation: gamesLibraryMediaPresentation,
   physicalMediaFormats: gamePhysicalMediaFormats,
   trackingProfile: gameTrackingProfile,
-  projector: const GameWorkspaceProjector(),
-  fields: gameLibraryKindSchema.toRegistry(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.game,
     singularLabel: 'Game',
@@ -294,3 +293,9 @@ String? _optionalGameText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
+
+final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
+  fields: gameLibraryKindSchema.toRegistry(),
+  projector: const GameWorkspaceProjector(),
+  hierarchy: gameKindModule.hierarchy,
+);

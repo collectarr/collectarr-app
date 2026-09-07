@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('book presentation exposes typed field definitions', () {
-    expect(bookKindModule.fields.fields, bookLibraryFieldDefinitions);
+    expect(bookKindWorkspace.fields.fields, bookLibraryFieldDefinitions);
     expect(bookLibraryFieldDefinitions, isNotEmpty);
     expect(bookLibraryFieldDefinitions.first.id.value, 'book.title');
   });

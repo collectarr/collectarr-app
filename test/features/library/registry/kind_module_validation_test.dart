@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,21 +12,21 @@ void main() {
   group('Kind Module Validation & Namespacing (Tasks 8 & 9)', () {
     test('all registered kind modules declare mandatory projector', () {
       for (final module in collectarrKindModules) {
-        expect(module.projector, isNotNull);
+        expect(libraryKindWorkspaceForKind(module.kind).projector, isNotNull);
       }
     });
 
     test(
         'field IDs across different kinds are distinctly namespaced (no collision)',
         () {
-      final movieModule = libraryKindModuleForKind(CatalogMediaKind.movie);
-      final gameModule = libraryKindModuleForKind(CatalogMediaKind.game);
+      final movieWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.movie);
+      final gameWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.game);
 
-      final movieReleaseSort = movieModule.fields.sortDefinitionForId(
-        movieModule.fields.decodeSortId('movie.release_date'),
+      final movieReleaseSort = movieWorkspace.fields.sortDefinitionForId(
+        movieWorkspace.fields.decodeSortId('movie.release_date'),
       );
-      final gameReleaseSort = gameModule.fields.sortDefinitionForId(
-        gameModule.fields.decodeSortId('game.release_date'),
+      final gameReleaseSort = gameWorkspace.fields.sortDefinitionForId(
+        gameWorkspace.fields.decodeSortId('game.release_date'),
       );
 
       expect(movieReleaseSort, isNotNull);

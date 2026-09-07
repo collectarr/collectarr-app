@@ -892,7 +892,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @protected
   bool supportsBucketManagement(String mode) {
-    final fields = widget.type.fields;
+    final fields = libraryKindWorkspaceForKind(widget.type.kind).fields;
     final groupDef = fields.findGroupDefinition(fields.decodeGroupId(mode));
     return groupDef?.supportsBucketManagement ?? false;
   }

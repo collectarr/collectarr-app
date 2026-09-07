@@ -32,8 +32,9 @@ CatalogItemDto _mutateGroup(
   String? replacement,
 }) {
   final runtime = libraryKindModuleForKind(kind);
-  final definition = runtime.fields.findGroupDefinition(
-    runtime.fields.decodeGroupId(mode),
+  final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
+  final definition = fields.findGroupDefinition(
+    fields.decodeGroupId(mode),
   );
   expect(definition, isNotNull);
   final updated = definition!.bucketValueMutator?.call(

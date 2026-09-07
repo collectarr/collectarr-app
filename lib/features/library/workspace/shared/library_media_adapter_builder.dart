@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -26,13 +25,14 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
     coverGridHeightFactor: coverGridHeightFactor,
     presetConfig: (preset) => plannedMediaViewPresetConfig(type, preset),
     clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
-      type.fields,
+      libraryKindWorkspaceForKind(type.kind).fields,
       column,
       width,
     ),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: (column) =>
-        type.fields
+        libraryKindWorkspaceForKind(type.kind)
+            .fields
             .findSortDefinition(
               column,
             )
@@ -45,7 +45,8 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   LibraryKindModule type,
   LibraryWorkspacePreset preset,
 ) {
-  final defaultCols = type.fields.defaultVisibleColumns;
+  final defaultCols =
+      libraryKindWorkspaceForKind(type.kind).fields.defaultVisibleColumns;
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,

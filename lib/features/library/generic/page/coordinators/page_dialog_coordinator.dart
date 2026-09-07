@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/dialogs/batch_loan_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
@@ -186,7 +187,9 @@ class LibraryPageDialogCoordinator {
             );
           } else if (result.sortColumn != null) {
             _page.viewState = viewState.copyWith(
-              sortId: runtime.fields.decodeSortId(result.sortColumn!),
+              sortId: libraryKindWorkspaceForKind(runtime.kind)
+                  .fields
+                  .decodeSortId(result.sortColumn!),
               sortAscending: result.sortAscending ?? true,
             );
           }
@@ -214,7 +217,7 @@ class LibraryPageDialogCoordinator {
       ],
       defaultAscendingForColumn: (column) =>
           _page.viewProfile.initialSortAscending(
-        runtime.fields.decodeSortId(column),
+        libraryKindWorkspaceForKind(runtime.kind).fields.decodeSortId(column),
       ),
       availableColumns: _page.scopeAvailableSortColumns,
     );

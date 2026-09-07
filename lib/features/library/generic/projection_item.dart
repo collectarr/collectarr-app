@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -29,10 +29,10 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
   }) {
     final item = source.catalogItem!;
     final node = LibraryTitleNodeRef(titleItemId: item.id);
-    final dto = type.projector.projectTitle(
-      source: source,
-      node: node,
-    );
+    final dto = libraryKindWorkspaceForKind(type.kind).projector.projectTitle(
+          source: source,
+          node: node,
+        );
     return LibraryProjectionItem<LibraryWorkspaceDto>(
       source: source,
       node: node,
@@ -82,6 +82,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   String? releaseFolderTitleItemId,
 }) {
   final kind = type.kind;
+  final workspace = libraryKindWorkspaceForKind(kind);
   if (browserMode == LibraryWorkspaceBrowserMode.releases) {
     final releaseCap = type.releaseCapability;
     if (releaseCap == null) {
@@ -96,7 +97,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
           ...releaseCap.projectReleases(
             source: source,
             type: type,
-            projector: type.projector,
+            projector: workspace.projector,
             customFieldDefinitions: customFieldDefinitions,
             customFieldValuesByDefinitionByItem:
                 customFieldValuesByDefinitionByItem,
@@ -112,7 +113,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
         type.titleCapability.projectTitle(
           source: source,
           node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),
-          projector: type.projector,
+          projector: workspace.projector,
           customFieldBadges: customFieldBadgesForNode(
             source: source,
             node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),

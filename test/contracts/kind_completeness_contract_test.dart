@@ -23,6 +23,7 @@ void main() {
         () {
       for (final kind in activeKinds) {
         final runtime = libraryKindModuleForKind(kind);
+        final workspace = libraryKindWorkspaceForKind(kind);
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
 
@@ -57,19 +58,19 @@ void main() {
             reason: '$kind defaultOwnedDetailsDraft must not be null');
 
         // Fields & Schema
-        expect(runtime.fields, isNotNull,
+        expect(workspace.fields, isNotNull,
             reason: '$kind must have a field registry');
-        expect(runtime.fields.kindNamespace, equals(kind.apiValue),
+        expect(workspace.fields.kindNamespace, equals(kind.apiValue),
             reason: '$kind field registry namespace must match kind');
-        expect(runtime.fields.columns.isNotEmpty, isTrue,
+        expect(workspace.fields.columns.isNotEmpty, isTrue,
             reason: '$kind field registry must declare columns');
-        expect(runtime.fields.sorts.isNotEmpty, isTrue,
+        expect(workspace.fields.sorts.isNotEmpty, isTrue,
             reason: '$kind field registry must declare sorts');
-        expect(runtime.fields.groups.isNotEmpty, isTrue,
+        expect(workspace.fields.groups.isNotEmpty, isTrue,
             reason: '$kind field registry must declare groups');
 
         // Projector
-        expect(runtime.projector, isNotNull,
+        expect(workspace.projector, isNotNull,
             reason: '$kind must have a workspace projector');
 
         // View Profile, Hierarchy, Metadata, Inspector, Transfer
@@ -185,7 +186,8 @@ void main() {
         () {
       for (final kind in activeKinds) {
         final runtime = libraryKindModuleForKind(kind);
-        for (final field in runtime.fields.fields) {
+        final workspace = libraryKindWorkspaceForKind(kind);
+        for (final field in workspace.fields.fields) {
           final id = field.id.value.toLowerCase();
 
           // 1. Copy / Personal fields

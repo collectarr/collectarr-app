@@ -9,8 +9,9 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       return false;
     }
     final runtime = state.widget.type;
-    final groupDef = runtime.fields.findGroupDefinition(
-      runtime.fields.decodeGroupId(state._activeGroupMode),
+    final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
+    final groupDef = fields.findGroupDefinition(
+      fields.decodeGroupId(state._activeGroupMode),
     );
     if (groupDef == null || !groupDef.supportsJump) {
       return false;

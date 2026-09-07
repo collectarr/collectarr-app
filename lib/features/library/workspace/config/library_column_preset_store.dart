@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,15 +46,16 @@ class LibraryColumnPresetStore {
         ? '${_slug(normalizedLabel)}-${DateTime.now().microsecondsSinceEpoch}'
         : existing[existingIndex].id ??
             '${_slug(normalizedLabel)}-${DateTime.now().microsecondsSinceEpoch}';
+    final fields = libraryKindWorkspaceForKind(config.kind).fields;
     final nextPreset = LibraryTableColumnPreset(
       id: nextId,
       label: normalizedLabel,
       columns: {
         for (final column in columns)
           if (_columnById(column) != null) _columnById(column)!,
-        if (config.fields.findColumnDefinition(
-              config.fields.decodeColumnId(
-                '${config.fields.kindNamespace}.title',
+        if (fields.findColumnDefinition(
+              fields.decodeColumnId(
+                '${fields.kindNamespace}.title',
               ),
             ) !=
             null)
@@ -89,6 +90,7 @@ class LibraryColumnPresetStore {
   }
 
   LibraryTableColumnPreset _presetFromJson(Map<String, dynamic> json) {
+    final fields = libraryKindWorkspaceForKind(config.kind).fields;
     return LibraryTableColumnPreset(
       id: json['id'] as String?,
       label: json['label'] as String? ?? 'Saved preset',
@@ -96,9 +98,9 @@ class LibraryColumnPresetStore {
         for (final value in (json['columns'] as List<dynamic>? ?? []))
           if (_columnById(value.toString()) != null)
             _columnById(value.toString())!,
-        if (config.fields.findColumnDefinition(
-              config.fields.decodeColumnId(
-                '${config.fields.kindNamespace}.title',
+        if (fields.findColumnDefinition(
+              fields.decodeColumnId(
+                '${fields.kindNamespace}.title',
               ),
             ) !=
             null)
@@ -118,9 +120,9 @@ class LibraryColumnPresetStore {
   }
 
   String? _columnById(String id) {
-    final module = config;
-    final colDef = module.fields.findColumnDefinition(
-      module.fields.decodeColumnId(id),
+    final fields = libraryKindWorkspaceForKind(config.kind).fields;
+    final colDef = fields.findColumnDefinition(
+      fields.decodeColumnId(id),
     );
     return colDef?.id.value;
   }

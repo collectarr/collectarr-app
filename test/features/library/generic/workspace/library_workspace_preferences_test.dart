@@ -127,10 +127,10 @@ void main() {
     expect(restored.detailsWidth, kLibraryDetailsDefaultWidth);
     expect(restored.detailsHeight, kLibraryDetailsDefaultHeight);
     expect(restored.viewMode, LibraryViewMode.grid);
-    expect(restored.sortColumn, mangaRuntime.fields.defaultSort.value);
+    expect(restored.sortColumn, mangaKindWorkspace.fields.defaultSort.value);
     expect(
         restored.visibleColumns,
-        mangaRuntime.fields.defaultVisibleColumns
+        mangaKindWorkspace.fields.defaultVisibleColumns
             .map((column) => column.value)
             .toSet());
     expect(restored.columnWidths, isEmpty);
@@ -234,7 +234,7 @@ void main() {
     expect(comics.detailsLayout, LibraryDetailsLayout.bottom);
     expect(comics.isSidebarVisible, isFalse);
 
-    expect(manga.sortColumn, mangaRuntime.fields.defaultSort.value);
+    expect(manga.sortColumn, mangaKindWorkspace.fields.defaultSort.value);
     expect(manga.sortAscending, isTrue);
     expect(manga.detailsLayout, LibraryDetailsLayout.right);
     expect(manga.isSidebarVisible, isTrue);

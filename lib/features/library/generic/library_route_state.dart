@@ -164,8 +164,8 @@ class LibraryRouteState {
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final allowedSortColumns =
-        runtime.fields.sorts.map((d) => d.id.value).toSet();
+    final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
+    final allowedSortColumns = fields.sorts.map((d) => d.id.value).toSet();
     final filteredSortRules = sortRules == null
         ? null
         : [
@@ -173,9 +173,7 @@ class LibraryRouteState {
               if (allowedSortColumns.contains(rule.column)) rule,
           ];
     final resolvedGroupDef = groupMode != null
-        ? runtime.fields.findGroupDefinition(
-            runtime.fields.decodeGroupId(groupMode!),
-          )
+        ? fields.findGroupDefinition(fields.decodeGroupId(groupMode!))
         : null;
     final filteredGroupMode = filteredFolderPreset?.primaryMode ??
         (groupMode != null &&

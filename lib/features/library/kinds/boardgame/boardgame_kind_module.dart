@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dar
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
@@ -103,8 +104,6 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
   presentation: boardGamesLibraryMediaPresentation,
   physicalMediaFormats: boardGamePhysicalMediaFormats,
   trackingProfile: boardGameTrackingProfile,
-  projector: const BoardGameWorkspaceProjector(),
-  fields: boardgameLibraryKindSchema.toRegistry(),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.boardgame,
     singularLabel: 'Board Game',
@@ -350,3 +349,9 @@ String? _optionalBoardGameText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
+
+final boardGameKindWorkspace = TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
+  fields: boardgameLibraryKindSchema.toRegistry(),
+  projector: const BoardGameWorkspaceProjector(),
+  hierarchy: boardGameKindModule.hierarchy,
+);
