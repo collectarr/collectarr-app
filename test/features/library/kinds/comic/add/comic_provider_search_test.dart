@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_search.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
@@ -65,7 +66,7 @@ void main() {
     final candidates = await searchComicProvider(
       provider.toConnector(),
       query: 'Amazing Spider-Man #300',
-      kind: 'comic',
+      kind: CatalogMediaKind.comic,
       limit: 25,
     );
 
@@ -119,7 +120,7 @@ void main() {
     final candidates = await searchComicProvider(
       provider.toConnector(),
       query: 'Absolute Batman',
-      kind: 'comic',
+      kind: CatalogMediaKind.comic,
       limit: 25,
     );
 

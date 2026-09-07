@@ -13,7 +13,7 @@ abstract interface class ComicProviderSearchIntegration {
   Future<List<ProviderCandidate>> search(
     ProviderConnector provider, {
     required String query,
-    required String kind,
+    required CatalogMediaKind kind,
     required int limit,
   });
 }
@@ -21,7 +21,7 @@ abstract interface class ComicProviderSearchIntegration {
 Future<List<ProviderCandidate>> searchComicProvider(
   ProviderConnector provider, {
   required String query,
-  required String kind,
+  required CatalogMediaKind kind,
   required int limit,
 }) async {
   for (final integration in _comicProviderSearchIntegrations) {
@@ -38,8 +38,7 @@ Future<List<ProviderCandidate>> searchComicProvider(
   final results = await provider.search(query, kind: kind, limit: limit);
   return [
     for (final result in results)
-      if (result.providerItemId.trim().isNotEmpty &&
-          result.kind == catalogMediaKindFromApiValue(kind))
+      if (result.providerItemId.trim().isNotEmpty && result.kind == kind)
         _comicCandidateFromSearchResult(
           result,
           provider: provider.descriptor.name,
@@ -63,7 +62,7 @@ final class _GcdComicProviderSearchIntegration
   Future<List<ProviderCandidate>> search(
     ProviderConnector provider, {
     required String query,
-    required String kind,
+    required CatalogMediaKind kind,
     required int limit,
   }) async {
     final metadata = provider.metadata;
@@ -88,7 +87,7 @@ final class _ComicVineProviderSearchIntegration
   Future<List<ProviderCandidate>> search(
     ProviderConnector provider, {
     required String query,
-    required String kind,
+    required CatalogMediaKind kind,
     required int limit,
   }) async {
     final metadata = provider.metadata;

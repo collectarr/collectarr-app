@@ -46,7 +46,7 @@ typedef LibraryAddProviderSearchBuilder = Future<List<ProviderCandidate>>
     Function(
   ProviderConnector provider, {
   required String query,
-  required String kind,
+  required CatalogMediaKind kind,
   required int limit,
 });
 
@@ -113,7 +113,7 @@ class LibraryAddSearchCapability {
   Future<List<ProviderCandidate>> searchProvider(
     ProviderConnector provider, {
     required String query,
-    required String kind,
+    required CatalogMediaKind kind,
     int limit = 25,
   }) async {
     final customSearch = providerSearchBuilder;
@@ -202,8 +202,8 @@ abstract interface class LibraryAddCapability<
     LibraryAddPreviewPaneRequest request,
   );
 
-  AddOwnedItemCommand buildCommand(
-      CatalogItemDto item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
+  AddOwnedItemCommand buildCommand(CatalogItemDto item,
+      LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {PersonalItemAnchor? anchor,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
 
@@ -325,8 +325,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   @override
-  AddOwnedItemCommand buildCommand(
-      CatalogItemDto item, LibraryAddCommonDraft common, LibraryAddKindDraft draft,
+  AddOwnedItemCommand buildCommand(CatalogItemDto item,
+      LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {PersonalItemAnchor? anchor,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();

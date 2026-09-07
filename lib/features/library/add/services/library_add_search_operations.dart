@@ -130,7 +130,9 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   ProviderConnectorRegistry? providerRegistry,
   String? kindOverride,
 }) async {
-  final targetKind = kindOverride ?? type.kind.apiValue;
+  final targetKind = kindOverride == null
+      ? type.kind
+      : catalogMediaKindFromApiValue(kindOverride);
   final normalizedProvider =
       provider.trim().isEmpty ? null : provider.trim().toLowerCase();
   final effectiveQuery = query.trim();
