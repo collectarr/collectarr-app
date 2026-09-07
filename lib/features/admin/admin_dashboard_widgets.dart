@@ -499,18 +499,9 @@ class _DashboardProposalActivity extends StatelessWidget {
 }
 
 String _statsKindLabel(String kind) {
-  return switch (kind) {
-    'boardgame' => 'Board games',
-    'tv' => 'TV',
-    'anime' => 'Anime',
-    'manga' => 'Manga',
-    'comic' => 'Comics',
-    'book' => 'Books',
-    'game' => 'Games',
-    'movie' => 'Movies',
-    'music' => 'Music',
-    _ => kind.isEmpty ? 'Unknown' : kind,
-  };
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  return _adminPluralKindLabelByType[mediaKind] ??
+      (kind.isEmpty ? 'Unknown' : kind);
 }
 
 String _statsFormatBytes(int bytes) {

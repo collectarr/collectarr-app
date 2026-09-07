@@ -1552,12 +1552,8 @@ class _MiniChip extends StatelessWidget {
 }
 
 String _proposalKindLabel(String kind) {
-  return switch (kind) {
-    'boardgame' => 'Board game',
-    'tv' => 'TV',
-    _ =>
-      kind.isEmpty ? 'Unknown' : '${kind[0].toUpperCase()}${kind.substring(1)}',
-  };
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  return _adminSingularKindLabelByType[mediaKind] ?? _fallbackKindLabel(kind);
 }
 
 String _inferProposalKind(String provider, Map<String, dynamic>? payload) {
@@ -1659,12 +1655,29 @@ String _providerKindLabel(String kind, Map<String, String> labels) {
   if (label != null && label.isNotEmpty) {
     return label;
   }
-  return switch (kind) {
-    'boardgame' => 'Board game',
-    'tv' => 'TV',
-    _ => kind.isEmpty ? kind : '${kind[0].toUpperCase()}${kind.substring(1)}',
-  };
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  return _adminSingularKindLabelByType[mediaKind] ?? _fallbackKindLabel(kind);
 }
+
+const _adminSingularKindLabelByType = <CatalogMediaKind, String>{
+  CatalogMediaKind.boardgame: 'Board game',
+  CatalogMediaKind.tv: 'TV',
+};
+
+const _adminPluralKindLabelByType = <CatalogMediaKind, String>{
+  CatalogMediaKind.boardgame: 'Board games',
+  CatalogMediaKind.tv: 'TV',
+  CatalogMediaKind.anime: 'Anime',
+  CatalogMediaKind.manga: 'Manga',
+  CatalogMediaKind.comic: 'Comics',
+  CatalogMediaKind.book: 'Books',
+  CatalogMediaKind.game: 'Games',
+  CatalogMediaKind.movie: 'Movies',
+  CatalogMediaKind.music: 'Music',
+};
+
+String _fallbackKindLabel(String kind) =>
+    kind.isEmpty ? 'Unknown' : '${kind[0].toUpperCase()}${kind.substring(1)}';
 
 String _mediaTypeDisplayLabel(CatalogMediaType type) {
   if (type.kind == 'tv') {
