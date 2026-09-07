@@ -35,8 +35,8 @@ class OpenLibraryProvider extends ProviderAdapter {
   static const ProviderDescriptor openLibraryDescriptor = ProviderDescriptor(
     name: 'openlibrary',
     displayName: 'Open Library',
-    kind: 'book',
-    supportedKinds: ['book'],
+    kind: CatalogMediaKind.book,
+    supportedKinds: [CatalogMediaKind.book],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: false,

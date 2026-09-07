@@ -107,7 +107,11 @@ class InMemoryProviderConnectorRegistry implements ProviderConnectorRegistry {
         : kind.toString().trim().toLowerCase();
     final unique = <ProviderConnector>{..._connectors.values, ..._byId.values};
     return unique
-        .where((connector) => connector.descriptor.supportsKind(kindStr))
+        .where(
+          (connector) => connector.descriptor.supportsKind(
+            catalogMediaKindFromApiValue(kindStr),
+          ),
+        )
         .toList(growable: false);
   }
 
@@ -125,7 +129,9 @@ class InMemoryProviderConnectorRegistry implements ProviderConnectorRegistry {
   List<String> get supportedKinds {
     final kinds = <String>{};
     for (final connector in getAll()) {
-      kinds.addAll(connector.descriptor.allSupportedKinds);
+      kinds.addAll(
+        connector.descriptor.allSupportedKinds.map((kind) => kind.apiValue),
+      );
     }
     return kinds.toList(growable: false);
   }

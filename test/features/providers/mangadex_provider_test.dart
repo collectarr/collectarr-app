@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -69,8 +70,8 @@ void main() {
       final provider = MangaDexProvider();
       expect(provider.name, 'mangadex');
       expect(provider.descriptor.displayName, 'MangaDex');
-      expect(provider.descriptor.kind, 'manga');
-      expect(provider.descriptor.supportedKinds, ['manga']);
+      expect(provider.descriptor.kind, CatalogMediaKind.manga);
+      expect(provider.descriptor.supportedKinds, [CatalogMediaKind.manga]);
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '5 req/sec');
@@ -123,7 +124,7 @@ void main() {
       expect(item.provider, 'mangadex');
       expect(item.providerItemId, 'd7037b2a-874a-4360-8a7b-07f2001542a9');
       expect(item.title, 'Chainsaw Man');
-      expect(item.kind, 'manga');
+      expect(item.kind, CatalogMediaKind.manga);
       expect(item.summary, 'shounen · ongoing · 2018');
       expect(
         item.imageUrl,

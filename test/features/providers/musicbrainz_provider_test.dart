@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -79,8 +80,8 @@ void main() {
       final provider = MusicBrainzProvider();
       expect(provider.name, 'musicbrainz');
       expect(provider.descriptor.displayName, 'MusicBrainz');
-      expect(provider.descriptor.kind, 'music');
-      expect(provider.descriptor.supportedKinds, ['music']);
+      expect(provider.descriptor.kind, CatalogMediaKind.music);
+      expect(provider.descriptor.supportedKinds, [CatalogMediaKind.music]);
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '1 req/sec');
@@ -130,7 +131,7 @@ void main() {
       expect(item.provider, 'musicbrainz');
       expect(item.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
       expect(item.title, 'The Dark Side of the Moon');
-      expect(item.kind, 'music');
+      expect(item.kind, CatalogMediaKind.music);
       expect(item.summary, 'Pink Floyd · 1973-03-01 · GB');
       expect(
         item.imageUrl,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -77,8 +78,11 @@ void main() {
       final provider = IGDBProvider();
       expect(provider.name, 'igdb');
       expect(provider.descriptor.displayName, 'IGDB');
-      expect(provider.descriptor.kind, 'game');
-      expect(provider.descriptor.supportedKinds, contains('game'));
+      expect(provider.descriptor.kind, CatalogMediaKind.game);
+      expect(
+        provider.descriptor.supportedKinds,
+        contains(CatalogMediaKind.game),
+      );
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '4 req/sec');
@@ -142,7 +146,7 @@ void main() {
       expect(item.provider, 'igdb');
       expect(item.providerItemId, '1942');
       expect(item.title, 'The Witcher 3: Wild Hunt');
-      expect(item.kind, 'game');
+      expect(item.kind, CatalogMediaKind.game);
       expect(item.summary, '2015-05-19 · PC, PlayStation 4');
       expect(item.imageUrl,
           'https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.jpg');

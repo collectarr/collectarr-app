@@ -31,9 +31,7 @@ class _FakeTestProvider implements MetadataCapability {
         provider: name,
         providerItemId: 'item-1',
         title: 'Search Result: $query',
-        kind: kind == null
-            ? catalogMediaKindFromApiValue(descriptor.kind)
-            : catalogMediaKindFromValue(kind),
+        kind: kind == null ? descriptor.kind : catalogMediaKindFromValue(kind),
       ),
     ];
   }
@@ -46,7 +44,9 @@ class _FakeTestProvider implements MetadataCapability {
     return NormalizedProviderEnvelopeV1(
       provider: name,
       providerItemId: providerItemId,
-      kind: kind?.toString() ?? descriptor.kind,
+      kind: kind is CatalogMediaKind
+          ? kind.apiValue
+          : kind?.toString() ?? descriptor.kind.apiValue,
       normalized: {'title': 'Item $providerItemId'},
       provenance: const ProviderProvenance(fetchedAt: '2026-08-17T12:00:00Z'),
       images: [
@@ -63,8 +63,8 @@ void main() {
       const descriptor = ProviderDescriptor(
         name: 'test_provider',
         displayName: 'Test Provider',
-        kind: 'book',
-        supportedKinds: ['book', 'manga'],
+        kind: CatalogMediaKind.book,
+        supportedKinds: [CatalogMediaKind.book, CatalogMediaKind.manga],
         requiresUserKey: true,
         requiresAttribution: true,
         termsUrl: 'https://example.com/terms',
@@ -74,9 +74,9 @@ void main() {
       final restored = ProviderDescriptor.fromJson(json);
 
       expect(restored, equals(descriptor));
-      expect(restored.supportsKind('book'), isTrue);
-      expect(restored.supportsKind('manga'), isTrue);
-      expect(restored.supportsKind('movie'), isFalse);
+      expect(restored.supportsKind(CatalogMediaKind.book), isTrue);
+      expect(restored.supportsKind(CatalogMediaKind.manga), isTrue);
+      expect(restored.supportsKind(CatalogMediaKind.movie), isFalse);
     });
 
     test('ProviderSearchResult serializes and equality checks correctly', () {
@@ -104,7 +104,7 @@ void main() {
         descriptor: const ProviderDescriptor(
           name: 'openlibrary',
           displayName: 'Open Library',
-          kind: 'book',
+          kind: CatalogMediaKind.book,
         ),
       ).toConnector();
 
@@ -160,16 +160,16 @@ void main() {
         descriptor: const ProviderDescriptor(
           name: 'openlibrary',
           displayName: 'Book Provider',
-          kind: 'book',
-          supportedKinds: ['book'],
+          kind: CatalogMediaKind.book,
+          supportedKinds: [CatalogMediaKind.book],
         ),
       ).toConnector();
       final multiConnector = _FakeTestProvider(
         descriptor: const ProviderDescriptor(
           name: 'mangadex',
           displayName: 'Multi Provider',
-          kind: 'manga',
-          supportedKinds: ['manga', 'anime'],
+          kind: CatalogMediaKind.manga,
+          supportedKinds: [CatalogMediaKind.manga, CatalogMediaKind.anime],
         ),
       ).toConnector();
 

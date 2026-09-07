@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -79,9 +80,9 @@ void main() {
       final provider = HardcoverProvider();
       expect(provider.name, 'hardcover');
       expect(provider.descriptor.displayName, 'Hardcover');
-      expect(provider.descriptor.kind, 'book');
-      expect(
-          provider.descriptor.supportedKinds, containsAll(['book', 'manga']));
+      expect(provider.descriptor.kind, CatalogMediaKind.book);
+      expect(provider.descriptor.supportedKinds,
+          containsAll([CatalogMediaKind.book, CatalogMediaKind.manga]));
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '60 req/min');
@@ -144,7 +145,7 @@ void main() {
       expect(item.provider, 'hardcover');
       expect(item.providerItemId, '1234');
       expect(item.title, 'Dune');
-      expect(item.kind, 'book');
+      expect(item.kind, CatalogMediaKind.book);
       expect(item.summary, 'Frank Herbert · 1965');
       expect(item.imageUrl, 'https://assets.hardcover.app/covers/dune.jpg');
     });

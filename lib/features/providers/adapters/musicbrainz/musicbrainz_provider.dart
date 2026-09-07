@@ -42,8 +42,8 @@ class MusicBrainzProvider extends ProviderAdapter {
   static const ProviderDescriptor musicBrainzDescriptor = ProviderDescriptor(
     name: 'musicbrainz',
     displayName: 'MusicBrainz',
-    kind: 'music',
-    supportedKinds: ['music'],
+    kind: CatalogMediaKind.music,
+    supportedKinds: [CatalogMediaKind.music],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: false,

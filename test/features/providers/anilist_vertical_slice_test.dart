@@ -170,8 +170,8 @@ void main() {
         descriptor: const ProviderDescriptor(
           name: 'anilist',
           displayName: 'AniList',
-          kind: 'anime',
-          supportedKinds: ['anime', 'manga'],
+          kind: CatalogMediaKind.anime,
+          supportedKinds: [CatalogMediaKind.anime, CatalogMediaKind.manga],
         ),
         personalRead: syncAdapter,
         personalWrite: syncAdapter,

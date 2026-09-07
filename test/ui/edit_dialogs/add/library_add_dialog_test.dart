@@ -2676,8 +2676,8 @@ class _FakeMetadataProvider implements MetadataCapability {
   ProviderDescriptor get descriptor => ProviderDescriptor(
         name: name,
         displayName: name,
-        kind: defaultKind,
-        supportedKinds: [defaultKind],
+        kind: catalogMediaKindFromApiValue(defaultKind),
+        supportedKinds: [catalogMediaKindFromApiValue(defaultKind)],
       );
 
   @override

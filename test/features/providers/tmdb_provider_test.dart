@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -74,9 +75,15 @@ void main() {
       final provider = TMDbProvider();
       expect(provider.name, 'tmdb');
       expect(provider.descriptor.displayName, 'TMDb');
-      expect(provider.descriptor.kind, 'movie');
-      expect(provider.descriptor.supportedKinds,
-          containsAll(['movie', 'tv', 'anime']));
+      expect(provider.descriptor.kind, CatalogMediaKind.movie);
+      expect(
+        provider.descriptor.supportedKinds,
+        containsAll([
+          CatalogMediaKind.movie,
+          CatalogMediaKind.tv,
+          CatalogMediaKind.anime,
+        ]),
+      );
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '40 req/10s');
@@ -133,7 +140,7 @@ void main() {
       expect(item.provider, 'tmdb');
       expect(item.providerItemId, 'movie:550');
       expect(item.title, 'Fight Club');
-      expect(item.kind, 'movie');
+      expect(item.kind, CatalogMediaKind.movie);
       expect(item.summary, '1999-10-15 · en');
       expect(item.imageUrl,
           'https://image.tmdb.org/t/p/w500/bptfVGEQuv6vDTIMVCHjJ9Dz8PX.jpg');

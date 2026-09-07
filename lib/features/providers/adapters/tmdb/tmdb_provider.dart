@@ -40,8 +40,12 @@ class TMDbProvider extends ProviderAdapter {
   static const ProviderDescriptor tmdbDescriptor = ProviderDescriptor(
     name: 'tmdb',
     displayName: 'TMDb',
-    kind: 'movie',
-    supportedKinds: ['movie', 'tv', 'anime'],
+    kind: CatalogMediaKind.movie,
+    supportedKinds: [
+      CatalogMediaKind.movie,
+      CatalogMediaKind.tv,
+      CatalogMediaKind.anime,
+    ],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: true,

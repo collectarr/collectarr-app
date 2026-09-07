@@ -34,8 +34,8 @@ class MangaDexProvider extends ProviderAdapter {
   static const ProviderDescriptor mangadexDescriptor = ProviderDescriptor(
     name: 'mangadex',
     displayName: 'MangaDex',
-    kind: 'manga',
-    supportedKinds: ['manga'],
+    kind: CatalogMediaKind.manga,
+    supportedKinds: [CatalogMediaKind.manga],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: false,

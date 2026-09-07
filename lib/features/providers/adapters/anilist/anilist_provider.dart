@@ -120,8 +120,8 @@ class AniListProvider extends ProviderAdapter {
   static const ProviderDescriptor anilistDescriptor = ProviderDescriptor(
     name: 'anilist',
     displayName: 'AniList',
-    kind: 'manga',
-    supportedKinds: ['manga', 'anime'],
+    kind: CatalogMediaKind.manga,
+    supportedKinds: [CatalogMediaKind.manga, CatalogMediaKind.anime],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: false,

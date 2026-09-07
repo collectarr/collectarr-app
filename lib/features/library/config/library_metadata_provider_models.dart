@@ -17,7 +17,8 @@ class LibraryMetadataProviderOption {
   ) {
     final name = descriptor.name;
     final displayName = descriptor.displayName;
-    final supportedKinds = descriptor.allSupportedKinds.toSet();
+    final supportedKinds =
+        descriptor.allSupportedKinds.map((kind) => kind.apiValue).toSet();
     final requiresUserKey = descriptor.requiresUserKey;
     final requiresAttribution = descriptor.requiresAttribution;
     final nonCommercialOnly = descriptor.nonCommercialOnly;

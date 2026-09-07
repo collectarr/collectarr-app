@@ -733,8 +733,8 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   ProviderDescriptor get descriptor => ProviderDescriptor(
         name: name,
         displayName: name,
-        kind: kind,
-        supportedKinds: [kind],
+        kind: catalogMediaKindFromApiValue(kind),
+        supportedKinds: [catalogMediaKindFromApiValue(kind)],
         supportsSearch: true,
         supportsIngest: true,
       );

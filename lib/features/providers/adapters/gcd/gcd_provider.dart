@@ -40,8 +40,8 @@ class GCDProvider extends ProviderAdapter {
   static const ProviderDescriptor gcdDescriptor = ProviderDescriptor(
     name: 'gcd',
     displayName: 'Grand Comics Database',
-    kind: 'comic',
-    supportedKinds: ['comic'],
+    kind: CatalogMediaKind.comic,
+    supportedKinds: [CatalogMediaKind.comic],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: false,

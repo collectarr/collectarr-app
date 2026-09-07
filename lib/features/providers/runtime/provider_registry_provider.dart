@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/models/catalog_media_kind.dart';
+
 import '../adapters/anilist/anilist_file_import_capability.dart';
 import '../adapters/anilist/anilist_provider.dart';
 import '../adapters/anilist/anilist_sync_adapter.dart';
@@ -105,8 +107,8 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
       descriptor: ProviderDescriptor(
         name: 'myanimelist',
         displayName: 'MyAnimeList',
-        kind: 'anime',
-        supportedKinds: ['anime', 'manga'],
+        kind: CatalogMediaKind.anime,
+        supportedKinds: [CatalogMediaKind.anime, CatalogMediaKind.manga],
         supportsSearch: false,
         supportsIngest: true,
       ),

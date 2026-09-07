@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,8 +71,8 @@ void main() {
       final provider = OpenLibraryProvider();
       expect(provider.name, 'openlibrary');
       expect(provider.descriptor.displayName, 'Open Library');
-      expect(provider.descriptor.kind, 'book');
-      expect(provider.descriptor.supportedKinds, ['book']);
+      expect(provider.descriptor.kind, CatalogMediaKind.book);
+      expect(provider.descriptor.supportedKinds, [CatalogMediaKind.book]);
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.statusMessage, contains('without an API key'));

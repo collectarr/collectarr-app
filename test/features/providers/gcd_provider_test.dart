@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,8 +51,8 @@ void main() {
       final provider = GCDProvider();
       expect(provider.name, 'gcd');
       expect(provider.descriptor.displayName, 'Grand Comics Database');
-      expect(provider.descriptor.kind, 'comic');
-      expect(provider.descriptor.supportedKinds, ['comic']);
+      expect(provider.descriptor.kind, CatalogMediaKind.comic);
+      expect(provider.descriptor.supportedKinds, [CatalogMediaKind.comic]);
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '2 req/sec');
@@ -104,7 +105,7 @@ void main() {
       expect(item.provider, 'gcd');
       expect(item.providerItemId, '12345');
       expect(item.title, 'The Amazing Spider-Man (1963 series) #300');
-      expect(item.kind, 'comic');
+      expect(item.kind, CatalogMediaKind.comic);
       expect(item.summary, 'May 1988 · 1.50 USD');
       expect(
           item.imageUrl, 'https://www.comics.org/media/img/covers/12345.jpg');

@@ -35,8 +35,8 @@ class ComicVineProvider extends ProviderAdapter {
   static const ProviderDescriptor comicVineDescriptor = ProviderDescriptor(
     name: 'comicvine',
     displayName: 'Comic Vine',
-    kind: 'comic',
-    supportedKinds: ['comic', 'manga'],
+    kind: CatalogMediaKind.comic,
+    supportedKinds: [CatalogMediaKind.comic, CatalogMediaKind.manga],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: true,

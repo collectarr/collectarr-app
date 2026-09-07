@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/models/catalog_media_kind.dart';
+
 @immutable
 class ProviderDescriptor {
   const ProviderDescriptor({
@@ -23,8 +25,8 @@ class ProviderDescriptor {
 
   final String name;
   final String displayName;
-  final String kind;
-  final List<String> supportedKinds;
+  final CatalogMediaKind kind;
+  final List<CatalogMediaKind> supportedKinds;
   final bool supportsSearch;
   final bool supportsIngest;
   final bool requiresUserKey;
@@ -38,29 +40,31 @@ class ProviderDescriptor {
   final String? rateLimit;
   final String? cachePolicy;
 
-  List<String> get allSupportedKinds =>
+  List<CatalogMediaKind> get allSupportedKinds =>
       supportedKinds.isNotEmpty ? supportedKinds : [kind];
 
-  bool supportsKind(String targetKind) =>
+  bool supportsKind(CatalogMediaKind targetKind) =>
       allSupportedKinds.contains(targetKind);
 
   factory ProviderDescriptor.fromJson(Map<String, dynamic> json) {
     final rawKinds = json['supportedKinds'] ?? json['supported_kinds'];
-    final supportedKinds = <String>[];
+    final supportedKinds = <CatalogMediaKind>[];
     if (rawKinds is List) {
       for (final k in rawKinds) {
         if (k != null) {
-          supportedKinds.add(k.toString());
+          supportedKinds.add(catalogMediaKindFromApiValue(k.toString()));
         }
       }
     }
+
+    final kind = catalogMediaKindFromApiValue(json['kind']?.toString());
 
     return ProviderDescriptor(
       name: json['name']?.toString() ?? '',
       displayName: json['displayName']?.toString() ??
           json['display_name']?.toString() ??
           '',
-      kind: json['kind']?.toString() ?? '',
+      kind: kind,
       supportedKinds: supportedKinds,
       supportsSearch:
           (json['supportsSearch'] ?? json['supports_search']) as bool? ?? true,
@@ -97,8 +101,10 @@ class ProviderDescriptor {
     return {
       'name': name,
       'displayName': displayName,
-      'kind': kind,
-      'supportedKinds': supportedKinds,
+      'kind': kind.apiValue,
+      'supportedKinds': [
+        for (final supportedKind in supportedKinds) supportedKind.apiValue,
+      ],
       'supportsSearch': supportsSearch,
       'supportsIngest': supportsIngest,
       'requiresUserKey': requiresUserKey,

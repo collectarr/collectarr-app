@@ -106,8 +106,8 @@ class HardcoverProvider extends ProviderAdapter {
   static const ProviderDescriptor hardcoverDescriptor = ProviderDescriptor(
     name: 'hardcover',
     displayName: 'Hardcover',
-    kind: 'book',
-    supportedKinds: ['book', 'manga'],
+    kind: CatalogMediaKind.book,
+    supportedKinds: [CatalogMediaKind.book, CatalogMediaKind.manga],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: true,

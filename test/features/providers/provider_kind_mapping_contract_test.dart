@@ -272,7 +272,7 @@ void main() {
       final connector = registry.get(testCase.provider);
       expect(connector, isNotNull);
       expect(
-        connector!.descriptor.supportsKind(testCase.kind.apiValue),
+        connector!.descriptor.supportsKind(testCase.kind),
         isTrue,
       );
 

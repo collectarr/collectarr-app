@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -59,9 +60,9 @@ void main() {
       final provider = ComicVineProvider();
       expect(provider.name, 'comicvine');
       expect(provider.descriptor.displayName, 'Comic Vine');
-      expect(provider.descriptor.kind, 'comic');
-      expect(
-          provider.descriptor.supportedKinds, containsAll(['comic', 'manga']));
+      expect(provider.descriptor.kind, CatalogMediaKind.comic);
+      expect(provider.descriptor.supportedKinds,
+          containsAll([CatalogMediaKind.comic, CatalogMediaKind.manga]));
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '200 req/15min');
@@ -119,7 +120,7 @@ void main() {
       expect(item.provider, 'comicvine');
       expect(item.providerItemId, '4000-160294');
       expect(item.title, 'Absolute Batman #1');
-      expect(item.kind, 'comic');
+      expect(item.kind, CatalogMediaKind.comic);
       expect(item.summary, 'Absolute Batman #1');
       expect(item.imageUrl,
           'https://comicvine.gamespot.com/a/uploads/scale_large/1/1/batman1.jpg');

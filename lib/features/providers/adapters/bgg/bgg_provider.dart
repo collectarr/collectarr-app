@@ -37,8 +37,8 @@ class BGGProvider extends ProviderAdapter {
   static const ProviderDescriptor bggDescriptor = ProviderDescriptor(
     name: 'bgg',
     displayName: 'BoardGameGeek',
-    kind: 'boardgame',
-    supportedKinds: ['boardgame'],
+    kind: CatalogMediaKind.boardgame,
+    supportedKinds: [CatalogMediaKind.boardgame],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: true,

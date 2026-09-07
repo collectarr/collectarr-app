@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -69,8 +70,11 @@ void main() {
       final provider = BGGProvider();
       expect(provider.name, 'bgg');
       expect(provider.descriptor.displayName, 'BoardGameGeek');
-      expect(provider.descriptor.kind, 'boardgame');
-      expect(provider.descriptor.supportedKinds, contains('boardgame'));
+      expect(provider.descriptor.kind, CatalogMediaKind.boardgame);
+      expect(
+        provider.descriptor.supportedKinds,
+        contains(CatalogMediaKind.boardgame),
+      );
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '2 req/sec');
@@ -121,7 +125,7 @@ void main() {
       expect(item.provider, 'bgg');
       expect(item.providerItemId, '174430');
       expect(item.title, 'Gloomhaven');
-      expect(item.kind, 'boardgame');
+      expect(item.kind, CatalogMediaKind.boardgame);
       expect(item.summary, '2017');
     });
 

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
@@ -57,8 +58,8 @@ void main() {
         descriptor: const ProviderDescriptor(
           name: 'anilist',
           displayName: 'AniList',
-          kind: 'anime',
-          supportedKinds: ['anime', 'manga'],
+          kind: CatalogMediaKind.anime,
+          supportedKinds: [CatalogMediaKind.anime, CatalogMediaKind.manga],
         ),
         personalRead: mockReadWrite,
         personalWrite: mockReadWrite,
@@ -70,7 +71,7 @@ void main() {
         descriptor: const ProviderDescriptor(
           name: 'openlibrary',
           displayName: 'Open Library',
-          kind: 'book',
+          kind: CatalogMediaKind.book,
         ),
       );
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,9 +93,9 @@ void main() {
       final provider = AniListProvider();
       expect(provider.name, 'anilist');
       expect(provider.descriptor.displayName, 'AniList');
-      expect(provider.descriptor.kind, 'manga');
-      expect(
-          provider.descriptor.supportedKinds, containsAll(['manga', 'anime']));
+      expect(provider.descriptor.kind, CatalogMediaKind.manga);
+      expect(provider.descriptor.supportedKinds,
+          containsAll([CatalogMediaKind.manga, CatalogMediaKind.anime]));
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '90 req/min');
@@ -168,7 +169,7 @@ void main() {
       expect(item.provider, 'anilist');
       expect(item.providerItemId, '30002');
       expect(item.title, 'Berserk');
-      expect(item.kind, 'manga');
+      expect(item.kind, CatalogMediaKind.manga);
       expect(item.summary, contains('MANGA'));
       expect(item.summary, contains('1989'));
       expect(item.characterPreview, containsAll(['Guts', 'Griffith']));

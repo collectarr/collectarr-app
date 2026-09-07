@@ -36,8 +36,8 @@ class IGDBProvider extends ProviderAdapter {
   static const ProviderDescriptor igdbDescriptor = ProviderDescriptor(
     name: 'igdb',
     displayName: 'IGDB',
-    kind: 'game',
-    supportedKinds: ['game'],
+    kind: CatalogMediaKind.game,
+    supportedKinds: [CatalogMediaKind.game],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: true,
