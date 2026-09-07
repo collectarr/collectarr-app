@@ -46,7 +46,10 @@ void main() {
             condition: 'Good',
             grade: '8.0',
           ),
-          details: libraryKindOwnedDetailsDraftForKind(kind),
+          details: libraryKindModuleForKind(kind)
+              .add
+              .createInitialDraft()
+              .toOwnedDetailsDraft(),
         ),
       );
     }

@@ -52,7 +52,8 @@ void main() {
         final ownedCodec = collectarrOwnedDetailsCodecForKind(kind);
         expect(ownedCodec.defaultDetails(), isNotNull,
             reason: '$kind defaultOwnedDetails must not be null');
-        expect(libraryKindOwnedDetailsDraftForKind(kind), isNotNull,
+        expect(
+            runtime.add.createInitialDraft().toOwnedDetailsDraft(), isNotNull,
             reason: '$kind defaultOwnedDetailsDraft must not be null');
 
         // Fields & Schema

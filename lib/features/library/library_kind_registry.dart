@@ -12,9 +12,7 @@ import 'package:collectarr_app/features/library/config/library_collection_csv_pr
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -256,22 +254,6 @@ LibraryKindProviderMapper? libraryKindProviderMapperForKind(
   CatalogMediaKind kind,
 ) {
   return collectarrKindProviderMappers[kind];
-}
-
-/// Composition-root access to the kind-owned serialization codec.
-///
-/// The codec is used only at persistence/import boundaries. Generic callers
-/// must not inspect the concrete details returned by it.
-OwnedDetailsCodec<dynamic, dynamic> libraryKindOwnedDetailsCodecForKind(
-  CatalogMediaKind kind,
-) {
-  return collectarrOwnedDetailsCodecForKind(kind)
-      as OwnedDetailsCodec<dynamic, dynamic>;
-}
-
-OwnedDetailsDraft libraryKindOwnedDetailsDraftForKind(CatalogMediaKind kind) {
-  return libraryKindOwnedDetailsCodecForKind(kind).defaultDraft()
-      as OwnedDetailsDraft;
 }
 
 bool libraryGroupModeSupportsCompletion(

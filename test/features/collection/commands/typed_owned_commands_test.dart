@@ -150,7 +150,10 @@ void main() {
               id: 'clear-test-${kind.apiValue}',
             ),
             common: const LibraryAddCommonDraft(),
-            details: libraryKindOwnedDetailsDraftForKind(kind),
+            details: libraryKindModuleForKind(kind)
+                .add
+                .createInitialDraft()
+                .toOwnedDetailsDraft(),
           ),
         );
 
@@ -175,7 +178,10 @@ void main() {
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()),
             reason: '$kind default details must not be TestOwnedDetails');
 
-        final defaultDraft = libraryKindOwnedDetailsDraftForKind(kind);
+        final defaultDraft = libraryKindModuleForKind(kind)
+            .add
+            .createInitialDraft()
+            .toOwnedDetailsDraft();
         expect(defaultDraft, isNot(isA<TestOwnedDetailsDraft>()),
             reason: '$kind default draft must not be TestOwnedDetailsDraft');
       }
@@ -183,7 +189,7 @@ void main() {
 
     test('unknown kind has no owned details registration', () {
       expect(
-        () => libraryKindOwnedDetailsDraftForKind(CatalogMediaKind.unknown),
+        () => libraryKindModuleForKind(CatalogMediaKind.unknown),
         throwsArgumentError,
       );
     });
