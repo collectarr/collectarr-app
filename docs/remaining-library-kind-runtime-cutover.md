@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-HEAD `9eacbdba` was audited on 2026-09-07. The generated registry already performs
+HEAD `ba8dee61` was audited on 2026-09-07. The generated registry already performs
 compile-time discovery of all nine kind modules; no runtime reflection or
 manual per-kind import list is required for registration.
 

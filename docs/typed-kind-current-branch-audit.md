@@ -3,7 +3,7 @@
 Audit date: 2026-09-07
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `faf73999` (`refactor(admin): source kind labels from identity`)
+HEAD: `ba8dee61` (`refactor(provider): keep candidate kinds typed`)
 
 ## Scope and evidence
 
@@ -25,7 +25,7 @@ or concrete fixtures. The central seed graph validator was also deleted: each
 of the nine seed contributors now supplies its own graph validator, while the
 shared seed helper contains only structural validation primitives. The full
 suite passes at 1,908 tests with 5 skipped. The current architecture checker
-reports 615 AST violations plus informational complexity warnings; this is
+reports 601 AST violations plus informational complexity warnings; this is
 still a failing migration gate and is recorded below rather than allowlisted.
 
 ## Addendum — 2026-09-07
@@ -36,7 +36,9 @@ The branch moved forward after the original audit:
 - Collection Owned mutations now accept only `UpdateOwnedItemCommand` and a payload that belongs to the stored kind. The generic `_applyOwnedPatch` reconstruction path was deleted.
 - Full edit submission is built by each concrete kind edit draft. The generic edit host no longer constructs the complete common Owned patch for the primary edit flow.
 - Music owns the condition bucket mutation, and all kinds contribute a typed index update builder. Generic bucket/index coordinators execute typed update commands directly.
-- The architecture checker currently reports 615 AST violations. This remains a failing migration gate; the remaining results are semantic bridges in Catalog/Owned/Collection/Admin/provider boundaries, not compatibility aliases removed in the latest cleanup.
+- The architecture checker currently reports 601 AST violations. This remains a failing migration gate; the remaining results are semantic bridges in Catalog/Owned/Collection/Admin/provider boundaries, not compatibility aliases removed in the latest cleanup.
+- Tracking codec registrations now expose `CatalogMediaKind` directly; only Drift and sync serialization use the API string representation. Seed enrichment/barcode validation and test projections follow the same typed contributor boundary.
+- Provider candidates now retain `CatalogMediaKind` after provider JSON/search conversion; API/admin and provider protocol calls convert to the API string only at their serialization boundary.
 - Compatibility aliases for provider registries, Core catalog DTO names, domain models/IDs, and Library presentation labels were deleted. The source-generated kind registry was regenerated and remains the only central import composition root.
 - Schema version remains exactly `1`; `LocalDatabase` has only direct `onCreate` creation and no compatibility upgrade path.
 
@@ -45,7 +47,7 @@ The common `OwnedItemPatchCommand` and its generic reconstruction path are now d
 Evidence checked:
 
 - `git diff --name-only main..HEAD`: current branch includes the seed quality guard, Comic export/CSV boundaries, Manga Shelf hierarchy ownership, de-shared video ownership details, independent Movie/TV/Anime catalog video snapshots and mappers with the obsolete shared catalog snapshot models removed, explicit personal-list import boundaries, kind-owned Activity projections, kind-owned Admin proposal fields, concrete tracking profiles for every registered kind, kind-owned concrete tracking-unit models and persistence codecs, kind-owned TV/Anime tracking-entry coordinate and sync codecs, kind-owned TV/Anime tracking-entry sync parsing, kind-owned TV/Anime custom-episode/watch-session codecs, kind-owned TV/Anime watch-session sync codecs, TV-owned episode completion mutations, the TV typed hierarchy migration, TV-owned personal episode import mapping, workspace-scoped local reset cleanup, enriched typed seed graphs, typed tracking-unit seed coverage, typed Owned fixture detail validation for all nine kinds, persisted kind-owned Owned-row integrity checks, the narrowed generic Owned tracking sync API, kind-owned TV/Anime inspector extensions for episodic tracking edits, the explicit kind-owned Owned-details decode boundary, kind-owned concrete Owned detail drafts, typed detail-draft codec signatures for all nine registrations, TV-owned release-media/episode-map editing, kind-owned Movie/TV/Anime video metadata application, TV-owned video detail composition, the separate structural tracking payload on Owned add commands, typed tracking-first CSV export, the separate Add tracking draft, structural Add/edit-selection anchors, explicit anchor replacement semantics for tracking edits, generic Collection import/export host controls, kind-owned Comic, Movie, Book, Manga, Game, BoardGame, Anime, TV, and Music CSV/CLZ projections with typed semantic parsing, the all-kind CSV projection contract, kind-owned Collection import display/barcode projections, kind-owned owned-cell decoding for Comic CSV imports, kind-dispatched CSV resolution for rows without explicit Media Type, a dedicated all-kind owned-details serialization codec registry, deletion of the generic derived-data service, typed Comic/Manga serial-authority candidate contributors, typed local catalog lookup contributors for all nine kinds, per-kind legacy Owned writers behind a structural composition-root dispatcher, default Owned-draft dispatch removed from Collection command code, the shared all-kind seed verification report, kind-owned import row presentation and search/barcode projection dispatch, kind-owned catalog-cell reconstruction for CSV imports, kind-owned Add Owned create payload builders for all nine concrete capabilities, kind-owned Comic and all-kind Owned update payload builders, routing of generic update orchestrators through the owning edit capabilities, kind-owned financial projections for toolbar statistics, structural Owned summaries for Reading Queue including universal note search, and kind-owned digital/physical copy format resolvers for all nine kinds.
-- `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 615 AST architecture violations; its complexity warnings are informational. The checker still exposes the broad erased runtime and common domain bridges that the remaining plan must remove. Compatibility-alias cleanup did not add allowlist entries.
+- `tool/check_library_kind_boundaries.dart`: whole-repository baseline currently reports 601 AST architecture violations; its complexity warnings are informational. The checker still exposes the broad erased runtime and common domain bridges that the remaining plan must remove. Compatibility-alias cleanup did not add allowlist entries.
 - `test/contracts/**`, `test/architecture/**`, `test/dev/dev_seed_test.dart`, the Comic domain suite, the Collection/Shelf/Stats suites, and the nine kind vertical suites: focused suites pass; the full suite passes at 1,908 tests with 5 skipped, including the latest seed graph validator, workspace/facet/provider/admin/tracking changes.
 - Barcode contracts execute against all 9 registered kind resolvers; the Add and metadata lookup paths dispatch normalized identifiers through the owning resolver before the API boundary.
 - Loan domain/repository consumers now use `OwnedItemRef` canonically; the manager reads only `OwnedItemSummary` projections; the legacy API `owned_item_id` remains only at the JSON/Drift boundary.
@@ -177,13 +179,13 @@ Status meanings:
 | 107 | TV semantics | **DONE** | Kind-specific domain test suites exist for the listed semantics and the full test suite currently passes. |
 | 108 | Anime semantics | **DONE** | Kind-specific domain test suites exist for the listed semantics and the full test suite currently passes. |
 | 109 | Music semantics | **DONE** | Kind-specific domain test suites exist for the listed semantics and the full test suite currently passes. |
-| 110 | Cross-kind dependency enforcement | **PARTIAL** | Game no longer imports Music and the TV episode mutation provider now lives under TV; generic TV detail imports are removed, while other migration allowlists remain and the checker reports 615 violations. |
-| 111 | Provider dependency enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 615 violations and still has migration allowlists. |
-| 112 | Core DTO ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 615 violations and still has migration allowlists. |
-| 113 | Type-erasure enforcement | **PARTIAL** | Catalog persistence now dispatches through typed kind codecs and catalog snapshot mutation inputs are typed; broader `CatalogItem` and metadata compatibility bridges remain, while the checker reports 615 violations. |
-| 114 | Semantic action enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 615 violations and still has migration allowlists. |
-| 115 | DB ownership enforcement | **PARTIAL** | Kind-owned persistence for all nine kinds now includes complete copy rows and legacy backfills, but final enforcement still reports 615 violations and retains migration allowlists. |
-| 116 | Declarative Add/Edit ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 615 violations and still has migration allowlists. |
+| 110 | Cross-kind dependency enforcement | **PARTIAL** | Game no longer imports Music and the TV episode mutation provider now lives under TV; generic TV detail imports are removed, while other migration allowlists remain and the checker reports 601 violations. |
+| 111 | Provider dependency enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 601 violations and still has migration allowlists. |
+| 112 | Core DTO ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 601 violations and still has migration allowlists. |
+| 113 | Type-erasure enforcement | **PARTIAL** | Catalog persistence now dispatches through typed kind codecs and catalog snapshot mutation inputs are typed; broader `CatalogItem` and metadata compatibility bridges remain, while the checker reports 601 violations. |
+| 114 | Semantic action enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 601 violations and still has migration allowlists. |
+| 115 | DB ownership enforcement | **PARTIAL** | Kind-owned persistence for all nine kinds now includes complete copy rows and legacy backfills, but final enforcement still reports 601 violations and retains migration allowlists. |
+| 116 | Declarative Add/Edit ownership enforcement | **PARTIAL** | Several architecture guards exist, but the current whole-repository checker reports 601 violations and still has migration allowlists. |
 | 117 | Catalog deletions | **PARTIAL** | Delete-only work has removed multiple legacy surfaces, while catalog/Owned/edit/hierarchy compatibility remains. |
 | 118 | Owned deletions | **PARTIAL** | Core no longer dispatches or re-exports concrete `OwnedItemDetails`, and the concrete detail draft union was removed from Collection commands; typed codec/module signatures now retain each draft type. Tracking was separated from the common Owned command and generic transfer surface, Add anchors were removed from the common draft, edit selections now use structural anchors, and raw anchor tuples were removed from Owned/tracking/wishlist mutation APIs. Legacy-to-typed Owned conversion now lives in per-kind writers, leaving the composition root as dispatch-only. Complete typed owned-copy graphs now exist for all nine kinds, and the common `OwnedItemPatchCommand` is deleted. Remaining work includes the common Owned domain, shared grading/signature details, kind cast getters, and `OwnedItemCommonDraft`. |
 | 119 | Edit/Add deletions | **PARTIAL** | Delete-only work has removed multiple legacy surfaces, while catalog/Owned/edit/hierarchy compatibility remains. |
@@ -198,7 +200,7 @@ Status meanings:
 
 | Gate | Status | Evidence |
 |---|---|---|
-| Full `lib/**` semantic checker baseline | FAIL | Current checker exits 1 with 615 AST violations; its complexity warnings are informational and the migration allowlist remains explicit/shrinkable. |
+| Full `lib/**` semantic checker baseline | FAIL | Current checker exits 1 with 601 AST violations; its complexity warnings are informational and the migration allowlist remains explicit/shrinkable. |
 | Core DTO field adoption | PASS | Generated DTO policy and CI checks are present; dev seed/core tests pass. |
 | Nine-kind mandatory typed contracts | PASS | Explicit all-kind manifest and matrix tests are present and passing. |
 | No cross-kind imports | FAIL | Game → Music is removed, but generic Library → TV imports and other cross-boundary compatibility imports remain. |
