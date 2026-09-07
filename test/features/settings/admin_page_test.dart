@@ -187,15 +187,26 @@ void main() {
     expect(api.lastApprovedProposalId, 'proposal-1');
     expect(api.lastApprovedProposalProviderItemId, '12345');
     expect(
-      find.text('Proposal approved with selected provider item.'),
+      find.text(
+        'Proposal approved with selected provider item.',
+        skipOffstage: false,
+      ),
       findsOneWidget,
     );
-
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Reject').first);
+    final rejectButtons = find.widgetWithText(
+      OutlinedButton,
+      'Reject',
+      skipOffstage: false,
+    );
+    await _scrollUntilVisible(tester, rejectButtons);
+    await tester.tap(rejectButtons.first);
     await pumpUntilSettled(tester);
 
     expect(api.lastRejectedProposalId, 'proposal-2');
-    expect(find.text('Proposal rejected.'), findsOneWidget);
+    expect(
+      find.text('Proposal rejected.', skipOffstage: false),
+      findsOneWidget,
+    );
 
     // Provider ingest by ID
     await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
