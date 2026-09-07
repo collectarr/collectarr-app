@@ -21,6 +21,13 @@ final class OwnedItemsRepository {
     return _persistence.listActiveSummaries();
   }
 
+  Future<OwnedItemSummary?> findSummaryById(String id) async {
+    for (final item in await listActiveSummaries()) {
+      if (item.ref.id.value == id) return item;
+    }
+    return null;
+  }
+
   Future<OwnedItem?> findById(String id) => _persistence.findById(id);
 
   Future<List<OwnedItem>> findActiveByItemIds(Iterable<String> itemIds) {

@@ -102,9 +102,9 @@ final class TrackingMutations {
       case OwnedItemTrackingTarget(:final ownedItemId):
         targetOwnedItemId = ownedItemId;
         if (ownedItems != null) {
-          final owned = await ownedItems!.findById(ownedItemId);
-          if (owned != null) {
-            catalogRef = owned.catalogRef;
+          final owned = await ownedItems!.findSummaryById(ownedItemId);
+          if (owned?.catalogRef != null) {
+            catalogRef = owned!.catalogRef!;
           } else {
             final cat = await catalogCache.findById(ownedItemId);
             if (cat != null) {
