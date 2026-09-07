@@ -140,6 +140,12 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
         metadataDecoder: metadataDecoder,
         facetModule: facetModule,
         ownedPersistence: _discoverOwnedPersistence(entity),
+        catalogRepositoryCodec: _discoverContributor(
+          entity,
+          'data',
+          '${folder}_catalog_repository_codec.dart',
+          'CatalogKindRepositoryCodec',
+        ),
       ),
     );
   }
@@ -292,6 +298,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -340,6 +347,15 @@ import 'package:flutter/material.dart';
         );
       }
     }
+  }
+  for (final descriptor in descriptors) {
+    final codec = descriptor.catalogRepositoryCodec;
+    if (codec == null || !importedContributorPaths.add(codec.importPath)) {
+      continue;
+    }
+    buffer.writeln(
+      "import 'package:collectarr_app/${codec.importPath}';",
+    );
   }
   buffer.writeln(
     "import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';",
@@ -475,6 +491,7 @@ import 'package:flutter/material.dart';
   _renderFacetMap(buffer, descriptors);
   _renderMetadataDecoderMap(buffer, descriptors);
   _renderOwnedPersistenceMaps(buffer, descriptors);
+  _renderCatalogRepositoryCodecs(buffer, descriptors);
   buffer.writeln();
   buffer
       .writeln('LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {');
@@ -777,6 +794,22 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln('}');
 }
 
+void _renderCatalogRepositoryCodecs(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln(
+    'const List<CatalogKindRepositoryCodec> '
+    'collectarrKindCatalogRepositoryCodecs = [',
+  );
+  for (final descriptor in descriptors) {
+    final codec = descriptor.catalogRepositoryCodec;
+    if (codec == null) continue;
+    buffer.writeln('  ${codec.className}(),');
+  }
+  buffer.writeln('];');
+}
+
 final class _KindDescriptor {
   const _KindDescriptor({
     required this.folder,
@@ -797,6 +830,7 @@ final class _KindDescriptor {
     this.metadataDecoder,
     this.facetModule,
     this.ownedPersistence,
+    this.catalogRepositoryCodec,
   });
 
   final String folder;
@@ -817,6 +851,7 @@ final class _KindDescriptor {
   final _MetadataDecoder? metadataDecoder;
   final String? facetModule;
   final _OwnedPersistence? ownedPersistence;
+  final _Contributor? catalogRepositoryCodec;
 
   Iterable<_Contributor> get contributors sync* {
     for (final contributor in [

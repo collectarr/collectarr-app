@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -144,6 +145,15 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dar
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_catalog_repository_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_catalog_repository_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_catalog_repository_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_repository_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_catalog_repository_codec.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_catalog_repository_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_catalog_repository_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_catalog_repository_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_catalog_repository_codec.dart';
 import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
@@ -491,6 +501,18 @@ OwnedItem? _collectarrOwnedToCommon<T>(
 ) {
   return item == null ? null : project(item);
 }
+
+const List<CatalogKindRepositoryCodec> collectarrKindCatalogRepositoryCodecs = [
+  AnimeCatalogRepositoryCodec(),
+  BoardGameCatalogRepositoryCodec(),
+  BookCatalogRepositoryCodec(),
+  ComicCatalogRepositoryCodec(),
+  GameCatalogRepositoryCodec(),
+  MangaCatalogRepositoryCodec(),
+  MovieCatalogRepositoryCodec(),
+  MusicCatalogRepositoryCodec(),
+  TvCatalogRepositoryCodec(),
+];
 
 LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {
   for (final module in collectarrKindModules) {

@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_reposito
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_catalog_repository_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
 /// Reads and writes the kind-owned catalog graphs.
@@ -17,7 +17,7 @@ final class LibraryCatalogRepository {
   LibraryCatalogRepository(
     this._db, {
     Iterable<CatalogKindRepositoryCodec> codecs =
-        collectarrCatalogRepositoryCodecs,
+        collectarrKindCatalogRepositoryCodecs,
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 
 class ProviderCandidate {
@@ -81,7 +82,7 @@ class ProviderCandidate {
   }
 
   CatalogItem placeholderItem() {
-    return CatalogItem.fromJson({
+    final item = CatalogItem.fromJson({
       'id': localCatalogId,
       'kind': kind,
       'title': title,
@@ -95,6 +96,12 @@ class ProviderCandidate {
       if (series != null) 'volume_start_year': series!.volumeStartYear,
       if (series != null) 'release_year': series!.volumeStartYear,
     });
+    final decoder = libraryKindCatalogMetadataDecoderForKind(
+      catalogMediaKindFromApiValue(kind),
+    );
+    return decoder == null
+        ? item
+        : item.withKindMetadata(decoder(item.payload));
   }
 
   bool get isStub {
