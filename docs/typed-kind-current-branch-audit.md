@@ -1,13 +1,26 @@
 # Typed-kind current branch audit
 
-Audit date: 2026-09-06
+Audit date: 2026-09-07
 Branch: `work/typed-kind-full-implementation-plan`
 Compared with `main`: `df49cf2a4fda6c70f0025ae8ce99f6123d3083e5`
-HEAD: `be8f3302` (`refactor(library): move copy format semantics into kinds`)
+HEAD: `7cfd82b2` (`refactor(library): type owned index updates`)
 
 ## Scope and evidence
 
 This is the PR0 rebaseline for the new Full Typed-Kind Vertical Architecture plan. It covers the full `lib/**` production tree, the existing architecture checker, contract tests, kind modules, provider boundaries, persistence, and the seed scripts. Statuses are deliberately stricter than the previous plan: a typed slice is not DONE while a generic semantic bridge, common Owned model, or erased catalog representation remains.
+
+## Addendum — 2026-09-07
+
+The branch moved forward after the original audit:
+
+- `tool/generate_kind_registries.dart` now discovers all nine kind-owned seed contributors and emits `collectarr_dev_seed_registry.g.dart`; seed orchestration no longer imports every kind manually or switches over concrete tracking repositories.
+- Collection Owned mutations now accept only `UpdateOwnedItemCommand` and a payload that belongs to the stored kind. The generic `_applyOwnedPatch` reconstruction path was deleted.
+- Full edit submission is built by each concrete kind edit draft. The generic edit host no longer constructs the complete common Owned patch for the primary edit flow.
+- Music owns the condition bucket mutation, and all kinds contribute a typed index update builder. Generic bucket/index coordinators execute typed update commands directly.
+- The architecture checker baseline is now 377 AST violations. This remains a failing migration gate; the reduction is evidence that the removed generic Owned reconstructions were semantic violations, not an allowlist change.
+- Schema version remains exactly `1`; `LocalDatabase` has only direct `onCreate` creation and no compatibility upgrade path.
+
+The common `OwnedItemPatchCommand` still exists for bulk, transfer, inspector, and page-selection compatibility paths, and the common `OwnedItem` aggregate, normalized provider envelope, catalog DTO bridge, and erased `LibraryKindModule` consumers remain. These are the next implementation targets, not completed architecture.
 
 Evidence checked:
 
