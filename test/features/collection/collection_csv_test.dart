@@ -71,14 +71,6 @@ void main() {
     expect(rows.single.itemId, 'comic-1');
     expect(rows.single.kind, 'comic');
     expect(rows.single.title, 'Spider-Man, "Vol. 1"');
-    expect(rows.single.itemNumber, '1');
-    expect(rows.single.variant, 'Newsstand');
-    expect(rows.single.editionTitle, 'Direct market edition');
-    expect(rows.single.physicalFormat, 'single-issue');
-    expect(rows.single.physicalFormatLabel, 'Single Issue');
-    expect(rows.single.publisher, 'Marvel');
-    expect(rows.single.releaseDate, DateTime.utc(1963, 3, 1));
-    expect(rows.single.barcode, '071486024576');
     expect(rows.single.kindCatalogCells, [
       'comic-1',
       'comic',
@@ -100,7 +92,6 @@ void main() {
     expect(rows.single.quantity, 2);
     expect(rows.single.locationId, 'Office › Shelf A › Short Box 6');
     expect(rows.single.indexNumber, 1310);
-    expect(rows.single.coverPriceCents, 399);
     expect(rows.single.kindOwnedCells, [
       '399',
       'Raw',
@@ -112,12 +103,6 @@ void main() {
       'true',
       'First appearance',
     ]);
-    expect(rows.single.rawOrSlabbed, 'Raw');
-    expect(rows.single.gradingCompany, 'CGC');
-    expect(rows.single.graderNotes, 'Clean press');
-    expect(rows.single.signedBy, 'Stan Lee');
-    expect(rows.single.keyComic, isTrue);
-    expect(rows.single.keyReason, 'First appearance');
     expect(rows.single.rating, 5);
     expect(rows.single.readStatus, 'Completed');
     expect(rows.single.tags, 'spider,key');
@@ -297,12 +282,19 @@ void main() {
     final rows = CollectionCsv().parse(exported);
     expect(rows.single.kind, 'movie');
     expect(rows.single.title, 'Blade Runner');
-    expect(rows.single.itemNumber, 'Final Cut');
-    expect(rows.single.variant, '4K UHD');
-    expect(rows.single.editionTitle, 'Final Cut 4K release');
-    expect(rows.single.physicalFormat, '4k-uhd');
-    expect(rows.single.physicalFormatLabel, '4K UHD');
-    expect(rows.single.publisher, 'Warner Bros.');
+    expect(rows.single.kindCatalogCells, [
+      'movie-1',
+      'movie',
+      'Blade Runner',
+      'Final Cut',
+      '4K UHD',
+      'Final Cut 4K release',
+      '4k-uhd',
+      '4K UHD',
+      'Warner Bros.',
+      '1982-06-25',
+      '883929087129',
+    ]);
   });
 
   test('collection csv parses clz-style aliases and money fields', () {
@@ -348,16 +340,16 @@ void main() {
     expect(rows.single.itemId, 'comic-1');
     expect(rows.single.status, 'owned');
     expect(rows.single.title, 'The Amazing Spider-Man, Vol. 2');
-    expect(rows.single.itemNumber, '520');
-    expect(rows.single.variant, 'Direct Edition');
-    expect(rows.single.publisher, 'Marvel Comics');
-    expect(rows.single.releaseDate, DateTime.utc(2005, 7, 1));
+    expect(rows.single.kindCatalogCells[3], '520');
+    expect(rows.single.kindCatalogCells[4], 'Direct Edition');
+    expect(rows.single.kindCatalogCells[8], 'Marvel Comics');
+    expect(rows.single.kindCatalogCells[9], '2005-07-01');
     expect(rows.single.grade, '7.5');
     expect(rows.single.condition, 'Very Fine');
     expect(rows.single.pricePaidCents, 900);
     expect(rows.single.locationId, 'loc-box-6');
     expect(rows.single.readStatus, 'Read');
-    expect(rows.single.keyComic, isTrue);
+    expect(rows.single.kindOwnedCells[7], 'true');
     expect(rows.single.notes, 'CLZ import');
   });
 
@@ -387,11 +379,11 @@ void main() {
 
     expect(rows.single.itemId, 'comic-1');
     expect(rows.single.kind, 'comic');
-    expect(rows.single.itemNumber, '1');
-    expect(rows.single.rawOrSlabbed, 'Slabbed');
-    expect(rows.single.gradingCompany, 'CGC');
-    expect(rows.single.keyComic, isTrue);
-    expect(rows.single.keyReason, 'First appearance');
+    expect(rows.single.kindCatalogCells[3], '1');
+    expect(rows.single.kindOwnedCells[1], 'Slabbed');
+    expect(rows.single.kindOwnedCells[2], 'CGC');
+    expect(rows.single.kindOwnedCells[7], 'true');
+    expect(rows.single.kindOwnedCells[8], 'First appearance');
   });
 
   test('collection csv parses structured location ids directly', () {
@@ -439,9 +431,9 @@ void main() {
     );
 
     expect(rows[0].pricePaidCents, 123456);
-    expect(rows[0].coverPriceCents, 250000);
+    expect(rows[0].kindOwnedCells[0], '250000');
     expect(rows[1].pricePaidCents, 123456);
-    expect(rows[1].coverPriceCents, 250000);
+    expect(rows[1].kindOwnedCells[0], '250000');
   });
 
   test('collection csv keeps clz rows without collectarr ids for matching', () {
@@ -467,8 +459,8 @@ void main() {
     expect(rows, hasLength(1));
     expect(rows.single.itemId, isEmpty);
     expect(rows.single.title, 'The Amazing Spider-Man, Vol. 2');
-    expect(rows.single.itemNumber, '520');
-    expect(rows.single.barcode, '75960604716152011');
+    expect(rows.single.kindCatalogCells[3], '520');
+    expect(rows.single.kindCatalogCells[10], '75960604716152011');
     expect(rows.single.isOwned, isTrue);
   });
 
@@ -508,9 +500,9 @@ void main() {
       ]),
     );
 
-    expect(rows[0].releaseDate, DateTime.utc(2026, 5, 11));
     expect(rows[0].purchaseDate, DateTime.utc(2026, 5, 12));
-    expect(rows[1].releaseDate, DateTime.utc(2025, 12, 31));
+    expect(rows[0].kindCatalogCells, hasLength(11));
+    expect(rows[1].kindCatalogCells, hasLength(11));
   });
 
   test('csv export includes custom field columns', () {

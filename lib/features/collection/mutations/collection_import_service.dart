@@ -279,9 +279,10 @@ final class CollectionImportService {
     for (final r in rows) {
       var row = r;
       if (row.itemId.trim().isEmpty) {
-        if (row.barcode != null && row.barcode!.trim().isNotEmpty) {
+        final barcode = _importRowBarcode(row);
+        if (barcode != null && barcode.isNotEmpty) {
           final matched = await catalogLookup.findByBarcode(
-            row.barcode!,
+            barcode,
             kind: row.kind,
           );
           if (matched != null) {
@@ -291,9 +292,10 @@ final class CollectionImportService {
         if (row.itemId.trim().isEmpty &&
             row.title != null &&
             row.title!.trim().isNotEmpty) {
+          final primaryLookupValue = _importRowPrimaryLookupValue(row);
           final matched = await catalogLookup.findByTitleAndItemNumber(
             title: row.title!,
-            itemNumber: row.itemNumber,
+            itemNumber: primaryLookupValue,
             kind: row.kind,
           );
           if (matched != null) {
@@ -304,7 +306,7 @@ final class CollectionImportService {
       if (row.itemId.trim().isNotEmpty) {
         candidateRows.add(row);
       } else if ((row.title != null && row.title!.trim().isNotEmpty) ||
-          (row.barcode != null && row.barcode!.trim().isNotEmpty) ||
+          _importRowBarcode(row) != null ||
           row.status.trim().isNotEmpty) {
         unresolvedRows.add(row);
       } else {
@@ -378,14 +380,29 @@ final class CollectionImportService {
       'id': row.itemId,
       'kind': row.kind ?? CatalogMediaKind.unknown.apiValue,
       'title': row.title ?? row.itemId,
-      if (row.itemNumber != null) 'item_number': row.itemNumber,
-      if (row.variant != null) 'variant': row.variant,
-      if (row.editionTitle != null) 'edition_title': row.editionTitle,
-      if (row.physicalFormat != null) 'physical_format': row.physicalFormat,
-      if (row.physicalFormatLabel != null)
-        'physical_format_label': row.physicalFormatLabel,
-      if (row.barcode != null) 'barcode': row.barcode,
     });
+  }
+
+  String? _importRowPrimaryLookupValue(CollectionCsvRow row) {
+    final projection = libraryCollectionCsvProjectionForKind(
+      catalogMediaKindFromValue(row.kind),
+    );
+    if (projection == null ||
+        row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
+      return null;
+    }
+    return projection.importPrimaryLookupValue(row.kindCatalogCells);
+  }
+
+  String? _importRowBarcode(CollectionCsvRow row) {
+    final projection = libraryCollectionCsvProjectionForKind(
+      catalogMediaKindFromValue(row.kind),
+    );
+    if (projection == null ||
+        row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
+      return null;
+    }
+    return projection.importBarcode(row.kindCatalogCells);
   }
 
   _TypedOwnedImport _typedOwnedItemFromCsvRow(

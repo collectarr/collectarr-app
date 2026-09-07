@@ -971,8 +971,12 @@ String _importRowSearchQuery(CollectionCsvRow row) {
 }
 
 String? _importRowBarcode(CollectionCsvRow row) {
-  final value = row.kindCatalogCells.elementAtOrNull(10)?.trim();
-  return value == null || value.isEmpty ? null : value;
+  final projection = _importProjection(row);
+  if (projection == null ||
+      row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
+    return null;
+  }
+  return projection.importBarcode(row.kindCatalogCells);
 }
 
 LibraryCollectionCsvProjection? _importProjection(CollectionCsvRow row) {

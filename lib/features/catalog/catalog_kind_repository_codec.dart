@@ -1,15 +1,14 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
 
 /// Persistence adapter for one catalog kind.
 ///
 /// The catalog feature only aggregates the structural [CatalogItemDto]
 /// projection. Each adapter owns the mapping to and from its typed domain
 /// repository.
-abstract interface class CatalogKindRepositoryCodec {
-  CatalogMediaKind get kind;
-
+abstract interface class CatalogKindRepositoryCodec
+    implements CatalogKindSummaryReader {
   /// Decodes the API-bound catalog projection into this kind's concrete
   /// metadata value for derived-data contributors.
   Object? typedMetadataFromDto(CatalogItemDto item);
@@ -21,10 +20,4 @@ abstract interface class CatalogKindRepositoryCodec {
   Future<void> upsert(LocalDatabase db, CatalogItemDto item);
 
   Future<List<CatalogItemDto>> list(LocalDatabase db);
-
-  /// Reads only the structural fields required by mixed/global hosts.
-  ///
-  /// Implementations must build this from the owning typed repository rather
-  /// than rehydrating a [CatalogItemDto].
-  Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db);
 }

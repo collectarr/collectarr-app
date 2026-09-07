@@ -43,6 +43,26 @@ final class MangaMedia {
 
   Map<String, dynamic> toSyncPayload() => toJson();
 
+  MangaMedia copyWith({Map<String, dynamic>? rawPayload}) {
+    return MangaMedia(
+      id: id,
+      title: title,
+      sortTitle: sortTitle,
+      description: description,
+      firstPublicationDate: firstPublicationDate,
+      originalLanguage: originalLanguage,
+      originalPublicationDate: originalPublicationDate,
+      status: status,
+      subtitle: subtitle,
+      chapters: chapters,
+      characterAppearances: characterAppearances,
+      contributions: contributions,
+      identifiers: identifiers,
+      series: series,
+      rawPayload: rawPayload ?? this.rawPayload,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'id': id,

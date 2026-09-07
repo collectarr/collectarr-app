@@ -34,6 +34,49 @@ void main() {
     );
   });
 
+  test('library has no generic pseudo-kind or root hierarchy aliases', () {
+    const obsoletePaths = [
+      'lib/features/library/kinds/generic/generic_kind_module.dart',
+      'lib/features/library/seasons_section.dart',
+      'lib/features/library/volumes_section.dart',
+    ];
+
+    expect(
+      obsoletePaths.where((path) => File(path).existsSync()),
+      isEmpty,
+      reason:
+          'Generic pseudo-kind and root hierarchy aliases must stay deleted.',
+    );
+
+    final libraryDir = Directory('lib/features/library');
+    final forbiddenSymbols = <String>[
+      'genericKindModule',
+      'GenericRegistration',
+      'SeasonsSection',
+      'VolumesSection',
+    ];
+    final staleReferences = <String>[];
+
+    for (final entity in libraryDir.listSync(recursive: true)) {
+      if (entity is! File || !entity.path.endsWith('.dart')) {
+        continue;
+      }
+      final content = entity.readAsStringSync();
+      for (final symbol in forbiddenSymbols) {
+        if (RegExp(r'\b' + RegExp.escape(symbol) + r'\b').hasMatch(content)) {
+          staleReferences.add('${entity.path}: $symbol');
+        }
+      }
+    }
+
+    expect(
+      staleReferences,
+      isEmpty,
+      reason: 'Library code must dispatch unknown kinds by failure and use '
+          'kind-owned hierarchy contributions instead of root aliases.',
+    );
+  });
+
   test(
       'kind domain metadata models do not import UI widgets or edit dialog shells',
       () {

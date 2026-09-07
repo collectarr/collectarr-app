@@ -11,14 +11,6 @@ class CollectionCsvRow {
     required this.status,
     this.kind,
     this.title,
-    this.itemNumber,
-    this.variant,
-    this.editionTitle,
-    this.physicalFormat,
-    this.physicalFormatLabel,
-    this.publisher,
-    this.releaseDate,
-    this.barcode,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -28,15 +20,6 @@ class CollectionCsvRow {
     this.quantity,
     this.locationId,
     this.indexNumber,
-    this.coverPriceCents,
-    this.rawOrSlabbed,
-    this.gradingCompany,
-    this.graderNotes,
-    this.signedBy,
-    this.labelType,
-    this.certificationNumber,
-    this.keyComic = false,
-    this.keyReason,
     this.rating,
     this.readStatus,
     this.startedAt,
@@ -54,14 +37,13 @@ class CollectionCsvRow {
   final String status;
   final String? kind;
   final String? title;
-  final String? itemNumber;
-  final String? variant;
-  final String? editionTitle;
-  final String? physicalFormat;
-  final String? physicalFormatLabel;
-  final String? publisher;
-  final DateTime? releaseDate;
-  final String? barcode;
+
+  /// Fields whose meaning is shared by the Collection CSV host itself.
+  ///
+  /// Catalog identity and kind-specific Owned data are intentionally absent
+  /// from this row. They remain opaque positional cells in
+  /// [kindCatalogCells] and [kindOwnedCells] and are interpreted only by the
+  /// owning kind projection.
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -71,15 +53,6 @@ class CollectionCsvRow {
   final int? quantity;
   final String? locationId;
   final int? indexNumber;
-  final int? coverPriceCents;
-  final String? rawOrSlabbed;
-  final String? gradingCompany;
-  final String? graderNotes;
-  final String? signedBy;
-  final String? labelType;
-  final String? certificationNumber;
-  final bool keyComic;
-  final String? keyReason;
   final int? rating;
   final String? readStatus;
   final DateTime? startedAt;
@@ -107,14 +80,6 @@ class CollectionCsvRow {
     String? status,
     String? kind,
     String? title,
-    String? itemNumber,
-    String? variant,
-    String? editionTitle,
-    String? physicalFormat,
-    String? physicalFormatLabel,
-    String? publisher,
-    DateTime? releaseDate,
-    String? barcode,
     String? condition,
     String? grade,
     DateTime? purchaseDate,
@@ -124,15 +89,6 @@ class CollectionCsvRow {
     int? quantity,
     String? locationId,
     int? indexNumber,
-    int? coverPriceCents,
-    String? rawOrSlabbed,
-    String? gradingCompany,
-    String? graderNotes,
-    String? signedBy,
-    String? labelType,
-    String? certificationNumber,
-    bool? keyComic,
-    String? keyReason,
     int? rating,
     String? readStatus,
     DateTime? startedAt,
@@ -150,14 +106,6 @@ class CollectionCsvRow {
       status: status ?? this.status,
       kind: kind ?? this.kind,
       title: title ?? this.title,
-      itemNumber: itemNumber ?? this.itemNumber,
-      variant: variant ?? this.variant,
-      editionTitle: editionTitle ?? this.editionTitle,
-      physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
-      publisher: publisher ?? this.publisher,
-      releaseDate: releaseDate ?? this.releaseDate,
-      barcode: barcode ?? this.barcode,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -167,15 +115,6 @@ class CollectionCsvRow {
       quantity: quantity ?? this.quantity,
       locationId: locationId ?? this.locationId,
       indexNumber: indexNumber ?? this.indexNumber,
-      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
-      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
-      gradingCompany: gradingCompany ?? this.gradingCompany,
-      graderNotes: graderNotes ?? this.graderNotes,
-      signedBy: signedBy ?? this.signedBy,
-      labelType: labelType ?? this.labelType,
-      certificationNumber: certificationNumber ?? this.certificationNumber,
-      keyComic: keyComic ?? this.keyComic,
-      keyReason: keyReason ?? this.keyReason,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
       startedAt: startedAt ?? this.startedAt,
@@ -651,14 +590,6 @@ class CollectionCsv {
       status: _normalizedStatus(_value(index, values, 'status')),
       kind: _optionalCell(catalogCells[1]),
       title: _optionalCell(catalogCells[2]),
-      itemNumber: _optionalCell(catalogCells[3]),
-      variant: _optionalCell(catalogCells[4]),
-      editionTitle: _optionalCell(catalogCells[5]),
-      physicalFormat: _optionalCell(catalogCells[6]),
-      physicalFormatLabel: _optionalCell(catalogCells[7]),
-      publisher: _optionalCell(catalogCells[8]),
-      releaseDate: _parseDate(catalogCells[9]),
-      barcode: _optionalCell(catalogCells[10]),
       condition: _optionalValue(index, values, 'condition'),
       grade: _optionalValue(index, values, 'grade'),
       purchaseDate: _parseDate(_value(index, values, 'purchase_date')),
@@ -668,15 +599,6 @@ class CollectionCsv {
       quantity: int.tryParse(_value(index, values, 'quantity')),
       locationId: _optionalValue(index, values, 'location_id'),
       indexNumber: int.tryParse(_value(index, values, 'index_number')),
-      coverPriceCents: _moneyCents(ownedCells[0]),
-      rawOrSlabbed: _optionalCell(ownedCells[1]),
-      gradingCompany: _optionalCell(ownedCells[2]),
-      graderNotes: _optionalCell(ownedCells[3]),
-      signedBy: _optionalCell(ownedCells[4]),
-      labelType: _optionalCell(ownedCells[5]),
-      certificationNumber: _optionalCell(ownedCells[6]),
-      keyComic: _boolCell(ownedCells[7]),
-      keyReason: _optionalCell(ownedCells[8]),
       rating: int.tryParse(_value(index, values, 'rating')),
       readStatus: _optionalValue(index, values, 'read_status'),
       startedAt: _parseDate(_value(index, values, 'started_at')),
@@ -719,14 +641,10 @@ class CollectionCsv {
       _value(index, values, 'item_id'),
       _value(index, values, 'kind'),
       _value(index, values, 'title'),
-      _value(index, values, 'item_number'),
-      _value(index, values, 'variant'),
-      _value(index, values, 'edition_title'),
-      _value(index, values, 'physical_format'),
-      _value(index, values, 'physical_format_label'),
-      _value(index, values, 'publisher'),
-      _value(index, values, 'release_date'),
-      _value(index, values, 'barcode'),
+      ...List<String>.filled(
+        libraryCollectionCsvCatalogCellCount - 3,
+        '',
+      ),
     ];
   }
 
@@ -734,29 +652,12 @@ class CollectionCsv {
     Map<String, int> index,
     List<String> values,
   ) {
-    return [
-      _value(index, values, 'cover_price_cents'),
-      _value(index, values, 'raw_or_slabbed'),
-      _value(index, values, 'grading_company'),
-      _value(index, values, 'grader_notes'),
-      _value(index, values, 'signed_by'),
-      _value(index, values, 'label_type'),
-      _value(index, values, 'certification_number'),
-      _value(index, values, 'key_comic'),
-      _value(index, values, 'key_reason'),
-    ];
+    return List<String>.filled(libraryCollectionCsvOwnedCellCount, '');
   }
 
   String? _optionalCell(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
-  }
-
-  bool _boolCell(String value) {
-    return switch (value.trim().toLowerCase()) {
-      '1' || 'true' || 'yes' || 'y' => true,
-      _ => false,
-    };
   }
 
   /// Extracts custom field column names and their indices from the header.
@@ -777,12 +678,9 @@ class CollectionCsv {
         (row.kind?.trim().isNotEmpty ?? false) ||
         row.status.trim().isNotEmpty ||
         (row.title?.trim().isNotEmpty ?? false) ||
-        (row.itemNumber?.trim().isNotEmpty ?? false) ||
-        (row.editionTitle?.trim().isNotEmpty ?? false) ||
-        (row.physicalFormat?.trim().isNotEmpty ?? false) ||
         (row.locationId?.trim().isNotEmpty ?? false) ||
-        (row.publisher?.trim().isNotEmpty ?? false) ||
-        (row.barcode?.trim().isNotEmpty ?? false);
+        row.kindCatalogCells.any((cell) => cell.trim().isNotEmpty) ||
+        row.kindOwnedCells.any((cell) => cell.trim().isNotEmpty);
   }
 
   Map<String, int> _headerIndex(List<String> header) {
@@ -999,56 +897,6 @@ class CollectionCsv {
     ],
     'kind': ['Media Type', 'Kind', 'Type', 'Library', 'Media Kind'],
     'title': ['Series', 'Show', 'Release', 'Full Title'],
-    'item_number': [
-      'No. / Vol.',
-      'Volume',
-      'Season / Volume',
-      'Edition no.',
-      'Version',
-    ],
-    'variant': [
-      'Variant',
-      'Format / Edition',
-      'Platform / Edition',
-      'Edition / Binding',
-      'Edition / Variant',
-      'Edition / Variant / Format',
-      'Expansion / Edition',
-    ],
-    'edition_title': ['Edition Title', 'Edition Name', 'Release Title'],
-    'physical_format': [
-      'Physical Format',
-      'Format ID',
-      'Media Format',
-      'Video Format',
-      'Disc Format',
-    ],
-    'physical_format_label': [
-      'Physical Format Label',
-      'Format',
-      'Format Label',
-      'Video Format Label',
-    ],
-    'publisher': [
-      'Publisher',
-      'Studio',
-      'Network / Studio',
-      'Studio / Publisher',
-      'Publisher / Studio',
-      'Publisher / Designer',
-      'Label / Artist',
-      'Publisher / Studio / Creator',
-    ],
-    'release_date': ['Release Date', 'Cover Date'],
-    'barcode': [
-      'Barcode',
-      'UPC',
-      'ISBN',
-      'UPC / Barcode',
-      'ISBN / Barcode',
-      'Barcode / Catalog no.',
-      'Barcode / UPC / ISBN',
-    ],
     'status': ['Collection Status', 'Status'],
     'condition': ['Condition'],
     'grade': ['Grade', 'Grade and Value'],

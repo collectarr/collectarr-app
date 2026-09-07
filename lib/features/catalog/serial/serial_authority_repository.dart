@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 
 class SerialAuthorityEntry {
   const SerialAuthorityEntry({
@@ -277,25 +277,18 @@ class SerialAuthorityRepository {
     if (!applyToCatalog) {
       return;
     }
-    final catalogItems =
-        await LibraryCatalogRepository(_db).findAll(kind: row.mediaKind);
-    for (final catalogItem in catalogItems) {
-      if (!_catalogMatchesSeries(catalogItem, row)) {
-        continue;
-      }
-      await LibraryCatalogRepository(_db).upsertAll(
-        [
-          CatalogItemDto.fromJson(
-            _catalogPayloadWithSeries(
-              catalogItem,
-              seriesId: row.coreSeriesId,
-              seriesTitle: title.trim(),
-            ),
-          ),
-        ],
-        captureDerivedData: false,
-      );
-    }
+    final contributor = _contributorFor(row.mediaKind);
+    if (contributor == null) return;
+    final itemIds = (await contributor.catalogRecords(_db))
+        .where((item) => _catalogMatchesSeries(item, row))
+        .map((item) => item.itemId)
+        .toList(growable: false);
+    await contributor.assignSeries(
+      _db,
+      itemIds: itemIds,
+      coreSeriesId: row.coreSeriesId,
+      seriesTitle: title.trim(),
+    );
   }
 
   Future<void> mergeEntries({
@@ -325,28 +318,22 @@ class SerialAuthorityRepository {
     if (sources.isEmpty) {
       return;
     }
-    final catalogItems =
-        await LibraryCatalogRepository(_db).findAll(kind: target.mediaKind);
-    for (final catalogItem in catalogItems) {
-      final matchesSource = sources.any(
-        (source) => _catalogMatchesSeries(catalogItem, source),
-      );
-      if (!matchesSource) {
-        continue;
-      }
-      await LibraryCatalogRepository(_db).upsertAll(
-        [
-          CatalogItemDto.fromJson(
-            _catalogPayloadWithSeries(
-              catalogItem,
-              seriesId: target.coreSeriesId,
-              seriesTitle: target.title,
-            ),
+    final contributor = _contributorFor(target.mediaKind);
+    if (contributor == null) return;
+    final itemIds = (await contributor.catalogRecords(_db))
+        .where(
+          (item) => sources.any(
+            (source) => _catalogMatchesSeries(item, source),
           ),
-        ],
-        captureDerivedData: false,
-      );
-    }
+        )
+        .map((item) => item.itemId)
+        .toList(growable: false);
+    await contributor.assignSeries(
+      _db,
+      itemIds: itemIds,
+      coreSeriesId: target.coreSeriesId,
+      seriesTitle: target.title,
+    );
     await (_db.delete(_db.serialAuthorityCache)
           ..where((table) => table.id.isIn(uniqueSourceIds)))
         .go();
@@ -354,20 +341,16 @@ class SerialAuthorityRepository {
 
   Future<Map<String, int>> _countsBySeriesKey(String mediaKind) async {
     final counts = <String, int>{};
-    final catalogItems =
-        await LibraryCatalogRepository(_db).findAll(kind: mediaKind);
+    final contributor = _contributorFor(mediaKind);
+    if (contributor == null) return counts;
+    final catalogItems = await contributor.catalogRecords(_db);
     for (final catalogItem in catalogItems) {
-      final series = _seriesPayload(catalogItem);
-      final normalizedTitle = _normalize(
-        (series['series_title'] ?? series['seriesTitle'])?.toString(),
-      );
+      final normalizedTitle = _normalize(catalogItem.seriesTitle);
       if (normalizedTitle == null) {
         continue;
       }
       final key = _seriesKey(
-        coreSeriesId: _emptyToNull(
-          (series['series_id'] ?? series['seriesId'])?.toString(),
-        ),
+        coreSeriesId: _emptyToNull(catalogItem.coreSeriesId),
         normalizedTitle: normalizedTitle,
       );
       counts.update(key, (count) => count + 1, ifAbsent: () => 1);
@@ -414,49 +397,24 @@ class SerialAuthorityRepository {
   }
 
   bool _catalogMatchesSeries(
-    CatalogItemDto catalogItem,
+    SerialAuthorityCatalogRecord catalogItem,
     SerialAuthorityCacheData registryRow,
   ) {
     final registryCoreSeriesId = _emptyToNull(registryRow.coreSeriesId);
-    final series = _seriesPayload(catalogItem);
-    final catalogCoreSeriesId = _emptyToNull(
-      (series['series_id'] ?? series['seriesId'])?.toString(),
-    );
+    final catalogCoreSeriesId = _emptyToNull(catalogItem.coreSeriesId);
     if (registryCoreSeriesId != null &&
         catalogCoreSeriesId == registryCoreSeriesId) {
       return true;
     }
-    return _normalize(
-          (series['series_title'] ?? series['seriesTitle'])?.toString(),
-        ) ==
-        registryRow.normalizedTitle;
+    return _normalize(catalogItem.seriesTitle) == registryRow.normalizedTitle;
   }
 
-  static Map<String, dynamic> _seriesPayload(CatalogItemDto item) {
-    final rawSeries = item.payload['series'];
-    return rawSeries is Map ? Map<String, dynamic>.from(rawSeries) : const {};
-  }
-
-  static Map<String, dynamic> _catalogPayloadWithSeries(
-    CatalogItemDto item, {
-    required String? seriesId,
-    required String seriesTitle,
-  }) {
-    final payload = Map<String, dynamic>.from(item.payload);
-    final series = _seriesPayload(item);
-    if (seriesId == null || seriesId.isEmpty) {
-      series.remove('series_id');
-      series.remove('seriesId');
-    } else {
-      series['series_id'] = seriesId;
+  static SerialAuthorityContributor? _contributorFor(String mediaKind) {
+    final kind = catalogMediaKindFromApiValue(mediaKind);
+    for (final contributor in collectarrSerialAuthorityContributors) {
+      if (contributor.kind == kind) return contributor;
     }
-    series['series_title'] = seriesTitle;
-    payload['series'] = series;
-    return {
-      'id': item.id,
-      ...item.toSyncPayload(),
-      ...payload,
-    };
+    return null;
   }
 
   static String? _normalize(String? value) {

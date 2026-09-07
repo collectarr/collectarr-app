@@ -20,6 +20,15 @@ abstract interface class LibraryCollectionCsvProjection {
 
   String importDisplaySubtitle(List<String> catalogCells);
 
+  /// Returns the kind-defined value used for title/identifier matching at the
+  /// import boundary. The collection host does not call this field an issue,
+  /// volume, edition or version because that meaning belongs to the kind.
+  String? importPrimaryLookupValue(List<String> catalogCells);
+
+  /// Returns the kind-defined barcode/ISBN/UPC value, when the kind supports
+  /// one. The collection host only uses the normalized lookup value.
+  String? importBarcode(List<String> catalogCells);
+
   CatalogItemDto? catalogItemFromImportCells(List<String> catalogCells);
 
   bool catalogMatchesBarcode(CatalogItemDto item, String normalizedBarcode);
@@ -132,6 +141,18 @@ mixin LibraryCollectionCsvProjectionPresentation {
       if ((catalogCells.elementAtOrNull(10) ?? '').trim().isNotEmpty)
         catalogCells.elementAtOrNull(10),
     ].join(' | ');
+  }
+
+  @override
+  String? importPrimaryLookupValue(List<String> catalogCells) {
+    final value = catalogCells.elementAtOrNull(3)?.trim();
+    return value == null || value.isEmpty ? null : value;
+  }
+
+  @override
+  String? importBarcode(List<String> catalogCells) {
+    final value = catalogCells.elementAtOrNull(10)?.trim();
+    return value == null || value.isEmpty ? null : value;
   }
 
   /// Matches the normalized barcode cell projected by the owning kind.

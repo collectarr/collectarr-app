@@ -266,9 +266,16 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   static const _structuralProjectionAllowlist = {
     // Small cross-kind read projections may expose presentation labels such
     // as subtitle; they do not carry canonical kind metadata.
+    'lib/core/models/catalog_display_summary.dart',
     'lib/core/models/catalog_search_hit.dart',
     'lib/core/models/calendar_event.dart',
     'lib/core/models/owned_item_projection.dart',
+  };
+
+  // The enum implementation itself may compare enum values while parsing its
+  // serialized representation. This is not generic feature dispatch.
+  static const _structuralKindComparisonAllowlist = {
+    'lib/core/models/catalog_media_kind.dart',
   };
 
   // These models switch over their own structural event enum to provide
@@ -481,6 +488,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   @override
   void visitBinaryExpression(BinaryExpression node) {
     if (isBoundaryFile &&
+        !_structuralKindComparisonAllowlist.contains(relativePath) &&
         (node.operator.lexeme == '==' || node.operator.lexeme == '!=')) {
       final left = node.leftOperand.toSource();
       final right = node.rightOperand.toSource();
@@ -661,6 +669,8 @@ List<String> architectureAllowlistIntegrityErrors(String repoRoot) {
         ArchitectureRuleVisitor._structuralProjectionAllowlist,
     'structural kind switches':
         ArchitectureRuleVisitor._structuralKindSwitchAllowlist,
+    'structural kind comparisons':
+        ArchitectureRuleVisitor._structuralKindComparisonAllowlist,
   };
   final errors = <String>[];
   for (final entry in allowlists.entries) {

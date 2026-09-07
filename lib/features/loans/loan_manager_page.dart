@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
@@ -58,7 +58,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     final catalogIds =
         ownedItems.map((item) => item.catalogRef?.id).whereType<String>();
     final catalogById =
-        await LibraryCatalogRepository(db).findSummariesByIds(catalogIds);
+        await CatalogDisplaySummaryRepository(db).findByIds(catalogIds);
     final locations = await locationRepo.getAll();
     final locationLabelsById = {
       for (final location in locations)
