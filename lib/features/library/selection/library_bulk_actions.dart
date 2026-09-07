@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -37,22 +36,12 @@ class LibraryBulkActions {
       final runtime = libraryKindModuleForKind(
         catalogMediaKindFromApiValue(ownedItem.catalogRef.kind),
       );
-      final updateCmd = runtime.edit.withTypedUpdatePayload(
-        OwnedItemPatchCommand<OwnedDetailsDraft>(
-          ownedItemId: ownedItem.id,
-          condition: selection.condition != null
-              ? Patch.set(selection.condition)
-              : const Patch.unchanged(),
-          grade: selection.grade != null
-              ? Patch.set(selection.grade)
-              : const Patch.unchanged(),
-          locationId: selection.locationId != null
-              ? Patch.set(selection.locationId)
-              : const Patch.unchanged(),
-          tags: selection.tags != null
-              ? Patch.set(selection.tags)
-              : const Patch.unchanged(),
-        ),
+      final updateCmd = runtime.edit.buildBulkUpdateCommand(
+        ownedItemId: ownedItem.id,
+        condition: selection.condition,
+        grade: selection.grade,
+        locationId: selection.locationId,
+        tags: selection.tags,
       );
       await coordinator.updateOwnedItem(updateCmd, syncTracking: false);
       if (selection.rating != null || selection.readStatus != null) {

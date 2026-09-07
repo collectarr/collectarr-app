@@ -306,6 +306,20 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
         grade: Patch.set(grade),
       ),
     ),
+    ownedBulkUpdatePayloadBuilder:
+        (ownedItemId, condition, grade, locationId, tags) =>
+            MovieOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        condition:
+            condition == null ? const Patch.unchanged() : Patch.set(condition),
+        grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+        locationId: locationId == null
+            ? const Patch.unchanged()
+            : Patch.set(locationId),
+        tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+      ),
+    ),
   ),
   buildCardPresentation: buildMovieCardPresentation,
 );

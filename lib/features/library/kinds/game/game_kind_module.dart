@@ -181,6 +181,20 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
         grade: Patch.set(grade),
       ),
     ),
+    ownedBulkUpdatePayloadBuilder:
+        (ownedItemId, condition, grade, locationId, tags) =>
+            GameOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        condition:
+            condition == null ? const Patch.unchanged() : Patch.set(condition),
+        grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+        locationId: locationId == null
+            ? const Patch.unchanged()
+            : Patch.set(locationId),
+        tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+      ),
+    ),
   ),
   buildCardPresentation: buildGameCardPresentation,
 );

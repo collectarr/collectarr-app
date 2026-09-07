@@ -294,6 +294,20 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
         grade: Patch.set(grade),
       ),
     ),
+    ownedBulkUpdatePayloadBuilder:
+        (ownedItemId, condition, grade, locationId, tags) =>
+            ComicOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        condition:
+            condition == null ? const Patch.unchanged() : Patch.set(condition),
+        grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+        locationId: locationId == null
+            ? const Patch.unchanged()
+            : Patch.set(locationId),
+        tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+      ),
+    ),
   ),
   toolbar: LibraryKindToolbarModule(
     actions: [

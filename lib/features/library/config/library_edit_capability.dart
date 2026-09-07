@@ -34,6 +34,14 @@ typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
 typedef LibraryOwnedConditionGradeUpdatePayloadBuilder = OwnedItemUpdatePayload
     Function(String ownedItemId, String? condition, String? grade);
 
+typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
+  String ownedItemId,
+  String? condition,
+  String? grade,
+  String? locationId,
+  String? tags,
+);
+
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
 /// kind-owned draft creation, and update command building.
 class LibraryEditCapability {
@@ -53,6 +61,7 @@ class LibraryEditCapability {
     this.ownedUpdatePayloadBuilder,
     this.ownedIndexUpdatePayloadBuilder,
     this.ownedConditionGradeUpdatePayloadBuilder,
+    this.ownedBulkUpdatePayloadBuilder,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -71,6 +80,7 @@ class LibraryEditCapability {
   final LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder;
   final LibraryOwnedConditionGradeUpdatePayloadBuilder?
       ownedConditionGradeUpdatePayloadBuilder;
+  final LibraryOwnedBulkUpdatePayloadBuilder? ownedBulkUpdatePayloadBuilder;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
@@ -135,6 +145,29 @@ class LibraryEditCapability {
     return UpdateOwnedItemCommand(
       ownedItemId: ownedItemId,
       payload: builder(ownedItemId, condition, grade),
+    );
+  }
+
+  UpdateOwnedItemCommand buildBulkUpdateCommand({
+    required String ownedItemId,
+    required String? condition,
+    required String? grade,
+    required String? locationId,
+    required String? tags,
+  }) {
+    final builder = ownedBulkUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError('No typed Owned bulk update builder is registered.');
+    }
+    return UpdateOwnedItemCommand(
+      ownedItemId: ownedItemId,
+      payload: builder(
+        ownedItemId,
+        condition,
+        grade,
+        locationId,
+        tags,
+      ),
     );
   }
 
