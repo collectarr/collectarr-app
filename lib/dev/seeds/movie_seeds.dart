@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -7,6 +6,8 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 
 final movieDevSeedContributor = DevSeedKindContributor(
   kind: CatalogMediaKind.movie,
@@ -59,13 +60,11 @@ List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMovieSeedOwned(OwnedItem item) {
+List<String> validateMovieSeedOwned(Object raw) {
+  final item = raw as MovieOwnedItem;
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
-  if (details is! MovieOwnedDetails) {
-    return ['$prefix: expected MovieOwnedDetails'];
-  }
   seedRequireText(issues, prefix, 'movie.region', details.region);
   seedRequireText(issues, prefix, 'movie.packaging', details.packaging);
   seedRequireText(issues, prefix, 'movie.distributor', details.distributor);
@@ -927,9 +926,9 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
     ];
 
-List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
-      OwnedItem(
-        id: 'seed-owned-movie-01',
+List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-01'),
         catalogRef: seedCatalogRef('seed-movie-01'),
         createdAt: now.subtract(const Duration(days: 420)),
         updatedAt: now,
@@ -948,8 +947,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-02',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-02'),
         catalogRef: seedCatalogRef('seed-movie-02'),
         createdAt: now.subtract(const Duration(days: 380)),
         updatedAt: now,
@@ -967,8 +966,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-03',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-03'),
         catalogRef: seedCatalogRef('seed-movie-03'),
         createdAt: now.subtract(const Duration(days: 350)),
         updatedAt: now,
@@ -989,8 +988,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-04',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-04'),
         catalogRef: seedCatalogRef('seed-movie-04'),
         createdAt: now.subtract(const Duration(days: 280)),
         updatedAt: now,
@@ -1011,8 +1010,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-05',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-05'),
         catalogRef: seedCatalogRef('seed-movie-05'),
         createdAt: now.subtract(const Duration(days: 200)),
         updatedAt: now,
@@ -1033,8 +1032,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-06',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-06'),
         catalogRef: seedCatalogRef('seed-movie-06'),
         createdAt: now.subtract(const Duration(days: 500)),
         updatedAt: now,
@@ -1054,8 +1053,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-07',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-07'),
         catalogRef: seedCatalogRef('seed-movie-07'),
         createdAt: now.subtract(const Duration(days: 340)),
         updatedAt: now,
@@ -1075,8 +1074,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-08',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-08'),
         catalogRef: seedCatalogRef('seed-movie-08'),
         createdAt: now.subtract(const Duration(days: 240)),
         updatedAt: now,
@@ -1095,8 +1094,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-09',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-09'),
         catalogRef: seedCatalogRef('seed-movie-09'),
         createdAt: now.subtract(const Duration(days: 230)),
         updatedAt: now,
@@ -1117,8 +1116,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-10',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-10'),
         catalogRef: seedCatalogRef('seed-movie-10'),
         createdAt: now.subtract(const Duration(days: 150)),
         updatedAt: now,
@@ -1137,8 +1136,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-11',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-11'),
         catalogRef: seedCatalogRef('seed-movie-11'),
         createdAt: now.subtract(const Duration(days: 90)),
         updatedAt: now,
@@ -1158,8 +1157,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-12',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-12'),
         catalogRef: seedCatalogRef('seed-movie-12'),
         createdAt: now.subtract(const Duration(days: 60)),
         updatedAt: now,
@@ -1179,8 +1178,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-13',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-13'),
         catalogRef: seedCatalogRef('seed-movie-13'),
         createdAt: now.subtract(const Duration(days: 30)),
         updatedAt: now,
@@ -1200,8 +1199,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-14',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-14'),
         catalogRef: seedCatalogRef('seed-movie-14'),
         createdAt: now.subtract(const Duration(days: 45)),
         updatedAt: now,
@@ -1221,8 +1220,8 @@ List<OwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      OwnedItem(
-        id: 'seed-owned-movie-15',
+      MovieOwnedItem(
+        id: MovieOwnedItemId('seed-owned-movie-15'),
         catalogRef: seedCatalogRef('seed-movie-15'),
         createdAt: now.subtract(const Duration(days: 20)),
         updatedAt: now,

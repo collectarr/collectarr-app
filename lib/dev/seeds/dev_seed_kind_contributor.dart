@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -23,8 +22,8 @@ typedef DevSeedCatalogBarcodeValidator = void Function(
 typedef DevSeedCatalogGraphValidator = List<String> Function(
   CatalogItemDto item,
 );
-typedef DevSeedOwnedFactory = List<OwnedItem> Function(DateTime now);
-typedef DevSeedOwnedQualityValidator = List<String> Function(OwnedItem item);
+typedef DevSeedOwnedFactory = List<Object> Function(DateTime now);
+typedef DevSeedOwnedQualityValidator = List<String> Function(Object item);
 typedef DevSeedTrackingFactory = List<TrackingEntry> Function(DateTime now);
 typedef DevSeedTrackingUnitFactory = Iterable<TrackingUnit> Function(
   Iterable<CatalogItemDto> items,

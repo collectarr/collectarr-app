@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -9,6 +8,8 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 
 final bookDevSeedContributor = DevSeedKindContributor(
   kind: CatalogMediaKind.book,
@@ -82,13 +83,11 @@ List<String> validateBookSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateBookSeedOwned(OwnedItem item) {
+List<String> validateBookSeedOwned(Object raw) {
+  final item = raw as BookOwnedItem;
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
-  if (details is! BookOwnedDetails) {
-    return ['$prefix: expected BookOwnedDetails'];
-  }
   seedRequireText(issues, prefix, 'book.signed_by', details.signedBy);
   if (!details.dustJacketPresent) {
     issues.add('$prefix: book.dust_jacket_present must be true');
@@ -759,10 +758,10 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
     ];
 
-List<OwnedItem> bookSeedOwnedItems(DateTime now) => [
+List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.book, 15))
-        OwnedItem(
-          id: 'seed-owned-$itemId',
+        BookOwnedItem(
+          id: BookOwnedItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(itemId),
           createdAt: now.subtract(const Duration(days: 300)),
           updatedAt: now,

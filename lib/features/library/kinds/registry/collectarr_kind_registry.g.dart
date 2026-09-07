@@ -593,6 +593,50 @@ Future<(CatalogMediaKind kind, Object item)?> collectarrFindTypedOwnedItem(
   return null;
 }
 
+OwnedItemRef collectarrTypedOwnedItemRef(Object item) {
+  if (item is AnimeOwnedItem)
+    return OwnedItemRef(
+        kind: CatalogMediaKind.anime, id: OwnedItemId(item.id.value));
+  if (item is BoardGameOwnedItem)
+    return OwnedItemRef(
+        kind: CatalogMediaKind.boardgame, id: OwnedItemId(item.id.value));
+  if (item is BookOwnedItem)
+    return OwnedItemRef(
+        kind: CatalogMediaKind.book, id: OwnedItemId(item.id.value));
+  if (item is ComicOwnedItem)
+    return OwnedItemRef(
+        kind: CatalogMediaKind.comic, id: OwnedItemId(item.id.value));
+  if (item is GameOwnedItem)
+    return OwnedItemRef(
+        kind: CatalogMediaKind.game, id: OwnedItemId(item.id.value));
+  if (item is MangaOwnedItem)
+    return OwnedItemRef(
+        kind: CatalogMediaKind.manga, id: OwnedItemId(item.id.value));
+  if (item is MovieOwnedItem)
+    return OwnedItemRef(
+        kind: CatalogMediaKind.movie, id: OwnedItemId(item.id.value));
+  if (item is MusicOwnedItem)
+    return OwnedItemRef(
+        kind: CatalogMediaKind.music, id: OwnedItemId(item.id.value));
+  if (item is TvOwnedItem)
+    return OwnedItemRef(
+        kind: CatalogMediaKind.tv, id: OwnedItemId(item.id.value));
+  throw ArgumentError.value(item, 'item', 'Unsupported typed Owned seed');
+}
+
+Map<String, dynamic> collectarrTypedOwnedItemJson(Object item) {
+  if (item is AnimeOwnedItem) return item.toJson();
+  if (item is BoardGameOwnedItem) return item.toJson();
+  if (item is BookOwnedItem) return item.toJson();
+  if (item is ComicOwnedItem) return item.toJson();
+  if (item is GameOwnedItem) return item.toJson();
+  if (item is MangaOwnedItem) return item.toJson();
+  if (item is MovieOwnedItem) return item.toJson();
+  if (item is MusicOwnedItem) return item.toJson();
+  if (item is TvOwnedItem) return item.toJson();
+  throw ArgumentError.value(item, 'item', 'Unsupported typed Owned seed');
+}
+
 final collectarrTypedOwnedItemSyncSerializers = <CatalogMediaKind,
     ({Map<String, dynamic> payload, bool isDeleted}) Function(Object)>{
   CatalogMediaKind.anime: (item) {

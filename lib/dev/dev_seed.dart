@@ -11,7 +11,7 @@ library;
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -361,15 +361,17 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
 /// the totals green while disconnecting one catalog kind from its copy data.
 Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
   final issues = <String>[];
-  final ownedRows = await OwnedItemsRepository(db).listActive();
-  final ownedById = <String, OwnedItem>{
-    for (final row in ownedRows) row.id: row,
+  final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
+  final ownedById = <String, OwnedItemSummary>{
+    for (final row in ownedRows) row.ref.id.value: row,
   };
   final expectedByKind = <String, Set<String>>{};
-  for (final row in ownedRows.where((row) => row.id.startsWith('seed-'))) {
+  for (final row in ownedRows.where(
+    (row) => row.ref.id.value.startsWith('seed-'),
+  )) {
     expectedByKind
-        .putIfAbsent(row.catalogRef.kind, () => <String>{})
-        .add(row.id);
+        .putIfAbsent(row.ref.kind.apiValue, () => <String>{})
+        .add(row.ref.id.value);
   }
 
   void checkTypedRows(
@@ -385,9 +387,10 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
         issues.add('$table row $id has no owned repository row');
         continue;
       }
-      if (owned.catalogRef.kind != kind) {
+      if (owned.ref.kind.apiValue != kind) {
         issues.add(
-          '$table row $id belongs to kind ${owned.catalogRef.kind}, expected $kind',
+          '$table row $id belongs to kind ${owned.ref.kind.apiValue}, '
+          'expected $kind',
         );
       }
       if (!owned.itemId.startsWith('seed-$kind-')) {
@@ -556,7 +559,7 @@ final class DevSeedVerificationReport {
 Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     LocalDatabase db) async {
   final catalogRows = await LibraryCatalogRepository(db).findAll();
-  final ownedRows = await OwnedItemsRepository(db).listActive();
+  final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
   final trackingRows = await db.select(db.trackingEntriesCache).get();
   final imageRows = await db.select(db.itemImagesCache).get();
   final typedGraphCounts = await devSeedTypedGraphCounts(db);
@@ -604,7 +607,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     'seed catalog IDs are not unique',
   );
   require(
-    seededOwnedRows.map((row) => row.id).toSet().length ==
+    seededOwnedRows.map((row) => row.ref.id.value).toSet().length ==
         seededOwnedRows.length,
     'seed owned IDs are not unique',
   );
@@ -642,7 +645,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     for (final row in seededCatalogRows) row.id: row,
   };
   final ownedById = {
-    for (final row in seededOwnedRows) row.id: row,
+    for (final row in seededOwnedRows) row.ref.id.value: row,
   };
   for (final row in seededCatalogRows) {
     final kind = catalogMediaKindFromApiValue(row.kind);
@@ -666,11 +669,12 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   }
   for (final row in seededOwnedRows) {
     final catalog = catalogById[row.itemId];
+    require(catalog != null,
+        'owned ${row.ref.id.value} references missing ${row.itemId}');
     require(
-        catalog != null, 'owned ${row.id} references missing ${row.itemId}');
-    require(
-      row.catalogRef.kind == catalog?.kind,
-      'owned ${row.id} kind ${row.catalogRef.kind} does not match catalog ${row.itemId}',
+      row.catalogRef?.kind == catalog?.kind,
+      'owned ${row.ref.id.value} kind ${row.catalogRef?.kind} does not match '
+      'catalog ${row.itemId}',
     );
   }
   for (final row in seededTrackingRows) {
@@ -837,7 +841,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   }
 
   final customFieldValues = await db.select(db.customFieldValuesCache).get();
-  final ownedIds = ownedRows.map((row) => row.id).toSet();
+  final ownedIds = ownedRows.map((row) => row.ref.id.value).toSet();
   require(
     customFieldValues
         .where((row) => row.targetId.startsWith('seed-'))
@@ -909,7 +913,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   final now = DateTime.now().toUtc();
 
   // --- Owned Items ---
-  final ownedItems = <OwnedItem>[
+  final ownedItems = <Object>[
     for (final contributor in collectarrDevSeedContributors)
       ...contributor.ownedItems(now),
   ];
@@ -970,15 +974,8 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);
   for (final ownedItem in ownedItems) {
-    final kind = ownedItem.catalogRef.mediaKind;
-    final typedItem = collectarrOwnedItemDeserializers[kind]?.call(ownedItem);
-    if (typedItem == null) {
-      throw StateError(
-        'Development seed cannot resolve typed Owned model for '
-        '${kind.apiValue}',
-      );
-    }
-    await ownedRepo.upsertTyped(kind, typedItem);
+    final ref = collectarrTypedOwnedItemRef(ownedItem);
+    await ownedRepo.upsertTyped(ref.kind, ownedItem);
   }
   for (final contributor in collectarrDevSeedContributors) {
     final databaseSeeder = contributor.seedDatabase;
@@ -1050,7 +1047,7 @@ void _validateSeedTrackingUnits(
 
 void _validateSeedFixtures({
   required List<CatalogItemDto> catalogItems,
-  required List<OwnedItem> ownedItems,
+  required List<Object> ownedItems,
   required List<TrackingEntry> trackingEntries,
 }) {
   final catalogById = <String, CatalogItemDto>{};
@@ -1087,28 +1084,49 @@ void _validateSeedFixtures({
   }
 
   final ownedCatalogIds = <String>{};
-  final ownedById = <String, OwnedItem>{};
+  final ownedById = <String, OwnedItemSummary>{};
   for (final item in ownedItems) {
-    if (ownedById.containsKey(item.id)) {
-      throw StateError('Duplicate owned seed id: ${item.id}');
+    final ref = collectarrTypedOwnedItemRef(item);
+    final json = collectarrTypedOwnedItemJson(item);
+    final rawCatalogRef = json['catalog_ref'];
+    if (rawCatalogRef is! Map) {
+      throw StateError(
+        'Owned seed ${ref.id.value} is missing catalog_ref',
+      );
     }
-    ownedById[item.id] = item;
-    final catalog = catalogById[item.catalogRef.id];
+    final catalogRef = CatalogEntityRef.fromJson(
+      Map<String, dynamic>.from(rawCatalogRef),
+    );
+    final summary = OwnedItemSummary(
+      ref: ref,
+      title: catalogRef.id,
+      catalogRef: catalogRef,
+      createdAt: json['created_at'] is String
+          ? DateTime.tryParse(json['created_at'] as String)
+          : null,
+      updatedAt: json['updated_at'] is String
+          ? DateTime.tryParse(json['updated_at'] as String)
+          : null,
+      deletedAt: json['deleted_at'] is String
+          ? DateTime.tryParse(json['deleted_at'] as String)
+          : null,
+    );
+    if (ownedById.containsKey(ref.id.value)) {
+      throw StateError('Duplicate owned seed id: ${ref.id.value}');
+    }
+    ownedById[ref.id.value] = summary;
+    final catalog = catalogById[catalogRef.id];
     if (catalog == null) {
-      throw StateError(
-        'Owned seed ${item.id} references missing catalog ${item.catalogRef.id}',
-      );
+      throw StateError('Owned seed ${ref.id.value} references missing catalog '
+          '${catalogRef.id}');
     }
-    if (item.catalogRef.mediaKind != catalog.mediaKind) {
-      throw StateError(
-        'Owned seed ${item.id} kind ${item.catalogRef.kind} does not match '
-        'catalog ${catalog.id} kind ${catalog.kind}',
-      );
+    if (catalogRef.mediaKind != catalog.mediaKind) {
+      throw StateError('Owned seed ${ref.id.value} kind ${catalogRef.kind} '
+          'does not match catalog ${catalog.id} kind ${catalog.kind}');
     }
-    if (!ownedCatalogIds.add(item.catalogRef.id)) {
-      throw StateError(
-        'Duplicate owned seed catalog reference: ${item.catalogRef.id}',
-      );
+    if (!ownedCatalogIds.add(catalogRef.id)) {
+      throw StateError('Duplicate owned seed catalog reference: '
+          '${catalogRef.id}');
     }
   }
   if (ownedCatalogIds.length != catalogById.length) {
@@ -1148,11 +1166,11 @@ void _validateSeedFixtures({
           'Tracking seed ${entry.id} references missing owned item $ownedId',
         );
       }
-      if (owned.catalogRef.id != entry.catalogRef.id) {
+      if (owned.catalogRef?.id != entry.catalogRef.id) {
         throw StateError(
           'Tracking seed ${entry.id} links owned item $ownedId to '
           'catalog ${entry.catalogRef.id}, but it belongs to '
-          '${owned.catalogRef.id}',
+          '${owned.catalogRef?.id}',
         );
       }
     }
@@ -1172,13 +1190,14 @@ void _validateSeedFixtures({
 
 Future<void> _seedItemImages(
   ItemImagesCacheRepository repo,
-  List<OwnedItem> ownedItems,
+  List<Object> ownedItems,
 ) async {
   for (var i = 0; i < ownedItems.length; i++) {
     final owned = ownedItems[i];
+    final ownedId = collectarrTypedOwnedItemRef(owned).id.value;
     await repo.upsert(
-      id: 'seed-img-front-${owned.id}',
-      ownedItemId: owned.id,
+      id: 'seed-img-front-$ownedId',
+      ownedItemId: ownedId,
       imageType: 'front_cover',
       imageData: seedTinyPngBytes,
       caption: 'Seed front cover',
@@ -1186,8 +1205,8 @@ Future<void> _seedItemImages(
     );
     if (i.isEven) {
       await repo.upsert(
-        id: 'seed-img-back-${owned.id}',
-        ownedItemId: owned.id,
+        id: 'seed-img-back-$ownedId',
+        ownedItemId: ownedId,
         imageType: 'back_cover',
         imageData: seedTinyPngBytes,
         caption: 'Seed back cover',
@@ -1196,8 +1215,8 @@ Future<void> _seedItemImages(
     }
     if (i % 3 == 0) {
       await repo.upsert(
-        id: 'seed-img-extra-${owned.id}',
-        ownedItemId: owned.id,
+        id: 'seed-img-extra-$ownedId',
+        ownedItemId: ownedId,
         imageType: 'detail_photo',
         imageData: seedTinyPngBytes,
         caption: 'Seed extra image',

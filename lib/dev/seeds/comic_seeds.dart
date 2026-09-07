@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -13,6 +12,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
 final comicDevSeedContributor = DevSeedKindContributor(
@@ -95,13 +95,11 @@ List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateComicSeedOwned(OwnedItem item) {
+List<String> validateComicSeedOwned(Object raw) {
+  final item = raw as ComicOwnedItem;
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
-  if (details is! ComicOwnedDetails) {
-    return ['$prefix: expected ComicOwnedDetails'];
-  }
   seedRequireText(issues, prefix, 'comic.raw_or_slabbed', details.rawOrSlabbed);
   seedRequireText(issues, prefix, 'comic.page_quality', details.pageQuality);
   if (details.lastBagBoardDate == null) {
@@ -792,10 +790,10 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
     ];
 
-List<OwnedItem> comicSeedOwnedItems(DateTime now) => [
+List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.comic, 15))
-        OwnedItem(
-          id: 'seed-owned-$itemId',
+        ComicOwnedItem(
+          id: ComicOwnedItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(itemId),
           createdAt: now.subtract(const Duration(days: 260)),
           updatedAt: now,

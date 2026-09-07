@@ -3,11 +3,11 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 const String seedCoverImageData =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+XbL0AAAAASUVORK5CYII=';
@@ -410,29 +410,37 @@ void seedValidateStandardBarcode(
 }
 
 void validateSeedOwnedQuality(
-  Iterable<OwnedItem> items, {
+  Iterable<Object> items, {
   Map<CatalogMediaKind, DevSeedOwnedQualityValidator> validators = const {},
 }) {
   final issues = <String>[];
   for (final item in items) {
-    final prefix = '${item.catalogRef.kind}/${item.id}';
-    _requireText(issues, prefix, 'condition', item.condition);
-    _requireText(issues, prefix, 'personal_notes', item.personalNotes);
-    _requireText(issues, prefix, 'collection_status', item.collectionStatus);
-    if (item.quantity < 1) {
+    final ref = collectarrTypedOwnedItemRef(item);
+    final json = collectarrTypedOwnedItemJson(item);
+    final prefix = '${ref.kind.apiValue}/${ref.id.value}';
+    _requireText(issues, prefix, 'condition', json['condition']);
+    _requireText(issues, prefix, 'personal_notes', json['personal_notes']);
+    _requireText(
+      issues,
+      prefix,
+      'collection_status',
+      json['collection_status'],
+    );
+    final quantity = (json['quantity'] as num?)?.toInt() ?? 0;
+    if (quantity < 1) {
       issues.add('$prefix: quantity must be at least 1');
     }
-    if (item.purchaseDate == null) {
+    if (json['purchase_date'] == null) {
       issues.add('$prefix: purchase_date is required');
     }
-    if (item.pricePaidCents == null || item.pricePaidCents! <= 0) {
+    final pricePaidCents = (json['price_paid_cents'] as num?)?.toInt();
+    if (pricePaidCents == null || pricePaidCents <= 0) {
       issues.add('$prefix: price_paid_cents must be positive');
     }
-    if (item.currency?.trim().isEmpty != false) {
+    if ((json['currency'] as String?)?.trim().isEmpty != false) {
       issues.add('$prefix: currency is required when a purchase price exists');
     }
-    final validator =
-        validators[catalogMediaKindFromApiValue(item.catalogRef.kind)];
+    final validator = validators[ref.kind];
     if (validator == null) {
       issues.add('$prefix: no typed owned details validator exists');
     } else {

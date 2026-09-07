@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -12,6 +11,7 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
@@ -102,13 +102,11 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateAnimeSeedOwned(OwnedItem item) {
+List<String> validateAnimeSeedOwned(Object raw) {
+  final item = raw as AnimeOwnedItem;
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
-  if (details is! AnimeOwnedDetails) {
-    return ['$prefix: expected AnimeOwnedDetails'];
-  }
   seedRequireText(issues, prefix, 'anime.region', details.region);
   seedRequireText(issues, prefix, 'anime.packaging', details.packaging);
   seedRequireText(issues, prefix, 'anime.distributor', details.distributor);
@@ -860,10 +858,10 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
     ];
 
-List<OwnedItem> animeSeedOwnedItems(DateTime now) => [
+List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.anime, 15))
-        OwnedItem(
-          id: 'seed-owned-$itemId',
+        AnimeOwnedItem(
+          id: AnimeOwnedItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(itemId),
           createdAt: now.subtract(const Duration(days: 180)),
           updatedAt: now,

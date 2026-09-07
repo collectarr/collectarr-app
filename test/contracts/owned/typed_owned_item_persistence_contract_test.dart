@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,7 +24,10 @@ void main() {
       musicSeedOwnedItems(now).first,
     ];
 
-    await persistence.upsertAll(items);
+    for (final item in items) {
+      final ref = collectarrTypedOwnedItemRef(item);
+      await persistence.upsertTyped(ref.kind, item);
+    }
 
     expect(await db.select(db.comicOwnedItemsRows).get(), hasLength(1));
     expect(await db.select(db.mangaOwnedItemsRows).get(), hasLength(1));
@@ -55,11 +59,17 @@ void main() {
     ];
 
     for (final item in items) {
-      await persistence.upsert(item);
-      final roundTrip = await persistence.findById(item.id);
-      expect(roundTrip, isNotNull, reason: item.catalogRef.kind);
-      expect(roundTrip!.toJson(), equals(item.toJson()),
-          reason: 'owned payload was not lossless for ${item.catalogRef.kind}');
+      final ref = collectarrTypedOwnedItemRef(item);
+      await persistence.upsertTyped(ref.kind, item);
+      final roundTrip = await persistence.findTypedById(ref.id.value);
+      expect(roundTrip, isNotNull, reason: ref.kind.apiValue);
+      final resolved = roundTrip!;
+      expect(resolved.$1, ref.kind);
+      expect(
+        collectarrTypedOwnedItemJson(resolved.$2),
+        equals(collectarrTypedOwnedItemJson(item)),
+        reason: 'owned payload was not lossless for ${ref.kind}',
+      );
     }
   });
 }

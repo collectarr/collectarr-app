@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -11,6 +10,8 @@ import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_track
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 
 final mangaDevSeedContributor = DevSeedKindContributor(
   kind: CatalogMediaKind.manga,
@@ -74,13 +75,11 @@ List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMangaSeedOwned(OwnedItem item) {
+List<String> validateMangaSeedOwned(Object raw) {
+  final item = raw as MangaOwnedItem;
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
-  if (details is! MangaOwnedDetails) {
-    return ['$prefix: expected MangaOwnedDetails'];
-  }
   seedRequireText(issues, prefix, 'manga.printing', details.printing);
   seedRequireText(
       issues, prefix, 'manga.localized_edition', details.localizedEdition);
@@ -689,10 +688,10 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
     ];
 
-List<OwnedItem> mangaSeedOwnedItems(DateTime now) => [
+List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.manga, 15))
-        OwnedItem(
-          id: 'seed-owned-$itemId',
+        MangaOwnedItem(
+          id: MangaOwnedItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(itemId),
           createdAt: now.subtract(const Duration(days: 210)),
           updatedAt: now,

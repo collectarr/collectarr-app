@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -7,6 +6,8 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 
 final gameDevSeedContributor = DevSeedKindContributor(
   kind: CatalogMediaKind.game,
@@ -77,13 +78,11 @@ List<String> validateGameSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateGameSeedOwned(OwnedItem item) {
+List<String> validateGameSeedOwned(Object raw) {
+  final item = raw as GameOwnedItem;
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
-  if (details is! GameOwnedDetails) {
-    return ['$prefix: expected GameOwnedDetails'];
-  }
   seedRequireText(issues, prefix, 'game.completeness', details.completeness);
   seedRequireText(issues, prefix, 'game.core_region', details.coreRegion);
   seedRequireText(
@@ -736,10 +735,10 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
     ];
 
-List<OwnedItem> gameSeedOwnedItems(DateTime now) => [
+List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.game, 15))
-        OwnedItem(
-          id: 'seed-owned-$itemId',
+        GameOwnedItem(
+          id: GameOwnedItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(itemId),
           createdAt: now.subtract(const Duration(days: 200)),
           updatedAt: now,

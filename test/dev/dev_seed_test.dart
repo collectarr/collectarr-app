@@ -340,7 +340,7 @@ void main() {
             (row.payload['tracks'] as List?)?.isNotEmpty == true),
         isTrue);
 
-    final ownedRows = await OwnedItemsRepository(db).listActive();
+    final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
     for (final entry in expectedCatalogCounts.entries) {
       final kindOwned = ownedRows
           .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
@@ -349,11 +349,12 @@ void main() {
           reason: 'Unexpected ${entry.key} owned seed count');
     }
     expect(
-        ownedRows
-            .every((row) => catalogRows.any((item) => item.id == row.itemId)),
+        ownedRows.every((row) =>
+            row.catalogRef != null &&
+            catalogRows.any((item) => item.id == row.catalogRef!.id)),
         isTrue);
-    expect(
-        ownedRows.map((row) => row.id).toSet(), hasLength(expectedSeedTotal));
+    expect(ownedRows.map((row) => row.ref.id.value).toSet(),
+        hasLength(expectedSeedTotal));
     final comicOwnedRows = await db.select(db.comicOwnedItemsRows).get();
     final comicReadingRows = await db.select(db.comicReadingRows).get();
     expect(comicOwnedRows, hasLength(15));
@@ -498,7 +499,7 @@ void main() {
       expect(kindTracking, hasLength(entry.value),
           reason: 'Unexpected ${entry.key} tracking seed count');
     }
-    final ownedIds = ownedRows.map((row) => row.id).toSet();
+    final ownedIds = ownedRows.map((row) => row.ref.id.value).toSet();
     expect(trackingRows.map((row) => row.id).toSet(),
         hasLength(expectedSeedTotal));
     expect(
@@ -556,7 +557,8 @@ void main() {
         customValues
             .every((value) => definitionIds.contains(value.fieldDefinitionId)),
         isTrue);
-    final customFieldOwnedIds = ownedRows.map((row) => row.id).toSet();
+    final customFieldOwnedIds =
+        ownedRows.map((row) => row.ref.id.value).toSet();
     expect(
       customValues
           .every((value) => customFieldOwnedIds.contains(value.targetId)),
@@ -574,12 +576,9 @@ void main() {
     expect(tvOwned, hasLength(15));
     expect(animeOwned, hasLength(15));
     expect(mangaOwned, hasLength(15));
-    expect(
-        tvOwned.every((row) => (row.personalNotes ?? '').isNotEmpty), isTrue);
-    expect(animeOwned.every((row) => (row.personalNotes ?? '').isNotEmpty),
-        isTrue);
-    expect(mangaOwned.every((row) => (row.personalNotes ?? '').isNotEmpty),
-        isTrue);
+    expect(tvOwned.every((row) => (row.notes ?? '').isNotEmpty), isTrue);
+    expect(animeOwned.every((row) => (row.notes ?? '').isNotEmpty), isTrue);
+    expect(mangaOwned.every((row) => (row.notes ?? '').isNotEmpty), isTrue);
 
     final tvFront =
         await _countImages(db, 'seed-owned-seed-tv-', 'front_cover');

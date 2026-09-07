@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -8,6 +7,8 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
 
@@ -110,13 +111,11 @@ List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateBoardgameSeedOwned(OwnedItem item) {
+List<String> validateBoardgameSeedOwned(Object raw) {
+  final item = raw as BoardGameOwnedItem;
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
-  if (details is! BoardgameOwnedDetails) {
-    return ['$prefix: expected BoardgameOwnedDetails'];
-  }
   seedRequireText(
       issues, prefix, 'boardgame.edition_language', details.editionLanguage);
   seedRequireText(
@@ -471,12 +470,14 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
     ];
 
-List<OwnedItem> boardgameSeedOwnedItems(DateTime now) => [
+List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        OwnedItem(
+        BoardGameOwnedItem(
           // Keep a deterministic first ID so repeated seed runs remain
           // idempotent.
-          id: i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+          id: BoardGameOwnedItemId(
+            i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+          ),
           catalogRef: seedCatalogRef('seed-boardgame-${seedOrdinal2(i)}'),
           createdAt: now.subtract(Duration(days: 600 - (i * 25))),
           updatedAt: now,

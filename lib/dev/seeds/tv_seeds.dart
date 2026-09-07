@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -16,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 
 final tvDevSeedContributor = DevSeedKindContributor(
   kind: CatalogMediaKind.tv,
@@ -134,13 +134,11 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateTvSeedOwned(OwnedItem item) {
+List<String> validateTvSeedOwned(Object raw) {
+  final item = raw as TvOwnedItem;
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;
-  if (details is! TvOwnedDetails) {
-    return ['$prefix: expected TvOwnedDetails'];
-  }
   seedRequireText(issues, prefix, 'tv.region', details.region);
   seedRequireText(issues, prefix, 'tv.packaging', details.packaging);
   seedRequireText(issues, prefix, 'tv.distributor', details.distributor);
@@ -1012,10 +1010,10 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
     ];
 
-List<OwnedItem> tvSeedOwnedItems(DateTime now) => [
+List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.tv, 15))
-        OwnedItem(
-          id: 'seed-owned-$itemId',
+        TvOwnedItem(
+          id: TvOwnedItemId('seed-owned-$itemId'),
           catalogRef: seedCatalogRef(itemId),
           createdAt: now.subtract(const Duration(days: 280)),
           updatedAt: now,
