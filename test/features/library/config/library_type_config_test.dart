@@ -698,12 +698,14 @@ void main() {
       'Series',
     );
     expect(
-      comicRuntime.workspace.columnLabel(_field(comicKindModule, 'cover')),
-      'Cover',
+      comicRuntime.workspace
+          .columnLabel(_field(comicKindModule, 'comic.cover')),
+      '',
     );
     expect(
-      comicRuntime.workspace.columnGroup(_field(comicKindModule, 'location')),
-      LibraryTableColumnGroup.main,
+      comicRuntime.workspace
+          .columnGroup(_field(comicKindModule, 'comic.location')),
+      LibraryTableColumnGroup.personal,
     );
     expect(
       comicRuntime.workspace
@@ -785,10 +787,10 @@ void main() {
     );
     expect(
       libraryKindModule(CatalogMediaKind.book).workspace.tableColumnWidth(
-        _field(bookKindModule, 'title'),
-        {_field(bookKindModule, 'title'): 999},
+        _field(bookKindModule, 'book.title'),
+        {_field(bookKindModule, 'book.title'): 999},
       ),
-      260,
+      520,
     );
     expect(
       libraryKindModule(CatalogMediaKind.music)
