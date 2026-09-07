@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -94,6 +95,7 @@ final class CollectionImportService {
 
     final activeWishlistItemIds = existingWishlist.keys.toSet();
     final ownedItemsList = <OwnedItem>[];
+    final typedOwnedItems = <(CatalogMediaKind kind, Object item)>[];
     final trackingEntriesList = <TrackingEntry>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
@@ -132,6 +134,16 @@ final class CollectionImportService {
           catalogKind: catItemKind,
         );
         ownedItemsList.add(ownedItem);
+        final mediaKind = ownedItem.catalogRef.mediaKind;
+        final typedOwnedItem =
+            collectarrOwnedItemDeserializers[mediaKind]?.call(ownedItem);
+        if (typedOwnedItem == null) {
+          throw StateError(
+            'Collection import cannot resolve typed Owned model for '
+            '${mediaKind.apiValue}',
+          );
+        }
+        typedOwnedItems.add((mediaKind, typedOwnedItem));
         syncChanges.add(
           SyncChange(
             id: 'owned_item:${ownedItem.id}:upsert:${now.millisecondsSinceEpoch}',
@@ -220,8 +232,11 @@ final class CollectionImportService {
         if (importedCatalogItems.isNotEmpty) {
           await catalogCache.upsertAll(importedCatalogItems);
         }
-        if (ownedItemsList.isNotEmpty) {
-          await ownedItems.upsertAll(ownedItemsList);
+        for (final typedOwned in typedOwnedItems) {
+          await ownedItems.upsertTyped(
+            typedOwned.$1,
+            typedOwned.$2,
+          );
         }
         if (trackingEntriesList.isNotEmpty) {
           await trackingEntries.upsertAll(trackingEntriesList);
