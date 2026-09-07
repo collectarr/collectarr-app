@@ -36,6 +36,11 @@ That file discovers every Drift `Table` declared under a kind's
 generated list into its Drift annotation. Adding a kind-local table therefore
 does not require a second central import or table-list edit.
 
+Concrete owned-detail model barrels are generated as well in
+`owned_details_exports.g.dart`; `owned_details_exports.dart` remains only a
+stable barrel name. This prevents a new kind's owned models from requiring a
+manual central export edit.
+
 This is deliberately build-time discovery rather than runtime reflection:
 
 - Flutter AOT/tree-shaking remains predictable;

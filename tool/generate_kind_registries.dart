@@ -5,6 +5,8 @@ const _registryOutput =
     'lib/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 const _databaseTablesOutput =
     'lib/features/library/kinds/registry/collectarr_kind_database_tables.g.dart';
+const _ownedDetailsExportsOutput =
+    'lib/features/library/kinds/registry/owned_details_exports.g.dart';
 const _devSeedRoot = 'lib/dev/seeds';
 const _devSeedRegistryOutput =
     'lib/dev/seeds/collectarr_dev_seed_registry.g.dart';
@@ -18,6 +20,8 @@ Future<void> main() async {
   await File(_registryOutput).writeAsString(_renderRegistry(descriptors));
   await File(_databaseTablesOutput)
       .writeAsString(_renderDatabaseTables(descriptors));
+  await File(_ownedDetailsExportsOutput)
+      .writeAsString(_renderOwnedDetailsExports(descriptors));
   final devSeedDescriptors = await _discoverDevSeeds();
   if (devSeedDescriptors.isEmpty) {
     throw StateError('No dev seed contributors found under $_devSeedRoot');
@@ -27,6 +31,7 @@ Future<void> main() async {
 
   await _formatGeneratedFile(_registryOutput);
   await _formatGeneratedFile(_databaseTablesOutput);
+  await _formatGeneratedFile(_ownedDetailsExportsOutput);
   await _formatGeneratedFile(_devSeedRegistryOutput);
   stdout.writeln('Generated ${descriptors.length} kind registrations.');
   stdout.writeln(
@@ -143,6 +148,7 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
     ).firstMatch(moduleSource)?.group(1);
     final metadataDecoder = _discoverMetadataDecoder(entity);
     final localTables = _discoverLocalTables(entity);
+    final ownedDetailsExports = _discoverOwnedDetailsExports(entity);
 
     descriptors.add(
       _KindDescriptor(
@@ -245,11 +251,27 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
         ),
         vocabularyModule: _discoverVocabularyModule(entity),
         localTables: localTables,
+        ownedDetailsExports: ownedDetailsExports,
       ),
     );
   }
   descriptors.sort((left, right) => left.folder.compareTo(right.folder));
   return descriptors;
+}
+
+List<String> _discoverOwnedDetailsExports(Directory kindDirectory) {
+  final folder = kindDirectory.path.split(Platform.pathSeparator).last;
+  final directory = Directory('${kindDirectory.path}/ownership');
+  if (!directory.existsSync()) return const [];
+
+  final files = [
+    File('${directory.path}/${folder}_owned_details.dart'),
+    File('${directory.path}/${folder}_owned_details_draft.dart'),
+  ];
+  return [
+    for (final file in files)
+      if (file.existsSync()) _packageImportPath(file),
+  ];
 }
 
 _KindLocalTables? _discoverLocalTables(Directory kindDirectory) {
@@ -780,6 +802,19 @@ String _renderDatabaseTables(List<_KindDescriptor> descriptors) {
   return buffer.toString();
 }
 
+String _renderOwnedDetailsExports(List<_KindDescriptor> descriptors) {
+  final buffer = StringBuffer('''// GENERATED CODE - DO NOT MODIFY BY HAND
+// Run: dart run tool/generate_kind_registries.dart
+
+''');
+  for (final descriptor in descriptors) {
+    for (final importPath in descriptor.ownedDetailsExports) {
+      buffer.writeln("export 'package:collectarr_app/$importPath';");
+    }
+  }
+  return buffer.toString();
+}
+
 String _registrationClassName(_KindDescriptor descriptor) {
   final name = descriptor.folder;
   return '${name[0].toUpperCase()}${name.substring(1)}Registration';
@@ -1149,6 +1184,7 @@ final class _KindDescriptor {
     this.serialAuthorityContributor,
     this.vocabularyModule,
     this.localTables,
+    this.ownedDetailsExports = const [],
   });
 
   final String folder;
@@ -1176,6 +1212,7 @@ final class _KindDescriptor {
   final _Contributor? serialAuthorityContributor;
   final _VocabularyModule? vocabularyModule;
   final _KindLocalTables? localTables;
+  final List<String> ownedDetailsExports;
 
   Iterable<_Contributor> get contributors sync* {
     for (final contributor in [
