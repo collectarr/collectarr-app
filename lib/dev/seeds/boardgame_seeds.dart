@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 
 CatalogItem enrichBoardgameSeedItem(CatalogItem item) {
   final editions = [
@@ -400,5 +401,27 @@ List<TrackingEntry> boardgameSeedTrackingEntries(DateTime now) => [
               ? 'Scenario 35, paused for summer.'
               : 'Played with friends.',
           updatedAt: now,
+        ),
+    ];
+
+List<BoardGamePlaySession> boardgameSeedPlaySessions(DateTime now) => [
+      for (var i = 1; i <= 15; i++)
+        BoardGamePlaySession(
+          id: 'seed-play-boardgame-${seedOrdinal2(i)}',
+          boardGameId: 'seed-boardgame-${seedOrdinal2(i)}',
+          date: now.subtract(Duration(days: i * 4)),
+          players: const ['Alex', 'Sam', 'Mara'],
+          winner: i.isEven ? 'Sam' : 'Alex',
+          scores: [
+            BoardGamePlayerScore(
+              playerName: i.isEven ? 'Sam' : 'Alex',
+              score: 80 + i,
+              isWinner: true,
+            ),
+            const BoardGamePlayerScore(playerName: 'Mara', score: 64),
+          ],
+          durationMinutes: 60 + i * 5,
+          location: i.isEven ? 'Game night' : 'Living room',
+          notes: i == 1 ? 'Seed play session with complete score data.' : null,
         ),
     ];

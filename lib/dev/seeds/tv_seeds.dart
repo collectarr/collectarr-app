@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
@@ -106,6 +108,17 @@ CatalogItem enrichTvSeedItem(CatalogItem item) {
           'layers': item.payload['layers'],
           'episodes': episodes,
         },
+      ],
+      'episode_mappings': [
+        for (var index = 0; index < episodes.length; index++)
+          {
+            'id': '$releaseId-map-${(index + 1).toString().padLeft(2, '0')}',
+            'release_id': releaseId,
+            'media_id': mediaId,
+            'episode_id': episodes[index]['id'],
+            'disc_number': 1,
+            'sequence_number': index + 1,
+          },
       ],
     },
   ];
@@ -868,6 +881,37 @@ List<TrackingEntry> tvSeedTrackingEntries(DateTime now) => [
           finishedAt: i <= 10 ? DateTime.utc(2022, 8, 15) : null,
           timesCompleted: i <= 5 ? 2 : 1,
           notes: i == 1 ? 'Best drama series ever written.' : null,
+          updatedAt: now,
+        ),
+    ];
+
+List<WatchSession> tvSeedWatchSessions(DateTime now) => [
+      for (var i = 1; i <= 15; i++)
+        WatchSession(
+          id: 'seed-watch-tv-${seedOrdinal2(i)}',
+          targetRef: seedCatalogRef('seed-tv-${seedOrdinal2(i)}'),
+          seasonNumber: 1,
+          episodeNumber: i.isEven ? 2 : 1,
+          sourceType: TrackingSourceType.physical,
+          seenWhere: i.isEven ? 'Living room' : 'Home theater',
+          watchedAt: now.subtract(Duration(days: i * 2)),
+          rating: i.isEven ? 9 : 8,
+          notes: i == 1 ? 'Seed watch-session history.' : null,
+          updatedAt: now,
+        ),
+    ];
+
+List<CustomEpisode> tvSeedCustomEpisodes(DateTime now) => [
+      for (var i = 1; i <= 15; i++)
+        CustomEpisode(
+          id: 'seed-custom-tv-${seedOrdinal2(i)}',
+          seriesRef: seedCatalogRef('seed-tv-${seedOrdinal2(i)}'),
+          seasonNumber: 1,
+          episodeNumber: 3,
+          title: 'Seed bonus episode ${seedOrdinal2(i)}',
+          overview: 'Developer seed custom episode for coverage.',
+          airDate: '2024-01-${seedOrdinal2((i % 28) + 1)}',
+          runtimeMinutes: 42,
           updatedAt: now,
         ),
     ];

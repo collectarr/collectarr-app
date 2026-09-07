@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit.dart';
@@ -758,6 +760,37 @@ List<TrackingEntry> animeSeedTrackingEntries(DateTime now) => [
           finishedAt: i <= 12 ? DateTime.utc(2023, 5, 1) : null,
           timesCompleted: i <= 4 ? 3 : 1,
           notes: i == 1 ? 'Soundtrack by Yoko Kanno is immortal.' : null,
+          updatedAt: now,
+        ),
+    ];
+
+List<WatchSession> animeSeedWatchSessions(DateTime now) => [
+      for (var i = 1; i <= 15; i++)
+        WatchSession(
+          id: 'seed-watch-anime-${seedOrdinal2(i)}',
+          targetRef: seedCatalogRef('seed-anime-${seedOrdinal2(i)}'),
+          seasonNumber: 1,
+          episodeNumber: i.isEven ? 2 : 1,
+          sourceType: TrackingSourceType.physical,
+          seenWhere: i.isEven ? 'Desk' : 'Living room',
+          watchedAt: now.subtract(Duration(days: i * 3)),
+          rating: i.isEven ? 10 : 9,
+          notes: i == 1 ? 'Seed anime watch-session history.' : null,
+          updatedAt: now,
+        ),
+    ];
+
+List<CustomEpisode> animeSeedCustomEpisodes(DateTime now) => [
+      for (var i = 1; i <= 15; i++)
+        CustomEpisode(
+          id: 'seed-custom-anime-${seedOrdinal2(i)}',
+          seriesRef: seedCatalogRef('seed-anime-${seedOrdinal2(i)}'),
+          seasonNumber: 1,
+          episodeNumber: 3,
+          title: 'Seed special episode ${seedOrdinal2(i)}',
+          overview: 'Developer seed custom episode for anime coverage.',
+          airDate: '2024-02-${seedOrdinal2((i % 28) + 1)}',
+          runtimeMinutes: 24,
           updatedAt: now,
         ),
     ];

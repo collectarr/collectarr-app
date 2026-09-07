@@ -15,6 +15,8 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/dev/seeds/anime_seeds.dart';
 import 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
 import 'package:collectarr_app/dev/seeds/book_seeds.dart';
@@ -35,6 +37,11 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
@@ -81,6 +88,7 @@ const devSeedCatalogCounts = <String, int>{
 const devSeedTypedGraphMinimumCounts = <String, int>{
   'comic.media': 15,
   'comic.release': 15,
+  'comic.reading': 15,
   'manga.media': 15,
   'book.media': 15,
   'book.release': 15,
@@ -95,6 +103,7 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'tv.episode': 30,
   'tv.release': 15,
   'tv.release_media': 15,
+  'tv.release_episode_map': 15,
   'anime.media': 15,
   'anime.episode': 30,
   'anime.release': 15,
@@ -122,6 +131,11 @@ const devSeedTypedOwnedMinimumCounts = <String, int>{
 const devSeedTypedTrackingMinimumCounts = <String, int>{
   'tv.episode_progress': 30,
   'anime.tracking': 30,
+  'tv.watch_sessions': 15,
+  'tv.custom_episodes': 15,
+  'anime.watch_sessions': 15,
+  'anime.custom_episodes': 15,
+  'boardgame.play_sessions': 15,
 };
 
 /// Minimum kind-owned coordinate rows expected from the typed tracking-unit
@@ -155,6 +169,7 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
   return {
     'comic.media': (await db.select(db.comicMediaRows).get()).length,
     'comic.release': (await db.select(db.comicReleaseRows).get()).length,
+    'comic.reading': (await db.select(db.comicReadingRows).get()).length,
     'manga.media': (await db.select(db.mangaMediaRows).get()).length,
     'book.media': (await db.select(db.bookMediaRows).get()).length,
     'book.release': (await db.select(db.bookReleaseRows).get()).length,
@@ -170,6 +185,8 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'tv.episode': (await db.select(db.tvEpisodeRows).get()).length,
     'tv.release': (await db.select(db.tvReleaseRows).get()).length,
     'tv.release_media': (await db.select(db.tvReleaseMediaRows).get()).length,
+    'tv.release_episode_map':
+        (await db.select(db.tvReleaseEpisodeMapRows).get()).length,
     'anime.media': (await db.select(db.animeMediaRows).get()).length,
     'anime.episode': (await db.select(db.animeEpisodeRows).get()).length,
     'anime.release': (await db.select(db.animeReleaseRows).get()).length,
@@ -465,6 +482,15 @@ Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
     'tv.episode_progress':
         (await db.select(db.tvEpisodeProgressRows).get()).length,
     'anime.tracking': (await db.select(db.animeTrackingRows).get()).length,
+    'tv.watch_sessions': (await db.select(db.tvWatchSessionRows).get()).length,
+    'tv.custom_episodes':
+        (await db.select(db.tvCustomEpisodeRows).get()).length,
+    'anime.watch_sessions':
+        (await db.select(db.animeWatchSessionRows).get()).length,
+    'anime.custom_episodes':
+        (await db.select(db.animeCustomEpisodeRows).get()).length,
+    'boardgame.play_sessions':
+        (await db.select(db.boardGamePlaySessionsRows).get()).length,
   };
 }
 
@@ -961,6 +987,15 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     ...tvSeedTrackingUnits(allItems, now),
     ...animeSeedTrackingUnits(allItems, now),
   ];
+  final watchSessions = <WatchSession>[
+    ...tvSeedWatchSessions(now),
+    ...animeSeedWatchSessions(now),
+  ];
+  final customEpisodes = <CustomEpisode>[
+    ...tvSeedCustomEpisodes(now),
+    ...animeSeedCustomEpisodes(now),
+  ];
+  final playSessions = boardgameSeedPlaySessions(now);
 
   _validateSeedFixtures(
     catalogItems: allItems,
@@ -977,6 +1012,15 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   await ownedRepo.upsertAll(ownedItems);
   await _seedKindTracking(db, allItems, now);
   await trackingUnitsRepo.upsertAll(trackingUnits);
+  await WatchSessionsRepository(
+    db,
+    codecs: collectarrWatchSessionCodecs,
+  ).upsertAll(watchSessions);
+  await CustomEpisodesRepository(
+    db,
+    codecs: collectarrCustomEpisodeCodecs,
+  ).upsertAll(customEpisodes);
+  await BoardGamePlaySessionRepository(db).upsertAll(playSessions);
 
   // --- Item Images (front/back + extras) ---
   await _seedItemImages(imagesRepo, ownedItems);

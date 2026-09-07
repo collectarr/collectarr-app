@@ -203,6 +203,60 @@ void main() {
       isTrue,
       reason: 'Music seed tracks must retain media and duration metadata',
     );
+    final boardGamePlaySessions =
+        await db.select(db.boardGamePlaySessionsRows).get();
+    expect(
+      boardGamePlaySessions.every(
+        (row) =>
+            row.boardGameId.startsWith('seed-boardgame-') &&
+            row.playersJson != '[]' &&
+            row.scoresJson != '[]' &&
+            row.durationMinutes != null,
+      ),
+      isTrue,
+      reason: 'BoardGame seed play sessions must retain score data',
+    );
+    final tvWatchSessions = await db.select(db.tvWatchSessionRows).get();
+    expect(
+      tvWatchSessions.every(
+        (row) =>
+            row.seriesId.startsWith('seed-tv-') &&
+            row.targetRefJson?.isNotEmpty == true &&
+            row.seasonNumber != null &&
+            row.episodeNumber != null,
+      ),
+      isTrue,
+      reason: 'TV seed watch sessions must retain episode coordinates',
+    );
+    final animeWatchSessions = await db.select(db.animeWatchSessionRows).get();
+    expect(
+      animeWatchSessions.every(
+        (row) =>
+            row.seriesId.startsWith('seed-anime-') &&
+            row.targetRefJson?.isNotEmpty == true &&
+            row.seasonNumber != null &&
+            row.episodeNumber != null,
+      ),
+      isTrue,
+      reason: 'Anime seed watch sessions must retain episode coordinates',
+    );
+    final tvCustomEpisodes = await db.select(db.tvCustomEpisodeRows).get();
+    final animeCustomEpisodes =
+        await db.select(db.animeCustomEpisodeRows).get();
+    expect(
+      tvCustomEpisodes.every(
+        (row) => row.seriesId.startsWith('seed-tv-') && row.title.isNotEmpty,
+      ),
+      isTrue,
+      reason: 'TV seed custom episodes must retain titles',
+    );
+    expect(
+      animeCustomEpisodes.every(
+        (row) => row.seriesId.startsWith('seed-anime-') && row.title.isNotEmpty,
+      ),
+      isTrue,
+      reason: 'Anime seed custom episodes must retain titles',
+    );
     const expectedCatalogCounts = devSeedCatalogCounts;
     for (final entry in expectedCatalogCounts.entries) {
       expect(_countKind(catalogRows, entry.key), entry.value,
