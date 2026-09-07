@@ -618,13 +618,11 @@ final List<LibraryKindRegistration> collectarrKindRegistrations = [
 final class AnimeRegistration implements LibraryKindRegistration {
   const AnimeRegistration();
 
-  LibraryKindModule get _module => animeKindModule;
-
   @override
   CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
-  LibraryKindIdentity get identity => _module.identity;
+  LibraryKindIdentity get identity => animeKindModule.identity;
 
   @override
   Widget buildLibraryPage({
@@ -634,7 +632,7 @@ final class AnimeRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return AnimeLibraryPage(
-      type: _module,
+      type: animeKindModule,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -648,7 +646,7 @@ final class AnimeRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: _module,
+      type: animeKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,
@@ -706,13 +704,11 @@ final class AnimeRegistration implements LibraryKindRegistration {
 final class BoardgameRegistration implements LibraryKindRegistration {
   const BoardgameRegistration();
 
-  LibraryKindModule get _module => boardGameKindModule;
-
   @override
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
-  LibraryKindIdentity get identity => _module.identity;
+  LibraryKindIdentity get identity => boardGameKindModule.identity;
 
   @override
   Widget buildLibraryPage({
@@ -722,7 +718,7 @@ final class BoardgameRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return BoardGameLibraryPage(
-      type: _module,
+      type: boardGameKindModule,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -736,7 +732,7 @@ final class BoardgameRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: _module,
+      type: boardGameKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,
@@ -794,13 +790,11 @@ final class BoardgameRegistration implements LibraryKindRegistration {
 final class BookRegistration implements LibraryKindRegistration {
   const BookRegistration();
 
-  LibraryKindModule get _module => bookKindModule;
-
   @override
   CatalogMediaKind get kind => CatalogMediaKind.book;
 
   @override
-  LibraryKindIdentity get identity => _module.identity;
+  LibraryKindIdentity get identity => bookKindModule.identity;
 
   @override
   Widget buildLibraryPage({
@@ -810,7 +804,7 @@ final class BookRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return BookLibraryPage(
-      type: _module,
+      type: bookKindModule,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -824,7 +818,7 @@ final class BookRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: _module,
+      type: bookKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,
@@ -882,13 +876,11 @@ final class BookRegistration implements LibraryKindRegistration {
 final class ComicRegistration implements LibraryKindRegistration {
   const ComicRegistration();
 
-  LibraryKindModule get _module => comicKindModule;
-
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  LibraryKindIdentity get identity => _module.identity;
+  LibraryKindIdentity get identity => comicKindModule.identity;
 
   @override
   Widget buildLibraryPage({
@@ -898,7 +890,7 @@ final class ComicRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return ComicLibraryPage(
-      type: _module,
+      type: comicKindModule,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -912,7 +904,7 @@ final class ComicRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: _module,
+      type: comicKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,
@@ -970,13 +962,11 @@ final class ComicRegistration implements LibraryKindRegistration {
 final class GameRegistration implements LibraryKindRegistration {
   const GameRegistration();
 
-  LibraryKindModule get _module => gameKindModule;
-
   @override
   CatalogMediaKind get kind => CatalogMediaKind.game;
 
   @override
-  LibraryKindIdentity get identity => _module.identity;
+  LibraryKindIdentity get identity => gameKindModule.identity;
 
   @override
   Widget buildLibraryPage({
@@ -986,7 +976,7 @@ final class GameRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return GameLibraryPage(
-      type: _module,
+      type: gameKindModule,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -1000,7 +990,7 @@ final class GameRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: _module,
+      type: gameKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,
@@ -1058,13 +1048,11 @@ final class GameRegistration implements LibraryKindRegistration {
 final class MangaRegistration implements LibraryKindRegistration {
   const MangaRegistration();
 
-  LibraryKindModule get _module => mangaKindModule;
-
   @override
   CatalogMediaKind get kind => CatalogMediaKind.manga;
 
   @override
-  LibraryKindIdentity get identity => _module.identity;
+  LibraryKindIdentity get identity => mangaKindModule.identity;
 
   @override
   Widget buildLibraryPage({
@@ -1074,7 +1062,7 @@ final class MangaRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return MangaLibraryPage(
-      type: _module,
+      type: mangaKindModule,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -1088,7 +1076,7 @@ final class MangaRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: _module,
+      type: mangaKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,
@@ -1146,13 +1134,11 @@ final class MangaRegistration implements LibraryKindRegistration {
 final class MovieRegistration implements LibraryKindRegistration {
   const MovieRegistration();
 
-  LibraryKindModule get _module => movieKindModule;
-
   @override
   CatalogMediaKind get kind => CatalogMediaKind.movie;
 
   @override
-  LibraryKindIdentity get identity => _module.identity;
+  LibraryKindIdentity get identity => movieKindModule.identity;
 
   @override
   Widget buildLibraryPage({
@@ -1162,7 +1148,7 @@ final class MovieRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return MovieLibraryPage(
-      type: _module,
+      type: movieKindModule,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -1176,7 +1162,7 @@ final class MovieRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: _module,
+      type: movieKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,
@@ -1234,13 +1220,11 @@ final class MovieRegistration implements LibraryKindRegistration {
 final class MusicRegistration implements LibraryKindRegistration {
   const MusicRegistration();
 
-  LibraryKindModule get _module => musicKindModule;
-
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
 
   @override
-  LibraryKindIdentity get identity => _module.identity;
+  LibraryKindIdentity get identity => musicKindModule.identity;
 
   @override
   Widget buildLibraryPage({
@@ -1250,7 +1234,7 @@ final class MusicRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return MusicLibraryPage(
-      type: _module,
+      type: musicKindModule,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -1264,7 +1248,7 @@ final class MusicRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: _module,
+      type: musicKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,
@@ -1322,13 +1306,11 @@ final class MusicRegistration implements LibraryKindRegistration {
 final class TvRegistration implements LibraryKindRegistration {
   const TvRegistration();
 
-  LibraryKindModule get _module => tvKindModule;
-
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;
 
   @override
-  LibraryKindIdentity get identity => _module.identity;
+  LibraryKindIdentity get identity => tvKindModule.identity;
 
   @override
   Widget buildLibraryPage({
@@ -1338,7 +1320,7 @@ final class TvRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return TvLibraryPage(
-      type: _module,
+      type: tvKindModule,
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -1352,7 +1334,7 @@ final class TvRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: _module,
+      type: tvKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialBarcode: request.initialBarcode,

@@ -57,6 +57,11 @@ void main() {
     expect(registrations, contains('collectarrKindRegistrations'));
     expect(registrations, contains('libraryKindRegistrationForKind'));
     expect(registrations, contains('collectarrKindRoutes'));
+    expect(
+      registrations,
+      isNot(contains('LibraryKindModule get _module')),
+      reason: 'registrations must call concrete kind entrypoints directly',
+    );
   });
 
   test('application router consumes generated kind routes', () {

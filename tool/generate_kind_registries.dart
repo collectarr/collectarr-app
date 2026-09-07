@@ -828,16 +828,15 @@ void _renderRegistrationClass(
   buffer.writeln('final class $className implements LibraryKindRegistration {');
   buffer.writeln('  const $className();');
   buffer.writeln();
-  buffer
-      .writeln('  LibraryKindModule get _module => ${descriptor.moduleName};');
-  buffer.writeln();
   buffer.writeln('  @override');
   buffer.writeln(
     '  CatalogMediaKind get kind => CatalogMediaKind.${descriptor.folder};',
   );
   buffer.writeln();
   buffer.writeln('  @override');
-  buffer.writeln('  LibraryKindIdentity get identity => _module.identity;');
+  buffer.writeln(
+    '  LibraryKindIdentity get identity => ${descriptor.moduleName}.identity;',
+  );
   buffer.writeln();
   buffer.writeln('  @override');
   buffer.writeln('  Widget buildLibraryPage({');
@@ -847,7 +846,7 @@ void _renderRegistrationClass(
   buffer.writeln('    LibraryLayoutSnapshot? switchLayoutSnapshot,');
   buffer.writeln('  }) {');
   buffer.writeln('    return ${descriptor.pageClass}(');
-  buffer.writeln('      type: _module,');
+  buffer.writeln('      type: ${descriptor.moduleName},');
   buffer.writeln('      topBar: topBar,');
   buffer.writeln('      accent: accent,');
   buffer.writeln('      routeUri: routeUri,');
@@ -861,7 +860,7 @@ void _renderRegistrationClass(
   buffer.writeln('    required LibraryAddDialogRequest request,');
   buffer.writeln('  }) {');
   buffer.writeln('    return LibraryAddDialog(');
-  buffer.writeln('      type: _module,');
+  buffer.writeln('      type: ${descriptor.moduleName},');
   buffer.writeln('      accent: request.accent,');
   buffer.writeln('      initialQuery: request.initialQuery,');
   buffer.writeln('      initialBarcode: request.initialBarcode,');
