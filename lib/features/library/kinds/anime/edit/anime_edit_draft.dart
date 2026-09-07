@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
@@ -9,6 +11,8 @@ import 'package:collectarr_app/features/library/edit/video/video_edit_controller
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -75,6 +79,65 @@ class AnimeEditDraft extends LibraryEditKindDraft
         packaging: emptyToNull(packagingController.text),
         distributor: emptyToNull(distributorController.text),
       );
+
+  @override
+  AnimeOwnedItemUpdatePayload buildOwnedUpdatePayload({
+    required String ownedItemId,
+    required PersonalStateDraft personal,
+  }) {
+    return AnimeOwnedItemUpdatePayload(
+      anchor: Patch.set(PersonalItemAnchor.fromRaw(
+        anchorType: personal.selectedOwnedAnchorType.apiValue,
+        editionId: personal.selectedEditionId,
+        variantId: personal.selectedVariantId,
+        bundleReleaseId: personal.selectedBundleReleaseId,
+      )),
+      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+      isDigital: const Patch.unchanged(),
+      marketValueCents: const Patch.unchanged(),
+      indexNumber: const Patch.unchanged(),
+      condition: personal.conditionController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.conditionController.text.trim()),
+      grade: personal.gradeController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.gradeController.text.trim()),
+      purchaseDate: personal.purchaseDateController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseDate(personal.purchaseDateController.text)),
+      pricePaidCents: personal.priceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(personal.priceController.text)),
+      currency: personal.currencyController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.currencyController.text.trim()),
+      personalNotes: personal.notesController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.notesController.text.trim()),
+      locationId: personal.selectedLocationId != null
+          ? Patch.set(personal.selectedLocationId)
+          : const Patch.clear(),
+      purchaseStore: personal.purchaseStoreController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.purchaseStoreController.text.trim()),
+      collectionStatus: personal.collectionStatus != null
+          ? Patch.set(personal.collectionStatus)
+          : const Patch.clear(),
+      tags: personal.tagsController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.tagsController.text.trim()),
+      soldAt: personal.soldAt != null
+          ? Patch.set(personal.soldAt)
+          : const Patch.clear(),
+      sellPriceCents: personal.sellPriceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(personal.sellPriceController.text)),
+      soldTo: personal.soldToController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.soldToController.text.trim()),
+      details: Patch.set(toDetailsDraft() as AnimeOwnedDetailsDraft),
+    );
+  }
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {

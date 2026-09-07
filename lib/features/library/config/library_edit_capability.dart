@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
@@ -10,7 +9,6 @@ import 'package:collectarr_app/features/library/config/library_owned_copy_semant
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
@@ -103,65 +101,12 @@ class LibraryEditCapability {
     required String ownedItemId,
     required LibraryEditKindDraft kindDraft,
   }) {
-    final personal = session.personal;
-    final command = OwnedItemPatchCommand<OwnedDetailsDraft>(
+    return UpdateOwnedItemCommand(
       ownedItemId: ownedItemId,
-      anchor: Patch.set(
-        PersonalItemAnchor.fromRaw(
-          anchorType: personal.selectedOwnedAnchorType.apiValue,
-          editionId: personal.selectedEditionId,
-          variantId: personal.selectedVariantId,
-          bundleReleaseId: personal.selectedBundleReleaseId,
-        ),
+      payload: kindDraft.buildOwnedUpdatePayload(
+        ownedItemId: ownedItemId,
+        personal: session.personal,
       ),
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
-      condition: personal.conditionController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.conditionController.text.trim()),
-      grade: personal.gradeController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.gradeController.text.trim()),
-      purchaseDate: personal.purchaseDateController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseDate(personal.purchaseDateController.text)),
-      pricePaidCents: personal.priceController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseMoneyCents(personal.priceController.text)),
-      currency: personal.currencyController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.currencyController.text.trim()),
-      personalNotes: personal.notesController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.notesController.text.trim()),
-      locationId: personal.selectedLocationId != null
-          ? Patch.set(personal.selectedLocationId)
-          : const Patch.clear(),
-      purchaseStore: personal.purchaseStoreController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.purchaseStoreController.text.trim()),
-      collectionStatus: personal.collectionStatus != null
-          ? Patch.set(personal.collectionStatus)
-          : const Patch.clear(),
-      tags: personal.tagsController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.tagsController.text.trim()),
-      soldAt: personal.soldAt != null
-          ? Patch.set(personal.soldAt)
-          : const Patch.clear(),
-      sellPriceCents: personal.sellPriceController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseMoneyCents(personal.sellPriceController.text)),
-      soldTo: personal.soldToController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(buildDetailsDraft(kindDraft)),
     );
-    final builder = ownedUpdatePayloadBuilder;
-    return builder == null
-        ? command
-        : UpdateOwnedItemCommand(
-            ownedItemId: command.ownedItemId,
-            payload: builder(command),
-          );
   }
 }
