@@ -29,6 +29,11 @@ dart run tool/generate_kind_registries.dart
 dart format lib/features/library/kinds/registry/collectarr_kind_registry.g.dart
 ```
 
+CI runs the generator before Drift generation and checks the resulting tree
+with `git diff --exit-code`. A new kind therefore only needs its own module and
+page files; the generated composition root supplies the imports, registrations,
+and contributor maps.
+
 Generated files are committed so CI, IDE analysis, and release builds use the
 same source. The generator should be run before committing a kind module or
 page rename.

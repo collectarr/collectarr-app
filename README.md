@@ -43,6 +43,7 @@ optional multi-device sync.
 
 ```powershell
 flutter pub get
+dart run tool/generate_kind_registries.dart
 dart run build_runner build
 flutter analyze
 flutter test

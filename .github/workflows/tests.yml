@@ -26,6 +26,9 @@ jobs:
       - name: Check code formatting
         run: dart format --output=none --set-exit-if-changed .
 
+      - name: Generate typed kind registries
+        run: dart run tool/generate_kind_registries.dart
+
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 
