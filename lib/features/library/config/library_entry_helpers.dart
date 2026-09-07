@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -90,7 +91,7 @@ String? libraryWishlistReferenceLabel(
 }) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(
-    wishlistItem?.personalAnchor,
+    libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)?.type,
     itemLabel:
         'Wishlisted as ${labels.labelFor('item', fallback: 'Media').toLowerCase()}',
     editionLabel:
@@ -116,8 +117,9 @@ String? libraryReferenceScopeLabel({
   WishlistItem? wishlistItem,
   String? mediaType,
 }) {
-  final anchor = ownedItem?.personalAnchor ?? wishlistItem?.personalAnchor;
-  return _referenceScopeLabelForAnchor(anchor, mediaType: mediaType);
+  final anchorType = ownedItem?.personalAnchor ??
+      libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)?.type;
+  return _referenceScopeLabelForAnchor(anchorType, mediaType: mediaType);
 }
 
 String? libraryReferenceFormatLabel({
@@ -126,13 +128,16 @@ String? libraryReferenceFormatLabel({
   required List<CatalogEditionDto> editions,
   String? fallbackFormatLabel,
 }) {
-  final anchor = ownedItem?.personalAnchor ?? wishlistItem?.personalAnchor;
-  if (anchor == PersonalItemAnchorType.bundleRelease) {
+  final anchorType = ownedItem?.personalAnchor ??
+      libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)?.type;
+  if (anchorType == PersonalItemAnchorType.bundleRelease) {
     return null;
   }
   final resolved = _resolveLibraryReferenceRelease(
-    editionId: ownedItem?.anchor?.editionId ?? wishlistItem?.anchor?.editionId,
-    variantId: ownedItem?.anchor?.variantId ?? wishlistItem?.anchor?.variantId,
+    editionId: ownedItem?.anchor?.editionId ??
+        _catalogRefEditionId(wishlistItem?.catalogRef),
+    variantId: ownedItem?.anchor?.variantId ??
+        _catalogRefVariantId(wishlistItem?.catalogRef),
     editions: editions,
   );
   final variantLabel = resolved.variant?.physicalFormatLabel?.trim();
@@ -261,7 +266,8 @@ PersonalItemAnchor? resolveLibraryMutationAnchor({
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
 }) {
-  final existingAnchor = ownedItem?.anchor ?? wishlistItem?.anchor;
+  final existingAnchor = ownedItem?.anchor ??
+      libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef);
   if (existingAnchor != null) {
     return existingAnchor;
   }
@@ -278,6 +284,37 @@ PersonalItemAnchor? resolveLibraryMutationAnchor({
       preferredVideoEditionVariantId(releaseNode.edition),
     ),
   );
+}
+
+PersonalItemAnchor? libraryPersonalAnchorForCatalogRef(CatalogEntityRef? ref) {
+  if (ref == null) {
+    return null;
+  }
+  return switch (ref.entityType) {
+    CatalogEntityType.edition => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.edition.apiValue,
+        editionId: ref.id,
+      ),
+    CatalogEntityType.release => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.variant.apiValue,
+        variantId: ref.id,
+      ),
+    CatalogEntityType.bundleRelease => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
+        bundleReleaseId: ref.id,
+      ),
+    _ => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.item.apiValue,
+      ),
+  };
+}
+
+String? _catalogRefEditionId(CatalogEntityRef? ref) {
+  return ref?.entityType == CatalogEntityType.edition ? ref?.id : null;
+}
+
+String? _catalogRefVariantId(CatalogEntityRef? ref) {
+  return ref?.entityType == CatalogEntityType.release ? ref?.id : null;
 }
 
 TrackingEntry? resolveActiveTrackingEntry(

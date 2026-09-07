@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -184,12 +185,13 @@ List<CatalogEditionDto> _resolveVideoCatalogEditions(
     if (item.isDeleted) {
       continue;
     }
+    final anchor = _videoReleaseAnchorFromCatalogRef(item.catalogRef);
     _mergeAnchorSeed(
       seeds,
       input,
-      editionId: item.anchor?.editionId,
-      variantId: item.anchor?.variantId,
-      bundleReleaseId: item.anchor?.bundleReleaseId,
+      editionId: anchor.editionId,
+      variantId: anchor.variantId,
+      bundleReleaseId: anchor.bundleReleaseId,
     );
   }
 
@@ -206,6 +208,16 @@ List<CatalogEditionDto> _resolveVideoCatalogEditions(
   ];
   editions.sort(_compareCatalogEditions);
   return editions;
+}
+
+VideoReleaseAnchor _videoReleaseAnchorFromCatalogRef(CatalogEntityRef ref) {
+  return switch (ref.entityType) {
+    CatalogEntityType.edition => VideoReleaseAnchor(editionId: ref.id),
+    CatalogEntityType.release => VideoReleaseAnchor(variantId: ref.id),
+    CatalogEntityType.bundleRelease =>
+      VideoReleaseAnchor(bundleReleaseId: ref.id),
+    _ => const VideoReleaseAnchor(),
+  };
 }
 
 void _mergeAnchorSeed(

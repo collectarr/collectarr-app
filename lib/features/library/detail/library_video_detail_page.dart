@@ -111,11 +111,6 @@ class _LibraryVideoDetailPageState
               bundleReleaseId: anchor.bundleReleaseId,
             ),
           ),
-          anchor: PersonalItemAnchor.fromRaw(
-            editionId: anchor.editionId,
-            variantId: anchor.variantId,
-            bundleReleaseId: anchor.bundleReleaseId,
-          ),
         );
   }
 
@@ -426,9 +421,10 @@ bool _matchesReleaseAnchor(Object item, CatalogEditionDto edition) {
     variantId = item.anchor?.variantId;
     bundleReleaseId = item.anchor?.bundleReleaseId;
   } else if (item is WishlistItem) {
-    editionId = item.anchor?.editionId;
-    variantId = item.anchor?.variantId;
-    bundleReleaseId = item.anchor?.bundleReleaseId;
+    final wishlistAnchor = libraryPersonalAnchorForCatalogRef(item.catalogRef);
+    editionId = wishlistAnchor?.editionId;
+    variantId = wishlistAnchor?.variantId;
+    bundleReleaseId = wishlistAnchor?.bundleReleaseId;
   } else {
     return false;
   }

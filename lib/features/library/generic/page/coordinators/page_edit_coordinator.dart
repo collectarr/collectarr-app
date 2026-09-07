@@ -362,7 +362,9 @@ class LibraryPageEditCoordinator {
     if (wishlist != null && result.wishlist != null) {
       await wishlistMutations.updateWishlistItem(
         wishlist,
-        anchor: result.wishlist!.anchor,
+        catalogRef: catalogItem.catalogRefForPersonalAnchor(
+          result.wishlist!.anchor,
+        ),
         targetPriceCents: result.wishlist!.targetPriceCents,
         currency: result.wishlist!.currency,
         notes: result.wishlist!.notes,

@@ -6,9 +6,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -25,6 +23,33 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_metadat
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 export 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+
+final class _CatalogFixtureDefaults {
+  const _CatalogFixtureDefaults({
+    this.publisher,
+    this.creators,
+    this.publishing,
+  });
+
+  final String? publisher;
+  final List<Map<String, dynamic>>? creators;
+  final CatalogPublishingDetailsDto? publishing;
+}
+
+const _catalogFixtureDefaults = <CatalogMediaKind, _CatalogFixtureDefaults>{
+  CatalogMediaKind.book: _CatalogFixtureDefaults(
+    creators: [
+      {'name': 'J.R.R. Tolkien', 'role': 'Author'},
+    ],
+  ),
+  CatalogMediaKind.comic: _CatalogFixtureDefaults(
+    publisher: 'IDW',
+    publishing: CatalogPublishingDetailsDto(
+      imprint: 'IDW',
+      subtitle: 'Director Cut',
+    ),
+  ),
+};
 
 /// Builds a [CatalogItemDto] with sensible defaults for testing.
 ///
@@ -71,19 +96,10 @@ CatalogItemDto testCatalogItem({
   Map<String, dynamic>? payload,
 }) {
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  final resolvedPublisher =
-      publisher ?? (mediaKind == CatalogMediaKind.comic ? 'IDW' : null);
-  final resolvedCreators = creators ??
-      (mediaKind == CatalogMediaKind.book
-          ? const [
-              {'name': 'J.R.R. Tolkien', 'role': 'Author'}
-            ]
-          : null);
-  final resolvedPublishing = publishing ??
-      (mediaKind == CatalogMediaKind.comic
-          ? const CatalogPublishingDetailsDto(
-              imprint: 'IDW', subtitle: 'Director Cut')
-          : null);
+  final defaults = _catalogFixtureDefaults[mediaKind];
+  final resolvedPublisher = publisher ?? defaults?.publisher;
+  final resolvedCreators = creators ?? defaults?.creators;
+  final resolvedPublishing = publishing ?? defaults?.publishing;
   final mergedPayload = <String, dynamic>{
     if (itemNumber != null) 'item_number': itemNumber,
     if (editionTitle != null) 'edition_title': editionTitle,
@@ -449,17 +465,10 @@ LibraryProjectionRuntime testProjectionItem({
   );
   final node = LibraryTitleNodeRef(titleItemId: resolvedId);
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  final dto = mediaKind == CatalogMediaKind.comic
-      ? libraryKindWorkspaceForKind(CatalogMediaKind.comic)
-          .projector
-          .projectTitle(
-            source: shelf,
-            node: node,
-          )
-      : const GenericWorkspaceProjector().projectTitle(
-          source: shelf,
-          node: node,
-        );
+  final dto = libraryKindWorkspaceForKind(mediaKind).projector.projectTitle(
+        source: shelf,
+        node: node,
+      );
   return LibraryProjectionItem(
     source: shelf,
     node: node,

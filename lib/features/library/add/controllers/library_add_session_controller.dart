@@ -1310,7 +1310,6 @@ class LibraryAddSessionController
         case LibraryAddTarget.wishlist:
           await wishlistMutations.addToWishlist(
             item.catalogRefForPersonalAnchor(_selectedAnchor),
-            anchor: _selectedAnchor,
           );
         case LibraryAddTarget.track:
           await trackingMutations.addLocalOnlyTrackingEntry(
@@ -1435,7 +1434,6 @@ class LibraryAddSessionController
             case LibraryAddTarget.wishlist:
               await wishlistMutations.addToWishlist(
                 metadataItem.catalogRefForPersonalAnchor(_selectedAnchor),
-                anchor: _selectedAnchor,
               );
             case LibraryAddTarget.track:
               await trackingMutations.addLocalOnlyTrackingEntry(
@@ -1497,7 +1495,6 @@ class LibraryAddSessionController
           case LibraryAddTarget.wishlist:
             await wishlistMutations.addToWishlist(
               selectedResult.catalogRefForPersonalAnchor(_selectedAnchor),
-              anchor: _selectedAnchor,
             );
           case LibraryAddTarget.track:
             await trackingMutations.addLocalOnlyTrackingEntry(

@@ -268,12 +268,20 @@ void main() {
         );
 
     await wishlistMutations.addToWishlist(
-      testCatalogRef('movie-1', kind: 'movie'),
-      anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
+      const CatalogEntityRef(
+        kind: 'movie',
+        entityType: CatalogEntityType.edition,
+        id: 'edition-4k',
+        rootId: 'movie-1',
+      ),
     );
     await wishlistMutations.addToWishlist(
-      testCatalogRef('movie-1', kind: 'movie'),
-      anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-bluray'),
+      const CatalogEntityRef(
+        kind: 'movie',
+        entityType: CatalogEntityType.edition,
+        id: 'edition-bluray',
+        rootId: 'movie-1',
+      ),
     );
 
     final rows = await db.select(db.wishlistItemsCache).get();
@@ -295,7 +303,6 @@ void main() {
           catalogRef: CatalogEntityRef.fromJson(
             jsonDecode(row4k.catalogRefJson) as Map<String, dynamic>,
           ),
-          anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
           createdAt: row4k.createdAt,
           updatedAt: row4k.updatedAt,
         ),

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_watch_session_codec.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,9 +37,7 @@ void main() {
       containsPair('episode_number', 2),
     );
 
-    final codec = collectarrWatchSessionCodecs.singleWhere(
-      (candidate) => candidate.kind == CatalogMediaKind.tv,
-    );
+    const codec = TvWatchSessionCodec();
     final decoded = codec.fromSyncPayload(
       payload: repository.toSyncPayload(session),
       id: session.id,

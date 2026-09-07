@@ -4,6 +4,9 @@ import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+
 import '../../tool/check_library_kind_boundaries.dart';
 
 void main() {
@@ -579,7 +582,7 @@ class ComicFeature {}
 
   test('unknown kinds have no production registration', () {
     expect(
-      () => libraryKindFor(CatalogMediaKind.unknown),
+      () => libraryKindModuleForKind(CatalogMediaKind.unknown),
       throwsArgumentError,
     );
   });

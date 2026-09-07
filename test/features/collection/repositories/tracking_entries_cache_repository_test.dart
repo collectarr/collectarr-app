@@ -1,17 +1,15 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry_codec.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('TV codec reconstructs hierarchy coordinates from sync payload', () {
-    final codec = collectarrTrackingEntryCodecs.singleWhere(
-      (candidate) => candidate.kind == CatalogMediaKind.tv,
-    );
+    const codec = TvTrackingEntryCodec();
     final updatedAt = DateTime.utc(2026, 9, 6, 12);
     final entry = TrackingEntry(
       id: 'tv-sync-1',

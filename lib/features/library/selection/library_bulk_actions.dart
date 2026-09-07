@@ -81,7 +81,7 @@ class LibraryBulkActions {
       await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        anchor: anchor,
+        catalogRef: wishlistedEntries[index].wishlistItem?.catalogRef,
       );
     }
     for (var index = 0; index < entriesToOwn.length; index++) {
@@ -213,7 +213,7 @@ class LibraryBulkActions {
       await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        anchor: anchor,
+        catalogRef: wishlistedEntries[index].wishlistItem?.catalogRef,
       );
     }
     for (var index = 0; index < trackedEntries.length; index++) {

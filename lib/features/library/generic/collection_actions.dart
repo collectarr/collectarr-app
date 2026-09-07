@@ -53,7 +53,6 @@ class LibraryCollectionActions {
     );
     return wishlistMutations.addToWishlist(
       item.source.catalogItem!.catalogRefForPersonalAnchor(anchor),
-      anchor: anchor,
     );
   }
 
@@ -66,7 +65,7 @@ class LibraryCollectionActions {
     return wishlistMutations.removeFromWishlist(
       item.source.catalogItem!.id,
       wishlistItemId: item.source.wishlistItem?.id,
-      anchor: anchor,
+      catalogRef: item.source.catalogItem!.catalogRefForPersonalAnchor(anchor),
     );
   }
 }

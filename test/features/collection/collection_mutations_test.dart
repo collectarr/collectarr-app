@@ -594,9 +594,11 @@ void main() {
 
     await container.read(wishlistMutationsProvider).updateWishlistItem(
           original,
-          anchor: PersonalItemAnchor.fromRaw(
-            anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
-            bundleReleaseId: 'bundle-1',
+          catalogRef: const CatalogEntityRef(
+            kind: 'movie',
+            entityType: CatalogEntityType.bundleRelease,
+            id: 'bundle-1',
+            rootId: 'movie-1',
           ),
           targetPriceCents: 4599,
           currency: 'USD',
@@ -629,12 +631,20 @@ void main() {
 
     final wishlistMutations = container.read(wishlistMutationsProvider);
     await wishlistMutations.addToWishlist(
-      testCatalogRef('movie-1', kind: 'movie'),
-      anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
+      const CatalogEntityRef(
+        kind: 'movie',
+        entityType: CatalogEntityType.edition,
+        id: 'edition-4k',
+        rootId: 'movie-1',
+      ),
     );
     await wishlistMutations.addToWishlist(
-      testCatalogRef('movie-1', kind: 'movie'),
-      anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-bluray'),
+      const CatalogEntityRef(
+        kind: 'movie',
+        entityType: CatalogEntityType.edition,
+        id: 'edition-bluray',
+        rootId: 'movie-1',
+      ),
     );
 
     final rows = await db.select(db.wishlistItemsCache).get();
@@ -664,17 +674,30 @@ void main() {
 
     final wishlistMutations = container.read(wishlistMutationsProvider);
     await wishlistMutations.addToWishlist(
-      testCatalogRef('movie-1', kind: 'movie'),
-      anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
+      const CatalogEntityRef(
+        kind: 'movie',
+        entityType: CatalogEntityType.edition,
+        id: 'edition-4k',
+        rootId: 'movie-1',
+      ),
     );
     await wishlistMutations.addToWishlist(
-      testCatalogRef('movie-1', kind: 'movie'),
-      anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-bluray'),
+      const CatalogEntityRef(
+        kind: 'movie',
+        entityType: CatalogEntityType.edition,
+        id: 'edition-bluray',
+        rootId: 'movie-1',
+      ),
     );
 
     await wishlistMutations.removeFromWishlist(
       'movie-1',
-      anchor: PersonalItemAnchor.fromRaw(editionId: 'edition-4k'),
+      catalogRef: const CatalogEntityRef(
+        kind: 'movie',
+        entityType: CatalogEntityType.edition,
+        id: 'edition-4k',
+        rootId: 'movie-1',
+      ),
     );
 
     final rows = await db.select(db.wishlistItemsCache).get();

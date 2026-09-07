@@ -2,11 +2,13 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/release/video_release_source.dart';
+import 'package:collectarr_app/features/library/release/video_release_source.dart'
+    hide preferredVideoEditionVariantId;
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 
 final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
     implements ReleaseProjectionCapability<TDto> {
@@ -56,9 +58,15 @@ final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
           ? false
           : matchesVideoReleaseAnchor(
               edition,
-              editionId: source.wishlistItem!.anchor?.editionId,
-              variantId: source.wishlistItem!.anchor?.variantId,
-              bundleReleaseId: source.wishlistItem!.anchor?.bundleReleaseId,
+              editionId: libraryPersonalAnchorForCatalogRef(
+                source.wishlistItem!.catalogRef,
+              )?.editionId,
+              variantId: libraryPersonalAnchorForCatalogRef(
+                source.wishlistItem!.catalogRef,
+              )?.variantId,
+              bundleReleaseId: libraryPersonalAnchorForCatalogRef(
+                source.wishlistItem!.catalogRef,
+              )?.bundleReleaseId,
             );
 
       final releaseNode = LibraryReleaseNodeRef(

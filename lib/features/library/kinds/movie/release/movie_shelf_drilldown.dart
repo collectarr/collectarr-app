@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -70,9 +71,9 @@ List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
           wishlistItems.any(
             (item) => matchesVideoReleaseAnchor(
               edition,
-              editionId: item.anchor?.editionId,
-              variantId: item.anchor?.variantId,
-              bundleReleaseId: item.anchor?.bundleReleaseId,
+              editionId: _wishlistReleaseAnchor(item).editionId,
+              variantId: _wishlistReleaseAnchor(item).variantId,
+              bundleReleaseId: _wishlistReleaseAnchor(item).bundleReleaseId,
             ),
           ))
         edition,
@@ -112,9 +113,9 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
       .where(
         (item) => matchesVideoReleaseAnchor(
           edition,
-          editionId: item.anchor?.editionId,
-          variantId: item.anchor?.variantId,
-          bundleReleaseId: item.anchor?.bundleReleaseId,
+          editionId: _wishlistReleaseAnchor(item).editionId,
+          variantId: _wishlistReleaseAnchor(item).variantId,
+          bundleReleaseId: _wishlistReleaseAnchor(item).bundleReleaseId,
         ),
       )
       .toList(growable: false);
@@ -153,6 +154,18 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
     wishlistCount: matchedWishlistItems.length,
     node: releaseNode,
   );
+}
+
+VideoReleaseAnchor _wishlistReleaseAnchor(WishlistItem item) {
+  return switch (item.catalogRef.entityType) {
+    CatalogEntityType.edition =>
+      VideoReleaseAnchor(editionId: item.catalogRef.id),
+    CatalogEntityType.release =>
+      VideoReleaseAnchor(variantId: item.catalogRef.id),
+    CatalogEntityType.bundleRelease =>
+      VideoReleaseAnchor(bundleReleaseId: item.catalogRef.id),
+    _ => const VideoReleaseAnchor(),
+  };
 }
 
 class MovieShelfReleaseDrilldown extends StatelessWidget {

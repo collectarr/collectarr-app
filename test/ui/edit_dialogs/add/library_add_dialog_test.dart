@@ -2201,6 +2201,120 @@ class _FakeLibraryAddApiClient extends ApiClient {
   String? lastIngestProviderItemId;
   int providerPreviewCallCount = 0;
 
+  static const _searchFixtures = <String, List<Map<String, dynamic>>>{
+    'comic|Batman|': [
+      {
+        'id': 'comic-423',
+        'kind': 'comic',
+        'title': 'Batman',
+        'item_number': '423',
+        'publisher': 'DC',
+        'release_year': 1988,
+        'series': {
+          'series_id': 'series-batman',
+          'series_title': 'Batman',
+          'volume_name': 'Vol. 2',
+          'volume_number': 2,
+          'volume_start_year': 1987,
+        },
+      },
+    ],
+    'movie|Blade Runner|': [
+      {
+        'id': 'movie-1',
+        'kind': 'movie',
+        'title': 'Blade Runner 2049',
+        'publisher': 'Warner Bros.',
+        'release_year': 2017,
+      },
+    ],
+    'music||Daft Punk Core': [
+      {
+        'id': 'music-core-1',
+        'kind': 'music',
+        'title': 'Random Access Memories',
+        'publisher': 'Columbia',
+        'release_year': 2013,
+      },
+    ],
+  };
+
+  static final _typedMetadataFixtures =
+      <String, TypedMetadataResponse Function()>{
+    'comic:comic-423': () => ComicWorkDto.fromJson({
+          'id': 'comic-423',
+          'kind': 'comic',
+          'title': 'Batman',
+          'item_number': '423',
+          'publisher': 'DC',
+          'release_year': 1988,
+          'editions': const [
+            {
+              'id': 'edition-comic-423-collector',
+              'title': 'Collector Edition',
+              'physical_format_label': 'Sketch Cover',
+              'variants': [
+                {
+                  'id': 'variant-comic-423-a',
+                  'name': 'Any',
+                  'is_primary': true,
+                },
+                {
+                  'id': 'variant-comic-423-c',
+                  'name': 'Sketch Cover',
+                  'is_primary': false,
+                },
+              ],
+            },
+          ],
+        }),
+    'music:music-core-1': () => MusicReleaseDto.fromJson({
+          'id': 'music-core-1',
+          'kind': 'music',
+          'title': 'Random Access Memories',
+          'publisher': 'Columbia',
+          'release_year': 2013,
+          'track_count': 2,
+          'tracks': [
+            {
+              'id': 'music-core-1-track-1',
+              'media_id': 'music-core-1-media-1',
+              'position': '1',
+              'title': 'Give Life Back to Music',
+            },
+            {
+              'id': 'music-core-1-track-2',
+              'media_id': 'music-core-1-media-1',
+              'position': '2',
+              'title': 'The Game of Love',
+            },
+          ],
+          'media': [
+            {
+              'id': 'music-core-1-media-1',
+              'release_id': 'music-core-1',
+              'media_number': 1,
+              'title': 'Disc 1',
+              'track_count': 2,
+              'tracks': [
+                {
+                  'id': 'music-core-1-track-1',
+                  'media_id': 'music-core-1-media-1',
+                  'position': '1',
+                  'title': 'Give Life Back to Music',
+                },
+                {
+                  'id': 'music-core-1-track-2',
+                  'media_id': 'music-core-1-media-1',
+                  'position': '2',
+                  'title': 'The Game of Love',
+                },
+              ],
+            },
+          ],
+        }),
+  };
+
   @override
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
     return fallbackMediaCatalog;
@@ -2213,51 +2327,11 @@ class _FakeLibraryAddApiClient extends ApiClient {
     lastSearchQuery = query.query;
     lastSearchKind = query.kind;
     lastSearchSeries = query.series;
-    if (query.kind == CatalogMediaKind.comic.apiValue &&
-        query.query == 'Batman') {
-      return const [
-        {
-          'id': 'comic-423',
-          'kind': 'comic',
-          'title': 'Batman',
-          'item_number': '423',
-          'publisher': 'DC',
-          'release_year': 1988,
-          'series': {
-            'series_id': 'series-batman',
-            'series_title': 'Batman',
-            'volume_name': 'Vol. 2',
-            'volume_number': 2,
-            'volume_start_year': 1987,
-          },
-        },
-      ];
-    }
-    if (query.kind == CatalogMediaKind.movie.apiValue &&
-        query.query == 'Blade Runner') {
-      return const [
-        {
-          'id': 'movie-1',
-          'kind': 'movie',
-          'title': 'Blade Runner 2049',
-          'publisher': 'Warner Bros.',
-          'release_year': 2017,
-        },
-      ];
-    }
-    if (query.kind == CatalogMediaKind.music.apiValue &&
-        query.series == 'Daft Punk Core') {
-      return const [
-        {
-          'id': 'music-core-1',
-          'kind': 'music',
-          'title': 'Random Access Memories',
-          'publisher': 'Columbia',
-          'release_year': 2013,
-        },
-      ];
-    }
-    return const [];
+    return _searchFixtures[
+            '${query.kind}|${query.query}|${query.series ?? ''}'] ??
+        _searchFixtures['${query.kind}||${query.series ?? ''}'] ??
+        _searchFixtures['${query.kind}|${query.query}|'] ??
+        const [];
   }
 
   @override
@@ -2265,83 +2339,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
     required CatalogMediaKind kind,
     required String id,
   }) async {
-    final mediaKind = kind;
-    if (mediaKind == CatalogMediaKind.comic && id == 'comic-423') {
-      return ComicWorkDto.fromJson({
-        'id': 'comic-423',
-        'kind': 'comic',
-        'title': 'Batman',
-        'item_number': '423',
-        'publisher': 'DC',
-        'release_year': 1988,
-        'editions': const [
-          {
-            'id': 'edition-comic-423-collector',
-            'title': 'Collector Edition',
-            'physical_format_label': 'Sketch Cover',
-            'variants': [
-              {
-                'id': 'variant-comic-423-a',
-                'name': 'Any',
-                'is_primary': true,
-              },
-              {
-                'id': 'variant-comic-423-c',
-                'name': 'Sketch Cover',
-                'is_primary': false,
-              },
-            ],
-          },
-        ],
-      });
-    }
-    if (mediaKind == CatalogMediaKind.music && id == 'music-core-1') {
-      return MusicReleaseDto.fromJson({
-        'id': 'music-core-1',
-        'kind': 'music',
-        'title': 'Random Access Memories',
-        'publisher': 'Columbia',
-        'release_year': 2013,
-        'track_count': 2,
-        'tracks': [
-          {
-            'id': 'music-core-1-track-1',
-            'media_id': 'music-core-1-media-1',
-            'position': '1',
-            'title': 'Give Life Back to Music',
-          },
-          {
-            'id': 'music-core-1-track-2',
-            'media_id': 'music-core-1-media-1',
-            'position': '2',
-            'title': 'The Game of Love',
-          },
-        ],
-        'media': [
-          {
-            'id': 'music-core-1-media-1',
-            'release_id': 'music-core-1',
-            'media_number': 1,
-            'title': 'Disc 1',
-            'track_count': 2,
-            'tracks': [
-              {
-                'id': 'music-core-1-track-1',
-                'media_id': 'music-core-1-media-1',
-                'position': '1',
-                'title': 'Give Life Back to Music',
-              },
-              {
-                'id': 'music-core-1-track-2',
-                'media_id': 'music-core-1-media-1',
-                'position': '2',
-                'title': 'The Game of Love',
-              },
-            ],
-          },
-        ],
-      });
-    }
+    final fixture = _typedMetadataFixtures['${kind.apiValue}:$id'];
+    if (fixture != null) return fixture();
     throw StateError('Unknown typed metadata item $kind:$id');
   }
 

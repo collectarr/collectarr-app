@@ -155,11 +155,11 @@ void main() {
         id: 'wish_1',
         createdAt: DateTime(2026),
         updatedAt: DateTime(2026),
-        editionId: 'ed_1',
         catalogRef: const CatalogEntityRef(
           kind: 'movie',
           entityType: CatalogEntityType.edition,
-          id: 'movie_1',
+          id: 'ed_1',
+          rootId: 'movie_1',
         ),
       );
       final source = ShelfEntry(

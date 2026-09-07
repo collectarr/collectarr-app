@@ -154,12 +154,10 @@ void main() {
       id: 'wishlist-1',
       catalogRef: const CatalogEntityRef(
         kind: 'movie',
-        entityType: CatalogEntityType.work,
-        id: 'movie-1',
+        entityType: CatalogEntityType.release,
+        id: 'variant-uhd',
+        rootId: 'movie-1',
       ),
-      anchorType: 'variant',
-      editionId: 'edition-4k',
-      variantId: 'variant-uhd',
       createdAt: DateTime.utc(2026, 5, 25, 9),
       updatedAt: DateTime.utc(2026, 5, 25, 10),
     );
@@ -170,7 +168,7 @@ void main() {
     );
 
     expect(resolved?.apiValue, 'variant');
-    expect(resolved?.editionId, 'edition-4k');
+    expect(resolved?.editionId, isNull);
     expect(resolved?.variantId, 'variant-uhd');
     expect(resolved?.bundleReleaseId, isNull);
   });

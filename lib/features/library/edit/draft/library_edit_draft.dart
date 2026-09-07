@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -16,7 +17,8 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
+    hide formatDate;
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -224,9 +226,11 @@ class LibraryEditDraft {
     );
     final wishlistEditionSelection = resolveLibraryEditionSelection(
       editions,
-      editionId: wishlistItem?.anchor?.editionId,
+      editionId: libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)
+          ?.editionId,
       editionTitle: editionTitle,
-      variantId: wishlistItem?.anchor?.variantId,
+      variantId: libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)
+          ?.variantId,
     );
 
     final metadata = CommonMetadataDraft(
@@ -271,13 +275,15 @@ class LibraryEditDraft {
       selectedBundleReleaseId:
           normalizeLibrarySelectionId(ownedItem?.anchor?.bundleReleaseId),
       selectedWishlistAnchorType: PersonalItemAnchorType.fromApiValue(
-            wishlistItem?.personalAnchor?.apiValue,
+            libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)
+                ?.apiValue,
           ) ??
           PersonalItemAnchorType.item,
       selectedWishlistEditionId: wishlistEditionSelection.edition?.id,
       selectedWishlistVariantId: wishlistEditionSelection.variant?.id,
-      selectedWishlistBundleReleaseId:
-          normalizeLibrarySelectionId(wishlistItem?.anchor?.bundleReleaseId),
+      selectedWishlistBundleReleaseId: normalizeLibrarySelectionId(
+          libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)
+              ?.bundleReleaseId),
       locationChanged: false,
       soldAt: ownedItem?.soldAt,
       collectionStatus: ownedItem?.collectionStatus,

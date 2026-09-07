@@ -74,6 +74,24 @@ void main() {
         CatalogMediaKind.book: const BookOwnedDetailsDraft(),
         CatalogMediaKind.boardgame: const BoardgameOwnedDetailsDraft(),
       };
+      final mismatchedDetailsByKind = <CatalogMediaKind, OwnedDetailsDraft>{
+        CatalogMediaKind.comic: const MovieOwnedDetailsDraft(region: 'A'),
+        CatalogMediaKind.manga: const MovieOwnedDetailsDraft(region: 'A'),
+        CatalogMediaKind.anime:
+            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+        CatalogMediaKind.boardgame:
+            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+        CatalogMediaKind.book:
+            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+        CatalogMediaKind.game:
+            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+        CatalogMediaKind.movie:
+            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+        CatalogMediaKind.music:
+            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+        CatalogMediaKind.tv:
+            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+      };
 
       for (final entry in kindDetailsMap.entries) {
         final kind = entry.key;
@@ -100,39 +118,22 @@ void main() {
         expect(collectarrTypedOwnedItemJson(stored.$2), isNotEmpty);
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
 
-        // Mismatched details test: non-comic kind with ComicOwnedDetailsDraft
-        if (kind != CatalogMediaKind.comic && kind != CatalogMediaKind.manga) {
-          expect(
-            () => coordinator.addOwnedItem(
-              typedAddOwnedItemCommand(
-                catalogRef: CatalogEntityRef(
-                  kind: kind.apiValue,
-                  entityType: CatalogEntityType.ownedCopy,
-                  id: 'test-${kind.apiValue}-bad',
-                ),
-                common: const LibraryAddCommonDraft(),
-                details: const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+        final mismatchedDetails = mismatchedDetailsByKind[kind];
+        expect(mismatchedDetails, isNotNull);
+        expect(
+          () => coordinator.addOwnedItem(
+            typedAddOwnedItemCommand(
+              catalogRef: CatalogEntityRef(
+                kind: kind.apiValue,
+                entityType: CatalogEntityType.ownedCopy,
+                id: 'test-${kind.apiValue}-bad',
               ),
+              common: const LibraryAddCommonDraft(),
+              details: mismatchedDetails!,
             ),
-            throwsA(isA<StateError>()),
-          );
-        } else {
-          // Comic/manga kind with MovieOwnedDetailsDraft
-          expect(
-            () => coordinator.addOwnedItem(
-              typedAddOwnedItemCommand(
-                catalogRef: CatalogEntityRef(
-                  kind: kind.apiValue,
-                  entityType: CatalogEntityType.ownedCopy,
-                  id: 'test-${kind.apiValue}-bad',
-                ),
-                common: const LibraryAddCommonDraft(),
-                details: const MovieOwnedDetailsDraft(region: 'A'),
-              ),
-            ),
-            throwsA(isA<StateError>()),
-          );
-        }
+          ),
+          throwsA(isA<StateError>()),
+        );
       }
     });
 

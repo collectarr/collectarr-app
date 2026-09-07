@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:drift/drift.dart';
 
@@ -43,13 +42,12 @@ class WishlistItemsCacheRepository {
         .toList(growable: false);
   }
 
-  Future<WishlistItem?> findActiveByItemAnchorValue(
-    String itemId,
-    PersonalItemAnchor? anchor,
+  Future<WishlistItem?> findActiveByCatalogRef(
+    CatalogEntityRef catalogRef,
   ) async {
-    final items = await listActiveByItemId(itemId);
+    final items = await listActiveByItemId(catalogRef.rootId ?? catalogRef.id);
     for (final item in items) {
-      if (_matchesAnchorValue(item, anchor)) {
+      if (_sameCatalogRef(item.catalogRef, catalogRef)) {
         return item;
       }
     }
@@ -135,7 +133,6 @@ class WishlistItemsCacheRepository {
     return WishlistItem(
       id: row.id,
       catalogRef: catalogRef,
-      anchor: _anchorFromCatalogRef(catalogRef),
       targetPriceCents: row.targetPriceCents,
       currency: row.currency,
       notes: row.notes,
@@ -158,33 +155,10 @@ class WishlistItemsCacheRepository {
     );
   }
 
-  PersonalItemAnchor? _anchorFromCatalogRef(CatalogEntityRef ref) {
-    return switch (ref.entityType) {
-      CatalogEntityType.edition => PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.edition.apiValue,
-          editionId: ref.id,
-        ),
-      CatalogEntityType.release => PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.variant.apiValue,
-          variantId: ref.id,
-        ),
-      CatalogEntityType.bundleRelease => PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
-          bundleReleaseId: ref.id,
-        ),
-      _ => null,
-    };
-  }
-
-  bool _matchesAnchorValue(
-      WishlistItem item, PersonalItemAnchor? candidateAnchor) {
-    final itemAnchor = item.anchor;
-    if (itemAnchor == null || candidateAnchor == null) {
-      return itemAnchor == null && candidateAnchor == null;
-    }
-    return itemAnchor.apiValue == candidateAnchor.apiValue &&
-        itemAnchor.editionId == candidateAnchor.editionId &&
-        itemAnchor.variantId == candidateAnchor.variantId &&
-        itemAnchor.bundleReleaseId == candidateAnchor.bundleReleaseId;
+  bool _sameCatalogRef(CatalogEntityRef left, CatalogEntityRef right) {
+    return left.kind == right.kind &&
+        left.entityType == right.entityType &&
+        left.id == right.id &&
+        left.rootId == right.rootId;
   }
 }

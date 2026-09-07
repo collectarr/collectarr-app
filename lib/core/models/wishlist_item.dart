@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 
 const Object _wishlistItemUnset = Object();
 
@@ -7,28 +6,16 @@ class WishlistItem {
   WishlistItem({
     required this.id,
     required this.catalogRef,
-    PersonalItemAnchor? anchor,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
     this.targetPriceCents,
     this.currency,
     this.notes,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
-  }) : anchor = anchor ??
-            PersonalItemAnchor.fromRaw(
-              anchorType: anchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
-            );
+  });
 
   final String id;
   final CatalogEntityRef catalogRef;
-  final PersonalItemAnchor? anchor;
   final int? targetPriceCents;
   final String? currency;
   final String? notes;
@@ -38,19 +25,11 @@ class WishlistItem {
 
   String get itemId => catalogRef.rootId ?? catalogRef.id;
 
-  String? get anchorType => anchor?.apiValue;
-  String? get editionId => anchor?.editionId;
-  String? get variantId => anchor?.variantId;
-  String? get bundleReleaseId => anchor?.bundleReleaseId;
-
-  PersonalItemAnchorType? get personalAnchor => anchor?.type;
-
   bool get isDeleted => deletedAt != null;
 
   Map<String, Object?> toSyncPayload() {
     return {
       'catalog_ref': catalogRef.toJson(),
-      ...?anchor?.toSyncPayload(),
       'target_price_cents': targetPriceCents,
       'currency': currency,
       'notes': notes,
@@ -64,12 +43,6 @@ class WishlistItem {
     return WishlistItem(
       id: json['id'] as String,
       catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
-      anchor: PersonalItemAnchor.fromRaw(
-        anchorType: json['anchor_type'] as String?,
-        editionId: json['edition_id'] as String?,
-        variantId: json['variant_id'] as String?,
-        bundleReleaseId: json['bundle_release_id'] as String?,
-      ),
       targetPriceCents: json['target_price_cents'] as int?,
       currency: json['currency'] as String?,
       notes: json['notes'] as String?,
@@ -84,11 +57,6 @@ class WishlistItem {
   WishlistItem copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? anchor = _wishlistItemUnset,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
     Object? targetPriceCents = _wishlistItemUnset,
     Object? currency = _wishlistItemUnset,
     Object? notes = _wishlistItemUnset,
@@ -96,19 +64,9 @@ class WishlistItem {
     DateTime? updatedAt,
     Object? deletedAt = _wishlistItemUnset,
   }) {
-    final resolvedAnchor = identical(anchor, _wishlistItemUnset)
-        ? PersonalItemAnchor.fromRaw(
-            anchorType: anchorType ?? this.anchorType,
-            editionId: editionId ?? this.editionId,
-            variantId: variantId ?? this.variantId,
-            bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
-          )
-        : anchor as PersonalItemAnchor?;
-
     return WishlistItem(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
-      anchor: resolvedAnchor,
       targetPriceCents: identical(targetPriceCents, _wishlistItemUnset)
           ? this.targetPriceCents
           : targetPriceCents as int?,

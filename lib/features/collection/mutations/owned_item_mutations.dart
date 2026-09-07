@@ -52,8 +52,7 @@ final class OwnedItemMutations {
     final catalogRef = command.catalogRef;
     final anchor = command.anchor;
 
-    final existingWishlist =
-        await wishlist.findActiveByItemAnchorValue(catalogRef.id, anchor);
+    final existingWishlist = await wishlist.findActiveByCatalogRef(catalogRef);
     final wishlistChanged = existingWishlist != null;
     final newItemId = idGenerator();
 
@@ -268,7 +267,10 @@ final class OwnedItemMutations {
 
         for (final item in wishlistEntries) {
           final updated = item.copyWith(
-            catalogRef: targetMetadata.catalogRefForPersonalAnchor(item.anchor),
+            catalogRef: _rebaseCatalogRef(
+              item.catalogRef,
+              targetMetadata.catalogRef,
+            ),
             updatedAt: now,
           );
           await wishlist.upsert(updated);
@@ -326,6 +328,20 @@ final class OwnedItemMutations {
       );
     }
     return catalogRef;
+  }
+
+  CatalogEntityRef _rebaseCatalogRef(
+    CatalogEntityRef current,
+    CatalogEntityRef target,
+  ) {
+    if (current.entityType == CatalogEntityType.work ||
+        current.rootId == null) {
+      return target;
+    }
+    return current.copyWith(
+      kind: target.kind,
+      rootId: target.id,
+    );
   }
 
   SyncChange _syncChangeForTypedOwnedItem(

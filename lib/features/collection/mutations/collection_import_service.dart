@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -213,9 +212,6 @@ final class CollectionImportService {
             kind: row.kind ?? catItemKind ?? CatalogMediaKind.unknown.apiValue,
             entityType: CatalogEntityType.work,
             id: row.itemId,
-          ),
-          anchor: PersonalItemAnchor.fromRaw(
-            anchorType: PersonalItemAnchorType.item.apiValue,
           ),
           createdAt: now,
           updatedAt: now,
