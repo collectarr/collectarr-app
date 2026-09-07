@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
@@ -14,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provi
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -281,7 +279,6 @@ void main() {
       final envelope = _envelopeFor(testCase);
       expect(envelope.normalized['kind'], testCase.kind.apiValue);
 
-      final runtime = libraryKindFor(testCase.kind);
       final mapper = libraryKindProviderMapperForKind(testCase.kind);
       expect(mapper, isNotNull);
 
@@ -289,12 +286,12 @@ void main() {
       expect(item.mediaKind, testCase.kind);
       expect(item.id, testCase.providerItemId);
       expect(item.title.trim(), isNotEmpty);
-      expect(item.kindMetadata, isNot(isA<Map>()));
+      expect(item.kindMetadata, isNot(isA<Map<String, dynamic>>()));
       expect(item.kindMetadata, isNot(isA<NormalizedProviderEnvelopeV1>()));
 
       final catalog = _typedCatalogMappers[testCase.kind]!(envelope);
       expect(catalog, isNotNull);
-      expect(catalog, isNot(isA<Map>()));
+      expect(catalog, isNot(isA<Map<String, dynamic>>()));
     });
   }
 
