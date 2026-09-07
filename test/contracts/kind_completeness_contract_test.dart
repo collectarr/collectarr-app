@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -113,6 +113,33 @@ void main() {
         () => collectarrOwnedDetailsCodecForKind(CatalogMediaKind.unknown),
         throwsArgumentError,
       );
+    });
+
+    test('generated kind registry covers typed catalog and vocabulary inputs',
+        () {
+      final catalogKinds = collectarrKindCatalogRepositoryCodecs
+          .map((codec) => catalogMediaKindFromApiValue(codec.kind))
+          .toSet();
+      expect(catalogKinds, equals(activeKinds.toSet()));
+
+      final vocabularyKinds = collectarrKindPickListDefinitionContributors
+          .map((contributor) => contributor.kind)
+          .toSet();
+      expect(vocabularyKinds, equals(activeKinds.toSet()));
+
+      final serialKinds = collectarrKindSerialAuthorityContributors
+          .map((contributor) => contributor.kind)
+          .toSet();
+      expect(serialKinds,
+          equals({CatalogMediaKind.comic, CatalogMediaKind.manga}));
+
+      for (final kind in activeKinds) {
+        expect(collectarrOwnedItemPersisters, contains(kind));
+        expect(collectarrOwnedItemReaders, contains(kind));
+        expect(collectarrOwnedItemSummaryReaders, contains(kind));
+        expect(collectarrOwnedItemFinders, contains(kind));
+        expect(collectarrOwnedItemDeleters, contains(kind));
+      }
     });
 
     test(
