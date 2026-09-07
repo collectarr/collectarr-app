@@ -25,7 +25,8 @@ final class LibraryCatalogRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, CatalogKindRepositoryCodec> _codecs;
 
-  Future<void> upsertMetadataItems(List<CatalogItemDto> items) => upsertAll(items);
+  Future<void> upsertMetadataItems(List<CatalogItemDto> items) =>
+      upsertAll(items);
 
   Future<void> upsertAll(
     Iterable<CatalogItemDto> items, {
@@ -52,11 +53,13 @@ final class LibraryCatalogRepository {
     final list = items.toList(growable: false);
     if (list.isEmpty) return;
 
-    final byKind = <CatalogMediaKind, List<Object?>>{};
+    final byKind = <CatalogMediaKind, List<Object>>{};
     for (final item in list) {
-      byKind.putIfAbsent(item.mediaKind, () => <Object?>[]).add(
-            item.kindMetadata,
-          );
+      final codec = _codecs[item.mediaKind];
+      final typedMetadata = codec?.typedMetadataFromDto(item);
+      if (typedMetadata != null) {
+        byKind.putIfAbsent(item.mediaKind, () => <Object>[]).add(typedMetadata);
+      }
     }
 
     final pickLists = PickListRepository(_db);

@@ -12,10 +12,18 @@ final class TvCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   CatalogMediaKind get kind => CatalogMediaKind.tv;
 
   @override
+  Object? typedMetadataFromDto(CatalogItemDto item) {
+    final metadata = item.kindMetadata;
+    if (metadata is TvSeries) return metadata;
+    return metadata is Map ? TvSeries.fromJson(item.payload) : null;
+  }
+
+  @override
   CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
-      item.kindMetadata is Map
-          ? item.withKindMetadata(TvSeries.fromJson(item.payload))
-          : item;
+      switch (typedMetadataFromDto(item)) {
+        final metadata? => item.withKindMetadata(metadata),
+        _ => item,
+      };
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {

@@ -13,10 +13,18 @@ final class BoardGameCatalogRepositoryCodec
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
+  Object? typedMetadataFromDto(CatalogItemDto item) {
+    final metadata = item.kindMetadata;
+    if (metadata is BoardGameMedia) return metadata;
+    return metadata is Map ? BoardGameMedia.fromJson(item.payload) : null;
+  }
+
+  @override
   CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
-      item.kindMetadata is Map
-          ? item.withKindMetadata(BoardGameMedia.fromJson(item.payload))
-          : item;
+      switch (typedMetadataFromDto(item)) {
+        final metadata? => item.withKindMetadata(metadata),
+        _ => item,
+      };
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {

@@ -9,6 +9,10 @@ import 'package:collectarr_app/core/db/local_database.dart';
 abstract interface class CatalogKindRepositoryCodec {
   CatalogMediaKind get kind;
 
+  /// Decodes the API-bound catalog projection into this kind's concrete
+  /// metadata value for derived-data contributors.
+  Object? typedMetadataFromDto(CatalogItemDto item);
+
   /// Rehydrates a transport catalog projection into this kind's typed
   /// metadata at the persistence boundary.
   CatalogItemDto withTypedMetadata(CatalogItemDto item);
