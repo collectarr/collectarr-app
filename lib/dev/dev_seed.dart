@@ -44,16 +44,16 @@ export 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 ///
 /// Keeping this manifest next to the seed entry point makes omissions in an
 /// individual kind script fail before anything is written to the database.
-const devSeedCatalogCounts = <String, int>{
-  'movie': 15,
-  'tv': 15,
-  'anime': 15,
-  'manga': 15,
-  'book': 15,
-  'music': 15,
-  'game': 15,
-  'boardgame': 15,
-  'comic': 15,
+const devSeedCatalogCounts = <CatalogMediaKind, int>{
+  CatalogMediaKind.movie: 15,
+  CatalogMediaKind.tv: 15,
+  CatalogMediaKind.anime: 15,
+  CatalogMediaKind.manga: 15,
+  CatalogMediaKind.book: 15,
+  CatalogMediaKind.music: 15,
+  CatalogMediaKind.game: 15,
+  CatalogMediaKind.boardgame: 15,
+  CatalogMediaKind.comic: 15,
 };
 
 /// Minimum typed graph coverage expected from the fixture set.
@@ -624,13 +624,14 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   );
 
   for (final entry in devSeedCatalogCounts.entries) {
-    final catalogCount =
-        seededCatalogRows.where((row) => row.kind == entry.key).length;
+    final catalogCount = seededCatalogRows
+        .where((row) => catalogMediaKindFromApiValue(row.kind) == entry.key)
+        .length;
     final ownedCount = seededOwnedRows
-        .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+        .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
         .length;
     final trackingCount = seededTrackingRows
-        .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+        .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
         .length;
     require(
       catalogCount == entry.value,
@@ -1059,7 +1060,8 @@ void _validateSeedFixtures({
         '(id="${item.id}", kind="${item.kind}", title="${item.title}")',
       );
     }
-    if (!devSeedCatalogCounts.containsKey(item.kind)) {
+    final kind = catalogMediaKindFromApiValue(item.kind);
+    if (!devSeedCatalogCounts.containsKey(kind)) {
       throw StateError(
           'Seed catalog item ${item.id} has unknown kind ${item.kind}');
     }
@@ -1069,9 +1071,10 @@ void _validateSeedFixtures({
     catalogById[item.id] = item;
   }
 
-  final actualCounts = <String, int>{};
+  final actualCounts = <CatalogMediaKind, int>{};
   for (final item in catalogItems) {
-    actualCounts[item.kind] = (actualCounts[item.kind] ?? 0) + 1;
+    final kind = catalogMediaKindFromApiValue(item.kind);
+    actualCounts[kind] = (actualCounts[kind] ?? 0) + 1;
   }
   if (actualCounts.length != devSeedCatalogCounts.length ||
       actualCounts.entries.any(
@@ -1095,7 +1098,7 @@ void _validateSeedFixtures({
         'Owned seed ${item.id} references missing catalog ${item.catalogRef.id}',
       );
     }
-    if (item.catalogRef.kind != catalog.kind) {
+    if (item.catalogRef.mediaKind != catalog.mediaKind) {
       throw StateError(
         'Owned seed ${item.id} kind ${item.catalogRef.kind} does not match '
         'catalog ${catalog.id} kind ${catalog.kind}',

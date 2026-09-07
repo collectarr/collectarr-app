@@ -19,7 +19,10 @@ void main() {
 
     expect(kinds.length, devSeedCatalogCounts.length);
     expect(kinds.toSet().length, kinds.length);
-    expect(kinds, containsAll(devSeedCatalogCounts.keys));
+    expect(
+      kinds,
+      containsAll(devSeedCatalogCounts.keys.map((kind) => kind.apiValue)),
+    );
     for (final contributor in collectarrDevSeedContributors) {
       expect(contributor.catalogItems, isNotNull);
       expect(contributor.validateCatalog, isNotNull);
@@ -340,7 +343,7 @@ void main() {
     final ownedRows = await OwnedItemsRepository(db).listActive();
     for (final entry in expectedCatalogCounts.entries) {
       final kindOwned = ownedRows
-          .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+          .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
           .toList();
       expect(kindOwned, hasLength(entry.value),
           reason: 'Unexpected ${entry.key} owned seed count');
@@ -490,7 +493,7 @@ void main() {
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows
-          .where((row) => row.itemId.startsWith('seed-${entry.key}-'))
+          .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
           .toList();
       expect(kindTracking, hasLength(entry.value),
           reason: 'Unexpected ${entry.key} tracking seed count');
@@ -635,8 +638,10 @@ void main() {
   });
 }
 
-int _countKind(List<CatalogItemDto> rows, String kind) {
-  return rows.where((row) => row.kind == kind).length;
+int _countKind(List<CatalogItemDto> rows, CatalogMediaKind kind) {
+  return rows
+      .where((row) => catalogMediaKindFromApiValue(row.kind) == kind)
+      .length;
 }
 
 Future<int> _countImages(
