@@ -10,10 +10,14 @@ The generator discovers a kind by finding both:
 - `<kind>/page.dart` with a `*LibraryPage` widget.
 
 It then emits one generated registry containing the imports, module list, page
-registrations, and kind lookup functions. The two public registry entry points
+registrations, kind lookup functions, and typed owned-persistence dispatch
+maps. The two public registry entry points
 (`collectarr_kind_modules.dart` and `library_kind_registrations.dart`) only
 export that generated registry; they do not duplicate kind imports.
-The generated source is ordinary Dart and is compiled normally.
+The generated source is ordinary Dart and is compiled normally. The owned
+dispatch maps are derived from each kind's owned repository, projection, and
+typed ID files; `CollectarrOwnedItemPersistence` consumes those structural
+maps without manually importing every kind.
 
 This is deliberately build-time discovery rather than runtime reflection:
 
@@ -26,10 +30,9 @@ Run after adding or renaming a kind:
 
 ```text
 dart run tool/generate_kind_registries.dart
-dart format lib/features/library/kinds/registry/collectarr_kind_registry.g.dart
 ```
 
-CI runs the generator before Drift generation and checks the resulting tree
+The generator formats its output itself. CI runs it before Drift generation and checks the resulting tree
 with `git diff --exit-code`. A new kind therefore only needs its own module and
 page files; the generated composition root supplies the imports, registrations,
 and contributor maps.
