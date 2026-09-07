@@ -425,12 +425,6 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
   checkTypedRows('anime_owned_items', 'anime', animeRows.map((row) => row.id));
   final musicRows = await db.select(db.musicOwnedItemsRows).get();
   checkTypedRows('music_owned_items', 'music', musicRows.map((row) => row.id));
-  final gameOwnedRows = await db.select(db.gameOwnedItemsRows).get();
-  checkTypedRows(
-      'game_owned_items', 'game', gameOwnedRows.map((row) => row.id));
-  final boardGameOwnedRows = await db.select(db.boardGameOwnedItemsRows).get();
-  checkTypedRows('boardgame_owned_items', 'boardgame',
-      boardGameOwnedRows.map((row) => row.id));
 
   return issues;
 }

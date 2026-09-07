@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-Baseline HEAD: `def62e14` on 2026-09-07.
+Baseline HEAD: `cf11fe99` on 2026-09-07.
 
 Generated registration is compile-time discovery of the nine kind modules. No
 runtime reflection or manual per-kind import list is required. The generated
@@ -10,6 +10,8 @@ registry is a composition root only.
 
 - `_module` forwarding and runtime registration reflection;
 - generic workspace lookup through the generated kind map;
+- `LibraryKindModule.fields` / `projector` forwarding; every kind now owns a
+  generated `TypedLibraryKindWorkspace` registration;
 - generic facet definition ownership;
 - test `CatalogMediaKind` switches in the migrated contract fixtures;
 - common seed graph kind switches and manual seed contributor imports;
@@ -22,9 +24,10 @@ registry is a composition root only.
 `LibraryKindModule` / `LibraryKindSpec` still expose semantic behavior through
 `LibraryProjectionRuntime` and related capability objects:
 
-- field registries, columns, sorts, groups and facet execution;
-- metadata and provider mapper access;
-- generic inspector, transfer and card construction;
+- remaining capability forwarding for metadata, provider, inspector, transfer,
+  card and presentation surfaces;
+- field/column/sort/group/facet execution still reaches generic projection
+  engines even though its field definitions now live in kind workspaces;
 - edit/presentation paths that still carry `CatalogItemDto`;
 - collection/detail mutation paths that still carry common `OwnedItem`.
 
@@ -34,12 +37,12 @@ are deleted. Do not add a second runtime or compatibility alias.
 
 ## Next deletion order
 
-1. Move one complete workspace/presentation consumer cluster to a concrete
-   kind-owned module and repeat for the remaining kinds.
-2. Replace generic Catalog DTO reads with typed repositories and tiny mixed-kind
+1. Replace generic Catalog DTO reads with typed repositories and tiny mixed-kind
    projections.
-3. Replace collection/edit/detail common Owned reads and mutations with typed
+2. Replace collection/edit/detail common Owned reads and mutations with typed
    kind payloads; keep only `OwnedItemRef`/`OwnedItemSummary` in mixed hosts.
+3. Move remaining workspace/presentation capability consumers to concrete
+   kind-owned modules.
 4. Delete erased `LibraryKindModule` members and reduce the registration to
    navigation/dispatch.
 
