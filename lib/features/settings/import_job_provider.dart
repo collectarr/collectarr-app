@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracki
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';

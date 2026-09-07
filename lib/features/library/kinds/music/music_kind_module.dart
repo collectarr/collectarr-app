@@ -3,8 +3,6 @@ import 'package:collectarr_app/features/library/kinds/music/music_physical_media
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_copy_semantics.dart';
@@ -13,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_voc
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
