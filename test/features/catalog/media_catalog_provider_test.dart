@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -20,13 +21,24 @@ void main() {
 
     expect(
       catalog.map((type) => type.kind),
-      containsAll(['comic', 'manga', 'movie', 'tv', 'anime']),
+      containsAll([
+        CatalogMediaKind.comic.apiValue,
+        CatalogMediaKind.manga.apiValue,
+        CatalogMediaKind.movie.apiValue,
+        CatalogMediaKind.tv.apiValue,
+        CatalogMediaKind.anime.apiValue,
+      ]),
     );
     expect(
-      catalog.firstWhere((type) => type.kind == 'comic').providers,
+      catalog
+          .firstWhere((type) => _isKind(type, CatalogMediaKind.comic))
+          .providers,
       containsAll(['comicvine', 'mangadex', 'anilist']),
     );
-    expect(catalog.firstWhere((type) => type.kind == 'movie').routeSegments,
+    expect(
+        catalog
+            .firstWhere((type) => _isKind(type, CatalogMediaKind.movie))
+            .routeSegments,
         ['movies', 'movie']);
   });
 
@@ -134,31 +146,46 @@ void main() {
     final catalog = await container.read(mediaCatalogProvider.future);
 
     expect(
-      catalog.firstWhere((type) => type.kind == 'music').singularLabel,
+      catalog
+          .firstWhere((type) => _isKind(type, CatalogMediaKind.music))
+          .singularLabel,
       'Music',
     );
     expect(
-      catalog.firstWhere((type) => type.kind == 'movie').pluralLabel,
+      catalog
+          .firstWhere((type) => _isKind(type, CatalogMediaKind.movie))
+          .pluralLabel,
       'Films',
     );
     expect(
-      catalog.firstWhere((type) => type.kind == 'boardgame').pluralLabel,
+      catalog
+          .firstWhere((type) => _isKind(type, CatalogMediaKind.boardgame))
+          .pluralLabel,
       'Board Games',
     );
   });
 
   test('physical format fallbacks use catalog kind defaults', () {
     expect(
-      physicalMediaFormatsForKind(const [], 'music').map((format) => format.id),
+      physicalMediaFormatsForKind(
+        const [],
+        CatalogMediaKind.music.apiValue,
+      ).map((format) => format.id),
       containsAll(['vinyl', 'cd', 'cassette']),
     );
     expect(
-      physicalMediaFormatsForKind(const [], 'boardgame')
-          .map((format) => format.id),
+      physicalMediaFormatsForKind(
+        const [],
+        CatalogMediaKind.boardgame.apiValue,
+      ).map((format) => format.id),
       contains('physical-disc'),
     );
     expect(physicalMediaFormatsForKind(const [], 'podcast'), isEmpty);
   });
+}
+
+bool _isKind(CatalogMediaType type, CatalogMediaKind kind) {
+  return catalogMediaKindFromApiValue(type.kind) == kind;
 }
 
 class _CatalogApiClient extends ApiClient {

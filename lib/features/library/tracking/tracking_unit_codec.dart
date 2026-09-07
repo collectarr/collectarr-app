@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 
 /// The serialized, kind-neutral portion of a tracking-unit row.
@@ -43,7 +44,7 @@ final class TrackingUnitStorageRow {
 abstract interface class TrackingUnitCodec {
   const TrackingUnitCodec();
 
-  String get kind;
+  CatalogMediaKind get kind;
 
   Future<void> clearCoordinates(LocalDatabase db, String id);
 

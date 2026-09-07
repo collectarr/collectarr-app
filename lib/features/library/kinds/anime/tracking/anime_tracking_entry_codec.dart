@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
@@ -12,7 +13,7 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
   const AnimeTrackingEntryCodec();
 
   @override
-  String get kind => 'anime';
+  CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
   Future<Map<String, Object?>> loadCoordinates(
@@ -22,7 +23,7 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     final values = ids?.toSet().toList(growable: false);
     if (values != null && values.isEmpty) return const {};
     final query = db.select(db.trackingEntriesCache)
-      ..where((row) => row.kind.equals(kind));
+      ..where((row) => row.kind.equals(kind.apiValue));
     if (values != null) {
       query.where((row) => row.id.isIn(values));
     }
@@ -52,9 +53,9 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
 
   @override
   Future<void> writeCoordinates(LocalDatabase db, TrackingEntry entry) async {
-    if (entry.catalogRef.kind != kind) {
+    if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
-        entry.catalogRef.kind,
+        entry.catalogRef.mediaKind,
         'entry.catalogRef.kind',
         'Expected Anime tracking entry',
       );
@@ -72,9 +73,9 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
 
   @override
   Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
-    if (entry.catalogRef.kind != kind) {
+    if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
-        entry.catalogRef.kind,
+        entry.catalogRef.mediaKind,
         'entry.catalogRef.kind',
         'Expected Anime tracking entry',
       );
@@ -96,9 +97,9 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     DateTime? deletedAt,
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
-    if (catalogRef.kind != kind) {
+    if (catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
-        catalogRef.kind,
+        catalogRef.mediaKind,
         'payload.catalog_ref.kind',
         'Expected Anime tracking entry',
       );

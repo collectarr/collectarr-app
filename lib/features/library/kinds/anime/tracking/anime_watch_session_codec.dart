@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
@@ -11,7 +12,7 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   const AnimeWatchSessionCodec();
 
   @override
-  String get kind => 'anime';
+  CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
   Future<List<WatchSession>> listActive(
@@ -39,9 +40,9 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
 
   @override
   Future<void> upsert(LocalDatabase db, WatchSession session) async {
-    if (session.targetRef.kind != kind) {
+    if (session.targetRef.mediaKind != kind) {
       throw ArgumentError.value(
-        session.targetRef.kind,
+        session.targetRef.mediaKind,
         'session.targetRef.kind',
         'Expected Anime watch session',
       );
@@ -83,9 +84,9 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
     DateTime? deletedAt,
   }) {
     final targetRef = _targetRefFromPayload(payload);
-    if (targetRef.kind != kind) {
+    if (targetRef.mediaKind != kind) {
       throw ArgumentError.value(
-        targetRef.kind,
+        targetRef.mediaKind,
         'payload.catalog_ref.kind',
         'Expected Anime watch session',
       );
@@ -140,9 +141,9 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   }
 
   void _validateKind(WatchSession session) {
-    if (session.targetRef.kind != kind) {
+    if (session.targetRef.mediaKind != kind) {
       throw ArgumentError.value(
-        session.targetRef.kind,
+        session.targetRef.mediaKind,
         'session.targetRef.kind',
         'Expected Anime watch session',
       );

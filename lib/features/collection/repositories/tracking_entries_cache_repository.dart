@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
@@ -16,7 +17,7 @@ class TrackingEntriesCacheRepository {
   static const _lookupBatchSize = 500;
 
   final LocalDatabase _db;
-  final Map<String, TrackingEntryCodec> _codecs;
+  final Map<CatalogMediaKind, TrackingEntryCodec> _codecs;
 
   Future<List<TrackingEntry>> listActive() async {
     final rows = await (_db.select(_db.trackingEntriesCache)
@@ -98,7 +99,7 @@ class TrackingEntriesCacheRepository {
   }
 
   Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
-    final codec = _codecForKind(entry.catalogRef.kind);
+    final codec = _codecForKind(entry.catalogRef.mediaKind);
     return codec.toSyncPayload(entry);
   }
 
@@ -126,7 +127,8 @@ class TrackingEntriesCacheRepository {
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
-    return _codecForKind(row.kind).fromStorageRow(storageRow, coordinates);
+    return _codecForKind(catalogMediaKindFromApiValue(row.kind))
+        .fromStorageRow(storageRow, coordinates);
   }
 
   TrackingEntriesCacheCompanion _toCompanion(TrackingEntry item) {
@@ -156,7 +158,7 @@ class TrackingEntriesCacheRepository {
     for (final codec in _codecs.values) {
       await codec.clearCoordinates(_db, item.id);
     }
-    await _codecForKind(item.catalogRef.kind).writeCoordinates(_db, item);
+    await _codecForKind(item.catalogRef.mediaKind).writeCoordinates(_db, item);
   }
 
   Future<Map<String, Object?>> _loadCoordinates([
@@ -190,11 +192,11 @@ class TrackingEntriesCacheRepository {
     );
   }
 
-  TrackingEntryCodec _codecForKind(String kind) {
+  TrackingEntryCodec _codecForKind(CatalogMediaKind kind) {
     final codec = _codecs[kind];
     if (codec == null) {
       throw StateError(
-          'No tracking-entry codec is registered for kind "$kind".');
+          'No tracking-entry codec is registered for kind "${kind.apiValue}".');
     }
     return codec;
   }

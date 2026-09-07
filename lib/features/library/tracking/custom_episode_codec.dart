@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 
 /// Kind-owned persistence and hierarchy behavior for custom episodes.
@@ -6,7 +7,7 @@ import 'package:collectarr_app/core/models/custom_episode.dart';
 /// The collection feature only aggregates the projections returned by these
 /// codecs. Episode coordinates stay inside the owning TV or Anime adapter.
 abstract interface class CustomEpisodeCodec {
-  String get kind;
+  CatalogMediaKind get kind;
 
   Future<List<CustomEpisode>> listActive(
     LocalDatabase db, {

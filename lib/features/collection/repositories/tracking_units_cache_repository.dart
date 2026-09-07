@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
 import 'package:drift/drift.dart';
@@ -13,7 +14,7 @@ class TrackingUnitsCacheRepository {
         };
 
   final LocalDatabase _db;
-  final Map<String, TrackingUnitCodec> _codecs;
+  final Map<CatalogMediaKind, TrackingUnitCodec> _codecs;
 
   Future<List<TrackingUnit>> listActive() async {
     final rows = await (_db.select(_db.trackingUnitsCache)
@@ -133,7 +134,7 @@ class TrackingUnitsCacheRepository {
     for (final codec in _codecs.values) {
       await codec.clearCoordinates(_db, unit.id);
     }
-    final codec = _codecs[unit.targetRef.kind];
+    final codec = _codecs[unit.targetRef.mediaKind];
     if (codec == null) {
       throw StateError(
         'No tracking-unit codec is registered for kind '
@@ -186,7 +187,7 @@ class TrackingUnitsCacheRepository {
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
-    final codec = _codecs[row.kind];
+    final codec = _codecs[catalogMediaKindFromApiValue(row.kind)];
     if (codec == null) {
       throw StateError(
         'No tracking-unit codec is registered for kind "${row.kind}".',
@@ -201,7 +202,7 @@ class TrackingUnitsCacheRepository {
     final typeCompare = a.unitType.compareTo(b.unitType);
     if (typeCompare != 0) return typeCompare;
     final coordinatesCompare =
-        _codecs[a.targetRef.kind]?.compareCoordinates(a, b) ?? 0;
+        _codecs[a.targetRef.mediaKind]?.compareCoordinates(a, b) ?? 0;
     if (coordinatesCompare != 0) return coordinatesCompare;
     return b.updatedAt.compareTo(a.updatedAt);
   }

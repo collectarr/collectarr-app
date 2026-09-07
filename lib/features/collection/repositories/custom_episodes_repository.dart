@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 
@@ -15,7 +16,7 @@ class CustomEpisodesRepository {
         };
 
   final LocalDatabase _db;
-  final Map<String, CustomEpisodeCodec> _codecs;
+  final Map<CatalogMediaKind, CustomEpisodeCodec> _codecs;
 
   Future<List<CustomEpisode>> listByItemId(String itemId) async {
     final episodes = <CustomEpisode>[];
@@ -32,7 +33,7 @@ class CustomEpisodesRepository {
     final episodes = await listByItemId(itemId);
     final grouped = <int, List<CustomEpisode>>{};
     for (final episode in episodes) {
-      final codec = _codecs[episode.seriesRef.kind];
+      final codec = _codecs[episode.seriesRef.mediaKind];
       if (codec == null) continue;
       grouped.putIfAbsent(codec.groupKey(episode), () => <CustomEpisode>[]).add(
             episode,
@@ -76,7 +77,7 @@ class CustomEpisodesRepository {
   }
 
   Map<String, dynamic> toSyncPayload(CustomEpisode episode) {
-    final codec = _codecs[episode.seriesRef.kind];
+    final codec = _codecs[episode.seriesRef.mediaKind];
     if (codec == null) {
       throw StateError(
         'No custom-episode codec is registered for kind '
@@ -87,7 +88,7 @@ class CustomEpisodesRepository {
   }
 
   Future<void> _upsert(CustomEpisode episode) {
-    final codec = _codecs[episode.seriesRef.kind];
+    final codec = _codecs[episode.seriesRef.mediaKind];
     if (codec == null) {
       throw ArgumentError.value(
         episode.seriesRef.kind,
@@ -99,8 +100,9 @@ class CustomEpisodesRepository {
   }
 
   int _compareEpisodes(CustomEpisode left, CustomEpisode right) {
-    final leftCodec = _codecs[left.seriesRef.kind];
-    if (leftCodec != null && left.seriesRef.kind == right.seriesRef.kind) {
+    final leftCodec = _codecs[left.seriesRef.mediaKind];
+    if (leftCodec != null &&
+        left.seriesRef.mediaKind == right.seriesRef.mediaKind) {
       return leftCodec.compare(left, right);
     }
     final item = left.itemId.compareTo(right.itemId);

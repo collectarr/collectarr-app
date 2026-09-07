@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:drift/drift.dart';
@@ -8,7 +9,7 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
   const AnimeCustomEpisodeCodec();
 
   @override
-  String get kind => 'anime';
+  CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
   Future<List<CustomEpisode>> listActive(
@@ -34,9 +35,9 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
 
   @override
   Future<void> upsert(LocalDatabase db, CustomEpisode episode) async {
-    if (episode.seriesRef.kind != kind) {
+    if (episode.seriesRef.mediaKind != kind) {
       throw ArgumentError.value(
-        episode.seriesRef.kind,
+        episode.seriesRef.mediaKind,
         'episode.seriesRef.kind',
         'Expected Anime custom episode',
       );
@@ -89,9 +90,9 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
     DateTime? deletedAt,
   }) {
     final seriesRef = _seriesRefFromPayload(payload);
-    if (seriesRef.kind != kind) {
+    if (seriesRef.mediaKind != kind) {
       throw ArgumentError.value(
-        seriesRef.kind,
+        seriesRef.mediaKind,
         'payload.catalog_ref.kind',
         'Expected Anime custom episode',
       );
@@ -129,7 +130,7 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
     return CustomEpisode(
       id: row.id,
       seriesRef: CatalogEntityRef(
-        kind: kind,
+        kind: kind.apiValue,
         entityType: CatalogEntityType.work,
         id: row.seriesId,
       ),
@@ -148,9 +149,9 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
   }
 
   void _validateKind(CustomEpisode episode) {
-    if (episode.seriesRef.kind != kind) {
+    if (episode.seriesRef.mediaKind != kind) {
       throw ArgumentError.value(
-        episode.seriesRef.kind,
+        episode.seriesRef.mediaKind,
         'episode.seriesRef.kind',
         'Expected Anime custom episode',
       );

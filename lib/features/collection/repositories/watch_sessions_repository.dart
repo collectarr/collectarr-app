@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 
@@ -15,7 +16,7 @@ class WatchSessionsRepository {
         };
 
   final LocalDatabase _db;
-  final Map<String, WatchSessionCodec> _codecs;
+  final Map<CatalogMediaKind, WatchSessionCodec> _codecs;
 
   Future<List<WatchSession>> listActive() async {
     final sessions = <WatchSession>[];
@@ -72,7 +73,7 @@ class WatchSessionsRepository {
   }
 
   Future<void> _upsert(WatchSession session) {
-    final codec = _codecs[session.targetRef.kind];
+    final codec = _codecs[session.targetRef.mediaKind];
     if (codec == null) {
       throw ArgumentError.value(
         session.targetRef.kind,
@@ -84,7 +85,7 @@ class WatchSessionsRepository {
   }
 
   Map<String, dynamic> toSyncPayload(WatchSession session) {
-    final codec = _codecs[session.targetRef.kind];
+    final codec = _codecs[session.targetRef.mediaKind];
     if (codec == null) {
       throw StateError(
         'No watch-session codec is registered for kind '

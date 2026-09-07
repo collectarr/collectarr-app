@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 
@@ -9,7 +10,7 @@ final class BoardGameTrackingEntryCodec implements TrackingEntryCodec {
   const BoardGameTrackingEntryCodec();
 
   @override
-  String get kind => 'boardgame';
+  CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
   Future<Map<String, Object?>> loadCoordinates(
@@ -100,9 +101,9 @@ final class BoardGameTrackingEntryCodec implements TrackingEntryCodec {
   }
 
   void _validateKind(CatalogEntityRef ref) {
-    if (ref.kind != kind) {
+    if (ref.mediaKind != kind) {
       throw ArgumentError.value(
-        ref.kind,
+        ref.mediaKind,
         'catalogRef.kind',
         'Expected BoardGame tracking entry',
       );

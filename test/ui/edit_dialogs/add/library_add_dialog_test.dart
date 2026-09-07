@@ -2196,7 +2196,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
     lastSearchQuery = query.query;
     lastSearchKind = query.kind;
     lastSearchSeries = query.series;
-    if (query.kind == 'comic' && query.query == 'Batman') {
+    if (query.kind == CatalogMediaKind.comic.apiValue &&
+        query.query == 'Batman') {
       return const [
         {
           'id': 'comic-423',
@@ -2215,7 +2216,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
         },
       ];
     }
-    if (query.kind == 'movie' && query.query == 'Blade Runner') {
+    if (query.kind == CatalogMediaKind.movie.apiValue &&
+        query.query == 'Blade Runner') {
       return const [
         {
           'id': 'movie-1',
@@ -2226,7 +2228,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
         },
       ];
     }
-    if (query.kind == 'music' && query.series == 'Daft Punk Core') {
+    if (query.kind == CatalogMediaKind.music.apiValue &&
+        query.series == 'Daft Punk Core') {
       return const [
         {
           'id': 'music-core-1',

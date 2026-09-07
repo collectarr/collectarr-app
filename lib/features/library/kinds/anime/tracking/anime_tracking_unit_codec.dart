@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit.dart';
@@ -8,7 +9,7 @@ final class AnimeTrackingUnitCodec implements TrackingUnitCodec {
   const AnimeTrackingUnitCodec();
 
   @override
-  String get kind => 'anime';
+  CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
   Future<void> clearCoordinates(LocalDatabase db, String id) async {

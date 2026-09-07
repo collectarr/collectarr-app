@@ -76,11 +76,11 @@ void main() {
 void _defineTrackingEntryContract(
   String name,
   CatalogMediaKind kind,
-  Map<String, TrackingEntryCodec> codecsByKind,
+  Map<CatalogMediaKind, TrackingEntryCodec> codecsByKind,
 ) {
   defineTrackingEntryContract(
     name: name,
-    codec: codecsByKind[kind.apiValue]!,
+    codec: codecsByKind[kind]!,
     create: () => TrackingEntry(
       id: '$name-tracking-1',
       catalogRef: CatalogEntityRef(
