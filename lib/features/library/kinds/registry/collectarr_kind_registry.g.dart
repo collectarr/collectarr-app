@@ -728,6 +728,19 @@ final collectarrTypedOwnedItemSyncSerializers = <CatalogMediaKind,
   },
 };
 
+final collectarrTypedOwnedItemSyncDeserializers =
+    <CatalogMediaKind, Object Function(Map<String, dynamic>)>{
+  CatalogMediaKind.anime: AnimeOwnedItem.fromJson,
+  CatalogMediaKind.boardgame: BoardGameOwnedItem.fromJson,
+  CatalogMediaKind.book: BookOwnedItem.fromJson,
+  CatalogMediaKind.comic: ComicOwnedItem.fromJson,
+  CatalogMediaKind.game: GameOwnedItem.fromJson,
+  CatalogMediaKind.manga: MangaOwnedItem.fromJson,
+  CatalogMediaKind.movie: MovieOwnedItem.fromJson,
+  CatalogMediaKind.music: MusicOwnedItem.fromJson,
+  CatalogMediaKind.tv: TvOwnedItem.fromJson,
+};
+
 final collectarrOwnedItemSerializers =
     <CatalogMediaKind, OwnedItem Function(Object)>{
   CatalogMediaKind.anime: (item) =>

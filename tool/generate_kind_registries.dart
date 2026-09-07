@@ -1181,6 +1181,21 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
+    'final collectarrTypedOwnedItemSyncDeserializers = '
+    '<CatalogMediaKind, Object Function(Map<String, dynamic>)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final ownedModel = persistence.ownedModel.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: $ownedModel.fromJson,',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
     'final collectarrOwnedItemSerializers = '
     '<CatalogMediaKind, OwnedItem Function(Object)>{',
   );

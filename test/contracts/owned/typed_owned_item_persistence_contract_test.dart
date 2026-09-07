@@ -72,4 +72,36 @@ void main() {
       );
     }
   });
+
+  test('decodes sync payloads directly into each concrete Owned model', () {
+    final now = DateTime.utc(2026, 9, 6, 12);
+    final items = [
+      comicSeedOwnedItems(now).first,
+      mangaSeedOwnedItems(now).first,
+      bookSeedOwnedItems(now).first,
+      gameSeedOwnedItems(now).first,
+      boardgameSeedOwnedItems(now).first,
+      movieSeedOwnedItems(now).first,
+      tvSeedOwnedItems(now).first,
+      animeSeedOwnedItems(now).first,
+      musicSeedOwnedItems(now).first,
+    ];
+
+    for (final item in items) {
+      final ref = collectarrTypedOwnedItemRef(item);
+      final sync = collectarrTypedOwnedItemSyncSerializers[ref.kind]!(item);
+      final decode = collectarrTypedOwnedItemSyncDeserializers[ref.kind]!;
+      final decoded = decode({
+        ...sync.payload,
+        'id': ref.id.value,
+        'created_at': now.toIso8601String(),
+        'updated_at': now.toIso8601String(),
+        'deleted_at': null,
+      });
+
+      expect(decoded.runtimeType, item.runtimeType,
+          reason: 'sync decoder erased ${ref.kind.apiValue}');
+      expect(collectarrTypedOwnedItemRef(decoded), ref);
+    }
+  });
 }

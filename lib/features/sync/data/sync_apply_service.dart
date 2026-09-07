@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
@@ -16,12 +15,11 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
@@ -44,7 +42,7 @@ class SyncApplyService {
     required this.db,
     required this.queue,
     required this.catalog,
-    required this.ownedItems,
+    required this.ownedPersistence,
     required this.trackingEntries,
     required this.wishlistItems,
     LocationRepository? locations,
@@ -54,7 +52,7 @@ class SyncApplyService {
   final LocalDatabase db;
   final SyncQueueRepository queue;
   final LibraryCatalogRepository catalog;
-  final OwnedItemsRepository ownedItems;
+  final CollectarrOwnedItemPersistence ownedPersistence;
   final TrackingEntriesCacheRepository trackingEntries;
   final WishlistItemsCacheRepository wishlistItems;
   final LocationRepository locations;
@@ -89,7 +87,6 @@ class SyncApplyService {
     final catalogSnapshots = <CatalogItemDto>[];
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
-    final owned = <OwnedItem>[];
     final typedOwned = <(CatalogMediaKind kind, Object item)>[];
     final tracking = <TrackingEntry>[];
     final wishlist = <WishlistItem>[];
@@ -117,16 +114,7 @@ class SyncApplyService {
         }
       }
       if (type == 'owned_item') {
-        final item = _ownedItemFromEntity(entity);
-        owned.add(item);
-        final kind = item.catalogRef.mediaKind;
-        final typedItem = collectarrOwnedItemDeserializers[kind]?.call(item);
-        if (typedItem == null) {
-          throw UnsupportedError(
-            'No kind-owned Owned model is registered for ${kind.apiValue}',
-          );
-        }
-        typedOwned.add((kind, typedItem));
+        typedOwned.add(_typedOwnedItemFromEntity(entity));
       }
       if (type == 'tracking_entry') {
         tracking.add(_trackingEntryFromEntity(entity));
@@ -160,7 +148,7 @@ class SyncApplyService {
         await locations.applySyncedUpsert(location);
       }
       for (final item in typedOwned) {
-        await ownedItems.upsertTyped(item.$1, item.$2);
+        await ownedPersistence.upsertTyped(item.$1, item.$2);
       }
       await trackingEntries.upsertAll(tracking);
       await wishlistItems.upsertAll(wishlist);
@@ -190,11 +178,18 @@ class SyncApplyService {
 
     // Store image bytes outside the main transaction so data sync completes
     // first and images are processed in the background.
-    if (imageDataByItemId.isNotEmpty && owned.isNotEmpty) {
+    if (imageDataByItemId.isNotEmpty && typedOwned.isNotEmpty) {
       final imagesRepo = ItemImagesCacheRepository(db);
       final ownedByItemId = <String, String>{};
-      for (final item in owned) {
-        ownedByItemId[item.itemId] = item.id;
+      for (final item in typedOwned) {
+        final json = collectarrTypedOwnedItemJson(item.$2);
+        final rawCatalogRef = json['catalog_ref'];
+        if (rawCatalogRef is! Map) continue;
+        final catalogRef = CatalogEntityRef.fromJson(
+          Map<String, dynamic>.from(rawCatalogRef),
+        );
+        final ownedRef = collectarrTypedOwnedItemRef(item.$2);
+        ownedByItemId[catalogRef.id] = ownedRef.id.value;
       }
       for (final entry in imageDataByItemId.entries) {
         final ownedItemId = ownedByItemId[entry.key];
@@ -254,7 +249,9 @@ class SyncApplyService {
     });
   }
 
-  OwnedItem _ownedItemFromEntity(Map<String, dynamic> entity) {
+  (CatalogMediaKind kind, Object item) _typedOwnedItemFromEntity(
+    Map<String, dynamic> entity,
+  ) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -262,25 +259,32 @@ class SyncApplyService {
     if (type != 'owned_item') {
       throw FormatException('Expected owned_item entity, got $type');
     }
-    return OwnedItem.fromJson({
-      ...payload,
-      'id': entity['entity_id'],
-      'created_at': payload['created_at'] ?? entity['client_changed_at'],
-      'updated_at': entity['client_changed_at'],
-      'deleted_at': deletedAt,
-    }, decodeDetails: (json) {
-      final rawCatalogRef = json['catalog_ref'];
-      if (rawCatalogRef is! Map) {
-        throw const FormatException(
-          'Owned item sync payload is missing catalog_ref',
-        );
-      }
-      final catalogRef = CatalogEntityRef.fromJson(
-        Map<String, dynamic>.from(rawCatalogRef),
+    final rawCatalogRef = payload['catalog_ref'];
+    if (rawCatalogRef is! Map) {
+      throw const FormatException(
+        'Owned item sync payload is missing catalog_ref',
       );
-      return collectarrOwnedDetailsCodecForKind(catalogRef.mediaKind)
-          .fromJson(json);
-    });
+    }
+    final catalogRef = CatalogEntityRef.fromJson(
+      Map<String, dynamic>.from(rawCatalogRef),
+    );
+    final kind = catalogRef.mediaKind;
+    final deserializer = collectarrTypedOwnedItemSyncDeserializers[kind];
+    if (deserializer == null) {
+      throw UnsupportedError(
+        'No kind-owned Owned model is registered for ${kind.apiValue}',
+      );
+    }
+    return (
+      kind,
+      deserializer({
+        ...payload,
+        'id': entity['entity_id'],
+        'created_at': payload['created_at'] ?? entity['client_changed_at'],
+        'updated_at': entity['client_changed_at'],
+        'deleted_at': deletedAt,
+      }),
+    );
   }
 
   WishlistItem _wishlistItemFromEntity(Map<String, dynamic> entity) {
