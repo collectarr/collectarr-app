@@ -277,15 +277,15 @@ class CustomFieldValue {
   final String? value;
   final DateTime updatedAt;
 
-  factory CustomFieldValue.fromJson(Map<String, dynamic> json) {
+  factory CustomFieldValue.fromJson(Map<String, Object?> json) {
     return CustomFieldValue(
       id: json['id'] as String,
       targetId: json['target_id'] as String,
       targetScope:
           CustomFieldTargetScope.fromApiValue(json['target_scope'] as String?),
-      catalogRef: json['catalog_ref'] is Map<String, dynamic>
+      catalogRef: json['catalog_ref'] is Map
           ? CatalogEntityRef.fromJson(
-              json['catalog_ref'] as Map<String, dynamic>)
+              Map<String, Object?>.from(json['catalog_ref'] as Map))
           : null,
       fieldDefinitionId: json['field_definition_id'] as String,
       value: json['value'] as String?,
@@ -293,7 +293,7 @@ class CustomFieldValue {
     );
   }
 
-  Map<String, dynamic> toSyncPayload() {
+  Map<String, Object?> toSyncPayload() {
     return {
       'target_id': targetId,
       'target_scope': targetScope.apiValue,
