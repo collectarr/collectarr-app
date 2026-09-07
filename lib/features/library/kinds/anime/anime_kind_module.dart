@@ -54,12 +54,12 @@ const _animeYearFilterId = LibraryAddFilterId('anime.year');
 const _animeAddChrome = LibraryAddChromeConfig(
   videoKindFilterOptions: [
     LibraryAddVideoKindFilterOption(
-      kind: 'anime',
+      scope: LibraryAddVideoSearchScope.anime,
       label: 'Anime',
       icon: Icons.auto_awesome_outlined,
     ),
   ],
-  defaultVideoKindFilters: {'anime'},
+  defaultVideoKindFilters: {LibraryAddVideoSearchScope.anime},
 );
 
 final _animeTransferableFields = <TransferableField>[
@@ -190,7 +190,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     existingOwnedPayloadBuilder: AnimeOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
-        libraryAddVideoKindFilterId: {'anime'},
+        libraryAddVideoKindFilterId: {LibraryAddVideoSearchScope.anime},
       },
       advancedFilterDescriptorsBuilder: buildAnimeAddAdvancedFilterFields,
       searchInputPredicate: libraryAddVideoHasSearchInput,

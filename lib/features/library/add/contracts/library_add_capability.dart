@@ -38,7 +38,8 @@ typedef LibraryAddProviderQueryBuilder = String Function(
   LibraryAddSearchContext context,
 );
 
-typedef LibraryAddProviderKindOverridesBuilder = Iterable<String> Function(
+typedef LibraryAddProviderKindOverridesBuilder
+    = Iterable<LibraryAddVideoSearchScope> Function(
   LibraryAddSearchContext context,
 );
 
@@ -107,7 +108,9 @@ class LibraryAddSearchCapability {
   final LibraryAddMatchSummaryBuilder<ProviderCandidate>?
       providerMatchSummaryBuilder;
 
-  Iterable<String> providerKindOverrides(LibraryAddSearchContext context) =>
+  Iterable<LibraryAddVideoSearchScope> providerKindOverrides(
+    LibraryAddSearchContext context,
+  ) =>
       providerKindOverridesBuilder?.call(context) ?? const [];
 
   Future<List<ProviderCandidate>> searchProvider(

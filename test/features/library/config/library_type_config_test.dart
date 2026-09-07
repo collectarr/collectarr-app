@@ -29,7 +29,6 @@ import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -636,12 +635,24 @@ void main() {
     );
     expect(
       movieKindModule.add.chrome.videoKindFilterOptions
+          .map((option) => option.scope),
+      [
+        LibraryAddVideoSearchScope.movie,
+        LibraryAddVideoSearchScope.collection,
+      ],
+    );
+    expect(
+      movieKindModule.add.chrome.videoKindFilterOptions
           .map((option) => option.label),
       ['Movies', 'Box Sets'],
     );
     expect(
       movieKindModule.add.chrome.defaultVideoKindFilters,
-      {'movie'},
+      {LibraryAddVideoSearchScope.movie},
+    );
+    expect(
+      LibraryAddVideoSearchScope.collection.catalogKind,
+      CatalogMediaKind.movie,
     );
   });
 

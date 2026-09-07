@@ -54,17 +54,17 @@ const _movieYearFilterId = LibraryAddFilterId('movie.year');
 const _movieAddChrome = LibraryAddChromeConfig(
   videoKindFilterOptions: [
     LibraryAddVideoKindFilterOption(
-      kind: 'movie',
+      scope: LibraryAddVideoSearchScope.movie,
       label: 'Movies',
       icon: Icons.movie_outlined,
     ),
     LibraryAddVideoKindFilterOption(
-      kind: 'collection',
+      scope: LibraryAddVideoSearchScope.collection,
       label: 'Box Sets',
       icon: Icons.collections_bookmark_outlined,
     ),
   ],
-  defaultVideoKindFilters: {'movie'},
+  defaultVideoKindFilters: {LibraryAddVideoSearchScope.movie},
 );
 
 final _movieTransferableFields = <TransferableField>[
@@ -235,7 +235,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     existingOwnedPayloadBuilder: MovieOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
-        libraryAddVideoKindFilterId: {'movie'},
+        libraryAddVideoKindFilterId: {LibraryAddVideoSearchScope.movie},
       },
       advancedFilterDescriptorsBuilder: buildMovieAddAdvancedFilterFields,
       searchInputPredicate: libraryAddVideoHasSearchInput,

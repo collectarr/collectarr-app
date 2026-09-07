@@ -24,40 +24,46 @@ void main() {
   }
 }
 
+const _calendarReleasePayloads = <CatalogMediaKind, Map<String, dynamic>>{
+  CatalogMediaKind.tv: {
+    'releases': [
+      {
+        'id': 'tv-calendar-release',
+        'series_id': 'tv-calendar-contract-item',
+        'title': 'TV release',
+        'release_date': '2026-09-01T00:00:00.000Z',
+      },
+    ],
+  },
+  CatalogMediaKind.anime: {
+    'releases': [
+      {
+        'id': 'anime-calendar-release',
+        'series_id': 'anime-calendar-contract-item',
+        'release_title': 'Anime release',
+        'release_date': '2026-09-01T00:00:00.000Z',
+      },
+    ],
+  },
+};
+
+const _calendarWatchKinds = {
+  CatalogMediaKind.tv,
+  CatalogMediaKind.anime,
+};
+
 LibraryCalendarContext _contextFor(CatalogMediaKind kind) {
   final item = testCatalogItem(
     id: '${kind.apiValue}-calendar-contract-item',
     kind: kind.apiValue,
     title: '${kind.apiValue} calendar item',
     releaseDate: DateTime.utc(2026, 9, 1),
-    payload: kind == CatalogMediaKind.tv
-        ? {
-            'releases': [
-              {
-                'id': 'tv-calendar-release',
-                'series_id': 'tv-calendar-contract-item',
-                'title': 'TV release',
-                'release_date': '2026-09-01T00:00:00.000Z',
-              },
-            ],
-          }
-        : kind == CatalogMediaKind.anime
-            ? {
-                'releases': [
-                  {
-                    'id': 'anime-calendar-release',
-                    'series_id': 'anime-calendar-contract-item',
-                    'release_title': 'Anime release',
-                    'release_date': '2026-09-01T00:00:00.000Z',
-                  },
-                ],
-              }
-            : null,
+    payload: _calendarReleasePayloads[kind],
   );
 
   return LibraryCalendarContext(
     catalogItems: [item],
-    watchSessions: kind == CatalogMediaKind.tv || kind == CatalogMediaKind.anime
+    watchSessions: _calendarWatchKinds.contains(kind)
         ? [
             WatchSession(
               id: '${kind.apiValue}-calendar-session',

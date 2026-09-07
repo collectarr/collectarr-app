@@ -296,10 +296,12 @@ void main() {
   }
 
   test('every registered kind mapper rejects a mismatched envelope kind', () {
-    for (final runtime in collectarrKindModules) {
-      final wrongKind = runtime.kind == CatalogMediaKind.book
-          ? CatalogMediaKind.movie
-          : CatalogMediaKind.book;
+    final registeredKinds = collectarrKindModules
+        .map((runtime) => runtime.kind)
+        .toList(growable: false);
+    for (var index = 0; index < registeredKinds.length; index++) {
+      final runtime = collectarrKindModules[index];
+      final wrongKind = registeredKinds[(index + 1) % registeredKinds.length];
       final envelope = NormalizedProviderEnvelopeV1(
         provider: 'contract-test',
         providerItemId: 'wrong-kind',

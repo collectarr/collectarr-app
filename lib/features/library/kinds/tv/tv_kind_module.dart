@@ -58,12 +58,12 @@ const _tvYearFilterId = LibraryAddFilterId('tv.year');
 const _tvAddChrome = LibraryAddChromeConfig(
   videoKindFilterOptions: [
     LibraryAddVideoKindFilterOption(
-      kind: 'tv',
+      scope: LibraryAddVideoSearchScope.tv,
       label: 'TV Shows',
       icon: Icons.tv_outlined,
     ),
   ],
-  defaultVideoKindFilters: {'tv'},
+  defaultVideoKindFilters: {LibraryAddVideoSearchScope.tv},
 );
 
 final _tvTransferableFields = <TransferableField>[
@@ -194,7 +194,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     existingOwnedPayloadBuilder: TvOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
-        libraryAddVideoKindFilterId: {'tv'},
+        libraryAddVideoKindFilterId: {LibraryAddVideoSearchScope.tv},
       },
       advancedFilterDescriptorsBuilder: buildTvAddAdvancedFilterFields,
       searchInputPredicate: libraryAddVideoHasSearchInput,

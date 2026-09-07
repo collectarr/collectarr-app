@@ -11,26 +11,29 @@ Map<LibraryAddFilterId, Object?> buildLibraryAddVideoInitialFilters(
   LibraryKindModule type,
 ) {
   return {
-    libraryAddVideoKindFilterId:
-        Set<String>.unmodifiable(type.addChrome.defaultVideoKindFilters),
+    libraryAddVideoKindFilterId: Set<LibraryAddVideoSearchScope>.unmodifiable(
+      type.addChrome.defaultVideoKindFilters,
+    ),
   };
 }
 
-Iterable<String> libraryAddVideoKindOverrides(
+Iterable<LibraryAddVideoSearchScope> libraryAddVideoKindOverrides(
   LibraryKindModule type,
   LibraryAddSearchContext context,
 ) {
   return libraryAddVideoKindOverridesForChrome(type.addChrome, context);
 }
 
-Iterable<String> libraryAddVideoKindOverridesForChrome(
+Iterable<LibraryAddVideoSearchScope> libraryAddVideoKindOverridesForChrome(
   LibraryAddChromeConfig chrome,
   LibraryAddSearchContext context,
 ) {
   final rawSelected = context.valueFor(libraryAddVideoKindFilterId);
-  final selected = rawSelected is Set<String> ? rawSelected : const <String>{};
+  final selected = rawSelected is Set<LibraryAddVideoSearchScope>
+      ? rawSelected
+      : const <LibraryAddVideoSearchScope>{};
   if (selected.isNotEmpty) return selected;
-  return chrome.videoKindFilterOptions.map((option) => option.kind);
+  return chrome.videoKindFilterOptions.map((option) => option.scope);
 }
 
 bool libraryAddVideoHasSearchInput(LibraryAddSearchContext context) {
@@ -67,8 +70,9 @@ class LibraryAddVideoKindFilterRow extends StatelessWidget {
 
     final rawSelected =
         request.advancedFilterState[libraryAddVideoKindFilterId];
-    final selected =
-        rawSelected is Set<String> ? rawSelected : const <String>{};
+    final selected = rawSelected is Set<LibraryAddVideoSearchScope>
+        ? rawSelected
+        : const <LibraryAddVideoSearchScope>{};
     final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.only(top: 6),
@@ -78,15 +82,15 @@ class LibraryAddVideoKindFilterRow extends StatelessWidget {
             _VideoKindCheckbox(
               label: option.label,
               icon: option.icon,
-              checked: selected.contains(option.kind),
+              checked: selected.contains(option.scope),
               accent: request.accent,
               textColor: palette.textMuted,
               onChanged: (checked) {
-                final next = Set<String>.from(selected);
+                final next = Set<LibraryAddVideoSearchScope>.from(selected);
                 if (checked) {
-                  next.add(option.kind);
+                  next.add(option.scope);
                 } else {
-                  next.remove(option.kind);
+                  next.remove(option.scope);
                 }
                 request.onAdvancedFilterChanged(
                   libraryAddVideoKindFilterId,

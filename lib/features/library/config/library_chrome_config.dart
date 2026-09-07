@@ -1,4 +1,22 @@
 import 'package:flutter/widgets.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+
+enum LibraryAddVideoSearchScope {
+  movie,
+  collection,
+  tv,
+  anime;
+
+  CatalogMediaKind get catalogKind => switch (this) {
+        LibraryAddVideoSearchScope.movie ||
+        LibraryAddVideoSearchScope.collection =>
+          CatalogMediaKind.movie,
+        LibraryAddVideoSearchScope.tv => CatalogMediaKind.tv,
+        LibraryAddVideoSearchScope.anime => CatalogMediaKind.anime,
+      };
+
+  String get providerValue => name;
+}
 
 class LibraryEditChromeConfig {
   const LibraryEditChromeConfig({
@@ -33,17 +51,17 @@ class LibraryAddChromeConfig {
   final String mediaReferenceHelperLabel;
   final String editionReferenceHelperLabel;
   final List<LibraryAddVideoKindFilterOption> videoKindFilterOptions;
-  final Set<String> defaultVideoKindFilters;
+  final Set<LibraryAddVideoSearchScope> defaultVideoKindFilters;
 }
 
 class LibraryAddVideoKindFilterOption {
   const LibraryAddVideoKindFilterOption({
-    required this.kind,
+    required this.scope,
     required this.label,
     required this.icon,
   });
 
-  final String kind;
+  final LibraryAddVideoSearchScope scope;
   final String label;
   final IconData icon;
 }
