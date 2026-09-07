@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -5,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
 import 'package:flutter/material.dart';
 
@@ -216,7 +219,7 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Conditions',
     icon: Icons.verified_outlined,
     supportsBucketManagement: true,
-    ownedBucketValueMutator: libraryOwnedConditionBucketValueMutator(),
+    ownedBucketValueMutator: musicOwnedConditionBucketValueMutator(),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(
     MusicKindSchema.location,
@@ -224,6 +227,39 @@ final musicLibraryGroupDefinitions = [
     icon: Icons.place_outlined,
   ),
 ];
+
+LibraryOwnedGroupBucketValueMutator musicOwnedConditionBucketValueMutator() {
+  return (item, currentLabel, {String? replacement}) {
+    if (item.condition?.trim() != currentLabel.trim()) return null;
+    final next = replacement?.trim();
+    return UpdateOwnedItemCommand(
+      ownedItemId: item.id,
+      payload: MusicOwnedItemUpdatePayload(
+        anchor: const Patch.unchanged(),
+        quantity: const Patch.unchanged(),
+        condition: next == null || next.isEmpty
+            ? const Patch.clear()
+            : Patch.set(next),
+        grade: const Patch.unchanged(),
+        purchaseDate: const Patch.unchanged(),
+        pricePaidCents: const Patch.unchanged(),
+        currency: const Patch.unchanged(),
+        personalNotes: const Patch.unchanged(),
+        locationId: const Patch.unchanged(),
+        purchaseStore: const Patch.unchanged(),
+        collectionStatus: const Patch.unchanged(),
+        isDigital: const Patch.unchanged(),
+        tags: const Patch.unchanged(),
+        soldAt: const Patch.unchanged(),
+        sellPriceCents: const Patch.unchanged(),
+        soldTo: const Patch.unchanged(),
+        marketValueCents: const Patch.unchanged(),
+        indexNumber: const Patch.unchanged(),
+        details: const Patch.unchanged(),
+      ),
+    );
+  };
+}
 
 final musicLibrarySortDefinitions = [
   sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.artist),

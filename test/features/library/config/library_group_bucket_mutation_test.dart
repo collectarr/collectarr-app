@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/library/config/library_group_bucket_muta
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -194,16 +196,18 @@ void main() {
       kind: 'music',
       condition: 'Very Good',
     );
-    final mutator = libraryOwnedConditionBucketValueMutator();
+    final mutator = musicOwnedConditionBucketValueMutator();
 
     final update = mutator(item, 'Very Good', replacement: 'Mint');
     expect(update, isNotNull);
     expect(update!.ownedItemId, 'owned-music-1');
-    expect(update.condition, isA<SetValue<String?>>());
-    expect((update.condition as SetValue<String?>).value, 'Mint');
+    final payload = update!.payload as MusicOwnedItemUpdatePayload;
+    expect(payload.condition, isA<SetValue<String?>>());
+    expect((payload.condition as SetValue<String?>).value, 'Mint');
 
     final clear = mutator(item, 'Very Good', replacement: '   ');
     expect(clear, isNotNull);
-    expect(clear!.condition, isA<ClearValue<String?>>());
+    final clearPayload = clear!.payload as MusicOwnedItemUpdatePayload;
+    expect(clearPayload.condition, isA<ClearValue<String?>>());
   });
 }

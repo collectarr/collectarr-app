@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
@@ -63,8 +63,7 @@ class LibraryPageBucketCoordinator {
     }
 
     final catalogUpdates = <String, CatalogItem>{};
-    final ownedUpdates =
-        <String, OwnedItemPatchCommand<OwnedDetailsDraft>>{};
+    final ownedUpdates = <String, UpdateOwnedItemCommand>{};
     for (final item in projection.allItems) {
       if (genericBucketForItemGroup(item, _page.type, groupId) !=
           currentLabel.trim()) {
@@ -107,9 +106,7 @@ class LibraryPageBucketCoordinator {
       await mutations.updateCatalogSnapshots(catalogUpdates.values);
     }
     for (final update in ownedUpdates.values) {
-      await mutations.updateOwnedItem(
-        _page.type.edit.withTypedUpdatePayload(update),
-      );
+      await mutations.updateOwnedItem(update);
     }
     if (!_page.mounted) {
       return catalogUpdates.length + ownedUpdates.length;

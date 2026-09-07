@@ -8,8 +8,7 @@ typedef LibraryGroupBucketValueMutator = CatalogItem? Function(
   String? replacement,
 });
 
-typedef LibraryOwnedGroupBucketValueMutator
-    = OwnedItemPatchCommand<OwnedDetailsDraft>? Function(
+typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
   OwnedItem item,
   String currentLabel, {
   String? replacement,
@@ -146,18 +145,4 @@ CatalogItem _libraryMetadataItemWithPayload(
     'kind': item.kind,
     ...payload,
   });
-}
-
-LibraryOwnedGroupBucketValueMutator libraryOwnedConditionBucketValueMutator() {
-  return (item, currentLabel, {String? replacement}) {
-    if (item.condition?.trim() != currentLabel.trim()) {
-      return null;
-    }
-    final next = replacement?.trim();
-    return OwnedItemPatchCommand<OwnedDetailsDraft>(
-      ownedItemId: item.id,
-      condition:
-          next == null || next.isEmpty ? const Patch.clear() : Patch.set(next),
-    );
-  };
 }
