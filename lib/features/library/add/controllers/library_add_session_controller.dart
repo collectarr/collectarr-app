@@ -964,7 +964,7 @@ class LibraryAddSessionController
     try {
       final CatalogItemDto hydrated = await api!
           .getTypedMetadataItem(
-        kind: selected.kind,
+        kind: catalogMediaKindFromApiValue(selected.kind),
         id: itemId,
       )
           .then<CatalogItemDto>((dto) {

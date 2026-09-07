@@ -443,7 +443,10 @@ class _AdminApiClient {
     required String kind,
     required String id,
   }) async {
-    final typed = await _client.getTypedMetadataItem(kind: kind, id: id);
+    final typed = await _client.getTypedMetadataItem(
+      kind: catalogMediaKindFromApiValue(kind),
+      id: id,
+    );
     return AdminMetadataItem.fromJson(_client._resolveImageUrls(typed.raw));
   }
 

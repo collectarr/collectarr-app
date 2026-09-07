@@ -153,7 +153,7 @@ class ApiClient {
   }
 
   Future<TypedMetadataResponse> getTypedMetadataItem({
-    required String kind,
+    required CatalogMediaKind kind,
     required String id,
   }) async {
     return _catalogApi.getTypedMetadataItem(kind: kind, id: id);

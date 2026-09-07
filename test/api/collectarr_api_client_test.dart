@@ -214,8 +214,10 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        final dto =
-            await client.getTypedMetadataItem(kind: 'book', id: 'item-1');
+        final dto = await client.getTypedMetadataItem(
+          kind: CatalogMediaKind.book,
+          id: 'item-1',
+        );
 
         expect(dto.id, 'item-1');
         expect(dto.title, 'The Sample Book');
@@ -296,15 +298,25 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        expect(await client.getTypedMetadataItem(kind: 'comic', id: 'comic-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.comic, id: 'comic-1'),
             isA<ComicWorkDto>());
-        expect(await client.getTypedMetadataItem(kind: 'manga', id: 'manga-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.manga, id: 'manga-1'),
             isA<MangaWorkDto>());
-        expect(await client.getTypedMetadataItem(kind: 'anime', id: 'anime-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.anime, id: 'anime-1'),
             isA<AnimeSeriesDto>());
-        expect(await client.getTypedMetadataItem(kind: 'movie', id: 'movie-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.movie, id: 'movie-1'),
             isA<MovieWorkDto>());
-        expect(await client.getTypedMetadataItem(kind: 'tv', id: 'tv-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.tv, id: 'tv-1'),
             isA<TvSeriesDto>());
       });
 

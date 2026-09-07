@@ -2245,10 +2245,10 @@ class _FakeLibraryAddApiClient extends ApiClient {
 
   @override
   Future<TypedMetadataResponse> getTypedMetadataItem({
-    required String kind,
+    required CatalogMediaKind kind,
     required String id,
   }) async {
-    final mediaKind = catalogMediaKindFromApiValue(kind);
+    final mediaKind = kind;
     if (mediaKind == CatalogMediaKind.comic && id == 'comic-423') {
       return ComicWorkDto.fromJson({
         'id': 'comic-423',

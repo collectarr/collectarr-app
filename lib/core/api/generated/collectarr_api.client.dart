@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'collectarr_api.models.dart';
@@ -49,30 +50,32 @@ class CollectarrApiClient {
   }
 
   Future<TypedMetadataResponse> getTypedMetadataItem({
-    required String kind,
+    required CatalogMediaKind kind,
     required String id,
   }) async {
-    switch (kind.trim().toLowerCase()) {
-      case 'comic':
+    switch (kind) {
+      case CatalogMediaKind.comic:
         return getComicWorkDto(id);
-      case 'manga':
+      case CatalogMediaKind.manga:
         return getMangaWorkDto(id);
-      case 'anime':
+      case CatalogMediaKind.anime:
         return getAnimeSeriesDto(id);
-      case 'movie':
+      case CatalogMediaKind.movie:
         return getMovieWorkDto(id);
-      case 'tv':
+      case CatalogMediaKind.tv:
         return getTvSeriesDto(id);
-      case 'book':
+      case CatalogMediaKind.book:
         return getBookWorkDto(id);
-      case 'game':
+      case CatalogMediaKind.game:
         return getGameWorkDto(id);
-      case 'boardgame':
+      case CatalogMediaKind.boardgame:
         return getBoardGameWorkDto(id);
-      case 'music':
+      case CatalogMediaKind.music:
         return getMusicReleaseDto(id);
       default:
-        throw UnsupportedError('Unsupported metadata kind: $kind');
+        throw UnsupportedError(
+          'Unsupported metadata kind: ${kind.apiValue}',
+        );
     }
   }
 

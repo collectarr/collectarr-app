@@ -987,7 +987,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       final item = await ref
           .read(apiClientProvider)
           .getTypedMetadataItem(
-            kind: widget.type.kind.apiValue,
+            kind: widget.type.kind,
             id: itemId,
           )
           .then(
