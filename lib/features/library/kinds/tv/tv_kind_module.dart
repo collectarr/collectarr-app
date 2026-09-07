@@ -301,6 +301,28 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
         tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
       ),
     ),
+    ownedPersonalDetailsUpdatePayloadBuilder: (
+      ownedItemId,
+      purchaseDate,
+      pricePaidCents,
+      currency,
+      personalNotes,
+      purchaseStore,
+      locationChanged,
+      locationId,
+    ) =>
+        TvOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        purchaseDate: Patch.set(purchaseDate),
+        pricePaidCents: Patch.set(pricePaidCents),
+        currency: Patch.set(currency),
+        personalNotes: Patch.set(personalNotes),
+        purchaseStore: Patch.set(purchaseStore),
+        locationId:
+            locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+      ),
+    ),
   ),
   buildCardPresentation: buildTvCardPresentation,
 );

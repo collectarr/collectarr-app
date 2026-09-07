@@ -42,6 +42,18 @@ typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
   String? tags,
 );
 
+typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
+    Function(
+  String ownedItemId,
+  DateTime? purchaseDate,
+  int? pricePaidCents,
+  String? currency,
+  String? personalNotes,
+  String? purchaseStore,
+  bool locationChanged,
+  String? locationId,
+);
+
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
 /// kind-owned draft creation, and update command building.
 class LibraryEditCapability {
@@ -62,6 +74,7 @@ class LibraryEditCapability {
     this.ownedIndexUpdatePayloadBuilder,
     this.ownedConditionGradeUpdatePayloadBuilder,
     this.ownedBulkUpdatePayloadBuilder,
+    this.ownedPersonalDetailsUpdatePayloadBuilder,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -81,6 +94,8 @@ class LibraryEditCapability {
   final LibraryOwnedConditionGradeUpdatePayloadBuilder?
       ownedConditionGradeUpdatePayloadBuilder;
   final LibraryOwnedBulkUpdatePayloadBuilder? ownedBulkUpdatePayloadBuilder;
+  final LibraryOwnedPersonalDetailsUpdatePayloadBuilder?
+      ownedPersonalDetailsUpdatePayloadBuilder;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
@@ -167,6 +182,37 @@ class LibraryEditCapability {
         grade,
         locationId,
         tags,
+      ),
+    );
+  }
+
+  UpdateOwnedItemCommand buildPersonalDetailsUpdateCommand({
+    required String ownedItemId,
+    required DateTime? purchaseDate,
+    required int? pricePaidCents,
+    required String? currency,
+    required String? personalNotes,
+    required String? purchaseStore,
+    required bool locationChanged,
+    required String? locationId,
+  }) {
+    final builder = ownedPersonalDetailsUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError(
+        'No typed Owned personal details update builder is registered.',
+      );
+    }
+    return UpdateOwnedItemCommand(
+      ownedItemId: ownedItemId,
+      payload: builder(
+        ownedItemId,
+        purchaseDate,
+        pricePaidCents,
+        currency,
+        personalNotes,
+        purchaseStore,
+        locationChanged,
+        locationId,
       ),
     );
   }

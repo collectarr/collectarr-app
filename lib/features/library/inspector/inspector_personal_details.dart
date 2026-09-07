@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -388,21 +387,19 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    final command = OwnedItemPatchCommand<OwnedDetailsDraft>(
-      ownedItemId: widget.ownedItem.id,
-      purchaseDate: Patch.set(_purchaseDate),
-      pricePaidCents: Patch.set(price),
-      currency: Patch.set(currency.isEmpty ? null : currency),
-      personalNotes: Patch.set(_emptyToNull(_notesController.text)),
-      purchaseStore: Patch.set(_emptyToNull(_purchaseStoreController.text)),
-      locationId: _locationChanged
-          ? Patch.set(_selectedLocationId)
-          : const Patch.unchanged(),
-    );
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           libraryKindModuleForKind(
             catalogMediaKindFromApiValue(widget.ownedItem.catalogRef.kind),
-          ).edit.withTypedUpdatePayload(command),
+          ).edit.buildPersonalDetailsUpdateCommand(
+                ownedItemId: widget.ownedItem.id,
+                purchaseDate: _purchaseDate,
+                pricePaidCents: price,
+                currency: currency.isEmpty ? null : currency,
+                personalNotes: _emptyToNull(_notesController.text),
+                purchaseStore: _emptyToNull(_purchaseStoreController.text),
+                locationChanged: _locationChanged,
+                locationId: _selectedLocationId,
+              ),
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
