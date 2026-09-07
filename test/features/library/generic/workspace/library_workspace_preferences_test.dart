@@ -1,45 +1,14 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  final comicRuntime = comicKindModule.withCatalogMetadata(
-    identity: const LibraryKindIdentity(
-      kind: CatalogMediaKind.comic,
-      singularLabel: 'Comic',
-      pluralLabel: 'Comics',
-      title: 'Comics',
-      icon: Icons.menu_book,
-      accent: Colors.red,
-      preferencePrefix: 'comics',
-    ),
-    metadata: const LibraryMetadataCapability(
-      defaultProviderId: 'mock',
-      providers: [],
-    ),
-  );
-
-  final mangaRuntime = comicKindModule.withCatalogMetadata(
-    identity: const LibraryKindIdentity(
-      kind: CatalogMediaKind.comic,
-      singularLabel: 'Manga',
-      pluralLabel: 'Manga',
-      title: 'Manga',
-      icon: Icons.auto_stories,
-      accent: Colors.orange,
-      preferencePrefix: 'manga',
-    ),
-    metadata: const LibraryMetadataCapability(
-      defaultProviderId: 'mock',
-      providers: [],
-    ),
-  );
+  final comicRuntime = comicKindModule;
+  final mangaRuntime = mangaKindModule;
 
   setUp(() {
     LibraryWorkspacePreferences.resetCachedChromeForTesting();
@@ -158,7 +127,7 @@ void main() {
     expect(restored.detailsWidth, kLibraryDetailsDefaultWidth);
     expect(restored.detailsHeight, kLibraryDetailsDefaultHeight);
     expect(restored.viewMode, LibraryViewMode.grid);
-    expect(restored.sortColumn, 'comic.series');
+    expect(restored.sortColumn, mangaRuntime.fields.defaultSort.value);
     expect(
         restored.visibleColumns,
         mangaRuntime.fields.defaultVisibleColumns
@@ -265,7 +234,7 @@ void main() {
     expect(comics.detailsLayout, LibraryDetailsLayout.bottom);
     expect(comics.isSidebarVisible, isFalse);
 
-    expect(manga.sortColumn, 'comic.title');
+    expect(manga.sortColumn, mangaRuntime.fields.defaultSort.value);
     expect(manga.sortAscending, isTrue);
     expect(manga.detailsLayout, LibraryDetailsLayout.right);
     expect(manga.isSidebarVisible, isTrue);

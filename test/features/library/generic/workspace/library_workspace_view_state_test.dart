@@ -1,31 +1,13 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/config/library_kind_identity.dart';
-import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  final runtime = comicKindModule.withCatalogMetadata(
-    identity: const LibraryKindIdentity(
-      kind: CatalogMediaKind.comic,
-      singularLabel: 'Comic',
-      pluralLabel: 'Comics',
-      title: 'Comics',
-      icon: Icons.menu_book,
-      accent: Colors.red,
-      preferencePrefix: 'test.comics',
-    ),
-    metadata: const LibraryMetadataCapability(
-      defaultProviderId: 'mock',
-      providers: [],
-    ),
-  );
+  final runtime = comicKindModule;
   LibraryFieldIdRuntime field(String value) =>
       runtime.fields.decodeColumnId(value);
   LibrarySortIdRuntime sort(String value) => runtime.fields.decodeSortId(value);

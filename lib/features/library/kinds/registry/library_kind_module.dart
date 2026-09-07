@@ -89,11 +89,6 @@ abstract interface class LibraryKindModule {
     LibraryProjectionRuntime item, {
     required bool musicVertical,
   });
-
-  LibraryKindModule withCatalogMetadata({
-    required LibraryKindIdentity identity,
-    required LibraryMetadataCapability metadata,
-  });
 }
 
 class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
@@ -165,38 +160,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
 
   @override
   LibraryAddChromeConfig get addChrome => add.chrome;
-
-  @override
-  LibraryKindModule withCatalogMetadata({
-    required LibraryKindIdentity identity,
-    required LibraryMetadataCapability metadata,
-  }) {
-    return LibraryKindSpec<TDto>(
-      fields: fields,
-      projector: projector,
-      add: add,
-      edit: edit,
-      identity: identity,
-      physicalMediaFormats: physicalMediaFormats,
-      metadata: metadata,
-      hierarchy: hierarchy,
-      inspector: inspector,
-      presentation: presentation,
-      trackingProfile: trackingProfile,
-      uiPolicy: uiPolicy,
-      titleCapability: titleCapability,
-      releaseCapability: releaseCapability,
-      linkedMetadata: linkedMetadata,
-      transfer: transfer,
-      stats: stats,
-      value: value,
-      relations: relations,
-      toolbar: toolbar,
-      searchTargetOptions: searchTargetOptions,
-      viewProfile: _viewProfile,
-      buildCardPresentation: _buildCardPresentation,
-    );
-  }
 
   @override
   CatalogMediaKind get kind => identity.kind;
