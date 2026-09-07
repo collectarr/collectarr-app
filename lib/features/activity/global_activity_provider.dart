@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -75,7 +76,8 @@ final globalActivityProvider =
     return const <GlobalActivityEntry>[];
   }
 
-  final catalog = await LibraryCatalogRepository(db).findByIds(itemIds);
+  final catalog =
+      await LibraryCatalogRepository(db).findSummariesByIds(itemIds);
 
   final entries = <GlobalActivityEntry>[];
   for (final itemId in itemIds) {
@@ -88,9 +90,9 @@ final globalActivityProvider =
       hasKindContributor: (kind) =>
           libraryActivityContributorForKind(kind) != null,
     );
-    final item = catalog[itemId];
+    final CatalogDisplaySummary? item = catalog[itemId];
     final title = item?.title ?? 'Unknown item';
-    final mediaType = item?.mediaKind.apiValue ?? '';
+    final mediaType = item?.kind.apiValue ?? '';
     for (final event in events) {
       entries.add(GlobalActivityEntry(
         event: event,

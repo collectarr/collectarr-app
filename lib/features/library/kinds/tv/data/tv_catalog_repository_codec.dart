@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_codec_support.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
@@ -39,12 +40,23 @@ final class TvCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
       for (final item in media) _projection(item),
     ];
   }
+
+  @override
+  Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
+    final series = await TvRepository(db).search();
+    return [
+      for (final item in series)
+        CatalogDisplaySummary.work(
+          kind: kind,
+          id: item.id,
+          title: item.title,
+        ),
+    ];
+  }
 }
 
 CatalogItemDto _projection(TvSeries item) {
-  final payload = item.rawPayload is Map
-      ? Map<String, dynamic>.from(item.rawPayload)
-      : <String, dynamic>{};
+  final payload = Map<String, dynamic>.from(item.rawPayload);
   payload['id'] ??= item.id;
   payload['kind'] ??= 'tv';
   payload['title'] ??= item.title;

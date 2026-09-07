@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
@@ -115,6 +116,33 @@ final class LibraryCatalogRepository {
     final normalized = id.trim();
     if (normalized.isEmpty) return null;
     return (await findByIds([normalized]))[normalized];
+  }
+
+  Future<Map<String, CatalogDisplaySummary>> findSummariesByIds(
+    Iterable<String> ids,
+  ) async {
+    final wanted = ids.toSet();
+    if (wanted.isEmpty) return const {};
+    final result = <String, CatalogDisplaySummary>{};
+    for (final codec in _codecs.values) {
+      for (final summary in await codec.listSummaries(_db)) {
+        if (wanted.contains(summary.id)) result[summary.id] = summary;
+      }
+    }
+    return result;
+  }
+
+  Future<List<CatalogDisplaySummary>> findAllSummaries({String? kind}) async {
+    final normalizedKind = kind?.trim().toLowerCase();
+    final requestedKind = normalizedKind == null || normalizedKind.isEmpty
+        ? null
+        : catalogMediaKindFromApiValue(normalizedKind);
+    final summaries = <CatalogDisplaySummary>[];
+    for (final codec in _codecs.values) {
+      if (requestedKind != null && codec.kind != requestedKind) continue;
+      summaries.addAll(await codec.listSummaries(_db));
+    }
+    return summaries;
   }
 
   Future<void> _upsertItem(CatalogItemDto item) async {

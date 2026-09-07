@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 
 /// Persistence adapter for one catalog kind.
 ///
@@ -20,4 +21,10 @@ abstract interface class CatalogKindRepositoryCodec {
   Future<void> upsert(LocalDatabase db, CatalogItemDto item);
 
   Future<List<CatalogItemDto>> list(LocalDatabase db);
+
+  /// Reads only the structural fields required by mixed/global hosts.
+  ///
+  /// Implementations must build this from the owning typed repository rather
+  /// than rehydrating a [CatalogItemDto].
+  Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db);
 }
