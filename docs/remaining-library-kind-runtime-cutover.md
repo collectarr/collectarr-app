@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-Baseline HEAD: `5f3f2c2c` on 2026-09-07.
+Baseline HEAD: `75885c6a` on 2026-09-07.
 
 Generated registration is compile-time discovery of the nine kind modules. No
 runtime reflection or manual per-kind import list is required. The generated
@@ -39,6 +39,8 @@ registry is a composition root only.
   and sync serialization boundaries for this path;
 - sync pull now deserializes the protocol payload once and persists each
   reconstructed owned item through the generated typed repository dispatch;
+- development seed persistence now dispatches every fixture through the
+  generated typed Owned repository registry instead of common `upsertAll`;
 - generic facet definition ownership;
 - test `CatalogMediaKind` switches in the migrated contract fixtures;
 - common seed graph kind switches and manual seed contributor imports;
