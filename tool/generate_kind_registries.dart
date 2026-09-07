@@ -11,6 +11,18 @@ Future<void> main() async {
   }
 
   await File(_registryOutput).writeAsString(_renderRegistry(descriptors));
+  final formatResult = await Process.run(
+    Platform.resolvedExecutable,
+    ['format', _registryOutput],
+  );
+  if (formatResult.exitCode != 0) {
+    throw ProcessException(
+      Platform.resolvedExecutable,
+      ['format', _registryOutput],
+      formatResult.stderr.toString(),
+      formatResult.exitCode,
+    );
+  }
   stdout.writeln('Generated ${descriptors.length} kind registrations.');
 }
 
@@ -127,11 +139,65 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
         ),
         metadataDecoder: metadataDecoder,
         facetModule: facetModule,
+        ownedPersistence: _discoverOwnedPersistence(entity),
       ),
     );
   }
   descriptors.sort((left, right) => left.folder.compareTo(right.folder));
   return descriptors;
+}
+
+_OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
+  final folder = kindDirectory.path.split(Platform.pathSeparator).last;
+  final repositoryFile =
+      File('${kindDirectory.path}/data/${folder}_owned_repository.dart');
+  final projectionFile = File(
+    '${kindDirectory.path}/data/${folder}_owned_item_projection.dart',
+  );
+  final idsFile = File('${kindDirectory.path}/domain/${folder}_ids.dart');
+  if (!repositoryFile.existsSync() ||
+      !projectionFile.existsSync() ||
+      !idsFile.existsSync()) {
+    return null;
+  }
+
+  final repositoryClass = _findClass(
+    repositoryFile,
+    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedRepository)'),
+  );
+  final projectionClass = _findClass(
+    projectionFile,
+    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemProjection)'),
+  );
+  final ownedIdClass = _findClass(
+    idsFile,
+    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemId)'),
+  );
+  if (repositoryClass == null ||
+      projectionClass == null ||
+      ownedIdClass == null) {
+    throw StateError(
+      'Could not discover complete owned persistence for $folder',
+    );
+  }
+  return _OwnedPersistence(
+    repository: _Contributor(
+      importPath: _packageImportPath(repositoryFile),
+      className: repositoryClass,
+    ),
+    projection: _Contributor(
+      importPath: _packageImportPath(projectionFile),
+      className: projectionClass,
+    ),
+    ownedId: _Contributor(
+      importPath: _packageImportPath(idsFile),
+      className: ownedIdClass,
+    ),
+  );
+}
+
+String? _findClass(File file, RegExp pattern) {
+  return pattern.firstMatch(file.readAsStringSync())?.group(1);
 }
 
 _MetadataDecoder? _discoverMetadataDecoder(Directory kindDirectory) {
@@ -223,6 +289,9 @@ String _renderRegistry(List<_KindDescriptor> descriptors) {
 // Run: dart run tool/generate_kind_registries.dart
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -255,6 +324,21 @@ import 'package:flutter/material.dart';
       buffer.writeln(
         "import 'package:collectarr_app/${contributor.importPath}';",
       );
+    }
+  }
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    for (final contributor in [
+      persistence.repository,
+      persistence.projection,
+      persistence.ownedId,
+    ]) {
+      if (importedContributorPaths.add(contributor.importPath)) {
+        buffer.writeln(
+          "import 'package:collectarr_app/${contributor.importPath}';",
+        );
+      }
     }
   }
   buffer.writeln(
@@ -390,6 +474,7 @@ import 'package:flutter/material.dart';
   );
   _renderFacetMap(buffer, descriptors);
   _renderMetadataDecoderMap(buffer, descriptors);
+  _renderOwnedPersistenceMaps(buffer, descriptors);
   buffer.writeln();
   buffer
       .writeln('LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {');
@@ -590,6 +675,108 @@ void _renderMetadataDecoderMap(
   buffer.writeln('};');
 }
 
+void _renderOwnedPersistenceMaps(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln(
+    'final collectarrOwnedItemPersisters = '
+    '<CatalogMediaKind, Future<void> Function(LocalDatabase, OwnedItem)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final projection = persistence.projection.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (database, item) => '
+      '$repository(database).upsert($projection.fromOwnedItem(item)),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
+    'final collectarrOwnedItemReaders = '
+    '<CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final projection = persistence.projection.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (database) async => '
+      '(await $repository(database).listActive())'
+      '.map($projection.toOwnedItem).toList(growable: false),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
+    'final collectarrOwnedItemSummaryReaders = '
+    '<CatalogMediaKind, Future<List<OwnedItemSummary>> Function(LocalDatabase)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final projection = persistence.projection.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (database) async => '
+      '(await $repository(database).listActive())'
+      '.map($projection.toSummary).toList(growable: false),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
+    'final collectarrOwnedItemFinders = '
+    '<CatalogMediaKind, Future<OwnedItem?> Function(LocalDatabase, String)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final projection = persistence.projection.className;
+    final ownedId = persistence.ownedId.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (database, id) async => '
+      '_collectarrOwnedToCommon('
+      'await $repository(database).findById($ownedId(id)), '
+      '$projection.toOwnedItem),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
+    'final collectarrOwnedItemDeleters = '
+    '<CatalogMediaKind, Future<void> Function(LocalDatabase, OwnedItem, DateTime)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final projection = persistence.projection.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (database, item, deletedAt) => '
+      '$repository(database).markDeleted('
+      '$projection.fromOwnedItem(item), deletedAt),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+  buffer.writeln('OwnedItem? _collectarrOwnedToCommon<T>(');
+  buffer.writeln('  T? item,');
+  buffer.writeln('  OwnedItem Function(T item) project,');
+  buffer.writeln(') {');
+  buffer.writeln('  return item == null ? null : project(item);');
+  buffer.writeln('}');
+}
+
 final class _KindDescriptor {
   const _KindDescriptor({
     required this.folder,
@@ -609,6 +796,7 @@ final class _KindDescriptor {
     this.ownedDetailsCodec,
     this.metadataDecoder,
     this.facetModule,
+    this.ownedPersistence,
   });
 
   final String folder;
@@ -628,6 +816,7 @@ final class _KindDescriptor {
   final _Contributor? ownedDetailsCodec;
   final _MetadataDecoder? metadataDecoder;
   final String? facetModule;
+  final _OwnedPersistence? ownedPersistence;
 
   Iterable<_Contributor> get contributors sync* {
     for (final contributor in [
@@ -661,6 +850,18 @@ final class _MetadataDecoder {
 
   final String importPath;
   final String expression;
+}
+
+final class _OwnedPersistence {
+  const _OwnedPersistence({
+    required this.repository,
+    required this.projection,
+    required this.ownedId,
+  });
+
+  final _Contributor repository;
+  final _Contributor projection;
+  final _Contributor ownedId;
 }
 
 String _packageImportPath(File file) {

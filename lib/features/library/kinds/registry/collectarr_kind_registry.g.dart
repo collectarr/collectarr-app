@@ -2,6 +2,9 @@
 // Run: dart run tool/generate_kind_registries.dart
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -114,6 +117,33 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_watch_sessi
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/config/library_activity_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
@@ -147,7 +177,8 @@ final List<LibraryKindModule> collectarrKindModules = [
   tvKindModule,
 ];
 
-final collectarrKindCalendarContributors = <CatalogMediaKind, LibraryCalendarContributor>{
+final collectarrKindCalendarContributors =
+    <CatalogMediaKind, LibraryCalendarContributor>{
   CatalogMediaKind.anime: const AnimeCalendarContributor(),
   CatalogMediaKind.boardgame: const BoardGameCalendarContributor(),
   CatalogMediaKind.book: const BookCalendarContributor(),
@@ -159,12 +190,14 @@ final collectarrKindCalendarContributors = <CatalogMediaKind, LibraryCalendarCon
   CatalogMediaKind.tv: const TvCalendarContributor(),
 };
 
-final collectarrKindActivityContributors = <CatalogMediaKind, LibraryActivityContributor>{
+final collectarrKindActivityContributors =
+    <CatalogMediaKind, LibraryActivityContributor>{
   CatalogMediaKind.anime: const AnimeActivityContributor(),
   CatalogMediaKind.tv: const TvActivityContributor(),
 };
 
-final collectarrKindAdminContributors = <CatalogMediaKind, LibraryAdminContributor>{
+final collectarrKindAdminContributors =
+    <CatalogMediaKind, LibraryAdminContributor>{
   CatalogMediaKind.anime: const AnimeAdminContributor(),
   CatalogMediaKind.boardgame: const BoardGameAdminContributor(),
   CatalogMediaKind.book: const BookAdminContributor(),
@@ -176,7 +209,8 @@ final collectarrKindAdminContributors = <CatalogMediaKind, LibraryAdminContribut
   CatalogMediaKind.tv: const TvAdminContributor(),
 };
 
-final collectarrKindBarcodeResolvers = <CatalogMediaKind, LibraryBarcodeResolver>{
+final collectarrKindBarcodeResolvers =
+    <CatalogMediaKind, LibraryBarcodeResolver>{
   CatalogMediaKind.anime: const AnimeBarcodeResolver(),
   CatalogMediaKind.boardgame: const BoardGameBarcodeResolver(),
   CatalogMediaKind.book: const BookIsbnResolver(),
@@ -188,7 +222,8 @@ final collectarrKindBarcodeResolvers = <CatalogMediaKind, LibraryBarcodeResolver
   CatalogMediaKind.tv: const TvBarcodeResolver(),
 };
 
-final collectarrKindCollectionCsvProjections = <CatalogMediaKind, LibraryCollectionCsvProjection>{
+final collectarrKindCollectionCsvProjections =
+    <CatalogMediaKind, LibraryCollectionCsvProjection>{
   CatalogMediaKind.anime: const AnimeCollectionCsvProjection(),
   CatalogMediaKind.boardgame: const BoardGameCollectionCsvProjection(),
   CatalogMediaKind.book: const BookCollectionCsvProjection(),
@@ -200,7 +235,8 @@ final collectarrKindCollectionCsvProjections = <CatalogMediaKind, LibraryCollect
   CatalogMediaKind.tv: const TvCollectionCsvProjection(),
 };
 
-final collectarrKindShelfExtensions = <CatalogMediaKind, LibraryShelfExtensionContributor>{
+final collectarrKindShelfExtensions =
+    <CatalogMediaKind, LibraryShelfExtensionContributor>{
   CatalogMediaKind.manga: const MangaShelfExtensionContributor(),
 };
 
@@ -234,7 +270,8 @@ const List<CustomEpisodeCodec> collectarrCustomEpisodeCodecs = [
   TvCustomEpisodeCodec(),
 ];
 
-final collectarrKindProviderMappers = <CatalogMediaKind, LibraryKindProviderMapper>{
+final collectarrKindProviderMappers =
+    <CatalogMediaKind, LibraryKindProviderMapper>{
   CatalogMediaKind.anime: const AnimeLibraryKindProviderMapper(),
   CatalogMediaKind.boardgame: const BoardGameLibraryKindProviderMapper(),
   CatalogMediaKind.book: const BookLibraryKindProviderMapper(),
@@ -246,7 +283,8 @@ final collectarrKindProviderMappers = <CatalogMediaKind, LibraryKindProviderMapp
   CatalogMediaKind.tv: const TvLibraryKindProviderMapper(),
 };
 
-final collectarrKindOwnedDetailsCodecs = <CatalogMediaKind, OwnedDetailsPersistenceCodec>{
+final collectarrKindOwnedDetailsCodecs =
+    <CatalogMediaKind, OwnedDetailsPersistenceCodec>{
   CatalogMediaKind.anime: const AnimeOwnedDetailsCodec(),
   CatalogMediaKind.boardgame: const BoardgameOwnedDetailsCodec(),
   CatalogMediaKind.book: const BookOwnedDetailsCodec(),
@@ -269,7 +307,8 @@ final collectarrKindFacetModules = <CatalogMediaKind, LibraryFacetModule>{
   CatalogMediaKind.music: musicLibraryFacetModule,
   CatalogMediaKind.tv: tvLibraryFacetModule,
 };
-final collectarrKindMetadataDecoders = <CatalogMediaKind, Object? Function(Map<String, dynamic>)>{
+final collectarrKindMetadataDecoders =
+    <CatalogMediaKind, Object? Function(Map<String, dynamic>)>{
   CatalogMediaKind.anime: AnimeMetadata.fromJson,
   CatalogMediaKind.boardgame: BoardGameMetadata.fromJson,
   CatalogMediaKind.book: BookCatalogMetadata.fromJson,
@@ -280,6 +319,178 @@ final collectarrKindMetadataDecoders = <CatalogMediaKind, Object? Function(Map<S
   CatalogMediaKind.music: MusicCatalogMetadata.fromJson,
   CatalogMediaKind.tv: TvSeriesMetadata.fromJson,
 };
+final collectarrOwnedItemPersisters =
+    <CatalogMediaKind, Future<void> Function(LocalDatabase, OwnedItem)>{
+  CatalogMediaKind.anime: (database, item) => AnimeOwnedRepository(database)
+      .upsert(AnimeOwnedItemProjection.fromOwnedItem(item)),
+  CatalogMediaKind.boardgame: (database, item) =>
+      BoardGameOwnedRepository(database)
+          .upsert(BoardGameOwnedItemProjection.fromOwnedItem(item)),
+  CatalogMediaKind.book: (database, item) => BookOwnedRepository(database)
+      .upsert(BookOwnedItemProjection.fromOwnedItem(item)),
+  CatalogMediaKind.comic: (database, item) => ComicOwnedRepository(database)
+      .upsert(ComicOwnedItemProjection.fromOwnedItem(item)),
+  CatalogMediaKind.game: (database, item) => GameOwnedRepository(database)
+      .upsert(GameOwnedItemProjection.fromOwnedItem(item)),
+  CatalogMediaKind.manga: (database, item) => MangaOwnedRepository(database)
+      .upsert(MangaOwnedItemProjection.fromOwnedItem(item)),
+  CatalogMediaKind.movie: (database, item) => MovieOwnedRepository(database)
+      .upsert(MovieOwnedItemProjection.fromOwnedItem(item)),
+  CatalogMediaKind.music: (database, item) => MusicOwnedRepository(database)
+      .upsert(MusicOwnedItemProjection.fromOwnedItem(item)),
+  CatalogMediaKind.tv: (database, item) => TvOwnedRepository(database)
+      .upsert(TvOwnedItemProjection.fromOwnedItem(item)),
+};
+
+final collectarrOwnedItemReaders =
+    <CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{
+  CatalogMediaKind.anime: (database) async =>
+      (await AnimeOwnedRepository(database).listActive())
+          .map(AnimeOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.boardgame: (database) async =>
+      (await BoardGameOwnedRepository(database).listActive())
+          .map(BoardGameOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.book: (database) async =>
+      (await BookOwnedRepository(database).listActive())
+          .map(BookOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.comic: (database) async =>
+      (await ComicOwnedRepository(database).listActive())
+          .map(ComicOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.game: (database) async =>
+      (await GameOwnedRepository(database).listActive())
+          .map(GameOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.manga: (database) async =>
+      (await MangaOwnedRepository(database).listActive())
+          .map(MangaOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.movie: (database) async =>
+      (await MovieOwnedRepository(database).listActive())
+          .map(MovieOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.music: (database) async =>
+      (await MusicOwnedRepository(database).listActive())
+          .map(MusicOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.tv: (database) async =>
+      (await TvOwnedRepository(database).listActive())
+          .map(TvOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+};
+
+final collectarrOwnedItemSummaryReaders =
+    <CatalogMediaKind, Future<List<OwnedItemSummary>> Function(LocalDatabase)>{
+  CatalogMediaKind.anime: (database) async =>
+      (await AnimeOwnedRepository(database).listActive())
+          .map(AnimeOwnedItemProjection.toSummary)
+          .toList(growable: false),
+  CatalogMediaKind.boardgame: (database) async =>
+      (await BoardGameOwnedRepository(database).listActive())
+          .map(BoardGameOwnedItemProjection.toSummary)
+          .toList(growable: false),
+  CatalogMediaKind.book: (database) async =>
+      (await BookOwnedRepository(database).listActive())
+          .map(BookOwnedItemProjection.toSummary)
+          .toList(growable: false),
+  CatalogMediaKind.comic: (database) async =>
+      (await ComicOwnedRepository(database).listActive())
+          .map(ComicOwnedItemProjection.toSummary)
+          .toList(growable: false),
+  CatalogMediaKind.game: (database) async =>
+      (await GameOwnedRepository(database).listActive())
+          .map(GameOwnedItemProjection.toSummary)
+          .toList(growable: false),
+  CatalogMediaKind.manga: (database) async =>
+      (await MangaOwnedRepository(database).listActive())
+          .map(MangaOwnedItemProjection.toSummary)
+          .toList(growable: false),
+  CatalogMediaKind.movie: (database) async =>
+      (await MovieOwnedRepository(database).listActive())
+          .map(MovieOwnedItemProjection.toSummary)
+          .toList(growable: false),
+  CatalogMediaKind.music: (database) async =>
+      (await MusicOwnedRepository(database).listActive())
+          .map(MusicOwnedItemProjection.toSummary)
+          .toList(growable: false),
+  CatalogMediaKind.tv: (database) async =>
+      (await TvOwnedRepository(database).listActive())
+          .map(TvOwnedItemProjection.toSummary)
+          .toList(growable: false),
+};
+
+final collectarrOwnedItemFinders =
+    <CatalogMediaKind, Future<OwnedItem?> Function(LocalDatabase, String)>{
+  CatalogMediaKind.anime: (database, id) async => _collectarrOwnedToCommon(
+      await AnimeOwnedRepository(database).findById(AnimeOwnedItemId(id)),
+      AnimeOwnedItemProjection.toOwnedItem),
+  CatalogMediaKind.boardgame: (database, id) async => _collectarrOwnedToCommon(
+      await BoardGameOwnedRepository(database)
+          .findById(BoardGameOwnedItemId(id)),
+      BoardGameOwnedItemProjection.toOwnedItem),
+  CatalogMediaKind.book: (database, id) async => _collectarrOwnedToCommon(
+      await BookOwnedRepository(database).findById(BookOwnedItemId(id)),
+      BookOwnedItemProjection.toOwnedItem),
+  CatalogMediaKind.comic: (database, id) async => _collectarrOwnedToCommon(
+      await ComicOwnedRepository(database).findById(ComicOwnedItemId(id)),
+      ComicOwnedItemProjection.toOwnedItem),
+  CatalogMediaKind.game: (database, id) async => _collectarrOwnedToCommon(
+      await GameOwnedRepository(database).findById(GameOwnedItemId(id)),
+      GameOwnedItemProjection.toOwnedItem),
+  CatalogMediaKind.manga: (database, id) async => _collectarrOwnedToCommon(
+      await MangaOwnedRepository(database).findById(MangaOwnedItemId(id)),
+      MangaOwnedItemProjection.toOwnedItem),
+  CatalogMediaKind.movie: (database, id) async => _collectarrOwnedToCommon(
+      await MovieOwnedRepository(database).findById(MovieOwnedItemId(id)),
+      MovieOwnedItemProjection.toOwnedItem),
+  CatalogMediaKind.music: (database, id) async => _collectarrOwnedToCommon(
+      await MusicOwnedRepository(database).findById(MusicOwnedItemId(id)),
+      MusicOwnedItemProjection.toOwnedItem),
+  CatalogMediaKind.tv: (database, id) async => _collectarrOwnedToCommon(
+      await TvOwnedRepository(database).findById(TvOwnedItemId(id)),
+      TvOwnedItemProjection.toOwnedItem),
+};
+
+final collectarrOwnedItemDeleters = <CatalogMediaKind,
+    Future<void> Function(LocalDatabase, OwnedItem, DateTime)>{
+  CatalogMediaKind.anime: (database, item, deletedAt) =>
+      AnimeOwnedRepository(database)
+          .markDeleted(AnimeOwnedItemProjection.fromOwnedItem(item), deletedAt),
+  CatalogMediaKind.boardgame: (database, item, deletedAt) =>
+      BoardGameOwnedRepository(database).markDeleted(
+          BoardGameOwnedItemProjection.fromOwnedItem(item), deletedAt),
+  CatalogMediaKind.book: (database, item, deletedAt) =>
+      BookOwnedRepository(database)
+          .markDeleted(BookOwnedItemProjection.fromOwnedItem(item), deletedAt),
+  CatalogMediaKind.comic: (database, item, deletedAt) =>
+      ComicOwnedRepository(database)
+          .markDeleted(ComicOwnedItemProjection.fromOwnedItem(item), deletedAt),
+  CatalogMediaKind.game: (database, item, deletedAt) =>
+      GameOwnedRepository(database)
+          .markDeleted(GameOwnedItemProjection.fromOwnedItem(item), deletedAt),
+  CatalogMediaKind.manga: (database, item, deletedAt) =>
+      MangaOwnedRepository(database)
+          .markDeleted(MangaOwnedItemProjection.fromOwnedItem(item), deletedAt),
+  CatalogMediaKind.movie: (database, item, deletedAt) =>
+      MovieOwnedRepository(database)
+          .markDeleted(MovieOwnedItemProjection.fromOwnedItem(item), deletedAt),
+  CatalogMediaKind.music: (database, item, deletedAt) =>
+      MusicOwnedRepository(database)
+          .markDeleted(MusicOwnedItemProjection.fromOwnedItem(item), deletedAt),
+  CatalogMediaKind.tv: (database, item, deletedAt) =>
+      TvOwnedRepository(database)
+          .markDeleted(TvOwnedItemProjection.fromOwnedItem(item), deletedAt),
+};
+
+OwnedItem? _collectarrOwnedToCommon<T>(
+  T? item,
+  OwnedItem Function(T item) project,
+) {
+  return item == null ? null : project(item);
+}
 
 LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {
   for (final module in collectarrKindModules) {
