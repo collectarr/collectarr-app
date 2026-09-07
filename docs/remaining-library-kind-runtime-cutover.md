@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-Baseline HEAD: `75885c6a` on 2026-09-07.
+Baseline HEAD: `0f5078f9` on 2026-09-07.
 
 Generated registration is compile-time discovery of the nine kind modules. No
 runtime reflection or manual per-kind import list is required. The generated
@@ -76,5 +76,26 @@ are deleted. Do not add a second runtime or compatibility alias.
    navigation/dispatch.
 
 The whole-repository architecture checker remains a failing migration gate at
-601 AST violations and 410 complexity reports. Schema remains version `1` with
+601 AST violations and 409 complexity reports. Schema remains version `1` with
 no compatibility upgrade path.
+
+## Current largest remaining clusters
+
+The post-seed/sync audit still finds 601 AST violations. The highest-value
+clusters are:
+
+1. Catalog DTO runtime bridge: `library_catalog_repository.dart`, Add/provider
+   result flows, metadata comparison/correction, and generic workspace DTO
+   projections.
+2. Common Owned reads: collection/detail/edit hosts, ShelfEntry, generic
+   transfer/inspector paths, and the remaining sync-retry serialization edge.
+3. Collection semantic union: `collection_csv.dart` still carries the old
+   condition/grade/publisher/issue/Comic fields in its row model and parser.
+4. Generic admin/settings/import/report surfaces: `tmdb_import_service.dart`,
+   admin widgets, sharing/export and metadata correction still inspect catalog
+   payload semantics outside owning kinds.
+
+The next implementation order remains Catalog read projections, then the
+common Owned collection/detail flow, then the erased Library capability
+surface. The checker should be rerun only after each related batch, with its
+allowlist shrinking as those clusters are removed.
