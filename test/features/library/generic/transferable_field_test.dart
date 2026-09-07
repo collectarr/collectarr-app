@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -18,7 +19,7 @@ void main() {
           kind: 'comic',
           entityType: CatalogEntityType.work,
         ),
-        details: const GenericOwnedDetails(),
+        details: const TestOwnedDetails(),
         condition: 'Mint',
         grade: '9.8',
         personalNotes: 'First print run',

@@ -13,8 +13,6 @@ export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 export 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 export 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
-export 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
-export 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_draft.dart';
 export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';

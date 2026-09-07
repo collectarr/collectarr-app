@@ -7,18 +7,12 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
-import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -35,100 +29,6 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-  });
-
-  testWidgets(
-      'media scope hides release and personal tabs on default edit builder',
-      (tester) async {
-    tester.view.physicalSize = const Size(1100, 860);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    final type = LibraryKindSpec<GenericWorkspaceDto>(
-      projector: const GenericWorkspaceProjector(),
-      fields: genericKindModule.fields,
-      identity: const LibraryKindIdentity(
-        kind: CatalogMediaKind.unknown,
-        singularLabel: 'Item',
-        pluralLabel: 'Items',
-        title: 'Generic',
-        icon: Icons.category_outlined,
-        accent: Colors.red,
-        preferencePrefix: 'generic-test',
-      ),
-      metadata: genericKindModule.metadata,
-      hierarchy: const LibraryHierarchyCapability(
-        supportsMediaReleaseSplit: true,
-      ),
-      inspector: genericKindModule.inspector,
-      transfer: genericKindModule.transfer,
-      presentation: genericLibraryMediaPresentation,
-      trackingProfile: bookTrackingProfile,
-      add: genericKindModule.add,
-      edit: genericKindModule.edit,
-    );
-
-    final item = testCatalogItemWithKindMetadata(
-      testCatalogItem(
-        id: 'movie-default-1',
-        kind: 'movie',
-        title: 'Blade Runner',
-        releaseDate: DateTime.utc(1982, 6, 25),
-      ),
-    );
-    final ownedItem = testOwnedItem(
-      id: 'owned-default-1',
-      itemId: 'movie-default-1',
-      condition: 'Good',
-      pricePaidCents: 1999,
-      currency: 'USD',
-      quantity: 1,
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: FilledButton(
-                onPressed: () {
-                  showDialog<void>(
-                    context: context,
-                    builder: (context) => LibraryEditRenderer(
-                      type: type,
-                      item: item,
-                      ownedItem: ownedItem,
-                      accent: Colors.red,
-                      scope: LibraryEditScope.media,
-                    ),
-                  );
-                },
-                child: const Text('Open media scope'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('Open media scope'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Cover'), findsOneWidget);
-    expect(find.text('Synopsis'), findsOneWidget);
-    expect(find.text('Value'), findsNothing);
-    expect(find.text('Personal'), findsNothing);
-    expect(find.text('Sold'), findsNothing);
-    expect(find.text('Tracking'), findsNothing);
-    expect(find.text('Condition'), findsNothing);
-    expect(find.text('Purchase date'), findsNothing);
-    expect(find.text('Display title'), findsOneWidget);
   });
 
   testWidgets(

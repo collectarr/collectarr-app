@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,7 +88,7 @@ void main() {
 
         final defaultDetails =
             collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
-        expect(item.details, isNot(isA<GenericOwnedDetails>()));
+        expect(item.details, isNot(isA<TestOwnedDetails>()));
         expect(item.details.runtimeType, defaultDetails.runtimeType);
 
         // Mismatched details test: non-comic kind with ComicOwnedDetailsDraft
@@ -127,7 +128,7 @@ void main() {
     });
 
     test(
-        'updating details with Patch.clear resets to kind default empty details, never GenericOwnedDetails for all 9 kinds',
+        'updating details with Patch.clear resets to kind default empty details, never TestOwnedDetails for all 9 kinds',
         () async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
@@ -161,7 +162,7 @@ void main() {
         final defaultDetails =
             collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
 
-        expect(updated.details, isNot(isA<GenericOwnedDetails>()));
+        expect(updated.details, isNot(isA<TestOwnedDetails>()));
         expect(updated.details.runtimeType, defaultDetails.runtimeType);
       }
     });
@@ -170,12 +171,12 @@ void main() {
       for (final kind in allActiveKinds) {
         final defaultDetails =
             collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
-        expect(defaultDetails, isNot(isA<GenericOwnedDetails>()),
-            reason: '$kind default details must not be GenericOwnedDetails');
+        expect(defaultDetails, isNot(isA<TestOwnedDetails>()),
+            reason: '$kind default details must not be TestOwnedDetails');
 
         final defaultDraft = libraryKindOwnedDetailsDraftForKind(kind);
-        expect(defaultDraft, isNot(isA<GenericOwnedDetailsDraft>()),
-            reason: '$kind default draft must not be GenericOwnedDetailsDraft');
+        expect(defaultDraft, isNot(isA<TestOwnedDetailsDraft>()),
+            reason: '$kind default draft must not be TestOwnedDetailsDraft');
       }
     });
 

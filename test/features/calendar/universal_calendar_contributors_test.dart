@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
+import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,7 +18,7 @@ void main() {
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
-      details: const GenericOwnedDetails(),
+      details: const TestOwnedDetails(),
       purchaseDate: DateTime.utc(2026, 1, 1),
       purchaseStore: 'Seed Store',
       updatedAt: DateTime.utc(2026, 1, 3),

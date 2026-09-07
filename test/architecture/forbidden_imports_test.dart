@@ -9,17 +9,10 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
-import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
-import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -567,95 +560,10 @@ class ComicFeature {}
     );
   });
 
-  test(
-      'extensibility: custom fake kind "foo" registers and operates without generic library edits',
-      () {
-    final fooKindModule = LibraryKindSpec<GenericWorkspaceDto>(
-      projector: const GenericWorkspaceProjector(),
-      fields: genericLibraryKindSchema.toRegistry(),
-      identity: const LibraryKindIdentity(
-        kind: CatalogMediaKind.unknown,
-        singularLabel: 'Foo',
-        pluralLabel: 'Foos',
-        title: 'Foo',
-        icon: Icons.extension,
-        accent: Color(0xFF673AB7),
-        preferencePrefix: 'foo',
-      ),
-      metadata: const LibraryMetadataCapability(
-        defaultProviderId: '',
-        providers: [],
-      ),
-      hierarchy: const LibraryHierarchyCapability(),
-      inspector: const LibraryInspectorCapability(),
-      transfer: const LibraryTransferCapability(),
-      presentation: genericLibraryMediaPresentation,
-      trackingProfile: bookTrackingProfile,
-      add: StandardLibraryAddCapability<GenericAddDraft>(
-        kind: CatalogMediaKind.unknown,
-        initialDraftBuilder: GenericAddDraft.new,
-        search: genericKindModule.add.search,
-      ),
-      edit: LibraryEditCapability(
-        presentation: genericKindModule.edit.presentation,
-        conditions: genericKindModule.edit.conditions,
-        defaultCondition: genericKindModule.edit.defaultCondition,
-        defaultGrade: genericKindModule.edit.defaultGrade,
-        createDraft: genericKindModule.edit.createDraft,
-        ownedDigitalFlagResolver:
-            genericKindModule.edit.ownedDigitalFlagResolver,
-      ),
-      buildCardPresentation: (item, {required musicVertical}) =>
-          const LibraryCardPresentation(),
-    );
-
-    // Verify operations through the generic interface
-    expect(fooKindModule.identity.title, equals('Foo'));
-    expect(fooKindModule.identity.singularLabel, equals('Foo'));
-    expect(fooKindModule.identity.pluralLabel, equals('Foos'));
-
-    final entry = ShelfEntry(
-      itemId: 'foo-1',
-      catalogItem: CatalogItem.fromJson({
-        'id': 'foo-1',
-        'kind': 'unknown',
-        'title': 'Foo Item 1',
-      }),
-      ownedItem: OwnedItem(
-        id: 'owned-foo-1',
-        catalogRef: const CatalogEntityRef(
-          entityType: CatalogEntityType.work,
-          kind: 'unknown',
-          id: 'foo-1',
-        ),
-        details: const GenericOwnedDetails(),
-        updatedAt: DateTime.utc(2026, 1, 1),
-      ),
-    );
-
-    final projection = fooKindModule.workspace.project(
-      source: entry,
-      node: const LibraryTitleNodeRef(titleItemId: 'foo-1'),
-    );
-
-    expect(projection.dto.title, equals('Foo Item 1'));
+  test('unknown kinds have no production registration', () {
     expect(
-      fooKindModule.stats.buildSummaryTiles(
-        const ShelfState(
-          entries: [],
-          ownedCount: 0,
-          wishlistCount: 0,
-          missingGradeCount: 0,
-          pricedCount: 0,
-          totalPaidCents: 0,
-          primaryCurrency: 'USD',
-          hasMixedCurrencies: false,
-          soldCount: 0,
-          totalSellCents: 0,
-        ),
-        fooKindModule,
-      ),
-      isEmpty,
+      () => libraryKindFor(CatalogMediaKind.unknown),
+      throwsArgumentError,
     );
   });
 }

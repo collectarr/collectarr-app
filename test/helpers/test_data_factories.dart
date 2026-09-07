@@ -364,7 +364,7 @@ OwnedItem testOwnedItem({
         signedBy: signedBy,
       );
     default:
-      details = const GenericOwnedDetails();
+      throw ArgumentError('Test owned item requires a registered kind: $kind');
   }
 
   return OwnedItem(

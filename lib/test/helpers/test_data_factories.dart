@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owne
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
@@ -346,7 +345,7 @@ OwnedItem testOwnedItem({
         signedBy: signedBy,
       );
     default:
-      details = const GenericOwnedDetails();
+      throw ArgumentError('Test owned item requires a registered kind: $kind');
   }
 
   return OwnedItem(

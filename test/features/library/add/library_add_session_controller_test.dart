@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -198,7 +201,12 @@ void main() {
       expect(success, true);
 
       final wishlist = await db.select(db.wishlistItemsCache).getSingle();
-      expect(wishlist.itemId, 'comic-wish-1');
+      expect(
+        CatalogEntityRef.fromJson(
+          jsonDecode(wishlist.catalogRefJson) as Map<String, dynamic>,
+        ).id,
+        'comic-wish-1',
+      );
     });
 
     test('submits item to tracking target', () async {
@@ -442,10 +450,8 @@ void main() {
         type: libraryKindModuleForKind(CatalogMediaKind.comic),
         provider: 'all',
         query: 'Batman',
-        ranking: libraryKindModuleForKind(CatalogMediaKind.comic)
-            .add
-            .search
-            .ranking,
+        ranking:
+            libraryKindModuleForKind(CatalogMediaKind.comic).add.search.ranking,
         searchContext: LibraryAddSearchContext(query: 'Batman'),
         providerRegistry: registry,
       );
@@ -495,10 +501,8 @@ void main() {
         type: libraryKindModuleForKind(CatalogMediaKind.comic),
         provider: 'gcd',
         query: 'Absolute Batman',
-        ranking: libraryKindModuleForKind(CatalogMediaKind.comic)
-            .add
-            .search
-            .ranking,
+        ranking:
+            libraryKindModuleForKind(CatalogMediaKind.comic).add.search.ranking,
         searchContext: LibraryAddSearchContext(query: 'Absolute Batman'),
         providerRegistry: registry,
       );

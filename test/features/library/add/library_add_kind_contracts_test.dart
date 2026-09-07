@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -16,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.da
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
+import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
@@ -56,8 +55,6 @@ void main() {
                 '$kind capability must explicitly match kind (no unknown fallback)');
 
         final initialDraft = addCap.createInitialDraft();
-        expect(initialDraft, isNot(isA<GenericAddDraft>()),
-            reason: '$kind must not produce a GenericAddDraft');
         expect(initialDraft.kind, kind,
             reason: '$kind initialDraft.kind must strictly match $kind');
 
@@ -154,9 +151,9 @@ void main() {
         expect(duplicatedOwned.collectionStatus, 'Complete');
         expect(duplicatedOwned.quantity, 2);
         expect(command.typedPayload!.detailsDraft,
-            isNot(isA<GenericOwnedDetailsDraft>()),
+            isNot(isA<TestOwnedDetailsDraft>()),
             reason:
-                '$kind command details must not be GenericOwnedDetailsDraft');
+                '$kind command details must not be TestOwnedDetailsDraft');
 
         switch (kind) {
           case CatalogMediaKind.comic:
@@ -199,7 +196,6 @@ void main() {
         final runtime = libraryKindModuleForKind(kind);
         expect(runtime.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.kind, isNot(CatalogMediaKind.unknown));
-        expect(runtime.add.createInitialDraft(), isNot(isA<GenericAddDraft>()));
       }
     });
 
