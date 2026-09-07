@@ -150,13 +150,13 @@ class AniListProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
 
-    final targetKind = _resolveTargetKind(kind);
+    final targetKind = _resolveTargetKind(kind?.apiValue);
     final anilistType = targetKind == 'anime' ? 'ANIME' : 'MANGA';
 
     final payload = await _graphql(
@@ -220,10 +220,10 @@ class AniListProvider extends ProviderAdapter {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     final (resolvedKind, anilistId) =
-        _parseKindAndMediaId(providerItemId, defaultKind: kind);
+        _parseKindAndMediaId(providerItemId, defaultKind: kind?.apiValue);
     if (anilistId == null) {
       throw ProviderNotFoundException(
         provider: name,

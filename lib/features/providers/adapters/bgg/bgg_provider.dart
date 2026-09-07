@@ -68,7 +68,7 @@ class BGGProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
@@ -126,7 +126,7 @@ class BGGProvider extends ProviderAdapter {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     _ensureConfigured();
 

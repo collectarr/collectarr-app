@@ -136,7 +136,7 @@ class HardcoverProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
@@ -144,7 +144,7 @@ class HardcoverProvider extends ProviderAdapter {
 
     _ensureConfigured();
 
-    final targetKind = _resolveTargetKind(kind);
+    final targetKind = _resolveTargetKind(kind?.apiValue);
     final payload = await _graphql(
       _hardcoverSearchQuery,
       {
@@ -201,12 +201,12 @@ class HardcoverProvider extends ProviderAdapter {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     _ensureConfigured();
 
     final (targetKind, bookId) =
-        _parseKindAndBookId(providerItemId, defaultKind: kind);
+        _parseKindAndBookId(providerItemId, defaultKind: kind?.apiValue);
     final intId = int.tryParse(bookId);
     if (intId == null) {
       throw ProviderNotFoundException(

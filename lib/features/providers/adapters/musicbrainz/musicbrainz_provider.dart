@@ -72,7 +72,7 @@ class MusicBrainzProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
@@ -109,7 +109,7 @@ class MusicBrainzProvider extends ProviderAdapter {
   /// Search MusicBrainz by release barcode / UPC.
   Future<List<ProviderSearchResult>> searchByBarcode(
     String barcode, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalized = barcode.trim();
@@ -120,7 +120,7 @@ class MusicBrainzProvider extends ProviderAdapter {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     final id = providerItemId.trim();
     if (!_mbidRegex.hasMatch(id)) {

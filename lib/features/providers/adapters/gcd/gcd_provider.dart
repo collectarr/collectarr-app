@@ -69,7 +69,7 @@ class GCDProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final issues = await searchIssues(query, limit: limit);
@@ -113,7 +113,7 @@ class GCDProvider extends ProviderAdapter {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     final issueId = _extractIssueId(providerItemId);
     if (issueId == null || issueId.isEmpty) {

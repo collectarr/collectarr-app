@@ -161,7 +161,10 @@ void main() {
       );
       final provider = AniListProvider(httpClient: client);
 
-      final results = await provider.search('Berserk', kind: 'manga');
+      final results = await provider.search(
+        'Berserk',
+        kind: CatalogMediaKind.manga,
+      );
       expect(sentQuery, contains('MANGA'));
       expect(results, hasLength(1));
 
@@ -223,7 +226,10 @@ void main() {
       );
       final provider = AniListProvider(httpClient: client);
 
-      final envelope = await provider.fetchItem('30002', kind: 'manga');
+      final envelope = await provider.fetchItem(
+        '30002',
+        kind: CatalogMediaKind.manga,
+      );
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'anilist');
       expect(envelope.providerItemId, '30002');

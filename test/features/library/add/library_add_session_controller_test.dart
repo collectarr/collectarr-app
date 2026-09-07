@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -725,9 +726,9 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   final String name;
   final String kind;
   final Future<List<ProviderSearchResult>> Function(String query,
-      {String? kind, int limit})? searchHandler;
+      {CatalogMediaKind? kind, int limit})? searchHandler;
   final Future<NormalizedProviderEnvelopeV1> Function(String id,
-      {String? kind})? fetchHandler;
+      {CatalogMediaKind? kind})? fetchHandler;
 
   @override
   ProviderDescriptor get descriptor => ProviderDescriptor(
@@ -748,11 +749,11 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     if (searchHandler != null) {
-      return searchHandler!(query, kind: kind?.toString(), limit: limit);
+      return searchHandler!(query, kind: kind, limit: limit);
     }
     return [];
   }
@@ -760,10 +761,10 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    Object? kind,
+    CatalogMediaKind? kind,
   }) async {
     if (fetchHandler != null) {
-      return fetchHandler!(providerItemId, kind: kind?.toString());
+      return fetchHandler!(providerItemId, kind: kind);
     }
     throw UnimplementedError();
   }

@@ -66,10 +66,10 @@ class ComicVineProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
-    final targetKind = _resolveTargetKind(kind);
+    final targetKind = _resolveTargetKind(kind?.apiValue);
     final issues = await searchIssues(query, limit: limit);
     return [
       for (final issue in issues) _searchResultFromIssue(issue, targetKind),
@@ -121,12 +121,12 @@ class ComicVineProvider extends ProviderAdapter {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     _ensureConfigured();
 
     final (targetKind, resourceId) =
-        _parseKindAndResourceId(providerItemId, defaultKind: kind);
+        _parseKindAndResourceId(providerItemId, defaultKind: kind?.apiValue);
     final canonicalId = _canonicalIssueId(resourceId);
 
     final queryParams = <String, dynamic>{

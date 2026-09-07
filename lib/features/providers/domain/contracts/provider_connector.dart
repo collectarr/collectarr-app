@@ -11,13 +11,13 @@ import 'package:collectarr_app/features/providers/domain/models/provider_search_
 abstract interface class MetadataCapability {
   Future<List<ProviderSearchResult>> search(
     String query, {
-    covariant Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   });
 
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    covariant Object? kind,
+    CatalogMediaKind? kind,
   });
 }
 
@@ -151,7 +151,7 @@ final class ProviderConnector implements MetadataCapability {
     if (meta == null) {
       return Future.value(const []);
     }
-    return meta.search(query, kind: kind?.apiValue, limit: limit);
+    return meta.search(query, kind: kind, limit: limit);
   }
 
   @override
@@ -163,6 +163,6 @@ final class ProviderConnector implements MetadataCapability {
     if (meta == null) {
       throw StateError('Provider $id does not support metadata capability');
     }
-    return meta.fetchItem(providerItemId, kind: kind?.apiValue);
+    return meta.fetchItem(providerItemId, kind: kind);
   }
 }

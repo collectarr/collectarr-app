@@ -65,7 +65,7 @@ class OpenLibraryProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
@@ -103,7 +103,7 @@ class OpenLibraryProvider extends ProviderAdapter {
   /// Search Open Library directly by ISBN / barcode.
   Future<List<ProviderSearchResult>> searchByBarcode(
     String barcode, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalized = barcode.trim().replaceAll('-', '');
@@ -114,7 +114,7 @@ class OpenLibraryProvider extends ProviderAdapter {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     final providerId = _normalizeProviderId(providerItemId);
     if (providerId == null || providerId.isEmpty) {

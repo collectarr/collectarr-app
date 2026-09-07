@@ -23,7 +23,7 @@ class _FakeTestProvider implements MetadataCapability {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     return [
@@ -31,7 +31,7 @@ class _FakeTestProvider implements MetadataCapability {
         provider: name,
         providerItemId: 'item-1',
         title: 'Search Result: $query',
-        kind: kind == null ? descriptor.kind : catalogMediaKindFromValue(kind),
+        kind: kind ?? descriptor.kind,
       ),
     ];
   }
@@ -39,14 +39,12 @@ class _FakeTestProvider implements MetadataCapability {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    Object? kind,
+    CatalogMediaKind? kind,
   }) async {
     return NormalizedProviderEnvelopeV1(
       provider: name,
       providerItemId: providerItemId,
-      kind: kind is CatalogMediaKind
-          ? kind.apiValue
-          : kind?.toString() ?? descriptor.kind.apiValue,
+      kind: (kind ?? descriptor.kind).apiValue,
       normalized: {'title': 'Item $providerItemId'},
       provenance: const ProviderProvenance(fetchedAt: '2026-08-17T12:00:00Z'),
       images: [

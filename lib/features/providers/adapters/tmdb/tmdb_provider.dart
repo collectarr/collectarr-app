@@ -75,7 +75,7 @@ class TMDbProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
@@ -83,7 +83,7 @@ class TMDbProvider extends ProviderAdapter {
 
     _ensureConfigured();
 
-    final targetKind = _resolveTargetKind(kind);
+    final targetKind = _resolveTargetKind(kind?.apiValue);
     final endpoint = targetKind == 'tv' ? '/search/tv' : '/search/movie';
 
     final queryParams = <String, dynamic>{
@@ -128,12 +128,12 @@ class TMDbProvider extends ProviderAdapter {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     _ensureConfigured();
 
     final (targetKind, tmdbId) =
-        _parseKindAndTmdbId(providerItemId, defaultKind: kind);
+        _parseKindAndTmdbId(providerItemId, defaultKind: kind?.apiValue);
     if (tmdbId == null) {
       throw ProviderNotFoundException(
         provider: name,

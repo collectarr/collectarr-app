@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_mapper.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
@@ -16,7 +17,7 @@ final class MusicMusicBrainzIntegration {
   Future<MusicRelease> fetchRelease(String providerItemId) async {
     final envelope = await _provider.fetchItem(
       providerItemId,
-      kind: 'music',
+      kind: CatalogMediaKind.music,
     );
     return MusicMusicBrainzMapper.fromEnvelope(envelope);
   }
@@ -25,7 +26,11 @@ final class MusicMusicBrainzIntegration {
     String query, {
     int limit = 25,
   }) {
-    return _provider.search(query, kind: 'music', limit: limit);
+    return _provider.search(
+      query,
+      kind: CatalogMediaKind.music,
+      limit: limit,
+    );
   }
 
   MusicRelease mapNative(MusicBrainzRelease release) {
