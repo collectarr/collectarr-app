@@ -13,8 +13,36 @@ final musicDevSeedContributor = DevSeedKindContributor(
   catalogItems: musicSeedCatalogItems,
   enrichItem: enrichMusicSeedItem,
   ownedItems: musicSeedOwnedItems,
+  validateOwned: validateMusicSeedOwned,
   trackingEntries: musicSeedTrackingEntries,
 );
+
+List<String> validateMusicSeedOwned(OwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  if (details is! MusicOwnedDetails) {
+    return ['$prefix: expected MusicOwnedDetails'];
+  }
+  seedRequireText(
+      issues, prefix, 'music.storage_device', details.storageDevice);
+  seedRequireText(issues, prefix, 'music.storage_slot', details.storageSlot);
+  if (details.matrixRunouts.isEmpty) {
+    issues.add('$prefix: music.matrix_runouts must not be empty');
+  }
+  for (var index = 0; index < details.matrixRunouts.length; index++) {
+    final runout = details.matrixRunouts[index];
+    seedRequireText(
+        issues, prefix, 'music.matrix_runouts[$index].side', runout.side);
+    seedRequireText(issues, prefix, 'music.matrix_runouts[$index].runout_text',
+        runout.runoutText);
+    if (runout.mediumIndex < 1) {
+      issues.add(
+          '$prefix: music.matrix_runouts[$index].medium_index must be positive');
+    }
+  }
+  return issues;
+}
 
 CatalogItem enrichMusicSeedItem(CatalogItem item) {
   final music = item.payload['music'];

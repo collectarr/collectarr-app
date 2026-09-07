@@ -21,12 +21,26 @@ final animeDevSeedContributor = DevSeedKindContributor(
   catalogItems: animeSeedCatalogItems,
   enrichItem: enrichAnimeSeedItem,
   ownedItems: animeSeedOwnedItems,
+  validateOwned: validateAnimeSeedOwned,
   trackingEntries: animeSeedTrackingEntries,
   trackingUnits: animeSeedTrackingUnits,
   watchSessions: animeSeedWatchSessions,
   customEpisodes: animeSeedCustomEpisodes,
   seedDatabase: seedAnimeDatabase,
 );
+
+List<String> validateAnimeSeedOwned(OwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  if (details is! AnimeOwnedDetails) {
+    return ['$prefix: expected AnimeOwnedDetails'];
+  }
+  seedRequireText(issues, prefix, 'anime.region', details.region);
+  seedRequireText(issues, prefix, 'anime.packaging', details.packaging);
+  seedRequireText(issues, prefix, 'anime.distributor', details.distributor);
+  return issues;
+}
 
 Future<void> seedAnimeDatabase(
   LocalDatabase db,

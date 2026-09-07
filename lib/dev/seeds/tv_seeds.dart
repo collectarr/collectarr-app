@@ -22,12 +22,26 @@ final tvDevSeedContributor = DevSeedKindContributor(
   catalogItems: tvSeedCatalogItems,
   enrichItem: enrichTvSeedItem,
   ownedItems: tvSeedOwnedItems,
+  validateOwned: validateTvSeedOwned,
   trackingEntries: tvSeedTrackingEntries,
   trackingUnits: tvSeedTrackingUnits,
   watchSessions: tvSeedWatchSessions,
   customEpisodes: tvSeedCustomEpisodes,
   seedDatabase: seedTvDatabase,
 );
+
+List<String> validateTvSeedOwned(OwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  if (details is! TvOwnedDetails) {
+    return ['$prefix: expected TvOwnedDetails'];
+  }
+  seedRequireText(issues, prefix, 'tv.region', details.region);
+  seedRequireText(issues, prefix, 'tv.packaging', details.packaging);
+  seedRequireText(issues, prefix, 'tv.distributor', details.distributor);
+  return issues;
+}
 
 Future<void> seedTvDatabase(
   LocalDatabase db,

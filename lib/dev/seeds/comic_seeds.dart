@@ -19,10 +19,26 @@ final comicDevSeedContributor = DevSeedKindContributor(
   catalogItems: comicSeedCatalogItems,
   enrichItem: enrichComicSeedItem,
   ownedItems: comicSeedOwnedItems,
+  validateOwned: validateComicSeedOwned,
   trackingEntries: comicSeedTrackingEntries,
   trackingUnits: comicSeedTrackingUnits,
   seedDatabase: seedComicDatabase,
 );
+
+List<String> validateComicSeedOwned(OwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  if (details is! ComicOwnedDetails) {
+    return ['$prefix: expected ComicOwnedDetails'];
+  }
+  seedRequireText(issues, prefix, 'comic.raw_or_slabbed', details.rawOrSlabbed);
+  seedRequireText(issues, prefix, 'comic.page_quality', details.pageQuality);
+  if (details.lastBagBoardDate == null) {
+    issues.add('$prefix: comic.last_bag_board_date is required');
+  }
+  return issues;
+}
 
 Future<void> seedComicDatabase(
   LocalDatabase db,

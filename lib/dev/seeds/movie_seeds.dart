@@ -13,8 +13,22 @@ final movieDevSeedContributor = DevSeedKindContributor(
   catalogItems: movieSeedCatalogItems,
   enrichItem: enrichMovieSeedItem,
   ownedItems: movieSeedOwnedItems,
+  validateOwned: validateMovieSeedOwned,
   trackingEntries: movieSeedTrackingEntries,
 );
+
+List<String> validateMovieSeedOwned(OwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  if (details is! MovieOwnedDetails) {
+    return ['$prefix: expected MovieOwnedDetails'];
+  }
+  seedRequireText(issues, prefix, 'movie.region', details.region);
+  seedRequireText(issues, prefix, 'movie.packaging', details.packaging);
+  seedRequireText(issues, prefix, 'movie.distributor', details.distributor);
+  return issues;
+}
 
 CatalogItem enrichMovieSeedItem(CatalogItem item) {
   final releases = [

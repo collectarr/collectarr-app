@@ -13,8 +13,26 @@ final gameDevSeedContributor = DevSeedKindContributor(
   catalogItems: gameSeedCatalogItems,
   enrichItem: enrichGameSeedItem,
   ownedItems: gameSeedOwnedItems,
+  validateOwned: validateGameSeedOwned,
   trackingEntries: gameSeedTrackingEntries,
 );
+
+List<String> validateGameSeedOwned(OwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  if (details is! GameOwnedDetails) {
+    return ['$prefix: expected GameOwnedDetails'];
+  }
+  seedRequireText(issues, prefix, 'game.completeness', details.completeness);
+  seedRequireText(issues, prefix, 'game.core_region', details.coreRegion);
+  seedRequireText(
+      issues, prefix, 'game.pricecharting_id', details.priceChartingId);
+  if (details.hasBox != true || details.hasManual != true) {
+    issues.add('$prefix: game copy must include box and manual');
+  }
+  return issues;
+}
 
 CatalogItem enrichGameSeedItem(CatalogItem item) {
   final platforms = item.payload['platforms'];

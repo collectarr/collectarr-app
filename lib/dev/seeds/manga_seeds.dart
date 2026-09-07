@@ -17,9 +17,26 @@ final mangaDevSeedContributor = DevSeedKindContributor(
   catalogItems: mangaSeedCatalogItems,
   enrichItem: enrichMangaSeedItem,
   ownedItems: mangaSeedOwnedItems,
+  validateOwned: validateMangaSeedOwned,
   trackingEntries: mangaSeedTrackingEntries,
   trackingUnits: mangaSeedTrackingUnits,
 );
+
+List<String> validateMangaSeedOwned(OwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  if (details is! MangaOwnedDetails) {
+    return ['$prefix: expected MangaOwnedDetails'];
+  }
+  seedRequireText(issues, prefix, 'manga.printing', details.printing);
+  seedRequireText(
+      issues, prefix, 'manga.localized_edition', details.localizedEdition);
+  if (!details.dustJacketPresent) {
+    issues.add('$prefix: manga.dust_jacket_present must be true');
+  }
+  return issues;
+}
 
 Iterable<MangaTrackingUnit> mangaSeedTrackingUnits(
   Iterable<CatalogItem> items,

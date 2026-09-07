@@ -16,9 +16,28 @@ final boardgameDevSeedContributor = DevSeedKindContributor(
   catalogItems: boardgameSeedCatalogItems,
   enrichItem: enrichBoardgameSeedItem,
   ownedItems: boardgameSeedOwnedItems,
+  validateOwned: validateBoardgameSeedOwned,
   trackingEntries: boardgameSeedTrackingEntries,
   seedDatabase: seedBoardgameDatabase,
 );
+
+List<String> validateBoardgameSeedOwned(OwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  if (details is! BoardgameOwnedDetails) {
+    return ['$prefix: expected BoardgameOwnedDetails'];
+  }
+  seedRequireText(
+      issues, prefix, 'boardgame.edition_language', details.editionLanguage);
+  seedRequireText(
+      issues, prefix, 'boardgame.edition_region', details.editionRegion);
+  seedRequireText(issues, prefix, 'boardgame.component_condition',
+      details.componentCondition);
+  seedRequireText(issues, prefix, 'boardgame.component_completeness',
+      details.componentCompleteness);
+  return issues;
+}
 
 Future<void> seedBoardgameDatabase(
   LocalDatabase db,

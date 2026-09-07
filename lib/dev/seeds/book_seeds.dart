@@ -15,9 +15,24 @@ final bookDevSeedContributor = DevSeedKindContributor(
   catalogItems: bookSeedCatalogItems,
   enrichItem: enrichBookSeedItem,
   ownedItems: bookSeedOwnedItems,
+  validateOwned: validateBookSeedOwned,
   trackingEntries: bookSeedTrackingEntries,
   trackingUnits: bookSeedTrackingUnits,
 );
+
+List<String> validateBookSeedOwned(OwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  if (details is! BookOwnedDetails) {
+    return ['$prefix: expected BookOwnedDetails'];
+  }
+  seedRequireText(issues, prefix, 'book.signed_by', details.signedBy);
+  if (!details.dustJacketPresent) {
+    issues.add('$prefix: book.dust_jacket_present must be true');
+  }
+  return issues;
+}
 
 Iterable<BookTrackingUnit> bookSeedTrackingUnits(
   Iterable<CatalogItem> items,
