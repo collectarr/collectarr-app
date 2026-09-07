@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 
 abstract final class MangaVocabularyIds {
   static const condition = VocabularyId<String>('manga.condition');
@@ -27,6 +28,81 @@ abstract final class MangaVocabularies {
       valuesFrom: (item) => _ownedValues(item, semanticName),
     );
   }
+
+  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+  ) {
+    return previewPickListOwnedMerge(
+      items: MangaOwnedRepository(db).listActive(),
+      idFrom: (item) => item.id.value,
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+      normalizedSourceValues: normalizedSourceValues,
+    );
+  }
+
+  static Future<void> applyOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) {
+    return applyPickListOwnedMerge(
+      items: MangaOwnedRepository(db).listActive(),
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+      replaceValue: (item, sources, target) =>
+          _replaceOwnedValue(item, semanticName, sources, target),
+      save: MangaOwnedRepository(db).upsert,
+      normalizedSourceValues: normalizedSourceValues,
+      targetValue: targetValue,
+    );
+  }
+
+  static MangaOwnedItem _replaceOwnedValue(
+    MangaOwnedItem item,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) {
+    switch (semanticName) {
+      case 'condition':
+        return item.copyWith(condition: targetValue);
+      case 'grade':
+        return item.copyWith(grade: targetValue);
+      case 'purchase_store':
+        return item.copyWith(purchaseStore: targetValue);
+      case 'sold_to':
+        return item.copyWith(soldTo: targetValue);
+      case 'collection_status':
+        return item.copyWith(collectionStatus: targetValue);
+      case 'tags':
+        return item.copyWith(
+          tags: replacePickListDelimitedValue(
+            item.tags,
+            normalizedSourceValues,
+            targetValue,
+          ),
+        );
+    }
+    final key = _ownedDetailsKey(semanticName);
+    if (key == null) return item;
+    final details = item.details.toJson()..[key] = targetValue;
+    return item.copyWith(details: MangaOwnedDetails.fromJson(details));
+  }
+
+  static String? _ownedDetailsKey(String semanticName) =>
+      switch (semanticName) {
+        'raw_or_slabbed' => 'raw_or_slabbed',
+        'grading_company' => 'grading_company',
+        'grader_notes' => 'grader_notes',
+        'signed_by' => 'signed_by',
+        'label_type' => 'label_type',
+        'custom_label' => 'custom_label',
+        'page_quality' => 'page_quality',
+        'certification_number' => 'certification_number',
+        _ => null,
+      };
 
   static Iterable<String?> _ownedValues(
     MangaOwnedItem item,

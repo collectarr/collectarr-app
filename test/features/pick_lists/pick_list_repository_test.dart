@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_rep
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_merge_service.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -148,5 +149,41 @@ void main() {
     );
 
     expect(counts['publisher-1'], 1);
+  });
+
+  test('owned value merge dispatches to the typed kind repository', () async {
+    await ComicOwnedRepository(db).upsert(
+      ComicOwnedItem(
+        id: const ComicOwnedItemId('owned-merge-1'),
+        catalogRef: const CatalogEntityRef(
+          kind: 'comic',
+          entityType: CatalogEntityType.ownedCopy,
+          id: 'item-merge-1',
+        ),
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 1, 1),
+      ),
+    );
+
+    final service = PickListMergeService(
+      db,
+      contributors: defaultPickListDefinitionContributors,
+    );
+    final preview = await service.previewMerge(
+      listName: 'condition',
+      sourceValues: ['Near Mint'],
+      targetValue: 'Fine',
+      mediaKind: 'comic',
+    );
+
+    expect(preview.affectedCount, 1);
+    await service.applyMerge(preview);
+
+    expect(
+      (await ComicOwnedRepository(db)
+              .findById(const ComicOwnedItemId('owned-merge-1')))
+          ?.condition,
+      'Fine',
+    );
   });
 }

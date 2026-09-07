@@ -27,6 +27,69 @@ abstract final class BookVocabularies {
     );
   }
 
+  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+  ) {
+    return previewPickListOwnedMerge(
+      items: BookOwnedRepository(db).listActive(),
+      idFrom: (item) => item.id.value,
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+      normalizedSourceValues: normalizedSourceValues,
+    );
+  }
+
+  static Future<void> applyOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) {
+    return applyPickListOwnedMerge(
+      items: BookOwnedRepository(db).listActive(),
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+      replaceValue: (item, sources, target) =>
+          _replaceOwnedValue(item, semanticName, sources, target),
+      save: BookOwnedRepository(db).upsert,
+      normalizedSourceValues: normalizedSourceValues,
+      targetValue: targetValue,
+    );
+  }
+
+  static BookOwnedItem _replaceOwnedValue(
+    BookOwnedItem item,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) {
+    switch (semanticName) {
+      case 'condition':
+        return item.copyWith(condition: targetValue);
+      case 'grade':
+        return item.copyWith(grade: targetValue);
+      case 'purchase_store':
+        return item.copyWith(purchaseStore: targetValue);
+      case 'sold_to':
+        return item.copyWith(soldTo: targetValue);
+      case 'collection_status':
+        return item.copyWith(collectionStatus: targetValue);
+      case 'tags':
+        return item.copyWith(
+          tags: replacePickListDelimitedValue(
+            item.tags,
+            normalizedSourceValues,
+            targetValue,
+          ),
+        );
+      case 'signed_by':
+        return item.copyWith(
+          details: item.details.copyWith(signedBy: targetValue),
+        );
+    }
+    return item;
+  }
+
   static Iterable<String?> _ownedValues(
     BookOwnedItem item,
     String semanticName,

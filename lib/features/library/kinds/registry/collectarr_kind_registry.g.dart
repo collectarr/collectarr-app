@@ -769,39 +769,57 @@ const List<PickListDefinitionContributor>
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.anime,
       vocabularies: AnimeVocabularies.all,
-      ownedValueCounter: AnimeVocabularies.countOwnedValue),
+      ownedValueCounter: AnimeVocabularies.countOwnedValue,
+      ownedMergePreviewer: AnimeVocabularies.previewOwnedMerge,
+      ownedMerger: AnimeVocabularies.applyOwnedMerge),
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.boardgame,
       vocabularies: BoardGameVocabularies.all,
-      ownedValueCounter: BoardGameVocabularies.countOwnedValue),
+      ownedValueCounter: BoardGameVocabularies.countOwnedValue,
+      ownedMergePreviewer: BoardGameVocabularies.previewOwnedMerge,
+      ownedMerger: BoardGameVocabularies.applyOwnedMerge),
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.book,
       vocabularies: BookVocabularies.all,
-      ownedValueCounter: BookVocabularies.countOwnedValue),
+      ownedValueCounter: BookVocabularies.countOwnedValue,
+      ownedMergePreviewer: BookVocabularies.previewOwnedMerge,
+      ownedMerger: BookVocabularies.applyOwnedMerge),
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.comic,
       vocabularies: ComicVocabularies.all,
-      ownedValueCounter: ComicVocabularies.countOwnedValue),
+      ownedValueCounter: ComicVocabularies.countOwnedValue,
+      ownedMergePreviewer: ComicVocabularies.previewOwnedMerge,
+      ownedMerger: ComicVocabularies.applyOwnedMerge),
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.game,
       vocabularies: GameVocabularies.all,
-      ownedValueCounter: GameVocabularies.countOwnedValue),
+      ownedValueCounter: GameVocabularies.countOwnedValue,
+      ownedMergePreviewer: GameVocabularies.previewOwnedMerge,
+      ownedMerger: GameVocabularies.applyOwnedMerge),
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.manga,
       vocabularies: MangaVocabularies.all,
-      ownedValueCounter: MangaVocabularies.countOwnedValue),
+      ownedValueCounter: MangaVocabularies.countOwnedValue,
+      ownedMergePreviewer: MangaVocabularies.previewOwnedMerge,
+      ownedMerger: MangaVocabularies.applyOwnedMerge),
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.movie,
       vocabularies: MovieVocabularies.all,
-      ownedValueCounter: MovieVocabularies.countOwnedValue),
+      ownedValueCounter: MovieVocabularies.countOwnedValue,
+      ownedMergePreviewer: MovieVocabularies.previewOwnedMerge,
+      ownedMerger: MovieVocabularies.applyOwnedMerge),
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.music,
       vocabularies: MusicVocabularies.all,
-      ownedValueCounter: MusicVocabularies.countOwnedValue),
+      ownedValueCounter: MusicVocabularies.countOwnedValue,
+      ownedMergePreviewer: MusicVocabularies.previewOwnedMerge,
+      ownedMerger: MusicVocabularies.applyOwnedMerge),
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.tv,
       vocabularies: TvVocabularies.all,
-      ownedValueCounter: TvVocabularies.countOwnedValue),
+      ownedValueCounter: TvVocabularies.countOwnedValue,
+      ownedMergePreviewer: TvVocabularies.previewOwnedMerge,
+      ownedMerger: TvVocabularies.applyOwnedMerge),
 ];
 
 LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {

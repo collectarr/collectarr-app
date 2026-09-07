@@ -10,6 +10,29 @@ typedef PickListOwnedValueCounter = Future<int> Function(
   String normalizedValue,
 );
 
+typedef PickListOwnedMergePreviewer = Future<PickListOwnedMergeResult> Function(
+  LocalDatabase db,
+  String semanticName,
+  Set<String> normalizedSourceValues,
+);
+
+typedef PickListOwnedMerger = Future<void> Function(
+  LocalDatabase db,
+  String semanticName,
+  Set<String> normalizedSourceValues,
+  String targetValue,
+);
+
+final class PickListOwnedMergeResult {
+  const PickListOwnedMergeResult({
+    required this.affectedCount,
+    required this.sampleValues,
+  });
+
+  final int affectedCount;
+  final List<String> sampleValues;
+}
+
 /// Counts a semantic value from a kind-owned collection.
 ///
 /// The host owns only matching mechanics. The [valuesFrom] callback remains
@@ -31,6 +54,73 @@ Future<int> countPickListOwnedValues<T>({
     }
   }
   return count;
+}
+
+Future<PickListOwnedMergeResult> previewPickListOwnedMerge<T>({
+  required Future<List<T>> items,
+  required String Function(T item) idFrom,
+  required Iterable<String?> Function(T item) valuesFrom,
+  required Set<String> normalizedSourceValues,
+}) async {
+  var affectedCount = 0;
+  final sampleValues = <String>[];
+  for (final item in await items) {
+    final matches = valuesFrom(item).any(
+      (value) =>
+          value != null &&
+          normalizedSourceValues.contains(normalizePickListValue(value)),
+    );
+    if (!matches) continue;
+    affectedCount++;
+    if (sampleValues.length < 5) sampleValues.add(idFrom(item));
+  }
+  return PickListOwnedMergeResult(
+    affectedCount: affectedCount,
+    sampleValues: sampleValues,
+  );
+}
+
+Future<void> applyPickListOwnedMerge<T>({
+  required Future<List<T>> items,
+  required Iterable<String?> Function(T item) valuesFrom,
+  required T Function(
+          T item, Set<String> normalizedSourceValues, String targetValue)
+      replaceValue,
+  required Future<void> Function(T item) save,
+  required Set<String> normalizedSourceValues,
+  required String targetValue,
+}) async {
+  for (final item in await items) {
+    final matches = valuesFrom(item).any(
+      (value) =>
+          value != null &&
+          normalizedSourceValues.contains(normalizePickListValue(value)),
+    );
+    if (matches) {
+      await save(replaceValue(item, normalizedSourceValues, targetValue));
+    }
+  }
+}
+
+String? replacePickListDelimitedValue(
+  String? raw,
+  Set<String> normalizedSourceValues,
+  String targetValue,
+) {
+  if (raw == null || raw.trim().isEmpty) return raw;
+  final values = raw
+      .split(',')
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .map(
+        (value) =>
+            normalizedSourceValues.contains(normalizePickListValue(value))
+                ? targetValue
+                : value,
+      )
+      .toList(growable: false);
+  final replaced = values.join(', ');
+  return replaced == raw ? raw : replaced;
 }
 
 /// Projects scalar or multi-value serialized fields into pick-list values.
@@ -64,6 +154,19 @@ abstract interface class PickListDefinitionContributor {
     String normalizedValue,
   );
 
+  Future<PickListOwnedMergeResult> previewOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+  );
+
+  Future<void> applyOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  );
+
   /// Projects catalog metadata into values that the generic pick-list store
   /// may capture. The contributor owns the metadata interpretation.
   Iterable<PickListCatalogValues> catalogValues(Iterable<Object?> metadata);
@@ -83,6 +186,8 @@ final class VocabularyPickListDefinitionContributor
     required this.kind,
     required this.vocabularies,
     this.ownedValueCounter,
+    required this.ownedMergePreviewer,
+    required this.ownedMerger,
   });
 
   @override
@@ -91,6 +196,8 @@ final class VocabularyPickListDefinitionContributor
   final List<VocabularyDefinition<dynamic>> vocabularies;
 
   final PickListOwnedValueCounter? ownedValueCounter;
+  final PickListOwnedMergePreviewer ownedMergePreviewer;
+  final PickListOwnedMerger ownedMerger;
 
   @override
   Future<int> countOwnedValue(
@@ -100,6 +207,25 @@ final class VocabularyPickListDefinitionContributor
   ) {
     return ownedValueCounter?.call(db, semanticName, normalizedValue) ??
         Future.value(0);
+  }
+
+  @override
+  Future<PickListOwnedMergeResult> previewOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+  ) {
+    return ownedMergePreviewer(db, semanticName, normalizedSourceValues);
+  }
+
+  @override
+  Future<void> applyOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) {
+    return ownedMerger(db, semanticName, normalizedSourceValues, targetValue);
   }
 
   @override

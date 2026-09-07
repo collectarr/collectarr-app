@@ -1287,7 +1287,9 @@ void _renderPickListContributors(
       '  VocabularyPickListDefinitionContributor('
       'kind: CatalogMediaKind.${descriptor.folder}, '
       'vocabularies: ${vocabulary.className}.all, '
-      'ownedValueCounter: ${vocabulary.className}.countOwnedValue),',
+      'ownedValueCounter: ${vocabulary.className}.countOwnedValue, '
+      'ownedMergePreviewer: ${vocabulary.className}.previewOwnedMerge, '
+      'ownedMerger: ${vocabulary.className}.applyOwnedMerge),',
     );
   }
   buffer.writeln('];');

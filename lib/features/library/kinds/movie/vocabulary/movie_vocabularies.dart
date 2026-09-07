@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 
 abstract final class MovieVocabularyIds {
   static const condition = VocabularyId<String>('movie.condition');
@@ -29,6 +30,74 @@ abstract final class MovieVocabularies {
       normalizedValue: normalizedValue,
       valuesFrom: (item) => _ownedValues(item, semanticName),
     );
+  }
+
+  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+  ) {
+    return previewPickListOwnedMerge(
+      items: MovieOwnedRepository(db).listActive(),
+      idFrom: (item) => item.id.value,
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+      normalizedSourceValues: normalizedSourceValues,
+    );
+  }
+
+  static Future<void> applyOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) {
+    return applyPickListOwnedMerge(
+      items: MovieOwnedRepository(db).listActive(),
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+      replaceValue: (item, sources, target) =>
+          _replaceOwnedValue(item, semanticName, sources, target),
+      save: MovieOwnedRepository(db).upsert,
+      normalizedSourceValues: normalizedSourceValues,
+      targetValue: targetValue,
+    );
+  }
+
+  static MovieOwnedItem _replaceOwnedValue(
+    MovieOwnedItem item,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) {
+    switch (semanticName) {
+      case 'condition':
+        return item.copyWith(condition: targetValue);
+      case 'grade':
+        return item.copyWith(grade: targetValue);
+      case 'purchase_store':
+        return item.copyWith(purchaseStore: targetValue);
+      case 'sold_to':
+        return item.copyWith(soldTo: targetValue);
+      case 'collection_status':
+        return item.copyWith(collectionStatus: targetValue);
+      case 'tags':
+        return item.copyWith(
+          tags: replacePickListDelimitedValue(
+            item.tags,
+            normalizedSourceValues,
+            targetValue,
+          ),
+        );
+    }
+    final key = switch (semanticName) {
+      'features' => 'features',
+      'region' => 'region',
+      'packaging' => 'packaging',
+      'distributor' => 'distributor',
+      _ => null,
+    };
+    if (key == null) return item;
+    final details = item.details.toJson()..[key] = targetValue;
+    return item.copyWith(details: MovieOwnedDetails.fromJson(details));
   }
 
   static Iterable<String?> _ownedValues(
