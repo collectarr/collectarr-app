@@ -59,7 +59,7 @@ class CatalogEntityRef {
       id.trim().isNotEmpty &&
       entityType != CatalogEntityType.unknown;
 
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return {
       'kind': kind,
       'entity_type': entityType.apiValue,
@@ -68,7 +68,7 @@ class CatalogEntityRef {
     };
   }
 
-  factory CatalogEntityRef.fromJson(Map<String, dynamic> json) {
+  factory CatalogEntityRef.fromJson(Map<String, Object?> json) {
     return CatalogEntityRef(
       kind: json['kind'] as String? ?? 'unknown',
       entityType:
