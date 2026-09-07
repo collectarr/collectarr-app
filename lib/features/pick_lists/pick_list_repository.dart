@@ -431,17 +431,19 @@ class PickListRepository {
     }
     for (final field
         in catalogPayloadFields[semanticName] ?? const <String>[]) {
-      total += await _countCatalogPayloadField(field, normalized);
+      total += await _countCatalogPayloadField(
+        field,
+        normalized,
+        mediaKind: mediaKind,
+      );
     }
-    total += await _countCustomFieldValues(normalized);
+    total += await _countCustomFieldValues(normalized, mediaKind: mediaKind);
     return total;
   }
 
-  Future<int> _countCatalogPayloadField(
-    String fieldName,
-    String normalized,
-  ) async {
-    final items = await LibraryCatalogRepository(_db).findAll();
+  Future<int> _countCatalogPayloadField(String fieldName, String normalized,
+      {String? mediaKind}) async {
+    final items = await LibraryCatalogRepository(_db).findAll(kind: mediaKind);
     var count = 0;
     for (final item in items) {
       final payload = item.payload;
@@ -455,10 +457,24 @@ class PickListRepository {
     return count;
   }
 
-  Future<int> _countCustomFieldValues(String normalized) async {
+  Future<int> _countCustomFieldValues(
+    String normalized, {
+    required String? mediaKind,
+  }) async {
+    final kindFilter = mediaKind ?? '';
     final result = await _db.customSelect(
-      'SELECT COUNT(*) AS count FROM custom_field_values_cache WHERE lower(trim(coalesce(value, \'\'))) = ?',
-      variables: [Variable.withString(normalized)],
+      'SELECT COUNT(*) AS count '
+      'FROM custom_field_values_cache field_values '
+      'LEFT JOIN custom_field_definitions_cache definitions '
+      'ON definitions.id = field_values.field_definition_id '
+      'WHERE lower(trim(coalesce(field_values.value, \'\'))) = ? '
+      'AND (? = \'\' OR definitions.media_kind IS NULL '
+      'OR definitions.media_kind = ?)',
+      variables: [
+        Variable.withString(normalized),
+        Variable.withString(kindFilter),
+        Variable.withString(kindFilter),
+      ],
     ).getSingle();
     return result.read<int>('count');
   }

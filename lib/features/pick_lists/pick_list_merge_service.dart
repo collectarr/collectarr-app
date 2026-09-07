@@ -66,7 +66,18 @@ class PickListMergeService {
       }
     }
     final customRows = await _db.select(_db.customFieldValuesCache).get();
+    final customDefinitions = {
+      for (final definition
+          in await _db.select(_db.customFieldDefinitionsCache).get())
+        definition.id: definition,
+    };
     for (final row in customRows) {
+      if (!_customFieldApplies(
+        customDefinitions[row.fieldDefinitionId],
+        mediaKind,
+      )) {
+        continue;
+      }
       final rowValue = normalizePickListValue(row.value ?? '');
       if (normalizedSources.contains(rowValue)) {
         affected += 1;
@@ -97,7 +108,11 @@ class PickListMergeService {
         sourceSet,
         target,
       );
-      await _mergeCustomFieldValues(sourceSet, target);
+      await _mergeCustomFieldValues(
+        sourceSet,
+        target,
+        mediaKind: preview.mediaKind,
+      );
       final rows = await repository.valuesForList(
         listName: preview.listName,
         mediaKind: preview.mediaKind,
@@ -134,12 +149,21 @@ class PickListMergeService {
     }
   }
 
-  Future<void> _mergeCustomFieldValues(
-    Set<String> sourceSet,
-    String target,
-  ) async {
+  Future<void> _mergeCustomFieldValues(Set<String> sourceSet, String target,
+      {required String? mediaKind}) async {
     final rows = await _db.select(_db.customFieldValuesCache).get();
+    final definitions = {
+      for (final definition
+          in await _db.select(_db.customFieldDefinitionsCache).get())
+        definition.id: definition,
+    };
     for (final row in rows) {
+      if (!_customFieldApplies(
+        definitions[row.fieldDefinitionId],
+        mediaKind,
+      )) {
+        continue;
+      }
       if (!sourceSet.contains(normalizePickListValue(row.value ?? ''))) {
         continue;
       }
@@ -149,5 +173,15 @@ class PickListMergeService {
         CustomFieldValuesCacheCompanion(value: Value(target)),
       );
     }
+  }
+
+  bool _customFieldApplies(
+    CustomFieldDefinitionsCacheData? definition,
+    String? mediaKind,
+  ) {
+    if (mediaKind == null) return true;
+    return definition == null ||
+        definition.mediaKind == null ||
+        definition.mediaKind == mediaKind;
   }
 }
