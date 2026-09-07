@@ -1002,6 +1002,23 @@ void _renderOwnedPersistenceMaps(
   List<_KindDescriptor> descriptors,
 ) {
   buffer.writeln(
+    'final collectarrTypedOwnedItemPersisters = '
+    '<CatalogMediaKind, Future<void> Function(LocalDatabase, Object)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedModel = persistence.ownedModel.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (database, item) => '
+      '$repository(database).upsert(item as $ownedModel),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
     'final collectarrOwnedItemPersisters = '
     '<CatalogMediaKind, Future<void> Function(LocalDatabase, OwnedItem)>{',
   );

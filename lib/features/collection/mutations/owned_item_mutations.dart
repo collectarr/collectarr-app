@@ -103,7 +103,7 @@ final class OwnedItemMutations {
         // aggregate crosses into the persistence/sync serializer only here.
         final ownedItem = serializer(typedOwnedItem);
 
-        await ownedItems.upsert(ownedItem);
+        await ownedItems.upsertTyped(mediaKind, typedOwnedItem);
         await syncQueue
             .enqueue(_syncChangeForOwnedItem(ownedItem, 'upsert', now));
 
@@ -179,7 +179,7 @@ final class OwnedItemMutations {
         // boundary while collection reads are migrated to typed aggregates.
         final updatedItem = serializer(typedUpdatedItem as Object);
 
-        await ownedItems.upsert(updatedItem);
+        await ownedItems.upsertTyped(mediaKind, typedUpdatedItem);
         await syncQueue
             .enqueue(_syncChangeForOwnedItem(updatedItem, 'upsert', now));
         return updatedItem;

@@ -399,6 +399,28 @@ final collectarrKindMetadataDecoders =
   CatalogMediaKind.music: MusicCatalogMetadata.fromJson,
   CatalogMediaKind.tv: TvSeriesMetadata.fromJson,
 };
+final collectarrTypedOwnedItemPersisters =
+    <CatalogMediaKind, Future<void> Function(LocalDatabase, Object)>{
+  CatalogMediaKind.anime: (database, item) =>
+      AnimeOwnedRepository(database).upsert(item as AnimeOwnedItem),
+  CatalogMediaKind.boardgame: (database, item) =>
+      BoardGameOwnedRepository(database).upsert(item as BoardGameOwnedItem),
+  CatalogMediaKind.book: (database, item) =>
+      BookOwnedRepository(database).upsert(item as BookOwnedItem),
+  CatalogMediaKind.comic: (database, item) =>
+      ComicOwnedRepository(database).upsert(item as ComicOwnedItem),
+  CatalogMediaKind.game: (database, item) =>
+      GameOwnedRepository(database).upsert(item as GameOwnedItem),
+  CatalogMediaKind.manga: (database, item) =>
+      MangaOwnedRepository(database).upsert(item as MangaOwnedItem),
+  CatalogMediaKind.movie: (database, item) =>
+      MovieOwnedRepository(database).upsert(item as MovieOwnedItem),
+  CatalogMediaKind.music: (database, item) =>
+      MusicOwnedRepository(database).upsert(item as MusicOwnedItem),
+  CatalogMediaKind.tv: (database, item) =>
+      TvOwnedRepository(database).upsert(item as TvOwnedItem),
+};
+
 final collectarrOwnedItemPersisters =
     <CatalogMediaKind, Future<void> Function(LocalDatabase, OwnedItem)>{
   CatalogMediaKind.anime: (database, item) => AnimeOwnedRepository(database)

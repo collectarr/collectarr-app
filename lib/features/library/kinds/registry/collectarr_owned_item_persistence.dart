@@ -8,6 +8,10 @@ typedef _OwnedItemPersister = Future<void> Function(
   LocalDatabase database,
   OwnedItem item,
 );
+typedef _TypedOwnedItemPersister = Future<void> Function(
+  LocalDatabase database,
+  Object item,
+);
 typedef _OwnedItemReader = Future<List<OwnedItem>> Function(
   LocalDatabase database,
 );
@@ -31,18 +35,31 @@ typedef _OwnedItemDeleter = Future<void> Function(
 /// it does not import or enumerate concrete kinds manually.
 final class CollectarrOwnedItemPersistence {
   CollectarrOwnedItemPersistence(this._database)
-      : _persisters = collectarrOwnedItemPersisters,
+      : _typedPersisters = collectarrTypedOwnedItemPersisters,
+        _persisters = collectarrOwnedItemPersisters,
         _readers = collectarrOwnedItemReaders,
         _summaryReaders = collectarrOwnedItemSummaryReaders,
         _finders = collectarrOwnedItemFinders,
         _deleters = collectarrOwnedItemDeleters;
 
   final LocalDatabase _database;
+  final Map<CatalogMediaKind, _TypedOwnedItemPersister> _typedPersisters;
   final Map<CatalogMediaKind, _OwnedItemPersister> _persisters;
   final Map<CatalogMediaKind, _OwnedItemReader> _readers;
   final Map<CatalogMediaKind, _OwnedItemSummaryReader> _summaryReaders;
   final Map<CatalogMediaKind, _OwnedItemFinder> _finders;
   final Map<CatalogMediaKind, _OwnedItemDeleter> _deleters;
+
+  Future<void> upsertTyped(CatalogMediaKind kind, Object item) async {
+    final persister = _typedPersisters[kind];
+    if (persister == null) {
+      throw StateError(
+        'Cannot persist typed owned item without a supported kind: '
+        '${kind.apiValue}',
+      );
+    }
+    await persister(_database, item);
+  }
 
   Future<void> upsert(OwnedItem item) async {
     final persister = _persisters[item.catalogRef.mediaKind];
