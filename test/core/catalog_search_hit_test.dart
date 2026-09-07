@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_search_hit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -31,16 +31,18 @@ void main() {
     expect(hit.toJson().containsKey('payload'), isFalse);
   });
 
-  test('builds a work ref from a typed catalog item', () {
-    final item = CatalogItemDto.fromJson({
-      'id': 'book-1',
-      'kind': 'book',
-      'title': 'Dune',
-      'item_number': '1',
-      'cover_image_url': 'https://example.test/dune.jpg',
-    });
-
-    final hit = CatalogSearchHit.fromCatalogItem(item);
+  test('keeps a typed work reference in the structural projection', () {
+    final hit = CatalogSearchHit(
+      ref: const CatalogEntityRef(
+        kind: 'book',
+        entityType: CatalogEntityType.work,
+        id: 'book-1',
+      ),
+      kind: CatalogMediaKind.book,
+      title: 'Dune',
+      subtitle: '1',
+      imageUrl: 'https://example.test/dune.jpg',
+    );
 
     expect(hit.ref, isA<CatalogEntityRef>());
     expect(hit.ref.kind, 'book');

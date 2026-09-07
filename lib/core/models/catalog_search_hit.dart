@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/foundation.dart';
 
 /// The intentionally small result shape used when a search crosses kinds.
@@ -15,16 +15,6 @@ final class CatalogSearchHit {
     this.subtitle,
     this.imageUrl,
   });
-
-  factory CatalogSearchHit.fromCatalogItem(CatalogItemDto item) {
-    return CatalogSearchHit(
-      ref: item.catalogRef,
-      kind: item.mediaKind,
-      title: item.resolvedDisplayTitle,
-      subtitle: item.itemNumber ?? item.editionTitle,
-      imageUrl: item.displayCoverUrl,
-    );
-  }
 
   factory CatalogSearchHit.fromJson(Map<String, dynamic> json) {
     final id = json['id']?.toString().trim() ?? '';
