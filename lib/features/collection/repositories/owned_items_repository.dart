@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_
 
 /// Cross-kind read/write host backed by each kind's complete owned table.
 ///
-/// Collection orchestration keeps common writes for now, while read summaries
-/// are projected directly from the owning kind tables. No universal owned
-/// table or serialized details payload exists here.
+/// Typed aggregates are the canonical persistence path. Common projections
+/// remain only for mixed/global views until those callers accept the
+/// structural summary contracts directly.
 final class OwnedItemsRepository {
   OwnedItemsRepository(LocalDatabase database)
       : _persistence = CollectarrOwnedItemPersistence(database);
@@ -29,6 +29,17 @@ final class OwnedItemsRepository {
   }
 
   Future<OwnedItem?> findById(String id) => _persistence.findById(id);
+
+  Future<(CatalogMediaKind kind, Object item)?> findTypedById(String id) {
+    return _persistence.findTypedById(id);
+  }
+
+  ({Map<String, dynamic> payload, bool isDeleted}) syncPayloadForTyped(
+    CatalogMediaKind kind,
+    Object item,
+  ) {
+    return _persistence.syncPayloadForTyped(kind, item);
+  }
 
   Future<List<OwnedItem>> findActiveByItemIds(Iterable<String> itemIds) {
     return _persistence.findActiveByItemIds(itemIds);

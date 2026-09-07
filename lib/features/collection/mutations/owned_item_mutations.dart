@@ -105,8 +105,15 @@ final class OwnedItemMutations {
         final ownedItem = serializer(typedOwnedItem);
 
         await ownedItems.upsertTyped(mediaKind, typedOwnedItem);
-        await syncQueue
-            .enqueue(_syncChangeForOwnedItem(ownedItem, 'upsert', now));
+        await syncQueue.enqueue(
+          _syncChangeForTypedOwnedItem(
+            mediaKind,
+            typedOwnedItem,
+            newItemId,
+            'upsert',
+            now,
+          ),
+        );
 
         if (existingCatalog != null) {
           await syncQueue
@@ -148,26 +155,26 @@ final class OwnedItemMutations {
 
     final updated = await mutationRunner.run(
       action: () async {
-        final existing = await ownedItems.findById(command.ownedItemId);
-        if (existing == null) {
+        final typedExistingResult =
+            await ownedItems.findTypedById(command.ownedItemId);
+        if (typedExistingResult == null) {
           throw StateError('OwnedItem not found: ${command.ownedItemId}');
         }
 
         final typedPayload = typedCommand.payload;
-        final mediaKind = existing.catalogRef.mediaKind;
-        final deserializer = collectarrOwnedItemDeserializers[mediaKind];
+        final mediaKind = typedExistingResult.$1;
+        final typedExisting = typedExistingResult.$2;
         final serializer = collectarrOwnedItemSerializers[mediaKind];
-        if (deserializer == null || serializer == null) {
+        if (serializer == null) {
           throw StateError(
             'Cannot resolve typed owned boundary for '
-            '${existing.catalogRef.kind}: ${existing.id}',
+            '${mediaKind.apiValue}: ${command.ownedItemId}',
           );
         }
-        final typedExisting = deserializer(existing);
         if (!typedPayload.canApplyTo(typedExisting)) {
           throw StateError(
             'Owned update payload does not belong to '
-            '${existing.catalogRef.kind}: ${existing.id}',
+            '${mediaKind.apiValue}: ${command.ownedItemId}',
           );
         }
         final typedUpdatedItem = typedPayload.applyTo(
@@ -176,13 +183,20 @@ final class OwnedItemMutations {
           fallbackOwnerUserId: userId,
           fallbackOwnerLabel: userEmail,
         );
-        // The common model remains only at this explicit persistence/sync
-        // boundary while collection reads are migrated to typed aggregates.
+        // The common model remains only at this explicit return projection;
+        // mutation and sync use the typed aggregate directly.
         final updatedItem = serializer(typedUpdatedItem as Object);
 
         await ownedItems.upsertTyped(mediaKind, typedUpdatedItem);
-        await syncQueue
-            .enqueue(_syncChangeForOwnedItem(updatedItem, 'upsert', now));
+        await syncQueue.enqueue(
+          _syncChangeForTypedOwnedItem(
+            mediaKind,
+            typedUpdatedItem,
+            command.ownedItemId,
+            'upsert',
+            now,
+          ),
+        );
         return updatedItem;
       },
       eventsToEmit: [OwnedItemUpdated(command.ownedItemId)],
@@ -230,14 +244,16 @@ final class OwnedItemMutations {
 
   Future<void> removeItem(OwnedItemRef ref) async {
     final now = DateTime.now().toUtc();
-    final existing = await ownedItems.findById(ref.id.value);
-    if (existing == null) return;
+    final typedExisting = await ownedItems.findTypedById(ref.id.value);
+    if (typedExisting == null) return;
     await mutationRunner.run(
       action: () async {
         await ownedItems.markDeletedByRef(ref, now);
         await syncQueue.enqueue(
-          _syncChangeForOwnedItem(
-            existing.copyWith(updatedAt: now, deletedAt: now),
+          _syncChangeForTypedOwnedItem(
+            typedExisting.$1,
+            typedExisting.$2,
+            ref.id.value,
             'delete',
             now,
           ),
@@ -324,14 +340,20 @@ final class OwnedItemMutations {
     return catalogRef;
   }
 
-  SyncChange _syncChangeForOwnedItem(
-      OwnedItem item, String action, DateTime now) {
+  SyncChange _syncChangeForTypedOwnedItem(
+    CatalogMediaKind kind,
+    Object item,
+    String id,
+    String action,
+    DateTime now,
+  ) {
+    final serialized = ownedItems.syncPayloadForTyped(kind, item);
     return SyncChange(
-      id: 'owned_item:${item.id}:$action:${now.millisecondsSinceEpoch}',
+      id: 'owned_item:$id:$action:${now.millisecondsSinceEpoch}',
       entityType: 'owned_item',
-      entityId: item.id,
+      entityId: id,
       action: action,
-      payload: item.toSyncPayload(),
+      payload: serialized.payload,
       clientChangedAt: now,
     );
   }

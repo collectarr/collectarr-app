@@ -82,6 +82,24 @@ final class CollectarrOwnedItemPersistence {
     await persister(_database, item);
   }
 
+  Future<(CatalogMediaKind kind, Object item)?> findTypedById(String id) {
+    return collectarrFindTypedOwnedItem(_database, id);
+  }
+
+  ({Map<String, dynamic> payload, bool isDeleted}) syncPayloadForTyped(
+    CatalogMediaKind kind,
+    Object item,
+  ) {
+    final serializer = collectarrTypedOwnedItemSyncSerializers[kind];
+    if (serializer == null) {
+      throw StateError(
+        'Cannot serialize typed owned item without a supported kind: '
+        '${kind.apiValue}',
+      );
+    }
+    return serializer(item);
+  }
+
   Future<void> upsert(OwnedItem item) async {
     final persister = _persisters[item.catalogRef.mediaKind];
     if (persister == null) {
