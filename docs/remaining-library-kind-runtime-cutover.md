@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-Baseline HEAD: `689461c5` on 2026-09-07.
+Baseline HEAD: `c0f255ab` on 2026-09-07.
 
 Generated registration is compile-time discovery of the nine kind modules. No
 runtime reflection or manual per-kind import list is required. The generated
@@ -21,6 +21,14 @@ registry is a composition root only.
   serialization;
 - deletion now dispatches by `OwnedItemRef` to typed repositories; common
   deletion input has been removed from collection mutation callers;
+- location assignment and cleanup now use `OwnedItemSummary` plus typed
+  per-kind location updaters; LocationRepository no longer reads common
+  Owned fields;
+- tracking target resolution now uses `OwnedItemSummary`; TrackingMutations no
+  longer reads the common Owned aggregate for catalog identity;
+- Pick List owned-value usage counts now dispatch through generated kind-owned
+  vocabulary contributors; the generic host no longer reads common Owned
+  fields or detail payloads;
 - generic facet definition ownership;
 - test `CatalogMediaKind` switches in the migrated contract fixtures;
 - common seed graph kind switches and manual seed contributor imports;
